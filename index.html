@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- PWA / iPhone 加入主畫面 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- theme-color 由 app.js 依 ALBUM_CONFIG.theme.themeColor 覆寫 -->
+<meta name="theme-color" content="#0d0a12">
+<!-- 標題與 icon 由 app.js 從 config 填入 -->
+<title>Album App</title>
+<link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/cover.png">
+
+<!-- 字體（想換字體就改這行 + styles.css 的 --font-* 變數） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="stage">
+
+  <!-- ================= PLAYER（聽歌）================= -->
+  <section id="screen-player" class="screen active">
+    <div class="player-fold">
+
+      <!-- 封面（換圖：album-config.js → coverImage） -->
+      <div class="cover-card" id="cover-card">
+        <img id="cover-img" src="" alt="">
+        <video id="cover-video" autoplay muted loop playsinline webkit-playsinline></video>
+        <div class="cover-shade"></div>
+        <div class="cover-titles">
+          <div class="cover-eyebrow" id="cover-eyebrow"></div>
+          <div class="cover-title-en" id="cover-title-en"></div>
+        </div>
+      </div>
+
+      <!-- Now Playing 毛玻璃卡片 -->
+      <div class="np-card">
+        <div class="np-head">
+          <div style="flex:1;min-width:0">
+            <div class="np-label" id="np-label"></div>
+            <div class="np-title" id="np-title">—</div>
+            <div class="np-sub" id="np-sub"></div>
+          </div>
+          <div class="np-actions">
+            <!-- 歌詞按鈕（這首歌沒歌詞時 app.js 會自動隱藏） -->
+            <button class="icon-round" id="btn-lyrics" title="歌詞">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
+            </button>
+            <!-- 心動收藏 -->
+            <button class="icon-round" id="btn-heart" title="收藏這一刻">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 進度條（可點、可拖曳） -->
+        <div class="prog" id="prog">
+          <div class="prog-fill" id="prog-fill"></div>
+          <div class="prog-glow" id="prog-glow"></div>
+          <div class="prog-dot" id="prog-dot"></div>
+        </div>
+        <div class="np-times"><span id="t-cur">0:00</span><span id="t-dur">0:00</span></div>
+
+        <!-- 控制鍵 -->
+        <div class="np-controls">
+          <button class="btn-ghost" id="btn-prev" title="上一首">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button class="btn-play" id="btn-play" title="播放 / 暫停">
+            <svg width="23" height="23" viewBox="0 0 24 24"><path id="play-icon-path" d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="btn-ghost" id="btn-next" title="下一首">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+        </div>
+
+        <!-- Next Scene → 打開 Bottom Sheet 曲目表 -->
+        <div class="np-next" id="btn-open-sheet">
+          <span id="next-scene-label"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 完整曲目列表（app.js 依 config.tracks 產生） -->
+    <div class="tracklist-block">
+      <div class="tracklist-caption" id="tracklist-caption"></div>
+      <div id="tracklist"></div>
+    </div>
+  </section>
+
+  <!-- ================= PURCHASE（付費解鎖）================= -->
+  <section id="screen-purchase" class="screen screen-sub">
+    <div class="page-titles">
+      <div class="page-title-en" id="purchase-title-en"></div>
+      <div class="page-title-tc" id="purchase-title-tc"></div>
+      <div class="page-note" id="purchase-note"></div>
+    </div>
+    <!-- 方案卡（app.js 依 config.payment 產生） -->
+    <div class="plans" id="plans"></div>
+    <div class="cta-block">
+      <button class="btn-primary" id="btn-checkout"></button>
+      <button class="btn-outline" id="btn-goto-unlock">已經購買？輸入兌換碼</button>
+    </div>
+  </section>
+
+  <!-- ================= UNLOCK（秘密 · 兌換）================= -->
+  <section id="screen-unlock" class="screen screen-sub">
+    <div class="page-titles">
+      <div class="page-title-en" id="unlock-title-en"></div>
+      <div class="page-title-tc" id="unlock-subtitle" style="font-size:14px;color:rgba(255,255,255,.6);letter-spacing:3px"></div>
+    </div>
+
+    <!-- 未解鎖：email + code 表單 -->
+    <div id="unlock-form-view">
+      <div style="text-align:center;padding:26px 28px 0">
+        <div class="unlock-lock-badge">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+        </div>
+        <div class="page-note" style="margin-top:0;padding:0 10px">購買後兌換碼會寄到信箱，請用「購買時的 email」解鎖完整專輯</div>
+      </div>
+      <div class="form-block">
+        <label class="form-label" for="in-email">EMAIL</label>
+        <input class="form-input" id="in-email" type="email" placeholder="you@example.com" autocomplete="email">
+        <label class="form-label" for="in-code">兌換碼 · CODE</label>
+        <input class="form-input" id="in-code" type="text" placeholder="" autocomplete="off" style="margin-bottom:22px">
+        <button class="btn-primary" id="btn-redeem">解鎖</button>
+        <div class="form-hint" id="btn-goto-purchase">還沒購買？<b>看方案 →</b></div>
+      </div>
+    </div>
+
+    <!-- 已解鎖 -->
+    <div id="unlock-done-view" class="hidden">
+      <div class="unlocked-card">
+        <div class="unlocked-check">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="unlocked-eyebrow">FULL ALBUM UNLOCKED</div>
+        <div class="unlocked-title" id="unlocked-title"></div>
+        <div class="page-note" id="unlocked-desc" style="margin-top:8px"></div>
+        <div class="unlocked-actions">
+          <button class="btn-chip" id="btn-goto-player">前往聽歌 →</button>
+          <a class="btn-chip grad hidden" id="btn-wav" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下載 WAV 無損 ↗
+          </a>
+        </div>
+        <div class="unlocked-note" id="unlocked-plan-note"></div>
+        <div class="unlocked-reset" id="btn-reset-unlock">重設解鎖（測試用）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MOOD WALL（心情牆）================= -->
+  <section id="screen-mood" class="screen screen-sub">
+    <div class="page-titles">
+      <div style="font-family:var(--font-label);font-weight:700;font-size:23px;letter-spacing:3px" id="mood-heading"></div>
+      <div class="page-title-tc" id="mood-subheading" style="font-size:13px;color:rgba(255,255,255,.65);margin-top:12px;letter-spacing:1px;line-height:1.7"></div>
+      <div style="font-family:var(--font-label);font-size:10px;letter-spacing:3px;color:var(--primary);margin-top:7px;text-transform:uppercase" id="mood-eyebrow"></div>
+    </div>
+    <div class="mood-count">今晚有 <b id="mood-count">0</b> 個人，把秘密留在這裡。</div>
+    <div class="mood-form">
+      <input class="form-input" id="mood-name" type="text" placeholder="你的暱稱" maxlength="16" autocomplete="off">
+      <div class="mood-tags" id="mood-tags"></div>
+      <textarea class="mood-textarea" id="mood-text" maxlength="80" placeholder="現在聽這首歌，你想留下什麼心情？"></textarea>
+      <div class="mood-chars"><span id="mood-chars">0</span> / 80</div>
+      <div class="mood-err hidden" id="mood-err">先寫下一點心情吧。</div>
+      <button class="btn-primary mood-submit" id="btn-mood-submit">留下心情</button>
+    </div>
+    <div class="mood-notes" id="mood-notes"></div>
+  </section>
+
+  <!-- ================= BOTTOM SHEET（曲目表，可拖曳關閉）================= -->
+  <div id="sheet-backdrop" class="hidden"></div>
+  <div id="sheet" class="hidden">
+    <div class="sheet-grabber" id="sheet-grabber"></div>
+    <div class="sheet-head">
+      <div>
+        <div class="sheet-eyebrow">Track List</div>
+        <div class="sheet-title" id="sheet-title"></div>
+      </div>
+      <button class="sheet-close" id="btn-close-sheet">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sheet-list" id="sheet-list"></div>
+  </div>
+
+  <!-- ================= LYRICS OVERLAY ================= -->
+  <div id="lyrics-overlay" class="hidden">
+    <div class="lyrics-head">
+      <div>
+        <div class="sheet-eyebrow" id="lyrics-eyebrow">Lyrics</div>
+        <div class="sheet-title" id="lyrics-title"></div>
+      </div>
+      <button class="sheet-close" id="btn-close-lyrics">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="lyrics-body" id="lyrics-body"></div>
+  </div>
+
+  <!-- ================= FLOATING ISLAND NAV ================= -->
+  <nav id="nav-wrap">
+    <div id="nav">
+      <div id="nav-ind"></div>
+      <button class="navbtn active" data-screen="player">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
+      <button class="navbtn" data-screen="purchase">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
+      <button class="navbtn" data-screen="unlock">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
+      <button class="navbtn" data-screen="mood">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- TOAST + 特效層 -->
+  <div id="toast"></div>
+  <div id="fx-layer"></div>
+
+</div>
+
+<!-- 專輯資料（換專輯只改這個檔）→ 再載入引擎 -->
+<script src="album-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

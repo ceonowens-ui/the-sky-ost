@@ -1,0 +1,20 @@
+name = "the-sky-ost-api"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+# KV：the-sky-ost CODES（已在 Cloudflare 建立好）
+kv_namespaces = [
+  { binding = "CODES", id = "9babe85b9b9d49ad980dae058e529467" }
+]
+
+# R2：the-sky-audio（已在 Cloudflare 建立好，私有音檔放這裡）
+[[r2_buckets]]
+binding = "AUDIO"
+bucket_name = "the-sky-audio"
+
+# 以下四個是 secrets，不要寫在這個檔案裡。
+# 部署完 Worker 之後，在終端機裡分別執行：
+#   wrangler secret put STRIPE_WEBHOOK_SECRET
+#   wrangler secret put RESEND_API_KEY
+#   wrangler secret put RESEND_FROM        (填 "THE SKY <noreply@ceon0693.uk>")
+#   wrangler secret put ALLOWED_ORIGINS    (填你的 GitHub Pages 網址，例如 https://ceonowens-ui.github.io)
