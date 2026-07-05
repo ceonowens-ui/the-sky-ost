@@ -52,16 +52,6 @@ html, body {
   overflow: hidden;
   background: var(--bg);
 }
-/* 手機（<520px）：不要用 vh/dvh 算高度，直接 fixed 釘滿整個視窗。
-   iOS Safari 網址列收合/展開時 dvh 會跟實際可視區對不上，造成底部黑 bar、
-   浮動 nav 浮到半空中。fixed + inset:0 永遠貼齊真正的畫面四邊
-   （參照《手機底部黑bar-解法小抄》：手機版鋪滿、不留假外框）。 */
-@media (max-width: 519.98px) {
-  /* --vvh 由 app.js 用 visualViewport 即時量測（真正看得到的高度），
-     iOS Safari / PWA 對 dvh、fixed 的回報不一致時仍然正確貼底 */
-  #stage { position: fixed; top: 0; left: 0; right: 0;
-           height: 100dvh; height: var(--vvh, 100dvh); }
-}
 @media (min-width: 520px) {
   body { display: flex; align-items: center; justify-content: center;
          background: radial-gradient(130% 100% at 50% -5%, var(--bg-top), #060409 60%); }
@@ -80,15 +70,11 @@ html, body {
  * PLAYER
  * =================================================================== */
 #screen-player { background: var(--bg); }
-/* fold 不再撐滿 100% 視窗：曲目清單直接接在 NP 卡下面、一路貼到底 */
-.player-fold { display: flex; flex-direction: column; }
+.player-fold { height: 100%; min-height: 520px; display: flex; flex-direction: column; }
 
 /* 封面：圓角長方形 + 上方留白（DESIGN LOCK：不要改成貼頂滿版） */
 .cover-card {
-  position: relative; flex: none; overflow: hidden;
-  height: 46vh;              /* fallback */
-  height: min(46dvh, 430px); /* iPhone：dvh 蓋掉 vh */
-  min-height: 240px;
+  position: relative; flex: 1; min-height: 240px; overflow: hidden;
   margin: calc(16px + env(safe-area-inset-top)) 12px 0;
   border-radius: 28px;
   box-shadow: 0 22px 50px rgba(0,0,0,.58), 0 5px 16px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.06);
@@ -122,7 +108,7 @@ html, body {
 /* Now Playing：毛玻璃卡片，往上疊在封面（DESIGN LOCK） */
 .np-card {
   position: relative; z-index: 3;
-  margin: -52px 18px 0; /* 底部不留死空隙，曲目清單直接貼上來 */
+  margin: -52px 18px calc(86px + env(safe-area-inset-bottom));
   padding: 12px 18px 4px;
   background: var(--surface);
   backdrop-filter: blur(22px);
@@ -199,11 +185,12 @@ html, body {
 
 /* 曲目列表（fold 之下） */
 .tracklist-block { background: var(--bg);
-                   /* 曲目清單直接接在 NP 卡下方、貼到畫面底；
-                      底部 padding 預留浮動 nav + home indicator 的高度，
-                      捲到最底時最後一首不會被 nav 蓋住。 */
-                   margin-top: 14px;
-                   padding: 0 16px calc(96px + env(safe-area-inset-bottom)); }
+                   /* 依照《播放器設計系統－完整規格》：版面結構圖裡 NP 卡下面
+                      直接就是浮動 nav，曲目清單是靠 Next Scene 打開 Bottom Sheet
+                      看，不是在主畫面用負 margin 「偷跑」出來。這裡不做任何負值
+                      上拉，避免跟 nav 佔用的區域打架。 */
+                   margin-top: 0;
+                   padding: 18px 16px calc(120px + env(safe-area-inset-bottom)); }
 .tracklist-caption { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
                      color: rgba(255,255,255,.5); text-transform: uppercase; padding: 0 12px 8px; }
 .track-row { display: flex; align-items: center; gap: 13px; padding: 10px 12px;
@@ -530,3 +517,9 @@ html, body {
                        18% { opacity: .95; transform: translate(-50%,-50%) scale(var(--s)) rotate(0); }
                        100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% - var(--rise))) scale(var(--s)) rotate(var(--r2)); } }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 30% { transform: scale(1.22); } 55% { transform: scale(1); } }
+
+/* ===== 依《播放器設計系統-完整規格》第 3 節 =====
+   主畫面：封面 -> NP 卡 -> 浮動 nav。曲目清單只透過
+   Next Signal 打開 Bottom Sheet，不出現在主畫面。 */
+.tracklist-block { display: none; }
+#screen-player { overflow: hidden; }
