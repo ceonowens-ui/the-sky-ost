@@ -1,5 +1,6 @@
-<<<<<<< HEAD
-# Album App Template
+# THE SKY — Album App
+
+成晞 Chance《THE SKY》數位專輯播放器（基於 Album App Template）
 
 可重複套用的付費數位專輯 / OST 播放器模板。
 以《秘密關係》Secret Lover 實測過的版本為基礎，抽掉所有硬寫死的資料。
@@ -86,6 +87,3 @@ Push 後 rebuild 可能要 1–8 分鐘，驗證時加 `?cb=時間戳` 避免 CD
 - `app.js` 歌詞 fetch 處已標記同步歌詞（LRC）擴充點
 - 多專輯：每張專輯一個資料夾（各自的 config + assets），Worker 可共用
   （PROTECTED_FILES 用不同前綴區分，如 `album2/03.mp3`）
-=======
-# the-sky-ost
->>>>>>> origin/main

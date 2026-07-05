@@ -102,6 +102,36 @@
   $("mood-subheading").textContent = (CFG.moodWall || {}).subheading || "";
   $("mood-eyebrow").textContent = (CFG.moodWall || {}).eyebrow || "";
   (function () {
+    var GAL = CFG.gallery || {};
+    if (GAL.heading != null) $("gallery-heading").textContent = GAL.heading;
+    $("gallery-subheading").textContent = GAL.subheading || "";
+    var photos = GAL.photos || [];
+    var scroll = $("gallery-scroll"), dots = $("gallery-dots");
+    scroll.innerHTML = photos.map(function (p) {
+      return '<div class="gallery-slide"><img src="' + esc(p.src) + '" alt="">' +
+        '<div class="gallery-shade"></div>' +
+        (p.caption ? '<div class="gallery-caption">' + esc(p.caption) + '</div>' : "") +
+        "</div>";
+    }).join("");
+    dots.innerHTML = photos.map(function (_, i) {
+      return '<div class="gallery-dot' + (i === 0 ? " active" : "") + '"></div>';
+    }).join("");
+    var dotEls = Array.prototype.slice.call(dots.children);
+    var slideEls = Array.prototype.slice.call(scroll.children);
+    if (slideEls.length) {
+      scroll.addEventListener("scroll", function () {
+        var center = scroll.scrollLeft + scroll.clientWidth / 2;
+        var closest = 0, best = Infinity;
+        slideEls.forEach(function (el, i) {
+          var mid = el.offsetLeft + el.offsetWidth / 2;
+          var d = Math.abs(mid - center);
+          if (d < best) { best = d; closest = i; }
+        });
+        dotEls.forEach(function (d, i) { d.classList.toggle("active", i === closest); });
+      }, { passive: true });
+    }
+  })();
+  (function () {
     var labels = STR.navTabs || ["聽歌", "完整版", "秘密", "心情牆"];
     document.querySelectorAll("#nav .navbtn .navlbl").forEach(function (el, i) { el.textContent = labels[i] || ""; });
   })();
@@ -392,11 +422,11 @@
 
   /* ---------- 分頁切換 + Floating Island Nav ---------- */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn"));
-  var ORDER = ["player", "purchase", "unlock", "mood"];
+  var ORDER = ["player", "purchase", "unlock", "mood", "gallery"];
   function go(screen) {
     state.screen = screen;
     closeSheet();
-    ["player", "purchase", "unlock", "mood"].forEach(function (s) {
+    ORDER.forEach(function (s) {
       $("screen-" + s).classList.toggle("active", s === screen);
     });
     var i = ORDER.indexOf(screen);

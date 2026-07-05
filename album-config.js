@@ -108,9 +108,23 @@ const ALBUM_CONFIG = {
     ],
   },
 
+  /* ---- 寫真牆（滑動相簿，橫向 swipe 一次一張）--------------------- *
+   * photos[].src 換成真正的照片檔（放 assets/images/gallery/），
+   * 目前先用封面圖佔位，記得換成真的照片（檔名維持 01.jpg/02.jpg/03.jpg 即可）。
+   * ---------------------------------------------------------------- */
+  gallery: {
+    heading: "GALLERY",
+    subheading: "成晞 Chance · 寫真牆",
+    photos: [
+      { src: "assets/images/gallery/01.jpg", caption: "" },
+      { src: "assets/images/gallery/02.jpg", caption: "" },
+      { src: "assets/images/gallery/03.jpg", caption: "" },
+    ],
+  },
+
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["聽歌", "完整版", "解鎖", "心情牆"],
+    navTabs: ["聽歌", "完整版", "解鎖", "心情牆", "寫真牆"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Unlock the Album",
