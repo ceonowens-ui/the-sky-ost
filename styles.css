@@ -52,6 +52,16 @@ html, body {
   overflow: hidden;
   background: var(--bg);
 }
+/* 手機（<520px）：不要用 vh/dvh 算高度，直接 fixed 釘滿整個視窗。
+   iOS Safari 網址列收合/展開時 dvh 會跟實際可視區對不上，造成底部黑 bar、
+   浮動 nav 浮到半空中。fixed + inset:0 永遠貼齊真正的畫面四邊
+   （參照《手機底部黑bar-解法小抄》：手機版鋪滿、不留假外框）。 */
+@media (max-width: 519.98px) {
+  /* --vvh 由 app.js 用 visualViewport 即時量測（真正看得到的高度），
+     iOS Safari / PWA 對 dvh、fixed 的回報不一致時仍然正確貼底 */
+  #stage { position: fixed; top: 0; left: 0; right: 0;
+           height: 100dvh; height: var(--vvh, 100dvh); }
+}
 @media (min-width: 520px) {
   body { display: flex; align-items: center; justify-content: center;
          background: radial-gradient(130% 100% at 50% -5%, var(--bg-top), #060409 60%); }

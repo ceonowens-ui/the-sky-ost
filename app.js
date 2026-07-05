@@ -22,6 +22,27 @@
 (function () {
   "use strict";
 
+  /* ---------- 真實可視高度（iPhone 貼底的最終解）----------
+   * iOS 在 Safari 網址列收合/展開、PWA standalone 等狀態下，
+   * 100vh / 100dvh / fixed 的高度回報常常對不上實際畫面，
+   * 造成底部黑 bar、浮動 nav 浮在半空中。
+   * visualViewport.height 永遠等於「使用者現在真正看得到的高度」，
+   * 量出來寫進 --vvh，styles.css 的 #stage 直接用它。 */
+  (function () {
+    function setVVH() {
+      var vv = window.visualViewport;
+      var h = vv ? vv.height : window.innerHeight;
+      if (h) document.documentElement.style.setProperty("--vvh", Math.round(h) + "px");
+    }
+    setVVH();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", setVVH);
+      window.visualViewport.addEventListener("scroll", setVVH);
+    }
+    window.addEventListener("resize", setVVH);
+    window.addEventListener("orientationchange", function () { setTimeout(setVVH, 250); });
+  })();
+
   var CFG = window.ALBUM_CONFIG;
   if (!CFG) { console.error("找不到 ALBUM_CONFIG，請確認 album-config.js 有先載入"); return; }
 
