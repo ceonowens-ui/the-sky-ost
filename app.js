@@ -154,7 +154,11 @@
    * （對後端回傳做防呆 —— 見 PITFALLS #2） */
   function purchasedProduct() {
     var p = String(unlockInfo().product || "");
-    return (p === "599" || p === "deluxe" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
+    var pay = CFG.payment || {};
+    /* BUG FIX：deluxePrice 與 basicPrice 相同（尚未開典藏版）時，
+       不能拿價格字串判斷典藏版，否則所有 299 購買都被誤判成 deluxe */
+    var priceIsDeluxe = String(pay.deluxePrice) !== String(pay.basicPrice) && p === String(pay.deluxePrice);
+    return (p === "599" || p === "deluxe" || priceIsDeluxe) ? "deluxe" : "basic";
   }
   function isLocked(t) { return !t.free && !state.unlocked; }
 
@@ -261,7 +265,8 @@
   function renderProgress(cur) {
     var pct = state.dur ? Math.max(0, Math.min(100, (cur / state.dur) * 100)) : 0;
     $("prog-fill").style.width = pct + "%";
-    $("prog-dot").style.left = pct + "%";
+    /* BUG FIX：帶角色標籤的圓點寬 26px，0%/100% 時 clamp 住不凸出進度條外 */
+    $("prog-dot").style.left = "clamp(13px, " + pct + "%, calc(100% - 13px))";
     $("prog-glow").style.left = pct + "%";
     $("t-cur").textContent = fmt(cur);
     $("t-dur").textContent = fmt(state.dur);
@@ -351,7 +356,9 @@
     var url = srcFor(t) + (t.free ? "" : "&download=1");
     try {
       var a = document.createElement("a");
-      a.href = url; a.download = pad2(t.n) + " " + t.title + ".mp3"; a.rel = "noopener";
+      /* BUG FIX：副檔名跟著實際檔案走（05/08 是 .wav，不能寫死 .mp3） */
+      var ext = ((t.protectedPath || t.audioPath || "").match(/\.(\w+)$/) || [0, "mp3"])[1];
+      a.href = url; a.download = pad2(t.n) + " " + t.title + "." + ext; a.rel = "noopener";
       document.body.appendChild(a); a.click(); a.remove();
     } catch (e) { window.open(url, "_blank"); }
     hap(10); toast("開始下載 · " + t.title);
@@ -447,6 +454,12 @@
       { key: "basic", name: P.basicName, price: P.basicPrice, features: P.basicFeatures || [], deluxe: false },
       { key: "deluxe", name: P.deluxeName, price: P.deluxePrice, features: P.deluxeFeatures || [], deluxe: true },
     ];
+    /* BUG FIX：尚未開典藏版（兩方案同名同價同連結）時只顯示一張方案卡 */
+    if (P.deluxeName === P.basicName && P.deluxePrice === P.basicPrice &&
+        P.stripeLinkDeluxe === P.stripeLinkBasic) {
+      plans = plans.slice(0, 1);
+      state.selectedPlan = "basic";
+    }
     $("plans").innerHTML = plans.map(function (p) {
       var check = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
       return '<div class="plan' + (p.deluxe ? " deluxe" : "") + (state.selectedPlan === p.key ? " selected" : "") + '" data-plan="' + p.key + '">' +
