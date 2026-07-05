@@ -31,8 +31,8 @@
  * ① 換專輯只改這一區
  * =================================================================== */
 const WORKER_CONFIG = {
-  ALBUM_NAME: "秘密關係 OST",            // 兌換信件的專輯名
-  CODE_PREFIX: "SLOV",                    // 兌換碼前綴（SLOV-XXXX-XXXX）
+  ALBUM_NAME: "THE SKY",                  // 兌換信件的專輯名
+  CODE_PREFIX: "SKY1",                    // 兌換碼前綴（SKY1-XXXX-XXXX）
   BASIC_LABEL: "數位專輯",
   DELUXE_LABEL: "典藏版（+WAV）",
 
@@ -43,28 +43,20 @@ const WORKER_CONFIG = {
 
   // 付費 MP3 白名單 = R2 的 object key（含資料夾前綴）。
   // ⚠️ 必須與前端 album-config.js 每首歌的 protectedPath 完全一致。
+  // （04~10 共 7 首；05、08 是 .wav，副檔名要對，需與 R2 key 完全一致）
   PROTECTED_FILES: new Set([
-    "os3/03.mp3", "os3/04.mp3", "os3/05.mp3", "os3/06.mp3", "os3/07.mp3",
-    "os3/08.mp3", "os3/09.mp3", "os3/10.mp3", "os3/11.mp3", "os3/12.mp3",
-    "os3/13.mp3", "os3/14.mp3", "os3/15.mp3", "os3/16.mp3", "os3/17.mp3",
-    "os3/18.mp3", "os3/19.mp3", "os3/20.mp3", "os3/21.mp3",
+    "sky/04.mp3", "sky/05.wav", "sky/06.mp3", "sky/07.mp3",
+    "sky/08.wav", "sky/09.mp3", "sky/10.mp3",
   ]),
 
   // WAV 白名單（deluxe 典藏版下載專用）
-  PROTECTED_WAV_FILES: new Set([
-    "os3/wav/01.wav", "os3/wav/02.wav", "os3/wav/03.wav", "os3/wav/04.wav",
-    "os3/wav/05.wav", "os3/wav/06.wav", "os3/wav/07.wav", "os3/wav/08.wav",
-    "os3/wav/09.wav", "os3/wav/10.wav", "os3/wav/11.wav", "os3/wav/12.wav",
-    "os3/wav/13.wav", "os3/wav/14.wav", "os3/wav/15.wav", "os3/wav/16.wav",
-    "os3/wav/17.wav", "os3/wav/18.wav", "os3/wav/19.wav", "os3/wav/20.wav",
-    "os3/wav/21.wav",
-  ]),
+  PROTECTED_WAV_FILES: new Set([]),  // THE SKY 尚未開典藏版，先留空
 
   // ⚠️ DEMO 測試碼（免付費解鎖，僅供開發）。email 固定 test@test.com。
   //    正式上線：把這個物件清空 {}（前端 album-config.js 的 demoCodes 也要清）。
+  // ⚠️ DEMO 碼的 email 必須 = 兌換時輸入的 email，付費曲才串得出來
   DEMO_CODES: {
-    "LOVE":   { email: "test@test.com", product: "299" },
-    "SECRET": { email: "test@test.com", product: "599" },
+    "SKY1DEMO": { email: "anthonywen0693@gmail.com", product: "299" },
   },
 };
 
