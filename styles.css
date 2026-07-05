@@ -185,7 +185,7 @@ html, body {
 
 /* 曲目列表（fold 之下） */
 .tracklist-block { background: var(--bg);
-                   margin-top: calc(-70px - env(safe-area-inset-bottom));
+                   margin-top: -8px;
                    padding: 18px 16px calc(120px + env(safe-area-inset-bottom)); }
 .tracklist-caption { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
                      color: rgba(255,255,255,.5); text-transform: uppercase; padding: 0 12px 8px; }
