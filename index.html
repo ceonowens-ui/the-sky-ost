@@ -82,6 +82,16 @@ html, body {
   /* fixed + inset:0 同時釘住上下四邊，底部不露黑框 */
   #stage { position: fixed; inset: 0; height: auto; }
 }
+/* PWA（加到主畫面）：讓出 status bar（純黑條），Hero 下移改圓弧邊卡片。
+   重要：iOS 用 apple meta 的 home-screen app 不會匹配 @media (display-mode: standalone)，
+   所以這裡改用 JS 偵測 navigator.standalone 後加在 <html> 的 .pwa class。 */
+html.pwa #stage::before { content: ""; position: absolute; top: 0; left: 0; right: 0;
+                 height: env(safe-area-inset-top); background: #000; z-index: 30; }
+html.pwa .cover-card { top: env(safe-area-inset-top); left: 10px; right: 10px; width: auto;
+              height: calc(68% - env(safe-area-inset-top));
+              border-radius: 32px; }
+html.pwa, html.pwa body { min-height: 100lvh; }
+
 /* PWA standalone：只加大 html/body 最小高；#stage 絕對維持 inset:0 釘四邊，
    不給固定高度（iOS 的 lvh 在 standalone 有時少算 home indicator，
    一給 height 就會蓋掉 bottom:0，底部露出一條） */
@@ -155,7 +165,7 @@ html {
 
 /* Now Playing：頁面中心的大型玻璃播放卡（PWA 主覺） */
 .np-card {
-  position: absolute; z-index: 5; top: 58%; left: 50%; transform: translateX(-50%);
+  position: absolute; z-index: 5; top: auto; bottom: 108px; left: 50%; transform: translateX(-50%);
   width: min(94vw, 430px); min-height: 28%; margin: 0;
   padding: 20px 22px 12px;
   background: rgba(5,18,32,.82);
@@ -165,8 +175,6 @@ html {
   border-radius: 28px;
   box-shadow: 0 24px 60px rgba(0,0,0,.42);
 }
-/* 矮螢幕（SE／桌機預覽）：卡片略上移，避免壓到 tab */
-@media (max-height: 700px) { .np-card { top: 48%; } }
 .np-head { display: flex; justify-content: space-between; align-items: flex-start; }
 .np-label { font-family: var(--font-label); font-size: 9px; letter-spacing: 4px;
             color: var(--primary); text-transform: uppercase; }
@@ -979,12 +987,9 @@ const ALBUM_CONFIG = {
     subheading: "THE SKY · 周邊商店",
     note: "商品皆為示意，之後把圖片與購買連結換成正式的即可。",
     products: [
-      { name: "THE SKY 實體專輯 CD", tag: "ALBUM",     price: 480, image: "", link: "#" },
-      { name: "限定寫真集 Photobook", tag: "PHOTOBOOK", price: 680, image: "", link: "#" },
-      { name: "壓克力立牌 Acrylic Stand", tag: "GOODS", price: 320, image: "", link: "#" },
-      { name: "訊號 Tee ・ Signal T-Shirt", tag: "APPAREL", price: 780, image: "", link: "#" },
-      { name: "帆布托特包 Tote Bag", tag: "APPAREL",   price: 550, image: "", link: "#" },
-      { name: "抬頭看 貼紙組 Sticker Set", tag: "GOODS", price: 180, image: "", link: "#" },
+      { name: "限定寫真集 Special Photobook", tag: "PHOTOBOOK", price: 680, image: "雜誌.jpg", link: "#" },
+      { name: "壓克力立牌 Acrylic Standee", tag: "GOODS", price: 320, image: "人形立牌.jpg", link: "#" },
+      { name: "帆布托特包 Tote Bag", tag: "APPAREL", price: 550, image: "手提袋.jpg", link: "#" },
     ],
   },
 
@@ -1029,6 +1034,24 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
  * ===================================================================== */
 (function () {
   "use strict";
+
+  /* ---------- PWA 偵測（iOS home-screen app 不匹配 display-mode media query，
+     必須用 navigator.standalone）：命中就在 <html> 加 .pwa，並把 #stage 釘成
+     整支螢幕的邏輯高度（screen.height），底部保證貼到 home indicator 後方 ---------- */
+  (function () {
+    var isPWA = (window.navigator.standalone === true) ||
+                (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+    if (!isPWA) return;
+    document.documentElement.classList.add("pwa");
+    var st = document.getElementById("stage");
+    function pin() {
+      var h = Math.max(window.innerHeight, (screen && screen.height) || 0);
+      if (h) { st.style.height = h + "px"; }
+    }
+    pin();
+    window.addEventListener("resize", pin);
+    window.addEventListener("orientationchange", function () { setTimeout(pin, 300); });
+  })();
 
   /* ---------- 真實可視高度（iPhone 貼底的最終解）----------
    * iOS 在 Safari 網址列收合/展開、PWA standalone 等狀態下，
@@ -1341,8 +1364,8 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
         $("prog-fill").style.background = pd.gradients[idx];
       }
     } else { dot.textContent = ""; }
-    /* 歌詞按鈕：沒歌詞就藏起來（頁面不會壞） */
-    $("btn-lyrics").classList.toggle("hidden", !t.lyricsPath);
+    /* 歌詞按鈕：永遠顯示；沒歌詞的歌點開會顯示「暫無歌詞」提示 */
+    $("btn-lyrics").classList.remove("hidden");
   }
   function renderPlayState() {
     $("play-icon-path").setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
