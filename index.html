@@ -168,6 +168,14 @@ html, body {
 }
 .icon-round:active { transform: scale(.92); }
 .icon-round.liked svg { animation: bounce .5s ease; }
+/* 歌詞：文字 pill（取代原本的圖示） */
+.btn-lyrics-text { height: 44px; padding: 0 16px; border-radius: 22px;
+                   background: rgba(var(--primary-rgb), .12); border: 1px solid rgba(var(--primary-rgb), .45);
+                   color: var(--primary); cursor: pointer; flex: none;
+                   font-family: var(--font-label); font-size: 12px; font-weight: 600;
+                   letter-spacing: 2px; text-transform: uppercase;
+                   display: flex; align-items: center; justify-content: center; }
+.btn-lyrics-text:active { transform: scale(.94); }
 
 /* 進度條 */
 .prog { position: relative; height: 4px; border-radius: 4px;
@@ -349,6 +357,11 @@ html, body {
 .form-hint { text-align: center; font-size: 12px; color: rgba(255,255,255,.5); margin-top: 22px;
              cursor: pointer; }
 .form-hint b { color: var(--primary); font-weight: 500; }
+.redeem-divider { display: flex; align-items: center; gap: 14px; margin: 30px 24px 4px; }
+.redeem-divider::before, .redeem-divider::after { content: ""; flex: 1; height: 1px;
+                    background: rgba(255,255,255,.14); }
+.redeem-divider span { font-family: var(--font-serif-tc); font-size: 12px; letter-spacing: 2px;
+                       color: rgba(255,255,255,.5); white-space: nowrap; }
 
 .unlocked-card { border-radius: 22px; background: rgba(var(--primary-rgb), .08);
                  border: 1px solid rgba(var(--primary-rgb), .3);
@@ -420,37 +433,46 @@ html, body {
                   color: rgba(255,255,255,.35); margin-top: 9px; letter-spacing: .5px; }
 
 /* =====================================================================
- * GALLERY（寫真牆：橫向滑動相簿，scroll-snap 一次一張）
+ * GALLERY（寫真牆：滿版橫向滑動，一次一張）
  * =================================================================== */
+#screen-gallery { background: #000; overflow: hidden; padding: 0; }
 .gallery-scroll {
-  display: flex; gap: 14px; margin-top: 22px; padding: 4px 28px 8px;
-  overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  position: absolute; inset: 0; margin: 0; padding: 0; gap: 0;
+  display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
 }
 .gallery-scroll::-webkit-scrollbar { display: none; }
 .gallery-slide {
-  position: relative; flex: 0 0 78%; scroll-snap-align: center;
-  aspect-ratio: 3 / 4.4; border-radius: 24px; overflow: hidden;
-  box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 4px 14px rgba(0,0,0,.35),
-              0 0 0 1px rgba(255,255,255,.06);
+  position: relative; flex: 0 0 100%; width: 100%; height: 100%;
+  scroll-snap-align: center; overflow: hidden;
 }
 .gallery-slide img {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center 30%;
+  object-fit: cover; object-position: center 20%;
 }
 .gallery-slide .gallery-shade {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,.55) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, transparent 22%,
+              transparent 62%, rgba(0,0,0,.6) 100%);
 }
 .gallery-slide .gallery-caption {
-  position: absolute; left: 16px; right: 16px; bottom: 14px;
-  font-family: var(--font-serif-tc); font-size: 12.5px; letter-spacing: .5px;
-  color: rgba(255,255,255,.9);
-}
-.gallery-dots { display: flex; justify-content: center; gap: 7px; margin-top: 16px; }
+  position: absolute; left: 22px; right: 22px; bottom: calc(96px + env(safe-area-inset-bottom));
+  font-family: var(--font-serif-tc); font-size: 13px; letter-spacing: .5px;
+  color: rgba(255,255,255,.95); text-shadow: 0 2px 12px rgba(0,0,0,.6); z-index: 2; }
+/* 頂部標題疊在照片上 */
+.gallery-top { position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+               padding: calc(20px + env(safe-area-inset-top)) 24px 44px; text-align: center;
+               pointer-events: none; }
+.gallery-heading-en { font-family: var(--font-label); font-weight: 700; font-size: 22px;
+                      letter-spacing: 5px; text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+.gallery-sub { font-family: var(--font-serif-tc); font-size: 12.5px; letter-spacing: 1px;
+               color: rgba(255,255,255,.8); margin-top: 8px; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+.gallery-dots { position: absolute; left: 0; right: 0; z-index: 3;
+                bottom: calc(78px + env(safe-area-inset-bottom));
+                display: flex; justify-content: center; gap: 7px; margin: 0; }
 .gallery-dot { width: 6px; height: 6px; border-radius: 50%;
-               background: rgba(255,255,255,.25); transition: background .25s ease, transform .25s ease; }
-.gallery-dot.active { background: var(--primary); transform: scale(1.3); }
+               background: rgba(255,255,255,.35); transition: background .25s ease, transform .25s ease; }
+.gallery-dot.active { background: #fff; transform: scale(1.35); }
 
 /* =====================================================================
  * FLOATING ISLAND BOTTOM NAV（DESIGN LOCK：浮動島狀 pill）
@@ -582,9 +604,7 @@ html, body {
           </div>
           <div class="np-actions">
             <!-- 歌詞按鈕（這首歌沒歌詞時 app.js 會自動隱藏） -->
-            <button class="icon-round" id="btn-lyrics" title="歌詞">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
-            </button>
+            <button class="btn-lyrics-text" id="btn-lyrics" title="歌詞">Lyrics</button>
             <!-- 心動收藏 -->
             <button class="icon-round" id="btn-heart" title="收藏這一刻">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
@@ -622,43 +642,32 @@ html, body {
     </div>
   </section>
 
-  <!-- ================= PURCHASE（付費解鎖）================= -->
+  <!-- ================= 完整版（購買 + 兌換解鎖，合併成一頁）================= -->
   <section id="screen-purchase" class="screen screen-sub">
     <div class="page-titles">
       <div class="page-title-en" id="purchase-title-en"></div>
       <div class="page-title-tc" id="purchase-title-tc"></div>
       <div class="page-note" id="purchase-note"></div>
     </div>
-    <!-- 方案卡（app.js 依 config.payment 產生） -->
-    <div class="plans" id="plans"></div>
-    <div class="cta-block">
-      <button class="btn-primary" id="btn-checkout"></button>
-      <button class="btn-outline" id="btn-goto-unlock">已經購買？輸入兌換碼</button>
-    </div>
-  </section>
 
-  <!-- ================= UNLOCK（秘密 · 兌換）================= -->
-  <section id="screen-unlock" class="screen screen-sub">
-    <div class="page-titles">
-      <div class="page-title-en" id="unlock-title-en"></div>
-      <div class="page-title-tc" id="unlock-subtitle" style="font-size:14px;color:rgba(255,255,255,.6);letter-spacing:3px"></div>
-    </div>
-
-    <!-- 未解鎖：email + code 表單 -->
-    <div id="unlock-form-view">
-      <div style="text-align:center;padding:26px 28px 0">
-        <div class="unlock-lock-badge">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-        </div>
-        <div class="page-note" style="margin-top:0;padding:0 10px">購買後兌換碼會寄到信箱，請用「購買時的 email」解鎖完整專輯</div>
+    <!-- 購買方案（未解鎖才顯示） -->
+    <div id="buy-block">
+      <div class="plans" id="plans"></div>
+      <div class="cta-block">
+        <button class="btn-primary" id="btn-checkout"></button>
       </div>
+    </div>
+
+    <!-- 已經購買 → 輸入兌換碼解鎖（未解鎖才顯示） -->
+    <div id="unlock-form-view">
+      <div class="redeem-divider"><span>已經購買了？</span></div>
       <div class="form-block">
         <label class="form-label" for="in-email">EMAIL</label>
         <input class="form-input" id="in-email" type="email" placeholder="you@example.com" autocomplete="email">
         <label class="form-label" for="in-code">兌換碼 · CODE</label>
-        <input class="form-input" id="in-code" type="text" placeholder="" autocomplete="off" style="margin-bottom:22px">
-        <button class="btn-primary" id="btn-redeem">解鎖</button>
-        <div class="form-hint" id="btn-goto-purchase">還沒購買？<b>看方案 →</b></div>
+        <input class="form-input" id="in-code" type="text" placeholder="" autocomplete="off" style="margin-bottom:20px">
+        <button class="btn-primary" id="btn-redeem">輸入兌換碼解鎖</button>
+        <div class="page-note" style="text-align:center;padding:14px 10px 0">購買後兌換碼會寄到信箱，請用「購買時的 email」解鎖</div>
       </div>
     </div>
 
@@ -704,12 +713,12 @@ html, body {
   </section>
 
   <!-- ================= GALLERY（寫真牆，滑動相簿）================= -->
-  <section id="screen-gallery" class="screen screen-sub">
-    <div class="page-titles">
-      <div style="font-family:var(--font-label);font-weight:700;font-size:23px;letter-spacing:3px" id="gallery-heading">GALLERY</div>
-      <div class="page-title-tc" id="gallery-subheading" style="font-size:13px;color:rgba(255,255,255,.65);margin-top:12px;letter-spacing:1px;line-height:1.7"></div>
-    </div>
+  <section id="screen-gallery" class="screen">
     <div class="gallery-scroll" id="gallery-scroll"></div>
+    <div class="gallery-top">
+      <div class="gallery-heading-en" id="gallery-heading">GALLERY</div>
+      <div class="gallery-sub" id="gallery-subheading"></div>
+    </div>
     <div class="gallery-dots" id="gallery-dots"></div>
   </section>
 
@@ -753,10 +762,6 @@ html, body {
       </button>
       <button class="navbtn" data-screen="purchase">
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
-        <span class="navlbl"></span>
-      </button>
-      <button class="navbtn" data-screen="unlock">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
         <span class="navlbl"></span>
       </button>
       <button class="navbtn" data-screen="mood">
@@ -896,15 +901,15 @@ const ALBUM_CONFIG = {
     heading: "GALLERY",
     subheading: "成晞 Chance · 寫真牆",
     photos: [
-      { src: "https://ceonowens-ui.github.io/the-sky-ost/assets/images/gallery/01.jpg", caption: "" },
-      { src: "https://ceonowens-ui.github.io/the-sky-ost/assets/images/gallery/02.jpg", caption: "" },
-      { src: "https://ceonowens-ui.github.io/the-sky-ost/assets/images/gallery/03.jpg", caption: "" },
+      { src: "1.jpg", caption: "" },
+      { src: "2.jpg", caption: "" },
+      { src: "3.jpg", caption: "" },
     ],
   },
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["聽歌", "完整版", "解鎖", "心情牆", "寫真牆"],
+    navTabs: ["聽歌", "完整版", "心情牆", "寫真牆"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Unlock the Album",
@@ -1044,8 +1049,6 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
   $("sheet-title").textContent = "曲目列表 · " + TOTAL + " 首";
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
   $("purchase-title-tc").textContent = "解鎖完整 " + TOTAL + " 首專輯";
-  $("unlock-title-en").textContent = STR.unlockTitleEn || "Secret";
-  $("unlock-subtitle").textContent = STR.unlockSubtitle || "兌換與解鎖";
   $("unlocked-title").textContent = "已解鎖完整 " + TOTAL + " 首專輯";
   $("unlocked-desc").textContent = "所有曲目都已開放，可線上聽 + 下載收藏";
   $("in-code").placeholder = (CFG.unlock && CFG.unlock.codePlaceholder) || "XXXX-XXXX";
@@ -1381,7 +1384,7 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
 
   /* ---------- 分頁切換 + Floating Island Nav ---------- */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn"));
-  var ORDER = ["player", "purchase", "unlock", "mood", "gallery"];
+  var ORDER = ["player", "purchase", "mood", "gallery"];
   function go(screen) {
     state.screen = screen;
     closeSheet();
@@ -1395,7 +1398,7 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
       b.classList.remove("pop");
     });
     if (i >= 0) { void navBtns[i].offsetWidth; navBtns[i].classList.add("pop"); }
-    if (screen === "unlock") renderUnlockView();
+    if (screen === "purchase") renderUnlockView();
   }
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
@@ -1439,12 +1442,11 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
     if (!link) { toast("尚未設定付款連結"); return; }
     window.open(link, "_blank");
   });
-  $("btn-goto-unlock").addEventListener("click", function () { go("unlock"); });
-  $("btn-goto-purchase").addEventListener("click", function () { go("purchase"); });
   $("btn-goto-player").addEventListener("click", function () { go("player"); });
 
   /* ---------- 兌換 / 解鎖 ---------- */
   function renderUnlockView() {
+    var bb = $("buy-block"); if (bb) bb.classList.toggle("hidden", state.unlocked);
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
     if (!state.unlocked) return;
