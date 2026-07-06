@@ -79,9 +79,26 @@ html, body {
    浮動 nav 浮到半空中。fixed + inset:0 永遠貼齊真正的畫面四邊
    （參照《手機底部黑bar-解法小抄》：手機版鋪滿、不留假外框）。 */
 @media (max-width: 519.98px) {
-  /* fixed + inset:0 同時釘住上下四邊，不再靠 dvh/--vvh 算高度，底部不露黑框 */
+  /* fixed + inset:0 同時釘住上下四邊，底部不露黑框 */
   #stage { position: fixed; inset: 0; height: auto; }
 }
+/* PWA standalone：只加大 html/body 最小高；#stage 絕對維持 inset:0 釘四邊，
+   不給固定高度（iOS 的 lvh 在 standalone 有時少算 home indicator，
+   一給 height 就會蓋掉 bottom:0，底部露出一條） */
+@media (display-mode: standalone) {
+  html, body { min-height: 100lvh; }
+}
+/* 保險：html 畫布本身塗上同一張 app 背景，就算任何縫隙露出也看不出來 */
+html {
+  background:
+    radial-gradient(circle at 50% 14%, rgba(120,180,255,.26), transparent 42%),
+    linear-gradient(180deg, #07172a 0%, #06101d 54%, #030814 100%);
+}
+/* full-bleed 背景層：釘滿整個 App 畫布（status bar 後方 → home indicator 後方），所有頁面共用 */
+.app-bg { position: absolute; inset: -1px 0 -60px 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(120,180,255,.26), transparent 42%),
+    linear-gradient(180deg, #07172a 0%, #06101d 54%, #030814 100%); }
 @media (min-width: 520px) {
   body { display: flex; align-items: center; justify-content: center;
          background: radial-gradient(130% 100% at 50% -5%, var(--bg-top), #060409 60%); }
@@ -90,27 +107,24 @@ html, body {
 }
 
 /* ---- 分頁 screen ---------------------------------------------------- */
-.screen { position: absolute; inset: 0; display: none; overflow-y: auto;
+.screen { position: absolute; inset: 0; z-index: 1; display: none; overflow-y: auto;
           -webkit-overflow-scrolling: touch; }
 .screen.active { display: block; }
-.screen-sub { background: radial-gradient(120% 60% at 50% 0%, var(--bg-top), var(--bg) 70%);
-              padding: 62px 0 calc(96px + env(safe-area-inset-bottom)); }
+.screen-sub { background: transparent;
+              padding: calc(52px + env(safe-area-inset-top)) 0 calc(118px + env(safe-area-inset-bottom)); }
 
 /* =====================================================================
  * PLAYER
  * =================================================================== */
-#screen-player { background: var(--bg); overflow: hidden; }
-/* 播放頁：單螢幕不滾動。封面擐滿上方，NP 卡在下，底部預留導覽島高度 */
-.player-fold { display: flex; flex-direction: column; height: 100%;
-               padding-bottom: 74px; }
+#screen-player { background: transparent; overflow: hidden; }
+/* 播放頁：hero 滿版置頂 + 玻璃播放卡疊在下半，底部露出共用背景 */
+.player-fold { position: relative; height: 100%; }
 
-/* 封面：圓角長方形 + 上方留白（DESIGN LOCK：不要改成貼頂滿版） */
+/* Hero 主視覺：滿版置頂，上方無留白，延伸到 status bar 後方 */
 .cover-card {
-  position: relative; flex: 1 1 auto; overflow: hidden;
-  min-height: 200px;
-  margin: calc(4px + env(safe-area-inset-top)) 12px 0;
-  border-radius: 28px;
-  box-shadow: 0 22px 50px rgba(0,0,0,.58), 0 5px 16px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.06);
+  position: absolute; top: 0; left: 0; z-index: 1;
+  width: 100%; height: 68%; overflow: hidden;
+  margin: 0; border-radius: 0; box-shadow: none;
 }
 .cover-card img, .cover-card video {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -127,34 +141,37 @@ html, body {
 .cover-card.has-video img { display: block; z-index: 0; }
 .cover-shade {
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
-              transparent 15%, transparent 78%, rgba(0,0,0,.3) 91%, rgba(0,0,0,.51) 100%);
+  background: linear-gradient(180deg, rgba(3,8,20,.55) 0%, rgba(3,8,20,.2) 10%,
+              transparent 26%, transparent 58%, rgba(3,8,20,.5) 84%, rgba(3,8,20,.92) 100%);
 }
-.cover-titles { display: none; }
-.cover-eyebrow { font-family: var(--font-label); font-weight: 500; font-size: 9px;
-                 letter-spacing: 4.5px; color: rgba(255,255,255,.85);
+.cover-titles { position: absolute; top: calc(env(safe-area-inset-top) + 48px); left: 0; right: 0;
+                text-align: center; z-index: 3; }
+.cover-eyebrow { font-family: var(--font-label); font-weight: 500; font-size: 11px;
+                 letter-spacing: 5px; color: rgba(255,255,255,.85);
                  text-transform: uppercase; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
 .cover-title-en { font-family: var(--font-display); font-style: italic; font-weight: 600;
-                  font-size: 28px; letter-spacing: .5px; line-height: 1; margin-top: 5px;
+                  font-size: 38px; letter-spacing: .5px; line-height: 1; margin-top: 8px;
                   text-shadow: 0 3px 20px rgba(0,0,0,.6); }
 
-/* Now Playing：毛玻璃卡片，往上疊在封面（DESIGN LOCK） */
+/* Now Playing：頁面中心的大型玻璃播放卡（PWA 主覺） */
 .np-card {
-  position: relative; z-index: 3;
-  margin: -52px 18px 0; /* 底部不留死空隙，曲目清單直接貼上來 */
-  padding: 12px 18px 4px;
-  background: var(--surface);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px); /* iPhone 必要 */
+  position: absolute; z-index: 5; top: 58%; left: 50%; transform: translateX(-50%);
+  width: min(94vw, 430px); min-height: 28%; margin: 0;
+  padding: 20px 22px 12px;
+  background: rgba(5,18,32,.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px); /* iPhone 必要 */
   border: 1px solid rgba(255,255,255,.14);
-  border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.42);
 }
+/* 矮螢幕（SE／桌機預覽）：卡片略上移，避免壓到 tab */
+@media (max-height: 700px) { .np-card { top: 48%; } }
 .np-head { display: flex; justify-content: space-between; align-items: flex-start; }
 .np-label { font-family: var(--font-label); font-size: 9px; letter-spacing: 4px;
             color: var(--primary); text-transform: uppercase; }
-.np-title { font-family: var(--font-serif-tc); font-size: 22px; font-weight: 600;
-            margin-top: 3px; letter-spacing: 1.5px;
+.np-title { font-family: var(--font-serif-tc); font-size: 24px; font-weight: 600;
+            margin-top: 5px; letter-spacing: 1.5px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .np-sub { font-family: var(--font-display); font-style: italic; font-size: 13px;
           color: rgba(255,255,255,.7); margin-top: 4px;
@@ -178,7 +195,7 @@ html, body {
 
 /* 進度條 */
 .prog { position: relative; height: 4px; border-radius: 4px;
-        background: rgba(255,255,255,.18); cursor: pointer; margin-top: 12px;
+        background: rgba(255,255,255,.18); cursor: pointer; margin-top: 16px;
         touch-action: none; }
 .prog-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px;
              width: 0%; background: var(--grad); }
@@ -200,27 +217,27 @@ html, body {
 
 /* 控制鍵 */
 .np-controls { display: flex; align-items: center; justify-content: center;
-               gap: 28px; margin-top: 2px; }
+               gap: 34px; margin-top: 10px; }
 .btn-ghost { background: none; border: none; cursor: pointer; padding: 6px;
              color: rgba(255,255,255,.85); }
 .btn-ghost:active { transform: scale(.9); }
 .btn-play {
-  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
-  background: rgba(255,255,255,.85);
+  width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,.9);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 10px 30px rgba(120,90,160,.45),
-              inset 0 1px 10px rgba(var(--primary-rgb), .55),
-              inset 0 0 0 1px rgba(255,255,255,.55);
+  box-shadow: 0 12px 34px rgba(120,150,220,.5),
+              inset 0 1px 12px rgba(var(--primary-rgb), .55),
+              inset 0 0 0 1px rgba(255,255,255,.6);
 }
 .btn-play:active { transform: scale(.94); }
 .btn-play svg { fill: #2c1f3a; }
 
 /* Next Scene（打開 Bottom Sheet） */
 .np-next { display: flex; align-items: center; justify-content: space-between;
-           border-top: 1px solid rgba(255,255,255,.10); margin-top: 6px;
-           padding: 6px 2px 2px; cursor: pointer; }
+           border-top: 1px solid rgba(255,255,255,.10); margin-top: 10px;
+           padding: 8px 2px 2px; cursor: pointer; }
 .np-next span { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
                 color: rgba(255,255,255,.6); text-transform: uppercase; }
 
@@ -474,26 +491,58 @@ html, body {
 .gallery-dot.active { background: #fff; transform: scale(1.35); }
 
 /* =====================================================================
+ * MERCH（周邊商店：上下捲動的商品卡）
+ * =================================================================== */
+.merch-list { padding: 22px 18px 0; display: flex; flex-direction: column; gap: 16px; }
+.merch-card { display: block; text-decoration: none; color: inherit;
+              border-radius: 20px; overflow: hidden; background: rgba(255,255,255,.04);
+              border: 1px solid rgba(255,255,255,.1); }
+.merch-card:active { transform: scale(.985); }
+.merch-thumb { position: relative; aspect-ratio: 4 / 3; overflow: hidden;
+               background: linear-gradient(150deg, #16324a, #0c1c2c 60%, #091521); }
+.merch-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.merch-thumb .merch-mark { position: absolute; inset: 0; display: flex; align-items: center;
+              justify-content: center; font-family: var(--font-display); font-style: italic;
+              font-size: 40px; color: rgba(221,235,255,.14); letter-spacing: 2px; }
+.merch-tag { position: absolute; top: 12px; left: 12px; font-family: var(--font-label);
+             font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+             color: var(--primary); background: rgba(7,17,31,.55); border: 1px solid rgba(var(--primary-rgb),.4);
+             padding: 4px 10px; border-radius: 20px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.merch-body { display: flex; align-items: center; justify-content: space-between;
+              gap: 12px; padding: 15px 17px; }
+.merch-info { min-width: 0; }
+.merch-name { font-family: var(--font-serif-tc); font-size: 15px; font-weight: 600;
+              letter-spacing: .5px; line-height: 1.35; }
+.merch-price { font-family: var(--font-label); font-size: 18px; font-weight: 700; margin-top: 5px;
+               color: var(--primary); }
+.merch-buy { flex: none; display: flex; align-items: center; gap: 6px; text-decoration: none;
+             padding: 11px 18px; border-radius: 14px; background: var(--grad); color: #fff;
+             font-family: var(--font-serif-tc); font-size: 13px; letter-spacing: 1.5px; font-weight: 600;
+             white-space: nowrap; }
+.merch-buy:active { transform: scale(.95); }
+
+/* =====================================================================
  * FLOATING ISLAND BOTTOM NAV（DESIGN LOCK：浮動島狀 pill）
  * =================================================================== */
 #nav-wrap { position: absolute; left: 0; right: 0;
-            bottom: 6px; /* 直接落在 home indicator 區，不再保留 safe-bottom */
+            bottom: 20px; /* 照 REF：pill 底緣離螢幕底 ~20px，home indicator 剛好在 pill 下方 */
             z-index: 70; display: flex; justify-content: center; pointer-events: none; }
-#nav { position: relative; display: flex; padding: 6px; border-radius: 30px;
-       background: rgba(18,18,22,.16);
-       backdrop-filter: blur(44px) saturate(1.7);
-       -webkit-backdrop-filter: blur(44px) saturate(1.7); /* iPhone 必要 */
-       border: 1px solid rgba(255,255,255,.1);
-       box-shadow: 0 16px 42px rgba(0,0,0,.44), 0 2px 8px rgba(0,0,0,.26),
-                   inset 0 1px 0 rgba(255,255,255,.32), inset 0 -8px 16px rgba(255,255,255,.05);
+#nav { position: relative; display: flex; padding: 6px; border-radius: 999px;
+       width: min(86vw, 430px); height: 74px; justify-content: space-around;
+       background: rgba(9,20,34,.72);
+       backdrop-filter: blur(28px) saturate(1.7);
+       -webkit-backdrop-filter: blur(28px) saturate(1.7); /* iPhone 必要 */
+       border: 1px solid rgba(255,255,255,.16);
+       box-shadow: 0 18px 48px rgba(0,0,0,.44), 0 2px 8px rgba(0,0,0,.26),
+                   inset 0 1px 0 rgba(255,255,255,.28);
        pointer-events: auto; }
-#nav::before { content: ""; position: absolute; inset: 0; border-radius: 30px;
-               background: linear-gradient(135deg, rgba(255,255,255,.16), transparent 42%);
+#nav::before { content: ""; position: absolute; inset: 0; border-radius: 999px;
+               background: linear-gradient(135deg, rgba(255,255,255,.14), transparent 42%);
                pointer-events: none; }
 #nav-ind { position: absolute; top: 6px; left: 6px; width: 64px;
-           height: calc(100% - 12px); border-radius: 21px;
+           height: calc(100% - 12px); border-radius: 999px;
            transform: translateX(0);
-           transition: transform .46s cubic-bezier(.34,1.32,.42,1);
+           transition: transform .46s cubic-bezier(.34,1.32,.42,1), width .46s cubic-bezier(.34,1.32,.42,1);
            background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(var(--primary-rgb), .12));
            box-shadow: inset 0 1px 0 rgba(255,255,255,.45),
                        inset 0 0 12px rgba(var(--primary-rgb), .18),
@@ -501,11 +550,11 @@ html, body {
            backdrop-filter: blur(6px);
            -webkit-backdrop-filter: blur(6px);
            pointer-events: none; }
-.navbtn { position: relative; z-index: 1; width: 64px; padding: 7px 0 6px;
+.navbtn { position: relative; z-index: 1; flex: 1 1 0; min-width: 0; padding: 8px 0;
           border: none; background: none; cursor: pointer;
-          display: flex; flex-direction: column; align-items: center; gap: 3px;
-          font-family: var(--font-serif-tc); font-size: 9px; letter-spacing: 1.2px;
-          color: #8f8a9c; transition: color .3s ease, transform .18s ease; }
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+          font-family: var(--font-serif-tc); font-size: 10px; letter-spacing: 1px;
+          color: #8f96a8; transition: color .3s ease, transform .18s ease; }
 .navbtn:active { transform: scale(.92); }
 .navbtn .navico { display: flex; transition: filter .35s ease; }
 .navbtn .navlbl { opacity: .62; transition: opacity .3s ease; }
@@ -577,6 +626,7 @@ html, body {
 <body>
 <template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#07111F"/><text x="50" y="46" font-family="Georgia,serif" font-style="italic" font-size="15" fill="#DDEBFF" text-anchor="middle">THE</text><text x="50" y="64" font-family="Georgia,serif" font-style="italic" font-size="15" fill="#DDEBFF" text-anchor="middle">SKY</text></svg></template>
 <div id="stage">
+  <div class="app-bg"></div>
 
   <!-- ================= PLAYER（聽歌）================= -->
   <section id="screen-player" class="screen active">
@@ -625,7 +675,7 @@ html, body {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
           </button>
           <button class="btn-play" id="btn-play" title="播放 / 暫停">
-            <svg width="23" height="23" viewBox="0 0 24 24"><path id="play-icon-path" d="M8 5v14l11-7z"/></svg>
+            <svg width="30" height="30" viewBox="0 0 24 24"><path id="play-icon-path" d="M8 5v14l11-7z"/></svg>
           </button>
           <button class="btn-ghost" id="btn-next" title="下一首">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
@@ -721,6 +771,16 @@ html, body {
     <div class="gallery-dots" id="gallery-dots"></div>
   </section>
 
+  <!-- ================= MERCH（周邊商店，上下捲動）================= -->
+  <section id="screen-merch" class="screen screen-sub">
+    <div class="page-titles">
+      <div style="font-family:var(--font-label);font-weight:700;font-size:23px;letter-spacing:3px" id="merch-heading">MERCH</div>
+      <div class="page-title-tc" id="merch-subheading" style="font-size:13px;color:rgba(255,255,255,.65);margin-top:12px;letter-spacing:1px"></div>
+      <div class="page-note" id="merch-note"></div>
+    </div>
+    <div class="merch-list" id="merch-list"></div>
+  </section>
+
   <!-- ================= BOTTOM SHEET（曲目表，可拖曳關閉）================= -->
   <div id="sheet-backdrop" class="hidden"></div>
   <div id="sheet" class="hidden">
@@ -771,6 +831,10 @@ html, body {
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
         <span class="navlbl"></span>
       </button>
+      <button class="navbtn" data-screen="merch">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
     </div>
   </nav>
 
@@ -796,8 +860,8 @@ const ALBUM_CONFIG = {
   /* ---- 基本資料 ------------------------------------------------- */
   albumId: "the-sky",                              // 英文小寫-dash，作為此專輯的唯一 ID
   albumTitle: "THE SKY",                            // 中文全名（曲目頁、分享用）
-  albumTitleEn: "THE SKY",                          // 封面上的英文斜體大標
-  albumEyebrow: "AI FUTURE CONCEPT ALBUM",          // 封面最上方的小字（全大寫顯示）
+  albumTitleEn: "",                                // 封面上的英文斜體大標（封面圖已印字，留空不重疊）
+  albumEyebrow: "",                                 // 封面最上方的小字（留空 = 不顯示）
   artistName: "成晞 Chance",                        // 藝人名（Media Session 鎖定畫面顯示）
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
@@ -906,9 +970,27 @@ const ALBUM_CONFIG = {
     ],
   },
 
+  /* ---- 周邊商店（先用佔位商品，之後把 image / link 換成真的即可）------- *
+   * link = 該商品的購買連結（Stripe / 商店頁）。點卡片或「購買」就開這個網址。
+   * image 留空 = 用漸層佔位（顯示 SKY 浮水印）；填圖檔就顯示商品照。
+   * ---------------------------------------------------------------- */
+  merch: {
+    heading: "MERCH",
+    subheading: "THE SKY · 周邊商店",
+    note: "商品皆為示意，之後把圖片與購買連結換成正式的即可。",
+    products: [
+      { name: "THE SKY 實體專輯 CD", tag: "ALBUM",     price: 480, image: "", link: "#" },
+      { name: "限定寫真集 Photobook", tag: "PHOTOBOOK", price: 680, image: "", link: "#" },
+      { name: "壓克力立牌 Acrylic Stand", tag: "GOODS", price: 320, image: "", link: "#" },
+      { name: "訊號 Tee ・ Signal T-Shirt", tag: "APPAREL", price: 780, image: "", link: "#" },
+      { name: "帆布托特包 Tote Bag", tag: "APPAREL",   price: 550, image: "", link: "#" },
+      { name: "抬頭看 貼紙組 Sticker Set", tag: "GOODS", price: 180, image: "", link: "#" },
+    ],
+  },
+
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["聽歌", "完整版", "心情牆", "寫真牆"],
+    navTabs: ["聽歌", "完整版", "心情牆", "寫真牆", "周邊"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Unlock the Album",
@@ -1041,7 +1123,7 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
     cv.play && cv.play().catch(function(){});
   }
   $("cover-eyebrow").textContent = CFG.albumEyebrow || "";
-  $("cover-title-en").textContent = CFG.albumTitleEn || CFG.albumTitle || "";
+  $("cover-title-en").textContent = CFG.albumTitleEn || "";
   $("np-label").textContent = STR.nowPlayingLabel || "Now Playing";
   $("next-scene-label").textContent = (STR.nextScene || "Next Scene") + " · 共 " + TOTAL + " 首";
   { var _tc = $("tracklist-caption"); if (_tc) _tc.textContent = "Tracks · " + TOTAL + " 首"; }
@@ -1383,7 +1465,7 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
 
   /* ---------- 分頁切換 + Floating Island Nav ---------- */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn"));
-  var ORDER = ["player", "purchase", "mood", "gallery"];
+  var ORDER = ["player", "purchase", "mood", "gallery", "merch"];
   function go(screen) {
     state.screen = screen;
     closeSheet();
@@ -1391,7 +1473,8 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
       $("screen-" + s).classList.toggle("active", s === screen);
     });
     var i = ORDER.indexOf(screen);
-    $("nav-ind").style.transform = "translateX(" + (i * 64) + "px)";
+    var _b = navBtns[i], _ind = $("nav-ind");
+    if (_b && _ind) { _ind.style.width = _b.offsetWidth + "px"; _ind.style.transform = "translateX(" + (_b.offsetLeft - 6) + "px)"; }
     navBtns.forEach(function (b, j) {
       b.classList.toggle("active", j === i);
       b.classList.remove("pop");
@@ -1525,6 +1608,32 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
         '<div class="mood-note-time">' + esc(c.time) + "</div></div>";
     }).join("");
   }
+
+  /* ---------- 周邊商店 ---------- */
+  function renderMerch() {
+    var M = CFG.merch || {};
+    if (M.heading != null) $("merch-heading").textContent = M.heading;
+    $("merch-subheading").textContent = M.subheading || "";
+    $("merch-note").textContent = M.note || "";
+    var list = $("merch-list");
+    list.innerHTML = (M.products || []).map(function (p) {
+      var link = p.link || "#";
+      var attrs = link && link !== "#"
+        ? ' href="' + esc(link) + '" target="_blank" rel="noopener"'
+        : ' href="#"';
+      var thumb = p.image
+        ? '<img src="' + esc(p.image) + '" alt="">'
+        : '<div class="merch-mark">SKY</div>';
+      return '<a class="merch-card"' + attrs + '>' +
+        '<div class="merch-thumb">' + thumb +
+          (p.tag ? '<span class="merch-tag">' + esc(p.tag) + "</span>" : "") + "</div>" +
+        '<div class="merch-body"><div class="merch-info">' +
+          '<div class="merch-name">' + esc(p.name) + "</div>" +
+          '<div class="merch-price">NT$' + esc(p.price) + "</div></div>" +
+          '<span class="merch-buy">購買 →</span>' +
+        "</div></a>";
+    }).join("");
+  }
   $("mood-tags").addEventListener("click", function (e) {
     var b = e.target.closest("[data-mood]");
     if (!b) return;
@@ -1628,7 +1737,19 @@ window.ALBUM_CONFIG = ALBUM_CONFIG;
   renderPlans();
   renderUnlockView();
   renderMoodWall();
+  renderMerch();
+  go(state.screen);   /* 同步導覽島滑塊位置（新的 flex 等寬 tab） */
   renderProgress(pos.time || 0);
+
+  /* 打包測試版清潔工：移除打包工具塞在頁面底部的除錯浮層
+     （[bundle] error 紅框 / Unpacking 提示）。正式部署本來就沒有，這段不影響。 */
+  setInterval(function () {
+    document.querySelectorAll("html > div, body > div").forEach(function (d) {
+      if (d.id === "stage") return;
+      if (d.id === "__bundler_loading" || d.id === "__bundler_thumbnail" ||
+          /^\s*\[bundle\]/.test(d.textContent || "")) d.remove();
+    });
+  }, 700);
 })();
 
 </script>
