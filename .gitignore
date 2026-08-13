@@ -1,4 +1,16 @@
+# 工作檔 / 研究原型 —— 不上線
+_pending-album-switch/
+_投放區/
+_R2上傳包/
+_R2上傳包_舊歌/
+_研究_*.html
+發文工具.html
+CHANCE_SIGNAL_付費課金企劃.md
+CHANCE_SIGNAL_變現一頁.pdf
+綠界付款_接線指南.md
+綠界_填這裡.md
+
+# 系統檔
 .DS_Store
-.wrangler/
-*/.wrangler/
-node_modules/
+**/.DS_Store
+_備份_今日工作檔/
