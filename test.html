@@ -94,25 +94,37 @@ html, body {
 #screen-player { background: var(--bg); }
 .player-fold { height: 100%; min-height: 520px; display: flex; flex-direction: column; }
 
-/* 專輯切換鈕（THE SKY ⇄ 舊歌）：懸浮在封面上緣，不動 DESIGN LOCK 的留白 */
-#album-switch { position: absolute; z-index: 5;
-                top: calc(26px + env(safe-area-inset-top)); left: 50%;
-                transform: translateX(-50%);
-                display: flex; padding: 3px; border-radius: 20px;
-                background: rgba(10,10,14,.42);
-                backdrop-filter: blur(24px) saturate(1.5);
-                -webkit-backdrop-filter: blur(24px) saturate(1.5); /* iPhone 必要 */
-                border: 1px solid rgba(255,255,255,.14);
-                box-shadow: 0 8px 22px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2); }
-.album-switch-btn { border: none; cursor: pointer; background: none;
-                    padding: 5px 14px; border-radius: 16px;
-                    font-family: var(--font-label); font-weight: 600; font-size: 10px;
-                    letter-spacing: 1.6px; color: rgba(255,255,255,.55);
-                    transition: color .25s ease, background .25s ease; }
-.album-switch-btn.active { color: #fff;
-                           background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(var(--primary-rgb), .16));
-                           box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
-.album-switch-btn:active { transform: scale(.94); }
+/* 專輯切換：改成封面底部的圓點指示器（可點也可滑），不再用文字膠囊
+   —— 原本的文字膠囊會跟封面大標重疊，且沒有暗示「可以滑」 */
+/* 位置：封面卡內部下緣，np-card 會往上疊 52px，所以再往上留 62px 才不會被蓋住 */
+#album-switch { position: absolute; z-index: 6;
+                bottom: 62px; left: 50%; transform: translateX(-50%);
+                display: flex; align-items: center; gap: 7px;
+                padding: 6px 10px; border-radius: 20px;
+                background: rgba(10,10,14,.34);
+                backdrop-filter: blur(18px) saturate(1.4);
+                -webkit-backdrop-filter: blur(18px) saturate(1.4); /* iPhone 必要 */
+                border: 1px solid rgba(255,255,255,.12); }
+.album-dot { width: 7px; height: 7px; border-radius: 50%; border: none; padding: 0;
+             cursor: pointer; background: rgba(255,255,255,.34);
+             transition: background .25s ease, width .25s ease; }
+.album-dot.active { width: 20px; border-radius: 4px; background: var(--primary);
+                    box-shadow: 0 0 8px rgba(var(--primary-rgb), .7); }
+/* 首次進入時提示可滑動，3 秒後淡出 */
+/* BUG FIX：分頁島隱藏時（player-only 專輯），把為它預留的底部空白收掉，
+   不然畫面下方會有一大塊莫名的空白 */
+body.no-nav .np-card { margin-bottom: calc(24px + env(safe-area-inset-bottom)); }
+body.no-nav .screen-sub { padding-bottom: calc(30px + env(safe-area-inset-bottom)); }
+body.no-nav .tracklist-block { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
+
+.swipe-hint { position: absolute; z-index: 6; left: 50%; transform: translateX(-50%);
+              bottom: 88px; white-space: nowrap;
+              font-family: var(--font-label); font-size: 9px; letter-spacing: 2px;
+              color: rgba(255,255,255,.55); text-transform: uppercase;
+              text-shadow: 0 1px 6px rgba(0,0,0,.7);
+              animation: hintFade 4s ease forwards; pointer-events: none; }
+@keyframes hintFade { 0%,12% { opacity: 0; } 30%,62% { opacity: 1; } 100% { opacity: 0; } }
 
 /* 封面：圓角長方形 + 上方留白（DESIGN LOCK：不要改成貼頂滿版） */
 .cover-card {
@@ -696,8 +708,6 @@ html, body {
 
   <!-- ================= PLAYER（聽歌）================= -->
   <section id="screen-player" class="screen active">
-    <!-- 專輯切換鈕（THE SKY ⇄ 舊歌；app.js 依 ALBUM_SWITCH 渲染） -->
-    <div id="album-switch" class="hidden"></div>
     <div class="player-fold">
 
       <!-- 封面（換圖：album-config.js → coverImage） -->
@@ -709,6 +719,8 @@ html, body {
           <div class="cover-eyebrow" id="cover-eyebrow"></div>
           <div class="cover-title-en" id="cover-title-en"></div>
         </div>
+        <!-- 專輯切換指示點（左右滑也可切換；app.js 依 ALBUM_SWITCH 渲染） -->
+        <div id="album-switch" class="hidden"></div>
       </div>
 
       <!-- Now Playing 毛玻璃卡片 -->
@@ -1777,6 +1789,7 @@ Hundred percent 到到到底
 
 const CLASSICS = {
 
+  tabs: "player-only",          // BEFORE THE SKY：只有聽歌，不顯示分頁島（靠滑動回 THE SKY）
   albumId: "chance-classics",
   switchLabel: "BEFORE",
   albumTitle: "BEFORE THE SKY",
@@ -2020,15 +2033,27 @@ window.ALBUM_SWITCH = {
       setTimeout(function () { location.href = u.toString(); }, dir ? 150 : 0);
     }
 
+    /* 圓點指示器（可點也可滑）—— 不用文字，避免跟封面大標打架 */
     box.classList.remove("hidden");
     box.innerHTML = SW.options.map(function (o) {
-      return '<button class="album-switch-btn' + (o.id === SW.active ? " active" : "") +
-        '" data-album="' + esc(o.id) + '">' + esc(o.label) + "</button>";
+      return '<button class="album-dot' + (o.id === SW.active ? " active" : "") +
+        '" data-album="' + esc(o.id) + '" aria-label="' + esc(o.label) + '"></button>';
     }).join("");
     box.addEventListener("click", function (e) {
       var b = e.target.closest("[data-album]");
       if (b) switchTo(b.getAttribute("data-album"), 0);
     });
+    /* 首次使用提示「左右滑動換專輯」，看過一次就不再顯示 */
+    try {
+      if (!localStorage.getItem("album-swipe-hint-seen")) {
+        var hint = document.createElement("div");
+        hint.className = "swipe-hint";
+        hint.textContent = "← 滑動切換專輯 →";
+        (document.getElementById("cover-card") || box.parentNode).appendChild(hint);
+        localStorage.setItem("album-swipe-hint-seen", "1");
+        setTimeout(function () { hint.remove(); }, 4200);
+      }
+    } catch (e) {}
 
     /* 封面左右滑切換專輯（只掛在封面，不會干擾進度條拖曳與頁面捲動） */
     var ids = SW.options.map(function (o) { return o.id; });
@@ -2046,8 +2071,7 @@ window.ALBUM_SWITCH = {
         var t = e.changedTouches[0];
         var dx = t.clientX - sx, dy = t.clientY - sy;
         if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // 太短或偏垂直＝不算
-        var next = dx < 0 ? cur + 1 : cur - 1;                              // 左滑下一張、右滑上一張
-        if (next < 0 || next >= ids.length) return;                         // 到頭就不動
+        var next = (cur + (dx < 0 ? 1 : -1) + ids.length) % ids.length;      // 左滑下一張、右滑上一張（循環）
         switchTo(ids[next], dx < 0 ? -1 : 1);
       }, { passive: true });
     }
@@ -2099,13 +2123,20 @@ window.ALBUM_SWITCH = {
     var labels = STR.navTabs || ["聽歌", "完整版", "秘密", "心情牆"];
     document.querySelectorAll("#nav .navbtn .navlbl").forEach(function (el, i) { el.textContent = labels[i] || ""; });
   })();
-  /* 全免費專輯（如 BEFORE THE SKY）：沒東西可買 → 藏「擁有」tab。
-     沒設定 merch → 藏「周邊」tab。 */
+  /* 分頁顯示規則：
+   *   config.tabs === "player-only" → 整條分頁島隱藏（BEFORE THE SKY：只聽歌）
+   *   全免費專輯 → 藏「擁有」；沒有 merch → 藏「周邊」 */
   var ALL_FREE = TRACKS.every(function (t) { return t.free; });
   var HAS_MERCH = !!(CFG.merch && (CFG.merch.items || []).length);
+  var PLAYER_ONLY = CFG.tabs === "player-only";
   function hideTab(s) { var b = document.querySelector('#nav .navbtn[data-screen="' + s + '"]'); if (b) b.classList.add("hidden"); }
-  if (ALL_FREE) hideTab("purchase");
-  if (!HAS_MERCH) hideTab("merch");
+  if (PLAYER_ONLY) {
+    document.getElementById("nav-wrap").classList.add("hidden");
+    document.body.classList.add("no-nav");
+  } else {
+    if (ALL_FREE) hideTab("purchase");
+    if (!HAS_MERCH) hideTab("merch");
+  }
 
   /* ---------- 狀態 ---------- */
   var pos = lsGet(LS.pos, {});
@@ -2420,6 +2451,9 @@ window.ALBUM_SWITCH = {
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
   var ORDER = ["player", "purchase", "merch", "mood", "gallery"];
   function go(screen) {
+    /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
+       若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
+    if (PLAYER_ONLY && screen !== "player") return;
     state.screen = screen;
     closeSheet();
     ORDER.forEach(function (s) {
