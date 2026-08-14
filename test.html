@@ -597,6 +597,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .merch-name { font-family: var(--font-serif-tc); font-size: 17px; font-weight: 600; letter-spacing: .5px; }
 .merch-desc { font-size: 12.5px; line-height: 1.8; color: var(--muted); margin-top: 7px; }
 .merch-foot { display: flex; align-items: baseline; gap: 11px; margin: 13px 0 12px; }
+.merch-soon { font-family: var(--font-serif-tc) !important; font-style: normal !important;
+              font-size: 17px !important; letter-spacing: 3px; color: var(--muted) !important; }
 .merch-price { font-family: var(--font-display); font-style: italic; font-weight: 600;
                font-size: 24px; color: #fff; }
 .merch-was { font-family: var(--font-label); font-size: 13px; letter-spacing: .5px;
@@ -943,6 +945,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
       <div class="email-desc" id="email-modal-desc">付款完成後，訂單與兌換碼會寄到這個信箱。</div>
       <input class="form-input" id="email-modal-input" type="email" inputmode="email"
              autocomplete="email" placeholder="you@example.com">
+      <input class="form-input hidden" id="email-modal-name" type="text" placeholder="購票人姓名（入場核對用）" autocomplete="name" style="margin-top:10px">
       <div class="email-err hidden" id="email-modal-err">Email 格式不太對，再確認一下</div>
       <button class="btn-primary" id="email-modal-ok">前往付款</button>
       <button class="email-cancel" id="email-modal-cancel">取消</button>
@@ -1435,13 +1438,17 @@ const THE_SKY = {
     heading: "周邊 · 限量商品",
     note: "只在 App 內販售 · 持有者專屬",
     currency: "NT$",
+    /* ⚠️ 周邊總開關：true = 全部只顯示「敬請期待」、不顯示金額、按鈕鎖住。
+       要開賣就改成 false（或直接刪掉這一行）。單一商品也可以自己加 comingSoon 覆蓋。
+       注意：這只管周邊分頁，專輯（數位版／典藏版）不受影響，照常販售。 */
+    comingSoon: true,
     items: [
       {
         productKey: "ticket-normal",
         name: "THE SKY 2027 聽片會 · 一般票",
         desc: "三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。",
         price: 1350, originalPrice: 1500,   // 預購 10% off
-        limited: 205,
+        limited: 150,
         badge: "預購 9 折 · 2027.02.20",
         buyLabel: "預購",
         image: "assets/images/merch/ticket.jpg",
@@ -1451,6 +1458,7 @@ const THE_SKY = {
         name: "THE SKY 2027 聽片會 · VIP 票",
         desc: "VIP 席位 · 含限定周邊與會後交流。",
         price: 2250, originalPrice: 2500,   // 預購 10% off
+        limited: 55,
         badge: "VIP · 預購 9 折",
         buyLabel: "預購",
         image: "assets/images/merch/ticket-vip.jpg",
@@ -2563,36 +2571,43 @@ window.ALBUM_SWITCH = {
     var items = M.items || [];
     $("merch-list").innerHTML = items.map(function (it, i) {
       var soldout = it.soldOut;
+      /* 未上架：不顯示任何金額，按鈕鎖住。價格還留在設定裡，開賣只要關掉 comingSoon */
+      var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
       var stock = (it.limited != null)
-        ? '<span class="merch-stock">限量 ' + it.limited + (it.left != null ? ' · 剩 ' + it.left : '') + '</span>'
+        ? '<span class="merch-stock">限量 ' + it.limited + (it.left != null && !soon ? ' · 剩 ' + it.left : '') + '</span>'
         : "";
       var img = it.image
         ? '<div class="merch-img"><img src="' + esc(it.image) + '" alt="" loading="lazy"></div>'
         : '<div class="merch-img merch-img-ph">' + esc(it.emoji || "◈") + '</div>';
-      var btn = soldout
+      var btn = soon
+        ? '<button class="btn-primary merch-buy" disabled>敬請期待 · 尚未上架</button>'
+        : soldout
         ? '<button class="btn-primary merch-buy" disabled>已售罄</button>'
         : '<button class="btn-primary merch-buy" data-merch="' + i + '">' +
           (it.buyLabel || "購買") + ' · ' + (M.currency || "NT$") + it.price + "</button>";
-      var wasPrice = it.originalPrice && it.originalPrice > it.price
+      var priceHtml = soon
+        ? '<span class="merch-price merch-soon">敬請期待</span>'
+        : '<span class="merch-price">' + (M.currency || "NT$") + it.price + "</span>";
+      var wasPrice = (!soon && it.originalPrice && it.originalPrice > it.price)
         ? '<span class="merch-was">' + (M.currency || "NT$") + it.originalPrice + "</span>" : "";
-      return '<div class="merch-card' + (soldout ? " soldout" : "") + '">' + img +
+      return '<div class="merch-card' + (soldout && !soon ? " soldout" : "") + '">' + img +
         '<div class="merch-body">' +
           (it.badge ? '<div class="merch-badge">' + esc(it.badge) + "</div>" : "") +
           '<div class="merch-name">' + esc(it.name) + "</div>" +
           '<div class="merch-desc">' + esc(it.desc || "") + "</div>" +
-          '<div class="merch-foot"><span class="merch-price">' + (M.currency || "NT$") + it.price + "</span>" +
-            wasPrice + stock + "</div>" +
+          '<div class="merch-foot">' + priceHtml + wasPrice + stock + "</div>" +
           btn +
         "</div></div>";
     }).join("");
   }
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
-  function goEcpay(productKey, email) {
+  function goEcpay(productKey, email, name) {
     var base = (CFG.api && CFG.api.workerBaseUrl) || "";
     if (!base) { toast("後端尚未設定"); return; }
     var u = base.replace(/\/$/, "") + "/ecpay/create?productKey=" + encodeURIComponent(productKey) +
-            "&email=" + encodeURIComponent(email);
+            "&email=" + encodeURIComponent(email) +
+            (name ? "&name=" + encodeURIComponent(name) : "");
     window.location.href = u;   // 同分頁導轉，付完綠界會用 ClientBackURL 導回
   }
 
@@ -2605,19 +2620,29 @@ window.ALBUM_SWITCH = {
     $("email-modal-title").textContent = opts.title || "購買前，先留下 Email";
     $("email-modal-desc").textContent = opts.desc || "付款完成後，訂單與兌換碼會寄到這個信箱。";
     $("email-modal-input").value = saved;
+    var nameEl = $("email-modal-name");
+    nameEl.classList.toggle("hidden", !opts.needName);
+    nameEl.value = lsGet(NS + ":lastname", "");
+    askNeedName = !!opts.needName;
     $("email-modal-err").classList.add("hidden");
     $("email-modal").classList.remove("hidden");
     setTimeout(function () { $("email-modal-input").focus(); }, 120);
     emailCb = cb;
   }
-  var emailCb = null;
+  var emailCb = null, askNeedName = false;
   function closeEmailModal() { $("email-modal").classList.add("hidden"); emailCb = null; }
   $("email-modal-ok").addEventListener("click", function () {
     var v = ($("email-modal-input").value || "").trim().toLowerCase();
-    if (!EMAIL_RE.test(v)) { $("email-modal-err").classList.remove("hidden"); return; }
+    if (!EMAIL_RE.test(v)) { $("email-modal-err").textContent = "Email 格式不太對，再確認一下"; $("email-modal-err").classList.remove("hidden"); return; }
+    var nm = ($("email-modal-name").value || "").trim();
+    if (askNeedName && nm.length < 2) {
+      $("email-modal-err").textContent = "請填購票人姓名，入場時需要核對";
+      $("email-modal-err").classList.remove("hidden"); return;
+    }
     lsSet(NS + ":lastemail", v);       // 記住，下次不用再打
+    if (nm) lsSet(NS + ":lastname", nm);
     var cb = emailCb; closeEmailModal();
-    if (cb) cb(v);
+    if (cb) cb(v, nm);
   });
   $("email-modal-cancel").addEventListener("click", closeEmailModal);
   $("email-modal").addEventListener("click", function (e) { if (e.target === this) closeEmailModal(); });
@@ -2628,14 +2653,20 @@ window.ALBUM_SWITCH = {
     var b = e.target.closest("[data-merch]"); if (!b) return;
     var it = (CFG.merch.items || [])[+b.getAttribute("data-merch")];
     if (!it) return;
+    /* 保險：即使按鈕被繞過也不會走到結帳 */
+    var soonNow = (it.comingSoon != null) ? it.comingSoon : !!(CFG.merch || {}).comingSoon;
+    if (soonNow) { toast("這個商品還沒上架，敬請期待"); return; }
     hap(10);
     if (it.link) { window.open(it.link, "_blank"); return; }        // 若之後改用外部連結
     if (!it.productKey) { toast("這個商品尚未設定"); return; }
+    var isTicket = String(it.productKey || "").indexOf("ticket") === 0;
     askEmail({
       title: it.name,
+      needName: isTicket,
       desc: (it.buyLabel || "購買") + " · " + ((CFG.merch || {}).currency || "NT$") + it.price +
-            "　付款完成後，訂單確認會寄到這個信箱。"
-    }, function (email) { goEcpay(it.productKey, email); });
+            (isTicket ? "　付款完成後，帶 QR code 的電子票會寄到這個信箱。"
+                      : "　付款完成後，訂單確認會寄到這個信箱。")
+    }, function (email, name) { goEcpay(it.productKey, email, name); });
   });
 
   /* ---------- 兌換 / 解鎖 ---------- */
