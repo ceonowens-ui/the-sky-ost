@@ -1845,6 +1845,7 @@ const CLASSICS = {
 
   // tabs 不設 → 顯示底部 nav 島
   albumId: "chance-classics",
+  navShowAll: true,             // 顯示全部 5 顆分頁，跟 THE SKY 一致
   switchLabel: "BEFORE",
   albumTitle: "BEFORE THE SKY",
   albumTitleEn: "BEFORE THE SKY",
@@ -2187,7 +2188,9 @@ window.ALBUM_SWITCH = {
   if (PLAYER_ONLY) {
     document.getElementById("nav-wrap").classList.add("hidden");
     document.body.classList.add("no-nav");
-  } else {
+  } else if (CFG.navShowAll) {
+    /* 強制顯示全部 5 顆分頁（BEFORE THE SKY 要跟 THE SKY 同一組 nav） */
+} else {
     if (ALL_FREE) hideTab("purchase");
     if (!HAS_MERCH) hideTab("merch");
   }
@@ -2613,6 +2616,7 @@ window.ALBUM_SWITCH = {
           btn +
         "</div></div>";
     }).join("");
+    if (CFG.navShowAll && !items.length) { $("merch-list").innerHTML = '<div style="text-align:center;padding:44px 24px"><div class="page-note" style="font-size:15px;line-height:2.1">周邊商品敬請期待 ✨<br>上架後會在這裡跟你說</div></div>'; }
   }
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
@@ -2685,6 +2689,22 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 兌換 / 解鎖 ---------- */
   function renderUnlockView() {
+    if (CFG.navShowAll && ALL_FREE) {
+      $("unlock-form-view").classList.add("hidden");
+      $("unlock-done-view").classList.add("hidden");
+      $("purchase-title-en").textContent = "All Free";
+      $("purchase-title-tc").textContent = "全部免費";
+      $("purchase-note").textContent = "這張專輯不用購買，直接聽";
+      if (!$("free-placeholder")) {
+        var fp = document.createElement("div");
+        fp.id = "free-placeholder";
+        fp.style.cssText = "text-align:center;padding:44px 24px";
+        fp.innerHTML = '<div class="page-note" style="font-size:15px;line-height:2.1">這張專輯全部免費 🎧<br>不用購買，直接聽歌就好</div><button class="btn-chip" id="fp-goto" style="margin-top:22px">前往聽歌 →</button>';
+        $("screen-purchase").appendChild(fp);
+        $("fp-goto").addEventListener("click", function () { go("player"); });
+      }
+      return;
+    }
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
     if (!state.unlocked) return;
