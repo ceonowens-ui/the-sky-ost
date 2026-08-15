@@ -160,7 +160,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
               transparent 15%, transparent 78%, rgba(0,0,0,.3) 91%, rgba(0,0,0,.51) 100%);
 }
-.cover-titles { position: absolute; top: 0; left: 0; right: 0; padding: 14px 24px 0;
+.cover-titles { display: none; /* 封面字題直接印在照片上，關掉 App 疊字 */ position: absolute; top: 0; left: 0; right: 0; padding: 14px 24px 0;
                 text-align: center; z-index: 2; }
 .cover-eyebrow { font-family: var(--font-label); font-weight: 500; font-size: 9px;
                  letter-spacing: 4.5px; color: rgba(255,255,255,.85);
