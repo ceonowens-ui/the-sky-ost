@@ -50,6 +50,14 @@
   --font-label: 'Bodoni Moda', serif;          /* 小型全大寫 label / 數字 */
   --font-serif-tc: 'Noto Serif TC', serif;     /* 中文標題 */
   --font-sans-tc: 'Noto Sans TC', sans-serif;  /* 中文內文 */
+
+  /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
+     fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
+  --pv-cover-top: 16px;      /* 封面上距（安全區之外再留） */
+  --pv-card-overlap: 52px;   /* Now Playing 卡往上疊住封面多少 */
+  --pv-nav-bottom: 12px;     /* nav 島下緣（安全區之外再留） */
+  --pv-nav-shift-y: 0px;     /* nav 島額外垂直位移（可負→蓋進安全區） */
+  --pv-nav-opacity: 1;       /* nav 島透明度 0~1 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -66,18 +74,19 @@ html, body {
 
 /* ---- 舞台：手機滿版；桌機置中成手機比例 --------------------------- */
 #stage {
-  position: relative;
+  position: fixed; inset: 0;   /* PWA 配方：不用 vh/dvh，fixed+inset 永遠貼齊真實四邊，standalone 不露異色縫 */
+  height: auto;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
   margin: 0 auto;
   overflow: hidden;
   background: var(--bg);
 }
+/* 配方：standalone 下讓畫布吃滿真實可視高度 */
+@media (display-mode: standalone) { html, body { min-height: 100lvh; } }
 @media (min-width: 520px) {
   body { display: flex; align-items: center; justify-content: center;
          background: radial-gradient(130% 100% at 50% -5%, var(--bg-top), #060409 60%); }
-  #stage { width: 416px; height: min(870px, 96vh); border-radius: 44px;
+  #stage { position: relative; inset: auto; width: 416px; height: min(870px, 96vh); border-radius: 44px;
            box-shadow: 0 44px 90px rgba(0,0,0,.6), 0 0 0 12px #17131d, 0 0 0 13px rgba(255,255,255,.07); }
 }
 
@@ -129,7 +138,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* 封面：圓角長方形 + 上方留白（DESIGN LOCK：不要改成貼頂滿版） */
 .cover-card {
   position: relative; flex: 1; min-height: 240px; overflow: hidden;
-  margin: calc(16px + env(safe-area-inset-top)) 12px 0;
+  margin: calc(var(--sat, env(safe-area-inset-top)) + var(--pv-cover-top, 16px)) 12px 0;
   border-radius: 28px;
   box-shadow: 0 22px 50px rgba(0,0,0,.58), 0 5px 16px rgba(0,0,0,.42), 0 0 0 1px rgba(255,255,255,.06);
 }
@@ -162,7 +171,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* Now Playing：毛玻璃卡片，往上疊在封面（DESIGN LOCK） */
 .np-card {
   position: relative; z-index: 3;
-  margin: -52px 18px calc(86px + env(safe-area-inset-bottom));
+  margin: calc(-1 * var(--pv-card-overlap, 52px)) 18px calc(86px + env(safe-area-inset-bottom));
   padding: 12px 18px 4px;
   background: var(--surface);
   backdrop-filter: blur(22px);
@@ -488,9 +497,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
  * FLOATING ISLAND BOTTOM NAV（DESIGN LOCK：浮動島狀 pill）
  * =================================================================== */
 #nav-wrap { position: absolute; left: 0; right: 0;
-            bottom: calc(12px + env(safe-area-inset-bottom)); /* 避開 home indicator */
+            bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 12px) + var(--pv-nav-shift-y, 0px)); /* 避開 home indicator，可用 tuner 調 */
             z-index: 70; display: flex; justify-content: center; pointer-events: none; }
-#nav { position: relative; display: flex; padding: 6px; border-radius: 30px;
+#nav { position: relative; display: flex; padding: 6px; border-radius: 30px; opacity: var(--pv-nav-opacity, 1);
        background: rgba(18,18,22,.16);
        backdrop-filter: blur(44px) saturate(1.7);
        -webkit-backdrop-filter: blur(44px) saturate(1.7); /* iPhone 必要 */
