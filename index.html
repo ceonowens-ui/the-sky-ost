@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- theme-color 由 app.js 依 ALBUM_CONFIG.theme.themeColor 覆寫 -->
-<meta name="theme-color" content="#0d0a12">
+<meta name="theme-color" content="#0B0709">
 <!-- 標題與 icon 由 app.js 從 config 填入 -->
 <title>Album App</title>
 <link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/cover.png">
@@ -35,16 +35,16 @@
 
 :root {
   /* 預設值 = Secret Lover 主題；app.js 會用 ALBUM_CONFIG.theme 覆寫 */
-  --bg: #0d0a12;
-  --bg-top: #1c1426;
-  --surface: rgba(22, 16, 28, .55);
-  --primary: #f29bc2;
-  --secondary: #c9b0ec;
-  --accent: #afc7f6;
+  --bg: #0B0709;
+  --bg-top: #2A0E13;
+  --surface: rgba(32, 14, 16, .55);
+  --primary: #E9C46A;
+  --secondary: #C4303A;
+  --accent: #E0A94E;
   --text: #ffffff;
   --muted: rgba(255, 255, 255, .62);
   /* app.js 會把 primary 換算成 r,g,b 填進來，供 rgba() 使用 */
-  --primary-rgb: 242, 155, 194;
+  --primary-rgb: 233, 196, 106;
   --grad: linear-gradient(135deg, var(--primary), var(--secondary) 52%, var(--accent));
   --font-display: 'Playfair Display', serif;   /* 英文斜體大標 */
   --font-label: 'Bodoni Moda', serif;          /* 小型全大寫 label / 數字 */
@@ -53,11 +53,11 @@
 
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
-  --pv-cover-top: 16px;      /* 封面上距（安全區之外再留） */
-  --pv-card-overlap: 52px;   /* Now Playing 卡往上疊住封面多少 */
-  --pv-nav-bottom: 12px;     /* nav 島下緣（安全區之外再留） */
-  --pv-nav-shift-y: 0px;     /* nav 島額外垂直位移（可負→蓋進安全區） */
-  --pv-nav-opacity: 1;       /* nav 島透明度 0~1 */
+  --pv-cover-top: -11px;     /* 封面上距（安全區之外再留） */
+  --pv-card-overlap: 84px;   /* Now Playing 卡往上疊住封面多少 */
+  --pv-nav-bottom: 10px;     /* nav 島下緣（安全區之外再留） */
+  --pv-nav-shift-y: -28px;   /* nav 島額外垂直位移（可負→蓋進安全區） */
+  --pv-nav-opacity: 0.73;    /* nav 島透明度 0~1 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -87,7 +87,7 @@ html, body {
   body { display: flex; align-items: center; justify-content: center;
          background: radial-gradient(130% 100% at 50% -5%, var(--bg-top), #060409 60%); }
   #stage { position: relative; inset: auto; width: 416px; height: min(870px, 96vh); border-radius: 44px;
-           box-shadow: 0 44px 90px rgba(0,0,0,.6), 0 0 0 12px #17131d, 0 0 0 13px rgba(255,255,255,.07); }
+           box-shadow: 0 44px 90px rgba(0,0,0,.6), 0 0 0 12px #1A0D0E, 0 0 0 13px rgba(255,255,255,.07); }
 }
 
 /* ---- 分頁 screen ---------------------------------------------------- */
@@ -160,7 +160,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
               transparent 15%, transparent 78%, rgba(0,0,0,.3) 91%, rgba(0,0,0,.51) 100%);
 }
-.cover-titles { position: absolute; top: 0; left: 0; right: 0; padding: 14px 24px 0;
+.cover-titles { display: none; position: absolute; top: 0; left: 0; right: 0; padding: 14px 24px 0;
                 text-align: center; z-index: 2; }
 .cover-eyebrow { font-family: var(--font-label); font-weight: 500; font-size: 9px;
                  letter-spacing: 4.5px; color: rgba(255,255,255,.85);
@@ -238,7 +238,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
               inset 0 0 0 1px rgba(255,255,255,.55);
 }
 .btn-play:active { transform: scale(.94); }
-.btn-play svg { fill: #2c1f3a; }
+.btn-play svg { fill: #2A0B0B; }
 
 /* Next Scene（打開 Bottom Sheet） */
 .np-next { display: flex; align-items: center; justify-content: space-between;
@@ -452,7 +452,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .mood-note.new { animation: reveal .5s ease both; }
 .mood-note-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
 .mood-note-name { font-family: var(--font-serif-tc); font-size: 13px; font-weight: 600;
-                  color: #e6def0; }
+                  color: #F0E2C6; }
 .mood-note-tag { font-size: 10.5px; color: var(--primary);
                  background: rgba(var(--primary-rgb), .14); padding: 3px 10px;
                  border-radius: 14px; letter-spacing: .5px; white-space: nowrap; }
@@ -530,7 +530,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .navbtn:active { transform: scale(.92); }
 .navbtn .navico { display: flex; transition: filter .35s ease; }
 .navbtn .navlbl { opacity: .62; transition: opacity .3s ease; }
-.navbtn.active { color: #fbd6e6; }
+.navbtn.active { color: #E9C46A; }
 .navbtn.active .navico { filter: drop-shadow(0 0 7px rgba(var(--primary-rgb), .6)); }
 .navbtn.active .navlbl { opacity: 1; }
 .navbtn.pop .navico { animation: tabPop .26s cubic-bezier(.34,1.3,.4,1); }
@@ -593,7 +593,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .merch-card.soldout { opacity: .62; }
 /* 高度自動：每張商品圖依自己的比例完整顯示，不裁切
    （票券很寬、手鍊接近方形，硬套同一個比例一定會切到） */
-.merch-img { position: relative; width: 100%; background: #050b14; }
+.merch-img { position: relative; width: 100%; background: #0B0709; }
 .merch-img img { width: 100%; height: auto; display: block; }
 .merch-img-ph { aspect-ratio: 16/10; }   /* 沒圖的佔位框才需要固定比例 */
 .merch-img-ph { display: flex; align-items: center; justify-content: center;
@@ -652,8 +652,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 #screen-mood .card-foot { display: flex; align-items: center; gap: 13px; padding: 11px 16px 13px; }
 #screen-mood .act { display: flex; align-items: center; gap: 6px; border: none; background: none; cursor: pointer;
   color: rgba(255,255,255,.45); font-family: var(--font-label); font-size: 11.5px; letter-spacing: 1px; transition: .2s; }
-#screen-mood .act.liked { color: #ff6b9d; }
-#screen-mood .act.liked svg { fill: #ff6b9d; animation: bounce .5s ease; }
+#screen-mood .act.liked { color: #E0525F; }
+#screen-mood .act.liked svg { fill: #E0525F; animation: bounce .5s ease; }
 #screen-mood .plays { display: flex; align-items: center; gap: 5px; font-family: var(--font-label);
   font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,.34); }
 #screen-mood .date { margin-left: auto; font-family: var(--font-label); font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,.3); }
@@ -662,12 +662,12 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   font-family: var(--font-label); font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); }
 #screen-mood .cap { padding: 13px 16px 0; font-size: 13.5px; line-height: 1.95; color: rgba(255,255,255,.88); white-space: pre-wrap; }
 
-#screen-mood .card.voice { background: linear-gradient(145deg,#1d4b7a,#16324f 65%,#122740); border-color: rgba(var(--primary-rgb),.24); }
+#screen-mood .card.voice { background: linear-gradient(145deg,#3A1013,#2A0B0E 65%,#1A0709); border-color: rgba(var(--primary-rgb),.24); }
 #screen-mood .v-top { padding: 17px 17px 4px; display: flex; align-items: center; gap: 8px;
   font-family: var(--font-label); font-size: 9.5px; letter-spacing: 2.6px; color: var(--primary); text-transform: uppercase; }
 #screen-mood .v-player { display: flex; align-items: center; gap: 13px; padding: 11px 17px 15px; }
 #screen-mood .v-btn { flex: none; width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--primary); color: #0a1a2c; display: flex; align-items: center; justify-content: center;
+  background: var(--primary); color: #2A0B0B; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 5px 18px rgba(var(--primary-rgb),.32); transition: transform .18s; }
 #screen-mood .v-btn:active { transform: scale(.9); }
 #screen-mood .wave { flex: 1; display: flex; align-items: center; gap: 2.5px; height: 36px; cursor: pointer; }
@@ -679,7 +679,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 #screen-mood .card.voice .cap { padding-top: 0; color: rgba(255,255,255,.82); font-size: 13px; }
 
 #screen-mood .card.media { background: var(--surface); }
-#screen-mood .m-wrap { position: relative; background: #050b14; }
+#screen-mood .m-wrap { position: relative; background: #0B0709; }
 #screen-mood .m-wrap img, #screen-mood .m-wrap video { width: 100%; display: block; object-fit: cover; aspect-ratio: 4/5; max-height: 452px; }
 #screen-mood .m-badge { position: absolute; top: 12px; right: 12px; padding: 4px 9px; border-radius: 11px;
   background: rgba(0,0,0,.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -707,7 +707,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                letter-spacing: 1px; text-align: center; }
 .email-desc { font-size: 12.5px; line-height: 1.85; color: var(--muted);
               text-align: center; margin: 9px 0 18px; }
-.email-err { font-size: 11.5px; color: #ff8fa8; margin: -8px 0 12px; text-align: center; }
+.email-err { font-size: 11.5px; color: #E0525F; margin: -8px 0 12px; text-align: center; }
 .email-cancel { width: 100%; margin-top: 10px; padding: 11px; border: none; background: none;
                 color: rgba(255,255,255,.45); font-family: var(--font-serif-tc);
                 font-size: 13px; letter-spacing: 1px; cursor: pointer; }
@@ -1326,27 +1326,27 @@ const THE_SKY = {
   artistName: "成晞 Chance",                        // 藝人名（Media Session 鎖定畫面顯示）
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
-  coverImage: "assets/images/sky/cover.jpg?v=0815",           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
+  coverImage: "assets/images/sky/cover.jpg?v=0816",           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
   coverVideo: "",            // 選填：6 秒循環影片取代靜態封面（自動靜音播放）
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
   /* ---- 品牌配色（每張專輯的色系）-------------------------------- */
   theme: {
-    bg:        "#07111F",                          // 全域背景（深藍黑，夜空/資料雲）
-    bgTop:     "#102030",                          // 頁面頂部 radial 漸層的亮端
-    surface:   "rgba(16,32,48,.55)",               // 玻璃卡片底色
-    primary:   "#DDEBFF",                          // 主色（冷銀白藍）：標題、進度條、按鈕
-    secondary: "#7FA6C9",                          // 次色（霧藍）：漸層中段
-    accent:    "#AFC7F6",                          // 點綴（淡藍紫光）：漸層尾端
+    bg:        "#0B0709",                          // 全域背景（純黑帶一點暖）
+    bgTop:     "#2A0E13",                          // 頁面頂部 radial 漸層的亮端（暗紅光）
+    surface:   "rgba(32,14,16,.55)",               // 玻璃卡片底色
+    primary:   "#E9C46A",                          // 主色（金）：標題、進度條、按鈕
+    secondary: "#C4303A",                          // 次色（紅）：漸層中段
+    accent:    "#E0A94E",                          // 點綴（琥珀金）：漸層尾端
     text:      "#ffffff",
     muted:     "rgba(255,255,255,.62)",
-    themeColor: "#07111F",                         // <meta name="theme-color">（iOS 狀態列）
+    themeColor: "#0B0709",                         // <meta name="theme-color">（iOS 狀態列）
     // 進度條圓點的角色標籤，依曲目單/雙數交替。
     progressDot: {
       labels:    ["SKY", "AI"],                     // [單數曲, 雙數曲]
       gradients: [
-        "linear-gradient(135deg,#DDEBFF,#AFC7F6)", // 單數曲
-        "linear-gradient(135deg,#7FA6C9,#AFC7F6)", // 雙數曲
+        "linear-gradient(135deg,#E9C46A,#E0A94E)", // 單數曲（金）
+        "linear-gradient(135deg,#C4303A,#E9C46A)", // 雙數曲（紅→金）
       ],
     },
   },
@@ -1847,21 +1847,21 @@ const CLASSICS = {
   albumEyebrow: "THE COLLECTION 2020–2026",
   artistName: "成晞 Chance",
 
-  coverImage: "assets/images/classics/cover.jpg?v=0815",  // BEFORE THE SKY 專屬封面
+  coverImage: "assets/images/classics/cover.jpg?v=0816",  // BEFORE THE SKY 專屬封面
   coverVideo: "",
   backgroundImage: "",
 
   /* 暖色復古調，跟 THE SKY 的冷藍作出區隔 */
   theme: {
-    bg:        "#120D08",
-    bgTop:     "#2A1C10",
-    surface:   "rgba(38,26,16,.55)",
-    primary:   "#F5D9A8",
-    secondary: "#C9A67F",
-    accent:    "#F6C68F",
+    bg:        "#0C0607",
+    bgTop:     "#331016",
+    surface:   "rgba(36,13,15,.55)",
+    primary:   "#E9C46A",
+    secondary: "#C4303A",
+    accent:    "#B22A34",
     text:      "#ffffff",
     muted:     "rgba(255,255,255,.62)",
-    themeColor: "#120D08",
+    themeColor: "#0C0607",
   },
 
   /* BEFORE THE SKY 全部免費，不需付費（payment 保留欄位但用不到）*/
@@ -2889,9 +2889,9 @@ window.ALBUM_SWITCH = {
     var ox = ((b.left + b.width / 2 - stage.left) / stage.width * 100).toFixed(1);
     var oy = ((b.top + b.height / 2 - stage.top) / stage.height * 100).toFixed(1);
     var fx = $("fx-layer");
-    var cols = [getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#f29bc2",
-                getComputedStyle(document.documentElement).getPropertyValue("--secondary").trim() || "#c9b0ec",
-                getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#afc7f6"];
+    var cols = [getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "#E9C46A",
+                getComputedStyle(document.documentElement).getPropertyValue("--secondary").trim() || "#C4303A",
+                getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#E0A94E"];
     var html = '<div class="fx-glow" style="left:' + ox + "%;top:" + oy + '%"></div>' +
                '<div class="fx-ring" style="left:' + ox + "%;top:" + oy + '%"></div>' +
                '<svg class="fx-bloom" width="60" height="60" viewBox="0 0 24 24" fill="' + cols[0] + '" style="left:' + ox + "%;top:" + oy + '%"><path d="' + HEART_PATH + '"/></svg>';
