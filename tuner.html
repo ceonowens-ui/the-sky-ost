@@ -160,7 +160,7 @@ function applyAll(){ applyVars(); applySafeArea(); }
 function loadSrc(){
   var v=document.getElementById('src').value.trim();
   if(!v) return;
-  f.src=v;
+  f.src=v+(v.indexOf('?')<0?'?':'&')+'cb='+Date.now();
 }
 function reload(){ f.src=f.src.split('?')[0]+'?'+Date.now(); }
 
