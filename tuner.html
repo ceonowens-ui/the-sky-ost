@@ -41,7 +41,7 @@ button:hover{background:#3a3a42}
 <div class="controls">
   <div class="controlRow">
     <label>目標網址</label>
-    <input type="text" id="src" value="index.html">
+    <input type="text" id="src" value="test.html">
     <button onclick="loadSrc()">載入</button>
   </div>
   <div class="controlRow">
@@ -78,7 +78,7 @@ var DEVICES = [
 
 /* ---- 2. 可調的滑桿：每一筆對應一個 --pv-* CSS 變數（見 PLAYER_CSS_CONTRACT.md） ---- */
 var SLIDERS = [
-  {key:'--pv-cover-top',    label:'封面上距',    min:-60,  max:60,  step:1, def:14,  unit:'px'},
+  {key:'--pv-cover-top',    label:'封面上距',    min:-60,  max:60,  step:1, def:0,  unit:'px'},
   {key:'--pv-card-overlap', label:'卡片重疊',    min:0,  max:120, step:1, def:52,  unit:'px'},
   {key:'--pv-nav-bottom',   label:'nav 下距',    min:-34,max:60,  step:1, def:12,  unit:'px'},
   {key:'--pv-nav-shift-y',  label:'nav 微移',    min:-40,max:40,  step:1, def:0,   unit:'px'},
