@@ -96,13 +96,13 @@ function buildDeviceSelect(){
     var o=document.createElement('option'); o.value=d.id; o.textContent=d.name;
     sel.appendChild(o);
   });
-  sel.value=DEVICES[0].id;
+  sel.value='iphone15plus';
 }
 
 function setDevice(id){
   var d=DEVICES.filter(function(x){return x.id===id;})[0]||DEVICES[0];
   var dev=document.getElementById('device');
-  dev.style.width=d.w+'px'; dev.style.height=d.h+'px';
+  dev.style.width=(d.w+26)+'px'; dev.style.height=(d.h+26)+'px'; // +26：screen inset 13 後 iframe=真實解析度
   document.getElementById('statusbar')&&0;
   var isl=document.getElementById('island');
   if(d.island){ isl.style.display='block'; isl.style.top='24px'; isl.style.width='118px'; isl.style.height='33px'; }
@@ -183,7 +183,7 @@ setInterval(applyAll, 400); // 保險：APP 自己重繪時持續補套用
 
 buildDeviceSelect();
 buildSliders();
-setDevice(DEVICES[0].id);
+setDevice('iphone15plus');
 loadSrc(); // 讀取 #src 目前的預設值（改這個 input 的 value 就是換目標 APP）
 </script>
 </body></html>
