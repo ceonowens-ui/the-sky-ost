@@ -7,7 +7,8 @@
 <!-- PWA / iPhone 加入主畫面 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- 最終解法：不設 status-bar-style（black-translucent 就是底部黑 bar 元兇），
+     iOS 會用 theme-color 填滿頂/底安全區 -->
 <!-- theme-color 由 app.js 依 ALBUM_CONFIG.theme.themeColor 覆寫 -->
 <meta name="theme-color" content="#0B0709">
 <!-- 標題與 icon 由 app.js 從 config 填入 -->
@@ -65,8 +66,10 @@
 html, body {
   height: 100vh;
   height: 100dvh; /* iPhone：dvh 蓋掉 vh */
+  margin: 0;
   overflow: hidden;
-  background: var(--bg);
+  overscroll-behavior: none; /* 擋掉 iOS 橡皮筋露出底色 */
+  background: var(--bg);     /* 與 theme-color 完全一致 */
   color: var(--text);
   font-family: var(--font-sans-tc);
   -webkit-font-smoothing: antialiased;
