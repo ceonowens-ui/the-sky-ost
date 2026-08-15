@@ -122,7 +122,8 @@ html, body {
 /* 首次進入時提示可滑動，3 秒後淡出 */
 /* BUG FIX：分頁島隱藏時（player-only 專輯），把為它預留的底部空白收掉，
    不然畫面下方會有一大塊莫名的空白 */
-body.no-nav .np-card { margin-bottom: calc(24px + env(safe-area-inset-bottom)); }
+/* player-only 專輯(BEFORE THE SKY)封面比例對齊 THE SKY：底部保留同樣空間，封面高度一致 */
+body.no-nav .np-card { margin-bottom: calc(86px + env(safe-area-inset-bottom)); }
 body.no-nav .screen-sub { padding-bottom: calc(30px + env(safe-area-inset-bottom)); }
 body.no-nav .tracklist-block { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
 body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
@@ -152,8 +153,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .cover-card.playing img, .cover-card.playing video { animation-play-state: running; }
 /* 有設定 coverVideo 時，影片顯示、圖片當作影片載入前的 poster 用途隱藏 */
 .cover-card video { display: none; }
-.cover-card.has-video video { display: block; }
-.cover-card.has-video img { display: none; }
+.cover-card.has-video video { display: block; z-index: 1; }
+/* 保留 img 當底層封面：影片還沒載入或載入失敗時，靜態封面照樣顯示（修「封面圖不見」）*/
 .cover-shade {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
