@@ -78,11 +78,13 @@ var DEVICES = [
 
 /* ---- 2. 可調的滑桿：每一筆對應一個 --pv-* CSS 變數（見 PLAYER_CSS_CONTRACT.md） ---- */
 var SLIDERS = [
-  {key:'--pv-cover-top',    label:'封面上距',    min:-60,  max:60,  step:1, def:0,  unit:'px'},
+  {key:'--pv-cover-top',    label:'封面上距',    min:-60,  max:60,  step:1, def:-1,  unit:'px'},
   {key:'--pv-card-overlap', label:'卡片重疊',    min:0,  max:120, step:1, def:52,  unit:'px'},
   {key:'--pv-nav-bottom',   label:'nav 下距',    min:-34,max:60,  step:1, def:12,  unit:'px'},
-  {key:'--pv-nav-shift-y',  label:'nav 微移',    min:-40,max:40,  step:1, def:0,   unit:'px'},
-  {key:'--pv-nav-opacity',  label:'nav 透明度',  min:0,  max:100, step:1, def:100, unit:'%'}
+  {key:'--pv-nav-shift-y',  label:'nav 微移',    min:-40,max:40,  step:1, def:-25,   unit:'px'},
+  {key:'--pv-nav-opacity',  label:'nav 透明度',  min:0,  max:100, step:1, def:100, unit:'%'},
+  {key:'--pv-nav-scale',   label:'nav 大小',    min:0.6,max:1.5, step:0.05, def:1, unit:''},
+  {key:'--pv-nav-font',    label:'nav 字體',    min:6,  max:16,  step:1, def:9, unit:'px'}
 ];
 
 var f=document.getElementById('f');
