@@ -78,13 +78,12 @@ var DEVICES = [
 
 /* ---- 2. 可調的滑桿：每一筆對應一個 --pv-* CSS 變數（見 PLAYER_CSS_CONTRACT.md） ---- */
 var SLIDERS = [
-  {key:'--pv-cover-top',    label:'封面上距',    min:-60,  max:60,  step:1, def:-1,  unit:'px'},
-  {key:'--pv-card-overlap', label:'卡片重疊',    min:0,  max:120, step:1, def:52,  unit:'px'},
-  {key:'--pv-nav-bottom',   label:'nav 下距',    min:-34,max:60,  step:1, def:12,  unit:'px'},
-  {key:'--pv-nav-shift-y',  label:'nav 微移',    min:-40,max:40,  step:1, def:-25,   unit:'px'},
-  {key:'--pv-nav-opacity',  label:'nav 透明度',  min:0,  max:100, step:1, def:100, unit:'%'},
-  {key:'--pv-nav-scale',   label:'nav 大小',    min:0.6,max:1.5, step:0.05, def:1, unit:''},
-  {key:'--pv-nav-font',    label:'nav 字體',    min:6,  max:16,  step:1, def:9, unit:'px'}
+  {key:'--pv-cover-top',   label:'封面上距',     min:-10, max:220, step:1, def:2,   unit:'px'},
+  {key:'--pv-nav-bottom',  label:'nav 上下',     min:0,   max:180, step:1, def:0,   unit:'px'},
+  {key:'--pv-np-gap',      label:'卡片間距',     min:10,  max:240, step:1, def:86,  unit:'px'},
+  {key:'--pv-nav-scale',   label:'nav 大小',     min:70,  max:140, step:1, def:98,  unit:'%'},
+  {key:'--pv-nav-y',       label:'nav 上下微移', min:-120,max:120, step:1, def:0,   unit:'px'},
+  {key:'--pv-nav-opacity', label:'nav 透明度',   min:0,   max:100, step:1, def:100, unit:'%'}
 ];
 
 var f=document.getElementById('f');
@@ -134,7 +133,8 @@ function buildSliders(){
 
 function cssVal(key,num){
   var unit = SLIDERS.filter(function(s){return s.key===key;})[0].unit;
-  if(unit==='%' && key==='--pv-nav-opacity') return (num/100);
+  /* nav 大小 / nav 透明度：滑桿是 %，但 CSS 要小數（scale 0.98、opacity 1） */
+  if(unit==='%' && (key==='--pv-nav-opacity' || key==='--pv-nav-scale')) return (num/100);
   return num+unit;
 }
 
