@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>iPhone 實機預覽（可調）</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2a30,#111);
+  display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 12px;
+  font-family:-apple-system,"PingFang TC",sans-serif;color:#cfcfd6}
+h1{font-size:15px;font-weight:600;margin:0}
+.hint{font-size:12px;color:#8b8b95;text-align:center;max-width:420px;line-height:1.6}
+.controls{display:flex;flex-direction:column;gap:10px;width:100%;max-width:420px;
+  background:#1c1c1f;border:1px solid #2c2c30;border-radius:14px;padding:14px 16px}
+.controlRow{display:flex;align-items:center;gap:10px}
+.controlRow label{font-size:12px;color:#a9a9b2;width:96px;flex:none}
+.controlRow input[type=range]{flex:1}
+.controlRow .val{font-size:12px;color:#e6e6ea;width:46px;text-align:right;flex:none}
+.controlRow input[type=text],.controlRow select{flex:1;background:#111;color:#eee;
+  border:1px solid #3a3a42;border-radius:8px;padding:6px 8px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+button{padding:8px 14px;border-radius:10px;border:1px solid #4a4a52;background:#2a2a30;
+  color:#fff;font-size:13px;cursor:pointer}
+button:hover{background:#3a3a42}
+.device{position:relative;flex:none;border-radius:55px;background:#000;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 13px #1c1c1e,0 0 0 15px #3a3a3c}
+.screen{position:absolute;inset:13px;border-radius:44px;overflow:hidden;background:#0d0a12}
+.screen iframe{width:100%;height:100%;border:0;display:block;background:#0d0a12}
+.island{position:absolute;left:50%;transform:translateX(-50%);background:#000;
+  border-radius:20px;z-index:20;pointer-events:none}
+.statusbar{position:absolute;left:13px;right:13px;height:44px;z-index:19;pointer-events:none;
+  display:flex;justify-content:space-between;align-items:center;padding:0 34px;
+  color:#fff;font-size:15px;font-weight:600;font-family:-apple-system,sans-serif}
+.home{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.55);
+  z-index:20;pointer-events:none}
+</style></head><body>
+<h1>iPhone 實機預覽（可即時調整）</h1>
+<div class="hint">拖滑桿即時預覽 → 滿意按「複製設定」→ 貼進目標 APP 的 &lt;style&gt;，覆蓋掉
+  fallback 預設值即可烘進真機同步版。此工具需要目標 APP 已實作
+  <code>reference/PLAYER_CSS_CONTRACT.md</code> 裡的 6 個 --pv-* 變數。</div>
+
+<div class="controls">
+  <div class="controlRow">
+    <label>目標網址</label>
+    <input type="text" id="src" value="test.html">
+    <button onclick="loadSrc()">載入</button>
+  </div>
+  <div class="controlRow">
+    <label>機型</label>
+    <select id="dev" onchange="setDevice(this.value)"></select>
+  </div>
+</div>
+
+<div class="controls" id="sliders"></div>
+
+<div class="row">
+  <button onclick="reload()">重新整理</button>
+  <button onclick="copyConfig()">複製設定</button>
+</div>
+<textarea id="out" style="position:absolute;left:-9999px"></textarea>
+
+<div class="device" id="device">
+  <div class="statusbar"><span>9:41</span><span>&#xF0009 &#xF06E8 &#xF02A6</span></div>
+  <div class="island" id="island"></div>
+  <div class="screen"><iframe id="f"></iframe></div>
+  <div class="home" id="home"></div>
+</div>
+
+<script>
+/* ---- 1. 裝置預設：數字全部來自 DEVICE_PRESETS.md，不是用猜的 ---- */
+var DEVICES = [
+  {id:'iphone14',    name:'iPhone 12/13/14',        w:390, h:844, top:47, bottom:34, island:false},
+  {id:'iphone14plus',name:'iPhone 14 Plus',          w:428, h:926, top:47, bottom:34, island:false},
+  {id:'iphone15',    name:'iPhone 15/16 (靈動島)',    w:393, h:852, top:59, bottom:34, island:true},
+  {id:'iphone15plus',name:'iPhone 15/16 Plus/Pro Max',w:430, h:932, top:59, bottom:34, island:true},
+  {id:'mini',        name:'iPhone 12/13 mini',       w:375, h:812, top:50, bottom:34, island:false},
+  {id:'se',          name:'iPhone SE (無瀏海)',       w:375, h:667, top:20, bottom:0,  island:false}
+];
+
+/* ---- 2. 可調的滑桿：每一筆對應一個 --pv-* CSS 變數（見 PLAYER_CSS_CONTRACT.md） ---- */
+var SLIDERS = [
+  {key:'--pv-cover-top',   label:'封面上距',     min:-10, max:220, step:1, def:2,   unit:'px'},
+  {key:'--pv-nav-bottom',  label:'nav 上下',     min:0,   max:180, step:1, def:0,   unit:'px'},
+  {key:'--pv-np-gap',      label:'卡片間距',     min:10,  max:240, step:1, def:86,  unit:'px'},
+  {key:'--pv-nav-scale',   label:'nav 大小',     min:70,  max:140, step:1, def:98,  unit:'%'},
+  {key:'--pv-nav-y',       label:'nav 上下微移', min:-120,max:120, step:1, def:0,   unit:'px'},
+  {key:'--pv-nav-opacity', label:'nav 透明度',   min:0,   max:100, step:1, def:100, unit:'%'}
+];
+
+var f=document.getElementById('f');
+var state={}; // key -> current numeric value
+
+function buildDeviceSelect(){
+  var sel=document.getElementById('dev');
+  DEVICES.forEach(function(d,i){
+    var o=document.createElement('option'); o.value=d.id; o.textContent=d.name;
+    sel.appendChild(o);
+  });
+  sel.value='iphone15plus';
+}
+
+function setDevice(id){
+  var d=DEVICES.filter(function(x){return x.id===id;})[0]||DEVICES[0];
+  var dev=document.getElementById('device');
+  dev.style.width=(d.w+26)+'px'; dev.style.height=(d.h+26)+'px'; // +26：screen inset 13 後 iframe=真實解析度
+  document.getElementById('statusbar')&&0;
+  var isl=document.getElementById('island');
+  if(d.island){ isl.style.display='block'; isl.style.top='24px'; isl.style.width='118px'; isl.style.height='33px'; }
+  else { isl.style.display='block'; isl.style.top='16px'; isl.style.width='164px'; isl.style.height='30px'; isl.style.borderRadius='18px'; }
+  document.querySelector('.statusbar').style.top=(d.island?24:16)+'px';
+  document.getElementById('home').style.display = d.bottom>0 ? 'block' : 'none';
+  window.__SAT=d.top+'px'; window.__SAB=d.bottom+'px';
+  applySafeArea();
+}
+
+function buildSliders(){
+  var wrap=document.getElementById('sliders');
+  SLIDERS.forEach(function(s){
+    state[s.key]=s.def;
+    var row=document.createElement('div'); row.className='controlRow';
+    var lab=document.createElement('label'); lab.textContent=s.label;
+    var input=document.createElement('input'); input.type='range';
+    input.min=s.min; input.max=s.max; input.step=s.step; input.value=s.def;
+    var val=document.createElement('div'); val.className='val'; val.textContent=s.def+s.unit;
+    input.addEventListener('input',function(){
+      state[s.key]=Number(input.value);
+      val.textContent=input.value+s.unit;
+      applyVars();
+    });
+    row.appendChild(lab); row.appendChild(input); row.appendChild(val);
+    wrap.appendChild(row);
+  });
+}
+
+function cssVal(key,num){
+  var unit = SLIDERS.filter(function(s){return s.key===key;})[0].unit;
+  /* nav 大小 / nav 透明度：滑桿是 %，但 CSS 要小數（scale 0.98、opacity 1） */
+  if(unit==='%' && (key==='--pv-nav-opacity' || key==='--pv-nav-scale')) return (num/100);
+  return num+unit;
+}
+
+function applyVars(){
+  try{
+    var root=f.contentDocument&&f.contentDocument.documentElement;
+    if(!root) return;
+    SLIDERS.forEach(function(s){
+      root.style.setProperty(s.key, cssVal(s.key, state[s.key]));
+    });
+  }catch(e){/* iframe not same-origin or not loaded yet */}
+}
+
+function applySafeArea(){
+  try{
+    var root=f.contentDocument&&f.contentDocument.documentElement;
+    if(!root) return;
+    if(window.__SAT) root.style.setProperty('--sat', window.__SAT);
+    if(window.__SAB) root.style.setProperty('--sab', window.__SAB);
+  }catch(e){}
+}
+
+function applyAll(){ applyVars(); applySafeArea(); }
+
+function loadSrc(){
+  var v=document.getElementById('src').value.trim();
+  if(!v) return;
+  f.src=v+(v.indexOf('?')<0?'?':'&')+'cb='+Date.now();
+}
+function reload(){ f.src=f.src.split('?')[0]+'?'+Date.now(); }
+
+function copyConfig(){
+  var lines=SLIDERS.map(function(s){
+    return '  '+s.key+': '+cssVal(s.key,state[s.key])+';';
+  });
+  var css=':root{\n'+lines.join('\n')+'\n}';
+  var ta=document.getElementById('out');
+  ta.value=css; ta.style.left='0'; ta.select();
+  document.execCommand&&document.execCommand('copy');
+  ta.style.left='-9999px';
+  alert('已複製設定：\n\n'+css);
+}
+
+f.addEventListener('load', applyAll);
+setInterval(applyAll, 400); // 保險：APP 自己重繪時持續補套用
+
+buildDeviceSelect();
+buildSliders();
+setDevice('iphone15plus');
+loadSrc(); // 讀取 #src 目前的預設值（改這個 input 的 value 就是換目標 APP）
+</script>
+</body></html>
