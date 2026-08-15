@@ -54,11 +54,11 @@
 
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
-  --pv-cover-top: -1px;     /* 封面上距（安全區之外再留） */
+  --pv-cover-top: -1px;      /* 封面上距（tuner 定稿 2026-08-15） */
   --pv-card-overlap: 52px;   /* Now Playing 卡往上疊住封面多少 */
   --pv-nav-bottom: 12px;     /* nav 島下緣（安全區之外再留） */
   --pv-nav-shift-y: -25px;   /* nav 島額外垂直位移（可負→蓋進安全區） */
-  --pv-nav-opacity: 1;    /* nav 島透明度 0~1 */
+  --pv-nav-opacity: 1;       /* nav 島透明度 0~1 */
   --pv-nav-scale: 1;         /* nav 島整體大小（縮放，1=原大小） */
   --pv-nav-font: 9px;        /* nav 島文字大小 */
 }
@@ -1846,7 +1846,7 @@ Hundred percent 到到到底
 
 const CLASSICS = {
 
-  // tabs 不設 → 顯示底部 nav 島
+  // tabs 不設 → 顯示底部 nav 島（全免費自動藏「擁有」、無周邊自動藏「周邊」）
   albumId: "chance-classics",
   navShowAll: true,             // 顯示全部 5 顆分頁，跟 THE SKY 一致
   switchLabel: "BEFORE",
@@ -2193,7 +2193,7 @@ window.ALBUM_SWITCH = {
     document.body.classList.add("no-nav");
   } else if (CFG.navShowAll) {
     /* 強制顯示全部 5 顆分頁（BEFORE THE SKY 要跟 THE SKY 同一組 nav） */
-} else {
+  } else {
     if (ALL_FREE) hideTab("purchase");
     if (!HAS_MERCH) hideTab("merch");
   }
@@ -2619,7 +2619,13 @@ window.ALBUM_SWITCH = {
           btn +
         "</div></div>";
     }).join("");
-    if (CFG.navShowAll && !items.length) { $("merch-list").innerHTML = '<div style="text-align:center;padding:44px 24px"><div class="page-note" style="font-size:15px;line-height:2.1">周邊商品敬請期待 ✨<br>上架後會在這裡跟你說</div></div>'; }
+    /* 沒有周邊商品的專輯（BEFORE THE SKY，但強制顯示 5 顆分頁）：放「敬請期待」佔位，不留白 */
+    if (CFG.navShowAll && !items.length) {
+      $("merch-list").innerHTML =
+        '<div style="text-align:center;padding:44px 24px">' +
+        '<div class="page-note" style="font-size:15px;line-height:2.1">周邊商品敬請期待 ✨<br>上架後會在這裡跟你說</div>' +
+        '</div>';
+    }
   }
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
@@ -2692,6 +2698,7 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 兌換 / 解鎖 ---------- */
   function renderUnlockView() {
+    /* 免費專輯（BEFORE THE SKY，強制顯示 5 顆分頁）：不顯示付費牆，改成「全免費」說明 */
     if (CFG.navShowAll && ALL_FREE) {
       $("unlock-form-view").classList.add("hidden");
       $("unlock-done-view").classList.add("hidden");
@@ -2702,7 +2709,8 @@ window.ALBUM_SWITCH = {
         var fp = document.createElement("div");
         fp.id = "free-placeholder";
         fp.style.cssText = "text-align:center;padding:44px 24px";
-        fp.innerHTML = '<div class="page-note" style="font-size:15px;line-height:2.1">這張專輯全部免費 🎧<br>不用購買，直接聽歌就好</div><button class="btn-chip" id="fp-goto" style="margin-top:22px">前往聽歌 →</button>';
+        fp.innerHTML = '<div class="page-note" style="font-size:15px;line-height:2.1">這張專輯全部免費 🎧<br>不用購買，直接聽歌就好</div>' +
+          '<button class="btn-chip" id="fp-goto" style="margin-top:22px">前往聽歌 →</button>';
         $("screen-purchase").appendChild(fp);
         $("fp-goto").addEventListener("click", function () { go("player"); });
       }

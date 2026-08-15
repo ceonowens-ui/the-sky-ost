@@ -54,11 +54,13 @@
 
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
-  --pv-cover-top: -11px;     /* 封面上距（安全區之外再留） */
-  --pv-card-overlap: 84px;   /* Now Playing 卡往上疊住封面多少 */
-  --pv-nav-bottom: 10px;     /* nav 島下緣（安全區之外再留） */
-  --pv-nav-shift-y: -28px;   /* nav 島額外垂直位移（可負→蓋進安全區） */
-  --pv-nav-opacity: 0.73;    /* nav 島透明度 0~1 */
+  --pv-cover-top: -1px;      /* 封面上距（tuner 定稿 2026-08-15） */
+  --pv-card-overlap: 52px;   /* Now Playing 卡往上疊住封面多少 */
+  --pv-nav-bottom: 12px;     /* nav 島下緣（安全區之外再留） */
+  --pv-nav-shift-y: -25px;   /* nav 島額外垂直位移（可負→蓋進安全區） */
+  --pv-nav-opacity: 1;       /* nav 島透明度 0~1 */
+  --pv-nav-scale: 1;         /* nav 島整體大小（縮放，1=原大小） */
+  --pv-nav-font: 9px;        /* nav 島文字大小 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -505,6 +507,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 12px) + var(--pv-nav-shift-y, 0px)); /* 避開 home indicator，可用 tuner 調 */
             z-index: 70; display: flex; justify-content: center; pointer-events: none; }
 #nav { position: relative; display: flex; padding: 6px; border-radius: 30px; opacity: var(--pv-nav-opacity, 1);
+       transform: scale(var(--pv-nav-scale, 1)); transform-origin: bottom center;
        background: rgba(18,18,22,.16);
        backdrop-filter: blur(44px) saturate(1.7);
        -webkit-backdrop-filter: blur(44px) saturate(1.7); /* iPhone 必要 */
@@ -529,7 +532,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .navbtn { position: relative; z-index: 1; width: 64px; padding: 7px 0 6px;
           border: none; background: none; cursor: pointer;
           display: flex; flex-direction: column; align-items: center; gap: 3px;
-          font-family: var(--font-serif-tc); font-size: 9px; letter-spacing: 1.2px;
+          font-family: var(--font-serif-tc); font-size: var(--pv-nav-font, 9px); letter-spacing: 1.2px;
           color: #8f8a9c; transition: color .3s ease, transform .18s ease; }
 .navbtn:active { transform: scale(.92); }
 .navbtn .navico { display: flex; transition: filter .35s ease; }
@@ -1843,8 +1846,9 @@ Hundred percent 到到到底
 
 const CLASSICS = {
 
-  tabs: "player-only",          // BEFORE THE SKY：只有聽歌，不顯示分頁島（靠滑動回 THE SKY）
+  // tabs 不設 → 顯示底部 nav 島（全免費自動藏「擁有」、無周邊自動藏「周邊」）
   albumId: "chance-classics",
+  navShowAll: true,             // 顯示全部 5 顆分頁，跟 THE SKY 一致
   switchLabel: "BEFORE",
   albumTitle: "BEFORE THE SKY",
   albumTitleEn: "BEFORE THE SKY",
@@ -2187,6 +2191,8 @@ window.ALBUM_SWITCH = {
   if (PLAYER_ONLY) {
     document.getElementById("nav-wrap").classList.add("hidden");
     document.body.classList.add("no-nav");
+  } else if (CFG.navShowAll) {
+    /* 強制顯示全部 5 顆分頁（BEFORE THE SKY 要跟 THE SKY 同一組 nav） */
   } else {
     if (ALL_FREE) hideTab("purchase");
     if (!HAS_MERCH) hideTab("merch");
@@ -2613,6 +2619,13 @@ window.ALBUM_SWITCH = {
           btn +
         "</div></div>";
     }).join("");
+    /* 沒有周邊商品的專輯（BEFORE THE SKY，但強制顯示 5 顆分頁）：放「敬請期待」佔位，不留白 */
+    if (CFG.navShowAll && !items.length) {
+      $("merch-list").innerHTML =
+        '<div style="text-align:center;padding:44px 24px">' +
+        '<div class="page-note" style="font-size:15px;line-height:2.1">周邊商品敬請期待 ✨<br>上架後會在這裡跟你說</div>' +
+        '</div>';
+    }
   }
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
@@ -2685,6 +2698,24 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 兌換 / 解鎖 ---------- */
   function renderUnlockView() {
+    /* 免費專輯（BEFORE THE SKY，強制顯示 5 顆分頁）：不顯示付費牆，改成「全免費」說明 */
+    if (CFG.navShowAll && ALL_FREE) {
+      $("unlock-form-view").classList.add("hidden");
+      $("unlock-done-view").classList.add("hidden");
+      $("purchase-title-en").textContent = "All Free";
+      $("purchase-title-tc").textContent = "全部免費";
+      $("purchase-note").textContent = "這張專輯不用購買，直接聽";
+      if (!$("free-placeholder")) {
+        var fp = document.createElement("div");
+        fp.id = "free-placeholder";
+        fp.style.cssText = "text-align:center;padding:44px 24px";
+        fp.innerHTML = '<div class="page-note" style="font-size:15px;line-height:2.1">這張專輯全部免費 🎧<br>不用購買，直接聽歌就好</div>' +
+          '<button class="btn-chip" id="fp-goto" style="margin-top:22px">前往聽歌 →</button>';
+        $("screen-purchase").appendChild(fp);
+        $("fp-goto").addEventListener("click", function () { go("player"); });
+      }
+      return;
+    }
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
     if (!state.unlocked) return;
