@@ -10,7 +10,7 @@
 <!-- 最終解法：不設 status-bar-style（black-translucent 就是底部黑 bar 元兇），
      iOS 會用 theme-color 填滿頂/底安全區 -->
 <!-- theme-color 由 app.js 依 ALBUM_CONFIG.theme.themeColor 覆寫 -->
-<meta name="theme-color" content="#0B0709">
+<meta name="theme-color" content="#08060C">
 <!-- 標題與 icon 由 app.js 從 config 填入 -->
 <title>Album App</title>
 <link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/cover.png">
@@ -18,8 +18,10 @@
 <!-- 字體（想換字體就改這行 + styles.css 的 --font-* 變數） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=Marcellus&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#08060C"/><rect x="30" y="24" width="40" height="40" rx="6" fill="#3B1B54"/><path d="M44 72h12v4H44z" fill="#D9B26A"/></svg></template>
 <style>
 /* =====================================================================
  * ALBUM APP TEMPLATE — styles.css
@@ -54,15 +56,31 @@
 
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
-  /* 6 支滑桿：完全對齊《秘密關係》tuner 模型與值 */
-  --pv-cover-top: -10px;       /* 封面上距：.cover-card margin-top */
-  --pv-nav-bottom: 0px;      /* nav 上下：#nav-wrap bottom 加成 */
-  --pv-np-gap: 62px;         /* 卡片間距：.np-card margin-bottom */
-  --pv-nav-scale: 1.08;      /* nav 大小：#nav scale */
-  --pv-nav-y: 10px;           /* nav 上下微移：#nav-wrap translateY */
-  --pv-nav-opacity: 1;       /* nav 透明度 */
-  --pv-card-overlap: 52px;   /* 固定：Now Playing 卡疊住封面 */
-  --pv-nav-font: 9px;        /* 固定：nav 島文字大小 */
+  /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
+  --pv-status-shade: 0.9;
+  --pv-status-h: 180px;
+  --pv-cover-top: -92px;
+  --pv-cover-focus: 41%;
+  --pv-card-overlap: 100px;
+  --pv-card-side: 16px;
+  --pv-card-bottom: 56px;
+  --pv-card-gap: 0px;
+  --pv-controls-gap: 16px;
+  --pv-controls-mt: -10px;
+  --pv-controls-mb: 0px;
+  --pv-track-font: 17px;
+  --pv-track-label-font: 11px;
+  --pv-next-shift: 1px;
+  --pv-nav-bottom: 11px;
+  --pv-nav-shift-y: -24px;
+  --pv-nav-scale: 0.94;
+  --pv-nav-opacity: 1;
+  --pv-nav-font: 13px;
+  --pv-cover-radius: 44px;
+  --pv-cover-side: 0px;
+  --pv-status-gap: 45px;
+  --pv-font-en: 'Cormorant Garamond';
+  --pv-font-label: 'Cormorant Garamond';
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -180,7 +198,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* Now Playing：毛玻璃卡片，往上疊在封面（DESIGN LOCK） */
 .np-card {
   position: relative; z-index: 3;
-  margin: calc(-1 * var(--pv-card-overlap, 52px)) 12px calc(var(--pv-np-gap, 86px) + var(--sab, env(safe-area-inset-bottom)));
+  margin: calc(-1 * var(--pv-card-overlap, 52px)) 12px calc(86px + env(safe-area-inset-bottom));
   padding: 12px 18px 4px;
   background: var(--surface);
   backdrop-filter: blur(22px);
@@ -252,7 +270,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .np-next { display: flex; align-items: center; justify-content: space-between;
            border-top: 1px solid rgba(255,255,255,.10); margin-top: 6px;
            padding: 6px 2px 2px; cursor: pointer; }
-.np-next span { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
+.np-next span { font-family: var(--font-label); font-size: var(--pv-track-label-font, 10px); letter-spacing: 3px;
                 color: rgba(255,255,255,.6); text-transform: uppercase; }
 
 /* 曲目列表（fold 之下） */
@@ -506,11 +524,10 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
  * FLOATING ISLAND BOTTOM NAV（DESIGN LOCK：浮動島狀 pill）
  * =================================================================== */
 #nav-wrap { position: absolute; left: 0; right: 0;
-            bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 0px)); /* nav 上下 */
-            transform: translateY(var(--pv-nav-y, 0px)); /* nav 上下微移 */
+            bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 12px) + var(--pv-nav-shift-y, 0px)); /* 避開 home indicator，可用 tuner 調 */
             z-index: 70; display: flex; justify-content: center; pointer-events: none; }
 #nav { position: relative; display: flex; padding: 6px; border-radius: 30px; opacity: var(--pv-nav-opacity, 1);
-       transform: scale(var(--pv-nav-scale, 0.98)); transform-origin: bottom center;
+       transform: scale(var(--pv-nav-scale, 1)); transform-origin: bottom center;
        background: rgba(18,18,22,.16);
        backdrop-filter: blur(44px) saturate(1.7);
        -webkit-backdrop-filter: blur(44px) saturate(1.7); /* iPhone 必要 */
@@ -744,6 +761,163 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 30% { transform: scale(1.22); } 55% { transform: scale(1); } }
 
 </style>
+
+<!-- ===== TEST 版覆蓋：墨紫金 Editorial Player（不影響原版 index.html） ===== -->
+<style id="test-purple-override">
+:root {
+  --bg: #08060C !important;
+  --bg-top: #3B1B54 !important;
+  --surface: rgba(30,16,44,.55) !important;
+  --primary: #D9B26A !important;
+  --primary-rgb: 217,178,106 !important;
+  --secondary: #7E3FA8 !important;
+  --accent: #C9A2E8 !important;
+  --grad: linear-gradient(90deg, #7E3FA8, #F0DCA8) !important;
+  --font-display: var(--pv-font-en, 'Playfair Display'), serif !important;
+  --font-label: var(--pv-font-label, 'Bodoni Moda'), serif !important;
+}
+body { background: #08060C !important; }
+#stage { background: #08060C !important; }
+#screen-player { background: #08060C !important; }
+@media (min-width: 520px) {
+  body { background: radial-gradient(130% 100% at 50% -5%, #3B1B54, #060409 60%) !important; }
+  #stage { box-shadow: 0 44px 90px rgba(0,0,0,.6), 0 0 0 12px #17151a, 0 0 0 13px rgba(255,255,255,.07) !important; }
+}
+
+/* 封面：裁切焦點下移、加紫光暈、底部深色漸層讓文字讀得清楚 */
+.cover-card img, .cover-card video { object-position: center var(--pv-cover-focus, 100%) !important; }
+/* hero 四角圓邊 */
+.cover-card { border-radius: var(--pv-cover-radius, 26px) !important;
+              margin-left: var(--pv-cover-side, 0px) !important;
+              margin-right: var(--pv-cover-side, 0px) !important; }
+.cover-card::after { border-radius: var(--pv-cover-radius, 26px) var(--pv-cover-radius, 26px) 0 0 !important; }
+/* status bar 後方遮罩（tuner: --pv-status-shade / --pv-status-h） */
+.cover-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; z-index: 1;
+  height: var(--pv-status-h, 90px); pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,var(--pv-status-shade, .55)), transparent); }
+.cover-shade {
+  background:
+    radial-gradient(120% 90% at 30% 12%, rgba(126,63,168,.40), rgba(23,13,34,0) 66%),
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.28) 8%,
+      transparent 22%, rgba(8,6,12,0) 46%, rgba(8,6,12,.72) 76%, #08060C 100%) !important;
+}
+
+/* Player 卡：拿掉毛玻璃卡殼，資訊直接沉在封面下半部（cardOpacity 0） */
+.np-card {
+  display: flex !important; flex-direction: column !important; gap: var(--pv-card-gap, 0px) !important;
+  margin: calc(-1 * var(--pv-card-overlap, 52px)) var(--pv-card-side, 26px) calc(var(--pv-card-bottom, 96px) + var(--sab, env(safe-area-inset-bottom))) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.np-label { color: rgba(201,162,232,.65) !important; letter-spacing: 3.5px !important; }
+.np-sub { color: rgba(255,255,255,.5) !important; }
+.icon-round {
+  width: 38px !important; height: 38px !important;
+  background: transparent !important;
+  border: 1px solid rgba(201,162,232,.22) !important;
+  color: rgba(255,255,255,.78) !important;
+}
+.icon-round.liked, .icon-round[data-act="like"] {
+  border-color: rgba(217,178,106,.45) !important;
+  background: rgba(217,178,106,.10) !important;
+  color: #E9C87F !important;
+}
+
+/* 進度條：細線 + 金色小點 */
+.prog { height: 2px !important; background: rgba(201,162,232,.18) !important; }
+.prog-fill { background: linear-gradient(90deg,#7E3FA8,#F0DCA8) !important; }
+.prog-dot { width: 9px !important; height: 9px !important; border: none !important;
+            font-size: 0 !important; overflow: hidden !important; text-indent: -999px !important;
+            background: #F0DCA8 !important; box-shadow: 0 0 12px rgba(240,220,168,.85) !important; }
+.prog-dot:empty { width: 9px !important; height: 9px !important; }
+.prog-glow { opacity: .22 !important; }
+.np-times { color: rgba(255,255,255,.42) !important; }
+
+/* 控制鍵：Apple Music 式裸圖示，播放鍵無底色 */
+.np-controls { gap: var(--pv-controls-gap, 44px) !important;
+  margin-top: var(--pv-controls-mt, 10px) !important;
+  margin-bottom: var(--pv-controls-mb, 0px) !important; }
+.btn-play {
+  width: 40px !important; height: 40px !important;
+  background: none !important; box-shadow: none !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.btn-play svg { fill: #ffffff !important; width: 34px !important; height: 34px !important; }
+.btn-ghost svg { width: 30px !important; height: 30px !important; }
+
+.np-next { border-top: 1px solid rgba(201,162,232,.14) !important; margin-top: 14px !important;
+           padding-top: 12px !important; }
+
+/* Nav 島：紫調玻璃 */
+#nav, .nav-island { background: rgba(24,14,34,.74) !important;
+                    border-color: rgba(201,162,232,.16) !important; }
+.navbtn.active { color: #F0DCA8 !important; }
+.navbtn .navlbl { font-family: var(--font-label) !important; font-size: var(--pv-nav-font, 8px) !important;
+                  letter-spacing: 1.8px !important; text-transform: uppercase !important; }
+.navbtn { color: rgba(232,214,248,.5) !important; }
+#nav-ind {
+  background: linear-gradient(180deg, rgba(217,178,106,.30), rgba(217,178,106,.14)) !important;
+  box-shadow: inset 0 1px 0 rgba(247,236,203,.35), inset 0 0 12px rgba(217,178,106,.18),
+              0 4px 12px rgba(0,0,0,.2) !important;
+}
+
+/* NEXT SIGNAL 列：左邊標籤＋下一首歌名，右邊金色 N TRACKS */
+.np-next { align-items: flex-end !important; gap: 14px !important;
+           transform: translateY(var(--pv-next-shift, 0px)); }
+.np-next-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.np-next-name { font-size: var(--pv-track-font, 12px); color: rgba(255,255,255,.8);
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-next-right { display: flex; align-items: center; gap: 6px; white-space: nowrap;
+                 font-family: var(--font-label); font-size: var(--pv-track-label-font, 9.5px); letter-spacing: 2.5px;
+                 color: #D9B26A; }
+.np-next-right svg { stroke: #D9B26A !important; }
+
+/* 控制鍵列：愛心金色實心、靠右獨立 */
+.np-controls { position: relative !important; }
+#btn-heart { position: absolute; right: 0; top: 50%; transform: translateY(-50%); padding: 6px; }
+#btn-heart svg { width: 26px !important; height: 26px !important; }
+
+/* Now Playing 標籤與副標 */
+.np-sub { font-family: var(--font-sans-tc) !important; font-style: normal !important;
+          font-size: 11.5px !important; color: rgba(255,255,255,.5) !important; }
+
+/* 封面上的藝人行 */
+.cover-artist { position: absolute; z-index: 2; left: 26px; white-space: nowrap;
+                bottom: calc(var(--pv-card-overlap, 52px) + var(--pv-artist-gap, 44px));
+                display: flex; align-items: center; gap: 10px;
+                font-family: var(--font-sans-tc); font-size: 12px; letter-spacing: 1px;
+                color: rgba(232,214,248,.72); text-shadow: 0 2px 10px rgba(0,0,0,.7); }
+.ca-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(201,162,232,.5); }
+
+/* 專輯切換點：藏起來（左右滑仍可換專輯） */
+#album-switch { display: none !important; }
+
+/* 主畫面不露出曲目清單（曲目走 Bottom Sheet），播放器填滿整頁 */
+.tracklist-block { display: none !important; }
+.player-fold { min-height: 100% !important;
+  padding-top: calc(var(--sat, env(safe-area-inset-top)) + var(--pv-status-gap, 0px)) !important; }
+
+/* Nav 島：紫玻璃、金色作用膠囊（完全比照 Editorial 紫） */
+#nav { background: rgba(24,14,34,.74) !important;
+       border: 1px solid rgba(201,162,232,.16) !important;
+       border-radius: 26px !important;
+       backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;
+       box-shadow: 0 16px 42px rgba(0,0,0,.44) !important; }
+#nav::before { display: none !important; }
+/* 保底：safe-area 為 0 時（桌機／iOS 工具列顯示中）不讓分頁島掉出畫面 */
+#nav-wrap { bottom: max(6px, calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 11px) + var(--pv-nav-shift-y, 0px))) !important; }
+#nav-ind { border-radius: 18px !important; }
+
+/* 其他頁面沿用紫底 */
+.screen-sub { background: radial-gradient(120% 60% at 50% 0%, #3B1B54, #08060C 70%) !important; }
+#sheet { background: linear-gradient(180deg, #241238, #08060C) !important; }
+#sheet-backdrop { background: rgba(8,6,12,.6) !important; }
+</style>
 </head>
 <body>
 <div id="stage">
@@ -778,10 +952,6 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             <button class="icon-round" id="btn-lyrics" title="歌詞">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
             </button>
-            <!-- 心動收藏 -->
-            <button class="icon-round" id="btn-heart" title="收藏這一刻">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
-            </button>
           </div>
         </div>
 
@@ -796,19 +966,26 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
         <!-- 控制鍵 -->
         <div class="np-controls">
           <button class="btn-ghost" id="btn-prev" title="上一首">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M11 12 20 5.5v13L11 12zm-8 0L12 5.5v13L3 12z"/></svg>
           </button>
           <button class="btn-play" id="btn-play" title="播放 / 暫停">
             <svg width="23" height="23" viewBox="0 0 24 24"><path id="play-icon-path" d="M8 5v14l11-7z"/></svg>
           </button>
           <button class="btn-ghost" id="btn-next" title="下一首">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M13 12 4 18.5v-13L13 12zm8 0-9 6.5v-13L21 12z"/></svg>
+          </button>
+          <button class="btn-ghost" id="btn-heart" title="收藏這一刻">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#D9B26A"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
           </button>
         </div>
 
         <!-- Next Scene → 打開 Bottom Sheet 曲目表 -->
         <div class="np-next" id="btn-open-sheet">
-          <span id="next-scene-label"></span>
+          <div class="np-next-left">
+            <span id="next-scene-label"></span>
+            <div class="np-next-name" id="next-track-name"></div>
+          </div>
+          <div class="np-next-right"><span id="next-count"></span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -980,6 +1157,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 
 <!-- 專輯資料（換專輯只改這個檔）→ 再載入引擎 -->
 <script>
+var SKY_COVER = "assets/images/sky/cover.jpg?v=0816";
+var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
+
 /* =====================================================================
  * ALBUM APP TEMPLATE — album-config.js
  * =====================================================================
@@ -1336,7 +1516,7 @@ const THE_SKY = {
   artistName: "成晞 Chance",                        // 藝人名（Media Session 鎖定畫面顯示）
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
-  coverImage: "assets/images/sky/cover.jpg?v=0816",           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
+  coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
   coverVideo: "",            // 選填：6 秒循環影片取代靜態封面（自動靜音播放）
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
@@ -1444,7 +1624,7 @@ const THE_SKY = {
       { src: "assets/images/sky/01.jpg", caption: "錄音現場" },
       { src: "assets/images/sky/02.jpg", caption: "錄音現場" },
       { src: "assets/images/sky/03.jpg", caption: "錄音現場" },
-      { src: "assets/images/sky/cover.jpg", caption: "THE SKY" },
+      { src: SKY_COVER, caption: "THE SKY" },
     ],
   },
 
@@ -1507,7 +1687,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["聽歌", "擁有", "周邊", "動態", "寫真牆"],
+    navTabs: ["PLAY", "OWN", "SHOP", "FEED", "FILM"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -1858,7 +2038,7 @@ const CLASSICS = {
   albumEyebrow: "THE COLLECTION 2020–2026",
   artistName: "成晞 Chance",
 
-  coverImage: "assets/images/classics/cover.jpg?v=0816",  // BEFORE THE SKY 專屬封面
+  coverImage: BEFORE_COVER,  // BEFORE THE SKY 專屬封面
   coverVideo: "",
   backgroundImage: "",
 
@@ -2138,7 +2318,8 @@ window.ALBUM_SWITCH = {
     }
   })();
   $("np-label").textContent = STR.nowPlayingLabel || "Now Playing";
-  $("next-scene-label").textContent = (STR.nextScene || "Next Scene") + " · 共 " + TOTAL + " 首";
+  $("next-scene-label").textContent = (STR.nextScene || "Next Scene");
+  (function () { var c = $("next-count"); if (c) c.textContent = TOTAL + " TRACKS"; })();
   $("tracklist-caption").textContent = "Tracks · " + TOTAL + " 首";
   $("sheet-title").textContent = "曲目列表 · " + TOTAL + " 首";
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
@@ -2985,6 +3166,32 @@ window.ALBUM_SWITCH = {
   renderProgress(pos.time || 0);
 })();
 
+</script>
+<script>
+/* NEXT SIGNAL 下一首歌名：跟著目前曲目更新 */
+(function () {
+  var last = null;
+  function tick() {
+    var t = document.getElementById("np-title"), n = document.getElementById("next-track-name");
+    if (!t || !n) return;
+    var cur = t.textContent || "";
+    if (cur === last) return;
+    last = cur;
+    var rows = document.querySelectorAll("#tracklist .track-row .track-name, #sheet-list .track-name");
+    var names = [], i;
+    for (i = 0; i < rows.length; i++) { var v = rows[i].textContent.trim(); if (names.indexOf(v) < 0) names.push(v); }
+    var idx = names.indexOf(cur.trim());
+    n.textContent = names.length ? names[(idx + 1 + names.length) % names.length] : "";
+    var lab = document.getElementById("np-label");
+    if (lab && idx >= 0) {
+      var base = (lab.textContent || "Now Playing").split("·")[0].trim();
+      lab.textContent = base + " · " + String(idx + 1).padStart(2, "0");
+    }
+    var sub = document.getElementById("np-sub");
+    if (sub) sub.textContent = (sub.textContent || "").replace(/^track\s*\d+\s*[·.]\s*/i, "");
+  }
+  setInterval(tick, 500); setTimeout(tick, 400);
+})();
 </script>
 </body>
 </html>
