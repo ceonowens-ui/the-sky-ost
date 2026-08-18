@@ -59,6 +59,7 @@
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
   --pv-status-shade: 0.65;
   --pv-status-h: 180px;
+  --pv-cover-h: 68dvh;
   --pv-cover-top: -46px;
   --pv-cover-focus: 41%;
   --pv-card-overlap: 65px;
@@ -164,7 +165,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* 封面：滿版 hero（比例圖版型）——貼頂進 status bar 後方、左右貼邊、無圓角無框
    --pv-cover-top 保留給 tuner 微調（預設 0 = 滿版貼頂） */
 .cover-card {
-  position: relative; flex: 1; min-height: 240px; overflow: hidden;
+  position: relative; flex: 0 0 auto; height: var(--pv-cover-h, 68dvh); min-height: 240px; overflow: hidden;
   margin: var(--pv-cover-top, 0px) 0 0;
   border-radius: 0;
   box-shadow: none;
@@ -896,6 +897,9 @@ body { background: #08060C !important; }
 
 /* 專輯切換點：藏起來（左右滑仍可換專輯） */
 #album-switch { display: none !important; }
+
+/* 矮螢幕（iPhone SE 等）：封面自動收一點，避免 NEXT 被分頁島蓋到 */
+@media (max-height: 700px) { :root { --pv-cover-h: 58dvh !important; } }
 
 /* 主畫面不露出曲目清單（曲目走 Bottom Sheet），播放器填滿整頁 */
 .tracklist-block { display: none !important; }
@@ -3194,6 +3198,7 @@ window.ALBUM_SWITCH = {
   if (!/[?&]tune=1/.test(location.search)) return;
   var SPEC = [
     ["版面", [
+      ["--pv-cover-h",       "封面高度",   40,   92,  1,   "dvh"],
       ["--pv-cover-top",     "封面上距",   -300, 120, 1,   "px"],
       ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
       ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
