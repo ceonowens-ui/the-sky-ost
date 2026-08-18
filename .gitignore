@@ -14,3 +14,5 @@ CHANCE_SIGNAL_變現一頁.pdf
 .DS_Store
 **/.DS_Store
 _備份_今日工作檔/
+src/line/liff-config.js
+.env

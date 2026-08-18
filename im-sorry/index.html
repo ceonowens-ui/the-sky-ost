@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- ================= Open Graph（寫死在原始 HTML，LINE 爬蟲直接讀）================= -->
+<title>CHANCE – I'M SORRY</title>
+<meta name="description" content="單曲發行｜立即試聽">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CHANCE – I'M SORRY">
+<meta property="og:description" content="單曲發行｜立即試聽">
+<meta property="og:image" content="https://chance1228.com/assets/im-sorry-line-share-v1.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://chance1228.com/im-sorry/">
+<meta property="og:site_name" content="CHANCE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CHANCE – I'M SORRY">
+<meta name="twitter:description" content="單曲發行｜立即試聽">
+<meta name="twitter:image" content="https://chance1228.com/assets/im-sorry-line-share-v1.jpg">
+<link rel="canonical" href="https://chance1228.com/im-sorry/">
+<!-- ⚠️ www DNS 設好後，把本頁所有 chance1228.com 換成 www.chance1228.com（共 6 處）-->
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0B0709">
+<link rel="apple-touch-icon" href="../assets/im-sorry-cover.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{ --bg:#0B0709; --ink:#F2F0ED; --muted:rgba(242,240,237,.55);
+  --glass:rgba(255,255,255,.07); --line:rgba(255,255,255,.16);
+  --serif:'Bodoni Moda',serif; --tc:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.stage{max-width:430px;margin:0 auto;padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
+.card{position:relative;border-radius:34px;overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:0 34px 80px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.18)}
+.hero{position:relative}
+.hero img{width:100%;display:block}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,
+  rgba(11,7,9,.42) 0%, transparent 22%, transparent 58%, rgba(11,7,9,.88) 92%, #0B0709 100%)}
+.hero-titles{position:absolute;top:26px;left:26px}
+.hero-artist{font-family:var(--serif);font-size:13px;letter-spacing:7px;color:rgba(242,240,237,.85)}
+.hero-name{font-family:var(--serif);font-weight:500;font-size:44px;letter-spacing:3px;
+  line-height:1.05;margin-top:8px;text-shadow:0 3px 24px rgba(0,0,0,.6)}
+.panel{position:relative;margin-top:-84px;z-index:2;padding:0 14px 16px}
+.glass{border-radius:26px;padding:24px 20px 18px;text-align:center;
+  background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(26px) saturate(1.3);-webkit-backdrop-filter:blur(26px) saturate(1.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 18px 44px rgba(0,0,0,.5)}
+.g-title{font-family:var(--serif);font-size:30px;letter-spacing:6px}
+.g-sub{font-family:var(--tc);font-size:13px;letter-spacing:6px;color:var(--muted);margin:10px 0 20px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:15px;border-radius:999px;cursor:pointer;text-decoration:none;
+  font-family:var(--tc);font-size:16px;font-weight:600;letter-spacing:4px}
+.btn-main{color:#141012;background:linear-gradient(180deg,#FDFCFA,#D8D4CF);
+  border:1px solid rgba(255,255,255,.5);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.btn-main:active{transform:scale(.98)}
+.btn-ghost{margin-top:12px;color:var(--ink);background:rgba(255,255,255,.06);
+  border:1px solid var(--line)}
+.btn-line{margin-top:12px;color:#fff;background:#06C755;border:1px solid rgba(255,255,255,.2)}
+.btn-line:active{transform:scale(.98)}
+.g-url{display:inline-flex;align-items:center;gap:7px;margin-top:16px;
+  font-family:var(--serif);font-size:12px;letter-spacing:2.5px;color:var(--muted);text-decoration:none}
+.note{margin-top:14px;text-align:center;font-size:11.5px;letter-spacing:1px;color:rgba(242,240,237,.4)}
+#toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  padding:12px 22px;border-radius:14px;background:rgba(242,240,237,.95);color:#141012;
+  font-size:13.5px;font-weight:600;letter-spacing:1px;opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:99;white-space:nowrap}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="card">
+    <div class="hero">
+      <img src="../assets/im-sorry-cover.jpg" alt="CHANCE – I'M SORRY 單曲封面">
+      <div class="hero-shade"></div>
+      <div class="hero-titles">
+        <div class="hero-artist">C H A N C E</div>
+        <div class="hero-name">I'M&nbsp;SORRY</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="glass">
+        <div class="g-title">I'M SORRY</div>
+        <div class="g-sub">單 曲 發 行</div>
+
+        <a class="btn btn-main" id="btn-listen" href="../">立即試聽
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="8 7 17 7 17 16"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="../install/?release=im-sorry">加入主畫面</a>
+        <button class="btn btn-line" id="btn-share">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.64 2 10.1c0 2.57 1.5 4.85 3.83 6.33-.13.47-.71 2.57-.74 2.74 0 0-.01.12.06.17.08.05.17.02.17.02.23-.03 2.65-1.73 3.07-2.02.52.07 1.06.11 1.61.11 5.52 0 10-3.64 10-8.1S17.52 2 12 2z"/></svg>
+          分享到 LINE
+        </button>
+
+        <a class="g-url" href="../">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          chance1228.com
+        </a>
+      </div>
+      <div class="note">進入播放器後按播放即可試聽（不會自動播放）</div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- LIFF：設定檔不進 git（見 src/line/liff-config.example.js）；沒設定時自動 fallback -->
+<script src="../src/line/liff-config.js" onerror="window.LIFF_ID=''"></script>
+<script src="../src/line/flex-message.js"></script>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+(function () {
+  var SITE = "https://chance1228.com";           // www DNS 設好後改這一行即可
+  var PAGE = SITE + "/im-sorry/";
+  var toastT = null;
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("on");
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("on"); }, 2400);
+  }
+
+  /* 系統分享 / 複製連結（Share Target Picker 不可用時的備援） */
+  function fallbackShare() {
+    if (navigator.share) {
+      navigator.share({ title: "CHANCE – I'M SORRY", text: "單曲發行｜立即試聽", url: PAGE })
+        .catch(function () {});
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(PAGE).then(
+        function () { toast("連結已複製，貼到 LINE 分享吧"); },
+        function () { toast(PAGE); });
+      return;
+    }
+    toast(PAGE);
+  }
+
+  var LIFF_ID = (typeof window.LIFF_ID === "string" && window.LIFF_ID) ? window.LIFF_ID : "";
+  var liffReady = false;
+
+  if (LIFF_ID && window.liff) {
+    liff.init({ liffId: LIFF_ID })
+      .then(function () { liffReady = true; })
+      .catch(function (e) { console.warn("LIFF init 失敗，改用系統分享", e); });
+  }
+
+  document.getElementById("btn-share").addEventListener("click", function () {
+    /* 1) LIFF 未設定 / 未初始化 → 系統分享 */
+    if (!LIFF_ID || !window.liff || !liffReady) { fallbackShare(); return; }
+    /* 2) 未登入 → 先登入（LINE 內開啟通常已登入） */
+    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+    /* 3) Share Target Picker 不可用 → 系統分享 */
+    if (!liff.isApiAvailable("shareTargetPicker")) { fallbackShare(); return; }
+    /* 4) 開啟好友/群組選擇器（由使用者自行挑選，絕不自動送出） */
+    liff.shareTargetPicker([window.buildImSorryFlex(SITE)])
+      .then(function (res) {
+        if (res) toast("已分享 ♪");
+        else toast("已取消分享");
+      })
+      .catch(function (e) { console.warn(e); toast("分享失敗，改用複製連結"); fallbackShare(); });
+  });
+})();
+</script>
+</body>
+</html>

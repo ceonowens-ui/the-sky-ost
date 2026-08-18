@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>加入主畫面 – CHANCE</title>
+<meta name="description" content="把 CHANCE 加入手機主畫面，像 App 一樣開啟">
+<meta property="og:type" content="website">
+<meta property="og:title" content="把 CHANCE 加入主畫面">
+<meta property="og:description" content="30 秒完成，之後像 App 一樣一鍵開啟">
+<meta property="og:image" content="https://chance1228.com/assets/im-sorry-line-share-v1.jpg">
+<meta property="og:url" content="https://chance1228.com/install/">
+<link rel="canonical" href="https://chance1228.com/install/">
+<meta name="theme-color" content="#0B0709">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900&family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0709;--ink:#F2F0ED;--muted:rgba(242,240,237,.55);
+  --glass:rgba(255,255,255,.07);--line:rgba(255,255,255,.16);
+  --serif:'Bodoni Moda',serif;--tc:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.stage{max-width:430px;margin:0 auto;padding:34px 20px calc(40px + env(safe-area-inset-bottom))}
+.eyebrow{font-family:var(--serif);font-size:12px;letter-spacing:6px;color:var(--muted);text-align:center}
+h1{font-family:var(--tc);font-size:26px;font-weight:600;letter-spacing:4px;text-align:center;margin:10px 0 6px}
+.sub{font-size:13px;color:var(--muted);text-align:center;letter-spacing:1px;margin-bottom:26px}
+.card{border-radius:24px;padding:22px 20px;margin-bottom:14px;
+  background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 16px 40px rgba(0,0,0,.5)}
+.card h2{font-family:var(--tc);font-size:16px;font-weight:600;letter-spacing:2px;
+  display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.step{display:flex;gap:12px;margin-bottom:13px;font-size:13.5px;line-height:1.8;color:rgba(242,240,237,.85)}
+.step:last-child{margin-bottom:0}
+.n{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.12);border:1px solid var(--line);
+  font-family:var(--serif);font-size:11px;margin-top:2px}
+.step svg{vertical-align:-3px;margin:0 2px}
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;
+  border-radius:999px;border:none;cursor:pointer;text-decoration:none;margin-top:6px;
+  font-family:var(--tc);font-size:15.5px;font-weight:600;letter-spacing:3px;
+  color:#141012;background:linear-gradient(180deg,#FDFCFA,#D8D4CF)}
+.btn:active{transform:scale(.98)}
+.warn{border-radius:18px;padding:14px 16px;margin-bottom:14px;font-size:12.5px;line-height:1.9;
+  color:#FFD9A0;background:rgba(255,180,80,.08);border:1px solid rgba(255,180,80,.3)}
+.back{display:block;text-align:center;margin-top:20px;color:var(--muted);
+  font-size:13px;letter-spacing:2px;text-decoration:none;font-family:var(--tc)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="eyebrow">C H A N C E</div>
+  <h1>加入主畫面</h1>
+  <div class="sub">30 秒完成，之後像 App 一樣一鍵開啟</div>
+
+  <!-- LINE 內建瀏覽器提醒（在 LINE 裡打開時顯示） -->
+  <div class="warn hidden" id="inapp-warn">
+    你正在 LINE 內建瀏覽器中。「加入主畫面」需要用
+    <b>Safari / Chrome</b> 開啟 —— 請點右下角「⋯」選「以預設瀏覽器開啟」，再回到本頁操作。
+  </div>
+
+  <!-- iPhone -->
+  <div class="card" id="card-ios">
+    <h2>iPhone（Safari）</h2>
+    <div class="step"><span class="n">1</span><span>用 <b>Safari</b> 開啟 chance1228.com</span></div>
+    <div class="step"><span class="n">2</span><span>點底部工具列的「分享」
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      按鈕</span></div>
+    <div class="step"><span class="n">3</span><span>往下捲，點「<b>加入主畫面</b>」→ 右上角「加入」</span></div>
+    <div class="step"><span class="n">4</span><span>完成！主畫面會出現 CHANCE 的圖示</span></div>
+  </div>
+
+  <!-- Android -->
+  <div class="card" id="card-android">
+    <h2>Android（Chrome）</h2>
+    <button class="btn hidden" id="btn-a2hs">一鍵加入主畫面</button>
+    <div id="android-steps">
+      <div class="step"><span class="n">1</span><span>用 <b>Chrome</b> 開啟 chance1228.com</span></div>
+      <div class="step"><span class="n">2</span><span>點右上角「⋮」選單</span></div>
+      <div class="step"><span class="n">3</span><span>點「<b>加入主畫面</b>」（或「安裝應用程式」）→ 確認</span></div>
+    </div>
+  </div>
+
+  <a class="back" id="back-link" href="../">← 回到播放器</a>
+</div>
+
+<script>
+(function () {
+  var ua = navigator.userAgent || "";
+  var isIOS = /iPhone|iPad|iPod/.test(ua);
+  var isAndroid = /Android/.test(ua);
+  var isLineInApp = /Line\//i.test(ua);
+
+  /* 依裝置只顯示對應卡片（桌機兩張都顯示） */
+  if (isIOS) document.getElementById("card-android").classList.add("hidden");
+  if (isAndroid) document.getElementById("card-ios").classList.add("hidden");
+  if (isLineInApp) document.getElementById("inapp-warn").classList.remove("hidden");
+
+  /* Android：收到 beforeinstallprompt 才顯示一鍵安裝（使用者點了才觸發，不自動） */
+  var deferredPrompt = null;
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById("btn-a2hs").classList.remove("hidden");
+  });
+  document.getElementById("btn-a2hs").addEventListener("click", function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();               // 系統自己會跳確認框，使用者可拒絕
+    deferredPrompt.userChoice.finally(function () { deferredPrompt = null; });
+  });
+
+  /* 已驗證 LINE MINI App 才有的捷徑 API：偵測到才顯示，點了才呼叫 */
+  if (window.liff && typeof liff.createShortcutOnHomeScreen === "function") {
+    try {
+      var b = document.createElement("button");
+      b.className = "btn"; b.textContent = "建立主畫面捷徑";
+      b.addEventListener("click", function () {
+        liff.createShortcutOnHomeScreen({ url: "https://chance1228.com/" }).catch(function () {});
+      });
+      document.getElementById("card-android").appendChild(b);
+    } catch (e) {}
+  }
+
+  /* ?release=im-sorry → 返回連結導回單曲頁 */
+  var rel = new URLSearchParams(location.search).get("release");
+  if (rel === "im-sorry") {
+    var back = document.getElementById("back-link");
+    back.href = "../im-sorry/";
+    back.textContent = "← 回到 I'M SORRY";
+  }
+})();
+</script>
+</body>
+</html>
