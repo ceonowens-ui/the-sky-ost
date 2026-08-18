@@ -3187,5 +3187,116 @@ window.ALBUM_SWITCH = {
   setInterval(tick, 500); setTimeout(tick, 400);
 })();
 </script>
+
+<!-- ═══════ 內建調整面板：網址加 ?tune=1 才會出現（模擬器/真機都能用）═══════ -->
+<script id="__inapp_tuner">
+(function () {
+  if (!/[?&]tune=1/.test(location.search)) return;
+  var SPEC = [
+    ["版面", [
+      ["--pv-cover-top",     "封面上距",   -300, 120, 1,   "px"],
+      ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
+      ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
+      ["--pv-cover-side",    "封面左右",   0,    40,  1,   "px"],
+      ["--pv-status-gap",    "頂部留白",   0,    140, 1,   "px"],
+      ["--pv-status-h",      "頂部遮罩高", 0,    320, 5,   "px"],
+      ["--pv-status-shade",  "頂部遮罩濃", 0,    1,   0.05, ""]
+    ]],
+    ["播放卡", [
+      ["--pv-card-overlap",  "卡片上疊",   0,    240, 1,   "px"],
+      ["--pv-card-side",     "卡片左右",   0,    60,  1,   "px"],
+      ["--pv-card-bottom",   "卡片下距",   0,    200, 1,   "px"],
+      ["--pv-card-gap",      "卡內間距",   0,    40,  1,   "px"],
+      ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
+      ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
+      ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
+      ["--pv-track-font",    "歌名字級",   10,   30,  1,   "px"],
+      ["--pv-track-label-font","標籤字級", 7,    20,  1,   "px"],
+      ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
+    ]],
+    ["分頁島", [
+      ["--pv-nav-bottom",    "nav 下距",   -20,  120, 1,   "px"],
+      ["--pv-nav-shift-y",   "nav 微移",   -120, 60,  1,   "px"],
+      ["--pv-nav-scale",     "nav 大小",   0.6,  1.5, 0.01,""],
+      ["--pv-nav-opacity",   "nav 透明",   0,    1,   0.01,""],
+      ["--pv-nav-font",      "nav 字級",   6,    22,  1,   "px"]
+    ]]
+  ];
+  var R = document.documentElement, cs = getComputedStyle(R), state = {};
+  function num(k){ var v=(cs.getPropertyValue(k)||"").trim(); return parseFloat(v)||0; }
+  SPEC.forEach(function(g){ g[1].forEach(function(r){ state[r[0]] = num(r[0]); }); });
+
+  var css = document.createElement("style");
+  css.textContent =
+  "#__tp{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:rgba(14,10,20,.97);" +
+  "-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#EFE6F7;" +
+  "font:500 13px/1.35 -apple-system,'PingFang TC',sans-serif;border-top:1px solid rgba(201,162,232,.28);" +
+  "max-height:56dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px calc(12px + env(safe-area-inset-bottom));" +
+  "transform:translateY(100%);transition:transform .25s ease}" +
+  "#__tp.on{transform:translateY(0)}" +
+  "#__tpBtn{position:fixed;right:10px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:100000;" +
+  "width:44px;height:44px;border-radius:50%;border:1px solid rgba(217,178,106,.5);background:rgba(20,14,28,.92);" +
+  "color:#D9B26A;font-size:20px;line-height:42px;text-align:center;-webkit-tap-highlight-color:transparent}" +
+  "#__tp h4{margin:10px 0 4px;font-size:11px;letter-spacing:2px;color:#D9B26A;font-weight:700}" +
+  "#__tp .row{display:flex;align-items:center;gap:8px;padding:3px 0}" +
+  "#__tp .row label{flex:0 0 76px;font-size:12px;color:rgba(239,230,247,.72)}" +
+  "#__tp .row input{flex:1;accent-color:#D9B26A;height:24px}" +
+  "#__tp .row b{flex:0 0 52px;text-align:right;font:600 12px/1 ui-monospace,monospace;color:#F0DCA8}" +
+  "#__tp .bar{display:flex;gap:8px;position:sticky;top:0;background:rgba(14,10,20,.97);padding:6px 0 8px;z-index:2}" +
+  "#__tp .bar button{flex:1;padding:9px;border-radius:10px;border:1px solid rgba(201,162,232,.3);" +
+  "background:rgba(255,255,255,.06);color:#EFE6F7;font-size:13px;font-weight:600}" +
+  "#__tp textarea{width:100%;height:96px;margin-top:8px;background:#0b0810;color:#D9B26A;border:1px solid rgba(201,162,232,.25);" +
+  "border-radius:8px;font:12px/1.5 ui-monospace,monospace;padding:8px;-webkit-user-select:text;user-select:text}";
+  document.head.appendChild(css);
+
+  var panel = document.createElement("div"); panel.id = "__tp";
+  var btn = document.createElement("button"); btn.id = "__tpBtn"; btn.textContent = "⚙";
+  var html = '<div class="bar"><button id="__tpCopy">複製設定</button><button id="__tpReset">重設</button><button id="__tpClose">收起</button></div>';
+  SPEC.forEach(function (g) {
+    html += "<h4>" + g[0] + "</h4>";
+    g[1].forEach(function (r) {
+      html += '<div class="row"><label>' + r[1] + '</label>' +
+        '<input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '" value="' + state[r[0]] + '">' +
+        '<b id="v' + r[0] + '">' + state[r[0]] + r[5] + '</b></div>';
+    });
+  });
+  html += '<textarea id="__tpOut" readonly placeholder="按「複製設定」後，數值會出現在這裡，可長按複製或直接唸給 Claude"></textarea>';
+  panel.innerHTML = html;
+  document.body.appendChild(panel); document.body.appendChild(btn);
+
+  var UNIT = {}; SPEC.forEach(function(g){ g[1].forEach(function(r){ UNIT[r[0]] = r[5]; }); });
+  var INIT = JSON.parse(JSON.stringify(state));
+
+  panel.addEventListener("input", function (e) {
+    var el = e.target; if (el.type !== "range") return;
+    var k = el.getAttribute("data-k"), v = parseFloat(el.value);
+    state[k] = v;
+    R.style.setProperty(k, v + UNIT[k]);
+    document.getElementById("v" + k).textContent = v + UNIT[k];
+  });
+  function block(){
+    var out = ":root{\n";
+    SPEC.forEach(function(g){ g[1].forEach(function(r){ out += "  " + r[0] + ": " + state[r[0]] + r[5] + ";\n"; }); });
+    return out + "}";
+  }
+  document.getElementById("__tpCopy").addEventListener("click", function () {
+    var t = block(), ta = document.getElementById("__tpOut");
+    ta.value = t;
+    try { navigator.clipboard && navigator.clipboard.writeText(t); } catch (e) {}
+    ta.focus(); ta.setSelectionRange(0, t.length);
+  });
+  document.getElementById("__tpReset").addEventListener("click", function () {
+    SPEC.forEach(function(g){ g[1].forEach(function(r){
+      state[r[0]] = INIT[r[0]];
+      R.style.removeProperty(r[0]);
+      var s = panel.querySelector('[data-k="' + r[0] + '"]'); if (s) s.value = INIT[r[0]];
+      document.getElementById("v" + r[0]).textContent = INIT[r[0]] + r[5];
+    }); });
+  });
+  document.getElementById("__tpClose").addEventListener("click", function () { panel.classList.remove("on"); });
+  btn.addEventListener("click", function () { panel.classList.toggle("on"); });
+})();
+</script>
+
 </body>
 </html>
