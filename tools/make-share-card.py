@@ -277,102 +277,50 @@ def render(W, H, name, hero_ratio=0.60, pad_ratio=0.045):
     return jpg
 
 
-def render_landscape(W, H, name, pad_ratio=0.030):
-    """Wide ticket: artwork on the left, stub with the QR on the right."""
+def render_landscape(W, H, name, pad_ratio=0.0):
+    """Full-bleed link-preview card: the photo fills the whole frame, with only
+    the hero text (CHANCE · OUT NOW / I'M SORRY) in the lower-left. No QR / stub —
+    it is a clickable link preview, so tapping it opens the page directly."""
     s = H / 630.0
 
-    base = radial_bg(W, H).convert("RGB")
-    pad = int(H * pad_ratio)
-    card_w, card_h = W - pad * 2, H - pad * 2
-    radius = int(34 * s)
+    # Photo fills the entire 1200x630 frame.
+    img = Image.open(COVER).convert("RGB")
+    # Crop a horizontal band centred on the subject's face, below the baked title.
+    dst_ratio = W / H
+    nh = int(img.width / dst_ratio)
+    top = max(0, min(TEXT_SAFE_TOP, img.height - nh))   # below the baked-in title
+    img = img.crop((0, top, img.width, top + nh)).resize((W, H), Image.LANCZOS)
 
-    card = Image.new("RGB", (card_w, card_h), CARD_BG)
-    cd = ImageDraw.Draw(card)
+    base = img.copy()
+    ov = ImageDraw.Draw(base, "RGBA")
 
-    # ---------------- left: artwork ----------------
-    art_w = int(card_w * 0.50)
-    art = cover_crop(art_w, card_h)
+    # Cinematic gradient: dark at the bottom-left for text, clear top-right.
+    grad = Image.new("L", (W, H), 0)
+    gp = grad.load()
+    for y in range(H):
+        for_row = int(235 * max(0.0, (y / H - 0.30) / 0.70) ** 1.4)
+        gp_row = for_row
+        # apply, biased slightly stronger on the left
+        for x in range(0, W, 8):
+            left_bias = 1.0 - 0.35 * (x / W)
+            v = int(gp_row * left_bias)
+            for xx in range(x, min(x + 8, W)):
+                gp[xx, y] = v
+    shade = Image.new("RGB", (W, H), (6, 4, 10))
+    base = Image.composite(shade, base, grad)
 
-    # fade the right edge of the artwork into the stub
-    g = Image.new("L", (art_w, 1))
-    gp = g.load()
-    for x in range(art_w):
-        t = x / max(1, art_w - 1)
-        gp[x, 0] = 0 if t < 0.55 else int(255 * ((t - 0.55) / 0.45) ** 1.5)
-    art = Image.composite(Image.new("RGB", (art_w, card_h), CARD_BG), art,
-                          g.resize((art_w, card_h)))
-    card.paste(art, (0, 0))
+    ov = ImageDraw.Draw(base)
+    m = int(64 * s)
+    f_eyebrow = font(F_SERIF, int(30 * s))
+    f_title   = font(F_SERIF, int(118 * s))
 
-    m = int(46 * s)
-    f_eyebrow = font(F_SERIF, int(22 * s))
-    f_song    = font(F_SERIF, int(68 * s))
-    f_blurb   = font(F_SERIF, int(23 * s))
-
-    ay = card_h - int(178 * s)
-    # Landscape carries the artist name so the standalone card is attributable.
-    tracked(cd, (m, ay), "CHANCE · " + EYEBROW, f_eyebrow, GOLD, tracking=int(10 * s))
-    tracked(cd, (m, ay + int(30 * s)), SONG, f_song, INK, tracking=int(5 * s))
-    cd.text((m, ay + int(114 * s)), BLURB, font=f_blurb, fill=(196, 180, 214))
-
-    # ---------------- vertical perforation ----------------
-    px_ = art_w + int(6 * s)
-    dash, gap = int(14 * s), int(11 * s)
-    dy = m
-    while dy < card_h - m:
-        cd.line([(px_, dy), (px_, min(dy + dash, card_h - m))],
-                fill=(140, 112, 168), width=max(2, int(2.5 * s)))
-        dy += dash + gap
-    hole = int(20 * s)
-    for hy in (0, card_h):
-        cd.ellipse([px_ - hole, hy - hole, px_ + hole, hy + hole], fill=BG)
-
-    # ---------------- right: stub ----------------
-    sx = px_ + int(54 * s)
-
-    # Stub contents are stacked and centred inside the right-hand panel so
-    # nothing can run past the card edge regardless of string length.
-    panel_l, panel_r = px_, card_w
-    ccx = (panel_l + panel_r) / 2
-
-    f_scan = font(F_MONO, int(18 * s))
-    f_url  = font(F_SERIF, int(36 * s))
-    f_tag  = font(F_SANS, int(17 * s))
-
-    qr_px = int(210 * s)
-    qpad = int(14 * s)
-    qr_card = Image.new("RGB", (qr_px + qpad * 2, qr_px + qpad * 2), (255, 255, 255))
-    qr_card.paste(qr_image(qr_px), (qpad, qpad))
-
-    block_h = int(26 * s) + qr_card.height + int(20 * s) + int(46 * s) + int(34 * s)
-    top = int((card_h - block_h) / 2)
-
-    tracked(cd, (ccx, top), SCAN_LABEL, f_scan, GOLD, tracking=int(6 * s), anchor_x="center")
-    qy = top + int(38 * s)
-    card.paste(qr_card, (int(ccx - qr_card.width / 2), qy),
-               rounded_mask(qr_card.size, int(16 * s)))
-
-    uy = qy + qr_card.height + int(20 * s)
-    tracked(cd, (ccx, uy), URL_LABEL, f_url, INK, tracking=int(1 * s), anchor_x="center")
-    tracked(cd, (ccx, uy + int(50 * s)), TAGLINE, f_tag, (168, 150, 190),
-            tracking=int(2 * s), anchor_x="center")
-
-    bw = int(min(300 * s, (panel_r - panel_l) * 0.62))
-    barcode(cd, int(ccx - bw / 2), uy + int(82 * s), bw, int(26 * s))
-
-    # ---------------- compose ----------------
-    card_mask = rounded_mask((card_w, card_h), radius)
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    shadow.paste(Image.new("RGBA", (card_w, card_h), (0, 0, 0, 170)),
-                 (pad, pad + int(14 * s)), card_mask)
-    shadow = shadow.filter(ImageFilter.GaussianBlur(int(22 * s)))
-    base = Image.alpha_composite(base.convert("RGBA"), shadow).convert("RGB")
-    base.paste(card, (pad, pad), card_mask)
-    ImageDraw.Draw(base).rounded_rectangle(
-        [pad, pad, pad + card_w - 1, pad + card_h - 1], radius,
-        outline=(70, 55, 92), width=max(1, int(2 * s)))
+    title_y = H - int(176 * s)
+    tracked(ov, (m, title_y - int(48 * s)), "CHANCE · " + EYEBROW, f_eyebrow, GOLD,
+            tracking=int(12 * s))
+    tracked(ov, (m, title_y), SONG, f_title, INK, tracking=int(6 * s))
 
     os.makedirs(OUTDIR, exist_ok=True)
-    jpg, png = os.path.join(OUTDIR, name + ".jpg"), os.path.join(OUTDIR, name + ".png")
+    jpg = os.path.join(OUTDIR, name + ".jpg")
     base.save(jpg, "JPEG", quality=92, optimize=True, progressive=True)
     return jpg
 
