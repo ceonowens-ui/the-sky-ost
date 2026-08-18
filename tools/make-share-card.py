@@ -22,11 +22,12 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ARTIST      = "CHANCE"
 ALBUM       = "THE SKY"
 SONG        = "I'M SORRY"
-SERIAL      = "No 001228"
+EYEBROW     = "OUT NOW"          # gold line above the title, matches the live page
 URL_LABEL   = "chance1228.com"
 QR_TARGET   = "https://chance1228.com/im-sorry/"   # where scanning takes you
 SCAN_LABEL  = "SCAN TO LISTEN"
 TAGLINE     = "NEW SINGLE  ·  LISTEN NOW"
+BLURB       = "An apology that becomes a goodbye."
 
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COVER  = os.path.join(ROOT, "assets/images/sky/cover.jpg")
@@ -193,30 +194,33 @@ def render(W, H, name, hero_ratio=0.60, pad_ratio=0.045):
     hd = ImageDraw.Draw(card)
     m = int(52 * s)
 
-    # serial, top right
-    f_mono_sm = font(F_MONO, int(20 * s))
-    tracked(hd, (card_w - m, int(40 * s)), SERIAL, f_mono_sm, GOLD,
-            tracking=int(3 * s), anchor_x="right")
-
-    # artist + song title, bottom left of hero
-    f_artist = font(F_SERIF, int(26 * s))
-    f_title  = font(F_SERIF, int(88 * s))
-    title_y  = hero_h - int(150 * s)
-    tracked(hd, (m, title_y - int(38 * s)), ARTIST, f_artist, GOLD, tracking=int(14 * s))
+    # eyebrow + song title, bottom left of hero (no serial — matches the page)
+    f_eyebrow = font(F_SERIF, int(24 * s))
+    f_title   = font(F_SERIF, int(88 * s))
+    title_y   = hero_h - int(150 * s)
+    tracked(hd, (m, title_y - int(36 * s)), EYEBROW, f_eyebrow, GOLD, tracking=int(14 * s))
     tracked(hd, (m, title_y), SONG, f_title, INK, tracking=int(7 * s))
 
     # ---------------- meta row ----------------
     y = hero_h + int(46 * s)
     f_k = font(F_SANS, int(19 * s))
-    f_v = font(F_SERIF, int(31 * s))
-    cols = [("ARTIST", ARTIST), ("ALBUM", ALBUM), ("SONG", SONG)]
-    col_x = [m, m + int(card_w * 0.36), m + int(card_w * 0.655)]
-    for (k, v), cx in zip(cols, col_x):
-        tracked(cd, (cx, y), k, f_k, (217, 178, 106), tracking=int(4 * s))
-        cd.text((cx, y + int(30 * s)), v, font=f_v, fill=INK)
+    f_v = font(F_SERIF, int(34 * s))
+    tracked(cd, (m, y), "SINGLE INTRODUCTION", f_k, (217, 178, 106), tracking=int(4 * s))
+    # wrap the blurb to the card width
+    words, line, lines = BLURB.split(), "", []
+    maxw = card_w - m * 2
+    for w_ in words:
+        t = (line + " " + w_).strip()
+        if cd.textlength(t, font=f_v) <= maxw:
+            line = t
+        else:
+            lines.append(line); line = w_
+    if line: lines.append(line)
+    for i, ln in enumerate(lines):
+        cd.text((m, y + int(34 * s) + i * int(44 * s)), ln, font=f_v, fill=INK)
 
     # ---------------- perforation ----------------
-    perf_y = y + int(96 * s)
+    perf_y = y + int(34 * s) + len(lines) * int(44 * s) + int(30 * s)
     dash, gap = int(16 * s), int(12 * s)
     dx = m
     while dx < card_w - m:
@@ -300,15 +304,14 @@ def render_landscape(W, H, name, pad_ratio=0.030):
     card.paste(art, (0, 0))
 
     m = int(46 * s)
-    f_artist = font(F_SERIF, int(22 * s))
-    f_song   = font(F_SERIF, int(68 * s))
-    f_album  = font(F_SANS,  int(20 * s))
+    f_eyebrow = font(F_SERIF, int(22 * s))
+    f_song    = font(F_SERIF, int(68 * s))
+    f_blurb   = font(F_SERIF, int(23 * s))
 
     ay = card_h - int(178 * s)
-    tracked(cd, (m, ay), ARTIST, f_artist, GOLD, tracking=int(12 * s))
+    tracked(cd, (m, ay), EYEBROW, f_eyebrow, GOLD, tracking=int(12 * s))
     tracked(cd, (m, ay + int(30 * s)), SONG, f_song, INK, tracking=int(5 * s))
-    tracked(cd, (m, ay + int(112 * s)), "FROM THE ALBUM " + ALBUM, f_album,
-            (185, 165, 205), tracking=int(4 * s))
+    cd.text((m, ay + int(114 * s)), BLURB, font=f_blurb, fill=(196, 180, 214))
 
     # ---------------- vertical perforation ----------------
     px_ = art_w + int(6 * s)
@@ -324,9 +327,6 @@ def render_landscape(W, H, name, pad_ratio=0.030):
 
     # ---------------- right: stub ----------------
     sx = px_ + int(54 * s)
-    f_mono_sm = font(F_MONO, int(17 * s))
-    tracked(cd, (card_w - m, int(38 * s)), SERIAL, f_mono_sm, GOLD,
-            tracking=int(3 * s), anchor_x="right")
 
     # Stub contents are stacked and centred inside the right-hand panel so
     # nothing can run past the card edge regardless of string length.
