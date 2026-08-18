@@ -44,13 +44,13 @@ a{color:var(--gold)}
 .hero{position:relative;aspect-ratio:4/3;background:radial-gradient(120% 90% at 30% 10%,#3B1B54,#0B0812 70%)}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(59,27,84,.3),transparent 30%,transparent 52%,rgba(13,10,20,.94))}
-.hero-no{position:absolute;top:18px;right:20px;white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:2px;color:var(--gold)}
 .hero-titles{position:absolute;left:22px;bottom:18px;z-index:4;max-width:calc(100% - 110px)}
 .hero-name{font-family:var(--serif);font-weight:500;font-size:40px;white-space:nowrap;letter-spacing:4px;line-height:1.05;text-shadow:0 3px 20px rgba(0,0,0,.6)}
 .hero-sub{font-family:var(--serif);font-size:11px;white-space:nowrap;letter-spacing:6px;color:var(--gold);margin-top:7px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
-.meta{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:12px;padding:18px 22px 20px}
-.meta .k{font-size:8.5px;letter-spacing:2px;color:rgba(217,178,106,.85)}
-.meta .v{font-family:var(--tc);font-size:13px;margin-top:4px}
+.intro{padding:20px 22px 22px}
+.intro-k{font-size:8.5px;letter-spacing:2px;color:rgba(217,178,106,.85)}
+.intro-t{font-family:var(--serif);font-size:17px;line-height:1.62;margin-top:9px;
+  color:rgba(244,237,249,.9)}
 .perf{position:relative;border-top:1.5px dashed rgba(201,162,232,.35)}
 .perf i{position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
 .perf i:first-child{left:-9px}.perf i:last-child{right:-9px}
@@ -67,14 +67,7 @@ a{color:var(--gold)}
   text-decoration:none;font-family:var(--tc);font-weight:600;font-size:14px;letter-spacing:3px;transition:transform .15s ease;border:none}
 .btn:active{transform:scale(.97)}
 .btn-main{flex:1;background:linear-gradient(135deg,#E9CD8B,#D9B26A 48%,#B98A3F);color:#241505;box-shadow:0 10px 24px rgba(217,178,106,.2)}
-.btn-ghost{flex:1;background:transparent;border:1px solid rgba(201,162,232,.38);color:#EBDFF6}
-.btn-line{width:100%;margin-top:10px;letter-spacing:4px;background:rgba(126,63,168,.24);border:1px solid rgba(126,63,168,.42);color:var(--ink)}
-.btn-line svg{fill:var(--gold)}
 .note{margin-top:13px;text-align:center;font-size:11px;letter-spacing:1px;color:rgba(232,214,248,.38)}
-#toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  padding:12px 22px;border-radius:14px;background:rgba(24,14,34,.96);color:var(--ink);border:1px solid var(--gold-soft);
-  font-size:13.5px;font-weight:600;letter-spacing:1px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:99;white-space:nowrap}
-#toast.on{opacity:1}
 /* ---- 32s preview player ---- */
 .hero{cursor:pointer}
 /* Bottom-right, clear of the title block on the left. */
@@ -102,7 +95,6 @@ a{color:var(--gold)}
     <div class="hero">
       <img src="../assets/images/sky/cover.jpg?v=0816" alt="CHANCE — I'M SORRY cover">
       <div class="hero-shade"></div>
-      <span class="hero-no">№ 001228</span>
       <button class="preview-play pulse" id="pv-btn" aria-label="Play 30-second preview of I'M SORRY">
         <svg id="pv-icon" width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </button>
@@ -113,10 +105,11 @@ a{color:var(--gold)}
         <div class="hero-sub">OUT NOW</div>
       </div>
     </div>
-    <div class="meta">
-      <div><div class="k">ARTIST</div><div class="v">CHANCE</div></div>
-      <div><div class="k">ALBUM</div><div class="v">THE SKY</div></div>
-      <div><div class="k">SONG</div><div class="v">I'M SORRY</div></div>
+    <div class="intro">
+      <div class="intro-k">SINGLE INTRODUCTION</div>
+      <p class="intro-t">&ldquo;I'M SORRY&rdquo; is the new single by CHANCE, from
+        <em>THE SKY</em> &mdash; a future concept album where emotion, memory,
+        and technology meet.</p>
     </div>
     <div class="perf"><i></i><i></i></div>
     <div class="stub">
@@ -130,79 +123,13 @@ a{color:var(--gold)}
       </div>
       <div class="btnrow">
         <a class="btn btn-main" id="btn-listen" href="https://chance1228.com/">LISTEN NOW</a>
-        <button class="btn btn-ghost" id="btn-airdrop">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          SHARE
-        </button>
       </div>
-      <button class="btn btn-line" id="btn-share">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 5.64 2 10.1c0 2.57 1.5 4.85 3.83 6.33-.13.47-.71 2.57-.74 2.74 0 0-.01.12.06.17.08.05.17.02.17.02.23-.03 2.65-1.73 3.07-2.02.52.07 1.06.11 1.61.11 5.52 0 10-3.64 10-8.1S17.52 2 12 2z"/></svg>
-        SHARE TO LINE
-      </button>
       <div class="note" id="note">PLAYING A 30-SECOND PREVIEW · TAP LISTEN NOW FOR THE FULL SONG</div>
     </div>
   </div>
 </div>
-<div id="toast"></div>
 <audio id="pv-audio" src="../assets/preview/im-sorry-preview-v2.mp3" preload="auto" playsinline></audio>
 
-<!-- LIFF: The config file is excluded from git (see src/line/liff-config.example.js); automatically falls back when not configured. -->
-<script src="../src/line/liff-config.js" onerror="window.LIFF_ID=''"></script><!-- Paths already set for the /im-sorry/ subfolder. -->
-<script src="../src/line/flex-message.js"></script>
-<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<script>
-(function () {
-  var SITE = "https://chance1228.com";           // Update this line after the www DNS is configured.
-  var PAGE = SITE + "/im-sorry/";
-  var toastT = null;
-  function toast(msg) {
-    var t = document.getElementById("toast");
-    t.textContent = msg; t.classList.add("on");
-    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("on"); }, 2400);
-  }
-
-  /* System share / copy link fallback when Share Target Picker is unavailable. */
-  function fallbackShare() {
-    if (navigator.share) {
-      navigator.share({ title: "CHANCE — THE SKY", text: "AI FUTURE CONCEPT ALBUM · LISTEN ONLINE & KEEP FOREVER", url: PAGE })
-        .catch(function () {});
-      return;
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(PAGE).then(
-        function () { toast("LINK COPIED — PASTE IT IN LINE TO SHARE"); },
-        function () { toast(PAGE); });
-      return;
-    }
-    toast(PAGE);
-  }
-
-  var LIFF_ID = (typeof window.LIFF_ID === "string" && window.LIFF_ID) ? window.LIFF_ID : "";
-  var liffReady = false;
-
-  if (LIFF_ID && window.liff) {
-    liff.init({ liffId: LIFF_ID })
-      .then(function () { liffReady = true; })
-      .catch(function (e) { console.warn("LIFF initialization failed; using system share instead.", e); });
-  }
-
-  document.getElementById("btn-share").addEventListener("click", function () {
-    /* 1) LIFF is not configured or initialized: use system share. */
-    if (!LIFF_ID || !window.liff || !liffReady) { fallbackShare(); return; }
-    /* 2) Not signed in: sign in first. Pages opened inside LINE are usually already signed in. */
-    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
-    /* 3) Share Target Picker is unavailable: use system share. */
-    if (!liff.isApiAvailable("shareTargetPicker")) { fallbackShare(); return; }
-    /* 4) Open the friend/group picker. The user selects recipients; nothing is sent automatically. */
-    liff.shareTargetPicker([window.buildImSorryFlex(SITE)])
-      .then(function (res) {
-        if (res) toast("SHARED ♪");
-        else toast("SHARING CANCELED");
-      })
-      .catch(function (e) { console.warn(e); toast("SHARING FAILED — COPYING THE LINK INSTEAD"); fallbackShare(); });
-  });
-})();
-</script>
 <script>
 (function(){
 var QR=(function(){
@@ -422,66 +349,6 @@ try{ QR.draw(document.getElementById("qr"), "https://chance1228.com/", 168); }ca
   });
 })();
 
-/* =====================================================================
- * SHARE button \u2014 opens the native iOS/Android share sheet
- * (AirDrop / LINE / Messages / Mail / save to Photos).
- * Shares the JPG share card as a file when the platform supports it,
- * otherwise falls back to sharing the link, then to copying it.
- * ===================================================================== */
-(function () {
-  var btn = document.getElementById("btn-airdrop");
-  if (!btn) return;
-  var SITE = "https://chance1228.com";
-  var PAGE = SITE + "/im-sorry/";
-  var CARD = "../assets/share/im-sorry-share-card-story.jpg";
-
-  function toast(msg) {
-    var t = document.getElementById("toast");
-    t.textContent = msg; t.classList.add("on");
-    setTimeout(function () { t.classList.remove("on"); }, 2400);
-  }
-
-  btn.addEventListener("click", function () {
-    /* The URL is repeated inside `text` on purpose: when an image file is
-       attached, several apps (LINE, IG, Messages) drop the separate `url`
-       field, which would leave the recipient with a picture and no tappable
-       link. Keeping it in the text guarantees a link travels with the card. */
-    var payload = {
-      title: "CHANCE \u2014 I'M SORRY",
-      text: "CHANCE \u2014 I'M SORRY \u00b7 Listen now: " + PAGE,
-      url: PAGE
-    };
-
-    /* Try sharing the actual image file first (AirDrop / LINE / IG all accept it). */
-    if (navigator.canShare && window.fetch) {
-      fetch(CARD).then(function (r) {
-        if (!r.ok) throw new Error("no card");
-        return r.blob();
-      }).then(function (blob) {
-        var file = new File([blob], "chance-im-sorry.jpg", { type: "image/jpeg" });
-        if (navigator.canShare({ files: [file] })) {
-          return navigator.share({ files: [file], title: payload.title, text: payload.text });
-        }
-        throw new Error("files unsupported");
-      }).catch(function () {
-        shareLink(payload);
-      });
-      return;
-    }
-    shareLink(payload);
-  });
-
-  function shareLink(payload) {
-    if (navigator.share) { navigator.share(payload).catch(function () {}); return; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(payload.url).then(
-        function () { toast("LINK COPIED"); },
-        function () { toast(payload.url); });
-      return;
-    }
-    toast(payload.url);
-  }
-})();
 </script>
 </body>
 </html>
