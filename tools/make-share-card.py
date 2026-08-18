@@ -309,7 +309,8 @@ def render_landscape(W, H, name, pad_ratio=0.030):
     f_blurb   = font(F_SERIF, int(23 * s))
 
     ay = card_h - int(178 * s)
-    tracked(cd, (m, ay), EYEBROW, f_eyebrow, GOLD, tracking=int(12 * s))
+    # Landscape carries the artist name so the standalone card is attributable.
+    tracked(cd, (m, ay), "CHANCE · " + EYEBROW, f_eyebrow, GOLD, tracking=int(10 * s))
     tracked(cd, (m, ay + int(30 * s)), SONG, f_song, INK, tracking=int(5 * s))
     cd.text((m, ay + int(114 * s)), BLURB, font=f_blurb, fill=(196, 180, 214))
 
