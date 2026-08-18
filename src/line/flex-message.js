@@ -21,7 +21,7 @@
 
     return {
       type: "flex",
-      altText: "CHANCE – I'M SORRY｜單曲發行",
+      altText: "CHANCE – I'M SORRY | New Single",
       contents: {
         type: "bubble",
         size: "mega",
@@ -31,7 +31,7 @@
           size: "full",
           aspectRatio: "3:4",
           aspectMode: "cover",
-          action: { type: "uri", label: "查看單曲頁", uri: PAGE }
+          action: { type: "uri", label: "Open single", uri: PAGE }
         },
         body: {
           type: "box",
@@ -42,7 +42,7 @@
           contents: [
             { type: "text", text: "CHANCE", color: MUTED, size: "xs", weight: "bold" },
             { type: "text", text: "I'M SORRY", color: INK, size: "xxl", weight: "bold" },
-            { type: "text", text: "單曲發行", color: MUTED, size: "sm" }
+            { type: "text", text: "New Single · Listen Now", color: MUTED, size: "sm" }
           ]
         },
         footer: {
@@ -57,7 +57,7 @@
               style: "primary",
               color: "#E8E4DF",
               height: "sm",
-              action: { type: "uri", label: "立即試聽", uri: PAGE + "?autoplay=0" }
+              action: { type: "uri", label: "Listen now", uri: PAGE + "?autoplay=0" }
             },
             {
               type: "button",
@@ -65,7 +65,7 @@
               color: "#26211F",
               height: "sm",
               action: {
-                type: "uri", label: "加入主畫面",
+                type: "uri", label: "Add to Home",
                 uri: SITE + "/install/?release=im-sorry&openExternalBrowser=1"
               }
             },
