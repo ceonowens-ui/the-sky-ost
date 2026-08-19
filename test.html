@@ -70,6 +70,10 @@
   --pv-controls-mb: 7px;
   --pv-track-font: 17px;
   --pv-track-label-font: 16px;
+  --pv-title-font: 22px;
+  --pv-sub-font: 11.5px;
+  --pv-nplabel-font: 9px;
+  --pv-times-font: 11px;
   --pv-next-shift: -8px;
   --pv-nav-bottom: 5px;
   --pv-nav-shift-y: -14px;
@@ -208,9 +212,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   box-shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 .np-head { display: flex; justify-content: space-between; align-items: flex-start; }
-.np-label { font-family: var(--font-label); font-size: 9px; letter-spacing: 4px;
+.np-label { font-family: var(--font-label); font-size: var(--pv-nplabel-font, 9px); letter-spacing: 4px;
             color: var(--primary); text-transform: uppercase; }
-.np-title { font-family: var(--font-serif-tc); font-size: 22px; font-weight: 600;
+.np-title { font-family: var(--font-serif-tc); font-size: var(--pv-title-font, 22px); font-weight: 600;
             margin-top: 3px; letter-spacing: 1.5px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .np-sub { font-family: var(--font-display); font-style: italic; font-size: 13px;
@@ -244,7 +248,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             box-shadow: 0 2px 10px rgba(0,0,0,.4), 0 0 12px rgba(var(--primary-rgb), .9); }
 .prog-dot:empty { width: 14px; height: 14px; } /* 沒設定角色標籤時退回小圓點 */
 .np-times { display: flex; justify-content: space-between; margin-top: 9px;
-            font-family: var(--font-label); font-size: 11px; letter-spacing: 1px;
+            font-family: var(--font-label); font-size: var(--pv-times-font, 11px); letter-spacing: 1px;
             color: rgba(255,255,255,.55); }
 
 /* 控制鍵 */
@@ -884,7 +888,7 @@ body { background: #08060C !important; }
 
 /* Now Playing 標籤與副標 */
 .np-sub { font-family: var(--font-sans-tc) !important; font-style: normal !important;
-          font-size: 11.5px !important; color: rgba(255,255,255,.5) !important; }
+          font-size: var(--pv-sub-font, 11.5px) !important; color: rgba(255,255,255,.5) !important; }
 
 /* 封面上的藝人行 */
 .cover-artist { position: absolute; z-index: 2; left: 26px; white-space: nowrap;
@@ -3208,8 +3212,12 @@ window.ALBUM_SWITCH = {
       ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
       ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
       ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
-      ["--pv-track-font",    "歌名字級",   10,   30,  1,   "px"],
-      ["--pv-track-label-font","標籤字級", 7,    20,  1,   "px"],
+      ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
+      ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
+      ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
+      ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
+      ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
+      ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
     ]],
     ["分頁島", [
@@ -3324,6 +3332,6 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B03</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B04</div>
 </body>
 </html>
