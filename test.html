@@ -59,20 +59,20 @@
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
   --pv-status-shade: 1;
   --pv-status-h: 280px;
-  --pv-cover-top: -83px;
+  --pv-cover-top: -79px;
   --pv-cover-focus: 41%;
   --pv-card-overlap: 12px;
   --pv-card-side: 16px;
   --pv-card-bottom: 66px;
-  --pv-card-gap: 6px;
-  --pv-controls-gap: 17px;
-  --pv-controls-mt: -17px;
+  --pv-card-gap: 3px;
+  --pv-controls-gap: 16px;
+  --pv-controls-mt: -16px;
   --pv-controls-mb: 7px;
   --pv-track-font: 17px;
-  --pv-track-label-font: 16px;
+  --pv-track-label-font: 14px;
   --pv-title-font: 22px;
   --pv-sub-font: 11.5px;
-  --pv-nplabel-font: 9px;
+  --pv-nplabel-font: 10.5px;
   --pv-times-font: 11px;
   --pv-next-shift: -8px;
   --pv-nav-bottom: 5px;
@@ -1591,8 +1591,8 @@ const THE_SKY = {
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: true,  audioPath: "assets/audio/sky/01.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: true,  audioPath: "assets/audio/sky/02.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
+    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -2485,7 +2485,7 @@ window.ALBUM_SWITCH = {
     var art = t.artwork || CFG.coverImage;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: isLocked(t) ? "Secret Track" : t.title,
+        title: isLocked(t) ? "Unlock" : t.title,
         artist: CFG.artistName || "",
         album: CFG.albumTitle || "",
         artwork: art ? [{ src: art, sizes: "512x512", type: "image/png" }] : [],
@@ -2530,7 +2530,7 @@ window.ALBUM_SWITCH = {
   function renderNowPlaying() {
     var t = TRACKS[state.cur];
     var locked = isLocked(t);
-    $("np-title").textContent = locked ? "Secret Track" : t.title;
+    $("np-title").textContent = locked ? "Unlock" : t.title;
     $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
@@ -2569,7 +2569,7 @@ window.ALBUM_SWITCH = {
     }
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
       '<span class="track-num">' + pad2(t.n) + "</span>" +
-      '<div class="track-name">' + (locked ? "Secret Track" : esc(t.title)) + "</div>" + right + "</div>";
+      '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" + right + "</div>";
   }
   function renderTrackLists(revealing) {
     var html = TRACKS.map(function (t, i) { return trackRowHTML(t, i, revealing); }).join("");
@@ -2667,7 +2667,7 @@ window.ALBUM_SWITCH = {
   $("btn-lyrics").addEventListener("click", function () {
     var t = TRACKS[state.cur];
     $("lyrics-eyebrow").textContent = STR.lyricsLabel || "Lyrics";
-    $("lyrics-title").textContent = isLocked(t) ? "Secret Track" : t.title;
+    $("lyrics-title").textContent = isLocked(t) ? "Unlock" : t.title;
     var body = $("lyrics-body");
     $("lyrics-overlay").classList.remove("hidden");
     if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }   // 內嵌優先（file:// 也能看）
@@ -3332,6 +3332,32 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B04</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B05</div>
+<script id="__trial_unlock">
+(function(){
+  var KEY = "album-the-sky:unlock";
+  try { var u = JSON.parse(localStorage.getItem(KEY)||"null"); if (u && u.unlocked) return; } catch(e){}
+  var b = document.createElement("button");
+  b.id = "__trialBtn"; b.textContent = "解鎖試聽";
+  b.style.cssText = "position:fixed;left:10px;bottom:calc(120px + env(safe-area-inset-bottom));z-index:100000;" +
+    "padding:9px 14px;border-radius:999px;border:1px solid rgba(217,178,106,.6);background:rgba(20,14,28,.92);" +
+    "color:#D9B26A;font:600 12px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;" +
+    "-webkit-tap-highlight-color:transparent;box-shadow:0 6px 20px rgba(0,0,0,.45)";
+  document.body.appendChild(b);
+  b.addEventListener("click", function(){
+    b.textContent = "驗證中…"; b.disabled = true;
+    fetch("https://the-sky-ost-api.anthonywen0693.workers.dev/verify", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body: JSON.stringify({ email:"trial@chance1228.com", code:"SKY1-TEST-TRIAL" })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.ok) {
+        localStorage.setItem(KEY, JSON.stringify({ unlocked:true, email:"trial@chance1228.com",
+          code:"SKY1-TEST-TRIAL", product:d.product||"299" }));
+        location.reload();
+      } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
+    }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
+  });
+})();
+</script>
 </body>
 </html>
