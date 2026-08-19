@@ -2984,6 +2984,28 @@ window.ALBUM_SWITCH = {
   renderMerch();
   renderMoodWall();
   renderProgress(pos.time || 0);
+
+  /* ---------- 深連結：?track=slug 直接開到某首歌（分享頁 LISTEN NOW 用）----------
+   * 例：chance1228.com/?track=im-sorry → 進站就選中「I'm Sorry」並顯示在 Now Playing。
+   * 只「選取顯示」，不強制播放：(1) 瀏覽器本來就會擋無手勢自動播放，
+   * (2) 付費曲一進站就跳解鎖畫面對剛點連結進來的人太突兀 —— 讓使用者自己按播放，
+   * 該有的鎖定提示會照常出現。找不到對應曲目就完全不動作，不影響既有行為。 */
+  try {
+    var _deepSlug = new URLSearchParams(location.search).get("track");
+    if (_deepSlug) {
+      var _slugify = function (s) {
+        return String(s || "").toLowerCase().replace(/['’]/g, "")
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      };
+      for (var _di = 0; _di < TRACKS.length; _di++) {
+        if (_slugify(TRACKS[_di].title) === _deepSlug) {
+          state.cur = _di;
+          renderNowPlaying(); renderTrackLists(); renderProgress(0);
+          break;
+        }
+      }
+    }
+  } catch (e) {}
 })();
 
 </script>
