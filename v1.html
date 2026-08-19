@@ -10,7 +10,7 @@
 <!-- 最終解法：不設 status-bar-style（black-translucent 就是底部黑 bar 元兇），
      iOS 會用 theme-color 填滿頂/底安全區 -->
 <!-- theme-color 由 app.js 依 ALBUM_CONFIG.theme.themeColor 覆寫 -->
-<meta name="theme-color" content="#08060C">
+<meta name="theme-color" content="#0B0709">
 <!-- 標題與 icon 由 app.js 從 config 填入 -->
 <title>Album App</title>
 <link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/cover.png">
@@ -18,10 +18,8 @@
 <!-- 字體（想換字體就改這行 + styles.css 的 --font-* 變數） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=Marcellus&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 
-<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#08060C"/><rect x="30" y="24" width="40" height="40" rx="6" fill="#3B1B54"/><path d="M44 72h12v4H44z" fill="#D9B26A"/></svg></template>
 <style>
 /* =====================================================================
  * ALBUM APP TEMPLATE — styles.css
@@ -56,35 +54,16 @@
 
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
-  /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
-  --pv-status-shade: 1;
-  --pv-status-h: 280px;
-  --pv-cover-top: -79px;
-  --pv-cover-focus: 41%;
-  --pv-card-overlap: 12px;
-  --pv-card-side: 16px;
-  --pv-card-bottom: 66px;
-  --pv-card-gap: 3px;
-  --pv-controls-gap: 16px;
-  --pv-controls-mt: -16px;
-  --pv-controls-mb: 7px;
-  --pv-track-font: 17px;
-  --pv-track-label-font: 14px;
-  --pv-title-font: 22px;
-  --pv-sub-font: 11.5px;
-  --pv-nplabel-font: 10.5px;
-  --pv-times-font: 11px;
-  --pv-next-shift: -8px;
-  --pv-nav-bottom: 5px;
-  --pv-nav-shift-y: -14px;
-  --pv-nav-scale: 1.07;
-  --pv-nav-opacity: 1;
-  --pv-nav-font: 15px;
-  --pv-cover-radius: 44px;
-  --pv-cover-side: 0px;
-  --pv-status-gap: 45px;
-  --pv-font-en: 'Cormorant Garamond';
-  --pv-font-label: 'Cormorant Garamond';
+  /* 6 支滑桿：完全對齊《秘密關係》tuner 模型與值 */
+  --pv-cover-top: -10px;       /* 封面上距：.cover-card margin-top */
+  --pv-nav-bottom: 0px;      /* nav 上下：#nav-wrap bottom 加成 */
+  --pv-np-gap: 62px;         /* 卡片間距：.np-card margin-bottom */
+  --pv-nav-scale: 1.08;      /* nav 大小：#nav scale */
+  --pv-nav-y: 10px;           /* nav 上下微移：#nav-wrap translateY */
+  --pv-nav-opacity: 1;       /* nav 透明度 */
+  /* 固定值（秘密關係 tuner 沒有這兩支滑桿，維持 CHANCE 設計） */
+  --pv-card-overlap: 52px;   /* Now Playing 卡疊住封面 */
+  --pv-nav-font: 9px;        /* nav 島文字大小 */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -202,7 +181,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* Now Playing：毛玻璃卡片，往上疊在封面（DESIGN LOCK） */
 .np-card {
   position: relative; z-index: 3;
-  margin: calc(-1 * var(--pv-card-overlap, 52px)) 12px calc(86px + env(safe-area-inset-bottom));
+  margin: calc(-1 * var(--pv-card-overlap, 52px)) 12px calc(var(--pv-np-gap, 86px) + var(--sab, env(safe-area-inset-bottom)));
   padding: 12px 18px 4px;
   background: var(--surface);
   backdrop-filter: blur(22px);
@@ -212,9 +191,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   box-shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 .np-head { display: flex; justify-content: space-between; align-items: flex-start; }
-.np-label { font-family: var(--font-label); font-size: var(--pv-nplabel-font, 9px); letter-spacing: 4px;
+.np-label { font-family: var(--font-label); font-size: 9px; letter-spacing: 4px;
             color: var(--primary); text-transform: uppercase; }
-.np-title { font-family: var(--font-serif-tc); font-size: var(--pv-title-font, 22px); font-weight: 600;
+.np-title { font-family: var(--font-serif-tc); font-size: 22px; font-weight: 600;
             margin-top: 3px; letter-spacing: 1.5px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .np-sub { font-family: var(--font-display); font-style: italic; font-size: 13px;
@@ -248,7 +227,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             box-shadow: 0 2px 10px rgba(0,0,0,.4), 0 0 12px rgba(var(--primary-rgb), .9); }
 .prog-dot:empty { width: 14px; height: 14px; } /* 沒設定角色標籤時退回小圓點 */
 .np-times { display: flex; justify-content: space-between; margin-top: 9px;
-            font-family: var(--font-label); font-size: var(--pv-times-font, 11px); letter-spacing: 1px;
+            font-family: var(--font-label); font-size: 11px; letter-spacing: 1px;
             color: rgba(255,255,255,.55); }
 
 /* 控制鍵 */
@@ -274,7 +253,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .np-next { display: flex; align-items: center; justify-content: space-between;
            border-top: 1px solid rgba(255,255,255,.10); margin-top: 6px;
            padding: 6px 2px 2px; cursor: pointer; }
-.np-next span { font-family: var(--font-label); font-size: var(--pv-track-label-font, 10px); letter-spacing: 3px;
+.np-next span { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
                 color: rgba(255,255,255,.6); text-transform: uppercase; }
 
 /* 曲目列表（fold 之下） */
@@ -528,10 +507,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
  * FLOATING ISLAND BOTTOM NAV（DESIGN LOCK：浮動島狀 pill）
  * =================================================================== */
 #nav-wrap { position: absolute; left: 0; right: 0;
-            bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 12px) + var(--pv-nav-shift-y, 0px)); /* 避開 home indicator，可用 tuner 調 */
+            bottom: calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 0px)); /* nav 上下 */
+            transform: translateY(var(--pv-nav-y, 0px)); /* nav 上下微移 */
             z-index: 70; display: flex; justify-content: center; pointer-events: none; }
 #nav { position: relative; display: flex; padding: 6px; border-radius: 30px; opacity: var(--pv-nav-opacity, 1);
-       transform: scale(var(--pv-nav-scale, 1)); transform-origin: bottom center;
+       transform: scale(var(--pv-nav-scale, 0.98)); transform-origin: bottom center;
        background: rgba(18,18,22,.16);
        backdrop-filter: blur(44px) saturate(1.7);
        -webkit-backdrop-filter: blur(44px) saturate(1.7); /* iPhone 必要 */
@@ -765,163 +745,6 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 30% { transform: scale(1.22); } 55% { transform: scale(1); } }
 
 </style>
-
-<!-- ===== TEST 版覆蓋：墨紫金 Editorial Player（不影響原版 index.html） ===== -->
-<style id="test-purple-override">
-:root {
-  --bg: #08060C !important;
-  --bg-top: #3B1B54 !important;
-  --surface: rgba(30,16,44,.55) !important;
-  --primary: #D9B26A !important;
-  --primary-rgb: 217,178,106 !important;
-  --secondary: #7E3FA8 !important;
-  --accent: #C9A2E8 !important;
-  --grad: linear-gradient(90deg, #7E3FA8, #F0DCA8) !important;
-  --font-display: var(--pv-font-en, 'Playfair Display'), serif !important;
-  --font-label: var(--pv-font-label, 'Bodoni Moda'), serif !important;
-}
-body { background: #08060C !important; }
-#stage { background: #08060C !important; }
-#screen-player { background: #08060C !important; }
-@media (min-width: 520px) {
-  body { background: radial-gradient(130% 100% at 50% -5%, #3B1B54, #060409 60%) !important; }
-  #stage { box-shadow: 0 44px 90px rgba(0,0,0,.6), 0 0 0 12px #17151a, 0 0 0 13px rgba(255,255,255,.07) !important; }
-}
-
-/* 封面：裁切焦點下移、加紫光暈、底部深色漸層讓文字讀得清楚 */
-.cover-card img, .cover-card video { object-position: center var(--pv-cover-focus, 100%) !important; }
-/* hero 四角圓邊 */
-.cover-card { border-radius: var(--pv-cover-radius, 26px) !important;
-              margin-left: var(--pv-cover-side, 0px) !important;
-              margin-right: var(--pv-cover-side, 0px) !important; }
-.cover-card::after { border-radius: var(--pv-cover-radius, 26px) var(--pv-cover-radius, 26px) 0 0 !important; }
-/* status bar 後方遮罩（tuner: --pv-status-shade / --pv-status-h） */
-.cover-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; z-index: 1;
-  height: var(--pv-status-h, 90px); pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,var(--pv-status-shade, .55)), transparent); }
-.cover-shade {
-  background:
-    radial-gradient(120% 90% at 30% 12%, rgba(126,63,168,.40), rgba(23,13,34,0) 66%),
-    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.28) 8%,
-      transparent 22%, rgba(8,6,12,0) 46%, rgba(8,6,12,.72) 76%, #08060C 100%) !important;
-}
-
-/* Player 卡：拿掉毛玻璃卡殼，資訊直接沉在封面下半部（cardOpacity 0） */
-.np-card {
-  display: flex !important; flex-direction: column !important; gap: var(--pv-card-gap, 0px) !important;
-  margin: calc(-1 * var(--pv-card-overlap, 52px)) var(--pv-card-side, 26px) calc(var(--pv-card-bottom, 96px) + var(--sab, env(safe-area-inset-bottom))) !important;
-  padding: 0 !important;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-.np-label { color: rgba(201,162,232,.65) !important; letter-spacing: 3.5px !important; }
-.np-sub { color: rgba(255,255,255,.5) !important; }
-.icon-round {
-  width: 38px !important; height: 38px !important;
-  background: transparent !important;
-  border: 1px solid rgba(201,162,232,.22) !important;
-  color: rgba(255,255,255,.78) !important;
-}
-.icon-round.liked, .icon-round[data-act="like"] {
-  border-color: rgba(217,178,106,.45) !important;
-  background: rgba(217,178,106,.10) !important;
-  color: #E9C87F !important;
-}
-
-/* 進度條：細線 + 金色小點 */
-.prog { height: 2px !important; background: rgba(201,162,232,.18) !important; }
-.prog-fill { background: linear-gradient(90deg,#7E3FA8,#F0DCA8) !important; }
-.prog-dot { width: 9px !important; height: 9px !important; border: none !important;
-            font-size: 0 !important; overflow: hidden !important; text-indent: -999px !important;
-            background: #F0DCA8 !important; box-shadow: 0 0 12px rgba(240,220,168,.85) !important; }
-.prog-dot:empty { width: 9px !important; height: 9px !important; }
-.prog-glow { opacity: .22 !important; }
-.np-times { color: rgba(255,255,255,.42) !important; }
-
-/* 控制鍵：Apple Music 式裸圖示，播放鍵無底色 */
-.np-controls { gap: var(--pv-controls-gap, 44px) !important;
-  margin-top: var(--pv-controls-mt, 10px) !important;
-  margin-bottom: var(--pv-controls-mb, 0px) !important; }
-.btn-play {
-  width: 40px !important; height: 40px !important;
-  background: none !important; box-shadow: none !important;
-  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-}
-.btn-play svg { fill: #ffffff !important; width: 34px !important; height: 34px !important; }
-.btn-ghost svg { width: 30px !important; height: 30px !important; }
-
-.np-next { border-top: 1px solid rgba(201,162,232,.14) !important; margin-top: 14px !important;
-           padding-top: 12px !important; }
-
-/* Nav 島：紫調玻璃 */
-#nav, .nav-island { background: rgba(24,14,34,.74) !important;
-                    border-color: rgba(201,162,232,.16) !important; }
-.navbtn.active { color: #F0DCA8 !important; }
-.navbtn .navlbl { font-family: var(--font-label) !important; font-size: var(--pv-nav-font, 8px) !important;
-                  letter-spacing: 1.8px !important; text-transform: uppercase !important; }
-.navbtn { color: rgba(232,214,248,.5) !important; }
-#nav-ind {
-  background: linear-gradient(180deg, rgba(217,178,106,.30), rgba(217,178,106,.14)) !important;
-  box-shadow: inset 0 1px 0 rgba(247,236,203,.35), inset 0 0 12px rgba(217,178,106,.18),
-              0 4px 12px rgba(0,0,0,.2) !important;
-}
-
-/* NEXT SIGNAL 列：左邊標籤＋下一首歌名，右邊金色 N TRACKS */
-.np-next { align-items: flex-end !important; gap: 14px !important;
-           transform: translateY(var(--pv-next-shift, 0px)); }
-.np-next-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
-.np-next-name { font-size: var(--pv-track-font, 12px); color: rgba(255,255,255,.8);
-                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.np-next-right { display: flex; align-items: center; gap: 6px; white-space: nowrap;
-                 font-family: var(--font-label); font-size: var(--pv-track-label-font, 9.5px); letter-spacing: 2.5px;
-                 color: #D9B26A; }
-.np-next-right svg { stroke: #D9B26A !important; }
-
-/* 控制鍵列：愛心金色實心、靠右獨立 */
-.np-controls { position: relative !important; }
-#btn-heart { position: absolute; right: 0; top: 50%; transform: translateY(-50%); padding: 6px; }
-#btn-heart svg { width: 26px !important; height: 26px !important; }
-
-/* Now Playing 標籤與副標 */
-.np-sub { font-family: var(--font-sans-tc) !important; font-style: normal !important;
-          font-size: var(--pv-sub-font, 11.5px) !important; color: rgba(255,255,255,.5) !important; }
-
-/* 封面上的藝人行 */
-.cover-artist { position: absolute; z-index: 2; left: 26px; white-space: nowrap;
-                bottom: calc(var(--pv-card-overlap, 52px) + var(--pv-artist-gap, 44px));
-                display: flex; align-items: center; gap: 10px;
-                font-family: var(--font-sans-tc); font-size: 12px; letter-spacing: 1px;
-                color: rgba(232,214,248,.72); text-shadow: 0 2px 10px rgba(0,0,0,.7); }
-.ca-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(201,162,232,.5); }
-
-/* 專輯切換點：藏起來（左右滑仍可換專輯） */
-#album-switch { display: none !important; }
-
-/* 主畫面不露出曲目清單（曲目走 Bottom Sheet），播放器填滿整頁 */
-.tracklist-block { display: none !important; }
-.player-fold { min-height: 100% !important;
-  padding-top: calc(var(--sat, env(safe-area-inset-top)) + var(--pv-status-gap, 0px)) !important; }
-
-/* Nav 島：紫玻璃、金色作用膠囊（完全比照 Editorial 紫） */
-#nav { background: rgba(24,14,34,.74) !important;
-       border: 1px solid rgba(201,162,232,.16) !important;
-       border-radius: 26px !important;
-       backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;
-       box-shadow: 0 16px 42px rgba(0,0,0,.44) !important; }
-#nav::before { display: none !important; }
-/* 保底：safe-area 為 0 時（桌機／iOS 工具列顯示中）不讓分頁島掉出畫面 */
-#nav-wrap { bottom: max(6px, calc(var(--sab, env(safe-area-inset-bottom)) + var(--pv-nav-bottom, 11px) + var(--pv-nav-shift-y, 0px))) !important; }
-#nav-ind { border-radius: 18px !important; }
-
-/* 其他頁面沿用紫底 */
-.screen-sub { background: radial-gradient(120% 60% at 50% 0%, #3B1B54, #08060C 70%) !important; }
-#sheet { background: linear-gradient(180deg, #241238, #08060C) !important; }
-#sheet-backdrop { background: rgba(8,6,12,.6) !important; }
-</style>
 </head>
 <body>
 <div id="stage">
@@ -956,6 +779,10 @@ body { background: #08060C !important; }
             <button class="icon-round" id="btn-lyrics" title="歌詞">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
             </button>
+            <!-- 心動收藏 -->
+            <button class="icon-round" id="btn-heart" title="收藏這一刻">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
+            </button>
           </div>
         </div>
 
@@ -970,26 +797,19 @@ body { background: #08060C !important; }
         <!-- 控制鍵 -->
         <div class="np-controls">
           <button class="btn-ghost" id="btn-prev" title="上一首">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M11 12 20 5.5v13L11 12zm-8 0L12 5.5v13L3 12z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
           </button>
           <button class="btn-play" id="btn-play" title="播放 / 暫停">
             <svg width="23" height="23" viewBox="0 0 24 24"><path id="play-icon-path" d="M8 5v14l11-7z"/></svg>
           </button>
           <button class="btn-ghost" id="btn-next" title="下一首">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M13 12 4 18.5v-13L13 12zm8 0-9 6.5v-13L21 12z"/></svg>
-          </button>
-          <button class="btn-ghost" id="btn-heart" title="收藏這一刻">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#D9B26A"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.3 1.9 4.8 5.2 4.8c2 0 3.3 1.2 3.9 2.2.6-1 1.9-2.2 3.9-2.2 3.3 0 4.9 3.5 3.2 6.9C19.5 16.4 12 21 12 21z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
 
         <!-- Next Scene → 打開 Bottom Sheet 曲目表 -->
         <div class="np-next" id="btn-open-sheet">
-          <div class="np-next-left">
-            <span id="next-scene-label"></span>
-            <div class="np-next-name" id="next-track-name"></div>
-          </div>
-          <div class="np-next-right"><span id="next-count"></span>
+          <span id="next-scene-label"></span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -1132,6 +952,10 @@ body { background: #08060C !important; }
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
         <span class="navlbl"></span>
       </button>
+      <button class="navbtn" data-screen="gallery">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
     </div>
   </nav>
 
@@ -1157,9 +981,6 @@ body { background: #08060C !important; }
 
 <!-- 專輯資料（換專輯只改這個檔）→ 再載入引擎 -->
 <script>
-var SKY_COVER = "assets/images/sky/cover.jpg?v=0816";
-var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
-
 /* =====================================================================
  * ALBUM APP TEMPLATE — album-config.js
  * =====================================================================
@@ -1418,8 +1239,7 @@ Left behind the old projections
 Now I’m moving calm and slow
 留下時間更多
 Time expanding as I go
-捲的煙
-still moving low
+捲的煙 still moving low
 藏著走過的路
 Turning circles through the silence
 I remember being lost
@@ -1461,10 +1281,12 @@ Reason leading me to silence
 Freedom growing in the shade
 理智追著自由
 Nothing left I need to save
+
 No signal in the skyline
 No voices in my mind
 Eyes open in the quiet
 I finally feel aligned
+
 Ya I’m sorry but I’m lazy
 So tell me what I want
 Ya I’m done with all the noise
@@ -1473,6 +1295,7 @@ Ya I’m sorry but I’m drifting
 Somewhere past the dark
 世界劃分四等份
 我離開中央
+
 Smoke fades into the ceiling
 Time moves without a meaning
 Stillness slowly breathing`,
@@ -1514,7 +1337,7 @@ const THE_SKY = {
   artistName: "成晞 Chance",                        // 藝人名（Media Session 鎖定畫面顯示）
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
-  coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
+  coverImage: "assets/images/sky/cover.jpg?v=0816",           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
   coverVideo: "",            // 選填：6 秒循環影片取代靜態封面（自動靜音播放）
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
@@ -1590,9 +1413,9 @@ const THE_SKY = {
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
-    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
+    { n: 1, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: true,  audioPath: "assets/audio/sky/01.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
+    { n: 2, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: true,  audioPath: "assets/audio/sky/02.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
+    { n: 3, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -1622,7 +1445,7 @@ const THE_SKY = {
       { src: "assets/images/sky/01.jpg", caption: "錄音現場" },
       { src: "assets/images/sky/02.jpg", caption: "錄音現場" },
       { src: "assets/images/sky/03.jpg", caption: "錄音現場" },
-      { src: SKY_COVER, caption: "THE SKY" },
+      { src: "assets/images/sky/cover.jpg", caption: "THE SKY" },
     ],
   },
 
@@ -1685,7 +1508,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
+    navTabs: ["聽歌", "擁有", "周邊", "動態", "寫真牆"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -2036,7 +1859,7 @@ const CLASSICS = {
   albumEyebrow: "THE COLLECTION 2020–2026",
   artistName: "成晞 Chance",
 
-  coverImage: BEFORE_COVER,  // BEFORE THE SKY 專屬封面
+  coverImage: "assets/images/classics/cover.jpg?v=0816",  // BEFORE THE SKY 專屬封面
   coverVideo: "",
   backgroundImage: "",
 
@@ -2118,7 +1941,7 @@ const CLASSICS = {
   },
 
   strings: {
-    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
+    navTabs: ["聽歌", "擁有", "周邊", "動態", "寫真牆"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Track",
     purchaseTitleEn: "Unlock the Album",
@@ -2316,8 +2139,7 @@ window.ALBUM_SWITCH = {
     }
   })();
   $("np-label").textContent = STR.nowPlayingLabel || "Now Playing";
-  $("next-scene-label").textContent = (STR.nextScene || "Next Scene");
-  (function () { var c = $("next-count"); if (c) c.textContent = TOTAL + " TRACKS"; })();
+  $("next-scene-label").textContent = (STR.nextScene || "Next Scene") + " · 共 " + TOTAL + " 首";
   $("tracklist-caption").textContent = "Tracks · " + TOTAL + " 首";
   $("sheet-title").textContent = "曲目列表 · " + TOTAL + " 首";
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
@@ -2485,7 +2307,7 @@ window.ALBUM_SWITCH = {
     var art = t.artwork || CFG.coverImage;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: isLocked(t) ? "Unlock" : t.title,
+        title: isLocked(t) ? "Secret Track" : t.title,
         artist: CFG.artistName || "",
         album: CFG.albumTitle || "",
         artwork: art ? [{ src: art, sizes: "512x512", type: "image/png" }] : [],
@@ -2530,7 +2352,7 @@ window.ALBUM_SWITCH = {
   function renderNowPlaying() {
     var t = TRACKS[state.cur];
     var locked = isLocked(t);
-    $("np-title").textContent = locked ? "Unlock" : t.title;
+    $("np-title").textContent = locked ? "Secret Track" : t.title;
     $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
@@ -2569,7 +2391,7 @@ window.ALBUM_SWITCH = {
     }
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
       '<span class="track-num">' + pad2(t.n) + "</span>" +
-      '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" + right + "</div>";
+      '<div class="track-name">' + (locked ? "Secret Track" : esc(t.title)) + "</div>" + right + "</div>";
   }
   function renderTrackLists(revealing) {
     var html = TRACKS.map(function (t, i) { return trackRowHTML(t, i, revealing); }).join("");
@@ -2667,7 +2489,7 @@ window.ALBUM_SWITCH = {
   $("btn-lyrics").addEventListener("click", function () {
     var t = TRACKS[state.cur];
     $("lyrics-eyebrow").textContent = STR.lyricsLabel || "Lyrics";
-    $("lyrics-title").textContent = isLocked(t) ? "Unlock" : t.title;
+    $("lyrics-title").textContent = isLocked(t) ? "Secret Track" : t.title;
     var body = $("lyrics-body");
     $("lyrics-overlay").classList.remove("hidden");
     if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }   // 內嵌優先（file:// 也能看）
@@ -3164,200 +2986,6 @@ window.ALBUM_SWITCH = {
   renderProgress(pos.time || 0);
 })();
 
-</script>
-<script>
-/* NEXT SIGNAL 下一首歌名：跟著目前曲目更新 */
-(function () {
-  var last = null;
-  function tick() {
-    var t = document.getElementById("np-title"), n = document.getElementById("next-track-name");
-    if (!t || !n) return;
-    var cur = t.textContent || "";
-    if (cur === last) return;
-    last = cur;
-    var rows = document.querySelectorAll("#tracklist .track-row .track-name, #sheet-list .track-name");
-    var names = [], i;
-    for (i = 0; i < rows.length; i++) { var v = rows[i].textContent.trim(); if (names.indexOf(v) < 0) names.push(v); }
-    var idx = names.indexOf(cur.trim());
-    n.textContent = names.length ? names[(idx + 1 + names.length) % names.length] : "";
-    var lab = document.getElementById("np-label");
-    if (lab && idx >= 0) {
-      var base = (lab.textContent || "Now Playing").split("·")[0].trim();
-      lab.textContent = base + " · " + String(idx + 1).padStart(2, "0");
-    }
-    var sub = document.getElementById("np-sub");
-    if (sub) sub.textContent = (sub.textContent || "").replace(/^track\s*\d+\s*[·.]\s*/i, "");
-  }
-  setInterval(tick, 500); setTimeout(tick, 400);
-})();
-</script>
-<script id="__inapp_tuner">
-(function () {
-  if (!/[?&]tune=1/.test(location.search)) return;
-  var SPEC = [
-    ["版面", [
-      ["--pv-cover-top",     "封面上距",   -300, 120, 1,   "px"],
-      ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
-      ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
-      ["--pv-cover-side",    "封面左右",   0,    40,  1,   "px"],
-      ["--pv-status-gap",    "頂部留白",   0,    140, 1,   "px"],
-      ["--pv-status-h",      "頂部遮罩高", 0,    320, 5,   "px"],
-      ["--pv-status-shade",  "頂部遮罩濃", 0,    1,   0.05, ""]
-    ]],
-    ["播放卡", [
-      ["--pv-card-overlap",  "卡片上疊",   0,    240, 1,   "px"],
-      ["--pv-card-side",     "卡片左右",   0,    60,  1,   "px"],
-      ["--pv-card-bottom",   "卡片下距",   0,    200, 1,   "px"],
-      ["--pv-card-gap",      "卡內間距",   0,    40,  1,   "px"],
-      ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
-      ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
-      ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
-      ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
-      ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
-      ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
-      ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
-      ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
-      ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
-      ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
-    ]],
-    ["分頁島", [
-      ["--pv-nav-bottom",    "nav 下距",   -20,  120, 1,   "px"],
-      ["--pv-nav-shift-y",   "nav 微移",   -120, 60,  1,   "px"],
-      ["--pv-nav-scale",     "nav 大小",   0.6,  1.5, 0.01,""],
-      ["--pv-nav-opacity",   "nav 透明",   0,    1,   0.01,""],
-      ["--pv-nav-font",      "nav 字級",   6,    22,  1,   "px"]
-    ]]
-  ];
-  var R = document.documentElement, cs = getComputedStyle(R), state = {};
-  function num(k){ var v=(cs.getPropertyValue(k)||"").trim(); return parseFloat(v)||0; }
-  SPEC.forEach(function(g){ g[1].forEach(function(r){ state[r[0]] = num(r[0]); }); });
-
-  var css = document.createElement("style");
-  css.textContent =
-  "#__tp{position:fixed;top:calc(8px + env(safe-area-inset-top));right:8px;z-index:99999;width:min(70vw,290px);" +
-  "background:rgba(14,10,20,.55);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);" +
-  "color:#EFE6F7;font:500 12px/1.3 -apple-system,'PingFang TC',sans-serif;" +
-  "border:1px solid rgba(201,162,232,.35);border-radius:14px;max-height:66dvh;overflow:hidden;display:none;" +
-  "box-shadow:0 14px 44px rgba(0,0,0,.5)}" +
-  "#__tp.on{display:block}" +
-  "#__tp.ghost{opacity:.22}" +
-  "#__tpGrip{display:flex;align-items:center;gap:6px;padding:9px 10px;cursor:move;touch-action:none;" +
-  "background:rgba(217,178,106,.16);border-bottom:1px solid rgba(201,162,232,.22);user-select:none;-webkit-user-select:none}" +
-  "#__tpGrip .dots{color:#D9B26A;font-size:14px;letter-spacing:1px;line-height:1}" +
-  "#__tpGrip .ttl{flex:1;font-size:10px;letter-spacing:1.5px;color:#D9B26A;font-weight:700}" +
-  "#__tpGrip .mini{width:26px;height:24px;border-radius:7px;border:1px solid rgba(201,162,232,.3);" +
-  "background:rgba(255,255,255,.07);color:#EFE6F7;font-size:12px;line-height:22px;text-align:center;padding:0}" +
-  "#__tpScroll{max-height:calc(66dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 10px 10px}" +
-  "#__tpBtn{position:fixed;right:10px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:100000;" +
-  "width:44px;height:44px;border-radius:50%;border:1px solid rgba(217,178,106,.5);background:rgba(20,14,28,.92);" +
-  "color:#D9B26A;font-size:20px;line-height:42px;text-align:center;-webkit-tap-highlight-color:transparent}" +
-  "#__tp h4{margin:9px 0 3px;font-size:10px;letter-spacing:2px;color:#D9B26A;font-weight:700}" +
-  "#__tp .row{display:flex;align-items:center;gap:7px;padding:2px 0}" +
-  "#__tp .row label{flex:0 0 68px;font-size:11px;color:rgba(239,230,247,.72)}" +
-  "#__tp .row input{flex:1;accent-color:#D9B26A;height:22px;min-width:0}" +
-  "#__tp .row b{flex:0 0 46px;text-align:right;font:600 11px/1 ui-monospace,monospace;color:#F0DCA8}" +
-  "#__tp .bar{display:flex;gap:6px;position:sticky;top:0;background:rgba(14,10,20,.85);padding:8px 0 8px;z-index:2}" +
-  "#__tp .bar button{flex:1;padding:8px 2px;border-radius:9px;border:1px solid rgba(201,162,232,.3);" +
-  "background:rgba(255,255,255,.07);color:#EFE6F7;font-size:12px;font-weight:600}" +
-  "#__tp textarea{width:100%;height:90px;margin-top:8px;background:#0b0810;color:#D9B26A;border:1px solid rgba(201,162,232,.25);" +
-  "border-radius:8px;font:12px/1.5 ui-monospace,monospace;padding:8px;-webkit-user-select:text;user-select:text}";
-  document.head.appendChild(css);
-
-  var panel = document.createElement("div"); panel.id = "__tp";
-  var btn = document.createElement("button"); btn.id = "__tpBtn"; btn.textContent = "⚙";
-  var html = '<div id="__tpGrip"><span class="dots">⋮⋮</span><span class="ttl">TUNER · 拖曳移動</span>' +
-    '<button class="mini" id="__tpGhost" title="變淡">淡</button>' +
-    '<button class="mini" id="__tpMin" title="收起">－</button></div>' +
-    '<div id="__tpScroll"><div class="bar"><button id="__tpCopy">複製設定</button><button id="__tpReset">重設</button></div>';
-  SPEC.forEach(function (g) {
-    html += "<h4>" + g[0] + "</h4>";
-    g[1].forEach(function (r) {
-      html += '<div class="row"><label>' + r[1] + '</label>' +
-        '<input type="range" data-k="' + r[0] + '" min="' + r[2] + '" max="' + r[3] + '" step="' + r[4] + '" value="' + state[r[0]] + '">' +
-        '<b id="v' + r[0] + '">' + state[r[0]] + r[5] + '</b></div>';
-    });
-  });
-  html += '<textarea id="__tpOut" readonly placeholder="按「複製設定」後，數值會出現在這裡，可長按複製或直接唸給 Claude"></textarea></div>';
-  panel.innerHTML = html;
-  document.body.appendChild(panel); document.body.appendChild(btn);
-
-  var UNIT = {}; SPEC.forEach(function(g){ g[1].forEach(function(r){ UNIT[r[0]] = r[5]; }); });
-  var INIT = JSON.parse(JSON.stringify(state));
-
-  panel.addEventListener("input", function (e) {
-    var el = e.target; if (el.type !== "range") return;
-    var k = el.getAttribute("data-k"), v = parseFloat(el.value);
-    state[k] = v;
-    R.style.setProperty(k, v + UNIT[k]);
-    document.getElementById("v" + k).textContent = v + UNIT[k];
-  });
-  function block(){
-    var out = ":root{\n";
-    SPEC.forEach(function(g){ g[1].forEach(function(r){ out += "  " + r[0] + ": " + state[r[0]] + r[5] + ";\n"; }); });
-    return out + "}";
-  }
-  document.getElementById("__tpCopy").addEventListener("click", function () {
-    var t = block(), ta = document.getElementById("__tpOut");
-    ta.value = t;
-    try { navigator.clipboard && navigator.clipboard.writeText(t); } catch (e) {}
-    ta.focus(); ta.setSelectionRange(0, t.length);
-  });
-  document.getElementById("__tpReset").addEventListener("click", function () {
-    SPEC.forEach(function(g){ g[1].forEach(function(r){
-      state[r[0]] = INIT[r[0]];
-      R.style.removeProperty(r[0]);
-      var s = panel.querySelector('[data-k="' + r[0] + '"]'); if (s) s.value = INIT[r[0]];
-      document.getElementById("v" + r[0]).textContent = INIT[r[0]] + r[5];
-    }); });
-  });
-  document.getElementById("__tpMin").addEventListener("click", function () { panel.classList.remove("on"); });
-  document.getElementById("__tpGhost").addEventListener("click", function () { panel.classList.toggle("ghost"); });
-  btn.addEventListener("click", function () { panel.classList.toggle("on"); });
-
-  /* 拖曳（觸控 + 滑鼠）—— 抓標題列拖到任何位置 */
-  (function(){
-    var grip = document.getElementById("__tpGrip"), sx, sy, ox, oy, drag = false;
-    function start(x, y){ var r = panel.getBoundingClientRect(); ox = r.left; oy = r.top; sx = x; sy = y; drag = true; panel.style.right = "auto"; panel.style.left = ox + "px"; panel.style.top = oy + "px"; }
-    function move(x, y){ if(!drag) return; var nx = ox + (x - sx), ny = oy + (y - sy);
-      nx = Math.max(4, Math.min(window.innerWidth - panel.offsetWidth - 4, nx));
-      ny = Math.max(4, Math.min(window.innerHeight - 44, ny));
-      panel.style.left = nx + "px"; panel.style.top = ny + "px"; }
-    function end(){ drag = false; }
-    grip.addEventListener("touchstart", function(e){ if(e.target.closest(".mini")) return; var t = e.touches[0]; start(t.clientX, t.clientY); }, {passive:true});
-    grip.addEventListener("touchmove", function(e){ if(!drag) return; var t = e.touches[0]; move(t.clientX, t.clientY); e.preventDefault(); }, {passive:false});
-    grip.addEventListener("touchend", end);
-    grip.addEventListener("mousedown", function(e){ if(e.target.closest(".mini")) return; start(e.clientX, e.clientY); e.preventDefault(); });
-    window.addEventListener("mousemove", function(e){ move(e.clientX, e.clientY); });
-    window.addEventListener("mouseup", end);
-  })();
-})();
-</script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B05</div>
-<script id="__trial_unlock">
-(function(){
-  var KEY = "album-the-sky:unlock";
-  try { var u = JSON.parse(localStorage.getItem(KEY)||"null"); if (u && u.unlocked) return; } catch(e){}
-  var b = document.createElement("button");
-  b.id = "__trialBtn"; b.textContent = "解鎖試聽";
-  b.style.cssText = "position:fixed;left:10px;bottom:calc(120px + env(safe-area-inset-bottom));z-index:100000;" +
-    "padding:9px 14px;border-radius:999px;border:1px solid rgba(217,178,106,.6);background:rgba(20,14,28,.92);" +
-    "color:#D9B26A;font:600 12px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;" +
-    "-webkit-tap-highlight-color:transparent;box-shadow:0 6px 20px rgba(0,0,0,.45)";
-  document.body.appendChild(b);
-  b.addEventListener("click", function(){
-    b.textContent = "驗證中…"; b.disabled = true;
-    fetch("https://the-sky-ost-api.anthonywen0693.workers.dev/verify", {
-      method:"POST", headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body: JSON.stringify({ email:"trial@chance1228.com", code:"SKY1-TEST-TRIAL" })
-    }).then(function(r){return r.json();}).then(function(d){
-      if (d.ok) {
-        localStorage.setItem(KEY, JSON.stringify({ unlocked:true, email:"trial@chance1228.com",
-          code:"SKY1-TEST-TRIAL", product:d.product||"299" }));
-        location.reload();
-      } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
-    }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
-  });
-})();
 </script>
 </body>
 </html>
