@@ -57,32 +57,33 @@
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
-  --pv-status-shade: 1;
-  --pv-status-h: 280px;
-  --pv-cover-top: -79px;
+  --pv-status-shade: 0.95;
+  --pv-status-h: 150px;
+  --pv-cover-top: -72px;
   --pv-cover-focus: 41%;
-  --pv-card-overlap: 12px;
-  --pv-card-side: 16px;
+  --pv-card-overlap: 37px;
+  --pv-card-side: 23px;
   --pv-card-bottom: 66px;
-  --pv-card-gap: 3px;
-  --pv-controls-gap: 16px;
-  --pv-controls-mt: -16px;
-  --pv-controls-mb: 7px;
-  --pv-track-font: 17px;
+  --pv-card-gap: 17px;
+  --pv-controls-gap: 27px;
+  --pv-controls-mt: -22px;
+  --pv-controls-mb: 10px;
+  --pv-track-font: 15px;
   --pv-track-label-font: 14px;
   --pv-title-font: 22px;
   --pv-sub-font: 11.5px;
-  --pv-nplabel-font: 10.5px;
-  --pv-times-font: 11px;
-  --pv-next-shift: -8px;
+  --pv-nplabel-font: 11.5px;
+  --pv-times-font: 12.5px;
+  --pv-next-shift: -10px;
   --pv-nav-bottom: 5px;
   --pv-nav-shift-y: -14px;
-  --pv-nav-scale: 1.07;
+  --pv-nav-scale: 1.01;
   --pv-nav-opacity: 1;
-  --pv-nav-font: 15px;
-  --pv-cover-radius: 44px;
+  --pv-nav-font: 11px;
+  --pv-cover-radius: 80px;
   --pv-cover-side: 0px;
-  --pv-status-gap: 45px;
+  --pv-cover-bleed: 152px;
+  --pv-status-gap: 70px;
   --pv-font-en: 'Cormorant Garamond';
   --pv-font-label: 'Cormorant Garamond';
 }
@@ -921,6 +922,23 @@ body { background: #08060C !important; }
 .screen-sub { background: radial-gradient(120% 60% at 50% 0%, #3B1B54, #08060C 70%) !important; }
 #sheet { background: linear-gradient(180deg, #241238, #08060C) !important; }
 #sheet-backdrop { background: rgba(8,6,12,.6) !important; }
+</style>
+<style id="__fullbleed_cover">
+/* 封面延伸到播放器背面：封面變成整個播放區的背景層，卡片沉在照片上 */
+.player-fold{ position:relative !important; justify-content:flex-end !important; }
+.cover-card{
+  position:absolute !important; z-index:0 !important;
+  left:var(--pv-cover-side,0px) !important; right:var(--pv-cover-side,0px) !important;
+  top:var(--pv-cover-top,0px) !important;
+  bottom:var(--pv-cover-bleed,0px) !important;
+  height:auto !important; flex:none !important; min-height:0 !important;
+  margin:0 !important;
+}
+.np-card{ z-index:3 !important; }
+/* 底部可讀性漸層：讓卡片文字在照片上清楚 */
+.cover-card::before{ content:""; position:absolute; left:0; right:0; bottom:0; height:58%;
+  z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, transparent 0%, rgba(8,6,12,.12) 32%, rgba(8,6,12,.55) 72%, rgba(8,6,12,.82) 100%); }
 </style>
 </head>
 <body>
@@ -3200,6 +3218,7 @@ window.ALBUM_SWITCH = {
       ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
       ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
       ["--pv-cover-side",    "封面左右",   0,    40,  1,   "px"],
+      ["--pv-cover-bleed",   "照片延伸",   -80,  420, 2,   "px"],
       ["--pv-status-gap",    "頂部留白",   0,    140, 1,   "px"],
       ["--pv-status-h",      "頂部遮罩高", 0,    320, 5,   "px"],
       ["--pv-status-shade",  "頂部遮罩濃", 0,    1,   0.05, ""]
@@ -3332,7 +3351,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B05</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B07</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
