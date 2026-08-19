@@ -57,25 +57,29 @@
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
-  --pv-status-shade: 0.9;
-  --pv-status-h: 180px;
-  --pv-cover-top: -92px;
+  --pv-status-shade: 1;
+  --pv-status-h: 280px;
+  --pv-cover-top: -79px;
   --pv-cover-focus: 41%;
-  --pv-card-overlap: 100px;
+  --pv-card-overlap: 12px;
   --pv-card-side: 16px;
-  --pv-card-bottom: 56px;
-  --pv-card-gap: 0px;
+  --pv-card-bottom: 66px;
+  --pv-card-gap: 3px;
   --pv-controls-gap: 16px;
-  --pv-controls-mt: -10px;
-  --pv-controls-mb: 0px;
+  --pv-controls-mt: -16px;
+  --pv-controls-mb: 7px;
   --pv-track-font: 17px;
-  --pv-track-label-font: 11px;
-  --pv-next-shift: 1px;
-  --pv-nav-bottom: 11px;
-  --pv-nav-shift-y: -24px;
-  --pv-nav-scale: 0.94;
+  --pv-track-label-font: 14px;
+  --pv-title-font: 22px;
+  --pv-sub-font: 11.5px;
+  --pv-nplabel-font: 10.5px;
+  --pv-times-font: 11px;
+  --pv-next-shift: -8px;
+  --pv-nav-bottom: 5px;
+  --pv-nav-shift-y: -14px;
+  --pv-nav-scale: 1.07;
   --pv-nav-opacity: 1;
-  --pv-nav-font: 13px;
+  --pv-nav-font: 15px;
   --pv-cover-radius: 44px;
   --pv-cover-side: 0px;
   --pv-status-gap: 45px;
@@ -208,9 +212,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   box-shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 .np-head { display: flex; justify-content: space-between; align-items: flex-start; }
-.np-label { font-family: var(--font-label); font-size: 9px; letter-spacing: 4px;
+.np-label { font-family: var(--font-label); font-size: var(--pv-nplabel-font, 9px); letter-spacing: 4px;
             color: var(--primary); text-transform: uppercase; }
-.np-title { font-family: var(--font-serif-tc); font-size: 22px; font-weight: 600;
+.np-title { font-family: var(--font-serif-tc); font-size: var(--pv-title-font, 22px); font-weight: 600;
             margin-top: 3px; letter-spacing: 1.5px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .np-sub { font-family: var(--font-display); font-style: italic; font-size: 13px;
@@ -244,7 +248,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             box-shadow: 0 2px 10px rgba(0,0,0,.4), 0 0 12px rgba(var(--primary-rgb), .9); }
 .prog-dot:empty { width: 14px; height: 14px; } /* 沒設定角色標籤時退回小圓點 */
 .np-times { display: flex; justify-content: space-between; margin-top: 9px;
-            font-family: var(--font-label); font-size: 11px; letter-spacing: 1px;
+            font-family: var(--font-label); font-size: var(--pv-times-font, 11px); letter-spacing: 1px;
             color: rgba(255,255,255,.55); }
 
 /* 控制鍵 */
@@ -884,7 +888,7 @@ body { background: #08060C !important; }
 
 /* Now Playing 標籤與副標 */
 .np-sub { font-family: var(--font-sans-tc) !important; font-style: normal !important;
-          font-size: 11.5px !important; color: rgba(255,255,255,.5) !important; }
+          font-size: var(--pv-sub-font, 11.5px) !important; color: rgba(255,255,255,.5) !important; }
 
 /* 封面上的藝人行 */
 .cover-artist { position: absolute; z-index: 2; left: 26px; white-space: nowrap;
@@ -1587,8 +1591,8 @@ const THE_SKY = {
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: true,  audioPath: "assets/audio/sky/01.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: true,  audioPath: "assets/audio/sky/02.mp3", protectedPath: null,         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
+    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -2481,7 +2485,7 @@ window.ALBUM_SWITCH = {
     var art = t.artwork || CFG.coverImage;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: isLocked(t) ? "Secret Track" : t.title,
+        title: isLocked(t) ? "Unlock" : t.title,
         artist: CFG.artistName || "",
         album: CFG.albumTitle || "",
         artwork: art ? [{ src: art, sizes: "512x512", type: "image/png" }] : [],
@@ -2526,7 +2530,7 @@ window.ALBUM_SWITCH = {
   function renderNowPlaying() {
     var t = TRACKS[state.cur];
     var locked = isLocked(t);
-    $("np-title").textContent = locked ? "Secret Track" : t.title;
+    $("np-title").textContent = locked ? "Unlock" : t.title;
     $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
@@ -2565,7 +2569,7 @@ window.ALBUM_SWITCH = {
     }
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
       '<span class="track-num">' + pad2(t.n) + "</span>" +
-      '<div class="track-name">' + (locked ? "Secret Track" : esc(t.title)) + "</div>" + right + "</div>";
+      '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" + right + "</div>";
   }
   function renderTrackLists(revealing) {
     var html = TRACKS.map(function (t, i) { return trackRowHTML(t, i, revealing); }).join("");
@@ -2663,7 +2667,7 @@ window.ALBUM_SWITCH = {
   $("btn-lyrics").addEventListener("click", function () {
     var t = TRACKS[state.cur];
     $("lyrics-eyebrow").textContent = STR.lyricsLabel || "Lyrics";
-    $("lyrics-title").textContent = isLocked(t) ? "Secret Track" : t.title;
+    $("lyrics-title").textContent = isLocked(t) ? "Unlock" : t.title;
     var body = $("lyrics-body");
     $("lyrics-overlay").classList.remove("hidden");
     if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }   // 內嵌優先（file:// 也能看）
@@ -3192,7 +3196,6 @@ window.ALBUM_SWITCH = {
   if (!/[?&]tune=1/.test(location.search)) return;
   var SPEC = [
     ["版面", [
-      ["--pv-cover-h",       "封面高度",   40,   92,  1,   "dvh"],
       ["--pv-cover-top",     "封面上距",   -300, 120, 1,   "px"],
       ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
       ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
@@ -3209,8 +3212,12 @@ window.ALBUM_SWITCH = {
       ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
       ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
       ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
-      ["--pv-track-font",    "歌名字級",   10,   30,  1,   "px"],
-      ["--pv-track-label-font","標籤字級", 7,    20,  1,   "px"],
+      ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
+      ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
+      ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
+      ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
+      ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
+      ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
     ]],
     ["分頁島", [
@@ -3227,30 +3234,41 @@ window.ALBUM_SWITCH = {
 
   var css = document.createElement("style");
   css.textContent =
-  "#__tp{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:rgba(14,10,20,.97);" +
-  "-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#EFE6F7;" +
-  "font:500 13px/1.35 -apple-system,'PingFang TC',sans-serif;border-top:1px solid rgba(201,162,232,.28);" +
-  "max-height:56dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px calc(12px + env(safe-area-inset-bottom));" +
-  "transform:translateY(100%);transition:transform .25s ease}" +
-  "#__tp.on{transform:translateY(0)}" +
+  "#__tp{position:fixed;top:calc(8px + env(safe-area-inset-top));right:8px;z-index:99999;width:min(70vw,290px);" +
+  "background:rgba(14,10,20,.55);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);" +
+  "color:#EFE6F7;font:500 12px/1.3 -apple-system,'PingFang TC',sans-serif;" +
+  "border:1px solid rgba(201,162,232,.35);border-radius:14px;max-height:66dvh;overflow:hidden;display:none;" +
+  "box-shadow:0 14px 44px rgba(0,0,0,.5)}" +
+  "#__tp.on{display:block}" +
+  "#__tp.ghost{opacity:.22}" +
+  "#__tpGrip{display:flex;align-items:center;gap:6px;padding:9px 10px;cursor:move;touch-action:none;" +
+  "background:rgba(217,178,106,.16);border-bottom:1px solid rgba(201,162,232,.22);user-select:none;-webkit-user-select:none}" +
+  "#__tpGrip .dots{color:#D9B26A;font-size:14px;letter-spacing:1px;line-height:1}" +
+  "#__tpGrip .ttl{flex:1;font-size:10px;letter-spacing:1.5px;color:#D9B26A;font-weight:700}" +
+  "#__tpGrip .mini{width:26px;height:24px;border-radius:7px;border:1px solid rgba(201,162,232,.3);" +
+  "background:rgba(255,255,255,.07);color:#EFE6F7;font-size:12px;line-height:22px;text-align:center;padding:0}" +
+  "#__tpScroll{max-height:calc(66dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 10px 10px}" +
   "#__tpBtn{position:fixed;right:10px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:100000;" +
   "width:44px;height:44px;border-radius:50%;border:1px solid rgba(217,178,106,.5);background:rgba(20,14,28,.92);" +
   "color:#D9B26A;font-size:20px;line-height:42px;text-align:center;-webkit-tap-highlight-color:transparent}" +
-  "#__tp h4{margin:10px 0 4px;font-size:11px;letter-spacing:2px;color:#D9B26A;font-weight:700}" +
-  "#__tp .row{display:flex;align-items:center;gap:8px;padding:3px 0}" +
-  "#__tp .row label{flex:0 0 76px;font-size:12px;color:rgba(239,230,247,.72)}" +
-  "#__tp .row input{flex:1;accent-color:#D9B26A;height:24px}" +
-  "#__tp .row b{flex:0 0 52px;text-align:right;font:600 12px/1 ui-monospace,monospace;color:#F0DCA8}" +
-  "#__tp .bar{display:flex;gap:8px;position:sticky;top:0;background:rgba(14,10,20,.97);padding:6px 0 8px;z-index:2}" +
-  "#__tp .bar button{flex:1;padding:9px;border-radius:10px;border:1px solid rgba(201,162,232,.3);" +
-  "background:rgba(255,255,255,.06);color:#EFE6F7;font-size:13px;font-weight:600}" +
-  "#__tp textarea{width:100%;height:96px;margin-top:8px;background:#0b0810;color:#D9B26A;border:1px solid rgba(201,162,232,.25);" +
+  "#__tp h4{margin:9px 0 3px;font-size:10px;letter-spacing:2px;color:#D9B26A;font-weight:700}" +
+  "#__tp .row{display:flex;align-items:center;gap:7px;padding:2px 0}" +
+  "#__tp .row label{flex:0 0 68px;font-size:11px;color:rgba(239,230,247,.72)}" +
+  "#__tp .row input{flex:1;accent-color:#D9B26A;height:22px;min-width:0}" +
+  "#__tp .row b{flex:0 0 46px;text-align:right;font:600 11px/1 ui-monospace,monospace;color:#F0DCA8}" +
+  "#__tp .bar{display:flex;gap:6px;position:sticky;top:0;background:rgba(14,10,20,.85);padding:8px 0 8px;z-index:2}" +
+  "#__tp .bar button{flex:1;padding:8px 2px;border-radius:9px;border:1px solid rgba(201,162,232,.3);" +
+  "background:rgba(255,255,255,.07);color:#EFE6F7;font-size:12px;font-weight:600}" +
+  "#__tp textarea{width:100%;height:90px;margin-top:8px;background:#0b0810;color:#D9B26A;border:1px solid rgba(201,162,232,.25);" +
   "border-radius:8px;font:12px/1.5 ui-monospace,monospace;padding:8px;-webkit-user-select:text;user-select:text}";
   document.head.appendChild(css);
 
   var panel = document.createElement("div"); panel.id = "__tp";
   var btn = document.createElement("button"); btn.id = "__tpBtn"; btn.textContent = "⚙";
-  var html = '<div class="bar"><button id="__tpCopy">複製設定</button><button id="__tpReset">重設</button><button id="__tpClose">收起</button></div>';
+  var html = '<div id="__tpGrip"><span class="dots">⋮⋮</span><span class="ttl">TUNER · 拖曳移動</span>' +
+    '<button class="mini" id="__tpGhost" title="變淡">淡</button>' +
+    '<button class="mini" id="__tpMin" title="收起">－</button></div>' +
+    '<div id="__tpScroll"><div class="bar"><button id="__tpCopy">複製設定</button><button id="__tpReset">重設</button></div>';
   SPEC.forEach(function (g) {
     html += "<h4>" + g[0] + "</h4>";
     g[1].forEach(function (r) {
@@ -3259,7 +3277,7 @@ window.ALBUM_SWITCH = {
         '<b id="v' + r[0] + '">' + state[r[0]] + r[5] + '</b></div>';
     });
   });
-  html += '<textarea id="__tpOut" readonly placeholder="按「複製設定」後，數值會出現在這裡，可長按複製或直接唸給 Claude"></textarea>';
+  html += '<textarea id="__tpOut" readonly placeholder="按「複製設定」後，數值會出現在這裡，可長按複製或直接唸給 Claude"></textarea></div>';
   panel.innerHTML = html;
   document.body.appendChild(panel); document.body.appendChild(btn);
 
@@ -3292,8 +3310,53 @@ window.ALBUM_SWITCH = {
       document.getElementById("v" + r[0]).textContent = INIT[r[0]] + r[5];
     }); });
   });
-  document.getElementById("__tpClose").addEventListener("click", function () { panel.classList.remove("on"); });
+  document.getElementById("__tpMin").addEventListener("click", function () { panel.classList.remove("on"); });
+  document.getElementById("__tpGhost").addEventListener("click", function () { panel.classList.toggle("ghost"); });
   btn.addEventListener("click", function () { panel.classList.toggle("on"); });
+
+  /* 拖曳（觸控 + 滑鼠）—— 抓標題列拖到任何位置 */
+  (function(){
+    var grip = document.getElementById("__tpGrip"), sx, sy, ox, oy, drag = false;
+    function start(x, y){ var r = panel.getBoundingClientRect(); ox = r.left; oy = r.top; sx = x; sy = y; drag = true; panel.style.right = "auto"; panel.style.left = ox + "px"; panel.style.top = oy + "px"; }
+    function move(x, y){ if(!drag) return; var nx = ox + (x - sx), ny = oy + (y - sy);
+      nx = Math.max(4, Math.min(window.innerWidth - panel.offsetWidth - 4, nx));
+      ny = Math.max(4, Math.min(window.innerHeight - 44, ny));
+      panel.style.left = nx + "px"; panel.style.top = ny + "px"; }
+    function end(){ drag = false; }
+    grip.addEventListener("touchstart", function(e){ if(e.target.closest(".mini")) return; var t = e.touches[0]; start(t.clientX, t.clientY); }, {passive:true});
+    grip.addEventListener("touchmove", function(e){ if(!drag) return; var t = e.touches[0]; move(t.clientX, t.clientY); e.preventDefault(); }, {passive:false});
+    grip.addEventListener("touchend", end);
+    grip.addEventListener("mousedown", function(e){ if(e.target.closest(".mini")) return; start(e.clientX, e.clientY); e.preventDefault(); });
+    window.addEventListener("mousemove", function(e){ move(e.clientX, e.clientY); });
+    window.addEventListener("mouseup", end);
+  })();
+})();
+</script>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B05</div>
+<script id="__trial_unlock">
+(function(){
+  var KEY = "album-the-sky:unlock";
+  try { var u = JSON.parse(localStorage.getItem(KEY)||"null"); if (u && u.unlocked) return; } catch(e){}
+  var b = document.createElement("button");
+  b.id = "__trialBtn"; b.textContent = "解鎖試聽";
+  b.style.cssText = "position:fixed;left:10px;bottom:calc(120px + env(safe-area-inset-bottom));z-index:100000;" +
+    "padding:9px 14px;border-radius:999px;border:1px solid rgba(217,178,106,.6);background:rgba(20,14,28,.92);" +
+    "color:#D9B26A;font:600 12px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;" +
+    "-webkit-tap-highlight-color:transparent;box-shadow:0 6px 20px rgba(0,0,0,.45)";
+  document.body.appendChild(b);
+  b.addEventListener("click", function(){
+    b.textContent = "驗證中…"; b.disabled = true;
+    fetch("https://the-sky-ost-api.anthonywen0693.workers.dev/verify", {
+      method:"POST", headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body: JSON.stringify({ email:"trial@chance1228.com", code:"SKY1-TEST-TRIAL" })
+    }).then(function(r){return r.json();}).then(function(d){
+      if (d.ok) {
+        localStorage.setItem(KEY, JSON.stringify({ unlocked:true, email:"trial@chance1228.com",
+          code:"SKY1-TEST-TRIAL", product:d.product||"299" }));
+        location.reload();
+      } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
+    }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
+  });
 })();
 </script>
 </body>

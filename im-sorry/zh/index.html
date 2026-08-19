@@ -1,360 +1,112 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-<!-- ================= Open Graph (embedded in the original HTML for LINE crawlers) ================= -->
 <title>CHANCE — I'M SORRY</title>
-<meta name="description" content="一句說得很輕的道歉，也是決定不再回應的時刻。單曲現正上線。">
+<meta name="description" content="AI FUTURE CONCEPT ALBUM · 線上聆聽與永久收藏">
 <meta property="og:type" content="website">
 <meta property="og:title" content="CHANCE — I'M SORRY">
-<meta property="og:description" content="一句說得很輕的道歉，也是決定不再回應的時刻。單曲現正上線。">
-<meta property="og:image" content="https://chance1228.com/assets/share/im-sorry-share-card-og.jpg?v=5">
+<meta property="og:description" content="AI FUTURE CONCEPT ALBUM · 線上聆聽與永久收藏">
+<meta property="og:image" content="https://chance1228.com/assets/share/im-sorry-share-card-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://chance1228.com/im-sorry/zh/">
 <meta property="og:site_name" content="CHANCE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="CHANCE — I'M SORRY">
-<meta name="twitter:description" content="一句說得很輕的道歉，也是決定不再回應的時刻。單曲現正上線。">
-<meta name="twitter:image" content="https://chance1228.com/assets/share/im-sorry-share-card-og.jpg?v=5">
+<meta name="twitter:description" content="AI FUTURE CONCEPT ALBUM · 線上聆聽與永久收藏">
+<meta name="twitter:image" content="https://chance1228.com/assets/share/im-sorry-share-card-og.jpg">
 <link rel="canonical" href="https://chance1228.com/im-sorry/zh/">
-<!-- After the www DNS is configured, replace every chance1228.com URL on this page with www.chance1228.com. -->
-
+<link rel="alternate" hreflang="zh-Hant" href="https://chance1228.com/im-sorry/zh/">
+<link rel="alternate" hreflang="en" href="https://chance1228.com/im-sorry/en/">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#08060C">
-<link rel="apple-touch-icon" href="../../assets/images/sky/cover.jpg">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{ --bg:#08060C; --ink:#F4EDF9; --muted:rgba(232,214,248,.55);
-  --gold:#D9B26A; --gold-soft:rgba(217,178,106,.35); --line:rgba(201,162,232,.2);
-  --serif:'Cormorant Garamond',serif; --tc:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif; }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100vh;min-height:100dvh;
-  background:radial-gradient(130% 90% at 50% -10%, #3B1B54, var(--bg) 62%) fixed;color:var(--ink);
-  font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:var(--gold)}
-.stage{max-width:430px;margin:0 auto;padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
-.card{border-radius:26px;overflow:hidden;background:#0D0A14;border:1px solid var(--line);
-  box-shadow:0 30px 70px rgba(0,0,0,.55)}
-.hero{position:relative;aspect-ratio:4/3;background:radial-gradient(120% 90% at 30% 10%,#3B1B54,#0B0812 70%)}
-.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(59,27,84,.3),transparent 30%,transparent 52%,rgba(13,10,20,.94))}
-.hero-titles{position:absolute;left:22px;bottom:18px;z-index:4;max-width:calc(100% - 110px)}
-.hero-sub{font-family:var(--serif);font-size:11px;white-space:nowrap;letter-spacing:6px;color:var(--gold);text-shadow:0 2px 10px rgba(0,0,0,.7)}
-.hero-name{font-family:var(--serif);font-weight:500;font-size:40px;white-space:nowrap;letter-spacing:4px;line-height:1.05;margin-top:5px;text-shadow:0 3px 20px rgba(0,0,0,.6)}
-.intro{padding:20px 22px 22px}
-.intro-k{font-size:8.5px;letter-spacing:2px;color:rgba(217,178,106,.85)}
-.intro-t{font-family:var(--serif);font-size:17px;line-height:1.62;margin-top:9px;
-  color:rgba(244,237,249,.9)}
-.perf{position:relative;border-top:1.5px dashed rgba(201,162,232,.35)}
-.perf i{position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
-.perf i:first-child{left:-9px}.perf i:last-child{right:-9px}
-.stub{padding:20px 22px 20px}
-.qrrow{display:flex;align-items:center;gap:16px}
-.qrbox{flex:none;background:#fff;padding:10px;border-radius:14px;border:1px solid var(--gold-soft)}
-#qr{display:block;width:112px;height:112px;image-rendering:pixelated}
-.qrcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
-.scan{font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:3px;color:var(--gold)}
-.g-url{font-family:var(--serif);font-size:15px;letter-spacing:2px;color:var(--ink);text-decoration:none}
-.barcode{height:28px;border-radius:2px;background:repeating-linear-gradient(90deg,rgba(217,178,106,.85) 0 2px,transparent 2px 5px,rgba(217,178,106,.85) 5px 6px,transparent 6px 11px)}
-.btnrow{display:flex;gap:10px;margin-top:16px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0;border-radius:14px;cursor:pointer;
-  text-decoration:none;font-family:var(--tc);font-weight:600;font-size:14px;letter-spacing:3px;transition:transform .15s ease;border:none}
-.btn:active{transform:scale(.97)}
-.btn-main{flex:1;background:linear-gradient(135deg,#E9CD8B,#D9B26A 48%,#B98A3F);color:#241505;box-shadow:0 10px 24px rgba(217,178,106,.2)}
-.note{margin-top:13px;text-align:center;font-size:11px;letter-spacing:1px;color:rgba(232,214,248,.38)}
-/* ---- 32s preview player ---- */
-.hero{cursor:pointer}
-/* Bottom-right, clear of the title block on the left. */
-.preview-play{position:absolute;right:20px;bottom:20px;z-index:5;
-  width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#E9CD8B,#D9B26A 55%,#B98A3F);color:#241505;
-  box-shadow:0 8px 22px rgba(217,178,106,.4);transition:transform .16s ease}
-.preview-play:active{transform:scale(.9)}
-.preview-play.pulse{animation:pvpulse 1.9s ease-in-out infinite}
-@keyframes pvpulse{0%,100%{box-shadow:0 8px 22px rgba(217,178,106,.4)}
-  50%{box-shadow:0 8px 30px rgba(217,178,106,.85),0 0 0 9px rgba(217,178,106,.13)}}
-/* Sits above the button, right-aligned, so it never runs into the title. */
-.preview-tag{position:absolute;right:20px;bottom:82px;z-index:5;text-align:right;
-  font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:2px;
-  color:var(--gold);text-shadow:0 1px 6px rgba(0,0,0,.75);pointer-events:none;white-space:nowrap}
-/* No track background — an always-visible pale line across the bottom of the
-   cover read as a design flaw. Only the gold fill shows, and only while playing. */
-.preview-bar{position:absolute;left:0;right:0;bottom:0;height:3px;z-index:3;background:transparent}
-.preview-fill{height:100%;width:0;background:linear-gradient(90deg,#E9CD8B,#D9B26A);
-  box-shadow:0 0 10px rgba(217,178,106,.85);transition:width .2s linear}
-.zh-p{font-family:var(--tc);line-height:1.9;margin-top:14px}
-.zh-p:first-of-type{margin-top:9px}
+html,body{min-height:100dvh;background:radial-gradient(130% 90% at 50% -10%,#3B1B54,#08060C 62%) fixed;color:#F4EDF9;font-family:'Noto Sans TC',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#D9B26A}a:hover{color:#E9CD8B}
+.cta{transition:transform .15s ease}.cta:active{transform:scale(.975)}.cta:hover{filter:brightness(1.06)}
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="card">
-    <div class="hero">
-      <img src="../../assets/images/sky/cover.jpg?v=0816" alt="CHANCE — I'M SORRY 封面">
-      <div class="hero-shade"></div>
-      <button class="preview-play pulse" id="pv-btn" aria-label="播放 30 秒試聽">
-        <svg id="pv-icon" width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+<div style="max-width:430px;margin:0 auto;padding:18px 16px calc(34px + env(safe-area-inset-bottom))">
+  <div id="card" style="position:relative;border-radius:34px;overflow:hidden;border:1px solid rgba(201,162,232,.2);box-shadow:0 34px 80px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.18)">
+    <div style="position:relative">
+      <img src="https://chance1228.com/assets/images/sky/cover.jpg?v=0816" alt="CHANCE — I'M SORRY cover" style="width:100%;display:block">
+      <div style="position:absolute;inset:0;background:radial-gradient(120% 90% at 30% 12%,rgba(126,63,168,.32),rgba(23,13,34,0) 66%),linear-gradient(180deg,rgba(8,6,12,.42) 0%,transparent 22%,transparent 55%,rgba(8,6,12,.9) 92%,#08060C 100%)"></div>
+      <button id="playBtn" aria-label="播放 30 秒試聽" style="position:absolute;top:18px;left:20px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#F7ECCB;background:radial-gradient(130% 190% at 22% 115%,rgba(217,178,106,.55),rgba(217,178,106,0) 54%),radial-gradient(150% 200% at 82% 120%,rgba(126,63,168,.6),rgba(126,63,168,0) 58%),rgba(8,6,12,.5);border:1px solid rgba(240,220,168,.5);box-shadow:inset 0 1px 1px rgba(255,255,255,.34),0 14px 34px rgba(0,0,0,.5);transition:transform .15s ease,box-shadow .3s ease">
+        <span id="playRing" style="position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(217,178,106,.34);opacity:0;transition:opacity .3s"></span>
+        <svg id="icoPlay" width="21" height="21" viewBox="0 0 24 24" fill="currentColor" style="margin-left:3px"><path d="M8 5.2v13.6c0 .8.9 1.3 1.6.9l11-6.8c.6-.4.6-1.3 0-1.7l-11-6.8c-.7-.5-1.6 0-1.6.8z"/></svg>
+        <svg id="icoPause" width="19" height="19" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4.5" width="4.2" height="15" rx="1.4"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.4"/></svg>
       </button>
-      <span class="preview-tag" id="pv-tag">正在播放</span>
-      <div class="preview-bar"><div class="preview-fill" id="pv-fill"></div></div>
-      <div class="hero-titles">
-        <div class="hero-sub">OUT NOW</div>
-        <div class="hero-name">I'M SORRY</div>
+      <div style="position:absolute;top:18px;right:20px;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(8,6,12,.55);border:1px solid rgba(217,178,106,.32)">
+        <a href="../zh/" hreflang="zh-Hant" style="display:flex;align-items:center;justify-content:center;min-width:38px;height:28px;padding:0 11px;border-radius:999px;text-decoration:none;font-family:'Noto Serif TC',serif;font-size:11px;font-weight:600;letter-spacing:2px;color:#241505;background:linear-gradient(135deg,#E9CD8B,#D9B26A 50%,#C08F3F);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)">中</a>
+        <a href="../en/" hreflang="en" style="display:flex;align-items:center;justify-content:center;min-width:38px;height:28px;padding:0 11px;border-radius:999px;text-decoration:none;font-family:'Noto Serif TC',serif;font-size:11px;font-weight:600;letter-spacing:2px;color:rgba(244,237,249,.72)">EN</a>
       </div>
     </div>
-    <div class="intro">
-      <div class="intro-k">單曲介紹</div>
-      <p class="intro-t zh-p">〈I'm Sorry〉是一句說得很輕的道歉，也是一個人決定不再回應的時刻。</p>
-      <p class="intro-t zh-p">她仍然靠近，帶著熟悉的溫度、期待，以及那些反覆拉扯他的情緒。他卻已經懶得解釋，懶得追尋，也不想再證明什麼。不是沒有感覺，只是所有聲音累積得太久，最後都變成了噪音。</p>
-      <p class="intro-t zh-p">深夜的影子落在沙發，煙沿著肩線游移。指尖仍記得彼此的距離，呼吸也交換著溫度；身體還停留在原地，意識卻早已漂向黑暗以外。</p>
-      <p class="intro-t zh-p">世界被劃成四等份，他曾站在中央，承受所有方向投來的重量。如今理智追著自由，他不再被情緒拖著走，也不再為離開向誰乞求。</p>
-      <p class="intro-t zh-p">煙慢慢消失在天花板，時間重新開始流動。</p>
-    </div>
-    <div class="perf"><i></i><i></i></div>
-    <div class="stub">
-      <div class="qrrow">
-        <div class="qrbox"><canvas id="qr" role="img" aria-label="QR Code：chance1228.com"></canvas></div>
-        <div class="qrcol">
-          <span class="scan">掃描聆聽</span>
-          <a class="g-url" href="https://chance1228.com/?track=im-sorry">chance1228.com</a>
-          <div class="barcode"></div>
+    <div style="position:relative;margin-top:-84px;z-index:2;padding:0 14px 16px">
+      <div style="border-radius:26px;padding:26px 22px 20px;background:rgba(201,162,232,.08);border:1px solid rgba(201,162,232,.2);backdrop-filter:blur(26px) saturate(1.3);-webkit-backdrop-filter:blur(26px) saturate(1.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 18px 44px rgba(0,0,0,.5)">
+        <div style="text-align:center">
+          <span style="display:inline-block;font-size:9.5px;letter-spacing:3.5px;color:#D9B26A;border:1px solid rgba(217,178,106,.4);border-radius:999px;padding:5px 13px">OUT NOW</span>
+          <div style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;letter-spacing:6px;margin-top:14px">I'M SORRY</div>
+          <div style="font-family:'Noto Serif TC',serif;font-size:11.5px;letter-spacing:5px;color:rgba(232,214,248,.5);margin-top:8px">CHANCE 成晞</div>
         </div>
+        <div style="display:flex;align-items:center;gap:12px;margin:24px 0 16px">
+          <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(217,178,106,0),rgba(217,178,106,.55))"></div>
+          <div style="font-family:'Noto Serif TC',serif;font-size:11px;font-weight:600;letter-spacing:5px;color:#D9B26A;white-space:nowrap">單曲介紹</div>
+          <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(217,178,106,.55),rgba(217,178,106,0))"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:15px;font-family:'Noto Serif TC',serif;font-size:14px;line-height:2.05;letter-spacing:.6px;color:rgba(244,237,249,.82);text-wrap:pretty">
+          <p style="margin:0"><span style="color:#E9CD8B">〈I'm Sorry〉</span>是一句說得很輕的道歉，也是一個人決定不再回應的時刻。</p>
+          <p style="margin:0">她仍然靠近，帶著熟悉的溫度、期待，以及那些反覆拉扯他的情緒。他卻已經懶得解釋，懶得追尋，也不想再證明什麼。不是沒有感覺，只是所有聲音累積得太久，最後都變成了噪音。</p>
+          <p style="margin:0">深夜的影子落在沙發，煙沿著肩線游移。指尖仍記得彼此的距離，呼吸也交換著溫度；身體還停留在原地，意識卻早已漂向黑暗以外。</p>
+          <p style="margin:0">世界被劃成四等份，他曾站在中央，承受所有方向投來的重量。如今理智追著自由，他不再被情緒拖著走，也不再為離開向誰乞求。</p>
+          <p style="margin:0">煙慢慢消失在天花板，時間重新開始流動。</p>
+        </div>
+        <a class="cta" href="https://chance1228.com/?album=the-sky&track=im-sorry" style="position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;margin-top:26px;border-radius:999px;text-decoration:none;overflow:hidden;font-family:'Noto Serif TC',serif;font-size:16px;font-weight:600;letter-spacing:4px;color:#F7ECCB;background:radial-gradient(130% 190% at 18% 115%,rgba(217,178,106,.5),rgba(217,178,106,0) 52%),radial-gradient(150% 200% at 85% 120%,rgba(126,63,168,.55),rgba(126,63,168,0) 58%),rgba(255,255,255,.06);border:1px solid rgba(240,220,168,.42);box-shadow:inset 0 1px 1px rgba(255,255,255,.32),inset 0 -12px 30px rgba(126,63,168,.22),0 12px 32px rgba(0,0,0,.45);backdrop-filter:blur(22px) saturate(1.4)">立即聆聽
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="8 7 17 7 17 16"/></svg>
+        </a>
+        <div id="hint" style="margin-top:14px;text-align:center;font-size:11.5px;line-height:1.7;letter-spacing:1px;color:rgba(232,214,248,.4)">按封面播放鍵試聽 30 秒 · 點「立即聆聽」聽完整版</div>
       </div>
-      <div class="btnrow">
-        <a class="btn btn-main" id="btn-listen" href="https://chance1228.com/?track=im-sorry">立即聆聽</a>
-      </div>
-      <div class="note" id="note">正在播放 30 秒試聽 · 點「立即聆聽」聽完整版</div>
     </div>
   </div>
+  <audio id="preview" src="https://chance1228.com/assets/preview/im-sorry-preview-v2.mp3" preload="metadata"></audio>
 </div>
-<audio id="pv-audio" src="../../assets/preview/im-sorry-preview-v2.mp3" preload="auto" playsinline></audio>
-
 <script>
 (function(){
-var QR=(function(){
-  var EXP=new Array(512),LOG=new Array(256),x=1;
-  for(var i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&256)x^=285;}
-  for(i=255;i<512;i++)EXP[i]=EXP[i-255];
-  function mul(a,b){return(a===0||b===0)?0:EXP[LOG[a]+LOG[b]];}
-  function gp(n){var p=[1];for(var i=0;i<n;i++){var q=[];for(var j=0;j<=p.length;j++){
-    var v=0;if(j<p.length)v^=p[j];if(j>0)v^=mul(p[j-1],EXP[i]);q[j]=v;}p=q;}return p;}
-  function rs(d,n){var r=new Array(n).fill(0),g=gp(n);
-    for(var i=0;i<d.length;i++){var f=d[i]^r[0];r.shift();r.push(0);
-      if(f!==0)for(var j=0;j<n;j++)r[j]^=mul(g[j+1],f);}return r;}
-  var V=[null,[16,10,1,16,0,0],[28,16,1,28,0,0],[44,26,1,44,0,0],[64,18,2,32,0,0],
-    [86,24,2,43,0,0],[108,16,4,27,0,0],[124,18,4,31,0,0],[154,22,2,38,2,39],
-    [182,22,3,36,2,37],[216,26,4,43,1,44]];
-  var AL=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
-  var VI={7:0x07C94,8:0x085BC,9:0x09A99,10:0x0A4D3};
-  var FMT=["101010000010010","101000100100101","101111001111100","101101101001011",
-           "100010111111001","100000011001110","100111110010111","100101010100000"];
-  function utf8(s){var b=[],i,c;
-    for(i=0;i<s.length;i++){c=s.charCodeAt(i);
-      if(c<128)b.push(c);
-      else if(c<2048)b.push(192|c>>6,128|c&63);
-      else if(c<55296||c>57343)b.push(224|c>>12,128|c>>6&63,128|c&63);
-      else{i++;var cp=65536+((c&1023)<<10)+(s.charCodeAt(i)&1023);
-        b.push(240|cp>>18,128|cp>>12&63,128|cp>>6&63,128|cp&63);}}return b;}
-  function build(text){
-    var data=utf8(text),ver=0;
-    for(var v=1;v<=10;v++){var cx=(v<10)?8:16;
-      if(data.length<=V[v][0]-2-Math.ceil(cx/8)){ver=v;break;}}
-    if(!ver)throw new Error("QR too long");
-    var cf=V[ver],cci=(ver<10)?8:16,bits=[];
-    function put(val,len){for(var i=len-1;i>=0;i--)bits.push((val>>i)&1);}
-    put(4,4);put(data.length,cci);
-    for(var i=0;i<data.length;i++)put(data[i],8);
-    var cap=cf[0]*8;
-    for(i=0;i<4&&bits.length<cap;i++)bits.push(0);
-    while(bits.length%8)bits.push(0);
-    var pd=[236,17],pi=0;while(bits.length<cap)put(pd[pi++%2],8);
-    var dc=[];for(i=0;i<bits.length;i+=8){var b=0;for(var j=0;j<8;j++)b=(b<<1)|bits[i+j];dc.push(b);}
-    var bl=[],ec=[],p=0,n;
-    for(n=0;n<cf[2];n++){var d1=dc.slice(p,p+cf[3]);p+=cf[3];bl.push(d1);ec.push(rs(d1,cf[1]));}
-    for(n=0;n<cf[4];n++){var d2=dc.slice(p,p+cf[5]);p+=cf[5];bl.push(d2);ec.push(rs(d2,cf[1]));}
-    var out=[],mx=Math.max(cf[3],cf[5]||0);
-    for(i=0;i<mx;i++)for(n=0;n<bl.length;n++)if(i<bl[n].length)out.push(bl[n][i]);
-    for(i=0;i<cf[1];i++)for(n=0;n<ec.length;n++)out.push(ec[n][i]);
-    var sz=ver*4+17,m=[],rv=[];
-    for(i=0;i<sz;i++){m.push(new Array(sz).fill(0));rv.push(new Array(sz).fill(0));}
-    function fp(r,c){for(var a=-1;a<8;a++)for(var b3=-1;b3<8;b3++){
-      var rr=r+a,cc=c+b3;if(rr<0||cc<0||rr>=sz||cc>=sz)continue;
-      var on=(a>=0&&a<=6&&(b3===0||b3===6))||(b3>=0&&b3<=6&&(a===0||a===6))||(a>=2&&a<=4&&b3>=2&&b3<=4);
-      m[rr][cc]=on?1:0;rv[rr][cc]=1;}}
-    fp(0,0);fp(0,sz-7);fp(sz-7,0);
-    var al=AL[ver];
-    for(i=0;i<al.length;i++)for(var k=0;k<al.length;k++){
-      var r=al[i],c=al[k];
-      if((r<=7&&c<=7)||(r<=7&&c>=sz-8)||(r>=sz-8&&c<=7))continue;
-      for(var a2=-2;a2<=2;a2++)for(var b4=-2;b4<=2;b4++){
-        m[r+a2][c+b4]=(Math.max(Math.abs(a2),Math.abs(b4))!==1)?1:0;rv[r+a2][c+b4]=1;}}
-    for(i=8;i<sz-8;i++){var t=(i%2===0)?1:0;m[6][i]=t;rv[6][i]=1;m[i][6]=t;rv[i][6]=1;}
-    m[sz-8][8]=1;rv[sz-8][8]=1;
-    for(i=0;i<9;i++){rv[8][i]=1;rv[i][8]=1;}
-    for(i=0;i<8;i++){rv[8][sz-1-i]=1;rv[sz-1-i][8]=1;}
-    if(ver>=7){var vb=VI[ver];
-      for(i=0;i<18;i++){var bv=(vb>>i)&1;
-        var r1=Math.floor(i/3),c1=i%3+sz-11;m[r1][c1]=bv;rv[r1][c1]=1;
-        var r2=i%3+sz-11,c2=Math.floor(i/3);m[r2][c2]=bv;rv[r2][c2]=1;}}
-    var di=0,bit=7,dir=-1,col=sz-1,row=sz-1,pl=0;
-    function nb(){if(di>=out.length)return 0;var v2=(out[di]>>bit)&1;bit--;if(bit<0){bit=7;di++;}return v2;}
-    while(col>0){if(col===6)col--;
-      while(true){
-        for(var c5=0;c5<2;c5++){var c6=col-c5;
-          if(rv[row][c6]!==1){m[row][c6]=pl<out.length*8?nb():0;pl++;}}
-        row+=dir;if(row<0||row>=sz){row-=dir;dir=-dir;break;}}
-      col-=2;}
-    function mf(k,r,c){switch(k){case 0:return(r+c)%2===0;case 1:return r%2===0;
-      case 2:return c%3===0;case 3:return(r+c)%3===0;
-      case 4:return(Math.floor(r/2)+Math.floor(c/3))%2===0;
-      case 5:return(r*c)%2+(r*c)%3===0;case 6:return((r*c)%2+(r*c)%3)%2===0;
-      default:return((r+c)%2+(r*c)%3)%2===0;}}
-    function pen(g){var n1=0,n2=0,n3=0,n4=0,i,j,run,last,dk=0;
-      for(i=0;i<sz;i++){run=1;last=g[i][0];
-        for(j=1;j<sz;j++){if(g[i][j]===last)run++;else{if(run>=5)n1+=run-2;run=1;last=g[i][j];}}
-        if(run>=5)n1+=run-2;}
-      for(j=0;j<sz;j++){run=1;last=g[0][j];
-        for(i=1;i<sz;i++){if(g[i][j]===last)run++;else{if(run>=5)n1+=run-2;run=1;last=g[i][j];}}
-        if(run>=5)n1+=run-2;}
-      for(i=0;i<sz-1;i++)for(j=0;j<sz-1;j++){
-        var s=g[i][j]+g[i][j+1]+g[i+1][j]+g[i+1][j+1];if(s===0||s===4)n2+=3;}
-      var p1=[1,0,1,1,1,0,1,0,0,0,0],p2=[0,0,0,0,1,0,1,1,1,0,1];
-      function sq(a,st,pt){for(var q=0;q<11;q++)if(a[st+q]!==pt[q])return false;return true;}
-      for(i=0;i<sz;i++){var ra=g[i],ca=[];
-        for(j=0;j<sz;j++)ca.push(g[j][i]);
-        for(j=0;j<=sz-11;j++){if(sq(ra,j,p1)||sq(ra,j,p2))n3+=40;if(sq(ca,j,p1)||sq(ca,j,p2))n3+=40;}}
-      for(i=0;i<sz;i++)for(j=0;j<sz;j++)if(g[i][j])dk++;
-      n4=Math.floor(Math.abs(dk*100/(sz*sz)-50)/5)*10;
-      return n1+n2+n3+n4;}
-    var best=null,bs=Infinity,bm=0;
-    for(var mk=0;mk<8;mk++){
-      var g2=[];for(i=0;i<sz;i++)g2.push(m[i].slice());
-      for(i=0;i<sz;i++)for(j=0;j<sz;j++)if(rv[i][j]!==1&&mf(mk,i,j))g2[i][j]^=1;
-      var f=FMT[mk],md;
-      for(i=0;i<15;i++){md=+f[14-i];
-        if(i<6)g2[i][8]=md;else if(i<8)g2[i+1][8]=md;else g2[sz-15+i][8]=md;}
-      for(i=0;i<15;i++){md=+f[14-i];
-        if(i<8)g2[8][sz-1-i]=md;else if(i<9)g2[8][7]=md;else g2[8][14-i]=md;}
-      g2[sz-8][8]=1;
-      var sc=pen(g2);if(sc<bs){bs=sc;best=g2;bm=mk;}}
-    return {g:best,ver:ver,mask:bm};}
-  function draw(cv,text,px){
-    var r=build(text),g=r.g,n=g.length,q=4,S=n+q*2;
-    var sc=Math.max(2,Math.floor((px||212)/S));
-    cv.width=S*sc;cv.height=S*sc;
-    var ctx=cv.getContext("2d");
-    ctx.fillStyle="#ffffff";ctx.fillRect(0,0,cv.width,cv.height);
-    ctx.fillStyle="#08060C";
-    for(var i=0;i<n;i++)for(var j=0;j<n;j++)if(g[i][j])ctx.fillRect((j+q)*sc,(i+q)*sc,sc,sc);
-    return r;}
-  return {build:build,draw:draw};
+  var a = document.getElementById('preview'),
+      btn = document.getElementById('playBtn'),
+      ring = document.getElementById('playRing'),
+      ip = document.getElementById('icoPlay'),
+      is = document.getElementById('icoPause'),
+      hint = document.getElementById('hint');
+  function sync(){
+    var on = !a.paused && !a.ended;
+    ip.style.display = on ? 'none' : 'block';
+    is.style.display = on ? 'block' : 'none';
+    ring.style.opacity = on ? '1' : '0';
+    btn.style.boxShadow = on
+      ? 'inset 0 1px 1px rgba(255,255,255,.34),0 14px 40px rgba(217,178,106,.35)'
+      : 'inset 0 1px 1px rgba(255,255,255,.34),0 14px 34px rgba(0,0,0,.5)';
+    btn.setAttribute('aria-label', on ? '暫停試聽' : '播放 30 秒試聽');
+    hint.textContent = on ? '正在播放 30 秒試聽片段 · 點「立即聆聽」聽完整版'
+                          : '按封面播放鍵試聽 30 秒 · 點「立即聆聽」聽完整版';
+  }
+  btn.addEventListener('click', function(){
+    if (a.paused || a.ended) a.play().catch(function(){}); else a.pause();
+  });
+  btn.addEventListener('pointerdown', function(){ btn.style.transform = 'scale(.94)'; });
+  ['pointerup','pointerleave','pointercancel'].forEach(function(e){
+    btn.addEventListener(e, function(){ btn.style.transform = 'none'; });
+  });
+  ['play','pause','ended'].forEach(function(e){ a.addEventListener(e, sync); });
+  sync();
 })();
-
-try{ QR.draw(document.getElementById("qr"), "https://chance1228.com/?track=im-sorry", 168); }catch(e){}
-})();
-</script>
-<script>
-/* =====================================================================
- * Instant preview \u2014 plays the moment the page opens, no tap required.
- * Browsers only ever block *audible* autoplay, never muted autoplay, so:
- *   1. try audible autoplay (works on desktop / many Android browsers)
- *   2. if blocked, start MUTED immediately (always allowed) so the track
- *      is already running, and show "TAP FOR SOUND"
- *   3. the very first touch/click/scroll anywhere unmutes it in place
- * The visitor never has to find a play button.
- * ===================================================================== */
-(function () {
-  var au   = document.getElementById("pv-audio");
-  var btn  = document.getElementById("pv-btn"), icon = document.getElementById("pv-icon");
-  var fill = document.getElementById("pv-fill"), tag = document.getElementById("pv-tag");
-  var hero = document.querySelector(".hero");
-  var PLAY = "M8 5v14l11-7z", PAUSE = "M6 5h4v14H6zM14 5h4v14h-4z";
-  var needsSound = false, ended = false;
-
-  function setIcon(p){ icon.setAttribute("d", p ? PAUSE : PLAY); }
-  function label(t){ tag.textContent = t; }
-
-  function paint(){
-    var d = au.duration || 32, r = d ? au.currentTime / d : 0;
-    fill.style.width = (r * 100) + "%";
-    if (!au.paused && !needsSound) {
-      label("PREVIEW \u00B7 " + Math.max(0, Math.ceil(d - au.currentTime)) + "\u2033");
-    }
-  }
-  au.addEventListener("timeupdate", paint);
-  au.addEventListener("play",  function(){ setIcon(true); btn.classList.remove("pulse"); });
-  au.addEventListener("pause", function(){ if (!ended) { setIcon(false); label("已暫停"); } });
-  au.addEventListener("ended", function(){
-    ended = true; setIcon(false); fill.style.width = "100%"; label("HEAR THE FULL SONG \u2193");
-  });
-  au.addEventListener("error", function(){ label(""); btn.style.display = "none"; });
-
-  /* The single place that guarantees audible playback. Every manual control
-     goes through here, so the element can never be left muted by an earlier
-     autoplay fallback — that bug made the play button run the track silently. */
-  function playAudible() {
-    needsSound = false;
-    ended = false;
-    au.muted = false;
-    au.volume = 1;
-    btn.classList.remove("pulse");
-    var p = au.play();
-    if (p && p.catch) p.catch(function () { label("點畫面播放"); btn.classList.add("pulse"); });
-    label("正在播放");
-  }
-
-  /* Unmute on the first gesture of any kind. */
-  function enableSound() {
-    if (!needsSound) return;
-    playAudible();
-  }
-  ["pointerdown", "touchstart", "click", "keydown", "scroll"].forEach(function (ev) {
-    window.addEventListener(ev, enableSound, { once: true, passive: true });
-  });
-
-  /* Start immediately \u2014 do not wait for window.load. */
-  function start() {
-    au.muted = false;
-    var p = au.play();
-    if (p && p.catch) {
-      p.catch(function () {
-        /* Audible autoplay refused: run it muted so playback is already underway. */
-        au.muted = true;
-        needsSound = true;
-        au.play().then(function () {
-          label("點畫面開聲音");
-          btn.classList.add("pulse");
-        }).catch(function () {
-          /* Even muted autoplay refused (rare): fall back to the play button. */
-          needsSound = false;
-          label("點畫面播放");
-          btn.classList.add("pulse");
-        });
-      });
-    }
-  }
-  start();
-  /* Retry once metadata is ready, in case the first attempt fired too early. */
-  au.addEventListener("canplay", function () { if (au.paused && !ended) start(); }, { once: true });
-
-  /* Manual controls: always route through playAudible() so a tap can never
-     resume a muted element. The button is the only pause control. */
-  btn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    if (au.paused || au.muted) { playAudible(); } else { au.pause(); }
-  });
-  hero.addEventListener("click", function () {
-    if (au.paused || au.muted) playAudible();
-  });
-})();
-
 </script>
 </body>
 </html>
