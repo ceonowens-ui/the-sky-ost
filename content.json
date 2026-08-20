@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-20-2",
+  "version": "2026-08-20-3",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -49,8 +49,13 @@
       "text": "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去"
     },
     {
-      "video": "assets/feed/04.mp4",
-      "id": "vid04"
+      "video": "feed/04.mp4",
+      "id": "vid04",
+      "protected": true,
+      "productId": "video-01",
+      "price": 99,
+      "title": "I'M SORRY · 幕後",
+      "duration": "00:43"
     },
     {
       "voice": "assets/feed/01.mp3",
