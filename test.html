@@ -74,8 +74,6 @@
   --pv-sub-font: 18px;
   --pv-nplabel-font: 15px;
   --pv-times-font: 12.5px;
-  --pv-play-size: 34px;
-  --pv-times-shift: 0px;
   --pv-next-shift: -10px;
   --pv-nav-bottom: -15px;
   --pv-nav-shift-y: -14px;
@@ -843,18 +841,18 @@ body { background: #08060C !important; }
             background: #F0DCA8 !important; box-shadow: 0 0 12px rgba(240,220,168,.85) !important; }
 .prog-dot:empty { width: 9px !important; height: 9px !important; }
 .prog-glow { opacity: .22 !important; }
-.np-times { color: rgba(255,255,255,.42) !important; transform: translateY(var(--pv-times-shift, 0px)) !important; }
+.np-times { color: rgba(255,255,255,.42) !important; }
 
 /* 控制鍵：Apple Music 式裸圖示，播放鍵無底色 */
 .np-controls { gap: var(--pv-controls-gap, 44px) !important;
   margin-top: var(--pv-controls-mt, 10px) !important;
   margin-bottom: var(--pv-controls-mb, 0px) !important; }
 .btn-play {
-  width: calc(var(--pv-play-size, 34px) + 6px) !important; height: calc(var(--pv-play-size, 34px) + 6px) !important;
+  width: 40px !important; height: 40px !important;
   background: none !important; box-shadow: none !important;
   backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
 }
-.btn-play svg { fill: #ffffff !important; width: var(--pv-play-size, 34px) !important; height: var(--pv-play-size, 34px) !important; }
+.btn-play svg { fill: #ffffff !important; width: 34px !important; height: 34px !important; }
 .btn-ghost svg { width: 30px !important; height: 30px !important; }
 
 .np-next { border-top: 1px solid rgba(201,162,232,.14) !important; margin-top: 14px !important;
@@ -941,6 +939,37 @@ body { background: #08060C !important; }
 .cover-card::before{ content:""; position:absolute; left:0; right:0; bottom:0; height:58%;
   z-index:1; pointer-events:none;
   background:linear-gradient(180deg, transparent 0%, rgba(8,6,12,.12) 32%, rgba(8,6,12,.55) 72%, rgba(8,6,12,.82) 100%); }
+</style>
+<style id="__studio_detail">
+#lyrics-overlay{ background:#141210 !important; }
+#lyrics-overlay .lyrics-head{ padding-top:calc(16px + env(safe-area-inset-top)); }
+#lyrics-overlay .sheet-eyebrow{ color:rgba(217,178,106,.8) !important; }
+.lyrics-body{ text-align:left !important; white-space:normal !important;
+  font-family:-apple-system,'PingFang TC',sans-serif !important; line-height:1.5 !important;
+  letter-spacing:0 !important; color:#EFE6F7 !important;
+  padding:6px 16px calc(104px + env(safe-area-inset-bottom)) !important; }
+.st-card{ background:#F3ECDD; color:#22201C; border-radius:22px; padding:18px 20px 20px; margin:6px 0 18px; }
+.st-card .st-h{ display:flex; align-items:center; gap:10px; font:700 18px/1 -apple-system,'PingFang TC',sans-serif; margin-bottom:14px; }
+.st-card .st-h svg{ width:22px; height:22px; flex:none; }
+.st-lyr{ font:400 17px/1.55 -apple-system,'PingFang TC',sans-serif; white-space:pre-wrap; }
+.st-credits{ margin-top:14px; font-size:12px; line-height:1.7; color:rgba(34,32,28,.5); white-space:pre-wrap; }
+.st-track{ position:relative; display:flex; align-items:center; gap:14px; background:#C0623F;
+  border-radius:20px; padding:16px 18px; margin:12px 0; overflow:hidden; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; }
+.st-track:active{ filter:brightness(.94); }
+.st-track .st-tl{ flex:0 0 auto; min-width:92px; }
+.st-track .st-tname{ font:700 17px/1.1 -apple-system,'PingFang TC',sans-serif; color:#F6EFE2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+.st-track .st-dot{ width:9px; height:9px; border-radius:50%; background:#F6EFE2; margin-top:9px; opacity:.85; }
+.st-track .st-wf{ flex:1; height:44px; min-width:0; }
+.st-track .st-wf rect{ fill:#F6EFE2; }
+.studio-bar{ position:absolute; left:0; right:0; bottom:0; z-index:80; display:flex; align-items:center;
+  justify-content:center; gap:38px; padding:14px 24px calc(18px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg, transparent, #141210 45%); }
+.studio-bar .sb-ico,.studio-bar .sb-play{ background:none; border:none; padding:0; color:#EFE6F7; }
+.studio-bar .sb-ico svg{ width:28px; height:28px; }
+.studio-bar .sb-play svg{ width:34px; height:34px; }
+.studio-bar .sb-time{ font:600 15px/1 ui-monospace,monospace; color:#EFE6F7; min-width:86px; text-align:right; }
 </style>
 </head>
 <body>
@@ -2529,6 +2558,8 @@ window.ALBUM_SWITCH = {
     $("prog-glow").style.left = pct + "%";
     $("t-cur").textContent = fmt(cur);
     $("t-dur").textContent = fmt(state.dur);
+    var _lo=document.getElementById("lyrics-overlay");
+    if(_lo && !_lo.classList.contains("hidden")){ var _lc=document.getElementById("ly-cur"), _ld=document.getElementById("ly-dur"); if(_lc)_lc.textContent=fmt(cur); if(_ld)_ld.textContent=fmt(state.dur); }
   }
   function seekAt(e) {
     var r = progEl.getBoundingClientRect();
@@ -2568,6 +2599,7 @@ window.ALBUM_SWITCH = {
   }
   function renderPlayState() {
     $("play-icon-path").setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
+    var _lp=document.getElementById("ly-play-path"); if(_lp)_lp.setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
     $("cover-card").classList.toggle("playing", state.playing);   // 封面呼吸動畫
     $("prog-glow").classList.toggle("pulsing", state.playing);
     if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = state.playing ? "playing" : "paused"; } catch (e) {} }
@@ -2670,26 +2702,58 @@ window.ALBUM_SWITCH = {
     while (lines.length && !lines[0].trim()) lines.shift();
     var title = (lines.shift() || fallbackTitle || "").trim();
     while (lines.length && !lines[0].trim()) lines.shift();
-    /* 從尾端往回找連續的製作名單行 */
     var cut = lines.length;
     for (var i = lines.length - 1; i >= 0; i--) {
-      var L = lines[i].trim();
-      if (!L) continue;
+      var L = lines[i].trim(); if (!L) continue;
       if (CREDIT_RE.test(L)) cut = i; else break;
     }
     var lyric = lines.slice(0, cut).join("\n").replace(/\n{3,}/g, "\n\n").trim();
     var credits = lines.slice(cut).join("\n").trim();
+    function seedOf(s){ var hsh=0; for(var i=0;i<s.length;i++){ hsh=(hsh*31 + s.charCodeAt(i)) & 0x7fffffff; } return hsh || 12345; }
+    function wf(seed){ var bars=56, s=seed, W=520, gap=2, bw=(W-(bars-1)*gap)/bars, x=0, r="";
+      var rnd=function(){ s=(s*1103515245+12345)&0x7fffffff; return (s>>8)/0x7fffff; };
+      for(var i=0;i<bars;i++){ var hh=6+Math.pow(rnd(),1.6)*38, y=(44-hh)/2;
+        r+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hh.toFixed(1)+'" rx="'+(bw/2).toFixed(1)+'"/>'; x+=bw+gap; }
+      return '<svg class="st-wf" viewBox="0 0 '+W+' 44" preserveAspectRatio="none">'+r+'</svg>'; }
+    var base = seedOf(title || fallbackTitle || "x");
+    var names = [ (title || fallbackTitle || "Track 1"), "Record Track 2", "Record Track 3", "Record Track 4" ];
+    var rows = "";
+    for (var k=0;k<names.length;k++){
+      rows += '<div class="st-track"><div class="st-tl"><div class="st-tname">' + esc(names[k]) + '</div><div class="st-dot"></div></div>' + wf(base + k*911 + 7) + '</div>';
+    }
+    var icon = '<svg viewBox="0 0 24 24" fill="none" stroke="#22201C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>';
     body.innerHTML =
-      '<div class="lyrics-song-title">' + esc(title) + "</div>" +
-      '<div class="lyrics-text">' + esc(lyric) + "</div>" +
-      (credits ? '<div class="lyrics-credits">' + esc(credits) + "</div>" : "");
+      '<div class="st-card"><div class="st-h">' + icon + ((STR && STR.structureLabel) || "Lyrics + Structure") + '</div>' +
+      '<div class="st-lyr">' + esc(lyric) + '</div>' +
+      (credits ? '<div class="st-credits">' + esc(credits) + '</div>' : '') +
+      '</div>' + rows;
+    var rowsEl = body.querySelectorAll('.st-track');
+    for (var j=0;j<rowsEl.length;j++){ rowsEl[j].addEventListener('click', function(){ togglePlay(); }); }
   }
+  function studioBuildBar(){
+    if (document.getElementById('__studioBar')) return;
+    var bar = document.createElement('div'); bar.id='__studioBar'; bar.className='studio-bar';
+    bar.innerHTML = '<button class="sb-ico" aria-label="mix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></button>' +
+      '<button class="sb-play" id="ly-play" aria-label="play"><svg viewBox="0 0 24 24" fill="currentColor"><path id="ly-play-path" d="M8 5v14l11-7z"/></svg></button>' +
+      '<span class="sb-time"><span id="ly-cur">0:00</span>/<span id="ly-dur">0:00</span></span>';
+    document.getElementById('lyrics-overlay').appendChild(bar);
+    document.getElementById('ly-play').addEventListener('click', togglePlay);
+  }
+  function studioOpen(){
+    studioBuildBar();
+    var nv=document.getElementById('nav-wrap'); if(nv) nv.style.display='none';
+    var ld=document.getElementById('ly-dur'); if(ld) ld.textContent=fmt(state.dur);
+    var lc=document.getElementById('ly-cur'); if(lc) lc.textContent=fmt(audio.currentTime||0);
+    var lp=document.getElementById('ly-play-path'); if(lp) lp.setAttribute('d', state.playing?"M6 5h4v14H6zM14 5h4v14h-4z":"M8 5v14l11-7z");
+  }
+  function studioClose(){ var nv=document.getElementById('nav-wrap'); if(nv) nv.style.display=''; }
   $("btn-lyrics").addEventListener("click", function () {
     var t = TRACKS[state.cur];
     $("lyrics-eyebrow").textContent = STR.lyricsLabel || "Lyrics";
     $("lyrics-title").textContent = isLocked(t) ? "Unlock" : t.title;
     var body = $("lyrics-body");
     $("lyrics-overlay").classList.remove("hidden");
+    studioOpen();
     if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }   // 內嵌優先（file:// 也能看）
     if (!t.lyricsPath) { body.innerHTML = '<div class="lyrics-empty">' + esc(STR.noLyrics || "這首歌暫時沒有歌詞") + "</div>"; return; }
     if (lyricsCache[t.n] != null) { renderLyrics(body, lyricsCache[t.n], t.title); return; }
@@ -2705,7 +2769,7 @@ window.ALBUM_SWITCH = {
       body.innerHTML = '<div class="lyrics-empty">' + esc(STR.noLyrics || "這首歌暫時沒有歌詞") + "</div>";
     });
   });
-  $("btn-close-lyrics").addEventListener("click", function () { $("lyrics-overlay").classList.add("hidden"); });
+  $("btn-close-lyrics").addEventListener("click", function () { $("lyrics-overlay").classList.add("hidden"); studioClose(); });
 
   /* ---------- 分頁切換 + Floating Island Nav ----------
    * 只取「沒被藏起來」的 tab（全免費專輯會藏掉購買/解鎖），
@@ -3233,12 +3297,10 @@ window.ALBUM_SWITCH = {
       ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
       ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
       ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
-      ["--pv-play-size",     "播放鍵大小", 20,   72,  1,   "px"],
       ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
       ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
       ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
       ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
-      ["--pv-times-shift",   "時間上下",   -40,  40,  1,   "px"],
       ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
       ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
@@ -3355,7 +3417,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B09</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B10</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
