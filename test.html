@@ -951,7 +951,7 @@ body { background: #08060C !important; }
 .st-card{ background:#F3ECDD; color:#22201C; border-radius:22px; padding:18px 20px 20px; margin:6px 0 18px; }
 .st-card .st-h{ display:flex; align-items:center; gap:10px; font:700 18px/1 -apple-system,'PingFang TC',sans-serif; margin-bottom:14px; }
 .st-card .st-h svg{ width:22px; height:22px; flex:none; }
-.st-lyr{ font:400 17px/1.55 -apple-system,'PingFang TC',sans-serif; white-space:pre-wrap; }
+.st-lyr{ font:400 17px/1.55 -apple-system,'PingFang TC',sans-serif; white-space:pre-wrap; max-height:210px; overflow:hidden; -webkit-mask-image:linear-gradient(180deg,#000 70%,transparent); mask-image:linear-gradient(180deg,#000 70%,transparent); }
 .st-credits{ margin-top:14px; font-size:12px; line-height:1.7; color:rgba(34,32,28,.5); white-space:pre-wrap; }
 .st-track{ position:relative; display:flex; align-items:center; gap:14px; background:#C0623F;
   border-radius:20px; padding:16px 18px; margin:12px 0; overflow:hidden; cursor:pointer;
@@ -2716,7 +2716,7 @@ window.ALBUM_SWITCH = {
         r+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hh.toFixed(1)+'" rx="'+(bw/2).toFixed(1)+'"/>'; x+=bw+gap; }
       return '<svg class="st-wf" viewBox="0 0 '+W+' 44" preserveAspectRatio="none">'+r+'</svg>'; }
     var base = seedOf(title || fallbackTitle || "x");
-    var names = [ (title || fallbackTitle || "Track 1"), "Record Track 2", "Record Track 3", "Record Track 4" ];
+    var names = [ (fallbackTitle || title || "Track 1"), "Record Track 2", "Record Track 3", "Record Track 4" ];
     var rows = "";
     for (var k=0;k<names.length;k++){
       rows += '<div class="st-track"><div class="st-tl"><div class="st-tname">' + esc(names[k]) + '</div><div class="st-dot"></div></div>' + wf(base + k*911 + 7) + '</div>';
@@ -3417,7 +3417,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B10</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B11</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
