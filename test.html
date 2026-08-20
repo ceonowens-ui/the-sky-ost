@@ -290,20 +290,31 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                    padding: 18px 16px calc(120px + env(safe-area-inset-bottom)); }
 .tracklist-caption { font-family: var(--font-label); font-size: 10px; letter-spacing: 3px;
                      color: rgba(255,255,255,.5); text-transform: uppercase; padding: 0 12px 8px; }
-.track-row { display: flex; align-items: center; gap: 13px; padding: 10px 12px;
-             border-radius: 14px; cursor: pointer; }
-.track-row:active { background: rgba(255,255,255,.05); }
-.track-row.current { background: rgba(var(--primary-rgb), .10); }
+.track-row { display: block; padding: 14px 16px 13px; margin: 10px 0;
+             border-radius: 18px; cursor: pointer;
+             background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); }
+.track-row:active { background: rgba(255,255,255,.06); }
+.track-row.current { background: rgba(var(--primary-rgb), .12);
+             border-color: rgba(var(--primary-rgb), .5);
+             box-shadow: 0 0 0 1px rgba(var(--primary-rgb), .25), 0 10px 30px rgba(0,0,0,.35); }
 .track-row.revealing { animation: reveal .5s ease both; }
+.tr-top { display: flex; align-items: center; gap: 11px; }
 .track-num { font-family: var(--font-label); font-size: 13px; width: 24px;
              text-align: center; color: #9a93a8; flex: none; }
-.track-name { flex: 0 1 auto; min-width: 0; max-width: 48%; font-family: var(--font-serif-tc); font-size: 16px;
-              color: rgba(255,255,255,.82);
-              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tl-wf { flex: 1; height: 26px; min-width: 40px; opacity: .8; }
+.track-name { flex: 1; min-width: 0; font-family: var(--font-serif-tc); font-size: 17px; line-height: 1.25;
+              color: rgba(255,255,255,.9); white-space: normal; word-break: break-word; }
+.tr-action { flex: none; display: flex; align-items: center; }
+.tl-wf { display: block; width: 100%; height: 30px; margin-top: 12px; opacity: .78; }
 .tl-wf rect { fill: var(--primary); }
-.track-row.locked .tl-wf { opacity: .35; }
+.track-row.locked .tl-wf { opacity: .3; }
 .track-row.current .tl-wf { opacity: 1; }
+.tr-eq { display: none; }
+.track-row.current .tr-eq { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; margin-left: 8px; }
+.track-row.current .tr-eq i { width: 2.5px; background: var(--primary); border-radius: 2px; animation: eqbar 0.9s ease-in-out infinite; }
+.track-row.current .tr-eq i:nth-child(1){ height: 60%; animation-delay: 0s; }
+.track-row.current .tr-eq i:nth-child(2){ height: 100%; animation-delay: .2s; }
+.track-row.current .tr-eq i:nth-child(3){ height: 45%; animation-delay: .4s; }
+@keyframes eqbar { 0%,100%{ transform: scaleY(.4);} 50%{ transform: scaleY(1);} }
 .track-row.current .track-num { color: var(--primary); }
 .track-row.current .track-name { color: #fff; }
 .track-row.locked .track-num { color: #5f5870; }
@@ -2593,9 +2604,13 @@ window.ALBUM_SWITCH = {
     }
     var _seed=(function(s){var hsh=0;for(var q=0;q<s.length;q++){hsh=(hsh*31+s.charCodeAt(q))&0x7fffffff;}return hsh||9973;})(esc(t.title)+ t.n);
     var _wf=(function(seed){var bars=42,s=seed,W=360,gap=2,bw=(W-(bars-1)*gap)/bars,x=0,r="";var rnd=function(){s=(s*1103515245+12345)&0x7fffffff;return (s>>8)/0x7fffff;};for(var q=0;q<bars;q++){var hh=4+Math.pow(rnd(),1.7)*22,y=(26-hh)/2;r+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+hh.toFixed(1)+'" rx="'+(bw/2).toFixed(1)+'"/>';x+=bw+gap;}return '<svg class="tl-wf" viewBox="0 0 '+W+' 26" preserveAspectRatio="none">'+r+'</svg>';})(_seed);
+    var _eq = isCur ? '<span class="tr-eq"><i></i><i></i><i></i></span>' : '';
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
-      '<span class="track-num">' + pad2(t.n) + "</span>" +
-      '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" + _wf + right + "</div>";
+      '<div class="tr-top">' +
+        '<span class="track-num">' + pad2(t.n) + "</span>" +
+        '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + _eq + "</div>" +
+        '<div class="tr-action">' + right + "</div>" +
+      "</div>" + _wf + "</div>";
   }
   function renderTrackLists(revealing) {
     var html = TRACKS.map(function (t, i) { return trackRowHTML(t, i, revealing); }).join("");
@@ -3361,7 +3376,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B13</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B14</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
