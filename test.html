@@ -1140,11 +1140,11 @@ body { background: #08060C !important; }
 
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
-    <div class="feed-tabs" style="display:flex;align-items:center;gap:10px;padding:10px 16px">
-      <img src="assets/images/sky/cover.jpg?v=0816" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
+    <div class="feed-tabs" style="display:flex;align-items:center;gap:12px;padding:13px 17px">
+      <img src="assets/images/sky/cover.jpg?v=0816" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
       <div style="min-width:0">
-        <div style="font-family:var(--font-serif-tc);font-size:14px;color:#fff">成晞 Chance</div>
-        <div style="font-family:var(--font-label);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.4)">SIGNAL · 私訊頻道</div>
+        <div style="font-family:var(--font-serif-tc);font-size:16px;color:#fff">成晞 Chance</div>
+        <div style="font-family:var(--font-label);font-size:10px;letter-spacing:2.2px;color:rgba(255,255,255,.45)">SIGNAL · 私訊頻道</div>
       </div>
       <span class="feed-count hidden" id="feed-count"></span>
     </div>
@@ -1201,16 +1201,16 @@ body { background: #08060C !important; }
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
         <span class="navlbl"></span>
       </button>
-      <button class="navbtn" data-screen="purchase">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
+      <button class="navbtn" data-screen="mood">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
         <span class="navlbl"></span>
       </button>
       <button class="navbtn" data-screen="merch">
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
         <span class="navlbl"></span>
       </button>
-      <button class="navbtn" data-screen="mood">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
+      <button class="navbtn" data-screen="purchase">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
         <span class="navlbl"></span>
       </button>
     </div>
@@ -1769,7 +1769,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -2202,7 +2202,7 @@ const CLASSICS = {
   },
 
   strings: {
-    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Track",
     purchaseTitleEn: "Unlock the Album",
@@ -2810,7 +2810,7 @@ window.ALBUM_SWITCH = {
    * 只取「沒被藏起來」的 tab（全免費專輯會藏掉購買/解鎖），
    * 指示器改用該按鈕的實際位置 offsetLeft，藏 tab 也不會跑版。 */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
-  var ORDER = ["player", "purchase", "merch", "mood", "gallery"];
+  var ORDER = ["player", "mood", "merch", "purchase", "gallery"];
   function go(screen) {
     /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
        若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
@@ -3467,7 +3467,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B19</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B20</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
