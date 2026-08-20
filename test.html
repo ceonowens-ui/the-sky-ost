@@ -358,7 +358,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                  color: var(--primary); text-transform: uppercase; }
 .sheet-title { font-family: var(--font-serif-tc); font-size: 15px; margin-top: 4px;
                letter-spacing: 2px; }
-.sheet-close { width: 34px; height: 34px; border-radius: 50%;
+.sheet-close { width: 40px; height: 40px; border-radius: 50%;
                background: rgba(255,255,255,.08); border: none; color: #fff;
                cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .sheet-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -2542,6 +2542,8 @@ window.ALBUM_SWITCH = {
     audio.src = srcFor(t);
     audio.play().catch(function () {});   // 同一手勢 tick 內呼叫（iOS 必要）
     renderNowPlaying(); renderTrackLists(); renderProgress(0);
+    (function () { var ly = document.getElementById("sheet-lyrics");
+      if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly); })();
     updateMediaSession();
   }
   function togglePlay() {
@@ -2702,6 +2704,8 @@ window.ALBUM_SWITCH = {
   (function () {
     var startY = 0, curY = 0, startT = 0, active = false;
     function onStart(e) {
+      /* UX FIX：拖曳起點在分頁鈕或關閉鈕上時不啟動手勢，否則 iOS 會吃掉 click */
+      if (e.target && e.target.closest && e.target.closest(".sheet-tab, .sheet-close")) return;
       active = true; startY = curY = (e.touches ? e.touches[0].clientY : e.clientY); startT = Date.now();
       sheet.classList.add("dragging"); sheet.classList.remove("snapping");
     }
@@ -3467,7 +3471,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B20</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B21</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
