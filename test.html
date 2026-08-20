@@ -998,8 +998,8 @@ body { background: #08060C !important; }
           </div>
           <div class="np-actions">
             <!-- 歌詞按鈕（這首歌沒歌詞時 app.js 會自動隱藏） -->
-            <button class="icon-round" id="btn-lyrics" title="歌詞">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
+            <button class="icon-round" id="btn-lyrics" title="歌詞語言 中/EN">
+              <span id="lylang-lab" style="font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.5px">雙</span>
             </button>
           </div>
         </div>
@@ -2698,6 +2698,20 @@ window.ALBUM_SWITCH = {
    * 排版規則：歌詞檔第一行＝歌名（放大顯示），中間是歌詞（中等字級），
    * 「詞/曲/製作人/混音…」開始的製作名單自動縮小放到最下面。 */
   var CREDIT_RE = /^\s*(詞|曲|詞曲|作詞|作曲|製作人|編曲|和聲|錄音|混音|母帶|Producer|PRODUCER|Arrang|Mixing|Mastering|Recording|Vocal|Film|Director|Editor|HARMONY|ARRANGEMENT)/;
+  var lyricLang = (function(){ try { return localStorage.getItem(NS + ":lylang") || "both"; } catch(e){ return "both"; } })();
+  function lyLabTxt(){ return lyricLang === "zh" ? "中" : (lyricLang === "en" ? "EN" : "雙"); }
+  function updateLyLab(){ var el = document.getElementById("lylang-lab"); if (el) el.textContent = lyLabTxt(); }
+  var CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/;
+  function filterLyricLang(text) {
+    if (lyricLang === "both") return text;
+    var out = [];
+    text.split("\n").forEach(function (L) {
+      if (!L.trim()) { out.push(""); return; }
+      var isZh = CJK_RE.test(L);
+      if ((lyricLang === "zh" && isZh) || (lyricLang === "en" && !isZh)) out.push(L);
+    });
+    return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
   function renderLyrics(body, raw, fallbackTitle) {
     var lines = String(raw || "").replace(/\r/g, "").split("\n");
     while (lines.length && !lines[0].trim()) lines.shift();
@@ -2710,7 +2724,7 @@ window.ALBUM_SWITCH = {
       if (!L) continue;
       if (CREDIT_RE.test(L)) cut = i; else break;
     }
-    var lyric = lines.slice(0, cut).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    var lyric = filterLyricLang(lines.slice(0, cut).join("\n").replace(/\n{3,}/g, "\n\n").trim());
     var credits = lines.slice(cut).join("\n").trim();
     body.innerHTML =
       '<div class="lyrics-song-title">' + esc(title) + "</div>" +
@@ -2744,9 +2758,15 @@ window.ALBUM_SWITCH = {
   $("tab-upnext").addEventListener("click", function () { sheetTab("upnext"); });
   $("tab-lyrics").addEventListener("click", function () { sheetTab("lyrics"); });
   $("btn-lyrics").addEventListener("click", function () {
-    openSheet();
-    sheetTab("lyrics");
+    lyricLang = lyricLang === "both" ? "zh" : (lyricLang === "zh" ? "en" : "both");
+    try { localStorage.setItem(NS + ":lylang", lyricLang); } catch (e) {}
+    updateLyLab();
+    toast(lyricLang === "zh" ? "歌詞語言：中文" : (lyricLang === "en" ? "Lyrics: English" : "歌詞語言：雙語"));
+    hap([8, 20, 8]);
+    var ly = $("sheet-lyrics");
+    if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly);
   });
+  updateLyLab();
   $("btn-close-lyrics").addEventListener("click", function () { $("lyrics-overlay").classList.add("hidden"); });
 
   /* ---------- 分頁切換 + Floating Island Nav ----------
@@ -3397,7 +3417,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B15</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B16</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
