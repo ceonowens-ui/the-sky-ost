@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-20-1",
+  "version": "2026-08-20-2",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -47,6 +47,10 @@
     },
     {
       "text": "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去"
+    },
+    {
+      "video": "assets/feed/04.mp4",
+      "id": "vid04"
     },
     {
       "voice": "assets/feed/01.mp3",

@@ -998,6 +998,19 @@ body { background: #08060C !important; }
   background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
   display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(217,178,106,.35); }
 .chat-voice .v-btn svg{ fill:#191510 !important; }
+.chat-video{ position:relative; max-width:82%; border-radius:24px; overflow:hidden;
+  border-bottom-right-radius:8px; border:1px solid rgba(217,178,106,.28); background:#000; cursor:pointer; }
+.chat-video video{ width:100%; display:block; }
+.chat-video .cv-play{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:56px; height:56px; border-radius:50%; border:none;
+  background:linear-gradient(135deg,#F0DCA8,#D9B26A);
+  display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(0,0,0,.45); }
+.chat-video .cv-play svg{ width:24px; height:24px; fill:#191510; margin-left:3px; }
+.chat-video.playing .cv-play{ display:none; }
+.chat-video .cv-exp{ position:absolute; right:8px; top:8px; width:32px; height:32px;
+  border-radius:50%; border:1px solid rgba(217,178,106,.5); background:rgba(20,14,28,.6);
+  color:#F0DCA8; font-size:15px; line-height:30px; text-align:center;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 .chat-gap{ height:22px; }
 </style>
 </head>
@@ -1581,6 +1594,7 @@ var FEED_CHAT = [   /* 內建備援；正式內容以 content.json 為準（B23�
   { text: "凌晨四點，唱完最後一句" },
   { photo: "assets/feed/01.jpg" },
   { text: "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去" },
+  { video: "assets/feed/04.mp4", id: "vid04" },
   { voice: "assets/feed/01.mp3", id: "v01" },
   { text: "聽完不准哭。哭了也只准在我這裡哭" },
 ];
@@ -3152,10 +3166,20 @@ window.ALBUM_SWITCH = {
           '<button class="v-btn">' + MIC_SVG + '</button>' +
           '<audio src="' + esc(m.voice) + '" preload="metadata"></audio>' +
         '</div></div>';
+        return;
+      }
+      if (m.video) {
+        out += '<div class="chat-line"><div class="chat-video" data-vid="' + esc(m.id || "") + '">' +
+          '<video class="cv" src="' + esc(m.video) + '" preload="metadata" playsinline webkit-playsinline></video>' +
+          '<button class="cv-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
+          '<button class="cv-exp" aria-label="全螢幕">⤢</button>' +
+        '</div></div>';
+        return;
       }
     });
     $("feed-body").innerHTML = out;
     bindFeedVoices();
+    bindFeedVideos();
     document.querySelectorAll("#feed-body .chat-photo img").forEach(function (im) {
       im.addEventListener("click", function () {
         var lb = document.createElement("div"); lb.id = "__lb";
@@ -3163,6 +3187,25 @@ window.ALBUM_SWITCH = {
         lb.addEventListener("click", function () { lb.remove(); });
         document.body.appendChild(lb);
         hap(8);
+      });
+    });
+  }
+  function bindFeedVideos() {
+    document.querySelectorAll("#feed-body .chat-video").forEach(function (box) {
+      var v = box.querySelector("video.cv"), play = box.querySelector(".cv-play"), exp = box.querySelector(".cv-exp");
+      function start() {
+        try { v.setAttribute("controls", ""); v.play(); } catch (_) {}
+        box.classList.add("playing"); hap(8);
+      }
+      play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
+      v.addEventListener("play", function () { box.classList.add("playing"); });
+      v.addEventListener("pause", function () { box.classList.remove("playing"); });
+      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); });
+      exp.addEventListener("click", function (e) {
+        e.stopPropagation(); hap(8);
+        if (v.webkitEnterFullscreen) { try { v.play(); } catch (_) {} try { v.webkitEnterFullscreen(); } catch (_) {} }
+        else if (v.requestFullscreen) { v.setAttribute("controls", ""); v.requestFullscreen(); try { v.play(); } catch (_) {} }
+        else start();
       });
     });
   }
@@ -3471,7 +3514,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B23</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B24</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
