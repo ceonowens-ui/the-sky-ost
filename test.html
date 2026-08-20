@@ -967,6 +967,29 @@ body { background: #08060C !important; }
   z-index:1; pointer-events:none;
   background:linear-gradient(180deg, transparent 0%, rgba(8,6,12,.12) 32%, rgba(8,6,12,.55) 72%, rgba(8,6,12,.82) 100%); }
 </style>
+<style id="__chat_feed">
+#screen-mood{ background:#050308 !important; }
+.chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
+  color:rgba(255,255,255,.35); margin:18px 0 6px; }
+.chat-line{ display:flex; justify-content:flex-end; padding:3px 14px; }
+.chat-bubble{ max-width:76%; background:#F3ECDD; color:#191510; border-radius:22px;
+  padding:11px 16px; font:400 15.5px/1.45 -apple-system,'PingFang TC',sans-serif;
+  border-bottom-right-radius:6px; }
+.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-right-radius:8px; }
+.chat-photo img{ width:100%; display:block; }
+.chat-voice{ display:flex; align-items:center; gap:10px; width:86%;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+  border-radius:999px; padding:9px 12px 9px 16px; }
+.chat-voice .wave{ flex:1; display:flex; align-items:center; gap:2px; height:26px; min-width:0; cursor:pointer; }
+.chat-voice .wave i{ flex:1; min-width:1.5px; background:rgba(255,255,255,.55); border-radius:2px; }
+.chat-voice .wave i.on{ background:#D9B26A; }
+.chat-voice .wave i.cur{ background:#F0DCA8; }
+.chat-voice .v-time{ font:600 12px/1 ui-monospace,monospace; color:rgba(255,255,255,.75); flex:none; }
+.chat-voice .v-btn{ flex:none; width:38px; height:38px; border-radius:50%; border:none;
+  background:#F3ECDD; color:#191510; display:flex; align-items:center; justify-content:center; }
+.chat-voice .v-btn svg{ fill:#191510 !important; }
+.chat-gap{ height:22px; }
+</style>
 </head>
 <body>
 <div id="stage">
@@ -1107,8 +1130,13 @@ body { background: #08060C !important; }
 
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
-    <div class="feed-tabs">
-      <span class="feed-count" id="feed-count"></span>
+    <div class="feed-tabs" style="display:flex;align-items:center;gap:10px;padding:10px 16px">
+      <img src="assets/images/sky/cover.jpg?v=0816" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
+      <div style="min-width:0">
+        <div style="font-family:var(--font-serif-tc);font-size:14px;color:#fff">成晞 Chance</div>
+        <div style="font-family:var(--font-label);font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.4)">SIGNAL · 私訊頻道</div>
+      </div>
+      <span class="feed-count hidden" id="feed-count"></span>
     </div>
     <div id="feed-body"></div>
   </section>
@@ -1526,21 +1554,27 @@ Stillness slowly breathing`,
  * type: voice（語音）/ photo / video / text（隨筆）。按 month 分組。
  * 之後用「發文工具.html」產生的 posts 可直接接進來。
  * ===================================================================== */
-const FEED_POSTS = [
-  { id: "p01", type: "voice", src: "assets/feed/01.mp3", photo: "assets/feed/01.jpg", pinned: true,
-    label: "Voice · 單曲介紹",
-    caption: "I'm Sorry — 單曲介紹",
-    date: "2026.08.20", month: "2026-08", likes: 0 },
-  { id: "p02", type: "voice", src: "assets/feed/02.mp3", photo: "assets/feed/02.jpg",
-    label: "Voice · 單曲介紹 2",
-    caption: "I'm Sorry — 單曲介紹 · 2",
-    date: "2026.08.20", month: "2026-08", likes: 0 },
-  { id: "p03", type: "voice", src: "assets/feed/03.mp3", photo: "assets/feed/03.jpg",
-    label: "Voice Memo",
-    caption: "今天錄了一首歌。",
-    date: "2026.08.20", month: "2026-08", likes: 0 },
+const FEED_POSTS = [];
+const FEED_CHAT = [
+  { day: "2026.08.20" },
+  { text: "還醒著嗎" },
+  { text: "今天錄了一首歌，第一個想讓你聽" },
+  { photo: "assets/feed/03.jpg" },
+  { voice: "assets/feed/03.mp3", id: "v03" },
+  { text: "牠聽完沒什麼反應，所以只剩你了" },
+  { gap: 1 },
+  { text: "進 booth 之前偷拍的，這個燈只有你看得到" },
+  { photo: "assets/feed/02.jpg" },
+  { voice: "assets/feed/02.mp3", id: "v02" },
+  { text: "這段是只說給你聽的，不要外流" },
+  { gap: 1 },
+  { text: "凌晨四點，唱完最後一句" },
+  { photo: "assets/feed/01.jpg" },
+  { text: "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去" },
+  { voice: "assets/feed/01.mp3", id: "v01" },
+  { text: "聽完不准哭。哭了也只准在我這裡哭" },
 ];
-const FEED_MONTHS = { "2026-08": ["八月", "2026 · Aug"] };
+const FEED_MONTHS = {};
 const FEED = { posts: FEED_POSTS, monthLabels: FEED_MONTHS };
 
 const THE_SKY = {
@@ -3087,24 +3121,27 @@ window.ALBUM_SWITCH = {
     return '<article class="card media">' + pin + '<div class="m-wrap">' + inner + '</div>' +
       '<div class="cap">' + esc(p.caption) + '</div>' + foot + '</article>';
   }
-  function renderMoodWall() {   // 名稱沿用，內容已改成動態牆（開機 + go("mood") 會呼叫）
-    var likes = feedLikes();
-    var list = FEED_POSTS.filter(FEED_MATCH[feedCat] || FEED_MATCH.all);
-    if ($("feed-count")) $("feed-count").textContent = list.length + " POSTS";
-    if (!list.length) { $("feed-body").innerHTML = '<div class="feed-empty">這個分類還沒有內容。</div>'; return; }
-    var groups = [];
-    list.forEach(function (p) {
-      var g = groups[groups.length - 1];
-      if (!g || g.m !== p.month) { g = { m: p.month, items: [] }; groups.push(g); }
-      g.items.push(p);
+  function renderMoodWall() {
+    var out = "";
+    (typeof FEED_CHAT !== "undefined" ? FEED_CHAT : []).forEach(function (m) {
+      if (m.day)   { out += '<div class="chat-day">' + esc(m.day) + '</div>'; return; }
+      if (m.gap)   { out += '<div class="chat-gap"></div>'; return; }
+      if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(m.text) + '</div></div>'; return; }
+      if (m.photo) { out += '<div class="chat-line"><div class="chat-photo"><img src="' + esc(m.photo) + '" alt="" loading="lazy"></div></div>'; return; }
+      if (m.voice) {
+        var bars = "";
+        var s = 0; for (var i = 0; i < m.id.length; i++) s = (s * 31 + m.id.charCodeAt(i)) % 9973;
+        for (var j = 0; j < 34; j++) { s = (s * 1103515245 + 12345) % 2147483648; bars += '<i style="height:' + (18 + s % 82) + '%"></i>'; }
+        out += '<div class="chat-line"><div class="chat-voice" data-voice="' + esc(m.id) + '">' +
+          '<div class="wave">' + bars + '</div>' +
+          '<div class="v-time">0:00</div>' +
+          '<button class="v-btn">' + MIC_SVG + '</button>' +
+          '<audio src="' + esc(m.voice) + '" preload="metadata"></audio>' +
+        '</div></div>';
+      }
     });
-    $("feed-body").innerHTML = groups.map(function (g) {
-      var L = FEED_MONTHS[g.m] || [g.m || "", ""];
-      return '<div class="group-head"><div class="group-title">' + esc(L[0]) + '</div>' +
-        '<div class="group-sub">' + esc(L[1]) + '</div><div class="group-line"></div></div>' +
-        '<div class="cards">' + g.items.map(function (p) { return feedCardHTML(p, likes); }).join("") + '</div>';
-    }).join("");
-    bindFeedVoices(); watchFeedVideos();
+    $("feed-body").innerHTML = out;
+    bindFeedVoices();
   }
   function bindFeedVoices() {
     document.querySelectorAll("#screen-mood [data-voice]").forEach(function (box) {
@@ -3411,7 +3448,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B17</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B18</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
