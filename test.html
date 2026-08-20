@@ -968,25 +968,35 @@ body { background: #08060C !important; }
   background:linear-gradient(180deg, transparent 0%, rgba(8,6,12,.12) 32%, rgba(8,6,12,.55) 72%, rgba(8,6,12,.82) 100%); }
 </style>
 <style id="__chat_feed">
-#screen-mood{ background:#050308 !important; }
+#screen-mood{ background:linear-gradient(180deg,#2A1440 0%,#1A0E2A 38%,#0E0817 100%) !important; }
+.chat-day{ color:rgba(217,178,106,.55) !important; }
 .chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
   color:rgba(255,255,255,.35); margin:18px 0 6px; }
 .chat-line{ display:flex; justify-content:flex-end; padding:3px 14px; }
-.chat-bubble{ max-width:76%; background:#F3ECDD; color:#191510; border-radius:22px;
+.chat-bubble{ max-width:76%; background:linear-gradient(135deg,#F6EFDD,#EFDDB8); color:#221A10; border-radius:22px;
   padding:11px 16px; font:400 15.5px/1.45 -apple-system,'PingFang TC',sans-serif;
-  border-bottom-right-radius:6px; }
-.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-right-radius:8px; }
+  border-bottom-right-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.25); }
+.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-right-radius:8px;
+  border:1px solid rgba(217,178,106,.28); cursor:zoom-in; }
 .chat-photo img{ width:100%; display:block; }
+#__lb{ position:fixed; inset:0; z-index:120000; background:rgba(5,3,10,.96);
+  display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; }
+#__lb img{ max-width:100vw; max-height:100dvh; object-fit:contain; }
+#__lb .lb-x{ position:fixed; top:calc(14px + env(safe-area-inset-top)); right:16px;
+  width:38px; height:38px; border-radius:50%; border:1px solid rgba(217,178,106,.5);
+  background:rgba(20,14,28,.8); color:#D9B26A; font-size:18px; line-height:36px; text-align:center; }
 .chat-voice{ display:flex; align-items:center; gap:10px; width:86%;
-  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
-  border-radius:999px; padding:9px 12px 9px 16px; }
+  background:rgba(126,63,168,.20); border:1px solid rgba(201,162,232,.35);
+  border-radius:999px; padding:9px 12px 9px 16px;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
 .chat-voice .wave{ flex:1; display:flex; align-items:center; gap:2px; height:26px; min-width:0; cursor:pointer; }
-.chat-voice .wave i{ flex:1; min-width:1.5px; background:rgba(255,255,255,.55); border-radius:2px; }
+.chat-voice .wave i{ flex:1; min-width:1.5px; background:rgba(201,162,232,.6); border-radius:2px; }
 .chat-voice .wave i.on{ background:#D9B26A; }
 .chat-voice .wave i.cur{ background:#F0DCA8; }
 .chat-voice .v-time{ font:600 12px/1 ui-monospace,monospace; color:rgba(255,255,255,.75); flex:none; }
 .chat-voice .v-btn{ flex:none; width:38px; height:38px; border-radius:50%; border:none;
-  background:#F3ECDD; color:#191510; display:flex; align-items:center; justify-content:center; }
+  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(217,178,106,.35); }
 .chat-voice .v-btn svg{ fill:#191510 !important; }
 .chat-gap{ height:22px; }
 </style>
@@ -3142,6 +3152,15 @@ window.ALBUM_SWITCH = {
     });
     $("feed-body").innerHTML = out;
     bindFeedVoices();
+    document.querySelectorAll("#feed-body .chat-photo img").forEach(function (im) {
+      im.addEventListener("click", function () {
+        var lb = document.createElement("div"); lb.id = "__lb";
+        lb.innerHTML = '<img src="' + im.src + '" alt=""><button class="lb-x">✕</button>';
+        lb.addEventListener("click", function () { lb.remove(); });
+        document.body.appendChild(lb);
+        hap(8);
+      });
+    });
   }
   function bindFeedVoices() {
     document.querySelectorAll("#screen-mood [data-voice]").forEach(function (box) {
@@ -3448,7 +3467,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B18</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B19</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
