@@ -1565,7 +1565,7 @@ Stillness slowly breathing`,
  * 之後用「發文工具.html」產生的 posts 可直接接進來。
  * ===================================================================== */
 const FEED_POSTS = [];
-const FEED_CHAT = [
+var FEED_CHAT = [   /* 內建備援；正式內容以 content.json 為準（B23） */
   { day: "2026.08.20" },
   { text: "還醒著嗎" },
   { text: "今天錄了一首歌，第一個想讓你聽" },
@@ -3471,7 +3471,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B22</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B23</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
@@ -3495,6 +3495,65 @@ window.ALBUM_SWITCH = {
         location.reload();
       } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
     }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
+  });
+})();
+</script>
+
+<script id="__content_loader">
+/* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
+(function () {
+  fetch("content.json?t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) {
+      if (d && Array.isArray(d.feedChat) && d.feedChat.length) {
+        FEED_CHAT = d.feedChat;
+        if (typeof renderMoodWall === "function") renderMoodWall();
+      }
+    })
+    .catch(function () { /* 抓不到就用內建版本，不影響使用 */ });
+})();
+</script>
+
+<script id="__sw_update">
+/* B23 ── Service Worker 註冊 + 「有新內容」更新提示 */
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  function showBanner(reg) {
+    if (document.getElementById("__updBar")) return;
+    var b = document.createElement("button");
+    b.id = "__updBar"; b.textContent = "有新內容 ✨ 點此更新";
+    b.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);" +
+      "bottom:calc(78px + env(safe-area-inset-bottom));z-index:100001;" +
+      "padding:10px 18px;border-radius:999px;border:1px solid rgba(217,178,106,.7);" +
+      "background:linear-gradient(135deg,#D9B26A,#B98A3E);color:#1A0E2A;" +
+      "font:700 13px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1px;" +
+      "box-shadow:0 8px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent";
+    b.addEventListener("click", function () {
+      b.textContent = "更新中…"; b.disabled = true;
+      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+      else location.reload();
+    });
+    document.body.appendChild(b);
+  }
+  var refreshed = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (refreshed) return; refreshed = true; location.reload();
+  });
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      if (reg.waiting && navigator.serviceWorker.controller) showBanner(reg);
+      reg.addEventListener("updatefound", function () {
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", function () {
+          if (nw.state === "installed" && navigator.serviceWorker.controller) showBanner(reg);
+        });
+      });
+      /* 回到前景時順手檢查一次有沒有新版 */
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") reg.update().catch(function(){});
+      });
+    }).catch(function () { /* SW 註冊失敗不影響 App */ });
   });
 })();
 </script>
