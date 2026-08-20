@@ -57,32 +57,34 @@
   /* ── PWA 版面微調（iphone-frame-live-tuner 合約，見 PLAYER_CSS_CONTRACT）──
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
-  --pv-status-shade: 0.95;
+  --pv-status-shade: 1;
   --pv-status-h: 150px;
-  --pv-cover-top: -25px;
+  --pv-cover-top: -10px;
   --pv-cover-focus: 41%;
-  --pv-card-overlap: 37px;
+  --pv-card-overlap: 70px;
   --pv-card-side: 23px;
   --pv-card-bottom: 66px;
   --pv-card-gap: 17px;
   --pv-controls-gap: 57px;
   --pv-controls-mt: -22px;
   --pv-controls-mb: 10px;
-  --pv-track-font: 22px;
+  --pv-track-font: 18px;
   --pv-track-label-font: 14px;
-  --pv-title-font: 29px;
+  --pv-title-font: 31px;
   --pv-sub-font: 18px;
   --pv-nplabel-font: 15px;
-  --pv-times-font: 12.5px;
+  --pv-times-font: 13.5px;
+  --pv-play-size: 34px;
+  --pv-times-shift: -19px;
   --pv-next-shift: -10px;
   --pv-nav-bottom: -15px;
   --pv-nav-shift-y: -14px;
   --pv-nav-scale: 1.22;
   --pv-nav-opacity: 1;
   --pv-nav-font: 11px;
-  --pv-cover-radius: 0px;
+  --pv-cover-radius: 80px;
   --pv-cover-side: 0px;
-  --pv-cover-bleed: 152px;
+  --pv-cover-bleed: 252px;
   --pv-status-gap: 70px;
   --pv-font-en: 'Cormorant Garamond';
   --pv-font-label: 'Cormorant Garamond';
@@ -841,18 +843,18 @@ body { background: #08060C !important; }
             background: #F0DCA8 !important; box-shadow: 0 0 12px rgba(240,220,168,.85) !important; }
 .prog-dot:empty { width: 9px !important; height: 9px !important; }
 .prog-glow { opacity: .22 !important; }
-.np-times { color: rgba(255,255,255,.42) !important; }
+.np-times { color: rgba(255,255,255,.42) !important; transform: translateY(var(--pv-times-shift, 0px)) !important; }
 
 /* 控制鍵：Apple Music 式裸圖示，播放鍵無底色 */
 .np-controls { gap: var(--pv-controls-gap, 44px) !important;
   margin-top: var(--pv-controls-mt, 10px) !important;
   margin-bottom: var(--pv-controls-mb, 0px) !important; }
 .btn-play {
-  width: 40px !important; height: 40px !important;
+  width: calc(var(--pv-play-size, 34px) + 6px) !important; height: calc(var(--pv-play-size, 34px) + 6px) !important;
   background: none !important; box-shadow: none !important;
   backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
 }
-.btn-play svg { fill: #ffffff !important; width: 34px !important; height: 34px !important; }
+.btn-play svg { fill: #ffffff !important; width: var(--pv-play-size, 34px) !important; height: var(--pv-play-size, 34px) !important; }
 .btn-ghost svg { width: 30px !important; height: 30px !important; }
 
 .np-next { border-top: 1px solid rgba(201,162,232,.14) !important; margin-top: 14px !important;
@@ -3297,10 +3299,12 @@ window.ALBUM_SWITCH = {
       ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
       ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
       ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
+      ["--pv-play-size",     "播放鍵大小", 20,   72,  1,   "px"],
       ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
       ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
       ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
       ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
+      ["--pv-times-shift",   "時間上下",   -40,  40,  1,   "px"],
       ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
       ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
@@ -3417,7 +3421,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B11</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B12</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
