@@ -999,7 +999,7 @@ body { background: #08060C !important; }
           <div class="np-actions">
             <!-- 歌詞按鈕（這首歌沒歌詞時 app.js 會自動隱藏） -->
             <button class="icon-round" id="btn-lyrics" title="歌詞語言 中/EN">
-              <span id="lylang-lab" style="font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.5px">雙</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
             </button>
           </div>
         </div>
@@ -1108,10 +1108,6 @@ body { background: #08060C !important; }
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
     <div class="feed-tabs">
-      <button class="feed-tab active" data-cat="all">全部</button>
-      <button class="feed-tab" data-cat="voice">語音</button>
-      <button class="feed-tab" data-cat="media">影像</button>
-      <button class="feed-tab" data-cat="text">隨筆</button>
       <span class="feed-count" id="feed-count"></span>
     </div>
     <div id="feed-body"></div>
@@ -1531,23 +1527,20 @@ Stillness slowly breathing`,
  * 之後用「發文工具.html」產生的 posts 可直接接進來。
  * ===================================================================== */
 const FEED_POSTS = [
-  { id: "f13", type: "voice", src: "assets/audio/sky/01.mp3", pinned: true, label: "Voice Memo",
-    caption: "寫到一半卡住，先錄下來。這段之後變成 The SKY 的副歌。",
-    date: "2026.08.11", month: "2026-08", likes: 174, plays: "3,412" },
-  { id: "f12", type: "photo", src: "assets/images/sky/01.jpg",
-    caption: "THE SKY 錄音現場。這件外套穿了兩天，回家發現袖口都是棚裡的灰。",
-    date: "2026.08.10", month: "2026-08", likes: 128 },
-  { id: "f11", type: "text",
-    caption: "凌晨四點，母帶終於過了。\n\n六年前錄 Stay With Me 的時候，我在別人的錄音室，時間是用租的。\n今天這張，從詞到母帶都在自己的房間完成。",
-    date: "2026.08.02", month: "2026-08", likes: 211 },
-  { id: "f10", type: "photo", src: "assets/images/sky/03.jpg",
-    caption: "寫真第二套。攝影說「你不要笑，看鏡頭右邊一點」，拍了 40 張才過。",
-    date: "2026.07.28", month: "2026-07", likes: 87 },
-  { id: "f09", type: "voice", src: "assets/audio/sky/02.mp3", label: "Demo · Don't Wanna Wake Up",
-    caption: "最早的 demo，跟成品差很多。放出來給你們聽當時多土。",
-    date: "2026.07.09", month: "2026-07", likes: 142, plays: "2,077" },
+  { id: "p01", type: "voice", src: "assets/feed/01.mp3", photo: "assets/feed/01.jpg", pinned: true,
+    label: "Voice · 單曲介紹",
+    caption: "I'm Sorry — 單曲介紹",
+    date: "2026.08.20", month: "2026-08", likes: 0 },
+  { id: "p02", type: "voice", src: "assets/feed/02.mp3", photo: "assets/feed/02.jpg",
+    label: "Voice · 單曲介紹 2",
+    caption: "I'm Sorry — 單曲介紹 · 2",
+    date: "2026.08.20", month: "2026-08", likes: 0 },
+  { id: "p03", type: "voice", src: "assets/feed/03.mp3", photo: "assets/feed/03.jpg",
+    label: "Voice Memo",
+    caption: "今天錄了一首歌。",
+    date: "2026.08.20", month: "2026-08", likes: 0 },
 ];
-const FEED_MONTHS = { "2026-08": ["八月", "2026 · Aug"], "2026-07": ["七月", "2026 · Jul"] };
+const FEED_MONTHS = { "2026-08": ["八月", "2026 · Aug"] };
 const FEED = { posts: FEED_POSTS, monthLabels: FEED_MONTHS };
 
 const THE_SKY = {
@@ -3076,6 +3069,7 @@ window.ALBUM_SWITCH = {
     var pin = p.pinned ? '<div class="pin">Pinned</div>' : "";
     if (p.type === "voice")
       return '<article class="card voice">' + pin +
+        (p.photo ? '<div class="m-wrap" style="border-radius:14px;overflow:hidden;margin-bottom:12px"><img src="' + esc(p.photo) + '" alt="" loading="lazy"></div>' : "") +
         '<div class="v-top">' + WAVE_SVG + esc(p.label || "Voice") + '</div>' +
         '<div class="v-player" data-voice="' + esc(p.id) + '">' +
           '<button class="v-btn">' + MIC_SVG + '</button>' +
@@ -3417,7 +3411,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B16</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B17</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
