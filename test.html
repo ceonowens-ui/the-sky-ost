@@ -1056,6 +1056,82 @@ body { background: #08060C !important; }
   box-shadow:0 5px 18px rgba(217,178,106,.3); }
 .vl-redeem{ margin-top:10px; border:none; background:none; color:rgba(255,255,255,.5);
   font-size:11.5px; letter-spacing:1px; text-decoration:underline; text-underline-offset:3px; }
+
+/* ── B28：兩 SKU 金流（299 專輯 / 799 全解鎖 / 已有專輯補 500 升級）── */
+.plan-was{ font-family:var(--font-label); font-size:15px; font-weight:600;
+  color:rgba(255,255,255,.4); text-decoration:line-through; margin-left:8px; }
+.email-consent{ display:flex; gap:9px; align-items:flex-start; text-align:left;
+  margin:14px 2px 2px; font-size:12px; line-height:1.6; color:rgba(255,255,255,.72); }
+.email-consent input{ width:16px; height:16px; margin-top:2px; accent-color:#D9B26A; flex:none; }
+.interest-card{ background:linear-gradient(135deg,rgba(217,178,106,.12),rgba(90,40,140,.18)) !important;
+  border:1px solid rgba(217,178,106,.3) !important; }
+.int-eyebrow{ font-family:var(--font-label); font-size:9px; letter-spacing:3px; color:rgba(217,178,106,.85); }
+.int-title{ font-family:var(--font-serif-tc); font-size:16px; color:#fff; margin-top:7px; }
+.int-desc{ font-size:12px; color:rgba(255,255,255,.62); margin-top:6px; line-height:1.7; }
+.int-btn{ margin-top:12px; width:100%; padding:12px; border-radius:999px;
+  border:1px solid rgba(217,178,106,.55); background:none; color:#F0DCA8;
+  font:700 13px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px; }
+.int-btn.done{ opacity:.6; }
+
+/* ── B28：LUCKY 每日抽卡 ───────────────────────────── */
+#screen-lucky{ padding-bottom:calc(130px + env(safe-area-inset-bottom)); }
+#lucky-stage{ display:flex; flex-direction:column; align-items:center; padding:8px 24px 0; }
+.lk-card{ position:relative; width:min(58vw,224px); aspect-ratio:2/3; border-radius:18px;
+  perspective:1000px; -webkit-tap-highlight-color:transparent; }
+.lk-inner{ position:absolute; inset:0; transform-style:preserve-3d;
+  transition:transform .85s cubic-bezier(.3,1.2,.35,1); }
+.lk-card.flip .lk-inner{ transform:rotateY(180deg); }
+.lk-face{ position:absolute; inset:0; border-radius:18px; overflow:hidden;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.lk-back{ background:linear-gradient(150deg,#3B1B54,#1A0E2A 55%,#0E0817);
+  border:1.5px solid rgba(217,178,106,.5); display:flex; align-items:center; justify-content:center; }
+.lk-back::after{ content:""; position:absolute; inset:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(240,220,168,.16) 48%,transparent 62%);
+  animation:lkShine 2.6s ease-in-out infinite; }
+@keyframes lkShine{ 0%{transform:translateX(-100%)} 60%,100%{transform:translateX(100%)} }
+.lk-logo{ font-family:var(--font-display); font-style:italic; font-size:46px; color:rgba(217,178,106,.8);
+  text-shadow:0 0 22px rgba(217,178,106,.4); }
+.lk-front{ transform:rotateY(180deg); background:#0E0817; }
+.lk-front img{ width:100%; height:100%; object-fit:cover; }
+.lk-r{ font-family:var(--font-label); font-size:9.5px; font-weight:800; letter-spacing:2px;
+  padding:4px 9px; border-radius:999px; background:rgba(10,6,16,.72); border:1px solid; }
+.lk-front .lk-r{ position:absolute; top:10px; left:10px; }
+.lk-r.N{ color:#C9CDD6; border-color:rgba(201,205,214,.5); }
+.lk-r.R{ color:#C6A6F2; border-color:rgba(198,166,242,.55); }
+.lk-r.SR{ color:#F0DCA8; border-color:rgba(240,220,168,.6); }
+.lk-r.SSR{ color:#FFDF8E; border-color:#FFDF8E; box-shadow:0 0 12px rgba(255,223,142,.55);
+  background:linear-gradient(135deg,rgba(120,70,20,.85),rgba(60,20,90,.85)); }
+.lk-card.glow-SR{ filter:drop-shadow(0 0 18px rgba(240,220,168,.45)); }
+.lk-card.glow-SSR{ filter:drop-shadow(0 0 26px rgba(255,223,142,.7)); }
+.lk-name{ margin-top:14px; font-family:var(--font-serif-tc); font-size:15px; color:#fff; min-height:22px; }
+.lk-draw{ margin-top:12px; width:min(58vw,224px); padding:14px; border:none; border-radius:999px;
+  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
+  font:700 14px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2.5px;
+  box-shadow:0 6px 22px rgba(217,178,106,.35); }
+.lk-draw:disabled{ opacity:.45; box-shadow:none; }
+.lk-hint{ margin-top:10px; font-size:11.5px; color:rgba(255,255,255,.5); letter-spacing:.5px;
+  text-align:center; line-height:1.7; }
+#lucky-cta{ margin:18px 24px 0; }
+.lk-cta{ display:block; width:100%; padding:13px; border-radius:14px; border:1px dashed rgba(217,178,106,.5);
+  background:rgba(217,178,106,.07); color:#F0DCA8; font-size:12.5px; letter-spacing:1px;
+  line-height:1.7; text-align:center; }
+.lucky-coll-head{ display:flex; justify-content:space-between; align-items:baseline;
+  margin:26px 26px 12px; font-family:var(--font-label); letter-spacing:2.5px; font-size:11px;
+  color:rgba(255,255,255,.55); }
+#lucky-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 22px; }
+.lkg{ position:relative; aspect-ratio:2/3; border-radius:12px; overflow:hidden;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+.lkg img{ width:100%; height:100%; object-fit:cover; display:block; }
+.lkg.none img{ display:none; }
+.lkg.none::after{ content:"?"; position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:center; font-family:var(--font-display); font-size:26px; color:rgba(255,255,255,.18); }
+.lkg.lock img{ filter:blur(14px) brightness(.55); transform:scale(1.15); }
+.lkg .lkg-r{ position:absolute; top:6px; left:6px; transform:scale(.82); transform-origin:top left; }
+.lkg .lkg-n{ position:absolute; right:6px; bottom:5px; font-family:var(--font-label);
+  font-size:9.5px; font-weight:700; color:rgba(255,255,255,.85);
+  background:rgba(10,6,16,.7); padding:2px 7px; border-radius:999px; }
+.lkg .lkg-lock{ position:absolute; inset:0; display:flex; flex-direction:column; gap:4px;
+  align-items:center; justify-content:center; font-size:10px; letter-spacing:1.5px; color:#F0DCA8; }
 </style>
 </head>
 <body>
@@ -1174,10 +1250,7 @@ body { background: #08060C !important; }
         <div class="page-note" id="unlocked-desc" style="margin-top:8px"></div>
         <div class="unlocked-actions">
           <button class="btn-chip" id="btn-goto-player">前往聽歌 →</button>
-          <a class="btn-chip grad hidden" id="btn-wav" target="_blank" rel="noopener">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            下載 WAV 無損 ↗
-          </a>
+          <button class="btn-chip grad hidden" id="btn-upgrade">升級全解鎖 · 補 NT$500</button>
         </div>
         <div class="unlocked-note" id="unlocked-plan-note"></div>
         <div class="unlocked-reset" id="btn-reset-unlock">重設解鎖（測試用）</div>
@@ -1216,6 +1289,19 @@ body { background: #08060C !important; }
     </div>
     <div class="gallery-scroll" id="gallery-scroll"></div>
     <div class="gallery-dots" id="gallery-dots"></div>
+  </section>
+
+  <!-- ================= LUCKY（每日抽卡 · B28）================= -->
+  <section id="screen-lucky" class="screen screen-sub">
+    <div class="page-titles">
+      <div class="page-title-en">Daily Luck</div>
+      <div class="page-title-tc">每日抽卡</div>
+      <div class="page-note" id="lucky-note">每天回來抽一張 · 收集只有這裡看得到的成晞</div>
+    </div>
+    <div id="lucky-stage"></div>
+    <div id="lucky-cta"></div>
+    <div class="lucky-coll-head"><span>COLLECTION · 圖鑑</span><span id="lucky-progress"></span></div>
+    <div id="lucky-grid"></div>
   </section>
 
   <!-- ================= BOTTOM SHEET（曲目表，可拖曳關閉）================= -->
@@ -1270,6 +1356,10 @@ body { background: #08060C !important; }
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
         <span class="navlbl"></span>
       </button>
+      <button class="navbtn" data-screen="lucky">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="13" height="17" rx="2"/><path d="M19 8h.01"/><path d="m9.5 9.5 1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z"/></svg></span>
+        <span class="navlbl"></span>
+      </button>
     </div>
   </nav>
 
@@ -1281,6 +1371,10 @@ body { background: #08060C !important; }
       <input class="form-input" id="email-modal-input" type="email" inputmode="email"
              autocomplete="email" placeholder="you@example.com">
       <input class="form-input hidden" id="email-modal-name" type="text" placeholder="購票人姓名（入場核對用）" autocomplete="name" style="margin-top:10px">
+      <label class="email-consent hidden" id="email-modal-consent">
+        <input type="checkbox" id="email-consent-cb">
+        <span>我同意：數位內容一經解鎖即完成提供，不適用七日猶豫期，恕不退費。</span>
+      </label>
       <div class="email-err hidden" id="email-modal-err">Email 格式不太對，再確認一下</div>
       <button class="btn-primary" id="email-modal-ok">前往付款</button>
       <button class="email-cancel" id="email-modal-cancel">取消</button>
@@ -1690,24 +1784,30 @@ const THE_SKY = {
    * 商業定位：299 = 擁有這個播放器，每月更新新歌（不是一次買斷 N 首）。
    * ---------------------------------------------------------------- */
   payment: {
-    productKey: "the-sky-album",   // ★ 綠界商品代號，必須與 worker.js PRODUCTS 一致
+    /* B28 兩 SKU：299 專輯 ／ 799 全解鎖（=專輯+SIGNAL頻道+全部獨家影片，無 WAV）。
+       已有專輯 → upgrade-799 補 500 升級。三個 key 都必須與 worker.js PRODUCTS 一致。 */
+    productKey: "the-sky-album",
+    productKeyFull: "full-unlock",
+    productKeyUpgrade: "upgrade-799",
     stripeLinkBasic:  "",          // 綠界不用外部連結，留空即可
     stripeLinkDeluxe: "",
     currency: "NT$",
     basicPrice: 299,
-    deluxePrice: 299,
-    basicName:  "擁有 THE SKY",
-    deluxeName: "擁有 THE SKY",
-    basicFeatures:  ["解鎖 I'm Sorry 完整版", "每月更新新歌 · 持續擁有", "不限次數隨時重播", "可加入手機主畫面"],
-    deluxeFeatures: ["解鎖 I'm Sorry 完整版", "每月更新新歌 · 持續擁有", "不限次數隨時重播", "可加入手機主畫面"],
-    deluxeBadge: "",
-    deluxeEnabled: false,
+    deluxePrice: 799,
+    deluxeWasPrice: 898,           // 分開買 299+599 的錨定劃線價
+    upgradePrice: 500,
+    basicName:  "數位專輯",
+    deluxeName: "全解鎖",
+    basicFeatures:  ["搶先聽全 10 首 · 8/28 起陸續更新", "2027/2/20 全曲到齊", "每日抽卡 · 完整卡池", "不限次數隨時重播"],
+    deluxeFeatures: ["專輯全部內容＋每日抽卡", "SIGNAL 私訊頻道 · 含未來更新", "全部獨家影片 · 含未來新片", "頻道更新至 2027/6 演唱會止"],
+    deluxeBadge: "最超值 · 分開買要 898",
+    deluxeEnabled: true,
   },
 
   /* ---- 後端 API（Cloudflare Worker 網址在這裡換）----------------- */
   api: {
     workerBaseUrl: "https://the-sky-ost-api.anthonywen0693.workers.dev",
-    wavDriveLink: "",                              // 還沒有典藏版 WAV，先留空
+    wavDriveLink: "",                              // B28：WAV 無損不存在，此欄停用
   },
 
   /* ---- 解鎖設定 -------------------------------------------------- */
@@ -1789,7 +1889,7 @@ const THE_SKY = {
         desc: "三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。",
         price: 1350, originalPrice: 1500,   // 預購 10% off
         limited: 150,
-        badge: "預購 9 折 · 2027.02.20",
+        badge: "2/5 開賣 · 會員限定",
         buyLabel: "預購",
         image: "assets/images/merch/ticket.jpg",
       },
@@ -1799,7 +1899,7 @@ const THE_SKY = {
         desc: "VIP 席位 · 含限定周邊與會後交流。",
         price: 2250, originalPrice: 2500,   // 預購 10% off
         limited: 55,
-        badge: "VIP · 預購 9 折",
+        badge: "VIP · 2/5 開賣 · 會員限定",
         buyLabel: "預購",
         image: "assets/images/merch/ticket-vip.jpg",
       },
@@ -1827,7 +1927,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -2260,7 +2360,7 @@ const CLASSICS = {
   },
 
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Track",
     purchaseTitleEn: "Unlock the Album",
@@ -2274,6 +2374,27 @@ const CLASSICS = {
 /* =====================================================================
  * 專輯庫 + 啟用選擇（切換鈕由 app.js 依這裡的資料渲染）
  * =================================================================== */
+/* ── B28：每日抽卡卡池（正式內容以 content.json 的 cards 為準；這裡是內建備援，兩邊要同步）──
+ * rarity: N / R / SR / SSR。tier:"member" 的卡免費用戶抽不到（圖鑑顯示模糊誘餌）。
+ * 之後 CÉON 給新照片：傳到 assets/cards/ 後只改 content.json 的 cards 就好，不用動這個檔。 */
+var LUCKY_CARDS = [
+  { id: "n01",  img: "assets/images/sky/01.jpg",            title: "錄音現場 · I",    rarity: "N" },
+  { id: "n02",  img: "assets/images/sky/02.jpg",            title: "錄音現場 · II",   rarity: "N" },
+  { id: "n03",  img: "assets/images/sky/03.jpg",            title: "錄音現場 · III",  rarity: "N" },
+  { id: "n04",  img: "assets/images/classics/01.jpg",       title: "Stay With Me",    rarity: "N" },
+  { id: "n05",  img: "assets/images/classics/02.jpg",       title: "Never Know",      rarity: "N" },
+  { id: "n06",  img: "assets/images/classics/03.jpg",       title: "Trap My Soul",    rarity: "N" },
+  { id: "r01",  img: "assets/images/classics/wall/01.jpg",  title: "寫真 · 微光",     rarity: "R",   tier: "member" },
+  { id: "r02",  img: "assets/images/classics/wall/02.jpg",  title: "寫真 · 側影",     rarity: "R",   tier: "member" },
+  { id: "r03",  img: "assets/feed/01.jpg",                  title: "SIGNAL · 深夜",   rarity: "R",   tier: "member" },
+  { id: "sr01", img: "assets/images/classics/wall/03.jpg",  title: "寫真 · 凝視",     rarity: "SR",  tier: "member" },
+  { id: "sr02", img: "assets/images/classics/wall/04.jpg",  title: "寫真 · 逆光",     rarity: "SR",  tier: "member" },
+  { id: "sr03", img: "assets/feed/02.jpg",                  title: "SIGNAL · 未公開", rarity: "SR",  tier: "member" },
+  { id: "ssr01", img: "assets/images/classics/wall/05.jpg", title: "寫真 · 全焦點",   rarity: "SSR", tier: "member" },
+  { id: "ssr02", img: "assets/images/classics/wall/06.jpg", title: "寫真 · 最後一張", rarity: "SSR", tier: "member" },
+  { id: "ssr03", img: "assets/images/sky/cover.jpg",        title: "THE SKY 主視覺",  rarity: "SSR", tier: "member" },
+];
+
 const ALBUM_LIBRARY = { "the-sky": THE_SKY, "classics": CLASSICS };
 const ALBUM_ORDER = ["the-sky", "classics"];
 const ALBUM_CHOICE_KEY = "album-app-active";       // 記住上次看哪張
@@ -2466,7 +2587,7 @@ window.ALBUM_SWITCH = {
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
   $("purchase-title-tc").textContent = "擁有 " + (CFG.albumTitle || "專輯") + " · 每月更新新歌";
   $("unlocked-title").textContent = "已解鎖完整 " + TOTAL + " 首專輯";
-  $("unlocked-desc").textContent = "所有曲目都已開放，可線上聽 + 下載收藏";
+  $("unlocked-desc").textContent = "所有曲目都已開放 · 不限次數隨時聽";
   $("in-code").placeholder = (CFG.unlock && CFG.unlock.codePlaceholder) || "XXXX-XXXX";
   var freeCount = TRACKS.filter(function (t) { return t.free; }).length;
   $("purchase-note").textContent = freeCount >= TOTAL
@@ -2530,7 +2651,7 @@ window.ALBUM_SWITCH = {
     cur: Math.min(pos.cur || 0, TOTAL - 1),
     playing: false,
     dur: 0,
-    selectedPlan: "basic",           // basic(299) / deluxe(599)
+    selectedPlan: "basic",           // basic(299 專輯) / deluxe(799 全解鎖)
     unlocked: !!(lsGet(LS.unlock, {}).unlocked),
   };
   var seeking = false, saveT = 0, durFixing = false, resumeAt = 0;
@@ -2541,7 +2662,7 @@ window.ALBUM_SWITCH = {
    * （對後端回傳做防呆 —— 見 PITFALLS #2） */
   function purchasedProduct() {
     var p = String(unlockInfo().product || "");
-    return (p === "599" || p === "deluxe" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
+    return (p === "599" || p === "799" || p === "deluxe" || p === "full-unlock" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
   }
   function isLocked(t) { return !t.free && !state.unlocked; }
 
@@ -2877,7 +2998,7 @@ window.ALBUM_SWITCH = {
    * 只取「沒被藏起來」的 tab（全免費專輯會藏掉購買/解鎖），
    * 指示器改用該按鈕的實際位置 offsetLeft，藏 tab 也不會跑版。 */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
-  var ORDER = ["player", "mood", "merch", "purchase", "gallery"];
+  var ORDER = ["player", "mood", "merch", "purchase", "gallery", "lucky"];
   function go(screen) {
     /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
        若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
@@ -2900,6 +3021,7 @@ window.ALBUM_SWITCH = {
     }
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
+    if (screen === "lucky") renderLucky();
   }
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
@@ -2918,7 +3040,8 @@ window.ALBUM_SWITCH = {
       return '<div class="plan' + (p.deluxe ? " deluxe" : "") + (state.selectedPlan === p.key ? " selected" : "") + '" data-plan="' + p.key + '">' +
         (p.deluxe && P.deluxeBadge ? '<div class="plan-badge">' + esc(P.deluxeBadge) + "</div>" : "") +
         '<div class="plan-name">' + esc(p.name) + "</div>" +
-        '<div class="plan-price">' + esc(P.currency || "NT$") + p.price + "</div>" +
+        '<div class="plan-price">' + esc(P.currency || "NT$") + p.price +
+          (p.deluxe && P.deluxeWasPrice ? '<span class="plan-was">' + esc(P.currency || "NT$") + P.deluxeWasPrice + "</span>" : "") + "</div>" +
         '<div class="plan-features">' + p.features.map(function (f) {
           return '<div class="plan-feature">' + check + esc(f) + "</div>";
         }).join("") + "</div></div>";
@@ -2937,12 +3060,16 @@ window.ALBUM_SWITCH = {
   $("btn-checkout").addEventListener("click", function () {
     var P = CFG.payment || {};
     if (P.productKey) {
+      var full = state.selectedPlan === "deluxe" && P.productKeyFull;
+      var pk = full ? P.productKeyFull : P.productKey;
+      var price = full ? P.deluxePrice : P.basicPrice;
       var pre = ($("in-email").value || "").trim().toLowerCase();
-      if (EMAIL_RE.test(pre)) { goEcpay(P.productKey, pre); return; }   // 下方欄位已填就直接用
       askEmail({
-        title: "擁有 " + (CFG.albumTitle || "專輯"),
-        desc: (P.currency || "NT$") + P.basicPrice + "　兌換碼會寄到這個信箱，用它解鎖完整專輯。"
-      }, function (email) { goEcpay(P.productKey, email); });
+        title: (full ? "全解鎖 " : "擁有 ") + (CFG.albumTitle || "專輯"),
+        desc: (P.currency || "NT$") + price + "　兌換碼會寄到這個信箱，用它解鎖。",
+        needConsent: true,
+        presetEmail: EMAIL_RE.test(pre) ? pre : ""
+      }, function (email) { goEcpay(pk, email); });
       return;
     }
     var link = state.selectedPlan === "deluxe" ? P.stripeLinkDeluxe : P.stripeLinkBasic;
@@ -2950,6 +3077,15 @@ window.ALBUM_SWITCH = {
     window.open(link, "_blank");
   });
   $("btn-goto-player").addEventListener("click", function () { go("player"); });
+  /* B28：已有專輯 → 補 500 升級全解鎖（同一套兌換碼系統，不開第二條金流） */
+  $("btn-upgrade").addEventListener("click", function () {
+    var P = CFG.payment || {};
+    askEmail({
+      title: "升級全解鎖 · 補 NT$" + (P.upgradePrice || 500),
+      desc: "解鎖 SIGNAL 私訊頻道＋全部獨家影片（含未來更新，頻道至 2027/6 演唱會止）。兌換碼會寄到這個信箱。",
+      needConsent: true
+    }, function (email) { goEcpay(P.productKeyUpgrade || "upgrade-799", email); });
+  });
 
   /* ---------- 周邊（聽片會票 + 手鍊）---------- */
   function renderMerch() {
@@ -2957,7 +3093,7 @@ window.ALBUM_SWITCH = {
     $("merch-title-tc").textContent = M.heading || "周邊商品";
     $("merch-note").textContent = M.note || "";
     var items = M.items || [];
-    $("merch-list").innerHTML = items.map(function (it, i) {
+    $("merch-list").innerHTML = interestCardHTML() + items.map(function (it, i) {
       var soldout = it.soldOut;
       /* 未上架：不顯示任何金額，按鈕鎖住。價格還留在設定裡，開賣只要關掉 comingSoon */
       var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
@@ -2995,6 +3131,40 @@ window.ALBUM_SWITCH = {
         '</div>';
     }
   }
+  /* ── B28：聽片會「我想去」免費登記（零金流；先拿 2/20 的真實需求數字）── */
+  function interestCardHTML() {
+    var hasTicket = !!(CFG.merch && (CFG.merch.items || []).some(function (it) {
+      return String(it.productKey || "").indexOf("ticket") === 0;
+    }));
+    if (!hasTicket) return "";
+    var done = !!lsGet(NS + ":interest", null);
+    return '<div class="merch-card interest-card"><div class="merch-body">' +
+      '<div class="int-eyebrow">2027.02.20 · 微風 MEGA STUDIO</div>' +
+      '<div class="int-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
+      '<div class="int-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
+      '<button class="int-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
+        (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
+    '</div></div>';
+  }
+  $("merch-list").addEventListener("click", function (e) {
+    var b = e.target.closest("#btn-interest");
+    if (!b || b.disabled) return;
+    hap(8);
+    askEmail({ title: "聽片會 · 我想去", desc: "免費登記、不用付款。2/5 開賣時會用這個信箱通知你。" },
+      function (email) {
+        fetch(CFG.api.workerBaseUrl + "/interest", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({ email: email, event: "listen-0220" }),
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (!d.ok) { toast(d.message || "登記失敗 · 再試一次"); return; }
+          lsSet(NS + ":interest", { email: email, ts: Date.now() });
+          hap([12, 30, 40]); toast("已登記 ♡ 2/5 開賣第一時間通知你");
+          renderMerch();
+        }).catch(function () { toast("連線失敗 · 再試一次"); });
+      });
+  });
+
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
   function goEcpay(productKey, email, name) {
@@ -3011,7 +3181,7 @@ window.ALBUM_SWITCH = {
    *    使用者按了購買什麼都沒發生 —— 這是實際踩到的 bug。 */
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   function askEmail(opts, cb) {
-    var saved = (unlockInfo().email || lsGet(NS + ":lastemail", "") || "").trim();
+    var saved = (opts.presetEmail || unlockInfo().email || lsGet(NS + ":lastemail", "") || "").trim();
     $("email-modal-title").textContent = opts.title || "購買前，先留下 Email";
     $("email-modal-desc").textContent = opts.desc || "付款完成後，訂單與兌換碼會寄到這個信箱。";
     $("email-modal-input").value = saved;
@@ -3019,12 +3189,15 @@ window.ALBUM_SWITCH = {
     nameEl.classList.toggle("hidden", !opts.needName);
     nameEl.value = lsGet(NS + ":lastname", "");
     askNeedName = !!opts.needName;
+    var cs = $("email-modal-consent");
+    if (cs) { cs.classList.toggle("hidden", !opts.needConsent); $("email-consent-cb").checked = false; }
+    askNeedConsent = !!opts.needConsent;
     $("email-modal-err").classList.add("hidden");
     $("email-modal").classList.remove("hidden");
     setTimeout(function () { $("email-modal-input").focus(); }, 120);
     emailCb = cb;
   }
-  var emailCb = null, askNeedName = false;
+  var emailCb = null, askNeedName = false, askNeedConsent = false;
   function closeEmailModal() { $("email-modal").classList.add("hidden"); emailCb = null; }
   $("email-modal-ok").addEventListener("click", function () {
     var v = ($("email-modal-input").value || "").trim().toLowerCase();
@@ -3032,6 +3205,10 @@ window.ALBUM_SWITCH = {
     var nm = ($("email-modal-name").value || "").trim();
     if (askNeedName && nm.length < 2) {
       $("email-modal-err").textContent = "請填購票人姓名，入場時需要核對";
+      $("email-modal-err").classList.remove("hidden"); return;
+    }
+    if (askNeedConsent && !$("email-consent-cb").checked) {
+      $("email-modal-err").textContent = "請先勾選同意「數位內容不退費」，才能前往付款";
       $("email-modal-err").classList.remove("hidden"); return;
     }
     lsSet(NS + ":lastemail", v);       // 記住，下次不用再打
@@ -3087,14 +3264,12 @@ window.ALBUM_SWITCH = {
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
     if (!state.unlocked) return;
-    var deluxe = purchasedProduct() === "deluxe";
-    var wav = $("btn-wav");
-    var hasWav = deluxe && CFG.api && CFG.api.wavDriveLink;
-    wav.classList.toggle("hidden", !hasWav);
-    if (hasWav) wav.href = CFG.api.wavDriveLink;
-    $("unlocked-plan-note").textContent = deluxe
-      ? "你的方案：典藏版 + WAV 無損 · 點上方按鈕前往雲端下載完整 WAV ♡"
-      : "你的方案：數位專輯 · 可線上聆聽完整 " + TOTAL + " 首（WAV 無損下載為典藏版限定）";
+    var fp = feedPassInfo();
+    var full = (purchasedProduct() === "deluxe") || !!fp.full;
+    $("btn-upgrade").classList.toggle("hidden", full);
+    $("unlocked-plan-note").textContent = full
+      ? "你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新，頻道至 2027/6 演唱會止）"
+      : "你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池";
   }
 
   function unlockNow(data) {
@@ -3132,8 +3307,21 @@ window.ALBUM_SWITCH = {
       headers: { "Content-Type": "text/plain;charset=UTF-8" },  // 避免 CORS preflight
       body: JSON.stringify({ email: email, code: code }),
     }).then(function (r) { return r.json(); }).then(function (data) {
-      if (data.ok) unlockNow({ email: email, code: code, product: data.product || "299" });
-      else toast(data.message || "兌換碼或 email 不正確");
+      if (!data.ok) { toast(data.message || "兌換碼或 email 不正確"); return; }
+      var pid = String(data.productId || "");
+      if (pid === "full-unlock") {
+        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
+        unlockNow({ email: email, code: code, product: "full-unlock" });
+        renderMoodWall(); return;
+      }
+      if (pid === "upgrade-799") {
+        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
+        hap([12, 30, 12, 30, 40]);
+        toast("升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡");
+        renderUnlockView(); renderMoodWall(); return;
+      }
+      if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); return; }
+      unlockNow({ email: email, code: code, product: data.product || "299" });
     }).catch(function () { toast("連線失敗 · 後端未回應"); });
   });
 
@@ -3218,13 +3406,14 @@ window.ALBUM_SWITCH = {
         return;
       }
       if (m.video) {
-        var own = m.protected ? (vidsOwned()[m.productId || ""] || null) : true;
+        var fp0 = feedPassInfo();
+        var own = m.protected ? (vidsOwned()[m.productId || ""] || (fp0.full ? { email: fp0.email, code: fp0.code } : null)) : true;
         if (m.protected && !own) {
           out += '<div class="chat-line"><div class="chat-vidlock" data-pk="' + esc(m.productId || "") + '" data-price="' + (m.price || 99) + '">' +
             '<div class="vl-badge">EXCLUSIVE VIDEO</div>' +
             '<div class="vl-title">' + esc(m.title || "獨家影片") + '</div>' +
             '<div class="vl-sub">' + esc(m.duration || "") + '</div>' +
-            '<button class="vl-buy">NT$' + (m.price || 99) + ' 解鎖影片</button>' +
+            '<button class="vl-buy">' + (state.unlocked ? "全解鎖限定 · 補 NT$500 升級" : "全解鎖限定 · NT$799") + '</button>' +
             '<button class="vl-redeem">已購買？輸入兌換碼</button>' +
           '</div></div>';
           return;
@@ -3269,12 +3458,19 @@ window.ALBUM_SWITCH = {
   function feedUnlockedQ() { return !!feedPassInfo().unlocked; }
   function vidsOwned() { return lsGet(LS.vids, {}); }
   function feedLockCard() {
+    /* B28：頻道不再單賣（原 499/599 併入 799 全解鎖）；已有專輯 → 補 500 升級 */
+    var albumOwned = state.unlocked;
+    var price = albumOwned
+      ? '<div class="fl-price"><span class="fl-now">NT$500</span><span class="fl-was">NT$799</span><span class="fl-tag">已有專輯 · 升級價</span></div>'
+      : '<div class="fl-price"><span class="fl-now">NT$799</span><span class="fl-was">NT$898</span><span class="fl-tag">全解鎖</span></div>';
     return '<div class="feed-lock">' +
       '<div class="fl-eyebrow">MEMBERS ONLY</div>' +
       '<div class="fl-title">SIGNAL 私訊頻道</div>' +
-      '<div class="fl-desc">只在這裡的照片、語音、和只說給你聽的話。<br>解鎖一次，含未來所有更新。</div>' +
-      '<div class="fl-price"><span class="fl-now">NT$499</span><span class="fl-was">NT$599</span><span class="fl-tag">預購價</span></div>' +
-      '<button class="fl-buy">解鎖頻道</button>' +
+      '<div class="fl-desc">只在這裡的照片、語音、獨家影片、和只說給你聽的話。<br>' +
+        (albumOwned ? '你已擁有專輯 · 補 NT$500 就是全解鎖。' : '全解鎖＝完整專輯＋頻道＋全部獨家影片，一次擁有。') +
+        '<br>頻道持續更新 · 至 2027/6 演唱會止（本專輯週期）。</div>' +
+      price +
+      '<button class="fl-buy">' + (albumOwned ? "補 NT$500 升級全解鎖" : "購買全解鎖 NT$799") + '</button>' +
       '<button class="fl-redeem">已購買？輸入兌換碼</button>' +
     '</div>';
   }
@@ -3287,6 +3483,16 @@ window.ALBUM_SWITCH = {
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d.ok) { toast(d.message || "兌換碼或 email 不正確"); return; }
       var pid = String(d.productId || "");
+      if (pid === "full-unlock" || pid === "upgrade-799") {
+        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
+        if (pid === "full-unlock" && !state.unlocked) {
+          lsSet(LS.unlock, { unlocked: true, email: email, code: code, product: "full-unlock" });
+          state.unlocked = true;
+          renderTrackLists(true); renderNowPlaying();
+        }
+        hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
+        renderMoodWall(); return;
+      }
       if (pid === "feed-pass") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
         hap([12, 30, 12, 30, 40]); toast("頻道解鎖成功 · 歡迎進來 ♡");
@@ -3322,19 +3528,28 @@ window.ALBUM_SWITCH = {
     var buy = document.querySelector("#feed-body .fl-buy");
     if (buy) buy.addEventListener("click", function () {
       hap(8);
-      askEmail({ title: "解鎖 SIGNAL 私訊頻道 · NT$499", desc: "付款完成後，兌換碼會寄到這個信箱。" },
-        function (email) { goEcpay("feed-pass", email); });
+      var albumOwned = state.unlocked;
+      var pk = albumOwned ? ((CFG.payment || {}).productKeyUpgrade || "upgrade-799")
+                          : ((CFG.payment || {}).productKeyFull || "full-unlock");
+      var price = albumOwned ? ((CFG.payment || {}).upgradePrice || 500) : ((CFG.payment || {}).deluxePrice || 799);
+      askEmail({ title: (albumOwned ? "升級全解鎖" : "全解鎖") + " · NT$" + price,
+                 desc: "含 SIGNAL 頻道＋全部獨家影片" + (albumOwned ? "" : "＋完整專輯") + "（含未來更新）。付款完成後，兌換碼會寄到這個信箱。",
+                 needConsent: true },
+        function (email) { goEcpay(pk, email); });
     });
     document.querySelectorAll("#feed-body .fl-redeem, #feed-body .vl-redeem").forEach(function (b) {
       b.addEventListener("click", function () { attachRedeemForm(b.parentNode); });
     });
     document.querySelectorAll("#feed-body .vl-buy").forEach(function (b) {
       b.addEventListener("click", function () {
-        var box = b.closest(".chat-vidlock");
-        var pk = box.getAttribute("data-pk"), price = box.getAttribute("data-price");
-        if (!pk) { toast("商品未設定"); return; }
+        /* B28：影片不再單賣（99 併入 799 全解鎖）；已有專輯 → 補 500 升級 */
         hap(8);
-        askEmail({ title: "解鎖獨家影片 · NT$" + price, desc: "付款完成後，兌換碼會寄到這個信箱。" },
+        var albumOwned = state.unlocked;
+        var pk = albumOwned ? ((CFG.payment || {}).productKeyUpgrade || "upgrade-799")
+                            : ((CFG.payment || {}).productKeyFull || "full-unlock");
+        askEmail({ title: albumOwned ? "升級全解鎖 · NT$500" : "全解鎖 · NT$799",
+                   desc: "獨家影片為全解鎖內容（含未來新片）。付款完成後，兌換碼會寄到這個信箱。",
+                   needConsent: true },
           function (email) { goEcpay(pk, email); });
       });
     });
@@ -3462,6 +3677,113 @@ window.ALBUM_SWITCH = {
     hap([8, 40, 12]); toast("已收藏這一刻", 1000);
     setTimeout(function () { fx.innerHTML = ""; }, 2600);
   });
+  /* ── B28：LUCKY 每日抽卡 ─────────────────────────────
+   * 卡池：全域 LUCKY_CARDS（content.json 的 cards 會覆蓋成 window.LUCKY_CARDS_LIVE）。
+   * 紀錄：localStorage "album-the-sky:luck"（雙專輯共用，每裝置每日 1 抽）。
+   * 資格：免費也能每日 1 抽（只抽得到 N 卡，SR/SSR 圖鑑模糊誘餌）；
+   *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
+  var LUCK_KEY = "album-the-sky:luck";
+  var LUCK_RATES = [["SSR", 3], ["SR", 12], ["R", 25], ["N", 60]];
+  function luckCards() { return window.LUCKY_CARDS_LIVE || (typeof LUCKY_CARDS !== "undefined" ? LUCKY_CARDS : []); }
+  function luckState() { return lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); }
+  function luckMemberQ() {
+    var u = lsGet("album-the-sky:unlock", {}), f = lsGet("album-the-sky:feedpass", {});
+    return !!(u.unlocked || (f.unlocked && f.full));
+  }
+  function luckToday() {
+    var d = new Date();
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+  function luckPick(member) {
+    var pool = luckCards().filter(function (c) { return member || (c.tier !== "member" && c.rarity === "N"); });
+    if (!pool.length) return null;
+    if (!member) return pool[Math.floor(Math.random() * pool.length)];
+    var roll = Math.random() * 100, acc = 0, rar = "N";
+    for (var i = 0; i < LUCK_RATES.length; i++) { acc += LUCK_RATES[i][1]; if (roll < acc) { rar = LUCK_RATES[i][0]; break; } }
+    var sub = pool.filter(function (c) { return c.rarity === rar; });
+    if (!sub.length) sub = pool;
+    return sub[Math.floor(Math.random() * sub.length)];
+  }
+  function renderLucky() {
+    var cards = luckCards(), st = luckState(), member = luckMemberQ();
+    var drawn = st.last === luckToday();
+    var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
+    $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
+    $("lucky-stage").innerHTML =
+      '<div class="lk-card" id="lk-card"><div class="lk-inner">' +
+        '<div class="lk-face lk-back"><div class="lk-logo">C</div></div>' +
+        '<div class="lk-face lk-front" id="lk-front"></div>' +
+      '</div></div>' +
+      '<div class="lk-name" id="lk-name"></div>' +
+      '<button class="lk-draw" id="lk-draw"' + (drawn ? " disabled" : "") + '>' +
+        (drawn ? "今天抽過了 · 明天再來" : "今日抽卡 ✦") + '</button>' +
+      '<div class="lk-hint">' + (member
+        ? "完整卡池 · SSR 機率 3%　每天 1 抽"
+        : "免費體驗池（只會抽到 N 卡）· 每天 1 抽<br>購買專輯 NT$299 解鎖 R／SR／SSR 完整卡池") + '</div>';
+    $("lucky-cta").innerHTML = member ? "" :
+      '<button class="lk-cta" id="lk-goshop">R／SR／SSR 只在完整卡池 ✦<br>購買專輯 NT$299 · 解鎖完整卡池＋全部歌曲 →</button>';
+    var gs = $("lk-goshop");
+    if (gs) gs.addEventListener("click", function () { go("purchase"); });
+    var btn = $("lk-draw");
+    if (btn && !drawn) btn.addEventListener("click", doLuckDraw);
+    renderLuckGrid();
+  }
+  function doLuckDraw() {
+    var member = luckMemberQ();
+    var st = luckState();
+    if (st.last === luckToday()) { toast("今天抽過了 · 明天再來 ♡"); return; }
+    var c = luckPick(member);
+    if (!c) { toast("卡池尚未設定"); return; }
+    st.last = luckToday();
+    st.draws = (st.draws || 0) + 1;
+    st.owned[c.id] = (st.owned[c.id] || 0) + 1;
+    lsSet(LUCK_KEY, st);
+    var btn = $("lk-draw"); if (btn) btn.disabled = true;
+    $("lk-front").innerHTML = '<img src="' + esc(c.img) + '" alt="">' +
+      '<span class="lk-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>';
+    var card = $("lk-card");
+    card.classList.add("flip");
+    if (c.rarity === "SR" || c.rarity === "SSR") card.classList.add("glow-" + c.rarity);
+    hap(c.rarity === "SSR" ? [15, 40, 15, 40, 15, 80] : c.rarity === "SR" ? [12, 30, 12, 40] : [10, 30]);
+    setTimeout(function () {
+      $("lk-name").textContent = c.rarity + " · " + (c.title || "");
+      if (c.rarity === "SSR") { try { unlockBurstFx(); } catch (_) {} toast("SSR！手氣爆棚 ✦"); }
+      else if (c.rarity === "SR") toast("SR！今天運氣不錯 ✦");
+      var b2 = $("lk-draw");
+      if (b2) b2.textContent = "今天抽過了 · 明天再來";
+      var cards = luckCards(), st2 = luckState();
+      $("lucky-progress").textContent = "已收集 " +
+        cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
+      renderLuckGrid();
+    }, 900);
+  }
+  function renderLuckGrid() {
+    var cards = luckCards(), st = luckState(), member = luckMemberQ();
+    $("lucky-grid").innerHTML = cards.map(function (c) {
+      var n = st.owned[c.id] || 0;
+      var lockedForFree = !member && c.tier === "member";
+      if (n) return '<div class="lkg own" data-lk="' + esc(c.id) + '"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
+        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
+        (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
+      if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
+        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
+        '<span class="lkg-lock">🔒<span>會員限定</span></span></div>';
+      return '<div class="lkg none"><img src="' + esc(c.img) + '" alt="">' +
+        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span></div>';
+    }).join("");
+    $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var c = luckCards().filter(function (x) { return x.id === el.getAttribute("data-lk"); })[0];
+        if (!c) return;
+        var lb = document.createElement("div"); lb.id = "__lb";
+        lb.innerHTML = '<img src="' + esc(c.img) + '" alt=""><button class="lb-x">✕</button>';
+        lb.addEventListener("click", function () { lb.remove(); });
+        document.body.appendChild(lb); hap(8);
+      });
+    });
+  }
+  window.__renderLucky = function () { if (state.screen === "lucky") renderLucky(); };
+
   function unlockBurstFx() {
     var fx = $("fx-layer");
     var html = '<div id="unlock-fx"><div class="fx-ring2"></div></div>';
@@ -3489,6 +3811,7 @@ window.ALBUM_SWITCH = {
   renderUnlockView();
   renderMerch();
   renderMoodWall();
+  window.__renderFeed = renderMoodWall;   /* B28：讓 content.json 載入後能即時重繪 FEED */
   renderProgress(pos.time || 0);
 })();
 
@@ -3663,7 +3986,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B27</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B28</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
@@ -3699,7 +4022,11 @@ window.ALBUM_SWITCH = {
     .then(function (d) {
       if (d && Array.isArray(d.feedChat) && d.feedChat.length) {
         FEED_CHAT = d.feedChat;
-        if (typeof renderMoodWall === "function") renderMoodWall();
+        if (window.__renderFeed) window.__renderFeed();
+      }
+      if (d && Array.isArray(d.cards) && d.cards.length) {
+        window.LUCKY_CARDS_LIVE = d.cards;      /* B28：抽卡卡池以 content.json 為準 */
+        if (window.__renderLucky) window.__renderLucky();
       }
     })
     .catch(function () { /* 抓不到就用內建版本，不影響使用 */ });

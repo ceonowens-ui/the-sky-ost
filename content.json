@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-20-3",
+  "version": "2026-08-21-1",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -63,6 +63,107 @@
     },
     {
       "text": "聽完不准哭。哭了也只准在我這裡哭"
+    }
+  ],
+  "cards": [
+    {
+      "id": "n01",
+      "img": "assets/images/sky/01.jpg",
+      "title": "錄音現場 · I",
+      "rarity": "N"
+    },
+    {
+      "id": "n02",
+      "img": "assets/images/sky/02.jpg",
+      "title": "錄音現場 · II",
+      "rarity": "N"
+    },
+    {
+      "id": "n03",
+      "img": "assets/images/sky/03.jpg",
+      "title": "錄音現場 · III",
+      "rarity": "N"
+    },
+    {
+      "id": "n04",
+      "img": "assets/images/classics/01.jpg",
+      "title": "Stay With Me",
+      "rarity": "N"
+    },
+    {
+      "id": "n05",
+      "img": "assets/images/classics/02.jpg",
+      "title": "Never Know",
+      "rarity": "N"
+    },
+    {
+      "id": "n06",
+      "img": "assets/images/classics/03.jpg",
+      "title": "Trap My Soul",
+      "rarity": "N"
+    },
+    {
+      "id": "r01",
+      "img": "assets/images/classics/wall/01.jpg",
+      "title": "寫真 · 微光",
+      "rarity": "R",
+      "tier": "member"
+    },
+    {
+      "id": "r02",
+      "img": "assets/images/classics/wall/02.jpg",
+      "title": "寫真 · 側影",
+      "rarity": "R",
+      "tier": "member"
+    },
+    {
+      "id": "r03",
+      "img": "assets/feed/01.jpg",
+      "title": "SIGNAL · 深夜",
+      "rarity": "R",
+      "tier": "member"
+    },
+    {
+      "id": "sr01",
+      "img": "assets/images/classics/wall/03.jpg",
+      "title": "寫真 · 凝視",
+      "rarity": "SR",
+      "tier": "member"
+    },
+    {
+      "id": "sr02",
+      "img": "assets/images/classics/wall/04.jpg",
+      "title": "寫真 · 逆光",
+      "rarity": "SR",
+      "tier": "member"
+    },
+    {
+      "id": "sr03",
+      "img": "assets/feed/02.jpg",
+      "title": "SIGNAL · 未公開",
+      "rarity": "SR",
+      "tier": "member"
+    },
+    {
+      "id": "ssr01",
+      "img": "assets/images/classics/wall/05.jpg",
+      "title": "寫真 · 全焦點",
+      "rarity": "SSR",
+      "tier": "member"
+    },
+    {
+      "id": "ssr02",
+      "img": "assets/images/classics/wall/06.jpg",
+      "title": "寫真 · 最後一張",
+      "rarity": "SSR",
+      "tier": "member"
+    },
+    {
+      "id": "ssr03",
+      "img": "assets/images/sky/cover.jpg",
+      "title": "THE SKY 主視覺",
+      "rarity": "SSR",
+      "tier": "member"
     }
   ]
 }
