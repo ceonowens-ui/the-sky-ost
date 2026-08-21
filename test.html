@@ -2798,17 +2798,21 @@ window.ALBUM_SWITCH = {
    * 排版規則：歌詞檔第一行＝歌名（放大顯示），中間是歌詞（中等字級），
    * 「詞/曲/製作人/混音…」開始的製作名單自動縮小放到最下面。 */
   var CREDIT_RE = /^\s*(詞|曲|詞曲|作詞|作曲|製作人|編曲|和聲|錄音|混音|母帶|Producer|PRODUCER|Arrang|Mixing|Mastering|Recording|Vocal|Film|Director|Editor|HARMONY|ARRANGEMENT)/;
-  var lyricLang = (function(){ try { return localStorage.getItem(NS + ":lylang") || "both"; } catch(e){ return "both"; } })();
-  function lyLabTxt(){ return lyricLang === "zh" ? "中" : (lyricLang === "en" ? "EN" : "雙"); }
+  /* B27：只有 中文 / English 兩段（拿掉「雙語」）。舊的 both 一律當中文。 */
+  var lyricLang = (function(){ try { var v = localStorage.getItem(NS + ":lylang"); return v === "en" ? "en" : "zh"; } catch(e){ return "zh"; } })();
+  function lyLabTxt(){ return lyricLang === "en" ? "EN" : "中"; }
   function updateLyLab(){ var el = document.getElementById("lylang-lab"); if (el) el.textContent = lyLabTxt(); }
   var CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/;
+  var LAT_RE = /[A-Za-z]/;
+  /* B27：中英夾雜的行兩邊都要顯示，只隱藏「純粹是另一種語言」的行
+   * —— 否則切 EN 時，混排行會整行消失（第1首會少掉 27 行）。 */
   function filterLyricLang(text) {
-    if (lyricLang === "both") return text;
     var out = [];
     text.split("\n").forEach(function (L) {
       if (!L.trim()) { out.push(""); return; }
-      var isZh = CJK_RE.test(L);
-      if ((lyricLang === "zh" && isZh) || (lyricLang === "en" && !isZh)) out.push(L);
+      var hasZh = CJK_RE.test(L), hasEn = LAT_RE.test(L);
+      var pureOther = lyricLang === "zh" ? (hasEn && !hasZh) : (hasZh && !hasEn);
+      if (!pureOther) out.push(L);
     });
     return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
   }
@@ -2858,10 +2862,10 @@ window.ALBUM_SWITCH = {
   $("tab-upnext").addEventListener("click", function () { sheetTab("upnext"); });
   $("tab-lyrics").addEventListener("click", function () { sheetTab("lyrics"); });
   $("btn-lyrics").addEventListener("click", function () {
-    lyricLang = lyricLang === "both" ? "zh" : (lyricLang === "zh" ? "en" : "both");
+    lyricLang = lyricLang === "zh" ? "en" : "zh";
     try { localStorage.setItem(NS + ":lylang", lyricLang); } catch (e) {}
     updateLyLab();
-    toast(lyricLang === "zh" ? "歌詞語言：中文" : (lyricLang === "en" ? "Lyrics: English" : "歌詞語言：雙語"));
+    toast(lyricLang === "zh" ? "歌詞語言：中文" : "Lyrics: English");
     hap([8, 20, 8]);
     var ly = $("sheet-lyrics");
     if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly);
@@ -3659,7 +3663,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B26</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B27</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
