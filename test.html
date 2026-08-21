@@ -1073,59 +1073,107 @@ body { background: #08060C !important; }
   font:700 13px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px; }
 .int-btn.done{ opacity:.6; }
 
-/* ── B28：LUCKY 每日抽卡 ───────────────────────────── */
+/* ── B29：LUCKY 每日抽卡 · 球體開艙揭曉 ───────────────── */
 #screen-lucky{ padding-bottom:calc(130px + env(safe-area-inset-bottom)); }
-#lucky-stage{ display:flex; flex-direction:column; align-items:center; padding:8px 24px 0; }
-.lk-card{ position:relative; width:min(58vw,224px); aspect-ratio:2/3; border-radius:18px;
-  perspective:1000px; -webkit-tap-highlight-color:transparent; }
-.lk-inner{ position:absolute; inset:0; transform-style:preserve-3d;
-  transition:transform .85s cubic-bezier(.3,1.2,.35,1); }
-.lk-card.flip .lk-inner{ transform:rotateY(180deg); }
-.lk-face{ position:absolute; inset:0; border-radius:18px; overflow:hidden;
-  backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-.lk-back{ background:linear-gradient(150deg,#3B1B54,#1A0E2A 55%,#0E0817);
-  border:1.5px solid rgba(217,178,106,.5); display:flex; align-items:center; justify-content:center; }
-.lk-back::after{ content:""; position:absolute; inset:0;
-  background:linear-gradient(115deg,transparent 30%,rgba(240,220,168,.16) 48%,transparent 62%);
-  animation:lkShine 2.6s ease-in-out infinite; }
-@keyframes lkShine{ 0%{transform:translateX(-100%)} 60%,100%{transform:translateX(100%)} }
-.lk-logo{ font-family:var(--font-display); font-style:italic; font-size:46px; color:rgba(217,178,106,.8);
-  text-shadow:0 0 22px rgba(217,178,106,.4); }
-.lk-front{ transform:rotateY(180deg); background:#0E0817; }
-.lk-front img{ width:100%; height:100%; object-fit:cover; }
+#lucky-stage{ position:relative; display:flex; flex-direction:column; align-items:center; padding:2px 24px 0; }
+
+/* 星海舞台 */
+.orb-stage{ position:relative; width:min(80vw,300px); height:min(80vw,300px);
+  display:flex; align-items:center; justify-content:center; }
+.orb-stage::before{ content:""; position:absolute; inset:-34%; border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, rgba(120,70,160,.38), rgba(217,178,106,.10) 40%, transparent 68%);
+  filter:blur(6px); pointer-events:none; }
+.orb-stars{ position:absolute; inset:-26%; pointer-events:none;
+  background-image:
+    radial-gradient(1.6px 1.6px at 20% 30%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1.4px 1.4px at 75% 22%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1.8px 1.8px at 60% 72%, rgba(240,220,168,.9), transparent),
+    radial-gradient(1.3px 1.3px at 32% 82%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.5px 1.5px at 86% 62%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1.4px 1.4px at 12% 56%, rgba(198,166,242,.85), transparent),
+    radial-gradient(1.2px 1.2px at 50% 10%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.3px 1.3px at 90% 34%, rgba(240,220,168,.7), transparent);
+  animation:orbTwinkle 3.4s ease-in-out infinite; }
+@keyframes orbTwinkle{ 0%,100%{opacity:.55} 50%{opacity:1} }
+
+/* 環繞光軌 */
+.orb-orbit{ position:absolute; border-radius:50%; border:2px solid transparent; box-sizing:border-box; }
+.orb-orbit.o1{ width:94%; height:94%; border-top-color:rgba(217,178,106,.85);
+  border-right-color:rgba(217,178,106,.14); animation:orbSpin 4.5s linear infinite; }
+.orb-orbit.o2{ width:112%; height:112%; border-bottom-color:rgba(198,166,242,.75);
+  border-left-color:rgba(198,166,242,.12); animation:orbSpin 6.5s linear infinite reverse; }
+.orb-orbit .head{ position:absolute; top:-4px; left:50%; width:7px; height:7px; margin-left:-3px;
+  border-radius:50%; background:#fff; box-shadow:0 0 10px 2px rgba(255,255,255,.9); }
+.orb-orbit.o2 .head{ background:#DFC7F5; box-shadow:0 0 10px 2px rgba(198,166,242,.9); }
+@keyframes orbSpin{ to{ transform:rotate(360deg) } }
+.charging .orb-orbit.o1{ animation-duration:.7s } .charging .orb-orbit.o2{ animation-duration:1s }
+
+/* 球體：core + 左右外殼 */
+.orb{ position:relative; width:60%; height:60%; border-radius:50%; }
+.orb-core{ position:absolute; inset:18%; border-radius:50%;
+  background:radial-gradient(circle at 38% 34%, #fff, #E9C8F0 20%, #8A5AB4 55%, #3B1B54 90%);
+  box-shadow:0 0 26px rgba(198,166,242,.6), inset 0 0 20px rgba(255,255,255,.5);
+  animation:orbPulse 2.6s ease-in-out infinite; }
+@keyframes orbPulse{ 0%,100%{transform:scale(1);filter:brightness(1)} 50%{transform:scale(1.05);filter:brightness(1.15)} }
+.charging .orb-core{ animation:orbPulse .5s ease-in-out infinite; }
+.orb-shell{ position:absolute; top:0; width:50%; height:100%; overflow:hidden;
+  transition:transform .55s cubic-bezier(.5,0,.3,1), opacity .55s; }
+.orb-shell::before{ content:""; position:absolute; top:0; width:200%; height:100%; border-radius:50%;
+  background:linear-gradient(150deg,#4a4f58,#20242c 55%,#0b0d11);
+  box-shadow:inset 0 0 24px rgba(0,0,0,.6); border:2px solid rgba(217,178,106,.4); box-sizing:border-box; }
+.orb-shell.orb-l{ left:0; } .orb-shell.orb-l::before{ left:0; }
+.orb-shell.orb-r{ right:0; } .orb-shell.orb-r::before{ right:0; }
+.opening .orb-shell.orb-l{ transform:translateX(-72%) rotate(-16deg); opacity:0; }
+.opening .orb-shell.orb-r{ transform:translateX(72%) rotate(16deg); opacity:0; }
+.opening .orb-core{ animation:none; opacity:0; transform:scale(1.3); filter:brightness(2); transition:all .5s; }
+
+/* 揭曉的卡：置中放大 */
+.orb-card{ position:absolute; top:50%; left:50%; width:46%; aspect-ratio:2/3; border-radius:12px;
+  overflow:hidden; transform:translate(-50%,-50%) scale(.2); opacity:0; z-index:3;
+  transition:transform .6s cubic-bezier(.3,1.3,.4,1), opacity .45s; box-shadow:0 12px 34px rgba(0,0,0,.55); }
+.orb-card img{ width:100%; height:100%; object-fit:cover; display:block; }
+.revealed .orb-card{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+.orb-wrap.glow-SR .orb-card{ box-shadow:0 0 24px rgba(240,220,168,.75); }
+.orb-wrap.glow-SSR .orb-card{ box-shadow:0 0 34px rgba(255,223,142,.95); animation:cardFloat 2.6s ease-in-out infinite; }
+@keyframes cardFloat{ 0%,100%{ transform:translate(-50%,-50%) scale(1) } 50%{ transform:translate(-50%,-53%) scale(1.03) } }
+
+/* 稀有度徽章（球揭曉卡＋圖鑑共用） */
 .lk-r{ font-family:var(--font-label); font-size:9.5px; font-weight:800; letter-spacing:2px;
   padding:4px 9px; border-radius:999px; background:rgba(10,6,16,.72); border:1px solid; }
-.lk-front .lk-r{ position:absolute; top:10px; left:10px; }
+.orb-card .lk-r{ position:absolute; top:8px; left:8px; }
 .lk-r.N{ color:#C9CDD6; border-color:rgba(201,205,214,.5); }
 .lk-r.R{ color:#C6A6F2; border-color:rgba(198,166,242,.55); }
 .lk-r.SR{ color:#F0DCA8; border-color:rgba(240,220,168,.6); }
 .lk-r.SSR{ color:#FFDF8E; border-color:#FFDF8E; box-shadow:0 0 12px rgba(255,223,142,.55);
   background:linear-gradient(135deg,rgba(120,70,20,.85),rgba(60,20,90,.85)); }
-.lk-card.glow-SR{ filter:drop-shadow(0 0 18px rgba(240,220,168,.45)); }
-.lk-card.glow-SSR{ filter:drop-shadow(0 0 26px rgba(255,223,142,.7)); }
-.lk-name{ margin-top:14px; font-family:var(--font-serif-tc); font-size:15px; color:#fff; min-height:22px; }
-.lk-draw{ margin-top:12px; width:min(58vw,224px); padding:14px; border:none; border-radius:999px;
+
+.lk-name{ margin-top:8px; font-family:var(--font-serif-tc); font-size:15px; color:#fff; min-height:22px; }
+.lk-draw{ margin-top:10px; width:min(64vw,240px); padding:14px; border:none; border-radius:999px;
   background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
   font:700 14px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2.5px;
-  box-shadow:0 6px 22px rgba(217,178,106,.35); }
+  box-shadow:0 6px 22px rgba(217,178,106,.35); -webkit-tap-highlight-color:transparent; }
 .lk-draw:disabled{ opacity:.45; box-shadow:none; }
 .lk-hint{ margin-top:10px; font-size:11.5px; color:rgba(255,255,255,.5); letter-spacing:.5px;
   text-align:center; line-height:1.7; }
-#lucky-cta{ margin:18px 24px 0; }
+#lucky-cta{ margin:16px 24px 0; }
 .lk-cta{ display:block; width:100%; padding:13px; border-radius:14px; border:1px dashed rgba(217,178,106,.5);
   background:rgba(217,178,106,.07); color:#F0DCA8; font-size:12.5px; letter-spacing:1px;
-  line-height:1.7; text-align:center; }
+  line-height:1.7; text-align:center; -webkit-tap-highlight-color:transparent; }
 .lucky-coll-head{ display:flex; justify-content:space-between; align-items:baseline;
-  margin:26px 26px 12px; font-family:var(--font-label); letter-spacing:2.5px; font-size:11px;
+  margin:24px 26px 12px; font-family:var(--font-label); letter-spacing:2.5px; font-size:11px;
   color:rgba(255,255,255,.55); }
 #lucky-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 22px; }
 .lkg{ position:relative; aspect-ratio:2/3; border-radius:12px; overflow:hidden;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); transition:box-shadow .3s; }
 .lkg img{ width:100%; height:100%; object-fit:cover; display:block; }
 .lkg.none img{ display:none; }
 .lkg.none::after{ content:"?"; position:absolute; inset:0; display:flex; align-items:center;
   justify-content:center; font-family:var(--font-display); font-size:26px; color:rgba(255,255,255,.18); }
 .lkg.lock img{ filter:blur(14px) brightness(.55); transform:scale(1.15); }
+/* B29：擁有卡片依稀有度亮邊 */
+.lkg.own.R{ border-color:rgba(198,166,242,.45); }
+.lkg.own.SR{ border-color:rgba(240,220,168,.55); box-shadow:0 0 9px rgba(240,220,168,.28); }
+.lkg.own.SSR{ border-color:rgba(255,223,142,.8); box-shadow:0 0 13px rgba(255,223,142,.42); }
 .lkg .lkg-r{ position:absolute; top:6px; left:6px; transform:scale(.82); transform-origin:top left; }
 .lkg .lkg-n{ position:absolute; right:6px; bottom:5px; font-family:var(--font-label);
   font-size:9.5px; font-weight:700; color:rgba(255,255,255,.85);
@@ -3710,10 +3758,16 @@ window.ALBUM_SWITCH = {
     var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
     $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
     $("lucky-stage").innerHTML =
-      '<div class="lk-card" id="lk-card"><div class="lk-inner">' +
-        '<div class="lk-face lk-back"><div class="lk-logo">C</div></div>' +
-        '<div class="lk-face lk-front" id="lk-front"></div>' +
-      '</div></div>' +
+      '<div class="orb-wrap" id="orb-wrap">' +
+        '<div class="orb-stage">' +
+          '<div class="orb-stars"></div>' +
+          '<div class="orb-orbit o2"><div class="head"></div></div>' +
+          '<div class="orb-orbit o1"><div class="head"></div></div>' +
+          '<div class="orb"><div class="orb-core"></div>' +
+            '<div class="orb-shell orb-l"></div><div class="orb-shell orb-r"></div></div>' +
+          '<div class="orb-card" id="orb-card"></div>' +
+        '</div>' +
+      '</div>' +
       '<div class="lk-name" id="lk-name"></div>' +
       '<button class="lk-draw" id="lk-draw"' + (drawn ? " disabled" : "") + '>' +
         (drawn ? "今天抽過了 · 明天再來" : "今日抽卡 ✦") + '</button>' +
@@ -3728,6 +3782,18 @@ window.ALBUM_SWITCH = {
     if (btn && !drawn) btn.addEventListener("click", doLuckDraw);
     renderLuckGrid();
   }
+  /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
+  var LUCK_SFX = {};
+  (function () {
+    try {
+      ["flip", "sr", "ssr"].forEach(function (k) {
+        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = 0.7;
+        LUCK_SFX[k] = a;
+      });
+    } catch (e) {}
+  })();
+  function playSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
+
   function doLuckDraw() {
     var member = luckMemberQ();
     var st = luckState();
@@ -3739,22 +3805,28 @@ window.ALBUM_SWITCH = {
     st.owned[c.id] = (st.owned[c.id] || 0) + 1;
     lsSet(LUCK_KEY, st);
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
-    $("lk-front").innerHTML = '<img src="' + esc(c.img) + '" alt="">' +
-      '<span class="lk-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>';
-    var card = $("lk-card");
-    card.classList.add("flip");
-    if (c.rarity === "SR" || c.rarity === "SSR") card.classList.add("glow-" + c.rarity);
-    hap(c.rarity === "SSR" ? [15, 40, 15, 40, 15, 80] : c.rarity === "SR" ? [12, 30, 12, 40] : [10, 30]);
+    var wrap = $("orb-wrap"); if (!wrap) return;
+    /* 蓄力：光軌加速、核心快脈動、開艙 whoosh */
+    playSfx("flip");
+    wrap.classList.add("charging"); hap([8, 20]);
     setTimeout(function () {
-      $("lk-name").textContent = c.rarity + " · " + (c.title || "");
-      if (c.rarity === "SSR") { try { unlockBurstFx(); } catch (_) {} toast("SSR！手氣爆棚 ✦"); }
-      else if (c.rarity === "SR") toast("SR！今天運氣不錯 ✦");
-      var b2 = $("lk-draw");
-      if (b2) b2.textContent = "今天抽過了 · 明天再來";
-      var cards = luckCards(), st2 = luckState();
-      $("lucky-progress").textContent = "已收集 " +
-        cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
-      renderLuckGrid();
+      wrap.classList.remove("charging");
+      $("orb-card").innerHTML = '<img src="' + esc(c.img) + '" alt="">' +
+        '<span class="lk-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>';
+      if (c.rarity === "SR" || c.rarity === "SSR") wrap.classList.add("glow-" + c.rarity);
+      wrap.classList.add("opening");
+      hap(c.rarity === "SSR" ? [15, 40, 15, 40, 15, 80] : c.rarity === "SR" ? [12, 30, 12, 40] : [10, 30]);
+      setTimeout(function () {
+        wrap.classList.add("revealed");
+        if (c.rarity === "SSR") { playSfx("ssr"); try { unlockBurstFx(); } catch (_) {} toast("SSR！手氣爆棚 ✦"); }
+        else if (c.rarity === "SR") { playSfx("sr"); toast("SR！今天運氣不錯 ✦"); }
+        $("lk-name").textContent = c.rarity + " · " + (c.title || "");
+        var b2 = $("lk-draw"); if (b2) b2.textContent = "今天抽過了 · 明天再來";
+        var cards = luckCards(), st2 = luckState();
+        $("lucky-progress").textContent = "已收集 " +
+          cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
+        renderLuckGrid();
+      }, 130);
     }, 900);
   }
   function renderLuckGrid() {
@@ -3762,7 +3834,7 @@ window.ALBUM_SWITCH = {
     $("lucky-grid").innerHTML = cards.map(function (c) {
       var n = st.owned[c.id] || 0;
       var lockedForFree = !member && c.tier === "member";
-      if (n) return '<div class="lkg own" data-lk="' + esc(c.id) + '"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
+      if (n) return '<div class="lkg own ' + esc(c.rarity) + '" data-lk="' + esc(c.id) + '"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
         '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
         (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
       if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
@@ -3986,7 +4058,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B28</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B29</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
