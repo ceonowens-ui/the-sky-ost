@@ -980,6 +980,30 @@ body { background: #08060C !important; }
   border:1px solid rgba(217,178,106,.28); cursor:zoom-in; }
 .chat-photo img{ width:100%; display:block; }
 
+
+/* ===== B32 抽卡迴圈：券／保底／星塵 ===== */
+.lk-econ{ display:flex; gap:8px; justify-content:center; margin:12px auto 0; }
+.lk-chip{ display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:999px;
+  border:1px solid rgba(217,178,106,.32); background:rgba(217,178,106,.09);
+  font:600 11.5px/1 -apple-system,system-ui,sans-serif; color:#F0DFB8; letter-spacing:.4px; }
+.lk-chip b{ font:700 13px/1 ui-monospace,monospace; color:#FFDF8E; }
+.lk-pity{ margin:14px auto 0; width:min(78vw,300px); }
+.lk-pity .pw{ display:flex; justify-content:space-between; font:500 10.5px/1.4 -apple-system,system-ui,sans-serif;
+  color:rgba(255,255,255,.5); margin-bottom:5px; letter-spacing:.3px; }
+.lk-pity .pw em{ font-style:normal; color:#E7C77E; font-weight:700; }
+.lk-bar{ height:4px; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; margin-bottom:9px; }
+.lk-bar i{ display:block; height:100%; border-radius:999px; transition:width .45s cubic-bezier(.2,.8,.3,1); }
+.lk-bar.sr i{ background:linear-gradient(90deg,#9B7BD4,#C9A6F0); }
+.lk-bar.ssr i{ background:linear-gradient(90deg,#D9B26A,#FFDF8E); }
+.lk-earn{ margin:14px auto 0; width:min(84vw,330px); padding:11px 14px; border-radius:13px;
+  border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.035);
+  font:400 11px/1.75 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.55); text-align:left; }
+.lk-earn b{ color:#E7C77E; font-weight:600; }
+.lkg.can{ cursor:pointer; border-color:rgba(217,178,106,.45) !important; }
+.lkg-dust{ position:absolute; left:0; right:0; bottom:0; padding:3px 0;
+  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,12,32,.92));
+  font:700 9px/1.3 ui-monospace,monospace; color:#FFDF8E; text-align:center; letter-spacing:.5px; }
+
 /* ===== B30 購買須知／隱私權政策 ===== */
 #terms-sheet{ position:fixed; inset:0; z-index:110000; display:flex; flex-direction:column;
   background:linear-gradient(180deg,#2A1440 0%,#1A0E2A 55%,#0E0817 100%); }
@@ -1400,7 +1424,7 @@ body { background: #08060C !important; }
     <div class="page-titles">
       <div class="page-title-en">Daily Luck</div>
       <div class="page-title-tc">每日抽卡</div>
-      <div class="page-note" id="lucky-note">每天回來抽一張 · 收集只有這裡看得到的成晞</div>
+      <div class="page-note" id="lucky-note">每天 ＋1 券 · 聽歌與 SIGNAL 還能再賺 · 收集只有這裡看得到的成晞</div>
     </div>
     <div id="lucky-stage"></div>
     <div id="lucky-cta"></div>
@@ -2830,7 +2854,7 @@ window.ALBUM_SWITCH = {
   });
   audio.addEventListener("play", function () { state.playing = true; renderPlayState(); });
   audio.addEventListener("pause", function () { state.playing = false; renderPlayState(); });
-  audio.addEventListener("ended", function () { next(); });
+  audio.addEventListener("ended", function () { if (window.__luckEarn) window.__luckEarn("song"); next(); });
 
   function playTrack(i) {
     var t = TRACKS[i];
@@ -3682,7 +3706,7 @@ window.ALBUM_SWITCH = {
       play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
       v.addEventListener("play", function () { box.classList.add("playing"); });
       v.addEventListener("pause", function () { box.classList.remove("playing"); });
-      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); });
+      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); if (window.__luckEarn) window.__luckEarn("feed"); });
       exp.addEventListener("click", function (e) {
         e.stopPropagation(); hap(8);
         if (v.webkitEnterFullscreen) { try { v.play(); } catch (_) {} try { v.webkitEnterFullscreen(); } catch (_) {} }
@@ -3703,7 +3727,7 @@ window.ALBUM_SWITCH = {
       }
       au.addEventListener("loadedmetadata", paint);
       au.addEventListener("timeupdate", paint);
-      au.addEventListener("ended", function () { au.currentTime = 0; btn.innerHTML = MIC_SVG; paint(); });
+      au.addEventListener("ended", function () { au.currentTime = 0; btn.innerHTML = MIC_SVG; paint(); if (window.__luckEarn) window.__luckEarn("feed"); });
       btn.addEventListener("click", function () {
         document.querySelectorAll("#screen-mood [data-voice]").forEach(function (b) {
           if (b !== box) { b.querySelector("audio").pause(); b.querySelector(".v-btn").innerHTML = MIC_SVG; }
@@ -3802,8 +3826,47 @@ window.ALBUM_SWITCH = {
    *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
   var LUCK_KEY = "album-the-sky:luck";
   var LUCK_RATES = [["SSR", 3], ["SR", 12], ["R", 25], ["N", 60]];
+  /* B32 抽卡迴圈參數 */
+  var TK_CAP = 5;            /* 券上限：不來就浪費，製造每天回訪的理由 */
+  var TK_DAILY = 1;          /* 每日保底發 1 張 */
+  var TK_SONG_CAP = 2;       /* 聽完整首歌換券，每日上限 */
+  var TK_FEED_CAP = 1;       /* 聽完 FEED 語音／看完影片換券，每日上限 */
+  var PITY_SR = 10, PITY_SSR = 30;
+  var DUST_GAIN = { N: 10, R: 25, SR: 60, SSR: 150 };
+  var DUST_COST = { N: 60, R: 150, SR: 400, SSR: 900 };
   function luckCards() { return window.LUCKY_CARDS_LIVE || (typeof LUCKY_CARDS !== "undefined" ? LUCKY_CARDS : []); }
-  function luckState() { return lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); }
+  function luckState() {
+    var st = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 });
+    if (!st.owned) st.owned = {};
+    /* 換日：補發每日券、重置當日賺券計數 */
+    var t = luckToday();
+    if (st.tday !== t) {
+      st.tk = Math.min(TK_CAP, (st.tday ? (st.tk || 0) : 0) + TK_DAILY);
+      st.eSong = 0; st.eFeed = 0; st.tday = t;
+      lsSet(LUCK_KEY, st);
+    }
+    if (st.tk == null) st.tk = TK_DAILY;
+    if (st.dust == null) st.dust = 0;
+    if (st.pSR == null) st.pSR = 0;
+    if (st.pSSR == null) st.pSSR = 0;
+    return st;
+  }
+  /* 聽完一首歌／聽完 FEED 語音或影片 → 換抽卡券 */
+  window.__luckEarn = function (kind) {
+    try {
+      var st = luckState();
+      var capk = kind === "song" ? "eSong" : "eFeed";
+      var cap = kind === "song" ? TK_SONG_CAP : TK_FEED_CAP;
+      if ((st[capk] || 0) >= cap) return;
+      if ((st.tk || 0) >= TK_CAP) return;
+      st[capk] = (st[capk] || 0) + 1;
+      st.tk = Math.min(TK_CAP, (st.tk || 0) + 1);
+      lsSet(LUCK_KEY, st);
+      hap([8, 24, 8]);
+      toast(kind === "song" ? "聽完一首 · ＋1 抽卡券 ✦" : "＋1 抽卡券 ✦", 1600);
+      if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
+    } catch (e) {}
+  };
   function luckMemberQ() {
     var u = lsGet("album-the-sky:unlock", {}), f = lsGet("album-the-sky:feedpass", {});
     return !!(u.unlocked || (f.unlocked && f.full));
@@ -3812,22 +3875,59 @@ window.ALBUM_SWITCH = {
     var d = new Date();
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   }
-  function luckPick(member) {
+  function luckPick(member, st) {
     var pool = luckCards().filter(function (c) { return member || (c.tier !== "member" && c.rarity === "N"); });
     if (!pool.length) return null;
     if (!member) return pool[Math.floor(Math.random() * pool.length)];
-    var roll = Math.random() * 100, acc = 0, rar = "N";
-    for (var i = 0; i < LUCK_RATES.length; i++) { acc += LUCK_RATES[i][1]; if (roll < acc) { rar = LUCK_RATES[i][0]; break; } }
+    var rar = null;
+    /* 保底：本抽計入後若達門檻，直接保證稀有度 */
+    if ((st.pSSR || 0) + 1 >= PITY_SSR) rar = "SSR";
+    else if ((st.pSR || 0) + 1 >= PITY_SR) rar = "SR";
+    if (!rar) {
+      var roll = Math.random() * 100, acc = 0; rar = "N";
+      for (var i = 0; i < LUCK_RATES.length; i++) { acc += LUCK_RATES[i][1]; if (roll < acc) { rar = LUCK_RATES[i][0]; break; } }
+    }
     var sub = pool.filter(function (c) { return c.rarity === rar; });
+    if (!sub.length) {                      /* 卡池缺該稀有度 → 依序降級，不中斷 */
+      var order = ["SSR", "SR", "R", "N"];
+      for (var j = order.indexOf(rar); j < order.length; j++) {
+        sub = pool.filter(function (c) { return c.rarity === order[j]; });
+        if (sub.length) { rar = order[j]; break; }
+      }
+    }
     if (!sub.length) sub = pool;
     return sub[Math.floor(Math.random() * sub.length)];
   }
   function renderLucky() {
     var cards = luckCards(), st = luckState(), member = luckMemberQ();
-    var drawn = st.last === luckToday();
+    var tk = st.tk || 0;
     var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
     $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
-    $("lucky-stage").innerHTML =
+
+    var econ = '<div class="lk-econ">' +
+      '<span class="lk-chip">抽卡券 <b>' + tk + '</b>/' + TK_CAP + '</span>' +
+      '<span class="lk-chip">星塵 <b>' + (st.dust || 0) + '</b></span>' +
+      '</div>';
+
+    var pity = "";
+    if (member) {
+      var nSR = Math.max(0, PITY_SR - (st.pSR || 0)), nSSR = Math.max(0, PITY_SSR - (st.pSSR || 0));
+      pity = '<div class="lk-pity">' +
+        '<div class="pw"><span>距離必出 SR</span><span><em>' + nSR + '</em> 抽</span></div>' +
+        '<div class="lk-bar sr"><i style="width:' + ((st.pSR || 0) / PITY_SR * 100).toFixed(1) + '%"></i></div>' +
+        '<div class="pw"><span>距離必出 SSR</span><span><em>' + nSSR + '</em> 抽</span></div>' +
+        '<div class="lk-bar ssr"><i style="width:' + ((st.pSSR || 0) / PITY_SSR * 100).toFixed(1) + '%"></i></div>' +
+        '</div>';
+    }
+
+    var earnLeftSong = Math.max(0, TK_SONG_CAP - (st.eSong || 0));
+    var earnLeftFeed = Math.max(0, TK_FEED_CAP - (st.eFeed || 0));
+    var earn = '<div class="lk-earn">' +
+      '今天還能賺：聽完一首歌 <b>＋' + earnLeftSong + '</b>　·　聽完一則 SIGNAL 語音／影片 <b>＋' + earnLeftFeed + '</b><br>' +
+      '每天登入自動 ＋1　·　券最多存 ' + TK_CAP + ' 張，存滿就不再累積' +
+      '</div>';
+
+    $("lucky-stage").innerHTML = econ +
       '<div class="orb-wrap" id="orb-wrap">' +
         '<div class="orb-stage">' +
           '<div class="orb-stars"></div>' +
@@ -3839,17 +3939,21 @@ window.ALBUM_SWITCH = {
         '</div>' +
       '</div>' +
       '<div class="lk-name" id="lk-name"></div>' +
-      '<button class="lk-draw" id="lk-draw"' + (drawn ? " disabled" : "") + '>' +
-        (drawn ? "今天抽過了 · 明天再來" : "今日抽卡 ✦") + '</button>' +
+      '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
+        (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '<div class="lk-hint">' + (member
-        ? "完整卡池 · SSR 機率 3%　每天 1 抽"
-        : "免費體驗池（只會抽到 N 卡）· 每天 1 抽<br>購買專輯 NT$299 解鎖 R／SR／SSR 完整卡池") + '</div>';
+        ? "完整卡池 · SSR 機率 3%（有保底）"
+        : "免費體驗池（只會抽到 N 卡）<br>購買專輯 NT$299 解鎖 R／SR／SSR 完整卡池、保底與星塵兌換") + '</div>' +
+      pity + earn;
+
     $("lucky-cta").innerHTML = member ? "" :
-      '<button class="lk-cta" id="lk-goshop">R／SR／SSR 只在完整卡池 ✦<br>購買專輯 NT$299 · 解鎖完整卡池＋全部歌曲 →</button>';
+      '<button class="lk-cta" id="lk-goshop">R／SR／SSR 只在完整卡池 ✦<br>' +
+      ((st.dust || 0) > 0 ? '你已累積 ' + st.dust + ' 星塵，解鎖後就能拿來指定兌換<br>' : '') +
+      '購買專輯 NT$299 · 解鎖完整卡池＋全部歌曲 →</button>';
     var gs = $("lk-goshop");
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
     var btn = $("lk-draw");
-    if (btn && !drawn) btn.addEventListener("click", doLuckDraw);
+    if (btn && tk > 0) btn.addEventListener("click", doLuckDraw);
     renderLuckGrid();
   }
   /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
@@ -3867,13 +3971,23 @@ window.ALBUM_SWITCH = {
   function doLuckDraw() {
     var member = luckMemberQ();
     var st = luckState();
-    if (st.last === luckToday()) { toast("今天抽過了 · 明天再來 ♡"); return; }
-    var c = luckPick(member);
+    if ((st.tk || 0) <= 0) { toast("券用完了 · 聽完一首歌就能再抽 ♡"); return; }
+    var c = luckPick(member, st);
     if (!c) { toast("卡池尚未設定"); return; }
+    st.tk = (st.tk || 0) - 1;
     st.last = luckToday();
     st.draws = (st.draws || 0) + 1;
+    /* 保底計數：抽到該稀有度就歸零 */
+    st.pSR = (st.pSR || 0) + 1; st.pSSR = (st.pSSR || 0) + 1;
+    if (c.rarity === "SSR") { st.pSSR = 0; st.pSR = 0; }
+    else if (c.rarity === "SR") { st.pSR = 0; }
+    /* 重複卡 → 星塵 */
+    var dup = !!st.owned[c.id];
+    var gain = dup ? (DUST_GAIN[c.rarity] || 10) : 0;
+    if (gain) st.dust = (st.dust || 0) + gain;
     st.owned[c.id] = (st.owned[c.id] || 0) + 1;
     lsSet(LUCK_KEY, st);
+    window.__lkDup = dup ? gain : 0;
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
     var wrap = $("orb-wrap"); if (!wrap) return;
     /* 蓄力：光軌加速、核心快脈動、開艙 whoosh */
@@ -3890,11 +4004,33 @@ window.ALBUM_SWITCH = {
         wrap.classList.add("revealed");
         if (c.rarity === "SSR") { playSfx("ssr"); try { unlockBurstFx(); } catch (_) {} toast("SSR！手氣爆棚 ✦"); }
         else if (c.rarity === "SR") { playSfx("sr"); toast("SR！今天運氣不錯 ✦"); }
-        $("lk-name").textContent = c.rarity + " · " + (c.title || "");
-        var b2 = $("lk-draw"); if (b2) b2.textContent = "今天抽過了 · 明天再來";
-        var cards = luckCards(), st2 = luckState();
+        var dupGain = window.__lkDup || 0;
+        $("lk-name").innerHTML = esc(c.rarity + " · " + (c.title || "")) +
+          (dupGain ? '<br><span style="font-size:11.5px;color:#FFDF8E">重複 · ＋' + dupGain + ' 星塵</span>' : "");
+        var st2 = luckState(), cards = luckCards();
         $("lucky-progress").textContent = "已收集 " +
           cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
+        var b2 = $("lk-draw");
+        if (b2) {
+          var tkLeft = st2.tk || 0;
+          b2.textContent = tkLeft > 0 ? "再抽一張 ✦ 剩 " + tkLeft + " 張券" : "券用完了 · 去聽歌賺一張";
+          b2.disabled = tkLeft <= 0;
+          if (tkLeft > 0) b2.addEventListener("click", function () {
+            var w = $("orb-wrap");
+            if (w) { w.className = "orb-wrap"; $("orb-card").innerHTML = ""; }
+            $("lk-name").innerHTML = "";
+            doLuckDraw();
+          }, { once: true });
+        }
+        /* 券／星塵／保底條即時更新，不整頁重繪以免打斷動畫 */
+        var chips = document.querySelectorAll(".lk-econ .lk-chip b");
+        if (chips[0]) chips[0].textContent = st2.tk || 0;
+        if (chips[1]) chips[1].textContent = st2.dust || 0;
+        var pw = document.querySelectorAll(".lk-pity .pw em"), bars = document.querySelectorAll(".lk-pity .lk-bar i");
+        if (pw[0]) pw[0].textContent = Math.max(0, PITY_SR - (st2.pSR || 0));
+        if (pw[1]) pw[1].textContent = Math.max(0, PITY_SSR - (st2.pSSR || 0));
+        if (bars[0]) bars[0].style.width = ((st2.pSR || 0) / PITY_SR * 100).toFixed(1) + "%";
+        if (bars[1]) bars[1].style.width = ((st2.pSSR || 0) / PITY_SSR * 100).toFixed(1) + "%";
         renderLuckGrid();
       }, 130);
     }, 900);
@@ -3910,8 +4046,12 @@ window.ALBUM_SWITCH = {
       if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
         '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
         '<span class="lkg-lock">🔒<span>會員限定</span></span></div>';
-      return '<div class="lkg none"><img src="' + esc(c.img) + '" alt="">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span></div>';
+      /* 未擁有：可用星塵指定兌換 */
+      var cost = DUST_COST[c.rarity] || 200, can = (st.dust || 0) >= cost;
+      return '<div class="lkg none' + (can ? " can" : "") + '"' + (can ? ' data-buy="' + esc(c.id) + '"' : "") + '>' +
+        '<img src="' + esc(c.img) + '" alt="">' +
+        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
+        '<span class="lkg-dust">' + (can ? "✦ " + cost + " 兌換" : "✦ " + cost) + '</span></div>';
     }).join("");
     $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
       el.addEventListener("click", function () {
@@ -3921,6 +4061,23 @@ window.ALBUM_SWITCH = {
         lb.innerHTML = '<img src="' + esc(c.img) + '" alt=""><button class="lb-x">✕</button>';
         lb.addEventListener("click", function () { lb.remove(); });
         document.body.appendChild(lb); hap(8);
+      });
+    });
+    $("lucky-grid").querySelectorAll("[data-buy]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var id = el.getAttribute("data-buy");
+        var c = luckCards().filter(function (x) { return x.id === id; })[0];
+        if (!c) return;
+        var st2 = luckState(), cost = DUST_COST[c.rarity] || 200;
+        if ((st2.dust || 0) < cost) { toast("星塵不夠 · 再抽幾張吧"); return; }
+        if (st2.owned[id]) { renderLuckGrid(); return; }
+        st2.dust -= cost;
+        st2.owned[id] = 1;
+        lsSet(LUCK_KEY, st2);
+        hap([12, 30, 12, 40]);
+        if (c.rarity === "SSR" || c.rarity === "SR") { try { playSfx(c.rarity.toLowerCase()); } catch (_) {} }
+        toast("用 " + cost + " 星塵兌換了「" + (c.title || c.rarity) + "」✦", 2000);
+        renderLucky();
       });
     });
   }
@@ -4282,7 +4439,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B31</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B32</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
