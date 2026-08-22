@@ -1062,6 +1062,26 @@ body { background: #08060C !important; }
 
 
 
+
+/* ===== B42 抽完定格：真正的卡照 ===== */
+#lk-hold{ position:fixed; inset:0; z-index:118500; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at 50% 42%, rgba(26,15,42,.82) 0%, rgba(4,2,9,.97) 82%);
+  -webkit-tap-highlight-color:transparent; animation:cineIn .3s ease; }
+#lk-hold.out{ opacity:0; transition:opacity .35s ease; }
+#lk-hold .hold-badge{ font:700 12px/1 var(--font-label),-apple-system,sans-serif; letter-spacing:4px;
+  color:var(--lkglow,#FFDF8E); margin-bottom:14px; opacity:0; animation:holdUp .5s ease .15s forwards; }
+#lk-hold .hold-card{ width:min(66vw,290px); aspect-ratio:2/3; border-radius:18px; overflow:hidden;
+  box-shadow:0 0 0 2px rgba(255,255,255,.16), 0 0 60px var(--lkglow,#FFDF8E), 0 20px 50px rgba(0,0,0,.6);
+  transform:translateY(14px) scale(.92); opacity:0; animation:holdCard .55s cubic-bezier(.2,1.3,.35,1) .05s forwards; }
+#lk-hold .hold-card img{ width:100%; height:100%; object-fit:cover; display:block; }
+#lk-hold .hold-name{ margin-top:22px; font-family:var(--font-serif-tc); font-size:20px; color:#fff;
+  letter-spacing:.5px; opacity:0; animation:holdUp .5s ease .3s forwards; text-align:center; padding:0 24px; }
+#lk-hold .hold-tip{ margin-top:16px; font:500 13px/1 -apple-system,sans-serif; color:rgba(255,255,255,.5);
+  letter-spacing:1px; opacity:0; animation:holdUp .6s ease .7s forwards; }
+@keyframes holdCard{ to{ transform:translateY(0) scale(1); opacity:1 } }
+@keyframes holdUp{ to{ opacity:1 } }
+
 /* ===== B41 LUCKY 放大簡化 ===== */
 #lucky-note.lucky-rule{ font:600 15px/1.6 -apple-system,'PingFang TC',system-ui,sans-serif;
   color:rgba(255,255,255,.82); letter-spacing:.5px; margin-top:8px; }
@@ -4080,6 +4100,31 @@ window.ALBUM_SWITCH = {
   }
 
   /* 手勢內先建立並 prime 影片 → 回傳可延後播放的控制器（保住 iOS 有聲） */
+  /* B42：抽完定格「真正的卡照」（靜態卡圖），點一下收進圖鑑 */
+  function lkCardHold(c, isNew) {
+    var old = document.getElementById("lk-hold"); if (old) old.remove();
+    var glow = c.glow || "#FFDF8E";
+    var ov = document.createElement("div"); ov.id = "lk-hold";
+    ov.style.setProperty("--lkglow", glow);
+    ov.innerHTML =
+      '<div class="hold-badge">' + (isNew ? "NEW ✦ 獲得新卡" : "✦ 已收藏") + '</div>' +
+      '<div class="hold-card"><img src="' + esc(c.img) + '" alt=""></div>' +
+      '<div class="hold-name">' + esc(c.title || "") + '</div>' +
+      '<div class="hold-tip">點一下收進圖鑑</div>';
+    document.body.appendChild(ov);
+    try { unlockBurstFx(); } catch (_) {}
+    hap([15, 40, 15, 40, 15, 80]);
+    var closed = false;
+    function close() {
+      if (closed) return; closed = true;
+      ov.classList.add("out");
+      setTimeout(function () { ov.remove(); }, 360);
+      lkAfterReveal(c);
+    }
+    ov.addEventListener("click", close);
+    return ov;
+  }
+
   function lkBuildVideo(c) {
     var old = document.getElementById("lk-cine"); if (old) old.remove();
     var glow = c.glow || "#FFDF8E";
@@ -4094,10 +4139,7 @@ window.ALBUM_SWITCH = {
       if (done) return; done = true;
       try { v.pause(); } catch (_) {}
       ov.classList.add("out"); setTimeout(function () { ov.remove(); }, 380);
-      try { unlockBurstFx(); } catch (_) {}
-      hap([15, 40, 15, 40, 15, 80]);
-      toast("NEW ✦ " + (c.title || ""), 2200);
-      lkAfterReveal(c);
+      lkCardHold(c, true);          /* 影片結束 → 定格真正的卡照 */
     }
     v.addEventListener("ended", function () { if (shown) finish(); });
     v.addEventListener("error", finish);
@@ -4646,7 +4688,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B41</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B42</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
