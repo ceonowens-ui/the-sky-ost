@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-21-1",
+  "version": "2026-08-22-1",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -67,102 +67,56 @@
   ],
   "cards": [
     {
-      "id": "n01",
-      "img": "assets/images/sky/01.jpg",
-      "title": "錄音現場 · I",
-      "rarity": "N"
-    },
-    {
-      "id": "n02",
-      "img": "assets/images/sky/02.jpg",
-      "title": "錄音現場 · II",
-      "rarity": "N"
-    },
-    {
-      "id": "n03",
-      "img": "assets/images/sky/03.jpg",
-      "title": "錄音現場 · III",
-      "rarity": "N"
-    },
-    {
-      "id": "n04",
-      "img": "assets/images/classics/01.jpg",
-      "title": "Stay With Me",
-      "rarity": "N"
-    },
-    {
-      "id": "n05",
-      "img": "assets/images/classics/02.jpg",
-      "title": "Never Know",
-      "rarity": "N"
-    },
-    {
-      "id": "n06",
-      "img": "assets/images/classics/03.jpg",
-      "title": "Trap My Soul",
-      "rarity": "N"
-    },
-    {
-      "id": "r01",
-      "img": "assets/images/classics/wall/01.jpg",
-      "title": "寫真 · 微光",
-      "rarity": "R",
-      "tier": "member"
-    },
-    {
-      "id": "r02",
-      "img": "assets/images/classics/wall/02.jpg",
-      "title": "寫真 · 側影",
-      "rarity": "R",
-      "tier": "member"
-    },
-    {
-      "id": "r03",
-      "img": "assets/feed/01.jpg",
-      "title": "SIGNAL · 深夜",
-      "rarity": "R",
-      "tier": "member"
-    },
-    {
-      "id": "sr01",
-      "img": "assets/images/classics/wall/03.jpg",
-      "title": "寫真 · 凝視",
-      "rarity": "SR",
-      "tier": "member"
-    },
-    {
-      "id": "sr02",
-      "img": "assets/images/classics/wall/04.jpg",
-      "title": "寫真 · 逆光",
-      "rarity": "SR",
-      "tier": "member"
-    },
-    {
-      "id": "sr03",
-      "img": "assets/feed/02.jpg",
-      "title": "SIGNAL · 未公開",
-      "rarity": "SR",
-      "tier": "member"
-    },
-    {
-      "id": "ssr01",
-      "img": "assets/images/classics/wall/05.jpg",
-      "title": "寫真 · 全焦點",
+      "id": "ssr-gaze",
+      "img": "assets/cards/gaze.jpg",
+      "video": "assets/cards/gaze.mp4",
+      "title": "一眼淪陷・魅惑滿格",
       "rarity": "SSR",
+      "w": 19
+    },
+    {
+      "id": "ssr-vow",
+      "img": "assets/cards/vow.jpg",
+      "video": "assets/cards/vow.mp4",
+      "title": "戀愛宣言・心動支配者",
+      "rarity": "SSR",
+      "w": 19,
       "tier": "member"
     },
     {
-      "id": "ssr02",
-      "img": "assets/images/classics/wall/06.jpg",
-      "title": "寫真 · 最後一張",
+      "id": "ssr-stage",
+      "img": "assets/cards/stage.jpg",
+      "video": "assets/cards/stage.mp4",
+      "title": "演唱會萬人迷",
       "rarity": "SSR",
+      "w": 19,
       "tier": "member"
     },
     {
-      "id": "ssr03",
-      "img": "assets/images/sky/cover.jpg",
-      "title": "THE SKY 主視覺",
+      "id": "ssr-hands",
+      "img": "assets/cards/hands.jpg",
+      "video": "assets/cards/hands.mp4",
+      "title": "千手幻相・萬象歸一",
       "rarity": "SSR",
+      "w": 19,
+      "tier": "member"
+    },
+    {
+      "id": "ssr-mirror",
+      "img": "assets/cards/mirror.jpg",
+      "video": "assets/cards/mirror.mp4",
+      "title": "鏡像殘影・多重分身",
+      "rarity": "SSR",
+      "w": 19,
+      "tier": "member"
+    },
+    {
+      "id": "ssr-awaken",
+      "img": "assets/cards/awaken.jpg",
+      "video": "assets/cards/awaken.mp4",
+      "title": "真身降臨・鎮池之卡",
+      "rarity": "SSR",
+      "w": 5,
       "tier": "member"
     }
   ]

@@ -981,6 +981,21 @@ body { background: #08060C !important; }
 .chat-photo img{ width:100%; display:block; }
 
 
+
+/* ===== B33 首抽全螢幕影片揭曉 ===== */
+#lk-cine{ position:fixed; inset:0; z-index:118000; background:#000;
+  display:flex; align-items:center; justify-content:center;
+  animation:cineIn .32s ease; }
+#lk-cine.out{ opacity:0; transition:opacity .35s ease; }
+@keyframes cineIn{ from{ opacity:0 } to{ opacity:1 } }
+#lk-cine video{ width:100%; height:100%; object-fit:cover; }
+#lk-cine .cine-skip{ position:fixed; top:calc(16px + env(safe-area-inset-top)); right:16px;
+  appearance:none; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.45);
+  color:rgba(255,255,255,.85); font:600 12.5px/1 -apple-system,system-ui,sans-serif;
+  padding:9px 15px; border-radius:999px; letter-spacing:.5px;
+  opacity:0; pointer-events:none; transition:opacity .3s ease; }
+#lk-cine .cine-skip.on{ opacity:1; pointer-events:auto; }
+
 /* ===== B32 抽卡迴圈：券／保底／星塵 ===== */
 .lk-econ{ display:flex; gap:8px; justify-content:center; margin:12px auto 0; }
 .lk-chip{ display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:999px;
@@ -1424,7 +1439,7 @@ body { background: #08060C !important; }
     <div class="page-titles">
       <div class="page-title-en">Daily Luck</div>
       <div class="page-title-tc">每日抽卡</div>
-      <div class="page-note" id="lucky-note">每天 ＋1 券 · 聽歌與 SIGNAL 還能再賺 · 收集只有這裡看得到的成晞</div>
+      <div class="page-note" id="lucky-note">每天 ＋1 券 · 聽歌與 SIGNAL 還能再賺<br>六張 SSR 影片卡 · 首抽播放完整抽卡動畫</div>
     </div>
     <div id="lucky-stage"></div>
     <div id="lucky-cta"></div>
@@ -2520,21 +2535,14 @@ const CLASSICS = {
  * rarity: N / R / SR / SSR。tier:"member" 的卡免費用戶抽不到（圖鑑顯示模糊誘餌）。
  * 之後 CÉON 給新照片：傳到 assets/cards/ 後只改 content.json 的 cards 就好，不用動這個檔。 */
 var LUCKY_CARDS = [
-  { id: "n01",  img: "assets/images/sky/01.jpg",            title: "錄音現場 · I",    rarity: "N" },
-  { id: "n02",  img: "assets/images/sky/02.jpg",            title: "錄音現場 · II",   rarity: "N" },
-  { id: "n03",  img: "assets/images/sky/03.jpg",            title: "錄音現場 · III",  rarity: "N" },
-  { id: "n04",  img: "assets/images/classics/01.jpg",       title: "Stay With Me",    rarity: "N" },
-  { id: "n05",  img: "assets/images/classics/02.jpg",       title: "Never Know",      rarity: "N" },
-  { id: "n06",  img: "assets/images/classics/03.jpg",       title: "Trap My Soul",    rarity: "N" },
-  { id: "r01",  img: "assets/images/classics/wall/01.jpg",  title: "寫真 · 微光",     rarity: "R",   tier: "member" },
-  { id: "r02",  img: "assets/images/classics/wall/02.jpg",  title: "寫真 · 側影",     rarity: "R",   tier: "member" },
-  { id: "r03",  img: "assets/feed/01.jpg",                  title: "SIGNAL · 深夜",   rarity: "R",   tier: "member" },
-  { id: "sr01", img: "assets/images/classics/wall/03.jpg",  title: "寫真 · 凝視",     rarity: "SR",  tier: "member" },
-  { id: "sr02", img: "assets/images/classics/wall/04.jpg",  title: "寫真 · 逆光",     rarity: "SR",  tier: "member" },
-  { id: "sr03", img: "assets/feed/02.jpg",                  title: "SIGNAL · 未公開", rarity: "SR",  tier: "member" },
-  { id: "ssr01", img: "assets/images/classics/wall/05.jpg", title: "寫真 · 全焦點",   rarity: "SSR", tier: "member" },
-  { id: "ssr02", img: "assets/images/classics/wall/06.jpg", title: "寫真 · 最後一張", rarity: "SSR", tier: "member" },
-  { id: "ssr03", img: "assets/images/sky/cover.jpg",        title: "THE SKY 主視覺",  rarity: "SSR", tier: "member" },
+  /* B33：六張 SSR 影片卡。id 發布後不可改（玩家收藏綁 id）。
+   * w = 抽中權重；tier:"member" 免費用戶抽不到；video = 首次取得播放的抽卡動畫 */
+  { id: "ssr-gaze",   img: "assets/cards/gaze.jpg",   video: "assets/cards/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
+  { id: "ssr-vow",    img: "assets/cards/vow.jpg",    video: "assets/cards/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-stage",  img: "assets/cards/stage.jpg",  video: "assets/cards/stage.mp4",  title: "演唱會萬人迷",         rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-hands",  img: "assets/cards/hands.jpg",  video: "assets/cards/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-mirror", img: "assets/cards/mirror.jpg", video: "assets/cards/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-awaken", img: "assets/cards/awaken.jpg", video: "assets/cards/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 5,  tier: "member" }
 ];
 
 const ALBUM_LIBRARY = { "the-sky": THE_SKY, "classics": CLASSICS };
@@ -3831,7 +3839,7 @@ window.ALBUM_SWITCH = {
   var TK_DAILY = 1;          /* 每日保底發 1 張 */
   var TK_SONG_CAP = 2;       /* 聽完整首歌換券，每日上限 */
   var TK_FEED_CAP = 1;       /* 聽完 FEED 語音／看完影片換券，每日上限 */
-  var PITY_SR = 10, PITY_SSR = 30;
+  var NEW_PITY = 10;   /* B33：連續 10 抽重複 → 下一抽必出未擁有的新卡 */
   var DUST_GAIN = { N: 10, R: 25, SR: 60, SSR: 150 };
   var DUST_COST = { N: 60, R: 150, SR: 400, SSR: 900 };
   function luckCards() { return window.LUCKY_CARDS_LIVE || (typeof LUCKY_CARDS !== "undefined" ? LUCKY_CARDS : []); }
@@ -3847,8 +3855,7 @@ window.ALBUM_SWITCH = {
     }
     if (st.tk == null) st.tk = TK_DAILY;
     if (st.dust == null) st.dust = 0;
-    if (st.pSR == null) st.pSR = 0;
-    if (st.pSSR == null) st.pSSR = 0;
+    if (st.pNew == null) st.pNew = 0;
     return st;
   }
   /* 聽完一首歌／聽完 FEED 語音或影片 → 換抽卡券 */
@@ -3876,28 +3883,21 @@ window.ALBUM_SWITCH = {
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   }
   function luckPick(member, st) {
-    var pool = luckCards().filter(function (c) { return member || (c.tier !== "member" && c.rarity === "N"); });
+    var pool = luckCards().filter(function (c) { return member || c.tier !== "member"; });
     if (!pool.length) return null;
-    if (!member) return pool[Math.floor(Math.random() * pool.length)];
-    var rar = null;
-    /* 保底：本抽計入後若達門檻，直接保證稀有度 */
-    if ((st.pSSR || 0) + 1 >= PITY_SSR) rar = "SSR";
-    else if ((st.pSR || 0) + 1 >= PITY_SR) rar = "SR";
-    if (!rar) {
-      var roll = Math.random() * 100, acc = 0; rar = "N";
-      for (var i = 0; i < LUCK_RATES.length; i++) { acc += LUCK_RATES[i][1]; if (roll < acc) { rar = LUCK_RATES[i][0]; break; } }
+    var fresh = pool.filter(function (c) { return !st.owned[c.id]; });
+    /* 新卡保底：連續 NEW_PITY 抽重複 → 這抽保證抽未擁有的 */
+    if (fresh.length && (st.pNew || 0) >= NEW_PITY) pool = fresh;
+    var total = 0, i;
+    for (i = 0; i < pool.length; i++) total += (pool[i].w || 10);
+    var roll = Math.random() * total;
+    for (i = 0; i < pool.length; i++) {
+      roll -= (pool[i].w || 10);
+      if (roll <= 0) return pool[i];
     }
-    var sub = pool.filter(function (c) { return c.rarity === rar; });
-    if (!sub.length) {                      /* 卡池缺該稀有度 → 依序降級，不中斷 */
-      var order = ["SSR", "SR", "R", "N"];
-      for (var j = order.indexOf(rar); j < order.length; j++) {
-        sub = pool.filter(function (c) { return c.rarity === order[j]; });
-        if (sub.length) { rar = order[j]; break; }
-      }
-    }
-    if (!sub.length) sub = pool;
-    return sub[Math.floor(Math.random() * sub.length)];
+    return pool[pool.length - 1];
   }
+
   function renderLucky() {
     var cards = luckCards(), st = luckState(), member = luckMemberQ();
     var tk = st.tk || 0;
@@ -3911,13 +3911,14 @@ window.ALBUM_SWITCH = {
 
     var pity = "";
     if (member) {
-      var nSR = Math.max(0, PITY_SR - (st.pSR || 0)), nSSR = Math.max(0, PITY_SSR - (st.pSSR || 0));
-      pity = '<div class="lk-pity">' +
-        '<div class="pw"><span>距離必出 SR</span><span><em>' + nSR + '</em> 抽</span></div>' +
-        '<div class="lk-bar sr"><i style="width:' + ((st.pSR || 0) / PITY_SR * 100).toFixed(1) + '%"></i></div>' +
-        '<div class="pw"><span>距離必出 SSR</span><span><em>' + nSSR + '</em> 抽</span></div>' +
-        '<div class="lk-bar ssr"><i style="width:' + ((st.pSSR || 0) / PITY_SSR * 100).toFixed(1) + '%"></i></div>' +
-        '</div>';
+      var freshLeft = cards.filter(function (c) { return !st.owned[c.id]; }).length;
+      if (freshLeft > 0) {
+        var nNew = Math.max(0, NEW_PITY - (st.pNew || 0));
+        pity = '<div class="lk-pity">' +
+          '<div class="pw"><span>距離必出新卡</span><span><em>' + nNew + '</em> 抽</span></div>' +
+          '<div class="lk-bar ssr"><i style="width:' + Math.min(100, (st.pNew || 0) / NEW_PITY * 100).toFixed(1) + '%"></i></div>' +
+          '</div>';
+      }
     }
 
     var earnLeftSong = Math.max(0, TK_SONG_CAP - (st.eSong || 0));
@@ -3942,12 +3943,12 @@ window.ALBUM_SWITCH = {
       '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
         (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '<div class="lk-hint">' + (member
-        ? "完整卡池 · SSR 機率 3%（有保底）"
-        : "免費體驗池（只會抽到 N 卡）<br>購買專輯 NT$299 解鎖 R／SR／SSR 完整卡池、保底與星塵兌換") + '</div>' +
+        ? "SSR 專輯限定卡池 · 6 張全影片卡 · 首抽播放完整動畫"
+        : "免費體驗：可抽「一眼淪陷」影片卡<br>其餘 5 張 SSR 只在完整卡池 · 購買專輯 NT$299 解鎖") + '</div>' +
       pity + earn;
 
     $("lucky-cta").innerHTML = member ? "" :
-      '<button class="lk-cta" id="lk-goshop">R／SR／SSR 只在完整卡池 ✦<br>' +
+      '<button class="lk-cta" id="lk-goshop">其餘 5 張 SSR 影片卡只在完整卡池 ✦<br>' +
       ((st.dust || 0) > 0 ? '你已累積 ' + st.dust + ' 星塵，解鎖後就能拿來指定兌換<br>' : '') +
       '購買專輯 NT$299 · 解鎖完整卡池＋全部歌曲 →</button>';
     var gs = $("lk-goshop");
@@ -3968,6 +3969,36 @@ window.ALBUM_SWITCH = {
   })();
   function playSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
 
+  /* B33：首抽全螢幕影片揭曉。overlay 掛 body（脫離 app 堆疊脈絡），
+   * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
+  function lkCinema(c) {
+    var old = document.getElementById("lk-cine"); if (old) old.remove();
+    var ov = document.createElement("div"); ov.id = "lk-cine";
+    ov.innerHTML =
+      '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>' +
+      '<button class="cine-skip">跳過 ›</button>';
+    document.body.appendChild(ov);
+    var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
+    var done = false;
+    function finish() {
+      if (done) return; done = true;
+      try { v.pause(); } catch (_) {}
+      ov.classList.add("out");
+      setTimeout(function () { ov.remove(); }, 380);
+      try { unlockBurstFx(); } catch (_) {}
+      hap([15, 40, 15, 40, 15, 80]);
+      toast("NEW ✦ " + (c.title || ""), 2200);
+      if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
+    }
+    v.addEventListener("ended", finish);
+    v.addEventListener("error", finish);
+    skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
+    setTimeout(function () { skip.classList.add("on"); }, 1600);
+    var pr = v.play();
+    if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
+    hap([10, 30, 10]);
+  }
+
   function doLuckDraw() {
     var member = luckMemberQ();
     var st = luckState();
@@ -3977,17 +4008,16 @@ window.ALBUM_SWITCH = {
     st.tk = (st.tk || 0) - 1;
     st.last = luckToday();
     st.draws = (st.draws || 0) + 1;
-    /* 保底計數：抽到該稀有度就歸零 */
-    st.pSR = (st.pSR || 0) + 1; st.pSSR = (st.pSSR || 0) + 1;
-    if (c.rarity === "SSR") { st.pSSR = 0; st.pSR = 0; }
-    else if (c.rarity === "SR") { st.pSR = 0; }
-    /* 重複卡 → 星塵 */
+    /* 重複 → 星塵並累積保底；新卡 → 保底歸零 */
     var dup = !!st.owned[c.id];
+    st.pNew = dup ? (st.pNew || 0) + 1 : 0;
     var gain = dup ? (DUST_GAIN[c.rarity] || 10) : 0;
     if (gain) st.dust = (st.dust || 0) + gain;
     st.owned[c.id] = (st.owned[c.id] || 0) + 1;
     lsSet(LUCK_KEY, st);
     window.__lkDup = dup ? gain : 0;
+    /* B33：首次取得且有影片 → 全螢幕抽卡動畫（同步 play 保住 iOS 手勢授權） */
+    if (!dup && c.video) { lkCinema(c); return; }
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
     var wrap = $("orb-wrap"); if (!wrap) return;
     /* 蓄力：光軌加速、核心快脈動、開艙 whoosh */
@@ -4002,8 +4032,7 @@ window.ALBUM_SWITCH = {
       hap(c.rarity === "SSR" ? [15, 40, 15, 40, 15, 80] : c.rarity === "SR" ? [12, 30, 12, 40] : [10, 30]);
       setTimeout(function () {
         wrap.classList.add("revealed");
-        if (c.rarity === "SSR") { playSfx("ssr"); try { unlockBurstFx(); } catch (_) {} toast("SSR！手氣爆棚 ✦"); }
-        else if (c.rarity === "SR") { playSfx("sr"); toast("SR！今天運氣不錯 ✦"); }
+        playSfx("sr");
         var dupGain = window.__lkDup || 0;
         $("lk-name").innerHTML = esc(c.rarity + " · " + (c.title || "")) +
           (dupGain ? '<br><span style="font-size:11.5px;color:#FFDF8E">重複 · ＋' + dupGain + ' 星塵</span>' : "");
@@ -4027,10 +4056,8 @@ window.ALBUM_SWITCH = {
         if (chips[0]) chips[0].textContent = st2.tk || 0;
         if (chips[1]) chips[1].textContent = st2.dust || 0;
         var pw = document.querySelectorAll(".lk-pity .pw em"), bars = document.querySelectorAll(".lk-pity .lk-bar i");
-        if (pw[0]) pw[0].textContent = Math.max(0, PITY_SR - (st2.pSR || 0));
-        if (pw[1]) pw[1].textContent = Math.max(0, PITY_SSR - (st2.pSSR || 0));
-        if (bars[0]) bars[0].style.width = ((st2.pSR || 0) / PITY_SR * 100).toFixed(1) + "%";
-        if (bars[1]) bars[1].style.width = ((st2.pSSR || 0) / PITY_SSR * 100).toFixed(1) + "%";
+        if (pw[0]) pw[0].textContent = Math.max(0, NEW_PITY - (st2.pNew || 0));
+        if (bars[0]) bars[0].style.width = Math.min(100, (st2.pNew || 0) / NEW_PITY * 100).toFixed(1) + "%";
         renderLuckGrid();
       }, 130);
     }, 900);
@@ -4058,9 +4085,18 @@ window.ALBUM_SWITCH = {
         var c = luckCards().filter(function (x) { return x.id === el.getAttribute("data-lk"); })[0];
         if (!c) return;
         var lb = document.createElement("div"); lb.id = "__lb";
-        lb.innerHTML = '<img src="' + esc(c.img) + '" alt=""><button class="lb-x">✕</button>';
-        lb.addEventListener("click", function () { lb.remove(); });
-        document.body.appendChild(lb); hap(8);
+        lb.innerHTML = (c.video
+          ? '<video playsinline preload="auto" src="' + esc(c.video) + '" style="max-width:100vw;max-height:100dvh;object-fit:contain"></video>'
+          : '<img src="' + esc(c.img) + '" alt="">') + '<button class="lb-x">✕</button>';
+        lb.addEventListener("click", function (e) {
+          if (e.target.tagName === "VIDEO") return;   /* 點影片本身不關閉 */
+          var vv = lb.querySelector("video"); if (vv) { try { vv.pause(); } catch (_) {} }
+          lb.remove();
+        });
+        document.body.appendChild(lb);
+        var vv = lb.querySelector("video");
+        if (vv) { var pr = vv.play(); if (pr && pr.catch) pr.catch(function () { vv.muted = true; vv.play().catch(function () {}); }); }
+        hap(8);
       });
     });
     $("lucky-grid").querySelectorAll("[data-buy]").forEach(function (el) {
@@ -4439,7 +4475,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B32</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B33</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
