@@ -984,6 +984,65 @@ body { background: #08060C !important; }
 
 
 
+
+/* ===== B37 DQ Tact 式水晶揭曉：墜落→裂痕→變色→碎裂 ===== */
+#lk-dq{ position:fixed; inset:0; z-index:117800; pointer-events:none; }
+#lk-dq .dq-vig{ position:absolute; inset:0; opacity:0; transition:opacity .35s ease;
+  background:radial-gradient(ellipse at 50% 44%, rgba(12,7,22,.3) 0%, rgba(5,3,10,.9) 78%); }
+#lk-dq.drop .dq-vig{ opacity:1; }
+#lk-dq .dq-stars{ position:absolute; inset:0; opacity:0; transition:opacity .5s;
+  background-image:radial-gradient(1.2px 1.2px at 22% 30%, rgba(255,255,255,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 22%, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 84% 62%, rgba(255,255,255,.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 14% 70%, rgba(255,255,255,.45) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 52% 82%, rgba(255,255,255,.55) 50%, transparent 51%); }
+#lk-dq.drop .dq-stars{ opacity:1; }
+#lk-dq .dq-gw{ position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); }
+#lk-dq .dq-gem{ width:96px; height:156px; position:relative;
+  clip-path:polygon(50% 0%,88% 25%,88% 72%,50% 100%,12% 72%,12% 25%);
+  background:linear-gradient(158deg,#E4E9FF 0%,#9D8CE0 34%,#4E3D8E 68%,#241A4C 100%);
+  transform:translateY(-92vh);
+  filter:drop-shadow(0 0 18px rgba(168,148,255,.55)); }
+#lk-dq .dq-gem::before{ content:""; position:absolute; left:16%; top:6%; width:22%; height:52%;
+  background:linear-gradient(170deg,rgba(255,255,255,.85),rgba(255,255,255,0) 80%);
+  transform:skewY(-14deg); border-radius:40%; }
+#lk-dq .dq-gem::after{ content:""; position:absolute; inset:0;
+  background:linear-gradient(24deg, transparent 46%, rgba(255,255,255,.18) 50%, transparent 54%); }
+#lk-dq.drop .dq-gem{ animation:dqDrop .62s cubic-bezier(.3,1.25,.6,1) forwards; }
+@keyframes dqDrop{ 0%{ transform:translateY(-92vh) } 72%{ transform:translateY(0) }
+  84%{ transform:translateY(7px) scale(1.14,.8) } 100%{ transform:translateY(0) scale(1) } }
+#lk-dq .dq-ring{ position:absolute; left:50%; top:96%; width:120px; height:34px; transform:translate(-50%,-50%) scale(.2);
+  border:2px solid rgba(255,255,255,.55); border-radius:50%; opacity:0; }
+#lk-dq.drop .dq-ring{ animation:dqRing .55s ease-out .5s forwards; }
+@keyframes dqRing{ 0%{ opacity:.9; transform:translate(-50%,-50%) scale(.25) }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(1.6) } }
+/* 裂痕（stroke 逐段畫出） */
+#lk-dq .dq-cracks{ position:absolute; inset:0; width:100%; height:100%; }
+#lk-dq .dq-cracks path{ stroke:rgba(255,255,255,.95); stroke-width:1.7; fill:none;
+  stroke-dasharray:90; stroke-dashoffset:90; opacity:0; }
+#lk-dq.c1 .crk1{ animation:dqCrack .3s ease-out forwards; }
+#lk-dq.c2 .crk2{ animation:dqCrack .28s ease-out forwards; }
+#lk-dq.c3 .crk3, #lk-dq.c3 .crk4{ animation:dqCrack .24s ease-out forwards; }
+@keyframes dqCrack{ 0%{ opacity:1; stroke-dashoffset:90 } 100%{ opacity:1; stroke-dashoffset:0 } }
+/* 變色（稀有度洩漏）＋抖動 */
+#lk-dq.tint .dq-gem{ background:linear-gradient(158deg,#FFFFFF 0%,var(--lkglow,#FFDF8E) 38%,
+  color-mix(in srgb,var(--lkglow,#FFDF8E) 55%, #1A0E2A) 72%, #17102E 100%);
+  filter:drop-shadow(0 0 30px var(--lkglow,#FFDF8E)) drop-shadow(0 0 68px var(--lkglow,#FFDF8E)); }
+#lk-dq.c2 .dq-gw{ animation:dqShake .46s ease-in-out; }
+#lk-dq.c3 .dq-gw{ animation:dqShake .3s ease-in-out infinite; }
+@keyframes dqShake{ 0%,100%{ transform:translate(-50%,-50%) rotate(0) }
+  25%{ transform:translate(calc(-50% - 3px),-50%) rotate(-1.6deg) }
+  75%{ transform:translate(calc(-50% + 3px),-50%) rotate(1.6deg) } }
+/* 碎裂 */
+#lk-dq.burst .dq-gem{ opacity:0; transform:scale(1.28); transition:opacity .16s ease, transform .16s ease; }
+#lk-dq.burst .dq-gw{ animation:none; }
+#lk-dq .dq-sh{ position:absolute; left:50%; top:44%; width:16px; height:24px; opacity:0;
+  clip-path:polygon(50% 0%,100% 62%,24% 100%);
+  background:linear-gradient(150deg,#fff 0%,var(--lkglow,#FFDF8E) 60%,rgba(30,20,50,.9) 100%); }
+#lk-dq.burst .dq-sh{ animation:dqFly .62s cubic-bezier(.2,.7,.4,1) forwards; }
+@keyframes dqFly{ 0%{ opacity:1; transform:translate(-50%,-50%) rotate(0) scale(1) }
+  100%{ opacity:0; transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(.5) } }
+
 /* ===== B36 蓄力偷跑色：光暈=卡片主題色（鎮池=金） ===== */
 .orb-wrap.tease .orb-orbit .head{ background:var(--lkglow,#FFDF8E);
   box-shadow:0 0 12px var(--lkglow,#FFDF8E),0 0 26px var(--lkglow,#FFDF8E); }
@@ -3992,15 +4051,44 @@ window.ALBUM_SWITCH = {
    * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
   function lkCinema(c) {
     var old = document.getElementById("lk-cine"); if (old) old.remove();
+    var oldDq = document.getElementById("lk-dq"); if (oldDq) oldDq.remove();
+    var glow = c.glow || "#FFDF8E";
     var ov = document.createElement("div"); ov.id = "lk-cine"; ov.className = "pre";
     ov.innerHTML =
       '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>' +
       '<button class="cine-skip">跳過 ›</button>';
     document.body.appendChild(ov);
     var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
-    var done = false, revealed = false;
+    var done = false, revealed = false, timers = [];
+    /* DQ Tact 式水晶舞台 */
+    var dq = document.createElement("div"); dq.id = "lk-dq";
+    dq.style.setProperty("--lkglow", glow);
+    var shards = "";
+    for (var i = 0; i < 12; i++) {
+      var ang = (i / 12) * Math.PI * 2 + Math.random() * 0.5;
+      var dist = 90 + Math.random() * 130;
+      shards += '<div class="dq-sh" style="--dx:' + Math.round(Math.cos(ang) * dist) + 'px;--dy:' +
+        Math.round(Math.sin(ang) * dist) + 'px;--rot:' + Math.round(Math.random() * 340 - 170) + 'deg;animation-delay:' +
+        (Math.random() * 0.08).toFixed(2) + 's"></div>';
+    }
+    dq.innerHTML = '<div class="dq-vig"></div><div class="dq-stars"></div>' +
+      '<div class="dq-gw"><div class="dq-gem">' +
+        '<svg class="dq-cracks" viewBox="0 0 96 156">' +
+          '<path class="crk1" d="M48 8 L44 34 L52 52 L46 74"/>' +
+          '<path class="crk2" d="M20 46 L38 62 L34 88 L48 104"/>' +
+          '<path class="crk3" d="M76 40 L60 66 L66 92 L52 118"/>' +
+          '<path class="crk4" d="M48 74 L36 112 L44 134"/>' +
+        '</svg></div>' +
+      '<div class="dq-ring"></div></div>' + shards;
+    document.body.appendChild(dq);
+
+    function cleanup() {
+      timers.forEach(clearTimeout);
+      var d2 = document.getElementById("lk-dq"); if (d2) d2.remove();
+    }
     function finish() {
       if (done) return; done = true;
+      cleanup();
       try { v.pause(); } catch (_) {}
       ov.classList.add("out");
       setTimeout(function () { ov.remove(); }, 380);
@@ -4013,43 +4101,38 @@ window.ALBUM_SWITCH = {
     v.addEventListener("error", finish);
     skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
 
-    /* ① 手勢內 prime：play→pause 解鎖這顆 video 之後的有聲播放（iOS） */
+    /* 手勢內 prime：解鎖之後的有聲播放（iOS） */
     try {
       var pr0 = v.play();
       if (pr0 && pr0.then) pr0.then(function () { if (!revealed) v.pause(); }).catch(function () {});
       else if (!revealed) v.pause();
     } catch (_) {}
 
-    /* ② 蓄力：球體光軌加速 1.5 秒（影片同時在背景緩衝） */
-    var wrap = $("orb-wrap");
-    var glow = c.glow || "#FFDF8E";
-    if (wrap) {
-      wrap.style.setProperty("--lkglow", glow);
-      wrap.classList.add("charging", "tease");
-      setTimeout(function () { if (!done) wrap.classList.add("surge"); }, 950);
-    }
-    hap([8, 20, 8, 20]);
-    playSfx("flip");
-
-    /* ③ 爆閃 → 影片進場 */
-    setTimeout(function () {
+    /* 序列：墜落 → 裂痕1 → 變色＋裂痕2 → 劇烈裂痕 → 碎裂 → 影片 */
+    requestAnimationFrame(function () { dq.classList.add("drop"); });
+    hap([10, 30]); playSfx("flip");
+    timers.push(setTimeout(function () { if (done) return; dq.classList.add("c1"); hap([8, 22]); }, 780));
+    timers.push(setTimeout(function () { if (done) return; dq.classList.add("c2", "tint"); hap([10, 26, 10]); playSfx("sr"); }, 1180));
+    timers.push(setTimeout(function () { if (done) return; dq.classList.add("c3"); hap([12, 18, 12, 18, 12]); }, 1580));
+    timers.push(setTimeout(function () {
       if (done) return;
+      dq.classList.add("burst");
       var fl = document.getElementById("lk-flash");
       if (!fl) { fl = document.createElement("div"); fl.id = "lk-flash"; document.body.appendChild(fl); }
       fl.style.setProperty("--lkglow", glow); fl.classList.add("tint");
       fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go");
-      hap([12, 30, 12]);
-      setTimeout(function () {
+      hap([14, 30, 14]);
+      timers.push(setTimeout(function () {
         if (done) return;
         revealed = true;
-        if (wrap) wrap.classList.remove("charging", "tease", "surge");
         ov.classList.remove("pre"); ov.classList.add("show");
         try { v.currentTime = 0; } catch (_) {}
         var pr = v.play();
         if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
         setTimeout(function () { skip.classList.add("on"); }, 1600);
-      }, 120);
-    }, 1500);
+        timers.push(setTimeout(cleanup, 700));
+      }, 130));
+    }, 1900));
   }
 
   function doLuckDraw() {
@@ -4550,7 +4633,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B36</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B37</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
