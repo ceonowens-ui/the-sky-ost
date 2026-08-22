@@ -4118,6 +4118,28 @@ window.ALBUM_SWITCH = {
     });
   }
   window.__renderLucky = function () { if (state.screen === "lucky") renderLucky(); };
+  /* B34 測試工具：解鎖完整卡池＋重置抽卡（上線前隨 __trialBtn 一併移除） */
+  (function () {
+    var host = document.getElementById("screen-lucky");
+    if (!host) return;
+    var b = document.createElement("div");
+    b.className = "unlocked-reset";
+    b.id = "__luckReset";
+    b.style.cssText = "margin:26px auto calc(30px + env(safe-area-inset-bottom));text-align:center";
+    b.textContent = "重置抽卡＋補滿券（測試用）";
+    b.addEventListener("click", function () {
+      var u = lsGet("album-the-sky:unlock", {});
+      if (!u.unlocked) lsSet("album-the-sky:unlock", { unlocked: true, email: "trial@test", code: "TRIAL", trial: true });
+      var d = new Date();
+      lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0,
+        tday: d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(),
+        tk: 12, eSong: 0, eFeed: 0, pNew: 0, dust: 0 });
+      toast("已重置 · 完整卡池 · 12 張券 ✦", 1800);
+      hap([10, 30, 10]);
+      renderLucky();
+    });
+    host.appendChild(b);
+  })();
 
   function unlockBurstFx() {
     var fx = $("fx-layer");
@@ -4475,7 +4497,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B33</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B34</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
