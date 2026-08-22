@@ -1061,6 +1061,20 @@ body { background: #08060C !important; }
 #lk-cine.show{ opacity:1; pointer-events:auto; transition:opacity .28s ease; }
 
 
+
+/* ===== B41 LUCKY 放大簡化 ===== */
+#lucky-note.lucky-rule{ font:600 15px/1.6 -apple-system,'PingFang TC',system-ui,sans-serif;
+  color:rgba(255,255,255,.82); letter-spacing:.5px; margin-top:8px; }
+#screen-lucky .lk-econ{ margin-top:20px; }
+#screen-lucky .lk-chip{ padding:10px 22px; font-size:15px; border-radius:999px; }
+#screen-lucky .lk-chip b{ font-size:22px; }
+#screen-lucky .lk-name{ font-size:19px; margin-top:14px; min-height:26px; }
+#screen-lucky .lk-draw{ margin-top:16px; width:min(78vw,320px); padding:19px; font-size:18px; letter-spacing:3px; }
+#screen-lucky .lucky-coll-head{ font-size:13px; margin:30px 24px 14px; }
+#screen-lucky #lucky-grid{ gap:12px; padding:0 20px; }
+#screen-lucky .lk-cta{ padding:17px; font-size:15px; line-height:1.75; }
+#screen-lucky #lucky-cta{ margin:20px 22px 0; }
+
 /* ===== B39 拉霸輪盤揭曉 ===== */
 #lk-slot{ position:fixed; inset:0; z-index:117800; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -1544,7 +1558,7 @@ body { background: #08060C !important; }
     <div class="page-titles">
       <div class="page-title-en">Daily Luck</div>
       <div class="page-title-tc">每日抽卡</div>
-      <div class="page-note" id="lucky-note">每天 ＋1 券 · 聽歌與 SIGNAL 還能再賺<br>六張 SSR 影片卡 · 首抽播放完整抽卡動畫</div>
+      <div class="page-note lucky-rule" id="lucky-note">每天登入送 1 抽　聽完一首歌再 ＋1 抽</div>
     </div>
     <div id="lucky-stage"></div>
     <div id="lucky-cta"></div>
@@ -4012,8 +4026,7 @@ window.ALBUM_SWITCH = {
       '<span class="lk-chip">抽卡券 <b>' + tk + '</b></span>' +
       '</div>';
 
-    var pity = "";
-    var earn = '<div class="lk-earn">每天登入送 <b>1</b> 抽 ✦ 聽完一首歌再 <b>＋1</b> 抽</div>';
+    var pity = "", earn = "";
 
     $("lucky-stage").innerHTML = econ +
       '<div class="orb-wrap" id="orb-wrap">' +
@@ -4029,9 +4042,6 @@ window.ALBUM_SWITCH = {
       '<div class="lk-name" id="lk-name"></div>' +
       '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
         (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
-      '<div class="lk-hint">' + (member
-        ? "六張限定卡 · 收集看看"
-        : "免費只抽得到 1 張 · 買專輯 NT$299 解鎖全部 6 張") + '</div>' +
       pity + earn;
 
     $("lucky-cta").innerHTML = member ? "" :
@@ -4636,7 +4646,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B40</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B41</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
