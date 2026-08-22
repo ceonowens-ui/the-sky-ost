@@ -3819,7 +3819,7 @@ window.ALBUM_SWITCH = {
       play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
       v.addEventListener("play", function () { box.classList.add("playing"); });
       v.addEventListener("pause", function () { box.classList.remove("playing"); });
-      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); if (window.__luckEarn) window.__luckEarn("feed"); });
+      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); });
       exp.addEventListener("click", function (e) {
         e.stopPropagation(); hap(8);
         if (v.webkitEnterFullscreen) { try { v.play(); } catch (_) {} try { v.webkitEnterFullscreen(); } catch (_) {} }
@@ -3840,7 +3840,7 @@ window.ALBUM_SWITCH = {
       }
       au.addEventListener("loadedmetadata", paint);
       au.addEventListener("timeupdate", paint);
-      au.addEventListener("ended", function () { au.currentTime = 0; btn.innerHTML = MIC_SVG; paint(); if (window.__luckEarn) window.__luckEarn("feed"); });
+      au.addEventListener("ended", function () { au.currentTime = 0; btn.innerHTML = MIC_SVG; paint(); });
       btn.addEventListener("click", function () {
         document.querySelectorAll("#screen-mood [data-voice]").forEach(function (b) {
           if (b !== box) { b.querySelector("audio").pause(); b.querySelector(".v-btn").innerHTML = MIC_SVG; }
@@ -3966,16 +3966,15 @@ window.ALBUM_SWITCH = {
   /* 聽完一首歌／聽完 FEED 語音或影片 → 換抽卡券 */
   window.__luckEarn = function (kind) {
     try {
+      if (kind !== "song") return;
       var st = luckState();
-      var capk = kind === "song" ? "eSong" : "eFeed";
-      var cap = kind === "song" ? TK_SONG_CAP : TK_FEED_CAP;
-      if ((st[capk] || 0) >= cap) return;
+      if ((st.eSong || 0) >= TK_SONG_CAP) return;      /* 隱性每日上限，防刷、不顯示 */
       if ((st.tk || 0) >= TK_CAP) return;
-      st[capk] = (st[capk] || 0) + 1;
+      st.eSong = (st.eSong || 0) + 1;
       st.tk = Math.min(TK_CAP, (st.tk || 0) + 1);
       lsSet(LUCK_KEY, st);
       hap([8, 24, 8]);
-      toast(kind === "song" ? "聽完一首 · ＋1 抽卡券 ✦" : "＋1 抽卡券 ✦", 1600);
+      toast("聽完一首 · ＋1 抽卡券 ✦", 1600);
       if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
     } catch (e) {}
   };
@@ -4010,28 +4009,11 @@ window.ALBUM_SWITCH = {
     $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
 
     var econ = '<div class="lk-econ">' +
-      '<span class="lk-chip">抽卡券 <b>' + tk + '</b>/' + TK_CAP + '</span>' +
-      '<span class="lk-chip">星塵 <b>' + (st.dust || 0) + '</b></span>' +
+      '<span class="lk-chip">抽卡券 <b>' + tk + '</b></span>' +
       '</div>';
 
     var pity = "";
-    if (member) {
-      var freshLeft = cards.filter(function (c) { return !st.owned[c.id]; }).length;
-      if (freshLeft > 0) {
-        var nNew = Math.max(0, NEW_PITY - (st.pNew || 0));
-        pity = '<div class="lk-pity">' +
-          '<div class="pw"><span>距離必出新卡</span><span><em>' + nNew + '</em> 抽</span></div>' +
-          '<div class="lk-bar ssr"><i style="width:' + Math.min(100, (st.pNew || 0) / NEW_PITY * 100).toFixed(1) + '%"></i></div>' +
-          '</div>';
-      }
-    }
-
-    var earnLeftSong = Math.max(0, TK_SONG_CAP - (st.eSong || 0));
-    var earnLeftFeed = Math.max(0, TK_FEED_CAP - (st.eFeed || 0));
-    var earn = '<div class="lk-earn">' +
-      '今天還能賺：聽完一首歌 <b>＋' + earnLeftSong + '</b>　·　聽完一則 SIGNAL 語音／影片 <b>＋' + earnLeftFeed + '</b><br>' +
-      '每天登入自動 ＋1　·　券最多存 ' + TK_CAP + ' 張，存滿就不再累積' +
-      '</div>';
+    var earn = '<div class="lk-earn">每天登入送 <b>1</b> 抽 ✦ 聽完一首歌再 <b>＋1</b> 抽</div>';
 
     $("lucky-stage").innerHTML = econ +
       '<div class="orb-wrap" id="orb-wrap">' +
@@ -4048,14 +4030,13 @@ window.ALBUM_SWITCH = {
       '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
         (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '<div class="lk-hint">' + (member
-        ? "SSR 專輯限定卡池 · 6 張全影片卡 · 首抽播放完整動畫"
-        : "免費體驗：可抽「一眼淪陷」影片卡<br>其餘 5 張 SSR 只在完整卡池 · 購買專輯 NT$299 解鎖") + '</div>' +
+        ? "六張限定卡 · 收集看看"
+        : "免費只抽得到 1 張 · 買專輯 NT$299 解鎖全部 6 張") + '</div>' +
       pity + earn;
 
     $("lucky-cta").innerHTML = member ? "" :
-      '<button class="lk-cta" id="lk-goshop">其餘 5 張 SSR 影片卡只在完整卡池 ✦<br>' +
-      ((st.dust || 0) > 0 ? '你已累積 ' + st.dust + ' 星塵，解鎖後就能拿來指定兌換<br>' : '') +
-      '購買專輯 NT$299 · 解鎖完整卡池＋全部歌曲 →</button>';
+      '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
+      '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>';
     var gs = $("lk-goshop");
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
     var btn = $("lk-draw");
@@ -4216,7 +4197,7 @@ window.ALBUM_SWITCH = {
       lkSlot(c, !dup, function () {
         lkFlash(c.glow || "#FFDF8E");
         var dupGain = window.__lkDup || 0;
-        toast((dupGain ? "重複 · ＋" + dupGain + " 星塵 ✦" : "NEW ✦ ") + (c.title || ""), 1800);
+        toast((dupGain ? "又抽到 · " : "NEW ✦ ") + (c.title || ""), 1800);
         try { unlockBurstFx(); } catch (_) {}
         lkAfterReveal(c);
       });
@@ -4234,11 +4215,9 @@ window.ALBUM_SWITCH = {
     st.draws = (st.draws || 0) + 1;
     var dup = !!st.owned[c.id];
     st.pNew = dup ? (st.pNew || 0) + 1 : 0;
-    var gain = dup ? (DUST_GAIN[c.rarity] || 10) : 0;
-    if (gain) st.dust = (st.dust || 0) + gain;
     st.owned[c.id] = (st.owned[c.id] || 0) + 1;
     lsSet(LUCK_KEY, st);
-    window.__lkDup = dup ? gain : 0;
+    window.__lkDup = dup ? 1 : 0;
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
     lkReveal(c, dup);                          /* 影片 prime 必須在此同步手勢內發生 */
   }
@@ -4253,12 +4232,9 @@ window.ALBUM_SWITCH = {
       if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
         '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
         '<span class="lkg-lock">🔒<span>會員限定</span></span></div>';
-      /* 未擁有：可用星塵指定兌換 */
-      var cost = DUST_COST[c.rarity] || 200, can = (st.dust || 0) >= cost;
-      return '<div class="lkg none' + (can ? " can" : "") + '"' + (can ? ' data-buy="' + esc(c.id) + '"' : "") + '>' +
-        '<img src="' + esc(c.img) + '" alt="">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
-        '<span class="lkg-dust">' + (can ? "✦ " + cost + " 兌換" : "✦ " + cost) + '</span></div>';
+      /* 未擁有（已購但還沒抽到）：問號占位 */
+      return '<div class="lkg none"><img src="' + esc(c.img) + '" alt="">' +
+        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span></div>';
     }).join("");
     $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
       el.addEventListener("click", function () {
@@ -4279,23 +4255,6 @@ window.ALBUM_SWITCH = {
         hap(8);
       });
     });
-    $("lucky-grid").querySelectorAll("[data-buy]").forEach(function (el) {
-      el.addEventListener("click", function () {
-        var id = el.getAttribute("data-buy");
-        var c = luckCards().filter(function (x) { return x.id === id; })[0];
-        if (!c) return;
-        var st2 = luckState(), cost = DUST_COST[c.rarity] || 200;
-        if ((st2.dust || 0) < cost) { toast("星塵不夠 · 再抽幾張吧"); return; }
-        if (st2.owned[id]) { renderLuckGrid(); return; }
-        st2.dust -= cost;
-        st2.owned[id] = 1;
-        lsSet(LUCK_KEY, st2);
-        hap([12, 30, 12, 40]);
-        if (c.rarity === "SSR" || c.rarity === "SR") { try { playSfx(c.rarity.toLowerCase()); } catch (_) {} }
-        toast("用 " + cost + " 星塵兌換了「" + (c.title || c.rarity) + "」✦", 2000);
-        renderLucky();
-      });
-    });
   }
   window.__renderLucky = function () { if (state.screen === "lucky") renderLucky(); };
   /* B34 測試工具：解鎖完整卡池＋重置抽卡（上線前隨 __trialBtn 一併移除） */
@@ -4313,8 +4272,8 @@ window.ALBUM_SWITCH = {
       var d = new Date();
       lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0,
         tday: d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(),
-        tk: 12, eSong: 0, eFeed: 0, pNew: 0, dust: 0 });
-      toast("已重置 · 完整卡池 · 12 張券 ✦", 1800);
+        tk: TK_CAP, eSong: 0, eFeed: 0, pNew: 0 });
+      toast("已重置 · 完整卡池 · 券補滿 ✦", 1800);
       hap([10, 30, 10]);
       renderLucky();
     });
@@ -4677,7 +4636,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B39</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B40</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
