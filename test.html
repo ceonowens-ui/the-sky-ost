@@ -1707,6 +1707,373 @@ var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
  * 舊歌精選：全部免費，不需解鎖，音檔直接放前端 repo。
  * ===================================================================== */
 
+/* ---- B47：英文意譯歌詞（中/EN 切換用，內容已人工校對）---- */
+const EN_LYRICS = {
+  the_sky: `THE SKY
+Shut away on my own, ignoring everyone
+By the cloud-lit window, leaving texts on read, replying at random
+We can rise with the stars, so why should I fall
+I just move from your place, leave behind our space
+Love means getting hurt — and never regretting it
+This is why I have to get away
+I been lost in the fray
+I'll be okay
+If that's how it is (それなら)
+Feeling no time
+Maybe I never really understood
+The words between us (言葉も)
+I left it all in that room; now the ground feels empty
+This is the outcome of the choices I made
+Inside the illusion
+I see you again
+All I wanna
+I wanna fly to the sky
+I wanna fly by your side
+Who will forget first?
+The only one
+I'm living better, starting over
+Some kinds of love belong to the future
+Yet every time I look back, they're still there
+Don't say this is over, will never been over
+Will living better mean starting over
+
+
+詞曲 Lyrics & Composer: 成晞 CHANCE
+PRODUCER: PROD_CW ＆ CHANCE 成晞
+HARMONY: CHANCE
+ARRANGEMENT / RECORDING / MIXING / MASTERING: PROD_CW
+Film Production：@thearthauspresents
+Director：EYN NI
+Editor: EYN NI / Chance / ANZ`,
+  dwwu: `DONT WANNA WAKE UP
+Watching the evening fade
+Is it time to wake up
+I just want to sleep a little longer
+Dream back to the break up
+The sun hasn't even set
+But my heart already blacked out
+It hurts how much is wrecked — but I don't wanna clean it up
+I just wanna fade in love, not wake up
+Over and over, replay that drama
+Got me stuck in the sky, can't touch down
+I'm stuck up here
+You say this isn't a dream, but I still don't wanna wake up
+I still don't wanna wake up
+Can't touch down
+Stranded in the sky, no way back to the ground
+You say this isn't a dream, but I still don't wanna wake up
+Can't touch down
+Stranded in the sky, no way back to the ground
+You say this isn't a dream, but I still don't wanna wake up
+Rewind it from the end
+Wanna know — tell me how
+Don't tell me
+Just like a tape
+Go back
+Don't mind
+Let the words come naturally (歌詞は自然)
+Ain't nobody to blame
+And now I'll go
+Don't worry about me
+Make me up
+Make me better
+ON / Auto
+Tell your intention, no more action
+Got an eye on 愛 — just wanna fade in love
+Not wake up
+Over and over, replay that drama
+Got me stuck in the sky, can't touch down
+I'm stuck up here
+You say this isn't a dream, but I still don't wanna wake up
+I still don't wanna wake up
+Over and over, replay that drama
+Got me stuck in the sky, can't touch down
+I'm stuck up here
+You say this isn't a dream, but I still don't wanna wake up
+Can't touch down
+Stranded in the sky, no way back to the ground
+(Can't wake up now)
+You say this isn't a dream, but I still don't wanna wake up
+(Can't leave you now)
+(Can't wake up now)
+
+
+詞/曲 Lyrics & Composer: CHANCE 成晞
+製作人/編曲 Producer & Arranger：CÉON / CHANCE 成晞
+和聲編寫 Background Vocal Arrangement：CÉON
+和聲 Background Vocalist：CHANCE 成晞
+錄音師 Recording Engineers：CÉON
+錄音室 Recording Studios：THE VIBE STUDIO
+混音師 Mixing Engineer：CÉON
+混音室 Mixing Studio：THE VIBE STUDIO
+母帶後期製作人 Mastering Producer: CÉON
+母帶後期工程師 Mastering Engineer: CÉON`,
+  stay: `STAY WITH ME
+It's a lonely night
+Don't wanna fight
+We stopped talking
+The memories ran me over, holding nothing back
+Broken images linger in every corner
+I close the door and stare into the silence
+No one is really to blame — I was just too fragile
+When you pushed me away, the tears began to fall
+I wish you could understand me
+My heartbeat is barely there
+You're the only one who can bring it back to life
+Baby hold me hold me tight
+We can make it right
+This feeling — no one can take it away
+We can try feel the vibe
+How we used to dance all night
+No one can read the look on your face
+Can I finally stop making the same mistakes?
+Are all our old habits still the same?
+Can we leave all that pain behind?
+Baby I just want you here in my arms
+Oh, maybe we can start it all again
+Through everything we lost and everything we had
+Oh maybe I don't know
+Baby stay with me now
+No one is really to blame — I was just too fragile
+When you pushed me away, the tears began to fall
+I wish you could understand me
+My heartbeat is barely there
+You're the only one who can bring it back to life
+Please stay with me now
+Please stay with me
+I'm still completely under your spell
+Please stay with me
+Please stay with me now
+These familiar streets
+Please stay with me now
+I've been chasing you all this way
+Baby I could, I could stay with you until the very end
+I regret giving up on love when it was calling
+Now there's nothing but emptiness in my eyes
+Oh maybe I don't know
+Baby stay with me now
+
+
+作詞 Lyrics：CHANCE 成晞　作曲 Composer：CÉON 璽揚
+製作人 Producer：璽揚 CÉON
+編曲 Arranger：Mixtape Seoul
+和聲編寫 Background Vocal Arrangement：璽揚 CÉON
+和聲 Background Vocalist：CHANCE 成晞
+錄音工程師 Recording Engineers：璽揚 CÉON
+錄音室 Recording Studios: The Vibe Studio@Taipei / The Studio@LA
+混音師 Mixing Engineer：璽揚 CÉON
+混音室 Mixing Studio：The Vibe Studio@Taipei`,
+  never: `NEVER KNOW
+I'm trying not to worry I'm tryna realize
+How can love be taken away before I even get to give it?
+I just want you to hold me
+I'm trying not to worry I'm trapped in the vibe
+Feeling you beside me
+Watching the tide roll in and out
+I know you better — yet you've grown familiar with someone else
+I wake up to the cold
+You send to me Pretend to be
+Oh Step to me
+How do we break free from this pain without breaking us apart?
+I see that distant look in your eyes again
+You trying not to leave me
+You tell me to stay away — but the mistake I made
+Was living inside an anime all along
+I'm trying not to worry I'm tryna realize
+How can love be taken away before I even get to give it?
+I just want you to hold me
+I'm trying not to worry I'm trapped in the vibe
+Feeling you beside me
+Watching the tide roll in and out
+I know you better — yet you've grown familiar with someone else
+It's not like I don't hurt, like I don't understand
+I give in — I swear this is the last time I mistake this dream for real
+It's not like I don't hurt, like I don't understand
+I give in — I swear this is the last time I mistake this dream for real
+It's not like I don't hurt, like I don't understand
+Some times I'm stuck in the loop (x2)
+You never know
+You never know
+You never know oh~
+I wanna do better I broke your heart
+You stole my soul I promise you
+I'll find you You are my all
+Howling for it I'm falling
+Some times I'm stuck in the loop
+Hurt me — I can carry it
+No one else can keep this candle burning, no one can hold me back
+No one can really see it — part of me still wants to wish you well
+People around me keep asking why
+But I've been feeling in the same flow
+
+
+詞曲 Lyrics & Composer: CHANCE 成晞
+製作人 Producer：CÉON
+編曲 Arranger：CÉON
+錄音工程師 Recording Engineers：CÉON
+錄音室 Recording Studios: The Vibe Studio@Taipei
+混音師 Mixing Engineer：CÉON
+混音室 Mixing Studio：The Vibe Studio@Taipei
+Produce Company: HeartBeats Production 龍言展工作室`,
+  trap: `Trap My Soul
+You told me you didn't want to leave after the drinks wore off
+Even quantum entanglement is still love
+In my heart, you were never that innocent
+But I still don't know why you always got me so tired
+Oh I don't know
+You're still not done fighting — and the love I never got to give is still overflowing
+Your warmth feels so familiar; an apology I can't forget
+Missing you, wild and burning, day and night
+You trap my soul, and every dream I had
+Everything you know
+It feels like going back in time, memories rising like smoke
+The world that was mine — I destroyed it all with my own hands
+You trap my soul; there's no escape when love turns fragile
+One touch of the past and I'm trapped there all over again
+I can't forget that pain; I got used to being controlled
+Without you, how am I supposed to live?
+Didn't you say you wouldn't let go — promising you'd never make the same mistake?
+So you clenched your fists, crying that our love wasn't grown enough
+Don't judge me. Just believe me. Even if I lose everything, don't look down on me
+I hold on tight, ask no questions — every vow is tattooed right here
+I miss the tangled nights, the room that belonged to us
+I want to part your lips and search for where our boundaries end
+I want to kidnap your gaze — possess all of it, everything
+I want to stay by your bed until the heat finally settles
+You trap my soul, and every dream I had
+Everything you know
+It feels like going back in time, memories rising like smoke
+The world that was mine — I destroyed it all with my own hands
+You trap my soul; the memories rise like smoke
+You trap my soul
+Without you, how am I supposed to live?
+
+
+詞/曲 Lyrics & Composer: CÉON
+製作人/編曲 Producer & Arranger：CÉON
+和聲編寫 Background Vocal Arrangement：CÉON
+和聲 Background Vocalist：CÉON & CHANCE
+錄音師 Recording Engineers：CÉON
+錄音室 Recording Studios：THE VIBE STUDIO
+混音師 Mixing Engineer：CÉON
+混音室 Mixing Studio：THE VIBE STUDIO
+母帶後期製作人 Mastering Producer: CÉON
+母帶後期工程師 Mastering Engineer: Mike Hillier
+母帶後期錄音室 Mastering Studio: Metropolis @UK`,
+  yici: `一次到底 ALL THE WAY
+Can we finally talk about what's real?
+I'm all in, balling — even outlaws live by a code
+If we're talking loyalty, I'm taking it all the way
+Stay true and see it through — that's what makes it right
+Can we finally talk about what's real?
+By all rights, we should be standing at the top
+Can we talk about real loyalty? I'm taking it all the way
+At last, every hard edge has sharpened me — yeah
+My life's on the line and my blood is boiling
+I got turnt, I got hurt, but that's all in the past
+Still burning with my homies
+We made it to the top — this is the view we came for
+Can't hold back
+Hood got your back
+I let destiny take its time revealing the next move
+All right, all right, all right — I'm real tonight
+I'm giving you one last deadline
+Let love lead the way — I'll show you what love is
+At the end of the day, I'm good — everything's all right
+Even a bank shot can still drop in the side pocket
+Wow!!!
+Yeah I look around
+Blades laid down to the side; if one of us falls, the debt gets paid in blood
+Everyone has to taste defeat someday
+Living in the new gang (x4)
+Can we finally talk about what's real?
+I'm all in, balling — even outlaws live by a code
+If we're talking loyalty, I'm taking it all the way
+Stay true and see it through — that's what makes it right
+Can we finally talk about what's real?
+By all rights, we should be standing at the top
+Can we talk about real loyalty?
+I'm taking it all the way — every hard edge has sharpened me, yeah
+I steer through danger, moving where the risk runs deep
+I take the risk and stand my ground to the end
+It's hard, it gets violent, and I hit back harder
+Never afraid. Every word is true. I wear down stone and wait for my moment
+In how I live and how I move, a copy can never overthrow the original
+The world's dark, but we won't betray ourselves. We move forward without fear
+Living in the new gang (x4)
+Can we finally talk about what's real?
+If we're talking loyalty, I'm taking it all the way (that's what makes it right)
+Can we finally talk about what's real? (the view from the top)
+Can we finally talk about what's real?
+At last, every hard edge has sharpened me — YEAH
+Hundred percent — all, all, all the way
+
+
+詞曲 Lyrics & Composer: CHANCE 成晞
+製作人 Producer：璽揚 CÉON
+編曲 Arranger：璽揚 CÉON / 詹勳偉
+吉他 Guitars：詹勳偉
+鼓 Drum：Mike Avenaim
+和聲編寫 Background Vocal Arrangement：璽揚 CÉON
+和聲 Background Vocalist：CHANCE 成晞
+錄音工程師 Recording Engineers：璽揚 CÉON
+錄音室 Recording Studios: The Vibe Studio@Taipei / The Studio@LA
+混音師 Mixing Engineer：璽揚 CÉON
+混音室 Mixing Studio：The Vibe Studio@Taipei`,
+  shou: `受不了 CAN'T TAKE IT
+I passed right through your side of town
+Wake me up — don't leave me in this dream
+I'll do whatever you want
+How am I supposed to let go just like that?
+I've already moved beyond
+A world where everything has to line up
+Still searching for my balance
+Then a storm came out of nowhere
+And blew time away, little by little
+Why do I have to
+Carry all these feelings
+When they only keep me from coming closer?
+They spread through me like frost
+Faster than I can breathe
+Everything happened so suddenly
+I never had the chance to catch your love
+I can hardly take what all of this has turned me into
+I can't stand the thought of letting you pass me by
+This longing stings deep inside my heart
+I can hardly resist the way you pull me in
+In this game, you make all the rules
+I'm waiting for you
+Before I drive, first write a song
+About a dream that leans toward the real
+I clear my mind
+I hope that was right
+I'm afraid of losing you
+I hope that was right
+Maybe I planted this bitter fruit myself
+Maybe I have to find my own way through it
+This feeling, Baby
+Is tearing me apart
+Oh baby, please don't make me
+Keep guessing if I'm still in your heart
+This fear makes me flinch, trapped in the night
+I can hardly take what all of this has turned me into
+I can't stand the thought of letting you pass me by
+This longing stings deep inside my heart
+I can hardly resist the way you pull me in
+In this game, you make all the rules
+I'm waiting for you
+Without you, this world is like a world with no oxygen
+The twilight won't fade; the thought of you is wrapped around my heart
+I lose track of time because I'm waiting for you to appear
+About you
+I can hardly take what all of this has turned me into
+I can't stand the thought of letting you pass me by
+This longing stings deep inside my heart
+I can hardly resist the way you pull me in
+In this game, you make all the rules
+I'm waiting for you`,
+};
+
 /* ---- THE SKY 內嵌歌詞（file:// 直接開 test.html 也能顯示；lyricsPath 作備援）---- */
 const SKY_LYRICS = {
   1: `DONT WANNA WAKE UP
@@ -2131,8 +2498,8 @@ const THE_SKY = {
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsFull: true, artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: null },
+    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu,  artwork: null },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -2295,9 +2662,9 @@ Baby stay with me now
 和聲編寫 Background Vocal Arrangement：璽揚 CÉON
 和聲 Background Vocalist：Chance 成晞
 錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
+錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studio@LA
 混音師 Mixing Engineer：璽揚 CÉON
-混音室 Recording Studios：The Vibe Studio@Taipei`,
+混音室 Mixing Studio：The Vibe Studio@Taipei`,
   2: `Never Know
 
 I’m trying not to worry I’m tryna realize
@@ -2348,7 +2715,7 @@ But I’ve been feeling In the same flow
 錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
 混音師 Mixing Engineer：璽揚 CÉON
-混音室 Recording Studios：The Vibe Studio@Taipei
+混音室 Mixing Studio：The Vibe Studio@Taipei
 Produce Company: HeartBeats Production 龍言展工作室`,
   3: `Trap My Soul
 
@@ -2443,7 +2810,7 @@ Make it Bounce
 錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
 混音師 Mixing Engineer：璽揚 CÉON
-混音室 Recording Studios：民生社區錄音室 The Vibe Studio@Taipei
+混音室 Mixing Studio：民生社區錄音室 The Vibe Studio@Taipei
 歌曲製作公司 Produce Company: HeartBeats Production
 母帶後期處理製作人: 璽揚 CÉON
 母帶後期處理工程師: Wayson.H
@@ -2505,9 +2872,9 @@ Hundred percent 到到到底
 和聲編寫 Background Vocal Arrangement：璽揚 CÉON
 和聲 Background Vocalist：Chance 成晞
 錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
+錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studio@LA
 混音師 Mixing Engineer：璽揚 CÉON
-混音室 Recording Studios：The Vibe Studio@Taipei`,
+混音室 Mixing Studio：The Vibe Studio@Taipei`,
   6: `受不了
 
 我經過了 妳的方位
@@ -2619,12 +2986,12 @@ const CLASSICS = {
   /* ---- 舊歌五首：全部免費，附歌詞（lyricsText 內嵌 = file:// 也能看）--
    * artwork = 各自的單曲封面（鎖定畫面顯示；一次到底沒有封面，用專輯封面）。 */
   tracks: [
-    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], lyricsFull: true, artwork: "assets/images/classics/01.jpg" },
-    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
-    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
+    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], lyricsEn: EN_LYRICS.stay, lyricsFull: true, artwork: "assets/images/classics/01.jpg" },
+    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsEn: EN_LYRICS.never, lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
+    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsEn: EN_LYRICS.trap, lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
     { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], lyricsFull: true, artwork: "assets/images/classics/04.jpg" },
-    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsFull: true, artwork: null },
-    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsFull: true, artwork: null },
+    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: null },
+    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: null },
     { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, artwork: null },
   ],
 
@@ -3099,7 +3466,7 @@ window.ALBUM_SWITCH = {
       }
     } else { dot.textContent = ""; }
     /* 歌詞按鈕：沒歌詞就藏起來（頁面不會壞） */
-    $("btn-lyrics").classList.toggle("hidden", !(t.lyricsPath || t.lyricsText) || !!t.lyricsFull);
+    $("btn-lyrics").classList.remove("hidden");   // B47：中/EN 常駐（全 App 語言切換）
   }
   function renderPlayState() {
     $("play-icon-path").setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
@@ -3249,6 +3616,7 @@ window.ALBUM_SWITCH = {
   }
   function loadLyricsInto(body) {
     var t = TRACKS[state.cur];
+    if (lyricLang === "en" && t.lyricsEn) { renderLyrics(body, t.lyricsEn, t.title); return; }
     if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }
     if (!t.lyricsPath) { body.innerHTML = '<div class="lyrics-empty">' + esc(STR.noLyrics || "這首歌暫時沒有歌詞") + "</div>"; return; }
     if (lyricsCache[t.n] != null) { renderLyrics(body, lyricsCache[t.n], t.title); return; }
@@ -3273,16 +3641,251 @@ window.ALBUM_SWITCH = {
   }
   $("tab-upnext").addEventListener("click", function () { sheetTab("upnext"); });
   $("tab-lyrics").addEventListener("click", function () { sheetTab("lyrics"); });
+
+  /* ── B47：介面語言 中/EN ── DOM 翻譯層，只換字、不動任何邏輯。
+   * FEED 對話、抽卡卡名、歌詞（另有意譯機制）與調校面板不翻。 */
+  var I18N = {
+"所有曲目都已開放 · 不限次數隨時聽": "All tracks open · listen anytime, no limits",
+"這張專輯全部免費 · 隨時聆聽": "This album is completely free · anytime",
+"這張專輯不用購買，直接聽": "No purchase needed — just listen",
+"全部免費": "All free",
+"全部免費聆聽": "All free to listen",
+"不限次數隨時重播": "Replay anytime, unlimited",
+"下載這首": "Download this track",
+"循環播放": "Repeat",
+"全螢幕": "Fullscreen",
+"六年前到現在的所有歌": "Every song from six years ago until now",
+"搶先聽全 10 首 · 8/28 起陸續更新": "Hear all 10 first · new drops from 8/28",
+"2027/2 全曲到齊 · 時程暫定": "Complete by 2027/2 · dates tentative",
+"← 滑動切換專輯 →": "← swipe to switch albums →",
+"把沒被世界聽見的訊號，留在這裡。": "Signals the world never heard, kept here.",
+"匿名訊號": "Anonymous signal",
+"重新連線": "Reconnect",
+"專輯": "Album",
+"把所有訊號收回成一句來不及的道歉": "Every signal pulled back into one apology that came too late",
+"抬頭望向資料雲，找回最後的自由訊號": "Looking up into the data clouds for the last free signal",
+"在夢境與現實崩塌之間，我仍不願醒來": "Between collapsing dream and reality, I still refuse to wake",
+"It's a lonely night，留下來": "It's a lonely night — stay",
+"你永遠不會知道的，沒說出口": "What you'll never know — never said out loud",
+"量子糾纏，那還是愛": "Quantum entanglement — it's still love",
+"全集中呼吸 Blow away": "Total-focus breathing · Blow away",
+"KISEKI 奇蹟 插曲 · All in 盜亦有道": "From KISEKI · All in — even outlaws have a code",
+"有些情緒，壓到最後就是受不了": "Some feelings, pressed down long enough, become too much",
+"慢速的畫格裡，把時間拉回自己手上": "In slow frames, taking time back into my own hands",
+"數位專輯": "Digital Album",
+"全解鎖": "All Access",
+"升級全解鎖": "Upgrade to All Access",
+"全解鎖 · NT$799": "All Access · NT$799",
+"購買全解鎖 NT$799": "Buy All Access · NT$799",
+"全解鎖限定 · NT$799": "All-Access only · NT$799",
+"全解鎖限定 · 補 NT$500 升級": "All-Access only · upgrade for NT$500",
+"補 NT$500 升級全解鎖": "Upgrade for NT$500",
+"升級全解鎖 · NT$500": "Upgrade · NT$500",
+"升級全解鎖 · 補 NT$500": "Upgrade · NT$500",
+"最超值 · 分開買要 898": "Best value · NT$898 separately",
+"全解鎖＝完整專輯＋頻道＋全部獨家影片，一次擁有。": "All Access = full album + channel + every exclusive video, all at once.",
+"專輯全部內容＋每日抽卡": "Everything in the album + daily card draws",
+"含 SIGNAL 頻道＋全部獨家影片": "Includes SIGNAL channel + all exclusive videos",
+"全部獨家影片 · 含未來新片": "All exclusive videos · future drops included",
+"每日抽卡 · 完整卡池": "Daily draws · full card pool",
+"＋完整專輯": "+ full album",
+"你已擁有專輯 · 補 NT$500 就是全解鎖。": "You own the album — NT$500 makes it All Access.",
+"你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新）": "Your plan: All Access · album + SIGNAL channel + every exclusive video (future updates included)",
+"你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池": "Your plan: Digital Album · full track list + full daily-draw card pool",
+"已經購買了？": "Already purchased?",
+"輸入兌換碼解鎖": "Enter your code to unlock",
+"輸入序號解鎖完整版": "Enter code to unlock the full version",
+"購買前，先留下 Email": "Before checkout, leave your email",
+"付款完成後，訂單與兌換碼會寄到這個信箱。": "After payment, your order and unlock code arrive at this inbox.",
+"　付款完成後，訂單與兌換碼會寄到這個信箱。": "After payment, your order and unlock code arrive at this inbox.",
+"　付款完成後，帶 QR code 的電子票會寄到這個信箱。": "After payment, your QR-code e-ticket arrives at this inbox.",
+"　付款完成後，訂單確認會寄到這個信箱。": "After payment, your order confirmation arrives at this inbox.",
+"　兌換碼會寄到這個信箱，用它解鎖。": "Your unlock code arrives at this inbox.",
+"兌換碼會寄到信箱，用「購買時的 email」解鎖": "Your code arrives by email — unlock with the email used at purchase",
+"前往付款": "Continue to payment",
+"取消": "Cancel",
+"前往聽歌 →": "Go listen →",
+"我已閱讀並同意": "I have read and agree to the",
+"《購買須知》": "Purchase Terms",
+"與": "and",
+"《隱私權政策》": "Privacy Policy",
+"購買須知": "Purchase Terms",
+"隱私權政策": "Privacy Policy",
+"，並同意數位內容一經解鎖即完成提供、不適用七日猶豫期、恕不退費。": ", and agree that digital content is delivered upon unlock; the 7-day cooling-off period does not apply and fees are non-refundable.",
+"請先勾選同意《購買須知》與《隱私權政策》，才能前往付款": "Please agree to the Purchase Terms and Privacy Policy first",
+"兌換碼 · CODE": "CODE",
+"購買時的 Email": "Email used at purchase",
+"兌換碼 SKY1-XXXX-XXXX": "Code SKY1-XXXX-XXXX",
+"請輸入 email 和兌換碼": "Enter your email and code",
+"兌換碼或 email 不正確": "Code or email incorrect",
+"全解鎖成功 · 全部內容屬於你了 ♡": "All Access unlocked · everything is yours ♡",
+"升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡": "Upgraded · SIGNAL channel and all videos unlocked ♡",
+"重設解鎖（測試用）": "Reset unlock (testing)",
+"已重設 · 回到未解鎖狀態": "Reset · back to locked state",
+"客服信箱 heartebeats0693@gmail.com": "Support: heartebeats0693@gmail.com",
+"Email 格式不太對，再確認一下": "That email doesn't look right — check it again",
+"驗證中…": "Verifying…",
+"解鎖試聽": "Trial unlock",
+"周邊 · 限量商品": "Merch · Limited",
+"周邊商品": "Merch",
+"只在 App 內販售 · 持有者專屬": "App-exclusive · holders only",
+"THE SKY 2027 聽片會 · 一般票": "THE SKY 2027 Listening Premiere · GA Ticket",
+"THE SKY 2027 聽片會 · VIP 票": "THE SKY 2027 Listening Premiere · VIP Ticket",
+"三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。": "Three unreleased songs — heard for the first time on 2/20, by only 205 people.",
+"VIP 席位 · 含限定周邊與會後交流。": "VIP seating · limited merch and after-session meet included.",
+"CHANCE 紫火限量手鏈": "CHANCE Purple-Flame Bracelet",
+"THE SKY 世界觀延伸 · 全世界只有 10 條，編號限量，售完不補。": "From THE SKY universe · only 10 in the world, numbered, never restocked.",
+"THE SKY 製作寫真": "THE SKY Making-of Photobook",
+"從 demo 到母帶的製作現場，收錄進一本實體寫真。": "From demo to master — the whole session in one photobook.",
+"預購": "Pre-order",
+"購買": "Buy",
+"已售罄": "Sold out",
+"敬請期待 · 尚未上架": "Coming soon",
+"敬請期待": "Coming soon",
+"2/5 開賣 · 會員限定": "On sale 2/5 · members only",
+"VIP · 2/5 開賣 · 會員限定": "VIP · on sale 2/5 · members only",
+"聽片會 · 我想去": "Listening Premiere · count me in",
+"我想去 · 免費登記": "Count me in · free signup",
+"免費登記、不用付款。2/5 開賣時會用這個信箱通知你。": "Free signup, no payment. We'll email you here when sales open on 2/5.",
+"已登記 ♡ 2/5 開賣第一時間通知你": "Signed up ♡ you'll be first to know on 2/5",
+"已登記 ✓ 開賣時通知你": "Signed up ✓ we'll notify you",
+"登記失敗 · 再試一次": "Signup failed · try again",
+"請填購票人姓名，入場時需要核對": "Enter the ticket holder's name — checked at entry",
+"這個商品尚未設定": "This item isn't configured",
+"這個商品還沒上架，敬請期待": "Not on sale yet · coming soon",
+"尚未設定付款連結": "Payment link not set",
+"每日抽卡": "Daily Draw",
+"每天登入送 1 抽　聽完一首歌再 ＋1 抽": "1 free draw daily · +1 for every song you finish",
+"COLLECTION · 圖鑑": "COLLECTION",
+"券用完了 · 去聽歌賺一張": "Out of tickets · finish a song to earn one",
+"券用完了 · 聽完一首歌就能再抽 ♡": "Out of tickets · finish a song to draw again ♡",
+"聽完一首 · ＋1 抽卡券 ✦": "Song finished · +1 draw ticket ✦",
+"NEW ✦ 獲得新卡": "NEW ✦ card acquired",
+"✦ 已收藏": "✦ collected",
+"點一下收進圖鑑": "Tap to add to your collection",
+"會員限定": "Members only",
+"卡池尚未設定": "Card pool not set",
+"另外 5 張只有買了才抽得到 ✦": "The other 5 cards are owner-only ✦",
+"購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →": "Buy the album NT$299 · unlock all 6 cards + every song →",
+"解鎖後才能收藏這首的心動瞬間": "Unlock to collect this moment",
+"重置抽卡＋補滿券（測試用）": "Reset draws + refill tickets (testing)",
+"已重置 · 完整卡池 · 券補滿 ✦": "Reset · full pool · tickets refilled ✦",
+"已收藏這一刻": "Moment collected",
+"SIGNAL 私訊頻道": "SIGNAL Private Channel",
+"SIGNAL · 私訊頻道": "SIGNAL · Private Channel",
+"SIGNAL 私訊頻道 · 含未來更新": "SIGNAL Private Channel · future updates included",
+"只在這裡的照片、語音、獨家影片、和只說給你聽的話。": "Photos, voice notes, exclusive videos — and words meant only for you.",
+"頻道持續更新 · 至 2027/2（時程暫定）。": "Updated continuously through 2027/2 (tentative).",
+"頻道更新至 2027/2 · 時程暫定": "Channel updates through 2027/2 · tentative",
+"已購買？輸入兌換碼": "Purchased? Enter your code",
+"確認解鎖": "Unlock",
+"獨家影片": "Exclusive video",
+"I'M SORRY · 幕後": "I'M SORRY · Behind the scenes",
+"此兌換碼不適用於這裡": "This code doesn't apply here",
+"這是專輯的兌換碼 · 請到 OWN 分頁解鎖專輯": "That's an album code · use it in the OWN tab",
+"頻道解鎖成功 · 歡迎進來 ♡": "Channel unlocked · welcome in ♡",
+"影片解鎖成功 ♡": "Video unlocked ♡",
+"獨家影片為全解鎖內容（含未來新片）。付款完成後，兌換碼會寄到這個信箱。": "Exclusive videos are All-Access content (future drops included). Your code arrives by email after payment.",
+"解鎖 SIGNAL 私訊頻道＋全部獨家影片（含未來更新，頻道至 2027/2，時程暫定）。兌換碼會寄到這個信箱。": "Unlocks the SIGNAL channel + every exclusive video (future updates included; through 2027/2, tentative). Your code arrives by email.",
+"成晞 Chance · 寫真": "CHANCE · Photos",
+"成晞 Chance · 寫真牆": "CHANCE · Photo Wall",
+"錄音現場": "In session",
+"有新內容 ✨ 點此更新": "New update ✨ tap to refresh",
+"更新中…": "Updating…",
+"載入中…": "Loading…",
+"這首歌暫時沒有歌詞": "No lyrics for this track yet",
+"連線失敗": "Connection failed",
+"連線失敗 · 再試一次": "Connection failed · try again",
+"連線失敗 · 後端未回應": "Connection failed · no response",
+"後端尚未設定": "Backend not configured",
+"後端尚未設定 · 可先用 demo 兌換碼體驗": "Backend not configured · try a demo code",
+"需解鎖完整專輯才能播放": "Unlock the album to play this",
+"其餘曲目需解鎖完整專輯": "Unlock the album for the rest",
+"需解鎖完整專輯才能下載": "Unlock the album to download",
+"下載為典藏版限定": "Downloads are deluxe-only",
+"歌詞語言：中文": "介面語言：中文"
+};
+  var I18N_RULES = [
+    [/^開始下載 · (.+)$/, "Downloading · $1"],
+    [/^解鎖成功 · (\d+) 首全部屬於你了 ♡$/, "Unlocked · all $1 tracks are yours ♡"],
+    [/^免費試聽 (\d+) 首$/, "Free preview · $1 tracks"],
+    [/^已解鎖完整 (\d+) 首 · 每月更新新歌$/, "All $1 tracks unlocked · new songs monthly"],
+    [/^已解鎖完整 (\d+) 首$/, "All $1 tracks unlocked"],
+    [/^(\d+) 首 · 擁有後解鎖完整版，每月更新新歌$/, "$1 tracks · own it to unlock full versions, new songs monthly"],
+    [/^曲目列表 · (\d+) 首$/, "Track list · $1 songs"],
+    [/^抽卡 ✦ 剩 (\d+) 張券$/, "Draw ✦ $1 tickets left"],
+    [/^再抽一張 ✦ 剩 (\d+) 張券$/, "Draw again ✦ $1 left"],
+    [/^限量 (\d+) · 剩 (\d+)$/, "Limited $1 · $2 left"],
+    [/^限量 (\d+)$/, "Limited $1"],
+    [/^又抽到 · (.+)$/, "Duplicate · $1"],
+    [/^已收集 (\d+) ?\/ ?(\d+)$/, "Collected $1/$2"],
+    [/^前往結帳 · (.+)$/, "Checkout · $1"],
+    [/^升級全解鎖 · 補 NT\$(\d+)$/, "Upgrade to All Access · NT$$$1"],
+    [/^擁有 (\d+) 首$/, "Own $1 tracks"],
+    [/^免費試聽 (.+)$/, "Free preview: $1"]
+  ];
+  function i18nMap(s){
+    if (I18N[s]) return I18N[s];
+    for (var i = 0; i < I18N_RULES.length; i++){
+      if (I18N_RULES[i][0].test(s)) return s.replace(I18N_RULES[i][0], I18N_RULES[i][1]);
+    }
+    return null;
+  }
+  var I18N_SKIPTAG = { SCRIPT:1, STYLE:1, TEXTAREA:1 };
+  function i18nSkipEl(el){
+    var id = el.id || "";
+    return id === "feed-body" || id === "sheet-lyrics" || id === "lyrics-overlay" || id === "__tunerPanel" || id === "__tpBody";
+  }
+  function i18nWalk(node, toEn){
+    if (!node) return;
+    if (node.nodeType === 3){
+      var t = node.nodeValue, tt = t.trim();
+      if (!tt) return;
+      if (toEn){
+        var m = i18nMap(tt);
+        if (m && m !== tt){ node._zh = t; node.nodeValue = t.replace(tt, m); }
+      } else if (node._zh != null){ node.nodeValue = node._zh; node._zh = null; }
+      return;
+    }
+    if (node.nodeType !== 1 || I18N_SKIPTAG[node.tagName] || i18nSkipEl(node)) return;
+    var attrs = ["placeholder", "title"];
+    if (toEn){
+      for (var a = 0; a < attrs.length; a++){
+        var v = node.getAttribute && node.getAttribute(attrs[a]);
+        if (v){ var m2 = i18nMap(v.trim()); if (m2){ if (!node._zha) node._zha = {}; node._zha[attrs[a]] = v; node.setAttribute(attrs[a], m2); } }
+      }
+    } else if (node._zha){ for (var k in node._zha) node.setAttribute(k, node._zha[k]); node._zha = null; }
+    for (var c = node.firstChild; c; c = c.nextSibling) i18nWalk(c, toEn);
+  }
+  var i18nMO = null;
+  function applyAppLang(){
+    var en = lyricLang === "en";
+    i18nWalk(document.body, en);
+    if (en && !i18nMO && window.MutationObserver){
+      i18nMO = new MutationObserver(function(muts){
+        if (lyricLang !== "en") return;
+        for (var i = 0; i < muts.length; i++){
+          var m = muts[i];
+          if (m.type === "characterData") i18nWalk(m.target, true);
+          if (m.addedNodes) for (var j = 0; j < m.addedNodes.length; j++) i18nWalk(m.addedNodes[j], true);
+        }
+      });
+      i18nMO.observe(document.body, { subtree:true, childList:true, characterData:true });
+    }
+  }
+
   $("btn-lyrics").addEventListener("click", function () {
     lyricLang = lyricLang === "zh" ? "en" : "zh";
     try { localStorage.setItem(NS + ":lylang", lyricLang); } catch (e) {}
     updateLyLab();
-    toast(lyricLang === "zh" ? "歌詞語言：中文" : "Lyrics: English");
+    applyAppLang();
+    toast(lyricLang === "zh" ? "介面語言：中文" : "Language: English");
     hap([8, 20, 8]);
     var ly = $("sheet-lyrics");
     if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly);
   });
   updateLyLab();
+  applyAppLang();
   $("btn-close-lyrics").addEventListener("click", function () { $("lyrics-overlay").classList.add("hidden"); });
 
   /* ---------- 分頁切換 + Floating Island Nav ----------
@@ -4690,7 +5293,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B46</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B47</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
