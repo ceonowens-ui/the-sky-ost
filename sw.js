@@ -1,5 +1,5 @@
 /* CHANCE App Service Worker — 版本號跟著 build 印章走，每次部署要改 */
-var VERSION = "B38";
+var VERSION = "B30";
 var CACHE = "chance-app-" + VERSION;
 
 self.addEventListener("install", function (e) {
@@ -26,7 +26,7 @@ self.addEventListener("fetch", function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;              // Worker API 等跨域不碰
   if (req.method !== "GET") return;
-  if (/\.(mp3|wav|m4a|mp4)$/i.test(url.pathname)) return;           // 音檔不經過 SW（iOS Range 串流）
+  if (/\.(mp3|wav|m4a)$/i.test(url.pathname)) return;           // 音檔不經過 SW（iOS Range 串流）
   if (url.pathname.endsWith("/content.json")) return;           // 內容檔永遠即時抓
 
   if (req.mode === "navigate") {
