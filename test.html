@@ -792,6 +792,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                        100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% - var(--rise))) scale(var(--s)) rotate(var(--r2)); } }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 30% { transform: scale(1.22); } 55% { transform: scale(1); } }
 
+
+/* B43：歌詞頁字體＝A-OTF リュウミン Pr6N（歌名・歌詞・製作名單全套；subset 檔在 assets/fonts/） */
+@font-face{ font-family:'RyuminLyric'; src:url("ryumin-lyric.woff2") format("woff2"); font-display:swap; }
+.sheet-lyrics, .lyrics-body, .lyrics-text, .lyrics-credits{ font-family:'RyuminLyric','Noto Serif TC',serif !important; }
+.lyrics-song-title{ font-family:'RyuminLyric','Noto Serif TC',serif !important; font-style:normal !important; }
 </style>
 
 <!-- ===== TEST 版覆蓋：墨紫金 Editorial Player（不影響原版 index.html） ===== -->
@@ -2241,61 +2246,8 @@ const THE_SKY = {
  * ===================================================================== */
 /* ---- 舊歌內嵌歌詞（file:// 直接開 test.html 也能顯示；部署後 lyricsPath 作備援）---- */
 const CLASSICS_LYRICS = {
-  6: `受不了
+  1: `Stay With Me
 
-我經過了 妳的方位
-叫醒我 別在夢裡面
-I’ll do whatever you want
-我該怎麼說放就放
-我已經過了
-不在相對 的世界
-追尋平衡點
-突然間一場暴風
-時間ㄧ點ㄧ點 吹飛
-為什麼必須
-承受情緒
-讓我不能靠近
-像結霜般開始擴散
-快速讓我不能呼吸
-一切來的這麼突然
-還來不及捕捉妳的愛
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you
-要開車之前先write a song
-寫下趨近於現實的夢
-我整理思緒
-I hope that was right
-我害怕失去
-I hope that was right
-也許是自己種下苦果
-也許應該自己試著渡過
-這種感受 Baby
-超掙扎
-Oh baby 拜託別再讓我
-猜測妳心裡有沒有我
-這感覺讓我膽怯 困在黑夜
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you
-這世界 沒了妳 就像沒有氧氣
-揮不去 的暮色 牽掛纏住了心
-我忽略時間是因為要等妳出現
-About you
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you`,
-
-  1: `STAY WITH ME
 It’s a lonely night
 Don’t wanna fight
 斷了聯絡
@@ -2340,18 +2292,17 @@ Baby i could I could 陪妳到最後
 Oh maybe I don’t know girl
 Baby stay with me now
 
-
-作詞：CHANCE 成晞     作曲：CEON 璽揚
+作詞：CHANCE 成晞 作曲：璽揚 CÉON
 製作人 Producer：璽揚 CÉON
 編曲 Arranger：Mixtape Seoul
-和聲編寫 Background Vocal Arrangement： 璽揚CÉON
+和聲編寫 Background Vocal Arrangement：璽揚 CÉON
 和聲 Background Vocalist：Chance 成晞
-錄音工程師 Recording Engineers：璽揚CÉON
+錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
-混音師 Mixing Engineer： 璽揚 CÉON
+混音師 Mixing Engineer：璽揚 CÉON
 混音室 Recording Studios：The Vibe Studio@Taipei`,
+  2: `Never Know
 
-  2: `ＮＥＶＥＲ ＫＮＯＷ
 I’m trying not to worry I’m tryna realize
 還沒給的愛 怎被沒收
 I just want you to hold me
@@ -2395,15 +2346,15 @@ Some times I’m stuck in the loop
 But I’ve been feeling In the same flow
 
 詞曲: Chance 成晞
-制作人 Producer：CÉON
-編曲 Arranger：CÉON
-錄音工程師 Recording Engineers：CÉON
+製作人 Producer：璽揚 CÉON
+編曲 Arranger：璽揚 CÉON
+錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
-混音師 Mixing Engineer：CÉON
+混音師 Mixing Engineer：璽揚 CÉON
 混音室 Recording Studios：The Vibe Studio@Taipei
 Produce Company: HeartBeats Production 龍言展工作室`,
-
   3: `Trap My Soul
+
 你告訴我 你不想喝醉後離開
 就算 量子糾纏 那還是愛
 在我心 你不是那天真女孩
@@ -2435,20 +2386,19 @@ Everything you know
 You Trap My Soul 回憶冒著濃煙
 You Trap My Soul
 沒了你 怎麼活
-詞/曲:CÉON
-製作人/編曲 Producer&Arranger：CÉON
-和聲編寫 Background Vocal Arrangement：CÉON
-和聲 Background Vocalist：CÉON & CHANCE
-錄音師 Recording Engineers： CÉON
+
+詞/曲:璽揚 CÉON
+製作人/編曲 Producer&Arranger：璽揚 CÉON
+和聲編寫 Background Vocal Arrangement：璽揚 CÉON
+和聲 Background Vocalist：璽揚 CÉON & CHANCE
+錄音師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios ：THE VIBE STUDIO
-混音師 Mixing Engineer：CÉON
+混音師 Mixing Engineer：璽揚 CÉON
 混音室 Mixing Studio：THE VIBE STUDIO
-母帶後期製作人 Mastering Producer: CÉON
+母帶後期製作人 Mastering Producer: 璽揚 CÉON
 母帶後期工程師 Mastering Engineer : Mike Hillier
 母帶後期錄音室 : Metropolis @UK`,
-
-  4: `全集中呼吸
-
+  4: `全集中，呼吸
 
 全集中呼吸Blow away
 全擊中pushing on my way
@@ -2492,15 +2442,15 @@ Do it
 Make it Bounce
 
 詞曲:CHANCE
-製作人/編曲 Producer&Arranger：CÉON
-錄音工程師 Recording Engineers：CÉON
+製作人/編曲 Producer&Arranger：璽揚 CÉON
+錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
-混音師 Mixing Engineer：CÉON
+混音師 Mixing Engineer：璽揚 CÉON
 混音室 Recording Studios：民生社區錄音室 The Vibe Studio@Taipei
-歌曲制作公司 Produce Company: HeartBeats Production
-母帶後期處理製作人: A CÉON母帶後期處理工程師: Wayson.H
+歌曲製作公司 Produce Company: HeartBeats Production
+母帶後期處理製作人: 璽揚 CÉON
+母帶後期處理工程師: Wayson.H
 母帶後期處理錄音室:尾聲 W.S Studio`,
-
   5: `一次到底
 
 可以講點真道理嗎 到底
@@ -2555,12 +2505,65 @@ Hundred percent 到到到底
 編曲 Arranger：璽揚 CÉON / 詹勳偉
 吉他 Guitars：詹勳偉
 鼓 Drum：Mike Avenaim
-和聲編寫 Background Vocal Arrangement： 璽揚CÉON
+和聲編寫 Background Vocal Arrangement：璽揚 CÉON
 和聲 Background Vocalist：Chance 成晞
-錄音工程師 Recording Engineers：璽揚CÉON
+錄音工程師 Recording Engineers：璽揚 CÉON
 錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
-混音師 Mixing Engineer： 璽揚 CÉON
+混音師 Mixing Engineer：璽揚 CÉON
 混音室 Recording Studios：The Vibe Studio@Taipei`,
+  6: `受不了
+
+我經過了 妳的方位
+叫醒我 別在夢裡面
+I’ll do whatever you want
+我該怎麼說放就放
+我已經過了
+不在相對 的世界
+追尋平衡點
+突然間一場暴風
+時間ㄧ點ㄧ點 吹飛
+為什麼必須
+承受情緒
+讓我不能靠近
+像結霜般開始擴散
+快速讓我不能呼吸
+一切來的這麼突然
+還來不及捕捉妳的愛
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you
+要開車之前先write a song
+寫下趨近於現實的夢
+我整理思緒
+I hope that was right
+我害怕失去
+I hope that was right
+也許是自己種下苦果
+也許應該自己試著渡過
+這種感受 Baby
+超掙扎
+Oh baby 拜託別再讓我
+猜測妳心裡有沒有我
+這感覺讓我膽怯 困在黑夜
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you
+這世界 沒了妳 就像沒有氧氣
+揮不去 的暮色 牽掛纏住了心
+我忽略時間是因為要等妳出現
+About you
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you`,
 };
 
 const CLASSICS = {
@@ -2619,12 +2622,12 @@ const CLASSICS = {
   /* ---- 舊歌五首：全部免費，附歌詞（lyricsText 內嵌 = file:// 也能看）--
    * artwork = 各自的單曲封面（鎖定畫面顯示；一次到底沒有封面，用專輯封面）。 */
   tracks: [
-    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], artwork: "assets/images/classics/01.jpg" },
-    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], artwork: "assets/images/classics/02.jpg" },
-    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], artwork: "assets/images/classics/03.jpg" },
-    { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], artwork: "assets/images/classics/04.jpg" },
-    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], artwork: null },
-    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], artwork: null },
+    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], lyricsFull: true, artwork: "assets/images/classics/01.jpg" },
+    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
+    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
+    { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], lyricsFull: true, artwork: "assets/images/classics/04.jpg" },
+    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsFull: true, artwork: null },
+    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsFull: true, artwork: null },
     { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, artwork: null },
   ],
 
@@ -3099,7 +3102,7 @@ window.ALBUM_SWITCH = {
       }
     } else { dot.textContent = ""; }
     /* 歌詞按鈕：沒歌詞就藏起來（頁面不會壞） */
-    $("btn-lyrics").classList.toggle("hidden", !(t.lyricsPath || t.lyricsText));
+    $("btn-lyrics").classList.toggle("hidden", !(t.lyricsPath || t.lyricsText) || !!t.lyricsFull);
   }
   function renderPlayState() {
     $("play-icon-path").setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
@@ -3217,6 +3220,8 @@ window.ALBUM_SWITCH = {
   /* B27：中英夾雜的行兩邊都要顯示，只隱藏「純粹是另一種語言」的行
    * —— 否則切 EN 時，混排行會整行消失（第1首會少掉 27 行）。 */
   function filterLyricLang(text) {
+    var _t = TRACKS[state.cur];
+    if (_t && _t.lyricsFull) return text.replace(/\n{3,}/g, "\n\n").trim();  // B43：整合雙語完整顯示
     var out = [];
     text.split("\n").forEach(function (L) {
       if (!L.trim()) { out.push(""); return; }
@@ -4688,7 +4693,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B42</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B43</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
