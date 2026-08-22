@@ -982,6 +982,14 @@ body { background: #08060C !important; }
 
 
 
+
+/* ===== B35 抽卡蓄力 → 爆閃 → 影片進場 ===== */
+#lk-flash{ position:fixed; inset:0; z-index:117900; background:#fff; opacity:0; pointer-events:none; }
+#lk-flash.go{ animation:lkFlash .5s ease-out forwards; }
+@keyframes lkFlash{ 0%{opacity:0} 18%{opacity:1} 100%{opacity:0} }
+#lk-cine.pre{ opacity:0; pointer-events:none; }
+#lk-cine.show{ opacity:1; pointer-events:auto; transition:opacity .28s ease; }
+
 /* ===== B33 首抽全螢幕影片揭曉 ===== */
 #lk-cine{ position:fixed; inset:0; z-index:118000; background:#000;
   display:flex; align-items:center; justify-content:center;
@@ -3973,13 +3981,13 @@ window.ALBUM_SWITCH = {
    * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
   function lkCinema(c) {
     var old = document.getElementById("lk-cine"); if (old) old.remove();
-    var ov = document.createElement("div"); ov.id = "lk-cine";
+    var ov = document.createElement("div"); ov.id = "lk-cine"; ov.className = "pre";
     ov.innerHTML =
       '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>' +
       '<button class="cine-skip">跳過 ›</button>';
     document.body.appendChild(ov);
     var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
-    var done = false;
+    var done = false, revealed = false;
     function finish() {
       if (done) return; done = true;
       try { v.pause(); } catch (_) {}
@@ -3990,13 +3998,41 @@ window.ALBUM_SWITCH = {
       toast("NEW ✦ " + (c.title || ""), 2200);
       if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
     }
-    v.addEventListener("ended", finish);
+    v.addEventListener("ended", function () { if (revealed) finish(); });
     v.addEventListener("error", finish);
     skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
-    setTimeout(function () { skip.classList.add("on"); }, 1600);
-    var pr = v.play();
-    if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
-    hap([10, 30, 10]);
+
+    /* ① 手勢內 prime：play→pause 解鎖這顆 video 之後的有聲播放（iOS） */
+    try {
+      var pr0 = v.play();
+      if (pr0 && pr0.then) pr0.then(function () { if (!revealed) v.pause(); }).catch(function () {});
+      else if (!revealed) v.pause();
+    } catch (_) {}
+
+    /* ② 蓄力：球體光軌加速 1.5 秒（影片同時在背景緩衝） */
+    var wrap = $("orb-wrap");
+    if (wrap) wrap.classList.add("charging");
+    hap([8, 20, 8, 20]);
+    playSfx("flip");
+
+    /* ③ 爆閃 → 影片進場 */
+    setTimeout(function () {
+      if (done) return;
+      var fl = document.getElementById("lk-flash");
+      if (!fl) { fl = document.createElement("div"); fl.id = "lk-flash"; document.body.appendChild(fl); }
+      fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go");
+      hap([12, 30, 12]);
+      setTimeout(function () {
+        if (done) return;
+        revealed = true;
+        if (wrap) wrap.classList.remove("charging");
+        ov.classList.remove("pre"); ov.classList.add("show");
+        try { v.currentTime = 0; } catch (_) {}
+        var pr = v.play();
+        if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
+        setTimeout(function () { skip.classList.add("on"); }, 1600);
+      }, 120);
+    }, 1500);
   }
 
   function doLuckDraw() {
@@ -4497,7 +4533,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B34</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B35</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
