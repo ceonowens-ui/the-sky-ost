@@ -58,34 +58,31 @@
      fallback = 現值：不套 tuner 時外觀完全不變；tuner「複製設定」後貼回覆蓋這幾行 ── */
   /* tuner 定稿 2026-08-17（墨紫金 Editorial） */
   --pv-status-shade: 1;
-  --pv-status-h: 150px;
-  --pv-cover-top: -10px;
+  --pv-status-h: 280px;
+  --pv-cover-top: -79px;
   --pv-cover-focus: 41%;
-  --pv-card-overlap: 70px;
-  --pv-card-side: 23px;
+  --pv-card-overlap: 12px;
+  --pv-card-side: 16px;
   --pv-card-bottom: 66px;
-  --pv-card-gap: 17px;
-  --pv-controls-gap: 57px;
-  --pv-controls-mt: -22px;
-  --pv-controls-mb: 10px;
-  --pv-track-font: 18px;
+  --pv-card-gap: 3px;
+  --pv-controls-gap: 16px;
+  --pv-controls-mt: -16px;
+  --pv-controls-mb: 7px;
+  --pv-track-font: 17px;
   --pv-track-label-font: 14px;
-  --pv-title-font: 31px;
-  --pv-sub-font: 18px;
-  --pv-nplabel-font: 15px;
-  --pv-times-font: 13.5px;
-  --pv-play-size: 34px;
-  --pv-times-shift: -19px;
-  --pv-next-shift: -10px;
-  --pv-nav-bottom: -15px;
+  --pv-title-font: 22px;
+  --pv-sub-font: 11.5px;
+  --pv-nplabel-font: 10.5px;
+  --pv-times-font: 11px;
+  --pv-next-shift: -8px;
+  --pv-nav-bottom: 5px;
   --pv-nav-shift-y: -14px;
-  --pv-nav-scale: 1.22;
+  --pv-nav-scale: 1.07;
   --pv-nav-opacity: 1;
-  --pv-nav-font: 11px;
-  --pv-cover-radius: 80px;
+  --pv-nav-font: 15px;
+  --pv-cover-radius: 44px;
   --pv-cover-side: 0px;
-  --pv-cover-bleed: 252px;
-  --pv-status-gap: 70px;
+  --pv-status-gap: 45px;
   --pv-font-en: 'Cormorant Garamond';
   --pv-font-label: 'Cormorant Garamond';
 }
@@ -293,38 +290,13 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .track-row { display: flex; align-items: center; gap: 13px; padding: 10px 12px;
              border-radius: 14px; cursor: pointer; }
 .track-row:active { background: rgba(255,255,255,.05); }
-.track-row.current { background: rgba(var(--primary-rgb), .12); }
+.track-row.current { background: rgba(var(--primary-rgb), .10); }
 .track-row.revealing { animation: reveal .5s ease both; }
-.sheet-tabs { display: flex; gap: 26px; align-items: center; }
-.sheet-tab { background: none; border: none; padding: 6px 0 8px; cursor: pointer;
-             font-family: var(--font-label); font-size: 12px; letter-spacing: 3px;
-             color: rgba(255,255,255,.45); border-bottom: 2px solid transparent; }
-.sheet-tab.active { color: #fff; border-bottom-color: var(--primary); }
-.tr-thumb { position: relative; flex: none; width: 46px; height: 46px; border-radius: 9px;
-            overflow: hidden; background: #201830; }
-.tr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.tr-thumb .th-ol { position: absolute; inset: 0; display: flex; align-items: center;
-                   justify-content: center; background: rgba(8,6,12,.45); }
-.sheet-lyrics { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-                padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-                font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
-                color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
-                letter-spacing: 1px; }
 .track-num { font-family: var(--font-label); font-size: 13px; width: 24px;
              text-align: center; color: #9a93a8; flex: none; }
-.track-name { min-width: 0; font-family: var(--font-serif-tc); font-size: 16.5px; line-height: 1.25;
-              color: rgba(255,255,255,.9); white-space: normal; word-break: break-word; }
-.tr-main { flex: 1; min-width: 0; }
-.tr-sub { margin-top: 3px; font-family: var(--font-label); font-size: 10.5px; letter-spacing: 1.5px;
-          color: rgba(255,255,255,.45); }
-.tr-action { flex: none; display: flex; align-items: center; }
-.tl-wf { display: none; }
-.tr-eq { display: inline-flex; gap: 2.5px; align-items: flex-end; height: 14px; }
-.tr-eq i { width: 3px; background: #fff; border-radius: 2px; animation: eqbar 0.9s ease-in-out infinite; }
-.tr-eq i:nth-child(1){ height: 60%; animation-delay: 0s; }
-.tr-eq i:nth-child(2){ height: 100%; animation-delay: .2s; }
-.tr-eq i:nth-child(3){ height: 45%; animation-delay: .4s; }
-@keyframes eqbar { 0%,100%{ transform: scaleY(.4);} 50%{ transform: scaleY(1);} }
+.track-name { flex: 1; min-width: 0; font-family: var(--font-serif-tc); font-size: 16px;
+              color: rgba(255,255,255,.82);
+              white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .track-row.current .track-num { color: var(--primary); }
 .track-row.current .track-name { color: #fff; }
 .track-row.locked .track-num { color: #5f5870; }
@@ -358,7 +330,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                  color: var(--primary); text-transform: uppercase; }
 .sheet-title { font-family: var(--font-serif-tc); font-size: 15px; margin-top: 4px;
                letter-spacing: 2px; }
-.sheet-close { width: 40px; height: 40px; border-radius: 50%;
+.sheet-close { width: 34px; height: 34px; border-radius: 50%;
                background: rgba(255,255,255,.08); border: none; color: #fff;
                cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .sheet-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -378,7 +350,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                display: flex; align-items: flex-start; justify-content: space-between; }
 .lyrics-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
                padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-               font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
+               font-family: var(--font-serif-tc); font-size: 16px; line-height: 2.2;
                color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                letter-spacing: 1px; }
 /* 歌詞第一行＝歌名，放大；其餘歌詞維持中等字級 */
@@ -386,7 +358,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                      font-size: 30px; line-height: 1.25; letter-spacing: 1px;
                      color: #fff; text-align: center; margin: 2px 0 22px;
                      white-space: pre-wrap; }
-.lyrics-text { font-size: 18px; line-height: 2.2; white-space: pre-wrap; }
+.lyrics-text { font-size: 16px; line-height: 2.2; white-space: pre-wrap; }
 /* 製作名單（詞曲/製作人那幾行）自動縮小，不搶歌詞 */
 .lyrics-credits { margin-top: 26px; padding-top: 18px;
                   border-top: 1px solid rgba(255,255,255,.12);
@@ -792,11 +764,6 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                        100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% - var(--rise))) scale(var(--s)) rotate(var(--r2)); } }
 @keyframes heartbeat { 0%,100% { transform: scale(1); } 30% { transform: scale(1.22); } 55% { transform: scale(1); } }
 
-
-/* B43：歌詞頁字體＝A-OTF リュウミン Pr6N（歌名・歌詞・製作名單全套；subset 檔在 assets/fonts/） */
-@font-face{ font-family:'RyuminLyric'; src:url("ryumin-lyric.woff2") format("woff2"); font-display:swap; }
-.sheet-lyrics, .lyrics-body, .lyrics-text, .lyrics-credits{ font-family:'RyuminLyric','Noto Serif TC',serif !important; }
-.lyrics-song-title{ font-family:'RyuminLyric','Noto Serif TC',serif !important; font-style:normal !important; }
 </style>
 
 <!-- ===== TEST 版覆蓋：墨紫金 Editorial Player（不影響原版 index.html） ===== -->
@@ -873,18 +840,18 @@ body { background: #08060C !important; }
             background: #F0DCA8 !important; box-shadow: 0 0 12px rgba(240,220,168,.85) !important; }
 .prog-dot:empty { width: 9px !important; height: 9px !important; }
 .prog-glow { opacity: .22 !important; }
-.np-times { color: rgba(255,255,255,.42) !important; transform: translateY(var(--pv-times-shift, 0px)) !important; }
+.np-times { color: rgba(255,255,255,.42) !important; }
 
 /* 控制鍵：Apple Music 式裸圖示，播放鍵無底色 */
 .np-controls { gap: var(--pv-controls-gap, 44px) !important;
   margin-top: var(--pv-controls-mt, 10px) !important;
   margin-bottom: var(--pv-controls-mb, 0px) !important; }
 .btn-play {
-  width: calc(var(--pv-play-size, 34px) + 6px) !important; height: calc(var(--pv-play-size, 34px) + 6px) !important;
+  width: 40px !important; height: 40px !important;
   background: none !important; box-shadow: none !important;
   backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
 }
-.btn-play svg { fill: #ffffff !important; width: var(--pv-play-size, 34px) !important; height: var(--pv-play-size, 34px) !important; }
+.btn-play svg { fill: #ffffff !important; width: 34px !important; height: 34px !important; }
 .btn-ghost svg { width: 30px !important; height: 30px !important; }
 
 .np-next { border-top: 1px solid rgba(201,162,232,.14) !important; margin-top: 14px !important;
@@ -955,455 +922,6 @@ body { background: #08060C !important; }
 #sheet { background: linear-gradient(180deg, #241238, #08060C) !important; }
 #sheet-backdrop { background: rgba(8,6,12,.6) !important; }
 </style>
-<style id="__fullbleed_cover">
-/* 封面延伸到播放器背面：封面變成整個播放區的背景層，卡片沉在照片上 */
-.player-fold{ position:relative !important; justify-content:flex-end !important; }
-.cover-card{
-  position:absolute !important; z-index:0 !important;
-  left:var(--pv-cover-side,0px) !important; right:var(--pv-cover-side,0px) !important;
-  top:var(--pv-cover-top,0px) !important;
-  bottom:var(--pv-cover-bleed,0px) !important;
-  height:auto !important; flex:none !important; min-height:0 !important;
-  margin:0 !important;
-}
-.np-card{ z-index:3 !important; }
-/* 底部可讀性漸層：讓卡片文字在照片上清楚 */
-.cover-card::before{ content:""; position:absolute; left:0; right:0; bottom:0; height:58%;
-  z-index:1; pointer-events:none;
-  background:linear-gradient(180deg, transparent 0%, rgba(8,6,12,.12) 32%, rgba(8,6,12,.55) 72%, rgba(8,6,12,.82) 100%); }
-</style>
-<style id="__chat_feed">
-#screen-mood{ background:linear-gradient(180deg,#2A1440 0%,#1A0E2A 38%,#0E0817 100%) !important; }
-.chat-day{ color:rgba(217,178,106,.55) !important; }
-.chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
-  color:rgba(255,255,255,.35); margin:18px 0 6px; }
-.chat-line{ display:flex; justify-content:flex-end; padding:3px 14px; }
-.chat-bubble{ max-width:76%; background:linear-gradient(135deg,#F6EFDD,#EFDDB8); color:#221A10; border-radius:22px;
-  padding:11px 16px; font:400 15.5px/1.45 -apple-system,'PingFang TC',sans-serif;
-  border-bottom-right-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.25); }
-.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-right-radius:8px;
-  border:1px solid rgba(217,178,106,.28); cursor:zoom-in; }
-.chat-photo img{ width:100%; display:block; }
-
-
-
-
-
-
-/* ===== B37 DQ Tact 式水晶揭曉：墜落→裂痕→變色→碎裂 ===== */
-#lk-dq{ position:fixed; inset:0; z-index:117800; pointer-events:none; }
-#lk-dq .dq-vig{ position:absolute; inset:0; opacity:0; transition:opacity .35s ease;
-  background:radial-gradient(ellipse at 50% 44%, rgba(12,7,22,.3) 0%, rgba(5,3,10,.9) 78%); }
-#lk-dq.drop .dq-vig{ opacity:1; }
-#lk-dq .dq-stars{ position:absolute; inset:0; opacity:0; transition:opacity .5s;
-  background-image:radial-gradient(1.2px 1.2px at 22% 30%, rgba(255,255,255,.7) 50%, transparent 51%),
-    radial-gradient(1px 1px at 72% 22%, rgba(255,255,255,.5) 50%, transparent 51%),
-    radial-gradient(1.4px 1.4px at 84% 62%, rgba(255,255,255,.6) 50%, transparent 51%),
-    radial-gradient(1px 1px at 14% 70%, rgba(255,255,255,.45) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 52% 82%, rgba(255,255,255,.55) 50%, transparent 51%); }
-#lk-dq.drop .dq-stars{ opacity:1; }
-#lk-dq .dq-gw{ position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); }
-#lk-dq .dq-gem{ width:96px; height:156px; position:relative;
-  clip-path:polygon(50% 0%,88% 25%,88% 72%,50% 100%,12% 72%,12% 25%);
-  background:linear-gradient(158deg,#E4E9FF 0%,#9D8CE0 34%,#4E3D8E 68%,#241A4C 100%);
-  transform:translateY(-92vh);
-  filter:drop-shadow(0 0 18px rgba(168,148,255,.55)); }
-#lk-dq .dq-gem::before{ content:""; position:absolute; left:16%; top:6%; width:22%; height:52%;
-  background:linear-gradient(170deg,rgba(255,255,255,.85),rgba(255,255,255,0) 80%);
-  transform:skewY(-14deg); border-radius:40%; }
-#lk-dq .dq-gem::after{ content:""; position:absolute; inset:0;
-  background:linear-gradient(24deg, transparent 46%, rgba(255,255,255,.18) 50%, transparent 54%); }
-#lk-dq.drop .dq-gem{ animation:dqDrop .62s cubic-bezier(.3,1.25,.6,1) forwards; }
-@keyframes dqDrop{ 0%{ transform:translateY(-92vh) } 72%{ transform:translateY(0) }
-  84%{ transform:translateY(7px) scale(1.14,.8) } 100%{ transform:translateY(0) scale(1) } }
-#lk-dq .dq-ring{ position:absolute; left:50%; top:96%; width:120px; height:34px; transform:translate(-50%,-50%) scale(.2);
-  border:2px solid rgba(255,255,255,.55); border-radius:50%; opacity:0; }
-#lk-dq.drop .dq-ring{ animation:dqRing .55s ease-out .5s forwards; }
-@keyframes dqRing{ 0%{ opacity:.9; transform:translate(-50%,-50%) scale(.25) }
-  100%{ opacity:0; transform:translate(-50%,-50%) scale(1.6) } }
-/* 裂痕（stroke 逐段畫出） */
-#lk-dq .dq-cracks{ position:absolute; inset:0; width:100%; height:100%; }
-#lk-dq .dq-cracks path{ stroke:rgba(255,255,255,.95); stroke-width:1.7; fill:none;
-  stroke-dasharray:90; stroke-dashoffset:90; opacity:0; }
-#lk-dq.c1 .crk1{ animation:dqCrack .3s ease-out forwards; }
-#lk-dq.c2 .crk2{ animation:dqCrack .28s ease-out forwards; }
-#lk-dq.c3 .crk3, #lk-dq.c3 .crk4{ animation:dqCrack .24s ease-out forwards; }
-@keyframes dqCrack{ 0%{ opacity:1; stroke-dashoffset:90 } 100%{ opacity:1; stroke-dashoffset:0 } }
-/* 變色（稀有度洩漏）＋抖動 */
-#lk-dq.tint .dq-gem{ background:linear-gradient(158deg,#FFFFFF 0%,var(--lkglow,#FFDF8E) 38%,
-  color-mix(in srgb,var(--lkglow,#FFDF8E) 55%, #1A0E2A) 72%, #17102E 100%);
-  filter:drop-shadow(0 0 30px var(--lkglow,#FFDF8E)) drop-shadow(0 0 68px var(--lkglow,#FFDF8E)); }
-#lk-dq.c2 .dq-gw{ animation:dqShake .46s ease-in-out; }
-#lk-dq.c3 .dq-gw{ animation:dqShake .3s ease-in-out infinite; }
-@keyframes dqShake{ 0%,100%{ transform:translate(-50%,-50%) rotate(0) }
-  25%{ transform:translate(calc(-50% - 3px),-50%) rotate(-1.6deg) }
-  75%{ transform:translate(calc(-50% + 3px),-50%) rotate(1.6deg) } }
-/* 碎裂 */
-#lk-dq.burst .dq-gem{ opacity:0; transform:scale(1.28); transition:opacity .16s ease, transform .16s ease; }
-#lk-dq.burst .dq-gw{ animation:none; }
-#lk-dq .dq-sh{ position:absolute; left:50%; top:44%; width:16px; height:24px; opacity:0;
-  clip-path:polygon(50% 0%,100% 62%,24% 100%);
-  background:linear-gradient(150deg,#fff 0%,var(--lkglow,#FFDF8E) 60%,rgba(30,20,50,.9) 100%); }
-#lk-dq.burst .dq-sh{ animation:dqFly .62s cubic-bezier(.2,.7,.4,1) forwards; }
-@keyframes dqFly{ 0%{ opacity:1; transform:translate(-50%,-50%) rotate(0) scale(1) }
-  100%{ opacity:0; transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(.5) } }
-
-/* ===== B36 蓄力偷跑色：光暈=卡片主題色（鎮池=金） ===== */
-.orb-wrap.tease .orb-orbit .head{ background:var(--lkglow,#FFDF8E);
-  box-shadow:0 0 12px var(--lkglow,#FFDF8E),0 0 26px var(--lkglow,#FFDF8E); }
-.orb-wrap.tease .orb-core{ box-shadow:0 0 26px var(--lkglow,#FFDF8E),0 0 70px var(--lkglow,#FFDF8E);
-  background:radial-gradient(circle at 50% 42%, var(--lkglow,#FFDF8E) 0%, rgba(20,12,32,.9) 62%); }
-.orb-wrap.tease .orb{ box-shadow:0 0 44px var(--lkglow,#FFDF8E); }
-.orb-wrap.tease.surge .orb-core{ animation:orbPulse .28s ease-in-out infinite; }
-.orb-wrap.tease.surge .orb{ box-shadow:0 0 70px var(--lkglow,#FFDF8E),0 0 140px var(--lkglow,#FFDF8E); }
-#lk-flash.tint{ background:var(--lkglow,#fff); }
-
-/* ===== B35 抽卡蓄力 → 爆閃 → 影片進場 ===== */
-#lk-flash{ position:fixed; inset:0; z-index:117900; background:#fff; opacity:0; pointer-events:none; }
-#lk-flash.go{ animation:lkFlash .5s ease-out forwards; }
-@keyframes lkFlash{ 0%{opacity:0} 18%{opacity:1} 100%{opacity:0} }
-#lk-cine.pre{ opacity:0; pointer-events:none; }
-#lk-cine.show{ opacity:1; pointer-events:auto; transition:opacity .28s ease; }
-
-
-
-
-/* ===== B42 抽完定格：真正的卡照 ===== */
-#lk-hold{ position:fixed; inset:0; z-index:118500; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  background:radial-gradient(ellipse at 50% 42%, rgba(26,15,42,.82) 0%, rgba(4,2,9,.97) 82%);
-  -webkit-tap-highlight-color:transparent; animation:cineIn .3s ease; }
-#lk-hold.out{ opacity:0; transition:opacity .35s ease; }
-#lk-hold .hold-badge{ font:700 12px/1 var(--font-label),-apple-system,sans-serif; letter-spacing:4px;
-  color:var(--lkglow,#FFDF8E); margin-bottom:14px; opacity:0; animation:holdUp .5s ease .15s forwards; }
-#lk-hold .hold-card{ width:min(66vw,290px); aspect-ratio:2/3; border-radius:18px; overflow:hidden;
-  box-shadow:0 0 0 2px rgba(255,255,255,.16), 0 0 60px var(--lkglow,#FFDF8E), 0 20px 50px rgba(0,0,0,.6);
-  transform:translateY(14px) scale(.92); opacity:0; animation:holdCard .55s cubic-bezier(.2,1.3,.35,1) .05s forwards; }
-#lk-hold .hold-card img{ width:100%; height:100%; object-fit:cover; display:block; }
-#lk-hold .hold-name{ margin-top:22px; font-family:var(--font-serif-tc); font-size:20px; color:#fff;
-  letter-spacing:.5px; opacity:0; animation:holdUp .5s ease .3s forwards; text-align:center; padding:0 24px; }
-#lk-hold .hold-tip{ margin-top:16px; font:500 13px/1 -apple-system,sans-serif; color:rgba(255,255,255,.5);
-  letter-spacing:1px; opacity:0; animation:holdUp .6s ease .7s forwards; }
-@keyframes holdCard{ to{ transform:translateY(0) scale(1); opacity:1 } }
-@keyframes holdUp{ to{ opacity:1 } }
-
-/* ===== B41 LUCKY 放大簡化 ===== */
-#lucky-note.lucky-rule{ font:600 15px/1.6 -apple-system,'PingFang TC',system-ui,sans-serif;
-  color:rgba(255,255,255,.82); letter-spacing:.5px; margin-top:8px; }
-#screen-lucky .lk-econ{ margin-top:20px; }
-#screen-lucky .lk-chip{ padding:10px 22px; font-size:15px; border-radius:999px; }
-#screen-lucky .lk-chip b{ font-size:22px; }
-#screen-lucky .lk-name{ font-size:19px; margin-top:14px; min-height:26px; }
-#screen-lucky .lk-draw{ margin-top:16px; width:min(78vw,320px); padding:19px; font-size:18px; letter-spacing:3px; }
-#screen-lucky .lucky-coll-head{ font-size:13px; margin:30px 24px 14px; }
-#screen-lucky #lucky-grid{ gap:12px; padding:0 20px; }
-#screen-lucky .lk-cta{ padding:17px; font-size:15px; line-height:1.75; }
-#screen-lucky #lucky-cta{ margin:20px 22px 0; }
-
-/* ===== B39 拉霸輪盤揭曉 ===== */
-#lk-slot{ position:fixed; inset:0; z-index:117800; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  background:radial-gradient(ellipse at 50% 46%, rgba(24,14,38,.72) 0%, rgba(5,3,10,.97) 82%);
-  animation:cineIn .3s ease; }
-#lk-slot.out{ opacity:0; transition:opacity .35s ease; }
-#lk-slot .sl-win{ position:relative; overflow:hidden; border-radius:16px;
-  box-shadow:0 0 0 2px rgba(255,255,255,.14), 0 0 46px rgba(0,0,0,.6);
-  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 86%,transparent 100%);
-          mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 86%,transparent 100%); }
-#lk-slot .sl-strip{ position:absolute; left:0; top:0; width:100%; will-change:transform; }
-#lk-slot .sl-strip.spin{ filter:blur(2.5px) brightness(1.08); }
-#lk-slot .sl-card{ width:100%; position:relative; }
-#lk-slot .sl-card img{ width:100%; height:100%; object-fit:cover; display:block; }
-#lk-slot .sl-glow{ position:absolute; inset:0; border-radius:16px; pointer-events:none; opacity:0;
-  transition:opacity .3s ease; box-shadow:inset 0 0 0 2px var(--lkglow,#FFDF8E), 0 0 50px var(--lkglow,#FFDF8E); }
-#lk-slot.land .sl-glow{ opacity:1; }
-#lk-slot.land .sl-win{ animation:slLand .42s cubic-bezier(.2,1.5,.35,1); }
-@keyframes slLand{ 0%{ transform:scale(1) } 42%{ transform:scale(1.08) } 100%{ transform:scale(1) } }
-#lk-slot .sl-name{ margin-top:20px; font-family:var(--font-serif-tc); font-size:16px; color:#fff;
-  opacity:0; transition:opacity .3s ease .1s; text-align:center; min-height:24px; letter-spacing:.5px; }
-#lk-slot.land .sl-name{ opacity:1; }
-#lk-slot .sl-tick{ position:absolute; left:50%; width:0; height:0; transform:translateX(-50%);
-  border-top:7px solid transparent; border-bottom:7px solid transparent; z-index:2; }
-#lk-slot .sl-tick.l{ left:auto; right:calc(50% + var(--slw,105px)); border-right:9px solid rgba(255,255,255,.5); }
-
-/* ===== B33 首抽全螢幕影片揭曉 ===== */
-#lk-cine{ position:fixed; inset:0; z-index:118000; background:#000;
-  display:flex; align-items:center; justify-content:center;
-  animation:cineIn .32s ease; }
-#lk-cine.out{ opacity:0; transition:opacity .35s ease; }
-@keyframes cineIn{ from{ opacity:0 } to{ opacity:1 } }
-#lk-cine video{ width:100%; height:100%; object-fit:cover; }
-#lk-cine .cine-skip{ position:fixed; top:calc(16px + env(safe-area-inset-top)); right:16px;
-  appearance:none; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.45);
-  color:rgba(255,255,255,.85); font:600 12.5px/1 -apple-system,system-ui,sans-serif;
-  padding:9px 15px; border-radius:999px; letter-spacing:.5px;
-  opacity:0; pointer-events:none; transition:opacity .3s ease; }
-#lk-cine .cine-skip.on{ opacity:1; pointer-events:auto; }
-
-/* ===== B32 抽卡迴圈：券／保底／星塵 ===== */
-.lk-econ{ display:flex; gap:8px; justify-content:center; margin:12px auto 0; }
-.lk-chip{ display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:999px;
-  border:1px solid rgba(217,178,106,.32); background:rgba(217,178,106,.09);
-  font:600 11.5px/1 -apple-system,system-ui,sans-serif; color:#F0DFB8; letter-spacing:.4px; }
-.lk-chip b{ font:700 13px/1 ui-monospace,monospace; color:#FFDF8E; }
-.lk-pity{ margin:14px auto 0; width:min(78vw,300px); }
-.lk-pity .pw{ display:flex; justify-content:space-between; font:500 10.5px/1.4 -apple-system,system-ui,sans-serif;
-  color:rgba(255,255,255,.5); margin-bottom:5px; letter-spacing:.3px; }
-.lk-pity .pw em{ font-style:normal; color:#E7C77E; font-weight:700; }
-.lk-bar{ height:4px; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; margin-bottom:9px; }
-.lk-bar i{ display:block; height:100%; border-radius:999px; transition:width .45s cubic-bezier(.2,.8,.3,1); }
-.lk-bar.sr i{ background:linear-gradient(90deg,#9B7BD4,#C9A6F0); }
-.lk-bar.ssr i{ background:linear-gradient(90deg,#D9B26A,#FFDF8E); }
-.lk-earn{ margin:14px auto 0; width:min(84vw,330px); padding:11px 14px; border-radius:13px;
-  border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.035);
-  font:400 11px/1.75 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.55); text-align:left; }
-.lk-earn b{ color:#E7C77E; font-weight:600; }
-.lkg.can{ cursor:pointer; border-color:rgba(217,178,106,.45) !important; }
-.lkg-dust{ position:absolute; left:0; right:0; bottom:0; padding:3px 0;
-  background:linear-gradient(180deg,rgba(0,0,0,0),rgba(20,12,32,.92));
-  font:700 9px/1.3 ui-monospace,monospace; color:#FFDF8E; text-align:center; letter-spacing:.5px; }
-
-/* ===== B30 購買須知／隱私權政策 ===== */
-#terms-sheet{ position:fixed; inset:0; z-index:110000; display:flex; flex-direction:column;
-  background:linear-gradient(180deg,#2A1440 0%,#1A0E2A 55%,#0E0817 100%); }
-#terms-sheet.hidden{ display:none; }
-#terms-sheet .tm-head{ flex:none; display:flex; align-items:center; gap:8px;
-  padding:calc(12px + env(safe-area-inset-top)) 14px 10px;
-  border-bottom:1px solid rgba(217,178,106,.18); }
-#terms-sheet .tm-tab{ appearance:none; border:1px solid rgba(217,178,106,.28); background:transparent;
-  color:rgba(255,255,255,.62); font:600 12.5px/1 -apple-system,system-ui,sans-serif;
-  padding:8px 13px; border-radius:999px; letter-spacing:.4px; }
-#terms-sheet .tm-tab.active{ background:rgba(217,178,106,.16); color:#F0DFB8; border-color:rgba(217,178,106,.55); }
-#terms-sheet .tm-x{ margin-left:auto; appearance:none; border:0; background:transparent; color:rgba(255,255,255,.55);
-  font-size:22px; line-height:1; padding:6px 8px; }
-#terms-sheet .tm-body{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  padding:16px 20px calc(40px + env(safe-area-inset-bottom)); }
-#terms-sheet .tm-doc{ display:none; }
-#terms-sheet .tm-doc.on{ display:block; }
-#terms-sheet h3{ margin:22px 0 8px; font:700 14px/1.5 -apple-system,system-ui,sans-serif; color:#E7C77E; }
-#terms-sheet h3:first-child{ margin-top:0; }
-#terms-sheet p,#terms-sheet li{ font:400 12.8px/1.85 -apple-system,system-ui,sans-serif;
-  color:rgba(255,255,255,.74); margin:0 0 8px; }
-#terms-sheet ol,#terms-sheet ul{ margin:0 0 8px; padding-left:19px; }
-#terms-sheet strong{ color:#F2E4C4; font-weight:600; }
-#terms-sheet .tm-meta{ font:400 11.5px/1.8 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.42);
-  border-top:1px solid rgba(255,255,255,.08); margin-top:24px; padding-top:14px; }
-#terms-sheet .tm-kv{ display:flex; gap:10px; font:400 12.5px/1.9 -apple-system,system-ui,sans-serif; }
-#terms-sheet .tm-kv span:first-child{ flex:none; width:76px; color:rgba(255,255,255,.45); }
-#terms-sheet .tm-kv span:last-child{ color:rgba(255,255,255,.8); }
-.legal-foot{ margin:30px 22px calc(26px + env(safe-area-inset-bottom)); padding-top:16px;
-  border-top:1px solid rgba(255,255,255,.08); text-align:center; }
-.legal-foot .lf-links{ display:flex; justify-content:center; gap:14px; margin-bottom:9px; }
-.legal-foot .lf-links button{ appearance:none; border:0; background:transparent; padding:2px 0;
-  font:500 11.5px/1.4 -apple-system,system-ui,sans-serif; color:rgba(217,178,106,.85);
-  text-decoration:underline; text-underline-offset:3px; }
-.legal-foot .lf-info{ font:400 10.8px/1.75 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.36); }
-.email-consent a,.email-consent .tm-link{ color:#E7C77E; text-decoration:underline; text-underline-offset:2px; }
-.email-privacy{ font:400 10.8px/1.65 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.42);
-  text-align:left; margin:8px 2px 14px; }
-
-#__lb{ position:fixed; inset:0; z-index:120000; background:rgba(5,3,10,.96);
-  display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; }
-#__lb img{ max-width:100vw; max-height:100dvh; object-fit:contain; }
-#__lb .lb-x{ position:fixed; top:calc(14px + env(safe-area-inset-top)); right:16px;
-  width:38px; height:38px; border-radius:50%; border:1px solid rgba(217,178,106,.5);
-  background:rgba(20,14,28,.8); color:#D9B26A; font-size:18px; line-height:36px; text-align:center; }
-.chat-voice{ display:flex; align-items:center; gap:10px; width:86%;
-  background:rgba(126,63,168,.20); border:1px solid rgba(201,162,232,.35);
-  border-radius:999px; padding:9px 12px 9px 16px;
-  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
-.chat-voice .wave{ flex:1; display:flex; align-items:center; gap:2px; height:26px; min-width:0; cursor:pointer; }
-.chat-voice .wave i{ flex:1; min-width:1.5px; background:rgba(201,162,232,.6); border-radius:2px; }
-.chat-voice .wave i.on{ background:#D9B26A; }
-.chat-voice .wave i.cur{ background:#F0DCA8; }
-.chat-voice .v-time{ font:600 12px/1 ui-monospace,monospace; color:rgba(255,255,255,.75); flex:none; }
-.chat-voice .v-btn{ flex:none; width:38px; height:38px; border-radius:50%; border:none;
-  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
-  display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(217,178,106,.35); }
-.chat-voice .v-btn svg{ fill:#191510 !important; }
-.chat-video{ position:relative; max-width:82%; border-radius:24px; overflow:hidden;
-  border-bottom-right-radius:8px; border:1px solid rgba(217,178,106,.28); background:#000; cursor:pointer; }
-.chat-video video{ width:100%; display:block; }
-.chat-video .cv-play{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:56px; height:56px; border-radius:50%; border:none;
-  background:linear-gradient(135deg,#F0DCA8,#D9B26A);
-  display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(0,0,0,.45); }
-.chat-video .cv-play svg{ width:24px; height:24px; fill:#191510; margin-left:3px; }
-.chat-video.playing .cv-play{ display:none; }
-.chat-video .cv-exp{ position:absolute; right:8px; top:8px; width:32px; height:32px;
-  border-radius:50%; border:1px solid rgba(217,178,106,.5); background:rgba(20,14,28,.6);
-  color:#F0DCA8; font-size:15px; line-height:30px; text-align:center;
-  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
-.chat-gap{ height:22px; }
-/* ── B25：SIGNAL 頻道付費牆 ─────────────────────────────── */
-.feed-blur{ filter:blur(13px) saturate(1.05); pointer-events:none; user-select:none; -webkit-user-select:none;
-  max-height:34vh; overflow:hidden;
-  -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);
-  mask-image:linear-gradient(180deg,#000 60%,transparent); }
-.feed-lock{ margin:-42px 22px 26px; position:relative; z-index:5; text-align:center;
-  padding:26px 22px 22px; border-radius:26px; background:rgba(22,13,32,.78);
-  border:1px solid rgba(217,178,106,.35);
-  -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
-  box-shadow:0 18px 50px rgba(0,0,0,.5); }
-.fl-eyebrow{ font-family:var(--font-label); font-size:9px; letter-spacing:3.5px; color:rgba(217,178,106,.85); }
-.fl-title{ font-family:var(--font-serif-tc); font-size:21px; font-weight:600; color:#fff; margin-top:9px; letter-spacing:1px; }
-.fl-desc{ font-size:13px; line-height:1.95; color:rgba(255,255,255,.74); margin-top:10px; }
-.fl-price{ display:flex; align-items:baseline; justify-content:center; gap:9px; margin:17px 0 15px; }
-.fl-now{ font-family:var(--font-display); font-style:italic; font-weight:600; font-size:27px; color:#F0DCA8; }
-.fl-was{ font-size:13px; color:rgba(255,255,255,.42); text-decoration:line-through; }
-.fl-tag{ font-family:var(--font-label); font-size:9px; letter-spacing:2px; color:rgba(217,178,106,.9);
-  border:1px solid rgba(217,178,106,.45); border-radius:8px; padding:3px 8px; }
-.fl-buy{ width:100%; padding:14px; border:none; border-radius:999px;
-  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
-  font:700 14px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2.5px;
-  box-shadow:0 6px 22px rgba(217,178,106,.32); -webkit-tap-highlight-color:transparent; }
-.fl-redeem{ margin-top:12px; border:none; background:none; color:rgba(255,255,255,.55);
-  font-size:12px; letter-spacing:1px; text-decoration:underline; text-underline-offset:3px; }
-.fl-form{ margin-top:13px; display:flex; flex-direction:column; gap:9px; }
-.fl-form input{ padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.06); color:#fff; font-size:14px; }
-.fl-form input::placeholder{ color:rgba(255,255,255,.35); }
-.fl-form button{ padding:12px; border:none; border-radius:999px; background:rgba(217,178,106,.18);
-  border:1px solid rgba(217,178,106,.5); color:#F0DCA8;
-  font:600 13px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px; }
-.chat-vidlock{ width:82%; border-radius:24px; border-bottom-right-radius:8px;
-  border:1px solid rgba(217,178,106,.38);
-  background:linear-gradient(150deg,rgba(126,63,168,.32),rgba(18,10,26,.9));
-  padding:22px 18px 18px; text-align:center; }
-.vl-badge{ font-family:var(--font-label); font-size:8.5px; letter-spacing:3px; color:rgba(217,178,106,.85); }
-.vl-title{ font-family:var(--font-serif-tc); font-size:16px; font-weight:600; color:#fff; margin-top:8px; }
-.vl-sub{ font-family:var(--font-label); font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.5); margin-top:5px; }
-.vl-buy{ margin-top:14px; width:100%; padding:12px; border:none; border-radius:999px;
-  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
-  font:700 13px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px;
-  box-shadow:0 5px 18px rgba(217,178,106,.3); }
-.vl-redeem{ margin-top:10px; border:none; background:none; color:rgba(255,255,255,.5);
-  font-size:11.5px; letter-spacing:1px; text-decoration:underline; text-underline-offset:3px; }
-
-/* ── B28：兩 SKU 金流（299 專輯 / 799 全解鎖 / 已有專輯補 500 升級）── */
-.plan-was{ font-family:var(--font-label); font-size:15px; font-weight:600;
-  color:rgba(255,255,255,.4); text-decoration:line-through; margin-left:8px; }
-.email-consent{ display:flex; gap:9px; align-items:flex-start; text-align:left;
-  margin:14px 2px 2px; font-size:12px; line-height:1.6; color:rgba(255,255,255,.72); }
-.email-consent input{ width:16px; height:16px; margin-top:2px; accent-color:#D9B26A; flex:none; }
-.interest-card{ background:linear-gradient(135deg,rgba(217,178,106,.12),rgba(90,40,140,.18)) !important;
-  border:1px solid rgba(217,178,106,.3) !important; }
-.int-eyebrow{ font-family:var(--font-label); font-size:9px; letter-spacing:3px; color:rgba(217,178,106,.85); }
-.int-title{ font-family:var(--font-serif-tc); font-size:16px; color:#fff; margin-top:7px; }
-.int-desc{ font-size:12px; color:rgba(255,255,255,.62); margin-top:6px; line-height:1.7; }
-.int-btn{ margin-top:12px; width:100%; padding:12px; border-radius:999px;
-  border:1px solid rgba(217,178,106,.55); background:none; color:#F0DCA8;
-  font:700 13px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px; }
-.int-btn.done{ opacity:.6; }
-
-/* ── B29：LUCKY 每日抽卡 · 球體開艙揭曉 ───────────────── */
-#screen-lucky{ padding-bottom:calc(130px + env(safe-area-inset-bottom)); }
-#lucky-stage{ position:relative; display:flex; flex-direction:column; align-items:center; padding:2px 24px 0; }
-
-/* 星海舞台 */
-.orb-stage{ position:relative; width:min(80vw,300px); height:min(80vw,300px);
-  display:flex; align-items:center; justify-content:center; }
-.orb-stage::before{ content:""; position:absolute; inset:-34%; border-radius:50%;
-  background:radial-gradient(circle at 50% 50%, rgba(120,70,160,.38), rgba(217,178,106,.10) 40%, transparent 68%);
-  filter:blur(6px); pointer-events:none; }
-.orb-stars{ position:absolute; inset:-26%; pointer-events:none;
-  background-image:
-    radial-gradient(1.6px 1.6px at 20% 30%, rgba(255,255,255,.9), transparent),
-    radial-gradient(1.4px 1.4px at 75% 22%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.8px 1.8px at 60% 72%, rgba(240,220,168,.9), transparent),
-    radial-gradient(1.3px 1.3px at 32% 82%, rgba(255,255,255,.6), transparent),
-    radial-gradient(1.5px 1.5px at 86% 62%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.4px 1.4px at 12% 56%, rgba(198,166,242,.85), transparent),
-    radial-gradient(1.2px 1.2px at 50% 10%, rgba(255,255,255,.6), transparent),
-    radial-gradient(1.3px 1.3px at 90% 34%, rgba(240,220,168,.7), transparent);
-  animation:orbTwinkle 3.4s ease-in-out infinite; }
-@keyframes orbTwinkle{ 0%,100%{opacity:.55} 50%{opacity:1} }
-
-/* 環繞光軌 */
-.orb-orbit{ position:absolute; border-radius:50%; border:2px solid transparent; box-sizing:border-box; }
-.orb-orbit.o1{ width:94%; height:94%; border-top-color:rgba(217,178,106,.85);
-  border-right-color:rgba(217,178,106,.14); animation:orbSpin 4.5s linear infinite; }
-.orb-orbit.o2{ width:112%; height:112%; border-bottom-color:rgba(198,166,242,.75);
-  border-left-color:rgba(198,166,242,.12); animation:orbSpin 6.5s linear infinite reverse; }
-.orb-orbit .head{ position:absolute; top:-4px; left:50%; width:7px; height:7px; margin-left:-3px;
-  border-radius:50%; background:#fff; box-shadow:0 0 10px 2px rgba(255,255,255,.9); }
-.orb-orbit.o2 .head{ background:#DFC7F5; box-shadow:0 0 10px 2px rgba(198,166,242,.9); }
-@keyframes orbSpin{ to{ transform:rotate(360deg) } }
-.charging .orb-orbit.o1{ animation-duration:.7s } .charging .orb-orbit.o2{ animation-duration:1s }
-
-/* 球體：core + 左右外殼 */
-.orb{ position:relative; width:60%; height:60%; border-radius:50%; }
-.orb-core{ position:absolute; inset:18%; border-radius:50%;
-  background:radial-gradient(circle at 38% 34%, #fff, #E9C8F0 20%, #8A5AB4 55%, #3B1B54 90%);
-  box-shadow:0 0 26px rgba(198,166,242,.6), inset 0 0 20px rgba(255,255,255,.5);
-  animation:orbPulse 2.6s ease-in-out infinite; }
-@keyframes orbPulse{ 0%,100%{transform:scale(1);filter:brightness(1)} 50%{transform:scale(1.05);filter:brightness(1.15)} }
-.charging .orb-core{ animation:orbPulse .5s ease-in-out infinite; }
-.orb-shell{ position:absolute; top:0; width:50%; height:100%; overflow:hidden;
-  transition:transform .55s cubic-bezier(.5,0,.3,1), opacity .55s; }
-.orb-shell::before{ content:""; position:absolute; top:0; width:200%; height:100%; border-radius:50%;
-  background:linear-gradient(150deg,#4a4f58,#20242c 55%,#0b0d11);
-  box-shadow:inset 0 0 24px rgba(0,0,0,.6); border:2px solid rgba(217,178,106,.4); box-sizing:border-box; }
-.orb-shell.orb-l{ left:0; } .orb-shell.orb-l::before{ left:0; }
-.orb-shell.orb-r{ right:0; } .orb-shell.orb-r::before{ right:0; }
-.opening .orb-shell.orb-l{ transform:translateX(-72%) rotate(-16deg); opacity:0; }
-.opening .orb-shell.orb-r{ transform:translateX(72%) rotate(16deg); opacity:0; }
-.opening .orb-core{ animation:none; opacity:0; transform:scale(1.3); filter:brightness(2); transition:all .5s; }
-
-/* 揭曉的卡：置中放大 */
-.orb-card{ position:absolute; top:50%; left:50%; width:46%; aspect-ratio:2/3; border-radius:12px;
-  overflow:hidden; transform:translate(-50%,-50%) scale(.2); opacity:0; z-index:3;
-  transition:transform .6s cubic-bezier(.3,1.3,.4,1), opacity .45s; box-shadow:0 12px 34px rgba(0,0,0,.55); }
-.orb-card img{ width:100%; height:100%; object-fit:cover; display:block; }
-.revealed .orb-card{ transform:translate(-50%,-50%) scale(1); opacity:1; }
-.orb-wrap.glow-SR .orb-card{ box-shadow:0 0 24px rgba(240,220,168,.75); }
-.orb-wrap.glow-SSR .orb-card{ box-shadow:0 0 34px rgba(255,223,142,.95); animation:cardFloat 2.6s ease-in-out infinite; }
-@keyframes cardFloat{ 0%,100%{ transform:translate(-50%,-50%) scale(1) } 50%{ transform:translate(-50%,-53%) scale(1.03) } }
-
-/* 稀有度徽章（球揭曉卡＋圖鑑共用） */
-.lk-r{ font-family:var(--font-label); font-size:9.5px; font-weight:800; letter-spacing:2px;
-  padding:4px 9px; border-radius:999px; background:rgba(10,6,16,.72); border:1px solid; }
-.orb-card .lk-r{ position:absolute; top:8px; left:8px; }
-.lk-r.N{ color:#C9CDD6; border-color:rgba(201,205,214,.5); }
-.lk-r.R{ color:#C6A6F2; border-color:rgba(198,166,242,.55); }
-.lk-r.SR{ color:#F0DCA8; border-color:rgba(240,220,168,.6); }
-.lk-r.SSR{ color:#FFDF8E; border-color:#FFDF8E; box-shadow:0 0 12px rgba(255,223,142,.55);
-  background:linear-gradient(135deg,rgba(120,70,20,.85),rgba(60,20,90,.85)); }
-
-.lk-name{ margin-top:8px; font-family:var(--font-serif-tc); font-size:15px; color:#fff; min-height:22px; }
-.lk-draw{ margin-top:10px; width:min(64vw,240px); padding:14px; border:none; border-radius:999px;
-  background:linear-gradient(135deg,#F0DCA8,#D9B26A); color:#191510;
-  font:700 14px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2.5px;
-  box-shadow:0 6px 22px rgba(217,178,106,.35); -webkit-tap-highlight-color:transparent; }
-.lk-draw:disabled{ opacity:.45; box-shadow:none; }
-.lk-hint{ margin-top:10px; font-size:11.5px; color:rgba(255,255,255,.5); letter-spacing:.5px;
-  text-align:center; line-height:1.7; }
-#lucky-cta{ margin:16px 24px 0; }
-.lk-cta{ display:block; width:100%; padding:13px; border-radius:14px; border:1px dashed rgba(217,178,106,.5);
-  background:rgba(217,178,106,.07); color:#F0DCA8; font-size:12.5px; letter-spacing:1px;
-  line-height:1.7; text-align:center; -webkit-tap-highlight-color:transparent; }
-.lucky-coll-head{ display:flex; justify-content:space-between; align-items:baseline;
-  margin:24px 26px 12px; font-family:var(--font-label); letter-spacing:2.5px; font-size:11px;
-  color:rgba(255,255,255,.55); }
-#lucky-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 22px; }
-.lkg{ position:relative; aspect-ratio:2/3; border-radius:12px; overflow:hidden;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); transition:box-shadow .3s; }
-.lkg img{ width:100%; height:100%; object-fit:cover; display:block; }
-.lkg.none img{ display:none; }
-.lkg.none::after{ content:"?"; position:absolute; inset:0; display:flex; align-items:center;
-  justify-content:center; font-family:var(--font-display); font-size:26px; color:rgba(255,255,255,.18); }
-.lkg.lock img{ filter:blur(14px) brightness(.55); transform:scale(1.15); }
-/* B29：擁有卡片依稀有度亮邊 */
-.lkg.own.R{ border-color:rgba(198,166,242,.45); }
-.lkg.own.SR{ border-color:rgba(240,220,168,.55); box-shadow:0 0 9px rgba(240,220,168,.28); }
-.lkg.own.SSR{ border-color:rgba(255,223,142,.8); box-shadow:0 0 13px rgba(255,223,142,.42); }
-.lkg .lkg-r{ position:absolute; top:6px; left:6px; transform:scale(.82); transform-origin:top left; }
-.lkg .lkg-n{ position:absolute; right:6px; bottom:5px; font-family:var(--font-label);
-  font-size:9.5px; font-weight:700; color:rgba(255,255,255,.85);
-  background:rgba(10,6,16,.7); padding:2px 7px; border-radius:999px; }
-.lkg .lkg-lock{ position:absolute; inset:0; display:flex; flex-direction:column; gap:4px;
-  align-items:center; justify-content:center; font-size:10px; letter-spacing:1.5px; color:#F0DCA8; }
-</style>
 </head>
 <body>
 <div id="stage">
@@ -1435,7 +953,7 @@ body { background: #08060C !important; }
           </div>
           <div class="np-actions">
             <!-- 歌詞按鈕（這首歌沒歌詞時 app.js 會自動隱藏） -->
-            <button class="icon-round" id="btn-lyrics" title="歌詞語言 中/EN">
+            <button class="icon-round" id="btn-lyrics" title="歌詞">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M4 20h2"/><path d="M4 4h16"/><path d="M4 12h10"/></svg>
             </button>
           </div>
@@ -1521,20 +1039,15 @@ body { background: #08060C !important; }
         <div class="page-note" id="unlocked-desc" style="margin-top:8px"></div>
         <div class="unlocked-actions">
           <button class="btn-chip" id="btn-goto-player">前往聽歌 →</button>
-          <button class="btn-chip grad hidden" id="btn-upgrade">升級全解鎖 · 補 NT$500</button>
+          <a class="btn-chip grad hidden" id="btn-wav" target="_blank" rel="noopener">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            下載 WAV 無損 ↗
+          </a>
         </div>
         <div class="unlocked-note" id="unlocked-plan-note"></div>
         <div class="unlocked-reset" id="btn-reset-unlock">重設解鎖（測試用）</div>
       </div>
     </div>
-
-      <div class="legal-foot">
-        <div class="lf-links">
-          <button data-open-terms="terms">購買須知</button>
-          <button data-open-terms="privacy">隱私權政策</button>
-        </div>
-        <div class="lf-info">夏米爾企業社　統一編號 38472654<br>客服信箱 heartebeats0693@gmail.com</div>
-      </div>
   </section>
 
   <!-- ================= 周邊（聽片會票 + 手鍊）================= -->
@@ -1545,25 +1058,16 @@ body { background: #08060C !important; }
       <div class="page-note" id="merch-note"></div>
     </div>
     <div class="merch-list" id="merch-list"></div>
-
-      <div class="legal-foot">
-        <div class="lf-links">
-          <button data-open-terms="terms">購買須知</button>
-          <button data-open-terms="privacy">隱私權政策</button>
-        </div>
-        <div class="lf-info">夏米爾企業社　統一編號 38472654<br>客服信箱 heartebeats0693@gmail.com</div>
-      </div>
   </section>
 
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
-    <div class="feed-tabs" style="display:flex;align-items:center;gap:12px;padding:13px 17px">
-      <img src="assets/images/sky/cover.jpg?v=0816" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
-      <div style="min-width:0">
-        <div style="font-family:var(--font-serif-tc);font-size:16px;color:#fff">成晞 Chance</div>
-        <div style="font-family:var(--font-label);font-size:10px;letter-spacing:2.2px;color:rgba(255,255,255,.45)">SIGNAL · 私訊頻道</div>
-      </div>
-      <span class="feed-count hidden" id="feed-count"></span>
+    <div class="feed-tabs">
+      <button class="feed-tab active" data-cat="all">全部</button>
+      <button class="feed-tab" data-cat="voice">語音</button>
+      <button class="feed-tab" data-cat="media">影像</button>
+      <button class="feed-tab" data-cat="text">隨筆</button>
+      <span class="feed-count" id="feed-count"></span>
     </div>
     <div id="feed-body"></div>
   </section>
@@ -1578,35 +1082,20 @@ body { background: #08060C !important; }
     <div class="gallery-dots" id="gallery-dots"></div>
   </section>
 
-  <!-- ================= LUCKY（每日抽卡 · B28）================= -->
-  <section id="screen-lucky" class="screen screen-sub">
-    <div class="page-titles">
-      <div class="page-title-en">Daily Luck</div>
-      <div class="page-title-tc">每日抽卡</div>
-      <div class="page-note lucky-rule" id="lucky-note">每天登入送 1 抽　聽完一首歌再 ＋1 抽</div>
-    </div>
-    <div id="lucky-stage"></div>
-    <div id="lucky-cta"></div>
-    <div class="lucky-coll-head"><span>COLLECTION · 圖鑑</span><span id="lucky-progress"></span></div>
-    <div id="lucky-grid"></div>
-  </section>
-
   <!-- ================= BOTTOM SHEET（曲目表，可拖曳關閉）================= -->
   <div id="sheet-backdrop" class="hidden"></div>
   <div id="sheet" class="hidden">
     <div class="sheet-grabber" id="sheet-grabber"></div>
     <div class="sheet-head">
-      <div class="sheet-tabs">
-        <button class="sheet-tab active" id="tab-upnext">UP NEXT</button>
-        <button class="sheet-tab" id="tab-lyrics">LYRICS</button>
-        <span id="sheet-title" style="display:none"></span>
+      <div>
+        <div class="sheet-eyebrow">Track List</div>
+        <div class="sheet-title" id="sheet-title"></div>
       </div>
       <button class="sheet-close" id="btn-close-sheet">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
       </button>
     </div>
     <div class="sheet-list" id="sheet-list"></div>
-    <div class="sheet-lyrics hidden" id="sheet-lyrics"></div>
   </div>
 
   <!-- ================= LYRICS OVERLAY ================= -->
@@ -1631,20 +1120,16 @@ body { background: #08060C !important; }
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
         <span class="navlbl"></span>
       </button>
-      <button class="navbtn" data-screen="mood">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
+      <button class="navbtn" data-screen="purchase">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
         <span class="navlbl"></span>
       </button>
       <button class="navbtn" data-screen="merch">
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
         <span class="navlbl"></span>
       </button>
-      <button class="navbtn" data-screen="purchase">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
-        <span class="navlbl"></span>
-      </button>
-      <button class="navbtn" data-screen="lucky">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="13" height="17" rx="2"/><path d="M19 8h.01"/><path d="m9.5 9.5 1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z"/></svg></span>
+      <button class="navbtn" data-screen="mood">
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z"/></svg></span>
         <span class="navlbl"></span>
       </button>
     </div>
@@ -1658,27 +1143,9 @@ body { background: #08060C !important; }
       <input class="form-input" id="email-modal-input" type="email" inputmode="email"
              autocomplete="email" placeholder="you@example.com">
       <input class="form-input hidden" id="email-modal-name" type="text" placeholder="購票人姓名（入場核對用）" autocomplete="name" style="margin-top:10px">
-      <label class="email-consent hidden" id="email-modal-consent">
-        <input type="checkbox" id="email-consent-cb">
-        <span>我已閱讀並同意 <b class="tm-link" data-open-terms="terms">《購買須知》</b> 與 <b class="tm-link" data-open-terms="privacy">《隱私權政策》</b>，並同意數位內容一經解鎖即完成提供、不適用七日猶豫期、恕不退費。</span>
-      </label>
-      <div class="email-privacy" id="email-modal-privacy">您的信箱僅用於核發與驗證兌換碼、訂單與客服聯繫。本服務使用境外雲端服務（Cloudflare、Resend、綠界），資料將傳輸至境外處理。</div>
       <div class="email-err hidden" id="email-modal-err">Email 格式不太對，再確認一下</div>
       <button class="btn-primary" id="email-modal-ok">前往付款</button>
       <button class="email-cancel" id="email-modal-cancel">取消</button>
-    </div>
-  </div>
-
-  <!-- B30 購買須知／隱私權政策 -->
-  <div id="terms-sheet" class="hidden">
-    <div class="tm-head">
-      <button class="tm-tab active" data-tm="terms">購買須知</button>
-      <button class="tm-tab" data-tm="privacy">隱私權政策</button>
-      <button class="tm-x" id="tm-close" aria-label="關閉">&times;</button>
-    </div>
-    <div class="tm-body">
-      <div class="tm-doc on" id="tm-doc-terms"></div>
-      <div class="tm-doc" id="tm-doc-privacy"></div>
     </div>
   </div>
 
@@ -1706,373 +1173,6 @@ var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
  * （頂部切換鈕 or 封面左右滑）。
  * 舊歌精選：全部免費，不需解鎖，音檔直接放前端 repo。
  * ===================================================================== */
-
-/* ---- B47：英文意譯歌詞（中/EN 切換用，內容已人工校對）---- */
-const EN_LYRICS = {
-  the_sky: `THE SKY
-Shut away on my own, ignoring everyone
-By the cloud-lit window, leaving texts on read, replying at random
-We can rise with the stars, so why should I fall
-I just move from your place, leave behind our space
-Love means getting hurt — and never regretting it
-This is why I have to get away
-I been lost in the fray
-I'll be okay
-If that's how it is (それなら)
-Feeling no time
-Maybe I never really understood
-The words between us (言葉も)
-I left it all in that room; now the ground feels empty
-This is the outcome of the choices I made
-Inside the illusion
-I see you again
-All I wanna
-I wanna fly to the sky
-I wanna fly by your side
-Who will forget first?
-The only one
-I'm living better, starting over
-Some kinds of love belong to the future
-Yet every time I look back, they're still there
-Don't say this is over, will never been over
-Will living better mean starting over
-
-
-詞曲 Lyrics & Composer: 成晞 CHANCE
-PRODUCER: PROD_CW ＆ CHANCE 成晞
-HARMONY: CHANCE
-ARRANGEMENT / RECORDING / MIXING / MASTERING: PROD_CW
-Film Production：@thearthauspresents
-Director：EYN NI
-Editor: EYN NI / Chance / ANZ`,
-  dwwu: `DONT WANNA WAKE UP
-Watching the evening fade
-Is it time to wake up
-I just want to sleep a little longer
-Dream back to the break up
-The sun hasn't even set
-But my heart already blacked out
-It hurts how much is wrecked — but I don't wanna clean it up
-I just wanna fade in love, not wake up
-Over and over, replay that drama
-Got me stuck in the sky, can't touch down
-I'm stuck up here
-You say this isn't a dream, but I still don't wanna wake up
-I still don't wanna wake up
-Can't touch down
-Stranded in the sky, no way back to the ground
-You say this isn't a dream, but I still don't wanna wake up
-Can't touch down
-Stranded in the sky, no way back to the ground
-You say this isn't a dream, but I still don't wanna wake up
-Rewind it from the end
-Wanna know — tell me how
-Don't tell me
-Just like a tape
-Go back
-Don't mind
-Let the words come naturally (歌詞は自然)
-Ain't nobody to blame
-And now I'll go
-Don't worry about me
-Make me up
-Make me better
-ON / Auto
-Tell your intention, no more action
-Got an eye on 愛 — just wanna fade in love
-Not wake up
-Over and over, replay that drama
-Got me stuck in the sky, can't touch down
-I'm stuck up here
-You say this isn't a dream, but I still don't wanna wake up
-I still don't wanna wake up
-Over and over, replay that drama
-Got me stuck in the sky, can't touch down
-I'm stuck up here
-You say this isn't a dream, but I still don't wanna wake up
-Can't touch down
-Stranded in the sky, no way back to the ground
-(Can't wake up now)
-You say this isn't a dream, but I still don't wanna wake up
-(Can't leave you now)
-(Can't wake up now)
-
-
-詞/曲 Lyrics & Composer: CHANCE 成晞
-製作人/編曲 Producer & Arranger：CÉON / CHANCE 成晞
-和聲編寫 Background Vocal Arrangement：CÉON
-和聲 Background Vocalist：CHANCE 成晞
-錄音師 Recording Engineers：CÉON
-錄音室 Recording Studios：THE VIBE STUDIO
-混音師 Mixing Engineer：CÉON
-混音室 Mixing Studio：THE VIBE STUDIO
-母帶後期製作人 Mastering Producer: CÉON
-母帶後期工程師 Mastering Engineer: CÉON`,
-  stay: `STAY WITH ME
-It's a lonely night
-Don't wanna fight
-We stopped talking
-The memories ran me over, holding nothing back
-Broken images linger in every corner
-I close the door and stare into the silence
-No one is really to blame — I was just too fragile
-When you pushed me away, the tears began to fall
-I wish you could understand me
-My heartbeat is barely there
-You're the only one who can bring it back to life
-Baby hold me hold me tight
-We can make it right
-This feeling — no one can take it away
-We can try feel the vibe
-How we used to dance all night
-No one can read the look on your face
-Can I finally stop making the same mistakes?
-Are all our old habits still the same?
-Can we leave all that pain behind?
-Baby I just want you here in my arms
-Oh, maybe we can start it all again
-Through everything we lost and everything we had
-Oh maybe I don't know
-Baby stay with me now
-No one is really to blame — I was just too fragile
-When you pushed me away, the tears began to fall
-I wish you could understand me
-My heartbeat is barely there
-You're the only one who can bring it back to life
-Please stay with me now
-Please stay with me
-I'm still completely under your spell
-Please stay with me
-Please stay with me now
-These familiar streets
-Please stay with me now
-I've been chasing you all this way
-Baby I could, I could stay with you until the very end
-I regret giving up on love when it was calling
-Now there's nothing but emptiness in my eyes
-Oh maybe I don't know
-Baby stay with me now
-
-
-作詞 Lyrics：CHANCE 成晞　作曲 Composer：CÉON 璽揚
-製作人 Producer：璽揚 CÉON
-編曲 Arranger：Mixtape Seoul
-和聲編寫 Background Vocal Arrangement：璽揚 CÉON
-和聲 Background Vocalist：CHANCE 成晞
-錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: The Vibe Studio@Taipei / The Studio@LA
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei`,
-  never: `NEVER KNOW
-I'm trying not to worry I'm tryna realize
-How can love be taken away before I even get to give it?
-I just want you to hold me
-I'm trying not to worry I'm trapped in the vibe
-Feeling you beside me
-Watching the tide roll in and out
-I know you better — yet you've grown familiar with someone else
-I wake up to the cold
-You send to me Pretend to be
-Oh Step to me
-How do we break free from this pain without breaking us apart?
-I see that distant look in your eyes again
-You trying not to leave me
-You tell me to stay away — but the mistake I made
-Was living inside an anime all along
-I'm trying not to worry I'm tryna realize
-How can love be taken away before I even get to give it?
-I just want you to hold me
-I'm trying not to worry I'm trapped in the vibe
-Feeling you beside me
-Watching the tide roll in and out
-I know you better — yet you've grown familiar with someone else
-It's not like I don't hurt, like I don't understand
-I give in — I swear this is the last time I mistake this dream for real
-It's not like I don't hurt, like I don't understand
-I give in — I swear this is the last time I mistake this dream for real
-It's not like I don't hurt, like I don't understand
-Some times I'm stuck in the loop (x2)
-You never know
-You never know
-You never know oh~
-I wanna do better I broke your heart
-You stole my soul I promise you
-I'll find you You are my all
-Howling for it I'm falling
-Some times I'm stuck in the loop
-Hurt me — I can carry it
-No one else can keep this candle burning, no one can hold me back
-No one can really see it — part of me still wants to wish you well
-People around me keep asking why
-But I've been feeling in the same flow
-
-
-詞曲 Lyrics & Composer: CHANCE 成晞
-製作人 Producer：CÉON
-編曲 Arranger：CÉON
-錄音工程師 Recording Engineers：CÉON
-錄音室 Recording Studios: The Vibe Studio@Taipei
-混音師 Mixing Engineer：CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei
-Produce Company: HeartBeats Production 龍言展工作室`,
-  trap: `Trap My Soul
-You told me you didn't want to leave after the drinks wore off
-Even quantum entanglement is still love
-In my heart, you were never that innocent
-But I still don't know why you always got me so tired
-Oh I don't know
-You're still not done fighting — and the love I never got to give is still overflowing
-Your warmth feels so familiar; an apology I can't forget
-Missing you, wild and burning, day and night
-You trap my soul, and every dream I had
-Everything you know
-It feels like going back in time, memories rising like smoke
-The world that was mine — I destroyed it all with my own hands
-You trap my soul; there's no escape when love turns fragile
-One touch of the past and I'm trapped there all over again
-I can't forget that pain; I got used to being controlled
-Without you, how am I supposed to live?
-Didn't you say you wouldn't let go — promising you'd never make the same mistake?
-So you clenched your fists, crying that our love wasn't grown enough
-Don't judge me. Just believe me. Even if I lose everything, don't look down on me
-I hold on tight, ask no questions — every vow is tattooed right here
-I miss the tangled nights, the room that belonged to us
-I want to part your lips and search for where our boundaries end
-I want to kidnap your gaze — possess all of it, everything
-I want to stay by your bed until the heat finally settles
-You trap my soul, and every dream I had
-Everything you know
-It feels like going back in time, memories rising like smoke
-The world that was mine — I destroyed it all with my own hands
-You trap my soul; the memories rise like smoke
-You trap my soul
-Without you, how am I supposed to live?
-
-
-詞/曲 Lyrics & Composer: CÉON
-製作人/編曲 Producer & Arranger：CÉON
-和聲編寫 Background Vocal Arrangement：CÉON
-和聲 Background Vocalist：CÉON & CHANCE
-錄音師 Recording Engineers：CÉON
-錄音室 Recording Studios：THE VIBE STUDIO
-混音師 Mixing Engineer：CÉON
-混音室 Mixing Studio：THE VIBE STUDIO
-母帶後期製作人 Mastering Producer: CÉON
-母帶後期工程師 Mastering Engineer: Mike Hillier
-母帶後期錄音室 Mastering Studio: Metropolis @UK`,
-  yici: `一次到底 ALL THE WAY
-Can we finally talk about what's real?
-I'm all in, balling — even outlaws live by a code
-If we're talking loyalty, I'm taking it all the way
-Stay true and see it through — that's what makes it right
-Can we finally talk about what's real?
-By all rights, we should be standing at the top
-Can we talk about real loyalty? I'm taking it all the way
-At last, every hard edge has sharpened me — yeah
-My life's on the line and my blood is boiling
-I got turnt, I got hurt, but that's all in the past
-Still burning with my homies
-We made it to the top — this is the view we came for
-Can't hold back
-Hood got your back
-I let destiny take its time revealing the next move
-All right, all right, all right — I'm real tonight
-I'm giving you one last deadline
-Let love lead the way — I'll show you what love is
-At the end of the day, I'm good — everything's all right
-Even a bank shot can still drop in the side pocket
-Wow!!!
-Yeah I look around
-Blades laid down to the side; if one of us falls, the debt gets paid in blood
-Everyone has to taste defeat someday
-Living in the new gang (x4)
-Can we finally talk about what's real?
-I'm all in, balling — even outlaws live by a code
-If we're talking loyalty, I'm taking it all the way
-Stay true and see it through — that's what makes it right
-Can we finally talk about what's real?
-By all rights, we should be standing at the top
-Can we talk about real loyalty?
-I'm taking it all the way — every hard edge has sharpened me, yeah
-I steer through danger, moving where the risk runs deep
-I take the risk and stand my ground to the end
-It's hard, it gets violent, and I hit back harder
-Never afraid. Every word is true. I wear down stone and wait for my moment
-In how I live and how I move, a copy can never overthrow the original
-The world's dark, but we won't betray ourselves. We move forward without fear
-Living in the new gang (x4)
-Can we finally talk about what's real?
-If we're talking loyalty, I'm taking it all the way (that's what makes it right)
-Can we finally talk about what's real? (the view from the top)
-Can we finally talk about what's real?
-At last, every hard edge has sharpened me — YEAH
-Hundred percent — all, all, all the way
-
-
-詞曲 Lyrics & Composer: CHANCE 成晞
-製作人 Producer：璽揚 CÉON
-編曲 Arranger：璽揚 CÉON / 詹勳偉
-吉他 Guitars：詹勳偉
-鼓 Drum：Mike Avenaim
-和聲編寫 Background Vocal Arrangement：璽揚 CÉON
-和聲 Background Vocalist：CHANCE 成晞
-錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: The Vibe Studio@Taipei / The Studio@LA
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei`,
-  shou: `受不了 CAN'T TAKE IT
-I passed right through your side of town
-Wake me up — don't leave me in this dream
-I'll do whatever you want
-How am I supposed to let go just like that?
-I've already moved beyond
-A world where everything has to line up
-Still searching for my balance
-Then a storm came out of nowhere
-And blew time away, little by little
-Why do I have to
-Carry all these feelings
-When they only keep me from coming closer?
-They spread through me like frost
-Faster than I can breathe
-Everything happened so suddenly
-I never had the chance to catch your love
-I can hardly take what all of this has turned me into
-I can't stand the thought of letting you pass me by
-This longing stings deep inside my heart
-I can hardly resist the way you pull me in
-In this game, you make all the rules
-I'm waiting for you
-Before I drive, first write a song
-About a dream that leans toward the real
-I clear my mind
-I hope that was right
-I'm afraid of losing you
-I hope that was right
-Maybe I planted this bitter fruit myself
-Maybe I have to find my own way through it
-This feeling, Baby
-Is tearing me apart
-Oh baby, please don't make me
-Keep guessing if I'm still in your heart
-This fear makes me flinch, trapped in the night
-I can hardly take what all of this has turned me into
-I can't stand the thought of letting you pass me by
-This longing stings deep inside my heart
-I can hardly resist the way you pull me in
-In this game, you make all the rules
-I'm waiting for you
-Without you, this world is like a world with no oxygen
-The twilight won't fade; the thought of you is wrapped around my heart
-I lose track of time because I'm waiting for you to appear
-About you
-I can hardly take what all of this has turned me into
-I can't stand the thought of letting you pass me by
-This longing stings deep inside my heart
-I can hardly resist the way you pull me in
-In this game, you make all the rules
-I'm waiting for you`,
-};
 
 /* ---- THE SKY 內嵌歌詞（file:// 直接開 test.html 也能顯示；lyricsPath 作備援）---- */
 const SKY_LYRICS = {
@@ -2207,8 +1307,7 @@ You are my painkiller
 Maybe girl
 YOU ARE MY PAIN`,
 
-  5: `The SKY
-
+  5: `THE SKY
 一個人悶著 誰都不回
 挨著雲窗 已讀亂回
 We can rise with the stars, so why should I fall
@@ -2216,12 +1315,15 @@ I just move from your place, leave behind our space
 愛就是傷而 不悔
 This is why I have to get away
 I been lost in the fray.
-I'll be okay それなら
+I'll be okay
+それなら
 Feeling no time
-不一定懂得 言葉も
+不一定懂得
+言葉も
 在房間遺忘卻地上全空
 これっての選んでの結果だ
-幻象裡 再望見妳
+幻象裡
+再望見妳
 All I wanna
 I wanna fly to the sky
 I wanna fly by your side
@@ -2232,6 +1334,7 @@ I'm living better, starting over
 每一次回過頭都存在
 Don't say this is over, will never been over
 Will living better mean starting over
+
 
 詞曲: 成晞 CHANCE
 PRODUCER: PROD_CW ＆ CHANCE 成晞
@@ -2380,28 +1483,24 @@ Stillness slowly breathing`,
  * type: voice（語音）/ photo / video / text（隨筆）。按 month 分組。
  * 之後用「發文工具.html」產生的 posts 可直接接進來。
  * ===================================================================== */
-const FEED_POSTS = [];
-var FEED_CHAT = [   /* 內建備援；正式內容以 content.json 為準（B23） */
-  { day: "2026.08.20" },
-  { text: "還醒著嗎" },
-  { text: "今天錄了一首歌，第一個想讓你聽" },
-  { photo: "assets/feed/03.jpg" },
-  { voice: "assets/feed/03.mp3", id: "v03" },
-  { text: "豆皮聽完沒什麼反應，所以只剩你了" },
-  { gap: 1 },
-  { text: "進 booth 之前偷拍的，這個燈只有你看得到" },
-  { photo: "assets/feed/02.jpg" },
-  { voice: "assets/feed/02.mp3", id: "v02" },
-  { text: "這段是只說給你聽的，不要外流" },
-  { gap: 1 },
-  { text: "凌晨四點，唱完最後一句" },
-  { photo: "assets/feed/01.jpg" },
-  { text: "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去" },
-  { video: "feed/04.mp4", id: "vid04", protected: true, productId: "video-01", price: 99, title: "I'M SORRY · 幕後", duration: "00:43" },
-  { voice: "assets/feed/01.mp3", id: "v01" },
-  { text: "聽完不准哭。哭了也只准在我這裡哭" },
+const FEED_POSTS = [
+  { id: "f13", type: "voice", src: "assets/audio/sky/01.mp3", pinned: true, label: "Voice Memo",
+    caption: "寫到一半卡住，先錄下來。這段之後變成 The SKY 的副歌。",
+    date: "2026.08.11", month: "2026-08", likes: 174, plays: "3,412" },
+  { id: "f12", type: "photo", src: "assets/images/sky/01.jpg",
+    caption: "THE SKY 錄音現場。這件外套穿了兩天，回家發現袖口都是棚裡的灰。",
+    date: "2026.08.10", month: "2026-08", likes: 128 },
+  { id: "f11", type: "text",
+    caption: "凌晨四點，母帶終於過了。\n\n六年前錄 Stay With Me 的時候，我在別人的錄音室，時間是用租的。\n今天這張，從詞到母帶都在自己的房間完成。",
+    date: "2026.08.02", month: "2026-08", likes: 211 },
+  { id: "f10", type: "photo", src: "assets/images/sky/03.jpg",
+    caption: "寫真第二套。攝影說「你不要笑，看鏡頭右邊一點」，拍了 40 張才過。",
+    date: "2026.07.28", month: "2026-07", likes: 87 },
+  { id: "f09", type: "voice", src: "assets/audio/sky/02.mp3", label: "Demo · Don't Wanna Wake Up",
+    caption: "最早的 demo，跟成品差很多。放出來給你們聽當時多土。",
+    date: "2026.07.09", month: "2026-07", likes: 142, plays: "2,077" },
 ];
-const FEED_MONTHS = {};
+const FEED_MONTHS = { "2026-08": ["八月", "2026 · Aug"], "2026-07": ["七月", "2026 · Jul"] };
 const FEED = { posts: FEED_POSTS, monthLabels: FEED_MONTHS };
 
 const THE_SKY = {
@@ -2449,30 +1548,24 @@ const THE_SKY = {
    * 商業定位：299 = 擁有這個播放器，每月更新新歌（不是一次買斷 N 首）。
    * ---------------------------------------------------------------- */
   payment: {
-    /* B28 兩 SKU：299 專輯 ／ 799 全解鎖（=專輯+SIGNAL頻道+全部獨家影片，無 WAV）。
-       已有專輯 → upgrade-799 補 500 升級。三個 key 都必須與 worker.js PRODUCTS 一致。 */
-    productKey: "the-sky-album",
-    productKeyFull: "full-unlock",
-    productKeyUpgrade: "upgrade-799",
+    productKey: "the-sky-album",   // ★ 綠界商品代號，必須與 worker.js PRODUCTS 一致
     stripeLinkBasic:  "",          // 綠界不用外部連結，留空即可
     stripeLinkDeluxe: "",
     currency: "NT$",
     basicPrice: 299,
-    deluxePrice: 799,
-    deluxeWasPrice: 898,           // 分開買 299+599 的錨定劃線價
-    upgradePrice: 500,
-    basicName:  "數位專輯",
-    deluxeName: "全解鎖",
-    basicFeatures:  ["搶先聽全 10 首 · 8/28 起陸續更新", "2027/2 全曲到齊 · 時程暫定", "每日抽卡 · 完整卡池", "不限次數隨時重播"],
-    deluxeFeatures: ["專輯全部內容＋每日抽卡", "SIGNAL 私訊頻道 · 含未來更新", "全部獨家影片 · 含未來新片", "頻道更新至 2027/2 · 時程暫定"],
-    deluxeBadge: "最超值 · 分開買要 898",
-    deluxeEnabled: true,
+    deluxePrice: 299,
+    basicName:  "擁有 THE SKY",
+    deluxeName: "擁有 THE SKY",
+    basicFeatures:  ["解鎖 I'm Sorry 完整版", "每月更新新歌 · 持續擁有", "不限次數隨時重播", "可加入手機主畫面"],
+    deluxeFeatures: ["解鎖 I'm Sorry 完整版", "每月更新新歌 · 持續擁有", "不限次數隨時重播", "可加入手機主畫面"],
+    deluxeBadge: "",
+    deluxeEnabled: false,
   },
 
   /* ---- 後端 API（Cloudflare Worker 網址在這裡換）----------------- */
   api: {
     workerBaseUrl: "https://the-sky-ost-api.anthonywen0693.workers.dev",
-    wavDriveLink: "",                              // B28：WAV 無損不存在，此欄停用
+    wavDriveLink: "",                              // 還沒有典藏版 WAV，先留空
   },
 
   /* ---- 解鎖設定 -------------------------------------------------- */
@@ -2498,8 +1591,8 @@ const THE_SKY = {
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu,  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
+    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -2554,7 +1647,7 @@ const THE_SKY = {
         desc: "三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。",
         price: 1350, originalPrice: 1500,   // 預購 10% off
         limited: 150,
-        badge: "2/5 開賣 · 會員限定",
+        badge: "預購 9 折 · 2027.02.20",
         buyLabel: "預購",
         image: "assets/images/merch/ticket.jpg",
       },
@@ -2564,7 +1657,7 @@ const THE_SKY = {
         desc: "VIP 席位 · 含限定周邊與會後交流。",
         price: 2250, originalPrice: 2500,   // 預購 10% off
         limited: 55,
-        badge: "VIP · 2/5 開賣 · 會員限定",
+        badge: "VIP · 預購 9 折",
         buyLabel: "預購",
         image: "assets/images/merch/ticket-vip.jpg",
       },
@@ -2592,7 +1685,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
+    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -2610,8 +1703,61 @@ const THE_SKY = {
  * ===================================================================== */
 /* ---- 舊歌內嵌歌詞（file:// 直接開 test.html 也能顯示；部署後 lyricsPath 作備援）---- */
 const CLASSICS_LYRICS = {
-  1: `Stay With Me
+  6: `受不了
 
+我經過了 妳的方位
+叫醒我 別在夢裡面
+I’ll do whatever you want
+我該怎麼說放就放
+我已經過了
+不在相對 的世界
+追尋平衡點
+突然間一場暴風
+時間ㄧ點ㄧ點 吹飛
+為什麼必須
+承受情緒
+讓我不能靠近
+像結霜般開始擴散
+快速讓我不能呼吸
+一切來的這麼突然
+還來不及捕捉妳的愛
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you
+要開車之前先write a song
+寫下趨近於現實的夢
+我整理思緒
+I hope that was right
+我害怕失去
+I hope that was right
+也許是自己種下苦果
+也許應該自己試著渡過
+這種感受 Baby
+超掙扎
+Oh baby 拜託別再讓我
+猜測妳心裡有沒有我
+這感覺讓我膽怯 困在黑夜
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you
+這世界 沒了妳 就像沒有氧氣
+揮不去 的暮色 牽掛纏住了心
+我忽略時間是因為要等妳出現
+About you
+有點受不了這種經過的我
+不想與妳錯過的我
+受不了牽掛 在我心裡面蜇
+有點受不了妳的誘惑的我
+這遊戲妳是規則
+I’m waiting for you`,
+
+  1: `STAY WITH ME
 It’s a lonely night
 Don’t wanna fight
 斷了聯絡
@@ -2656,17 +1802,18 @@ Baby i could I could 陪妳到最後
 Oh maybe I don’t know girl
 Baby stay with me now
 
-作詞：CHANCE 成晞 作曲：璽揚 CÉON
+
+作詞：CHANCE 成晞     作曲：CEON 璽揚
 製作人 Producer：璽揚 CÉON
 編曲 Arranger：Mixtape Seoul
-和聲編寫 Background Vocal Arrangement：璽揚 CÉON
+和聲編寫 Background Vocal Arrangement： 璽揚CÉON
 和聲 Background Vocalist：Chance 成晞
-錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studio@LA
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei`,
-  2: `Never Know
+錄音工程師 Recording Engineers：璽揚CÉON
+錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
+混音師 Mixing Engineer： 璽揚 CÉON
+混音室 Recording Studios：The Vibe Studio@Taipei`,
 
+  2: `ＮＥＶＥＲ ＫＮＯＷ
 I’m trying not to worry I’m tryna realize
 還沒給的愛 怎被沒收
 I just want you to hold me
@@ -2710,15 +1857,15 @@ Some times I’m stuck in the loop
 But I’ve been feeling In the same flow
 
 詞曲: Chance 成晞
-製作人 Producer：璽揚 CÉON
-編曲 Arranger：璽揚 CÉON
-錄音工程師 Recording Engineers：璽揚 CÉON
+制作人 Producer：CÉON
+編曲 Arranger：CÉON
+錄音工程師 Recording Engineers：CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei
+混音師 Mixing Engineer：CÉON
+混音室 Recording Studios：The Vibe Studio@Taipei
 Produce Company: HeartBeats Production 龍言展工作室`,
-  3: `Trap My Soul
 
+  3: `Trap My Soul
 你告訴我 你不想喝醉後離開
 就算 量子糾纏 那還是愛
 在我心 你不是那天真女孩
@@ -2750,19 +1897,20 @@ Everything you know
 You Trap My Soul 回憶冒著濃煙
 You Trap My Soul
 沒了你 怎麼活
-
-詞/曲:璽揚 CÉON
-製作人/編曲 Producer&Arranger：璽揚 CÉON
-和聲編寫 Background Vocal Arrangement：璽揚 CÉON
-和聲 Background Vocalist：璽揚 CÉON & CHANCE
-錄音師 Recording Engineers：璽揚 CÉON
+詞/曲:CÉON
+製作人/編曲 Producer&Arranger：CÉON
+和聲編寫 Background Vocal Arrangement：CÉON
+和聲 Background Vocalist：CÉON & CHANCE
+錄音師 Recording Engineers： CÉON
 錄音室 Recording Studios ：THE VIBE STUDIO
-混音師 Mixing Engineer：璽揚 CÉON
+混音師 Mixing Engineer：CÉON
 混音室 Mixing Studio：THE VIBE STUDIO
-母帶後期製作人 Mastering Producer: 璽揚 CÉON
+母帶後期製作人 Mastering Producer: CÉON
 母帶後期工程師 Mastering Engineer : Mike Hillier
 母帶後期錄音室 : Metropolis @UK`,
-  4: `全集中，呼吸
+
+  4: `全集中呼吸
+
 
 全集中呼吸Blow away
 全擊中pushing on my way
@@ -2806,15 +1954,15 @@ Do it
 Make it Bounce
 
 詞曲:CHANCE
-製作人/編曲 Producer&Arranger：璽揚 CÉON
-錄音工程師 Recording Engineers：璽揚 CÉON
+製作人/編曲 Producer&Arranger：CÉON
+錄音工程師 Recording Engineers：CÉON
 錄音室 Recording Studios: TheVibe Studio@Taipei
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：民生社區錄音室 The Vibe Studio@Taipei
-歌曲製作公司 Produce Company: HeartBeats Production
-母帶後期處理製作人: 璽揚 CÉON
-母帶後期處理工程師: Wayson.H
+混音師 Mixing Engineer：CÉON
+混音室 Recording Studios：民生社區錄音室 The Vibe Studio@Taipei
+歌曲制作公司 Produce Company: HeartBeats Production
+母帶後期處理製作人: A CÉON母帶後期處理工程師: Wayson.H
 母帶後期處理錄音室:尾聲 W.S Studio`,
+
   5: `一次到底
 
 可以講點真道理嗎 到底
@@ -2869,65 +2017,12 @@ Hundred percent 到到到底
 編曲 Arranger：璽揚 CÉON / 詹勳偉
 吉他 Guitars：詹勳偉
 鼓 Drum：Mike Avenaim
-和聲編寫 Background Vocal Arrangement：璽揚 CÉON
+和聲編寫 Background Vocal Arrangement： 璽揚CÉON
 和聲 Background Vocalist：Chance 成晞
-錄音工程師 Recording Engineers：璽揚 CÉON
-錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studio@LA
-混音師 Mixing Engineer：璽揚 CÉON
-混音室 Mixing Studio：The Vibe Studio@Taipei`,
-  6: `受不了
-
-我經過了 妳的方位
-叫醒我 別在夢裡面
-I’ll do whatever you want
-我該怎麼說放就放
-我已經過了
-不在相對 的世界
-追尋平衡點
-突然間一場暴風
-時間ㄧ點ㄧ點 吹飛
-為什麼必須
-承受情緒
-讓我不能靠近
-像結霜般開始擴散
-快速讓我不能呼吸
-一切來的這麼突然
-還來不及捕捉妳的愛
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you
-要開車之前先write a song
-寫下趨近於現實的夢
-我整理思緒
-I hope that was right
-我害怕失去
-I hope that was right
-也許是自己種下苦果
-也許應該自己試著渡過
-這種感受 Baby
-超掙扎
-Oh baby 拜託別再讓我
-猜測妳心裡有沒有我
-這感覺讓我膽怯 困在黑夜
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you
-這世界 沒了妳 就像沒有氧氣
-揮不去 的暮色 牽掛纏住了心
-我忽略時間是因為要等妳出現
-About you
-有點受不了這種經過的我
-不想與妳錯過的我
-受不了牽掛 在我心裡面蜇
-有點受不了妳的誘惑的我
-這遊戲妳是規則
-I’m waiting for you`,
+錄音工程師 Recording Engineers：璽揚CÉON
+錄音室 Recording Studios: the Vibe Studio@Taipei/ The Studo@LA
+混音師 Mixing Engineer： 璽揚 CÉON
+混音室 Recording Studios：The Vibe Studio@Taipei`,
 };
 
 const CLASSICS = {
@@ -2986,12 +2081,12 @@ const CLASSICS = {
   /* ---- 舊歌五首：全部免費，附歌詞（lyricsText 內嵌 = file:// 也能看）--
    * artwork = 各自的單曲封面（鎖定畫面顯示；一次到底沒有封面，用專輯封面）。 */
   tracks: [
-    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], lyricsEn: EN_LYRICS.stay, lyricsFull: true, artwork: "assets/images/classics/01.jpg" },
-    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsEn: EN_LYRICS.never, lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
-    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsEn: EN_LYRICS.trap, lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
-    { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], lyricsFull: true, artwork: "assets/images/classics/04.jpg" },
-    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: null },
-    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: null },
+    { n: 1, title: "Stay With Me",   subtitle: "It's a lonely night，留下來",       free: true, audioPath: "assets/audio/classics/01.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/01.txt", lyricsText: CLASSICS_LYRICS[1], artwork: "assets/images/classics/01.jpg" },
+    { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], artwork: "assets/images/classics/02.jpg" },
+    { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], artwork: "assets/images/classics/03.jpg" },
+    { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], artwork: "assets/images/classics/04.jpg" },
+    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], artwork: null },
+    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], artwork: null },
     { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, artwork: null },
   ],
 
@@ -3023,7 +2118,7 @@ const CLASSICS = {
   },
 
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
+    navTabs: ["PLAY", "OWN", "SHOP", "FEED"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Track",
     purchaseTitleEn: "Unlock the Album",
@@ -3037,20 +2132,6 @@ const CLASSICS = {
 /* =====================================================================
  * 專輯庫 + 啟用選擇（切換鈕由 app.js 依這裡的資料渲染）
  * =================================================================== */
-/* ── B28：每日抽卡卡池（正式內容以 content.json 的 cards 為準；這裡是內建備援，兩邊要同步）──
- * rarity: N / R / SR / SSR。tier:"member" 的卡免費用戶抽不到（圖鑑顯示模糊誘餌）。
- * 之後 CÉON 給新照片：傳到 assets/cards/ 後只改 content.json 的 cards 就好，不用動這個檔。 */
-var LUCKY_CARDS = [
-  /* B33：六張 SSR 影片卡。id 發布後不可改（玩家收藏綁 id）。
-   * w = 抽中權重；tier:"member" 免費用戶抽不到；video = 首次取得播放的抽卡動畫 */
-  { id: "ssr-gaze", glow: "#9FD8FF",   img: "assets/cards/gaze.jpg",   video: "assets/cards/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
-  { id: "ssr-vow", glow: "#F2D9A6",    img: "assets/cards/vow.jpg",    video: "assets/cards/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.jpg",  video: "assets/cards/stage.mp4",  title: "演唱會萬人迷",         rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.jpg",  video: "assets/cards/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.jpg", video: "assets/cards/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.jpg", video: "assets/cards/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 5,  tier: "member" }
-];
-
 const ALBUM_LIBRARY = { "the-sky": THE_SKY, "classics": CLASSICS };
 const ALBUM_ORDER = ["the-sky", "classics"];
 const ALBUM_CHOICE_KEY = "album-app-active";       // 記住上次看哪張
@@ -3129,8 +2210,7 @@ window.ALBUM_SWITCH = {
    * （例：舊歌精選共用 THE SKY 的解鎖），播放進度/心情牆仍各自獨立。 */
   var NS = (CFG.unlock && CFG.unlock.localStorageKey) || ("album-" + CFG.albumId);
   var UNS = (CFG.unlock && CFG.unlock.unlockShareKey) || NS;
-  var LS = { unlock: UNS + ":unlock", pos: NS + ":pos", mood: NS + ":mood", hearts: NS + ":hearts",
-             feedpass: UNS + ":feedpass", vids: UNS + ":vids" };
+  var LS = { unlock: UNS + ":unlock", pos: NS + ":pos", mood: NS + ":mood", hearts: NS + ":hearts" };
   function lsGet(k, fb) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? fb : v; } catch (e) { return fb; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -3243,7 +2323,7 @@ window.ALBUM_SWITCH = {
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
   $("purchase-title-tc").textContent = "擁有 " + (CFG.albumTitle || "專輯") + " · 每月更新新歌";
   $("unlocked-title").textContent = "已解鎖完整 " + TOTAL + " 首專輯";
-  $("unlocked-desc").textContent = "所有曲目都已開放 · 不限次數隨時聽";
+  $("unlocked-desc").textContent = "所有曲目都已開放，可線上聽 + 下載收藏";
   $("in-code").placeholder = (CFG.unlock && CFG.unlock.codePlaceholder) || "XXXX-XXXX";
   var freeCount = TRACKS.filter(function (t) { return t.free; }).length;
   $("purchase-note").textContent = freeCount >= TOTAL
@@ -3307,7 +2387,7 @@ window.ALBUM_SWITCH = {
     cur: Math.min(pos.cur || 0, TOTAL - 1),
     playing: false,
     dur: 0,
-    selectedPlan: "basic",           // basic(299 專輯) / deluxe(799 全解鎖)
+    selectedPlan: "basic",           // basic(299) / deluxe(599)
     unlocked: !!(lsGet(LS.unlock, {}).unlocked),
   };
   var seeking = false, saveT = 0, durFixing = false, resumeAt = 0;
@@ -3318,7 +2398,7 @@ window.ALBUM_SWITCH = {
    * （對後端回傳做防呆 —— 見 PITFALLS #2） */
   function purchasedProduct() {
     var p = String(unlockInfo().product || "");
-    return (p === "599" || p === "799" || p === "deluxe" || p === "full-unlock" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
+    return (p === "599" || p === "deluxe" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
   }
   function isLocked(t) { return !t.free && !state.unlocked; }
 
@@ -3368,7 +2448,7 @@ window.ALBUM_SWITCH = {
   });
   audio.addEventListener("play", function () { state.playing = true; renderPlayState(); });
   audio.addEventListener("pause", function () { state.playing = false; renderPlayState(); });
-  audio.addEventListener("ended", function () { if (window.__luckEarn) window.__luckEarn("song"); next(); });
+  audio.addEventListener("ended", function () { next(); });
 
   function playTrack(i) {
     var t = TRACKS[i];
@@ -3378,8 +2458,6 @@ window.ALBUM_SWITCH = {
     audio.src = srcFor(t);
     audio.play().catch(function () {});   // 同一手勢 tick 內呼叫（iOS 必要）
     renderNowPlaying(); renderTrackLists(); renderProgress(0);
-    (function () { var ly = document.getElementById("sheet-lyrics");
-      if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly); })();
     updateMediaSession();
   }
   function togglePlay() {
@@ -3466,7 +2544,7 @@ window.ALBUM_SWITCH = {
       }
     } else { dot.textContent = ""; }
     /* 歌詞按鈕：沒歌詞就藏起來（頁面不會壞） */
-    $("btn-lyrics").classList.remove("hidden");   // B47：中/EN 常駐（全 App 語言切換）
+    $("btn-lyrics").classList.toggle("hidden", !(t.lyricsPath || t.lyricsText));
   }
   function renderPlayState() {
     $("play-icon-path").setAttribute("d", state.playing ? "M6 5h4v14H6zM14 5h4v14h-4z" : "M8 5v14l11-7z");
@@ -3489,15 +2567,9 @@ window.ALBUM_SWITCH = {
     } else {
       right = '<svg width="14" height="14" viewBox="0 0 24 24" fill="var(--primary)"><path d="M8 5v14l11-7z"/></svg>';
     }
-    var _art = t.artwork || CFG.coverImage || "";
-    var _ol = "";
-    if (isCur) _ol = '<span class="th-ol"><span class="tr-eq"><i></i><i></i><i></i></span></span>';
-    else if (locked) _ol = '<span class="th-ol"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
-      '<div class="tr-thumb"><img src="' + esc(_art) + '" alt="" loading="lazy">' + _ol + "</div>" +
-      '<div class="tr-main"><div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" +
-        '<div class="tr-sub">' + esc(CFG.artistName || "成晞 Chance") + "</div></div>" +
-      '<div class="tr-action">' + right + "</div></div>";
+      '<span class="track-num">' + pad2(t.n) + "</span>" +
+      '<div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" + right + "</div>";
   }
   function renderTrackLists(revealing) {
     var html = TRACKS.map(function (t, i) { return trackRowHTML(t, i, revealing); }).join("");
@@ -3533,15 +2605,13 @@ window.ALBUM_SWITCH = {
   var sheet = $("sheet"), backdrop = $("sheet-backdrop");
   function openSheet() { sheet.classList.remove("hidden"); backdrop.classList.remove("hidden"); sheet.style.transform = ""; }
   function closeSheet() { sheet.classList.add("hidden"); backdrop.classList.add("hidden"); sheet.classList.remove("dragging", "snapping"); sheet.style.transform = ""; }
-  $("btn-open-sheet").addEventListener("click", function () { openSheet(); sheetTab("upnext"); });
+  $("btn-open-sheet").addEventListener("click", openSheet);
   $("btn-close-sheet").addEventListener("click", closeSheet);
   backdrop.addEventListener("click", closeSheet);
   /* 拖把手往下拉：跟手移動，放開超過 1/4 高度或速度夠快 → 關閉 */
   (function () {
     var startY = 0, curY = 0, startT = 0, active = false;
     function onStart(e) {
-      /* UX FIX：拖曳起點在分頁鈕或關閉鈕上時不啟動手勢，否則 iOS 會吃掉 click */
-      if (e.target && e.target.closest && e.target.closest(".sheet-tab, .sheet-close")) return;
       active = true; startY = curY = (e.touches ? e.touches[0].clientY : e.clientY); startT = Date.now();
       sheet.classList.add("dragging"); sheet.classList.remove("snapping");
     }
@@ -3575,26 +2645,6 @@ window.ALBUM_SWITCH = {
    * 排版規則：歌詞檔第一行＝歌名（放大顯示），中間是歌詞（中等字級），
    * 「詞/曲/製作人/混音…」開始的製作名單自動縮小放到最下面。 */
   var CREDIT_RE = /^\s*(詞|曲|詞曲|作詞|作曲|製作人|編曲|和聲|錄音|混音|母帶|Producer|PRODUCER|Arrang|Mixing|Mastering|Recording|Vocal|Film|Director|Editor|HARMONY|ARRANGEMENT)/;
-  /* B27：只有 中文 / English 兩段（拿掉「雙語」）。舊的 both 一律當中文。 */
-  var lyricLang = (function(){ try { var v = localStorage.getItem(NS + ":lylang"); return v === "en" ? "en" : "zh"; } catch(e){ return "zh"; } })();
-  function lyLabTxt(){ return lyricLang === "en" ? "EN" : "中"; }
-  function updateLyLab(){ var el = document.getElementById("lylang-lab"); if (el) el.textContent = lyLabTxt(); }
-  var CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/;
-  var LAT_RE = /[A-Za-z]/;
-  /* B27：中英夾雜的行兩邊都要顯示，只隱藏「純粹是另一種語言」的行
-   * —— 否則切 EN 時，混排行會整行消失（第1首會少掉 27 行）。 */
-  function filterLyricLang(text) {
-    var _t = TRACKS[state.cur];
-    if (_t && _t.lyricsFull) return text.replace(/\n{3,}/g, "\n\n").trim();  // B43：整合雙語完整顯示
-    var out = [];
-    text.split("\n").forEach(function (L) {
-      if (!L.trim()) { out.push(""); return; }
-      var hasZh = CJK_RE.test(L), hasEn = LAT_RE.test(L);
-      var pureOther = lyricLang === "zh" ? (hasEn && !hasZh) : (hasZh && !hasEn);
-      if (!pureOther) out.push(L);
-    });
-    return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-  }
   function renderLyrics(body, raw, fallbackTitle) {
     var lines = String(raw || "").replace(/\r/g, "").split("\n");
     while (lines.length && !lines[0].trim()) lines.shift();
@@ -3607,17 +2657,20 @@ window.ALBUM_SWITCH = {
       if (!L) continue;
       if (CREDIT_RE.test(L)) cut = i; else break;
     }
-    var lyric = filterLyricLang(lines.slice(0, cut).join("\n").replace(/\n{3,}/g, "\n\n").trim());
+    var lyric = lines.slice(0, cut).join("\n").replace(/\n{3,}/g, "\n\n").trim();
     var credits = lines.slice(cut).join("\n").trim();
     body.innerHTML =
       '<div class="lyrics-song-title">' + esc(title) + "</div>" +
       '<div class="lyrics-text">' + esc(lyric) + "</div>" +
       (credits ? '<div class="lyrics-credits">' + esc(credits) + "</div>" : "");
   }
-  function loadLyricsInto(body) {
+  $("btn-lyrics").addEventListener("click", function () {
     var t = TRACKS[state.cur];
-    if (lyricLang === "en" && t.lyricsEn) { renderLyrics(body, t.lyricsEn, t.title); return; }
-    if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }
+    $("lyrics-eyebrow").textContent = STR.lyricsLabel || "Lyrics";
+    $("lyrics-title").textContent = isLocked(t) ? "Unlock" : t.title;
+    var body = $("lyrics-body");
+    $("lyrics-overlay").classList.remove("hidden");
+    if (t.lyricsText) { renderLyrics(body, t.lyricsText, t.title); return; }   // 內嵌優先（file:// 也能看）
     if (!t.lyricsPath) { body.innerHTML = '<div class="lyrics-empty">' + esc(STR.noLyrics || "這首歌暫時沒有歌詞") + "</div>"; return; }
     if (lyricsCache[t.n] != null) { renderLyrics(body, lyricsCache[t.n], t.title); return; }
     body.innerHTML = '<div class="lyrics-empty">載入中…</div>';
@@ -3627,278 +2680,18 @@ window.ALBUM_SWITCH = {
     }).then(function (txt) {
       lyricsCache[t.n] = txt;
       renderLyrics(body, txt, t.title);
+      /* 之後要做同步歌詞（LRC）可在這裡解析時間標記 */
     }).catch(function () {
       body.innerHTML = '<div class="lyrics-empty">' + esc(STR.noLyrics || "這首歌暫時沒有歌詞") + "</div>";
     });
-  }
-  function sheetTab(which) {
-    var up = which === "upnext";
-    $("tab-upnext").classList.toggle("active", up);
-    $("tab-lyrics").classList.toggle("active", !up);
-    $("sheet-list").classList.toggle("hidden", !up);
-    $("sheet-lyrics").classList.toggle("hidden", up);
-    if (!up) loadLyricsInto($("sheet-lyrics"));
-  }
-  $("tab-upnext").addEventListener("click", function () { sheetTab("upnext"); });
-  $("tab-lyrics").addEventListener("click", function () { sheetTab("lyrics"); });
-
-  /* ── B47：介面語言 中/EN ── DOM 翻譯層，只換字、不動任何邏輯。
-   * FEED 對話、抽卡卡名、歌詞（另有意譯機制）與調校面板不翻。 */
-  var I18N = {
-"所有曲目都已開放 · 不限次數隨時聽": "All tracks open · listen anytime, no limits",
-"這張專輯全部免費 · 隨時聆聽": "This album is completely free · anytime",
-"這張專輯不用購買，直接聽": "No purchase needed — just listen",
-"全部免費": "All free",
-"全部免費聆聽": "All free to listen",
-"不限次數隨時重播": "Replay anytime, unlimited",
-"下載這首": "Download this track",
-"循環播放": "Repeat",
-"全螢幕": "Fullscreen",
-"六年前到現在的所有歌": "Every song from six years ago until now",
-"搶先聽全 10 首 · 8/28 起陸續更新": "Hear all 10 first · new drops from 8/28",
-"2027/2 全曲到齊 · 時程暫定": "Complete by 2027/2 · dates tentative",
-"← 滑動切換專輯 →": "← swipe to switch albums →",
-"把沒被世界聽見的訊號，留在這裡。": "Signals the world never heard, kept here.",
-"匿名訊號": "Anonymous signal",
-"重新連線": "Reconnect",
-"專輯": "Album",
-"把所有訊號收回成一句來不及的道歉": "Every signal pulled back into one apology that came too late",
-"抬頭望向資料雲，找回最後的自由訊號": "Looking up into the data clouds for the last free signal",
-"在夢境與現實崩塌之間，我仍不願醒來": "Between collapsing dream and reality, I still refuse to wake",
-"It's a lonely night，留下來": "It's a lonely night — stay",
-"你永遠不會知道的，沒說出口": "What you'll never know — never said out loud",
-"量子糾纏，那還是愛": "Quantum entanglement — it's still love",
-"全集中呼吸 Blow away": "Total-focus breathing · Blow away",
-"KISEKI 奇蹟 插曲 · All in 盜亦有道": "From KISEKI · All in — even outlaws have a code",
-"有些情緒，壓到最後就是受不了": "Some feelings, pressed down long enough, become too much",
-"慢速的畫格裡，把時間拉回自己手上": "In slow frames, taking time back into my own hands",
-"數位專輯": "Digital Album",
-"全解鎖": "All Access",
-"升級全解鎖": "Upgrade to All Access",
-"全解鎖 · NT$799": "All Access · NT$799",
-"購買全解鎖 NT$799": "Buy All Access · NT$799",
-"全解鎖限定 · NT$799": "All-Access only · NT$799",
-"全解鎖限定 · 補 NT$500 升級": "All-Access only · upgrade for NT$500",
-"補 NT$500 升級全解鎖": "Upgrade for NT$500",
-"升級全解鎖 · NT$500": "Upgrade · NT$500",
-"升級全解鎖 · 補 NT$500": "Upgrade · NT$500",
-"最超值 · 分開買要 898": "Best value · NT$898 separately",
-"全解鎖＝完整專輯＋頻道＋全部獨家影片，一次擁有。": "All Access = full album + channel + every exclusive video, all at once.",
-"專輯全部內容＋每日抽卡": "Everything in the album + daily card draws",
-"含 SIGNAL 頻道＋全部獨家影片": "Includes SIGNAL channel + all exclusive videos",
-"全部獨家影片 · 含未來新片": "All exclusive videos · future drops included",
-"每日抽卡 · 完整卡池": "Daily draws · full card pool",
-"＋完整專輯": "+ full album",
-"你已擁有專輯 · 補 NT$500 就是全解鎖。": "You own the album — NT$500 makes it All Access.",
-"你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新）": "Your plan: All Access · album + SIGNAL channel + every exclusive video (future updates included)",
-"你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池": "Your plan: Digital Album · full track list + full daily-draw card pool",
-"已經購買了？": "Already purchased?",
-"輸入兌換碼解鎖": "Enter your code to unlock",
-"輸入序號解鎖完整版": "Enter code to unlock the full version",
-"購買前，先留下 Email": "Before checkout, leave your email",
-"付款完成後，訂單與兌換碼會寄到這個信箱。": "After payment, your order and unlock code arrive at this inbox.",
-"　付款完成後，訂單與兌換碼會寄到這個信箱。": "After payment, your order and unlock code arrive at this inbox.",
-"　付款完成後，帶 QR code 的電子票會寄到這個信箱。": "After payment, your QR-code e-ticket arrives at this inbox.",
-"　付款完成後，訂單確認會寄到這個信箱。": "After payment, your order confirmation arrives at this inbox.",
-"　兌換碼會寄到這個信箱，用它解鎖。": "Your unlock code arrives at this inbox.",
-"兌換碼會寄到信箱，用「購買時的 email」解鎖": "Your code arrives by email — unlock with the email used at purchase",
-"前往付款": "Continue to payment",
-"取消": "Cancel",
-"前往聽歌 →": "Go listen →",
-"我已閱讀並同意": "I have read and agree to the",
-"《購買須知》": "Purchase Terms",
-"與": "and",
-"《隱私權政策》": "Privacy Policy",
-"購買須知": "Purchase Terms",
-"隱私權政策": "Privacy Policy",
-"，並同意數位內容一經解鎖即完成提供、不適用七日猶豫期、恕不退費。": ", and agree that digital content is delivered upon unlock; the 7-day cooling-off period does not apply and fees are non-refundable.",
-"請先勾選同意《購買須知》與《隱私權政策》，才能前往付款": "Please agree to the Purchase Terms and Privacy Policy first",
-"兌換碼 · CODE": "CODE",
-"購買時的 Email": "Email used at purchase",
-"兌換碼 SKY1-XXXX-XXXX": "Code SKY1-XXXX-XXXX",
-"請輸入 email 和兌換碼": "Enter your email and code",
-"兌換碼或 email 不正確": "Code or email incorrect",
-"全解鎖成功 · 全部內容屬於你了 ♡": "All Access unlocked · everything is yours ♡",
-"升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡": "Upgraded · SIGNAL channel and all videos unlocked ♡",
-"重設解鎖（測試用）": "Reset unlock (testing)",
-"已重設 · 回到未解鎖狀態": "Reset · back to locked state",
-"客服信箱 heartebeats0693@gmail.com": "Support: heartebeats0693@gmail.com",
-"夏米爾企業社　統一編號 38472654": "夏米爾企業社 · Business Reg. No. 38472654",
-"統一編號": "Business Reg. No.",
-"夏米爾企業社（統一編號 38472654）": "夏米爾企業社 (Business Reg. No. 38472654)",
-"Email 格式不太對，再確認一下": "That email doesn't look right — check it again",
-"驗證中…": "Verifying…",
-"解鎖試聽": "Trial unlock",
-"周邊 · 限量商品": "Merch · Limited",
-"周邊商品": "Merch",
-"只在 App 內販售 · 持有者專屬": "App-exclusive · holders only",
-"THE SKY 2027 聽片會 · 一般票": "THE SKY 2027 Listening Premiere · GA Ticket",
-"THE SKY 2027 聽片會 · VIP 票": "THE SKY 2027 Listening Premiere · VIP Ticket",
-"三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。": "Three unreleased songs — heard for the first time on 2/20, by only 205 people.",
-"VIP 席位 · 含限定周邊與會後交流。": "VIP seating · limited merch and after-session meet included.",
-"CHANCE 紫火限量手鏈": "CHANCE Purple-Flame Bracelet",
-"THE SKY 世界觀延伸 · 全世界只有 10 條，編號限量，售完不補。": "From THE SKY universe · only 10 in the world, numbered, never restocked.",
-"THE SKY 製作寫真": "THE SKY Making-of Photobook",
-"從 demo 到母帶的製作現場，收錄進一本實體寫真。": "From demo to master — the whole session in one photobook.",
-"預購": "Pre-order",
-"購買": "Buy",
-"已售罄": "Sold out",
-"敬請期待 · 尚未上架": "Coming soon",
-"敬請期待": "Coming soon",
-"2/5 開賣 · 會員限定": "On sale 2/5 · members only",
-"VIP · 2/5 開賣 · 會員限定": "VIP · on sale 2/5 · members only",
-"聽片會 · 我想去": "Listening Premiere · count me in",
-"我想去 · 免費登記": "Count me in · free signup",
-"免費登記、不用付款。2/5 開賣時會用這個信箱通知你。": "Free signup, no payment. We'll email you here when sales open on 2/5.",
-"已登記 ♡ 2/5 開賣第一時間通知你": "Signed up ♡ you'll be first to know on 2/5",
-"已登記 ✓ 開賣時通知你": "Signed up ✓ we'll notify you",
-"登記失敗 · 再試一次": "Signup failed · try again",
-"請填購票人姓名，入場時需要核對": "Enter the ticket holder's name — checked at entry",
-"這個商品尚未設定": "This item isn't configured",
-"這個商品還沒上架，敬請期待": "Not on sale yet · coming soon",
-"尚未設定付款連結": "Payment link not set",
-"每日抽卡": "Daily Draw",
-"每天登入送 1 抽　聽完一首歌再 ＋1 抽": "1 free draw daily · +1 for every song you finish",
-"COLLECTION · 圖鑑": "COLLECTION",
-"券用完了 · 去聽歌賺一張": "Out of tickets · finish a song to earn one",
-"券用完了 · 聽完一首歌就能再抽 ♡": "Out of tickets · finish a song to draw again ♡",
-"聽完一首 · ＋1 抽卡券 ✦": "Song finished · +1 draw ticket ✦",
-"NEW ✦ 獲得新卡": "NEW ✦ card acquired",
-"✦ 已收藏": "✦ collected",
-"點一下收進圖鑑": "Tap to add to your collection",
-"會員限定": "Members only",
-"卡池尚未設定": "Card pool not set",
-"另外 5 張只有買了才抽得到 ✦": "The other 5 cards are owner-only ✦",
-"購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →": "Buy the album NT$299 · unlock all 6 cards + every song →",
-"解鎖後才能收藏這首的心動瞬間": "Unlock to collect this moment",
-"重置抽卡＋補滿券（測試用）": "Reset draws + refill tickets (testing)",
-"已重置 · 完整卡池 · 券補滿 ✦": "Reset · full pool · tickets refilled ✦",
-"已收藏這一刻": "Moment collected",
-"SIGNAL 私訊頻道": "SIGNAL Private Channel",
-"SIGNAL · 私訊頻道": "SIGNAL · Private Channel",
-"SIGNAL 私訊頻道 · 含未來更新": "SIGNAL Private Channel · future updates included",
-"只在這裡的照片、語音、獨家影片、和只說給你聽的話。": "Photos, voice notes, exclusive videos — and words meant only for you.",
-"頻道持續更新 · 至 2027/2（時程暫定）。": "Updated continuously through 2027/2 (tentative).",
-"頻道更新至 2027/2 · 時程暫定": "Channel updates through 2027/2 · tentative",
-"已購買？輸入兌換碼": "Purchased? Enter your code",
-"確認解鎖": "Unlock",
-"獨家影片": "Exclusive video",
-"I'M SORRY · 幕後": "I'M SORRY · Behind the scenes",
-"此兌換碼不適用於這裡": "This code doesn't apply here",
-"這是專輯的兌換碼 · 請到 OWN 分頁解鎖專輯": "That's an album code · use it in the OWN tab",
-"頻道解鎖成功 · 歡迎進來 ♡": "Channel unlocked · welcome in ♡",
-"影片解鎖成功 ♡": "Video unlocked ♡",
-"獨家影片為全解鎖內容（含未來新片）。付款完成後，兌換碼會寄到這個信箱。": "Exclusive videos are All-Access content (future drops included). Your code arrives by email after payment.",
-"解鎖 SIGNAL 私訊頻道＋全部獨家影片（含未來更新，頻道至 2027/2，時程暫定）。兌換碼會寄到這個信箱。": "Unlocks the SIGNAL channel + every exclusive video (future updates included; through 2027/2, tentative). Your code arrives by email.",
-"成晞 Chance · 寫真": "CHANCE · Photos",
-"成晞 Chance · 寫真牆": "CHANCE · Photo Wall",
-"錄音現場": "In session",
-"有新內容 ✨ 點此更新": "New update ✨ tap to refresh",
-"更新中…": "Updating…",
-"載入中…": "Loading…",
-"這首歌暫時沒有歌詞": "No lyrics for this track yet",
-"連線失敗": "Connection failed",
-"連線失敗 · 再試一次": "Connection failed · try again",
-"連線失敗 · 後端未回應": "Connection failed · no response",
-"後端尚未設定": "Backend not configured",
-"後端尚未設定 · 可先用 demo 兌換碼體驗": "Backend not configured · try a demo code",
-"需解鎖完整專輯才能播放": "Unlock the album to play this",
-"其餘曲目需解鎖完整專輯": "Unlock the album for the rest",
-"需解鎖完整專輯才能下載": "Unlock the album to download",
-"下載為典藏版限定": "Downloads are deluxe-only",
-"歌詞語言：中文": "介面語言：中文"
-};
-  var I18N_RULES = [
-    [/^開始下載 · (.+)$/, "Downloading · $1"],
-    [/^解鎖成功 · (\d+) 首全部屬於你了 ♡$/, "Unlocked · all $1 tracks are yours ♡"],
-    [/^免費試聽 (\d+) 首$/, "Free preview · $1 tracks"],
-    [/^已解鎖完整 (\d+) 首 · 每月更新新歌$/, "All $1 tracks unlocked · new songs monthly"],
-    [/^已解鎖完整 (\d+) 首專輯$/, "Full album unlocked · all $1 tracks"],
-    [/^免費試聽 (\d+) 首 · 擁有後解鎖完整版，每月更新新歌$/, "Free preview · $1 tracks · own it to unlock everything, new songs monthly"],
-    [/^擁有 (.+) · 每月更新新歌$/, "Own $1 · new songs every month"],
-    [/^已解鎖完整 (\d+) 首$/, "All $1 tracks unlocked"],
-    [/^(\d+) 首 · 擁有後解鎖完整版，每月更新新歌$/, "$1 tracks · own it to unlock full versions, new songs monthly"],
-    [/^曲目列表 · (\d+) 首$/, "Track list · $1 songs"],
-    [/^抽卡 ✦ 剩 (\d+) 張券$/, "Draw ✦ $1 tickets left"],
-    [/^再抽一張 ✦ 剩 (\d+) 張券$/, "Draw again ✦ $1 left"],
-    [/^限量 (\d+) · 剩 (\d+)$/, "Limited $1 · $2 left"],
-    [/^限量 (\d+)$/, "Limited $1"],
-    [/^又抽到 · (.+)$/, "Duplicate · $1"],
-    [/^已收集 (\d+) ?\/ ?(\d+)$/, "Collected $1/$2"],
-    [/^前往結帳 · (.+)$/, "Checkout · $1"],
-    [/^升級全解鎖 · 補 NT\$(\d+)$/, "Upgrade to All Access · NT$$$1"],
-    [/^擁有 (\d+) 首$/, "Own $1 tracks"],
-    [/^免費試聽 (.+)$/, "Free preview: $1"]
-  ];
-  function i18nMap(s){
-    if (I18N[s]) return I18N[s];
-    for (var i = 0; i < I18N_RULES.length; i++){
-      if (I18N_RULES[i][0].test(s)) return s.replace(I18N_RULES[i][0], I18N_RULES[i][1]);
-    }
-    return null;
-  }
-  var I18N_SKIPTAG = { SCRIPT:1, STYLE:1, TEXTAREA:1 };
-  function i18nSkipEl(el){
-    var id = el.id || "";
-    return id === "feed-body" || id === "sheet-lyrics" || id === "lyrics-overlay" || id === "__tunerPanel" || id === "__tpBody";
-  }
-  function i18nWalk(node, toEn){
-    if (!node) return;
-    if (node.nodeType === 3){
-      var t = node.nodeValue, tt = t.trim();
-      if (!tt) return;
-      if (toEn){
-        var m = i18nMap(tt);
-        if (m && m !== tt){ node._zh = t; node.nodeValue = t.replace(tt, m); }
-      } else if (node._zh != null){ node.nodeValue = node._zh; node._zh = null; }
-      return;
-    }
-    if (node.nodeType !== 1 || I18N_SKIPTAG[node.tagName] || i18nSkipEl(node)) return;
-    var attrs = ["placeholder", "title"];
-    if (toEn){
-      for (var a = 0; a < attrs.length; a++){
-        var v = node.getAttribute && node.getAttribute(attrs[a]);
-        if (v){ var m2 = i18nMap(v.trim()); if (m2){ if (!node._zha) node._zha = {}; node._zha[attrs[a]] = v; node.setAttribute(attrs[a], m2); } }
-      }
-    } else if (node._zha){ for (var k in node._zha) node.setAttribute(k, node._zha[k]); node._zha = null; }
-    for (var c = node.firstChild; c; c = c.nextSibling) i18nWalk(c, toEn);
-  }
-  var i18nMO = null;
-  function applyAppLang(){
-    var en = lyricLang === "en";
-    i18nWalk(document.body, en);
-    if (en && !i18nMO && window.MutationObserver){
-      i18nMO = new MutationObserver(function(muts){
-        if (lyricLang !== "en") return;
-        for (var i = 0; i < muts.length; i++){
-          var m = muts[i];
-          if (m.type === "characterData") i18nWalk(m.target, true);
-          if (m.addedNodes) for (var j = 0; j < m.addedNodes.length; j++) i18nWalk(m.addedNodes[j], true);
-        }
-      });
-      i18nMO.observe(document.body, { subtree:true, childList:true, characterData:true });
-    }
-  }
-
-  $("btn-lyrics").addEventListener("click", function () {
-    lyricLang = lyricLang === "zh" ? "en" : "zh";
-    try { localStorage.setItem(NS + ":lylang", lyricLang); } catch (e) {}
-    updateLyLab();
-    applyAppLang();
-    toast(lyricLang === "zh" ? "介面語言：中文" : "Language: English");
-    hap([8, 20, 8]);
-    var ly = $("sheet-lyrics");
-    if (ly && !ly.classList.contains("hidden")) loadLyricsInto(ly);
   });
-  updateLyLab();
-  applyAppLang();
   $("btn-close-lyrics").addEventListener("click", function () { $("lyrics-overlay").classList.add("hidden"); });
 
   /* ---------- 分頁切換 + Floating Island Nav ----------
    * 只取「沒被藏起來」的 tab（全免費專輯會藏掉購買/解鎖），
    * 指示器改用該按鈕的實際位置 offsetLeft，藏 tab 也不會跑版。 */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
-  var ORDER = ["player", "mood", "merch", "purchase", "gallery", "lucky"];
+  var ORDER = ["player", "purchase", "merch", "mood", "gallery"];
   function go(screen) {
     /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
        若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
@@ -3921,7 +2714,6 @@ window.ALBUM_SWITCH = {
     }
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
-    if (screen === "lucky") renderLucky();
   }
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
@@ -3940,8 +2732,7 @@ window.ALBUM_SWITCH = {
       return '<div class="plan' + (p.deluxe ? " deluxe" : "") + (state.selectedPlan === p.key ? " selected" : "") + '" data-plan="' + p.key + '">' +
         (p.deluxe && P.deluxeBadge ? '<div class="plan-badge">' + esc(P.deluxeBadge) + "</div>" : "") +
         '<div class="plan-name">' + esc(p.name) + "</div>" +
-        '<div class="plan-price">' + esc(P.currency || "NT$") + p.price +
-          (p.deluxe && P.deluxeWasPrice ? '<span class="plan-was">' + esc(P.currency || "NT$") + P.deluxeWasPrice + "</span>" : "") + "</div>" +
+        '<div class="plan-price">' + esc(P.currency || "NT$") + p.price + "</div>" +
         '<div class="plan-features">' + p.features.map(function (f) {
           return '<div class="plan-feature">' + check + esc(f) + "</div>";
         }).join("") + "</div></div>";
@@ -3960,16 +2751,12 @@ window.ALBUM_SWITCH = {
   $("btn-checkout").addEventListener("click", function () {
     var P = CFG.payment || {};
     if (P.productKey) {
-      var full = state.selectedPlan === "deluxe" && P.productKeyFull;
-      var pk = full ? P.productKeyFull : P.productKey;
-      var price = full ? P.deluxePrice : P.basicPrice;
       var pre = ($("in-email").value || "").trim().toLowerCase();
+      if (EMAIL_RE.test(pre)) { goEcpay(P.productKey, pre); return; }   // 下方欄位已填就直接用
       askEmail({
-        title: (full ? "全解鎖 " : "擁有 ") + (CFG.albumTitle || "專輯"),
-        desc: (P.currency || "NT$") + price + "　兌換碼會寄到這個信箱，用它解鎖。",
-        needConsent: true,
-        presetEmail: EMAIL_RE.test(pre) ? pre : ""
-      }, function (email) { goEcpay(pk, email); });
+        title: "擁有 " + (CFG.albumTitle || "專輯"),
+        desc: (P.currency || "NT$") + P.basicPrice + "　兌換碼會寄到這個信箱，用它解鎖完整專輯。"
+      }, function (email) { goEcpay(P.productKey, email); });
       return;
     }
     var link = state.selectedPlan === "deluxe" ? P.stripeLinkDeluxe : P.stripeLinkBasic;
@@ -3977,15 +2764,6 @@ window.ALBUM_SWITCH = {
     window.open(link, "_blank");
   });
   $("btn-goto-player").addEventListener("click", function () { go("player"); });
-  /* B28：已有專輯 → 補 500 升級全解鎖（同一套兌換碼系統，不開第二條金流） */
-  $("btn-upgrade").addEventListener("click", function () {
-    var P = CFG.payment || {};
-    askEmail({
-      title: "升級全解鎖 · 補 NT$" + (P.upgradePrice || 500),
-      desc: "解鎖 SIGNAL 私訊頻道＋全部獨家影片（含未來更新，頻道至 2027/2，時程暫定）。兌換碼會寄到這個信箱。",
-      needConsent: true
-    }, function (email) { goEcpay(P.productKeyUpgrade || "upgrade-799", email); });
-  });
 
   /* ---------- 周邊（聽片會票 + 手鍊）---------- */
   function renderMerch() {
@@ -3993,7 +2771,7 @@ window.ALBUM_SWITCH = {
     $("merch-title-tc").textContent = M.heading || "周邊商品";
     $("merch-note").textContent = M.note || "";
     var items = M.items || [];
-    $("merch-list").innerHTML = interestCardHTML() + items.map(function (it, i) {
+    $("merch-list").innerHTML = items.map(function (it, i) {
       var soldout = it.soldOut;
       /* 未上架：不顯示任何金額，按鈕鎖住。價格還留在設定裡，開賣只要關掉 comingSoon */
       var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
@@ -4031,40 +2809,6 @@ window.ALBUM_SWITCH = {
         '</div>';
     }
   }
-  /* ── B28：聽片會「我想去」免費登記（零金流；先拿 2/20 的真實需求數字）── */
-  function interestCardHTML() {
-    var hasTicket = !!(CFG.merch && (CFG.merch.items || []).some(function (it) {
-      return String(it.productKey || "").indexOf("ticket") === 0;
-    }));
-    if (!hasTicket) return "";
-    var done = !!lsGet(NS + ":interest", null);
-    return '<div class="merch-card interest-card"><div class="merch-body">' +
-      '<div class="int-eyebrow">2027.02.20 · 微風 MEGA STUDIO</div>' +
-      '<div class="int-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
-      '<div class="int-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
-      '<button class="int-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
-        (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
-    '</div></div>';
-  }
-  $("merch-list").addEventListener("click", function (e) {
-    var b = e.target.closest("#btn-interest");
-    if (!b || b.disabled) return;
-    hap(8);
-    askEmail({ title: "聽片會 · 我想去", desc: "免費登記、不用付款。2/5 開賣時會用這個信箱通知你。" },
-      function (email) {
-        fetch(CFG.api.workerBaseUrl + "/interest", {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify({ email: email, event: "listen-0220" }),
-        }).then(function (r) { return r.json(); }).then(function (d) {
-          if (!d.ok) { toast(d.message || "登記失敗 · 再試一次"); return; }
-          lsSet(NS + ":interest", { email: email, ts: Date.now() });
-          hap([12, 30, 40]); toast("已登記 ♡ 2/5 開賣第一時間通知你");
-          renderMerch();
-        }).catch(function () { toast("連線失敗 · 再試一次"); });
-      });
-  });
-
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
   function goEcpay(productKey, email, name) {
@@ -4081,7 +2825,7 @@ window.ALBUM_SWITCH = {
    *    使用者按了購買什麼都沒發生 —— 這是實際踩到的 bug。 */
   var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   function askEmail(opts, cb) {
-    var saved = (opts.presetEmail || unlockInfo().email || lsGet(NS + ":lastemail", "") || "").trim();
+    var saved = (unlockInfo().email || lsGet(NS + ":lastemail", "") || "").trim();
     $("email-modal-title").textContent = opts.title || "購買前，先留下 Email";
     $("email-modal-desc").textContent = opts.desc || "付款完成後，訂單與兌換碼會寄到這個信箱。";
     $("email-modal-input").value = saved;
@@ -4089,15 +2833,12 @@ window.ALBUM_SWITCH = {
     nameEl.classList.toggle("hidden", !opts.needName);
     nameEl.value = lsGet(NS + ":lastname", "");
     askNeedName = !!opts.needName;
-    var cs = $("email-modal-consent");
-    if (cs) { cs.classList.toggle("hidden", !opts.needConsent); $("email-consent-cb").checked = false; }
-    askNeedConsent = !!opts.needConsent;
     $("email-modal-err").classList.add("hidden");
     $("email-modal").classList.remove("hidden");
     setTimeout(function () { $("email-modal-input").focus(); }, 120);
     emailCb = cb;
   }
-  var emailCb = null, askNeedName = false, askNeedConsent = false;
+  var emailCb = null, askNeedName = false;
   function closeEmailModal() { $("email-modal").classList.add("hidden"); emailCb = null; }
   $("email-modal-ok").addEventListener("click", function () {
     var v = ($("email-modal-input").value || "").trim().toLowerCase();
@@ -4105,10 +2846,6 @@ window.ALBUM_SWITCH = {
     var nm = ($("email-modal-name").value || "").trim();
     if (askNeedName && nm.length < 2) {
       $("email-modal-err").textContent = "請填購票人姓名，入場時需要核對";
-      $("email-modal-err").classList.remove("hidden"); return;
-    }
-    if (askNeedConsent && !$("email-consent-cb").checked) {
-      $("email-modal-err").textContent = "請先勾選同意《購買須知》與《隱私權政策》，才能前往付款";
       $("email-modal-err").classList.remove("hidden"); return;
     }
     lsSet(NS + ":lastemail", v);       // 記住，下次不用再打
@@ -4164,12 +2901,14 @@ window.ALBUM_SWITCH = {
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
     if (!state.unlocked) return;
-    var fp = feedPassInfo();
-    var full = (purchasedProduct() === "deluxe") || !!fp.full;
-    $("btn-upgrade").classList.toggle("hidden", full);
-    $("unlocked-plan-note").textContent = full
-      ? "你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新）"
-      : "你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池";
+    var deluxe = purchasedProduct() === "deluxe";
+    var wav = $("btn-wav");
+    var hasWav = deluxe && CFG.api && CFG.api.wavDriveLink;
+    wav.classList.toggle("hidden", !hasWav);
+    if (hasWav) wav.href = CFG.api.wavDriveLink;
+    $("unlocked-plan-note").textContent = deluxe
+      ? "你的方案：典藏版 + WAV 無損 · 點上方按鈕前往雲端下載完整 WAV ♡"
+      : "你的方案：數位專輯 · 可線上聆聽完整 " + TOTAL + " 首（WAV 無損下載為典藏版限定）";
   }
 
   function unlockNow(data) {
@@ -4207,21 +2946,8 @@ window.ALBUM_SWITCH = {
       headers: { "Content-Type": "text/plain;charset=UTF-8" },  // 避免 CORS preflight
       body: JSON.stringify({ email: email, code: code }),
     }).then(function (r) { return r.json(); }).then(function (data) {
-      if (!data.ok) { toast(data.message || "兌換碼或 email 不正確"); return; }
-      var pid = String(data.productId || "");
-      if (pid === "full-unlock") {
-        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
-        unlockNow({ email: email, code: code, product: "full-unlock" });
-        renderMoodWall(); return;
-      }
-      if (pid === "upgrade-799") {
-        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
-        hap([12, 30, 12, 30, 40]);
-        toast("升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡");
-        renderUnlockView(); renderMoodWall(); return;
-      }
-      if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); return; }
-      unlockNow({ email: email, code: code, product: data.product || "299" });
+      if (data.ok) unlockNow({ email: email, code: code, product: data.product || "299" });
+      else toast(data.message || "兌換碼或 email 不正確");
     }).catch(function () { toast("連線失敗 · 後端未回應"); });
   });
 
@@ -4268,7 +2994,6 @@ window.ALBUM_SWITCH = {
     var pin = p.pinned ? '<div class="pin">Pinned</div>' : "";
     if (p.type === "voice")
       return '<article class="card voice">' + pin +
-        (p.photo ? '<div class="m-wrap" style="border-radius:14px;overflow:hidden;margin-bottom:12px"><img src="' + esc(p.photo) + '" alt="" loading="lazy"></div>' : "") +
         '<div class="v-top">' + WAVE_SVG + esc(p.label || "Voice") + '</div>' +
         '<div class="v-player" data-voice="' + esc(p.id) + '">' +
           '<button class="v-btn">' + MIC_SVG + '</button>' +
@@ -4286,192 +3011,24 @@ window.ALBUM_SWITCH = {
     return '<article class="card media">' + pin + '<div class="m-wrap">' + inner + '</div>' +
       '<div class="cap">' + esc(p.caption) + '</div>' + foot + '</article>';
   }
-  function renderMoodWall() {
-    var out = "";
-    (typeof FEED_CHAT !== "undefined" ? FEED_CHAT : []).forEach(function (m) {
-      if (m.day)   { out += '<div class="chat-day">' + esc(m.day) + '</div>'; return; }
-      if (m.gap)   { out += '<div class="chat-gap"></div>'; return; }
-      if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(m.text) + '</div></div>'; return; }
-      if (m.photo) { out += '<div class="chat-line"><div class="chat-photo"><img src="' + esc(m.photo) + '" alt="" loading="lazy"></div></div>'; return; }
-      if (m.voice) {
-        var bars = "";
-        var s = 0; for (var i = 0; i < m.id.length; i++) s = (s * 31 + m.id.charCodeAt(i)) % 9973;
-        for (var j = 0; j < 34; j++) { s = (s * 1103515245 + 12345) % 2147483648; bars += '<i style="height:' + (18 + s % 82) + '%"></i>'; }
-        out += '<div class="chat-line"><div class="chat-voice" data-voice="' + esc(m.id) + '">' +
-          '<div class="wave">' + bars + '</div>' +
-          '<div class="v-time">0:00</div>' +
-          '<button class="v-btn">' + MIC_SVG + '</button>' +
-          '<audio src="' + esc(m.voice) + '" preload="metadata"></audio>' +
-        '</div></div>';
-        return;
-      }
-      if (m.video) {
-        var fp0 = feedPassInfo();
-        var own = m.protected ? (vidsOwned()[m.productId || ""] || (fp0.full ? { email: fp0.email, code: fp0.code } : null)) : true;
-        if (m.protected && !own) {
-          out += '<div class="chat-line"><div class="chat-vidlock" data-pk="' + esc(m.productId || "") + '" data-price="' + (m.price || 99) + '">' +
-            '<div class="vl-badge">EXCLUSIVE VIDEO</div>' +
-            '<div class="vl-title">' + esc(m.title || "獨家影片") + '</div>' +
-            '<div class="vl-sub">' + esc(m.duration || "") + '</div>' +
-            '<button class="vl-buy">' + (state.unlocked ? "全解鎖限定 · 補 NT$500 升級" : "全解鎖限定 · NT$799") + '</button>' +
-            '<button class="vl-redeem">已購買？輸入兌換碼</button>' +
-          '</div></div>';
-          return;
-        }
-        var vsrc = m.protected
-          ? CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(m.video) +
-            "&email=" + encodeURIComponent(own.email || "") + "&code=" + encodeURIComponent(own.code || "")
-          : m.video;
-        out += '<div class="chat-line"><div class="chat-video" data-vid="' + esc(m.id || "") + '">' +
-          '<video class="cv" src="' + esc(vsrc) + '" preload="metadata" playsinline webkit-playsinline></video>' +
-          '<button class="cv-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
-          '<button class="cv-exp" aria-label="全螢幕">⤢</button>' +
-        '</div></div>';
-        return;
-      }
+  function renderMoodWall() {   // 名稱沿用，內容已改成動態牆（開機 + go("mood") 會呼叫）
+    var likes = feedLikes();
+    var list = FEED_POSTS.filter(FEED_MATCH[feedCat] || FEED_MATCH.all);
+    if ($("feed-count")) $("feed-count").textContent = list.length + " POSTS";
+    if (!list.length) { $("feed-body").innerHTML = '<div class="feed-empty">這個分類還沒有內容。</div>'; return; }
+    var groups = [];
+    list.forEach(function (p) {
+      var g = groups[groups.length - 1];
+      if (!g || g.m !== p.month) { g = { m: p.month, items: [] }; groups.push(g); }
+      g.items.push(p);
     });
-    if (!feedUnlockedQ()) {
-      /* 未解鎖：整條聊天室打模糊、蓋上解鎖卡；語音/照片/影片一律不可互動 */
-      $("feed-body").innerHTML = '<div class="feed-blur">' + out + '</div>' + feedLockCard();
-      bindFeedLock();
-      return;
-    }
-    $("feed-body").innerHTML = out;
-    bindFeedVoices();
-    bindFeedVideos();
-    bindFeedLock();
-    document.querySelectorAll("#feed-body .chat-photo img").forEach(function (im) {
-      im.addEventListener("click", function () {
-        var lb = document.createElement("div"); lb.id = "__lb";
-        lb.innerHTML = '<img src="' + im.src + '" alt=""><button class="lb-x">✕</button>';
-        lb.addEventListener("click", function () { lb.remove(); });
-        document.body.appendChild(lb);
-        hap(8);
-      });
-    });
-  }
-  /* ── B25：SIGNAL 頻道付費牆（買斷）＋影片單購 ──────────────
-   * localStorage：LS.feedpass = {unlocked,email,code}
-   *               LS.vids     = { "video-01": {email,code}, ... }
-   * 兌換一律走 Worker /verify，依回傳 productId 分流。 */
-  function feedPassInfo() { return lsGet(LS.feedpass, {}); }
-  function feedUnlockedQ() { return !!feedPassInfo().unlocked; }
-  function vidsOwned() { return lsGet(LS.vids, {}); }
-  function feedLockCard() {
-    /* B28：頻道不再單賣（原 499/599 併入 799 全解鎖）；已有專輯 → 補 500 升級 */
-    var albumOwned = state.unlocked;
-    var price = albumOwned
-      ? '<div class="fl-price"><span class="fl-now">NT$500</span><span class="fl-was">NT$799</span><span class="fl-tag">已有專輯 · 升級價</span></div>'
-      : '<div class="fl-price"><span class="fl-now">NT$799</span><span class="fl-was">NT$898</span><span class="fl-tag">全解鎖</span></div>';
-    return '<div class="feed-lock">' +
-      '<div class="fl-eyebrow">MEMBERS ONLY</div>' +
-      '<div class="fl-title">SIGNAL 私訊頻道</div>' +
-      '<div class="fl-desc">只在這裡的照片、語音、獨家影片、和只說給你聽的話。<br>' +
-        (albumOwned ? '你已擁有專輯 · 補 NT$500 就是全解鎖。' : '全解鎖＝完整專輯＋頻道＋全部獨家影片，一次擁有。') +
-        '<br>頻道持續更新 · 至 2027/2（時程暫定）。</div>' +
-      price +
-      '<button class="fl-buy">' + (albumOwned ? "補 NT$500 升級全解鎖" : "購買全解鎖 NT$799") + '</button>' +
-      '<button class="fl-redeem">已購買？輸入兌換碼</button>' +
-    '</div>';
-  }
-  function redeemFeed(email, code) {
-    if (!CFG.api || !CFG.api.workerBaseUrl) { toast("後端尚未設定"); return; }
-    fetch(CFG.api.workerBaseUrl + "/verify", {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=UTF-8" },
-      body: JSON.stringify({ email: email, code: code }),
-    }).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d.ok) { toast(d.message || "兌換碼或 email 不正確"); return; }
-      var pid = String(d.productId || "");
-      if (pid === "full-unlock" || pid === "upgrade-799") {
-        lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
-        if (pid === "full-unlock" && !state.unlocked) {
-          lsSet(LS.unlock, { unlocked: true, email: email, code: code, product: "full-unlock" });
-          state.unlocked = true;
-          renderTrackLists(true); renderNowPlaying();
-        }
-        hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
-        renderMoodWall(); return;
-      }
-      if (pid === "feed-pass") {
-        lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
-        hap([12, 30, 12, 30, 40]); toast("頻道解鎖成功 · 歡迎進來 ♡");
-        renderMoodWall(); return;
-      }
-      if (/^video-/.test(pid)) {
-        var v = vidsOwned(); v[pid] = { email: email, code: code }; lsSet(LS.vids, v);
-        hap([12, 30, 40]); toast("影片解鎖成功 ♡");
-        renderMoodWall(); return;
-      }
-      if (pid === "the-sky-album" || String(d.product) === "299" || String(d.product) === "599") {
-        toast("這是專輯的兌換碼 · 請到 OWN 分頁解鎖專輯"); return;
-      }
-      toast("此兌換碼不適用於這裡");
-    }).catch(function () { toast("連線失敗 · 後端未回應"); });
-  }
-  function attachRedeemForm(host) {
-    var old = host.querySelector(".fl-form");
-    if (old) { old.remove(); return; }
-    var f = document.createElement("div"); f.className = "fl-form";
-    f.innerHTML = '<input type="email" placeholder="購買時的 Email" autocapitalize="off" autocomplete="email">' +
-      '<input type="text" placeholder="兌換碼 SKY1-XXXX-XXXX" autocapitalize="characters" autocomplete="off">' +
-      '<button>確認解鎖</button>';
-    host.appendChild(f);
-    f.querySelector("button").addEventListener("click", function () {
-      var em = (f.children[0].value || "").trim().toLowerCase();
-      var cd = (f.children[1].value || "").trim().toUpperCase();
-      if (!em || !cd) { toast("請輸入 email 和兌換碼"); return; }
-      redeemFeed(em, cd);
-    });
-  }
-  function bindFeedLock() {
-    var buy = document.querySelector("#feed-body .fl-buy");
-    if (buy) buy.addEventListener("click", function () {
-      hap(8);
-      var albumOwned = state.unlocked;
-      var pk = albumOwned ? ((CFG.payment || {}).productKeyUpgrade || "upgrade-799")
-                          : ((CFG.payment || {}).productKeyFull || "full-unlock");
-      var price = albumOwned ? ((CFG.payment || {}).upgradePrice || 500) : ((CFG.payment || {}).deluxePrice || 799);
-      askEmail({ title: (albumOwned ? "升級全解鎖" : "全解鎖") + " · NT$" + price,
-                 desc: "含 SIGNAL 頻道＋全部獨家影片" + (albumOwned ? "" : "＋完整專輯") + "（含未來更新）。付款完成後，兌換碼會寄到這個信箱。",
-                 needConsent: true },
-        function (email) { goEcpay(pk, email); });
-    });
-    document.querySelectorAll("#feed-body .fl-redeem, #feed-body .vl-redeem").forEach(function (b) {
-      b.addEventListener("click", function () { attachRedeemForm(b.parentNode); });
-    });
-    document.querySelectorAll("#feed-body .vl-buy").forEach(function (b) {
-      b.addEventListener("click", function () {
-        /* B28：影片不再單賣（99 併入 799 全解鎖）；已有專輯 → 補 500 升級 */
-        hap(8);
-        var albumOwned = state.unlocked;
-        var pk = albumOwned ? ((CFG.payment || {}).productKeyUpgrade || "upgrade-799")
-                            : ((CFG.payment || {}).productKeyFull || "full-unlock");
-        askEmail({ title: albumOwned ? "升級全解鎖 · NT$500" : "全解鎖 · NT$799",
-                   desc: "獨家影片為全解鎖內容（含未來新片）。付款完成後，兌換碼會寄到這個信箱。",
-                   needConsent: true },
-          function (email) { goEcpay(pk, email); });
-      });
-    });
-  }
-  function bindFeedVideos() {
-    document.querySelectorAll("#feed-body .chat-video").forEach(function (box) {
-      var v = box.querySelector("video.cv"), play = box.querySelector(".cv-play"), exp = box.querySelector(".cv-exp");
-      function start() {
-        try { v.setAttribute("controls", ""); v.play(); } catch (_) {}
-        box.classList.add("playing"); hap(8);
-      }
-      play.addEventListener("click", function (e) { e.stopPropagation(); start(); });
-      v.addEventListener("play", function () { box.classList.add("playing"); });
-      v.addEventListener("pause", function () { box.classList.remove("playing"); });
-      v.addEventListener("ended", function () { box.classList.remove("playing"); v.removeAttribute("controls"); });
-      exp.addEventListener("click", function (e) {
-        e.stopPropagation(); hap(8);
-        if (v.webkitEnterFullscreen) { try { v.play(); } catch (_) {} try { v.webkitEnterFullscreen(); } catch (_) {} }
-        else if (v.requestFullscreen) { v.setAttribute("controls", ""); v.requestFullscreen(); try { v.play(); } catch (_) {} }
-        else start();
-      });
-    });
+    $("feed-body").innerHTML = groups.map(function (g) {
+      var L = FEED_MONTHS[g.m] || [g.m || "", ""];
+      return '<div class="group-head"><div class="group-title">' + esc(L[0]) + '</div>' +
+        '<div class="group-sub">' + esc(L[1]) + '</div><div class="group-line"></div></div>' +
+        '<div class="cards">' + g.items.map(function (p) { return feedCardHTML(p, likes); }).join("") + '</div>';
+    }).join("");
+    bindFeedVoices(); watchFeedVideos();
   }
   function bindFeedVoices() {
     document.querySelectorAll("#screen-mood [data-voice]").forEach(function (box) {
@@ -4577,372 +3134,6 @@ window.ALBUM_SWITCH = {
     hap([8, 40, 12]); toast("已收藏這一刻", 1000);
     setTimeout(function () { fx.innerHTML = ""; }, 2600);
   });
-  /* ── B28：LUCKY 每日抽卡 ─────────────────────────────
-   * 卡池：全域 LUCKY_CARDS（content.json 的 cards 會覆蓋成 window.LUCKY_CARDS_LIVE）。
-   * 紀錄：localStorage "album-the-sky:luck"（雙專輯共用，每裝置每日 1 抽）。
-   * 資格：免費也能每日 1 抽（只抽得到 N 卡，SR/SSR 圖鑑模糊誘餌）；
-   *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
-  var LUCK_KEY = "album-the-sky:luck";
-  var LUCK_RATES = [["SSR", 3], ["SR", 12], ["R", 25], ["N", 60]];
-  /* B32 抽卡迴圈參數 */
-  var TK_CAP = 5;            /* 券上限：不來就浪費，製造每天回訪的理由 */
-  var TK_DAILY = 1;          /* 每日保底發 1 張 */
-  var TK_SONG_CAP = 2;       /* 聽完整首歌換券，每日上限 */
-  var TK_FEED_CAP = 1;       /* 聽完 FEED 語音／看完影片換券，每日上限 */
-  var NEW_PITY = 10;   /* B33：連續 10 抽重複 → 下一抽必出未擁有的新卡 */
-  var DUST_GAIN = { N: 10, R: 25, SR: 60, SSR: 150 };
-  var DUST_COST = { N: 60, R: 150, SR: 400, SSR: 900 };
-  function luckCards() { return window.LUCKY_CARDS_LIVE || (typeof LUCKY_CARDS !== "undefined" ? LUCKY_CARDS : []); }
-  function luckState() {
-    var st = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 });
-    if (!st.owned) st.owned = {};
-    /* 換日：補發每日券、重置當日賺券計數 */
-    var t = luckToday();
-    if (st.tday !== t) {
-      st.tk = Math.min(TK_CAP, (st.tday ? (st.tk || 0) : 0) + TK_DAILY);
-      st.eSong = 0; st.eFeed = 0; st.tday = t;
-      lsSet(LUCK_KEY, st);
-    }
-    if (st.tk == null) st.tk = TK_DAILY;
-    if (st.dust == null) st.dust = 0;
-    if (st.pNew == null) st.pNew = 0;
-    return st;
-  }
-  /* 聽完一首歌／聽完 FEED 語音或影片 → 換抽卡券 */
-  window.__luckEarn = function (kind) {
-    try {
-      if (kind !== "song") return;
-      var st = luckState();
-      if ((st.eSong || 0) >= TK_SONG_CAP) return;      /* 隱性每日上限，防刷、不顯示 */
-      if ((st.tk || 0) >= TK_CAP) return;
-      st.eSong = (st.eSong || 0) + 1;
-      st.tk = Math.min(TK_CAP, (st.tk || 0) + 1);
-      lsSet(LUCK_KEY, st);
-      hap([8, 24, 8]);
-      toast("聽完一首 · ＋1 抽卡券 ✦", 1600);
-      if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
-    } catch (e) {}
-  };
-  function luckMemberQ() {
-    var u = lsGet("album-the-sky:unlock", {}), f = lsGet("album-the-sky:feedpass", {});
-    return !!(u.unlocked || (f.unlocked && f.full));
-  }
-  function luckToday() {
-    var d = new Date();
-    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
-  }
-  function luckPick(member, st) {
-    var pool = luckCards().filter(function (c) { return member || c.tier !== "member"; });
-    if (!pool.length) return null;
-    var fresh = pool.filter(function (c) { return !st.owned[c.id]; });
-    /* 新卡保底：連續 NEW_PITY 抽重複 → 這抽保證抽未擁有的 */
-    if (fresh.length && (st.pNew || 0) >= NEW_PITY) pool = fresh;
-    var total = 0, i;
-    for (i = 0; i < pool.length; i++) total += (pool[i].w || 10);
-    var roll = Math.random() * total;
-    for (i = 0; i < pool.length; i++) {
-      roll -= (pool[i].w || 10);
-      if (roll <= 0) return pool[i];
-    }
-    return pool[pool.length - 1];
-  }
-
-  function renderLucky() {
-    var cards = luckCards(), st = luckState(), member = luckMemberQ();
-    var tk = st.tk || 0;
-    var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
-    $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
-
-    var econ = '<div class="lk-econ">' +
-      '<span class="lk-chip">抽卡券 <b>' + tk + '</b></span>' +
-      '</div>';
-
-    var pity = "", earn = "";
-
-    $("lucky-stage").innerHTML = econ +
-      '<div class="orb-wrap" id="orb-wrap">' +
-        '<div class="orb-stage">' +
-          '<div class="orb-stars"></div>' +
-          '<div class="orb-orbit o2"><div class="head"></div></div>' +
-          '<div class="orb-orbit o1"><div class="head"></div></div>' +
-          '<div class="orb"><div class="orb-core"></div>' +
-            '<div class="orb-shell orb-l"></div><div class="orb-shell orb-r"></div></div>' +
-          '<div class="orb-card" id="orb-card"></div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="lk-name" id="lk-name"></div>' +
-      '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
-        (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
-      pity + earn;
-
-    $("lucky-cta").innerHTML = member ? "" :
-      '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
-      '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>';
-    var gs = $("lk-goshop");
-    if (gs) gs.addEventListener("click", function () { go("purchase"); });
-    var btn = $("lk-draw");
-    if (btn && tk > 0) btn.addEventListener("click", doLuckDraw);
-    renderLuckGrid();
-  }
-  /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
-  var LUCK_SFX = {};
-  (function () {
-    try {
-      ["flip", "sr", "ssr"].forEach(function (k) {
-        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = 0.7;
-        LUCK_SFX[k] = a;
-      });
-    } catch (e) {}
-  })();
-  function playSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
-
-  /* B33：首抽全螢幕影片揭曉。overlay 掛 body（脫離 app 堆疊脈絡），
-   * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
-  /* ── B39 拉霸輪盤揭曉 ─────────────────────────────
-   * 首抽新卡：prime 影片(手勢內) → 輪盤(減速先擦過鎮池) → 停卡 → 爆閃 → 影片
-   * 重複卡：輪盤 → 停卡 → 星塵。統一入口 lkReveal(c, dup)。 */
-
-  function lkFlash(glow) {
-    var fl = document.getElementById("lk-flash");
-    if (!fl) { fl = document.createElement("div"); fl.id = "lk-flash"; document.body.appendChild(fl); }
-    fl.style.setProperty("--lkglow", glow || "#FFDF8E"); fl.classList.add("tint");
-    fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go");
-    hap([14, 30, 14]);
-  }
-
-  /* 手勢內先建立並 prime 影片 → 回傳可延後播放的控制器（保住 iOS 有聲） */
-  /* B42：抽完定格「真正的卡照」（靜態卡圖），點一下收進圖鑑 */
-  function lkCardHold(c, isNew) {
-    var old = document.getElementById("lk-hold"); if (old) old.remove();
-    var glow = c.glow || "#FFDF8E";
-    var ov = document.createElement("div"); ov.id = "lk-hold";
-    ov.style.setProperty("--lkglow", glow);
-    ov.innerHTML =
-      '<div class="hold-badge">' + (isNew ? "NEW ✦ 獲得新卡" : "✦ 已收藏") + '</div>' +
-      '<div class="hold-card"><img src="' + esc(c.img) + '" alt=""></div>' +
-      '<div class="hold-name">' + esc(c.title || "") + '</div>' +
-      '<div class="hold-tip">點一下收進圖鑑</div>';
-    document.body.appendChild(ov);
-    try { unlockBurstFx(); } catch (_) {}
-    hap([15, 40, 15, 40, 15, 80]);
-    var closed = false;
-    function close() {
-      if (closed) return; closed = true;
-      ov.classList.add("out");
-      setTimeout(function () { ov.remove(); }, 360);
-      lkAfterReveal(c);
-    }
-    ov.addEventListener("click", close);
-    return ov;
-  }
-
-  function lkBuildVideo(c) {
-    var old = document.getElementById("lk-cine"); if (old) old.remove();
-    var glow = c.glow || "#FFDF8E";
-    var ov = document.createElement("div"); ov.id = "lk-cine"; ov.className = "pre";
-    ov.innerHTML =
-      '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>' +
-      '<button class="cine-skip">跳過 ›</button>';
-    document.body.appendChild(ov);
-    var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
-    var done = false, shown = false;
-    function finish() {
-      if (done) return; done = true;
-      try { v.pause(); } catch (_) {}
-      ov.classList.add("out"); setTimeout(function () { ov.remove(); }, 380);
-      lkCardHold(c, true);          /* 影片結束 → 定格真正的卡照 */
-    }
-    v.addEventListener("ended", function () { if (shown) finish(); });
-    v.addEventListener("error", finish);
-    skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
-    /* 手勢內 prime */
-    try { var p0 = v.play(); if (p0 && p0.then) p0.then(function () { if (!shown) v.pause(); }).catch(function () {}); else if (!shown) v.pause(); } catch (_) {}
-    return {
-      reveal: function () {
-        shown = true;
-        lkFlash(glow);
-        setTimeout(function () {
-          ov.classList.remove("pre"); ov.classList.add("show");
-          try { v.currentTime = 0; } catch (_) {}
-          var pr = v.play(); if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
-          setTimeout(function () { skip.classList.add("on"); }, 1600);
-        }, 120);
-      }
-    };
-  }
-
-  function lkSlot(c, nearMiss, onLand) {
-    var old = document.getElementById("lk-slot"); if (old) old.remove();
-    var cards = luckCards();
-    var glow = c.glow || "#FFDF8E";
-    var W = Math.min(210, Math.round((window.innerWidth || 390) * 0.56));
-    var H = Math.round(W * 1.6);
-    /* 序列：一堆亂序 + near-miss(鎮池) + 目標(最後一格) */
-    var seq = [];
-    for (var k = 0; k < 22; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
-    var boss = null;
-    for (var b = 0; b < cards.length; b++) if (cards[b].id === "ssr-awaken") boss = cards[b];
-    if (nearMiss && boss && boss.id !== c.id) seq.push(boss);
-    else { var alt = cards[Math.floor(Math.random() * cards.length)]; seq.push(alt); }
-    seq.push(c);
-    var tgt = seq.length - 1;
-
-    var ov = document.createElement("div"); ov.id = "lk-slot";
-    ov.style.setProperty("--lkglow", glow); ov.style.setProperty("--slw", (W / 2) + "px");
-    var strip = '<div class="sl-strip spin" id="sl-strip">';
-    for (var i = 0; i < seq.length; i++)
-      strip += '<div class="sl-card" style="height:' + H + 'px"><img src="' + esc(seq[i].img) + '" alt=""></div>';
-    strip += '</div>';
-    ov.innerHTML = '<div class="sl-win" style="width:' + W + 'px;height:' + H + 'px">' + strip +
-      '<div class="sl-glow"></div></div>' +
-      '<div class="sl-name" id="sl-name"></div>' +
-      '<button class="cine-skip" id="sl-skip">跳過 ›</button>';
-    document.body.appendChild(ov);
-    var el = document.getElementById("sl-strip");
-    var skip = document.getElementById("sl-skip");
-    var landed = false, tmrs = [];
-    playSfx("flip"); hap([8, 16, 8, 16]);
-
-    function land() {
-      if (landed) return; landed = true;
-      tmrs.forEach(clearTimeout);
-      el.classList.remove("spin");
-      el.style.transition = "none";
-      el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
-      ov.classList.add("land");
-      var isBoss = c.id === "ssr-awaken";
-      playSfx(isBoss ? "ssr" : "sr");
-      hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
-      document.getElementById("sl-name").textContent = c.title || "";
-      tmrs.push(setTimeout(function () {
-        ov.classList.add("out");
-        setTimeout(function () { ov.remove(); }, 360);
-        if (onLand) onLand();
-      }, 720));
-    }
-    skip.addEventListener("click", function (e) { e.stopPropagation(); land(); });
-
-    /* 單段長減速：起步快、尾端慢，near-miss 卡在減速尾巴自然擦過 */
-    requestAnimationFrame(function () { requestAnimationFrame(function () {
-      el.style.transition = "transform 2.35s cubic-bezier(.15,.85,.23,1)";
-      el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
-    }); });
-    tmrs.push(setTimeout(function () { el.classList.remove("spin"); }, 1950)); /* 尾端轉銳利 */
-    tmrs.push(setTimeout(land, 2380));
-  }
-
-  /* 抽卡後 UI 統一更新（進度／券／星塵／保底／圖鑑／再抽按鈕） */
-  function lkAfterReveal(c) {
-    var st2 = luckState(), cards = luckCards();
-    $("lucky-progress").textContent = "已收集 " +
-      cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
-    var chips = document.querySelectorAll(".lk-econ .lk-chip b");
-    if (chips[0]) chips[0].textContent = st2.tk || 0;
-    if (chips[1]) chips[1].textContent = st2.dust || 0;
-    var pw = document.querySelectorAll(".lk-pity .pw em"), bars = document.querySelectorAll(".lk-pity .lk-bar i");
-    if (pw[0]) pw[0].textContent = Math.max(0, NEW_PITY - (st2.pNew || 0));
-    if (bars[0]) bars[0].style.width = Math.min(100, (st2.pNew || 0) / NEW_PITY * 100).toFixed(1) + "%";
-    var b2 = $("lk-draw");
-    if (b2) {
-      var tkLeft = st2.tk || 0;
-      b2.textContent = tkLeft > 0 ? "再抽一張 ✦ 剩 " + tkLeft + " 張券" : "券用完了 · 去聽歌賺一張";
-      b2.disabled = tkLeft <= 0;
-      if (tkLeft > 0) b2.addEventListener("click", function () { doLuckDraw(); }, { once: true });
-    }
-    renderLuckGrid();
-  }
-
-  function lkReveal(c, dup) {
-    if (!dup && c.video) {
-      var vid = lkBuildVideo(c);               /* 手勢內 prime */
-      lkSlot(c, true, function () { vid.reveal(); });
-    } else {
-      lkSlot(c, !dup, function () {
-        lkFlash(c.glow || "#FFDF8E");
-        var dupGain = window.__lkDup || 0;
-        toast((dupGain ? "又抽到 · " : "NEW ✦ ") + (c.title || ""), 1800);
-        try { unlockBurstFx(); } catch (_) {}
-        lkAfterReveal(c);
-      });
-    }
-  }
-
-  function doLuckDraw() {
-    var member = luckMemberQ();
-    var st = luckState();
-    if ((st.tk || 0) <= 0) { toast("券用完了 · 聽完一首歌就能再抽 ♡"); return; }
-    var c = luckPick(member, st);
-    if (!c) { toast("卡池尚未設定"); return; }
-    st.tk = (st.tk || 0) - 1;
-    st.last = luckToday();
-    st.draws = (st.draws || 0) + 1;
-    var dup = !!st.owned[c.id];
-    st.pNew = dup ? (st.pNew || 0) + 1 : 0;
-    st.owned[c.id] = (st.owned[c.id] || 0) + 1;
-    lsSet(LUCK_KEY, st);
-    window.__lkDup = dup ? 1 : 0;
-    var btn = $("lk-draw"); if (btn) btn.disabled = true;
-    lkReveal(c, dup);                          /* 影片 prime 必須在此同步手勢內發生 */
-  }
-  function renderLuckGrid() {
-    var cards = luckCards(), st = luckState(), member = luckMemberQ();
-    $("lucky-grid").innerHTML = cards.map(function (c) {
-      var n = st.owned[c.id] || 0;
-      var lockedForFree = !member && c.tier === "member";
-      if (n) return '<div class="lkg own ' + esc(c.rarity) + '" data-lk="' + esc(c.id) + '"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
-        (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
-      if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
-        '<span class="lkg-lock">🔒<span>會員限定</span></span></div>';
-      /* 未擁有（已購但還沒抽到）：問號占位 */
-      return '<div class="lkg none"><img src="' + esc(c.img) + '" alt="">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span></div>';
-    }).join("");
-    $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
-      el.addEventListener("click", function () {
-        var c = luckCards().filter(function (x) { return x.id === el.getAttribute("data-lk"); })[0];
-        if (!c) return;
-        var lb = document.createElement("div"); lb.id = "__lb";
-        lb.innerHTML = (c.video
-          ? '<video playsinline preload="auto" src="' + esc(c.video) + '" style="max-width:100vw;max-height:100dvh;object-fit:contain"></video>'
-          : '<img src="' + esc(c.img) + '" alt="">') + '<button class="lb-x">✕</button>';
-        lb.addEventListener("click", function (e) {
-          if (e.target.tagName === "VIDEO") return;   /* 點影片本身不關閉 */
-          var vv = lb.querySelector("video"); if (vv) { try { vv.pause(); } catch (_) {} }
-          lb.remove();
-        });
-        document.body.appendChild(lb);
-        var vv = lb.querySelector("video");
-        if (vv) { var pr = vv.play(); if (pr && pr.catch) pr.catch(function () { vv.muted = true; vv.play().catch(function () {}); }); }
-        hap(8);
-      });
-    });
-  }
-  window.__renderLucky = function () { if (state.screen === "lucky") renderLucky(); };
-  /* B34 測試工具：解鎖完整卡池＋重置抽卡（上線前隨 __trialBtn 一併移除） */
-  (function () {
-    var host = document.getElementById("screen-lucky");
-    if (!host) return;
-    var b = document.createElement("div");
-    b.className = "unlocked-reset";
-    b.id = "__luckReset";
-    b.style.cssText = "margin:26px auto calc(30px + env(safe-area-inset-bottom));text-align:center";
-    b.textContent = "重置抽卡＋補滿券（測試用）";
-    b.addEventListener("click", function () {
-      var u = lsGet("album-the-sky:unlock", {});
-      if (!u.unlocked) lsSet("album-the-sky:unlock", { unlocked: true, email: "trial@test", code: "TRIAL", trial: true });
-      var d = new Date();
-      lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0,
-        tday: d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(),
-        tk: TK_CAP, eSong: 0, eFeed: 0, pNew: 0 });
-      toast("已重置 · 完整卡池 · 券補滿 ✦", 1800);
-      hap([10, 30, 10]);
-      renderLucky();
-    });
-    host.appendChild(b);
-  })();
-
   function unlockBurstFx() {
     var fx = $("fx-layer");
     var html = '<div id="unlock-fx"><div class="fx-ring2"></div></div>';
@@ -4970,8 +3161,29 @@ window.ALBUM_SWITCH = {
   renderUnlockView();
   renderMerch();
   renderMoodWall();
-  window.__renderFeed = renderMoodWall;   /* B28：讓 content.json 載入後能即時重繪 FEED */
   renderProgress(pos.time || 0);
+
+  /* ---------- 深連結：?track=slug 直接開到某首歌（分享頁 LISTEN NOW 用）----------
+   * 例：chance1228.com/?track=im-sorry → 進站就選中「I'm Sorry」並顯示在 Now Playing。
+   * 只「選取顯示」，不強制播放：(1) 瀏覽器本來就會擋無手勢自動播放，
+   * (2) 付費曲一進站就跳解鎖畫面對剛點連結進來的人太突兀 —— 讓使用者自己按播放，
+   * 該有的鎖定提示會照常出現。找不到對應曲目就完全不動作，不影響既有行為。 */
+  try {
+    var _deepSlug = new URLSearchParams(location.search).get("track");
+    if (_deepSlug) {
+      var _slugify = function (s) {
+        return String(s || "").toLowerCase().replace(/['’]/g, "")
+          .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      };
+      for (var _di = 0; _di < TRACKS.length; _di++) {
+        if (_slugify(TRACKS[_di].title) === _deepSlug) {
+          state.cur = _di;
+          renderNowPlaying(); renderTrackLists(); renderProgress(0);
+          break;
+        }
+      }
+    }
+  } catch (e) {}
 })();
 
 </script>
@@ -5010,7 +3222,6 @@ window.ALBUM_SWITCH = {
       ["--pv-cover-focus",   "封面焦點",   0,    100, 1,   "%"],
       ["--pv-cover-radius",  "封面圓角",   0,    80,  1,   "px"],
       ["--pv-cover-side",    "封面左右",   0,    40,  1,   "px"],
-      ["--pv-cover-bleed",   "照片延伸",   -80,  420, 2,   "px"],
       ["--pv-status-gap",    "頂部留白",   0,    140, 1,   "px"],
       ["--pv-status-h",      "頂部遮罩高", 0,    320, 5,   "px"],
       ["--pv-status-shade",  "頂部遮罩濃", 0,    1,   0.05, ""]
@@ -5023,12 +3234,10 @@ window.ALBUM_SWITCH = {
       ["--pv-controls-gap",  "按鍵間距",   0,    80,  1,   "px"],
       ["--pv-controls-mt",   "按鍵上移",   -60,  60,  1,   "px"],
       ["--pv-controls-mb",   "按鍵下移",   -40,  60,  1,   "px"],
-      ["--pv-play-size",     "播放鍵大小", 20,   72,  1,   "px"],
       ["--pv-title-font",    "主歌名字級", 14,   36,  1,   "px"],
       ["--pv-sub-font",      "副標字級",   8,    22,  0.5, "px"],
       ["--pv-nplabel-font",  "NOW P 字級", 6,    16,  0.5, "px"],
       ["--pv-times-font",    "時間字級",   8,    16,  0.5, "px"],
-      ["--pv-times-shift",   "時間上下",   -40,  40,  1,   "px"],
       ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
       ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
@@ -5145,161 +3354,7 @@ window.ALBUM_SWITCH = {
   })();
 })();
 </script>
-
-<!-- B30：購買須知／隱私權政策 -->
-<script>
-(function () {
-  var TERMS_HTML = `<h3>一、賣方資訊</h3>
-<div class="tm-kv"><span>營業人</span><span>夏米爾企業社</span></div>
-<div class="tm-kv"><span>統一編號</span><span>38472654</span></div>
-<div class="tm-kv"><span>客服信箱</span><span>heartebeats0693@gmail.com</span></div>
-<div class="tm-kv"><span>服務網址</span><span>chance1228.com</span></div>
-<div class="tm-kv"><span>金流</span><span>綠界科技股份有限公司</span></div>
-
-<h3>二、商品內容</h3>
-<p>本服務銷售之商品均為<strong>非以有形媒介提供之數位內容</strong>，購買後於本 App 內以線上串流／瀏覽方式提供，不提供實體載體、不提供檔案下載。</p>
-<ul>
-<li><strong>數位專輯 NT$299</strong>：專輯《THE SKY》全 10 首曲目之搶先聆聽權，及每日抽卡完整卡池。</li>
-<li><strong>全解鎖 NT$799</strong>：上列全部內容 ＋ SIGNAL 私訊頻道 ＋ 頻道內全部獨家影片（含頻道服務期間內新增者）。</li>
-<li><strong>升級 NT$500</strong>：已購買數位專輯者補付差額，權益等同「全解鎖」。</li>
-</ul>
-
-<h3>三、交付方式與時程</h3>
-<ol>
-<li>付款完成後，系統將以電子郵件寄送<strong>兌換碼</strong>至購買時填寫之信箱。於本 App 輸入該信箱與兌換碼即完成解鎖。</li>
-<li>專輯曲目採<strong>分批發行</strong>，自 2026 年 8 月 28 日起陸續於本 App 內首次發行，預定於 2027 年 2 月完成全部曲目發行。</li>
-<li>SIGNAL 私訊頻道之內容更新，預定持續至 <strong>2027 年 2 月</strong>。</li>
-<li><strong>上列時程為預定，時間暫定。</strong>因製作進度、參與人員、不可歸責於本營業人之事由或其他正當理由，本營業人得調整發行與更新時程，並於本 App 內公告。時程調整不構成解除契約或請求退費之事由。</li>
-<li>已解鎖之內容於服務期間內可重複觀看／聆聽，不限次數。</li>
-</ol>
-
-<h3>四、七日猶豫期之排除與退費</h3>
-<ol>
-<li>依《消費者保護法》第 19 條第 1 項但書及《通訊交易解除權合理例外情事適用準則》第 2 條第 5 款規定，<strong>非以有形媒介提供之數位內容或一經提供即為完成之線上服務，經消費者事先同意始提供者，不適用七日猶豫期</strong>。</li>
-<li>本服務所有數位商品均屬前項所稱數位內容。購買人於付款前必須勾選同意，表示已知悉並同意於解鎖後不得主張七日猶豫期解除契約。未勾選者無法進入付款流程。</li>
-<li>因此，數位商品<strong>一經兌換解鎖，恕不退費</strong>。</li>
-<li>例外：下列情形購買人得於知悉後 7 日內以客服信箱申請處理——(a) 已付款但<strong>未曾</strong>兌換解鎖且未使用任何付費內容；(b) 因本營業人系統錯誤導致重複扣款；(c) 因本營業人之事由致內容全部無法提供。</li>
-</ol>
-
-<h3>五、兌換碼與帳號規則</h3>
-<ol>
-<li>兌換碼與購買時填寫之電子郵件信箱<strong>綁定</strong>，須兩者相符方可解鎖。</li>
-<li>兌換碼<strong>限個人使用</strong>，不得轉售、出借、公開散布或供多人共用。經發現異常共用或散布者，本營業人得停用該兌換碼且不予退費。</li>
-<li>解鎖狀態記錄於購買人裝置之瀏覽器儲存空間。更換裝置、清除瀏覽器資料或刪除 App 圖示後，請以原信箱與兌換碼重新解鎖；兌換碼請自行妥善保存。</li>
-<li>兌換碼遺失時，請以原購買信箱聯繫客服補發。</li>
-</ol>
-
-<h3>六、使用限制</h3>
-<ol>
-<li>本服務提供之音樂、影像、照片、文字及其他內容，著作權均屬本營業人或其授權人所有。購買行為取得者為<strong>個人、非商業之使用權限</strong>，非著作權之讓與或授權。</li>
-<li><strong>禁止</strong>以錄音、錄影、螢幕側錄、下載工具或其他任何方式重製、公開傳輸、散布、上傳至任何平台，或用於商業目的。</li>
-<li>違反前項者，本營業人得停用其兌換碼並不予退費，且保留依法追究之權利。</li>
-</ol>
-
-<h3>七、服務期間與終止</h3>
-<ol>
-<li>專輯曲目部分：自解鎖起至本 App 服務終止為止。</li>
-<li>SIGNAL 私訊頻道部分：內容更新至 2027 年 2 月（時程暫定），期間屆滿後既有內容仍可瀏覽至本 App 服務終止為止。</li>
-<li>本營業人如決定終止本 App 服務，將於<strong>至少 60 日前</strong>於 App 內及購買人登記信箱公告。</li>
-<li>本 App 依賴第三方雲端服務運作，如遇不可抗力或第三方服務中斷，本營業人將儘速修復，該等中斷不構成退費事由。</li>
-</ol>
-
-<h3>八、系統需求與發票</h3>
-<p>本服務為網頁應用程式（PWA），建議使用最新版 Safari（iOS）或 Chrome（Android）並保持網路連線。串流播放產生之行動數據費用由使用者自行負擔。本營業人依法開立電子發票。</p>
-
-<h3>九、客服與爭議處理</h3>
-<p>客服信箱 heartebeats0693@gmail.com，將於 3 個工作日內回覆。本須知以中華民國法律為準據法，因本服務所生爭議，以<strong>臺灣臺北地方法院</strong>為第一審管轄法院。</p>
-
-<h3>十、修改與生效</h3>
-<ol>
-<li>本營業人得修改本須知，修改後將於 App 內公告並更新版本日期。修改不溯及已完成之購買；如修改重大影響購買人既有權益，將另以電子郵件通知。</li>
-<li>本須知自 <strong>2026 年 8 月 21 日</strong>起適用。於本日之前購買 SIGNAL 私訊頻道者（含已停售之 feed-pass 方案），其頻道更新期間依原公告至 2027 年 6 月，<strong>不因本次修訂而縮短</strong>。</li>
-<li>已停售之商品（SIGNAL 頻道單購、單支影片）所核發之兌換碼永久有效。</li>
-</ol>
-<div class="tm-meta">版本日期：2026 年 8 月 21 日</div>`;
-  var PRIVACY_HTML = `<p>依《個人資料保護法》第 8 條規定告知如下。</p>
-
-<h3>一、蒐集機構</h3>
-<p>夏米爾企業社（統一編號 38472654）</p>
-
-<h3>二、蒐集目的</h3>
-<ol>
-<li>訂單處理與金流交易（代號 090 消費者、客戶管理與服務）</li>
-<li>兌換碼之核發、寄送與驗證（代號 148 網路購物及其他電子商務服務）</li>
-<li>數位內容授權管理與防盜用</li>
-<li>客戶服務、爭議處理與退費作業</li>
-<li>依法令規定之保存與申報</li>
-</ol>
-
-<h3>三、個人資料類別</h3>
-<ol>
-<li><strong>電子郵件信箱</strong>（必要，作為解鎖憑證）</li>
-<li><strong>購買紀錄</strong>（商品、金額、訂單編號、時間）</li>
-<li><strong>姓名</strong>（僅於購買實體活動票券時蒐集，供入場核對）</li>
-<li>信用卡資訊<strong>由綠界科技直接蒐集與處理，本營業人不接觸、不儲存</strong></li>
-</ol>
-
-<h3>四、利用期間、地區、對象及方式</h3>
-<div class="tm-kv"><span>期間</span><span>自蒐集日起至本服務終止或法定保存期間屆滿為止</span></div>
-<div class="tm-kv"><span>地區</span><span>中華民國，及下列受託處理者伺服器所在地（含境外）</span></div>
-<div class="tm-kv"><span>對象</span><span>本營業人；綠界科技（金流）、Cloudflare, Inc.（資料儲存與網站服務）、Resend, Inc.（電子郵件寄送）；及依法有調查權之機關</span></div>
-<div class="tm-kv"><span>方式</span><span>電子檔案，透過網際網路及電子郵件為之</span></div>
-<p style="margin-top:10px"><strong>國際傳輸告知：</strong>本服務使用之雲端與郵件服務商伺服器位於境外，您的電子郵件信箱與購買紀錄將傳輸至境外處理。您完成購買即表示知悉此情形。</p>
-
-<h3>五、您的權利</h3>
-<p>您得依《個人資料保護法》第 3 條，就本營業人保有之您的個人資料，請求查詢或閱覽、製給複製本、補充或更正、停止蒐集處理利用、刪除。</p>
-<p>行使方式：以原購買信箱寄信至 heartebeats0693@gmail.com，本營業人將於收受後 15 日內處理（必要時得延長 15 日並通知）。依法得酌收必要成本費用。</p>
-
-<h3>六、不提供個人資料之影響</h3>
-<p>電子郵件信箱為核發與驗證兌換碼之必要資料。<strong>未提供者，將無法完成購買、無法收取兌換碼，亦無法解鎖已購買之內容。</strong></p>
-
-<h3>七、資料安全</h3>
-<p>本營業人採取合理之技術與管理措施保護您的個人資料，包含全站 HTTPS 加密傳輸與存取權限控管。惟網際網路傳輸無法保證絕對安全。</p>
-
-<h3>八、瀏覽器儲存</h3>
-<p>本 App 使用瀏覽器本機儲存（localStorage）記錄您的解鎖狀態、抽卡收藏進度與播放偏好。<strong>該等資料僅儲存於您的裝置，不會回傳本營業人伺服器。</strong>清除瀏覽器資料將導致解鎖狀態消失，需以信箱與兌換碼重新解鎖。本 App <strong>不使用</strong>第三方廣告追蹤 Cookie。</p>
-
-<h3>九、未成年人</h3>
-<p>未滿 18 歲者購買本服務，應經法定代理人同意。</p>
-<div class="tm-meta">版本日期：2026 年 8 月 21 日</div>`;
-  var sheet = document.getElementById("terms-sheet");
-  if (!sheet) return;
-  document.body.appendChild(sheet);   /* 脫離 app 容器堆疊脈絡，確保蓋過浮動按鈕 */
-  document.getElementById("tm-doc-terms").innerHTML = TERMS_HTML;
-  document.getElementById("tm-doc-privacy").innerHTML = PRIVACY_HTML;
-
-  function showDoc(which) {
-    var isP = (which === "privacy");
-    document.getElementById("tm-doc-terms").classList.toggle("on", !isP);
-    document.getElementById("tm-doc-privacy").classList.toggle("on", isP);
-    var tabs = sheet.querySelectorAll(".tm-tab");
-    for (var i = 0; i < tabs.length; i++) {
-      tabs[i].classList.toggle("active", tabs[i].getAttribute("data-tm") === (isP ? "privacy" : "terms"));
-    }
-    sheet.querySelector(".tm-body").scrollTop = 0;
-  }
-  function openTerms(which) { showDoc(which || "terms"); sheet.classList.remove("hidden"); }
-  function closeTerms() { sheet.classList.add("hidden"); }
-  window.__openTerms = openTerms;
-
-  sheet.addEventListener("click", function (e) {
-    var t = e.target.closest(".tm-tab");
-    if (t) { showDoc(t.getAttribute("data-tm")); return; }
-    if (e.target.closest("#tm-close")) closeTerms();
-  });
-
-  /* 全域委派：勾選框內的連結不可觸發 checkbox；底部入口直接開 */
-  document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-open-terms]");
-    if (!el) return;
-    e.preventDefault();
-    e.stopPropagation();
-    openTerms(el.getAttribute("data-open-terms"));
-  }, true);
-})();
-</script>
-
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B48</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B05</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
@@ -5323,69 +3378,6 @@ window.ALBUM_SWITCH = {
         location.reload();
       } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
     }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
-  });
-})();
-</script>
-
-<script id="__content_loader">
-/* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
-(function () {
-  fetch("content.json?t=" + Date.now(), { cache: "no-store" })
-    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function (d) {
-      if (d && Array.isArray(d.feedChat) && d.feedChat.length) {
-        FEED_CHAT = d.feedChat;
-        if (window.__renderFeed) window.__renderFeed();
-      }
-      if (d && Array.isArray(d.cards) && d.cards.length) {
-        window.LUCKY_CARDS_LIVE = d.cards;      /* B28：抽卡卡池以 content.json 為準 */
-        if (window.__renderLucky) window.__renderLucky();
-      }
-    })
-    .catch(function () { /* 抓不到就用內建版本，不影響使用 */ });
-})();
-</script>
-
-<script id="__sw_update">
-/* B23 ── Service Worker 註冊 + 「有新內容」更新提示 */
-(function () {
-  if (!("serviceWorker" in navigator)) return;
-  function showBanner(reg) {
-    if (document.getElementById("__updBar")) return;
-    var b = document.createElement("button");
-    b.id = "__updBar"; b.textContent = "有新內容 ✨ 點此更新";
-    b.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);" +
-      "bottom:calc(78px + env(safe-area-inset-bottom));z-index:100001;" +
-      "padding:10px 18px;border-radius:999px;border:1px solid rgba(217,178,106,.7);" +
-      "background:linear-gradient(135deg,#D9B26A,#B98A3E);color:#1A0E2A;" +
-      "font:700 13px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1px;" +
-      "box-shadow:0 8px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent";
-    b.addEventListener("click", function () {
-      b.textContent = "更新中…"; b.disabled = true;
-      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      else location.reload();
-    });
-    document.body.appendChild(b);
-  }
-  var refreshed = false;
-  navigator.serviceWorker.addEventListener("controllerchange", function () {
-    if (refreshed) return; refreshed = true; location.reload();
-  });
-  window.addEventListener("load", function () {
-    navigator.serviceWorker.register("sw.js").then(function (reg) {
-      if (reg.waiting && navigator.serviceWorker.controller) showBanner(reg);
-      reg.addEventListener("updatefound", function () {
-        var nw = reg.installing;
-        if (!nw) return;
-        nw.addEventListener("statechange", function () {
-          if (nw.state === "installed" && navigator.serviceWorker.controller) showBanner(reg);
-        });
-      });
-      /* 回到前景時順手檢查一次有沒有新版 */
-      document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible") reg.update().catch(function(){});
-      });
-    }).catch(function () { /* SW 註冊失敗不影響 App */ });
   });
 })();
 </script>
