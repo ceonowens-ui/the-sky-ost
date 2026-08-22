@@ -1524,7 +1524,6 @@ body { background: #08060C !important; }
           <button class="btn-chip grad hidden" id="btn-upgrade">升級全解鎖 · 補 NT$500</button>
         </div>
         <div class="unlocked-note" id="unlocked-plan-note"></div>
-        <div class="unlocked-reset" id="btn-reset-unlock">重設解鎖（測試用）</div>
       </div>
     </div>
 
@@ -4225,12 +4224,6 @@ window.ALBUM_SWITCH = {
     }).catch(function () { toast("連線失敗 · 後端未回應"); });
   });
 
-  $("btn-reset-unlock").addEventListener("click", function () {
-    try { localStorage.removeItem(LS.unlock); } catch (e) {}
-    state.unlocked = false;
-    renderUnlockView(); renderTrackLists(); renderNowPlaying();
-    toast("已重設 · 回到未解鎖狀態");
-  });
 
   /* ---------- 動態牆（SIGNAL feed · 只有 Chance 發文）----------
    * 貼文來自 CFG.feed.posts（語音/照片/影片/隨筆），按月分組。
@@ -4920,28 +4913,6 @@ window.ALBUM_SWITCH = {
     });
   }
   window.__renderLucky = function () { if (state.screen === "lucky") renderLucky(); };
-  /* B34 測試工具：解鎖完整卡池＋重置抽卡（上線前隨 __trialBtn 一併移除） */
-  (function () {
-    var host = document.getElementById("screen-lucky");
-    if (!host) return;
-    var b = document.createElement("div");
-    b.className = "unlocked-reset";
-    b.id = "__luckReset";
-    b.style.cssText = "margin:26px auto calc(30px + env(safe-area-inset-bottom));text-align:center";
-    b.textContent = "重置抽卡＋補滿券（測試用）";
-    b.addEventListener("click", function () {
-      var u = lsGet("album-the-sky:unlock", {});
-      if (!u.unlocked) lsSet("album-the-sky:unlock", { unlocked: true, email: "trial@test", code: "TRIAL", trial: true });
-      var d = new Date();
-      lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0,
-        tday: d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(),
-        tk: TK_CAP, eSong: 0, eFeed: 0, pNew: 0 });
-      toast("已重置 · 完整卡池 · 券補滿 ✦", 1800);
-      hap([10, 30, 10]);
-      renderLucky();
-    });
-    host.appendChild(b);
-  })();
 
   function unlockBurstFx() {
     var fx = $("fx-layer");
@@ -5299,33 +5270,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B48</div>
-<script id="__trial_unlock">
-(function(){
-  var KEY = "album-the-sky:unlock";
-  try { var u = JSON.parse(localStorage.getItem(KEY)||"null"); if (u && u.unlocked) return; } catch(e){}
-  var b = document.createElement("button");
-  b.id = "__trialBtn"; b.textContent = "解鎖試聽";
-  b.style.cssText = "position:fixed;left:10px;bottom:calc(120px + env(safe-area-inset-bottom));z-index:100000;" +
-    "padding:9px 14px;border-radius:999px;border:1px solid rgba(217,178,106,.6);background:rgba(20,14,28,.92);" +
-    "color:#D9B26A;font:600 12px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;" +
-    "-webkit-tap-highlight-color:transparent;box-shadow:0 6px 20px rgba(0,0,0,.45)";
-  document.body.appendChild(b);
-  b.addEventListener("click", function(){
-    b.textContent = "驗證中…"; b.disabled = true;
-    fetch("https://the-sky-ost-api.anthonywen0693.workers.dev/verify", {
-      method:"POST", headers:{"Content-Type":"text/plain;charset=UTF-8"},
-      body: JSON.stringify({ email:"trial@chance1228.com", code:"SKY1-TEST-TRIAL" })
-    }).then(function(r){return r.json();}).then(function(d){
-      if (d.ok) {
-        localStorage.setItem(KEY, JSON.stringify({ unlocked:true, email:"trial@chance1228.com",
-          code:"SKY1-TEST-TRIAL", product:d.product||"299" }));
-        location.reload();
-      } else { alert("試聽碼尚未生效：" + (d.message||"請先在 KV 加入 SKY1-TEST-TRIAL")); b.textContent="解鎖試聽"; b.disabled=false; }
-    }).catch(function(){ alert("連線失敗"); b.textContent="解鎖試聽"; b.disabled=false; });
-  });
-})();
-</script>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B49</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
