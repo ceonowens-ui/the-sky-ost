@@ -307,7 +307,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                    justify-content: center; background: rgba(8,6,12,.45); }
 .sheet-lyrics { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
                 padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-                font-family: var(--font-serif-tc); font-size: 16px; line-height: 2.2;
+                font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
                 color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                 letter-spacing: 1px; }
 .track-num { font-family: var(--font-label); font-size: 13px; width: 24px;
@@ -378,7 +378,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                display: flex; align-items: flex-start; justify-content: space-between; }
 .lyrics-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
                padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-               font-family: var(--font-serif-tc); font-size: 16px; line-height: 2.2;
+               font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
                color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                letter-spacing: 1px; }
 /* 歌詞第一行＝歌名，放大；其餘歌詞維持中等字級 */
@@ -386,7 +386,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                      font-size: 30px; line-height: 1.25; letter-spacing: 1px;
                      color: #fff; text-align: center; margin: 2px 0 22px;
                      white-space: pre-wrap; }
-.lyrics-text { font-size: 16px; line-height: 2.2; white-space: pre-wrap; }
+.lyrics-text { font-size: 18px; line-height: 2.2; white-space: pre-wrap; }
 /* 製作名單（詞曲/製作人那幾行）自動縮小，不搶歌詞 */
 .lyrics-credits { margin-top: 26px; padding-top: 18px;
                   border-top: 1px solid rgba(255,255,255,.12);
@@ -1840,7 +1840,8 @@ You are my painkiller
 Maybe girl
 YOU ARE MY PAIN`,
 
-  5: `THE SKY
+  5: `The SKY
+
 一個人悶著 誰都不回
 挨著雲窗 已讀亂回
 We can rise with the stars, so why should I fall
@@ -1848,15 +1849,12 @@ I just move from your place, leave behind our space
 愛就是傷而 不悔
 This is why I have to get away
 I been lost in the fray.
-I'll be okay
-それなら
+I'll be okay それなら
 Feeling no time
-不一定懂得
-言葉も
+不一定懂得 言葉も
 在房間遺忘卻地上全空
 これっての選んでの結果だ
-幻象裡
-再望見妳
+幻象裡 再望見妳
 All I wanna
 I wanna fly to the sky
 I wanna fly by your side
@@ -1867,7 +1865,6 @@ I'm living better, starting over
 每一次回過頭都存在
 Don't say this is over, will never been over
 Will living better mean starting over
-
 
 詞曲: 成晞 CHANCE
 PRODUCER: PROD_CW ＆ CHANCE 成晞
@@ -2134,7 +2131,7 @@ const THE_SKY = {
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5],  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsFull: true, artwork: null },
     { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1],  artwork: null },
   ],
 
@@ -4693,7 +4690,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B44</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:rgba(255,255,255,.3);pointer-events:none;letter-spacing:1px">B45</div>
 <script id="__trial_unlock">
 (function(){
   var KEY = "album-the-sky:unlock";
