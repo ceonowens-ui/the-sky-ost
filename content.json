@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-22-1",
+  "version": "2026-08-22-2",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -72,7 +72,8 @@
       "video": "assets/cards/gaze.mp4",
       "title": "一眼淪陷・魅惑滿格",
       "rarity": "SSR",
-      "w": 19
+      "w": 19,
+      "glow": "#9FD8FF"
     },
     {
       "id": "ssr-vow",
@@ -81,7 +82,8 @@
       "title": "戀愛宣言・心動支配者",
       "rarity": "SSR",
       "w": 19,
-      "tier": "member"
+      "tier": "member",
+      "glow": "#F2D9A6"
     },
     {
       "id": "ssr-stage",
@@ -90,7 +92,8 @@
       "title": "演唱會萬人迷",
       "rarity": "SSR",
       "w": 19,
-      "tier": "member"
+      "tier": "member",
+      "glow": "#B78CFF"
     },
     {
       "id": "ssr-hands",
@@ -99,7 +102,8 @@
       "title": "千手幻相・萬象歸一",
       "rarity": "SSR",
       "w": 19,
-      "tier": "member"
+      "tier": "member",
+      "glow": "#9FF0D0"
     },
     {
       "id": "ssr-mirror",
@@ -108,7 +112,8 @@
       "title": "鏡像殘影・多重分身",
       "rarity": "SSR",
       "w": 19,
-      "tier": "member"
+      "tier": "member",
+      "glow": "#7FB2FF"
     },
     {
       "id": "ssr-awaken",
@@ -117,7 +122,8 @@
       "title": "真身降臨・鎮池之卡",
       "rarity": "SSR",
       "w": 5,
-      "tier": "member"
+      "tier": "member",
+      "glow": "#FFD75E"
     }
   ]
 }
