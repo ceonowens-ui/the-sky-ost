@@ -659,37 +659,69 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* =====================================================================
  * 周邊分頁（聽片會票 + 手鍊）
  * =================================================================== */
-.merch-list { padding: 4px 18px calc(30px + env(safe-area-inset-bottom));
-              display: flex; flex-direction: column; gap: 16px; }
+.merch-list { padding: 2px 16px calc(30px + env(safe-area-inset-bottom)); }
+
+/* Hero · 聽片會主打 */
+.shop-hero { position: relative; border-radius: 24px; overflow: hidden; margin: 6px 0 20px;
+             background: linear-gradient(135deg, rgba(217,178,106,.16), rgba(90,40,140,.30));
+             border: 1px solid rgba(217,178,106,.28); padding: 22px 20px 20px;
+             box-shadow: 0 18px 44px rgba(0,0,0,.42); }
+.shop-hero .hero-eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: 3px;
+             color: rgba(217,178,106,.95); text-transform: uppercase; }
+.shop-hero .hero-title { font-family: var(--font-serif-tc); font-size: 22px; line-height: 1.4;
+             color: #fff; margin-top: 10px; font-weight: 600; }
+.shop-hero .hero-desc { font-size: 14px; line-height: 1.75; color: rgba(255,255,255,.72); margin-top: 10px; }
+
+/* 分類 chips */
+.shop-chips { display: flex; gap: 9px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+              padding: 2px 0 4px; margin-bottom: 16px; scrollbar-width: none; }
+.shop-chips::-webkit-scrollbar { display: none; }
+.shop-chip { flex: none; font-family: var(--font-serif-tc); font-size: 14px; letter-spacing: .5px;
+             padding: 9px 18px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+             background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+             color: rgba(255,255,255,.66); transition: all .18s; }
+.shop-chip.active { background: var(--grad); color: #fff; border-color: transparent;
+             box-shadow: 0 6px 16px rgba(217,178,106,.28); }
+
+/* 商品格：預設雙欄，主打票券 span 滿版 */
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .merch-card { background: var(--surface); border: 1px solid rgba(255,255,255,.1);
-              border-radius: 22px; overflow: hidden;
-              box-shadow: 0 14px 34px rgba(0,0,0,.38); }
+              border-radius: 20px; overflow: hidden; box-shadow: 0 14px 34px rgba(0,0,0,.38);
+              display: flex; flex-direction: column; }
+.merch-card.span { grid-column: 1 / -1; }
 .merch-card.soldout { opacity: .62; }
-/* 高度自動：每張商品圖依自己的比例完整顯示，不裁切
-   （票券很寬、手鍊接近方形，硬套同一個比例一定會切到） */
+.merch-card.hidden { display: none; }
 .merch-img { position: relative; width: 100%; background: #0B0709; }
 .merch-img img { width: 100%; height: auto; display: block; }
-.merch-img-ph { aspect-ratio: 16/10; }   /* 沒圖的佔位框才需要固定比例 */
-.merch-img-ph { display: flex; align-items: center; justify-content: center;
+.shop-grid .merch-card:not(.span) .merch-img { aspect-ratio: 1 / 1; }
+.shop-grid .merch-card:not(.span) .merch-img img { height: 100%; object-fit: cover; }
+.merch-img-ph { aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center;
                 font-size: 46px; color: rgba(var(--primary-rgb), .5);
                 background: linear-gradient(150deg, rgba(var(--primary-rgb), .14), rgba(16,32,48,.6)); }
-.merch-body { padding: 15px 17px 17px; }
-.merch-badge { display: inline-block; font-family: var(--font-label); font-size: 9px;
-               letter-spacing: 2px; text-transform: uppercase; color: var(--primary);
+.merch-body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
+.merch-badge { align-self: flex-start; font-family: var(--font-label); font-size: 10.5px;
+               letter-spacing: 1.6px; text-transform: uppercase; color: var(--primary);
                background: rgba(var(--primary-rgb), .14); border: 1px solid rgba(var(--primary-rgb), .3);
-               padding: 3px 9px; border-radius: 9px; margin-bottom: 9px; }
-.merch-name { font-family: var(--font-serif-tc); font-size: 17px; font-weight: 600; letter-spacing: .5px; }
-.merch-desc { font-size: 12.5px; line-height: 1.8; color: var(--muted); margin-top: 7px; }
-.merch-foot { display: flex; align-items: baseline; gap: 11px; margin: 13px 0 12px; }
+               padding: 4px 10px; border-radius: 9px; margin-bottom: 11px; }
+.merch-name { font-family: var(--font-serif-tc); font-weight: 600; letter-spacing: .3px;
+              font-size: 16px; line-height: 1.45; color: #fff; }
+.span .merch-name { font-size: 21px; }
+.merch-desc { font-size: 13px; line-height: 1.75; color: var(--muted); margin-top: 8px; }
+.span .merch-desc { font-size: 14.5px; }
+.merch-foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; margin: 14px 0 13px; }
 .merch-soon { font-family: var(--font-serif-tc) !important; font-style: normal !important;
               font-size: 17px !important; letter-spacing: 3px; color: var(--muted) !important; }
 .merch-price { font-family: var(--font-display); font-style: italic; font-weight: 600;
-               font-size: 24px; color: #fff; }
+               font-size: 22px; color: #fff; }
+.span .merch-price { font-size: 28px; }
 .merch-was { font-family: var(--font-label); font-size: 13px; letter-spacing: .5px;
              color: rgba(255,255,255,.38); text-decoration: line-through; }
-.merch-stock { font-family: var(--font-label); font-size: 10px; letter-spacing: 1.2px;
-               color: rgba(255,255,255,.45); }
-.merch-buy { width: 100%; }
+.merch-stock { display: inline-block; font-family: var(--font-label); font-size: 11px;
+               letter-spacing: 1px; color: rgba(217,178,106,.9);
+               background: rgba(217,178,106,.12); border: 1px solid rgba(217,178,106,.25);
+               padding: 3px 9px; border-radius: 999px; }
+.merch-buy { width: 100%; margin-top: auto; padding: 15px; border-radius: 14px;
+             font-size: 14.5px; letter-spacing: 1.5px; }
 .merch-buy:disabled { opacity: .5; cursor: not-allowed; }
 
 /* =====================================================================
@@ -4007,9 +4039,18 @@ window.ALBUM_SWITCH = {
     $("merch-title-tc").textContent = M.heading || "周邊商品";
     $("merch-note").textContent = M.note || "";
     var items = M.items || [];
-    $("merch-list").innerHTML = interestCardHTML() + items.map(function (it, i) {
+    var cat = state.shopCat || "all";
+    var catOf = function (it) { return String(it.productKey || "").indexOf("ticket") === 0 ? "show" : "collect"; };
+    var hasShow = items.some(function (it) { return catOf(it) === "show"; });
+    var hasCollect = items.some(function (it) { return catOf(it) === "collect"; });
+    var chips = (hasShow && hasCollect)
+      ? '<div class="shop-chips" id="shop-chips">' +
+        [["all", "全部"], ["show", "聽片會"], ["collect", "收藏"]].map(function (c) {
+          return '<button class="shop-chip' + (cat === c[0] ? " active" : "") + '" data-cat="' + c[0] + '">' + c[1] + '</button>';
+        }).join("") + '</div>'
+      : "";
+    var cards = items.map(function (it, i) {
       var soldout = it.soldOut;
-      /* 未上架：不顯示任何金額，按鈕鎖住。價格還留在設定裡，開賣只要關掉 comingSoon */
       var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
       var stock = (it.limited != null)
         ? '<span class="merch-stock">限量 ' + it.limited + (it.left != null && !soon ? ' · 剩 ' + it.left : '') + '</span>'
@@ -4028,7 +4069,10 @@ window.ALBUM_SWITCH = {
         : '<span class="merch-price">' + (M.currency || "NT$") + it.price + "</span>";
       var wasPrice = (!soon && it.originalPrice && it.originalPrice > it.price)
         ? '<span class="merch-was">' + (M.currency || "NT$") + it.originalPrice + "</span>" : "";
-      return '<div class="merch-card' + (soldout && !soon ? " soldout" : "") + '">' + img +
+      var isTicket = String(it.productKey || "").indexOf("ticket") === 0;
+      var c = catOf(it);
+      var hide = (cat !== "all" && cat !== c) ? " hidden" : "";
+      return '<div class="merch-card' + (isTicket ? " span" : "") + (soldout && !soon ? " soldout" : "") + hide + '" data-cat="' + c + '">' + img +
         '<div class="merch-body">' +
           (it.badge ? '<div class="merch-badge">' + esc(it.badge) + "</div>" : "") +
           '<div class="merch-name">' + esc(it.name) + "</div>" +
@@ -4037,6 +4081,7 @@ window.ALBUM_SWITCH = {
           btn +
         "</div></div>";
     }).join("");
+    $("merch-list").innerHTML = interestCardHTML() + chips + '<div class="shop-grid" id="shop-grid">' + cards + '</div>';
     /* 沒有周邊商品的專輯（BEFORE THE SKY，但強制顯示 5 顆分頁）：放「敬請期待」佔位，不留白 */
     if (CFG.navShowAll && !items.length) {
       $("merch-list").innerHTML =
@@ -4052,13 +4097,13 @@ window.ALBUM_SWITCH = {
     }));
     if (!hasTicket) return "";
     var done = !!lsGet(NS + ":interest", null);
-    return '<div class="merch-card interest-card"><div class="merch-body">' +
-      '<div class="int-eyebrow">2027.02.20 · 微風 MEGA STUDIO</div>' +
-      '<div class="int-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
-      '<div class="int-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
+    return '<div class="shop-hero">' +
+      '<div class="hero-eyebrow">2027.02.20 · 微風 MEGA STUDIO</div>' +
+      '<div class="hero-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
+      '<div class="hero-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
       '<button class="int-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
         (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
-    '</div></div>';
+    '</div>';
   }
   $("merch-list").addEventListener("click", function (e) {
     var b = e.target.closest("#btn-interest");
@@ -4134,6 +4179,17 @@ window.ALBUM_SWITCH = {
   $("email-modal").addEventListener("click", function (e) { if (e.target === this) closeEmailModal(); });
   $("email-modal-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter") $("email-modal-ok").click();
+  });
+  $("merch-list").addEventListener("click", function (e) {
+    var chip = e.target.closest(".shop-chip"); if (!chip) return;
+    var cat = chip.getAttribute("data-cat"); state.shopCat = cat; hap(6);
+    var chips = $("shop-chips");
+    if (chips) [].forEach.call(chips.children, function (c) { c.classList.toggle("active", c.getAttribute("data-cat") === cat); });
+    var grid = $("shop-grid");
+    if (grid) [].forEach.call(grid.querySelectorAll(".merch-card"), function (card) {
+      var cc = card.getAttribute("data-cat");
+      card.classList.toggle("hidden", cat !== "all" && cc !== cat);
+    });
   });
   $("merch-list").addEventListener("click", function (e) {
     var b = e.target.closest("[data-merch]"); if (!b) return;
@@ -5285,7 +5341,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B52</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B53</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
