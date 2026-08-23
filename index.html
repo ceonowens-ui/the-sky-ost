@@ -418,12 +418,16 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                  color: rgba(255,255,255,.85); letter-spacing: 2px; margin-top: 8px; }
 .page-note { font-size: 12.5px; color: rgba(255,255,255,.5); margin-top: 12px; line-height: 1.75; }
 
-/* SHOP 標題放大 + 主題明確（只 scope 在周邊頁）*/
-#screen-merch .page-titles { padding-bottom: 2px; }
-#screen-merch .page-title-en { font-family: var(--font-label); font-style: normal; font-size: 14px;
+/* SHOP / OWN 標題統一放大 + 主題明確 */
+#screen-merch .page-titles, #screen-purchase .page-titles { padding-bottom: 2px; }
+#screen-merch .page-title-en, #screen-purchase .page-title-en { font-family: var(--font-label); font-style: normal; font-size: 14px;
               letter-spacing: 4px; text-transform: uppercase; color: rgba(217,178,106,.9); }
-#screen-merch .page-title-tc { font-size: 27px; color: #fff; font-weight: 600; letter-spacing: 2px; margin-top: 8px; }
-#screen-merch .page-note { font-size: 14px; color: rgba(255,255,255,.62); margin-top: 11px; }
+#screen-merch .page-title-tc, #screen-purchase .page-title-tc { font-size: 27px; color: #fff; font-weight: 600; letter-spacing: 2px; margin-top: 8px; }
+#screen-merch .page-note, #screen-purchase .page-note { font-size: 14px; color: rgba(255,255,255,.62); margin-top: 11px; }
+/* OWN 垂直置中：內容短時置中、內容長時靠上可捲（auto margin 不夾字）；只在 active 時 flex，不破壞分頁切換 */
+#screen-purchase.active { display: flex; flex-direction: column; }
+#screen-purchase > .page-titles { margin-top: auto; }
+#screen-purchase > .legal-foot { margin-bottom: auto; }
 
 .plans { padding: 28px 22px 0; display: flex; flex-direction: column; gap: 18px; }
 .plan { position: relative; border-radius: 22px; padding: 24px 22px; cursor: pointer;
@@ -1299,9 +1303,9 @@ body { background: #08060C !important; }
   border:1px solid rgba(217,178,106,.35);
   -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
   box-shadow:0 18px 50px rgba(0,0,0,.5); }
-.fl-eyebrow{ font-family:var(--font-label); font-size:9px; letter-spacing:3.5px; color:rgba(217,178,106,.85); }
-.fl-title{ font-family:var(--font-serif-tc); font-size:21px; font-weight:600; color:#fff; margin-top:9px; letter-spacing:1px; }
-.fl-desc{ font-size:13px; line-height:1.95; color:rgba(255,255,255,.74); margin-top:10px; }
+.fl-eyebrow{ font-family:var(--font-label); font-size:11px; letter-spacing:3.5px; text-transform:uppercase; color:rgba(217,178,106,.9); }
+.fl-title{ font-family:var(--font-serif-tc); font-size:25px; font-weight:600; color:#fff; margin-top:9px; letter-spacing:1.5px; }
+.fl-desc{ font-size:14px; line-height:1.9; color:rgba(255,255,255,.74); margin-top:11px; }
 .fl-price{ display:flex; align-items:baseline; justify-content:center; gap:9px; margin:17px 0 15px; }
 .fl-now{ font-family:var(--font-display); font-style:italic; font-weight:600; font-size:27px; color:#F0DCA8; }
 .fl-was{ font-size:13px; color:rgba(255,255,255,.42); text-decoration:line-through; }
@@ -5349,7 +5353,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B54</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B55</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
