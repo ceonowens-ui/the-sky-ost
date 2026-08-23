@@ -428,6 +428,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 #screen-purchase.active { display: flex; flex-direction: column; }
 #screen-purchase > .page-titles { margin-top: auto; }
 #screen-purchase > .legal-foot { margin-bottom: auto; }
+/* OWN 上半部簡化：主標降級縮字距、加大留白 */
+#screen-purchase .page-title-tc { font-size: 22px; letter-spacing: 1px; }
+#screen-purchase .page-note { margin-top: 15px; }
+#screen-purchase #unlock-done-view { margin-top: 28px; }
+#screen-purchase #unlock-form-view { margin-top: 24px; }
 
 .plans { padding: 28px 22px 0; display: flex; flex-direction: column; gap: 18px; }
 .plan { position: relative; border-radius: 22px; padding: 24px 22px; cursor: pointer;
@@ -3298,14 +3303,14 @@ window.ALBUM_SWITCH = {
   $("tracklist-caption").textContent = "Tracks · " + TOTAL + " 首";
   $("sheet-title").textContent = "曲目列表 · " + TOTAL + " 首";
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
-  $("purchase-title-tc").textContent = "擁有 " + (CFG.albumTitle || "專輯") + " · 每月更新新歌";
-  $("unlocked-title").textContent = "已解鎖完整 " + TOTAL + " 首專輯";
-  $("unlocked-desc").textContent = "所有曲目都已開放 · 不限次數隨時聽";
+  $("purchase-title-tc").textContent = "收藏完整專輯・持續更新";
+  $("unlocked-title").textContent = "已解鎖 " + TOTAL + " 首完整歌曲";
+  $("unlocked-desc").textContent = "已解鎖內容可不限次數聆聽";
   $("in-code").placeholder = (CFG.unlock && CFG.unlock.codePlaceholder) || "XXXX-XXXX";
   var freeCount = TRACKS.filter(function (t) { return t.free; }).length;
   $("purchase-note").textContent = freeCount >= TOTAL
     ? "這張專輯全部免費 · 隨時聆聽"
-    : "免費試聽 " + freeCount + " 首 · 擁有後解鎖完整版，每月更新新歌";
+    : "每月解鎖全新歌曲";
   (function () {
     var GAL = CFG.gallery || {};
     if (GAL.heading != null) $("gallery-heading").textContent = GAL.heading;
@@ -3702,6 +3707,9 @@ window.ALBUM_SWITCH = {
   /* ── B47：介面語言 中/EN ── DOM 翻譯層，只換字、不動任何邏輯。
    * FEED 對話、抽卡卡名、歌詞（另有意譯機制）與調校面板不翻。 */
   var I18N = {
+"收藏完整專輯・持續更新": "The complete album · always growing",
+"每月解鎖全新歌曲": "New songs unlocked every month",
+"已解鎖內容可不限次數聆聽": "Unlocked content · listen without limits",
 "所有曲目都已開放 · 不限次數隨時聽": "All tracks open · listen anytime, no limits",
 "這張專輯全部免費 · 隨時聆聽": "This album is completely free · anytime",
 "這張專輯不用購買，直接聽": "No purchase needed — just listen",
@@ -3866,6 +3874,7 @@ window.ALBUM_SWITCH = {
 "歌詞語言：中文": "介面語言：中文"
 };
   var I18N_RULES = [
+    [/^已解鎖 (\d+) 首完整歌曲$/, "$1 full tracks unlocked"],
     [/^開始下載 · (.+)$/, "Downloading · $1"],
     [/^解鎖成功 · (\d+) 首全部屬於你了 ♡$/, "Unlocked · all $1 tracks are yours ♡"],
     [/^免費試聽 (\d+) 首$/, "Free preview · $1 tracks"],
@@ -4249,9 +4258,7 @@ window.ALBUM_SWITCH = {
     var fp = feedPassInfo();
     var full = (purchasedProduct() === "deluxe") || !!fp.full;
     $("btn-upgrade").classList.toggle("hidden", full);
-    $("unlocked-plan-note").textContent = full
-      ? "你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新）"
-      : "你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池";
+    $("unlocked-plan-note").style.display = "none";
   }
 
   function unlockNow(data) {
@@ -5353,7 +5360,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B55</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B56</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
