@@ -1659,7 +1659,7 @@ body { background: #08060C !important; }
 .lkg .lkg-lock{ position:absolute; inset:0; display:flex; flex-direction:column; gap:4px;
   align-items:center; justify-content:center; font-size:10px; letter-spacing:1.5px; color:#F0DCA8; }
 /* ===== LUCKY · 圖鑑收集優先（B69）===== */
-#screen-lucky.screen-sub { padding: calc(22px + env(safe-area-inset-top)) 0 calc(120px + env(safe-area-inset-bottom)); }
+#screen-lucky.screen-sub { padding: calc(14px + env(safe-area-inset-top)) 0 calc(120px + env(safe-area-inset-bottom)); }
 #screen-lucky .page-titles { padding: 0 20px; }
 #screen-lucky .page-title-en { font-family:var(--font-display); font-style:italic; font-size:clamp(24px,6.6vw,29px);
   color:#F3EADC; letter-spacing:.5px; }
@@ -1668,23 +1668,23 @@ body { background: #08060C !important; }
 #screen-lucky .page-title-tc { font-family:var(--font-serif-tc); font-size:clamp(15px,4.3vw,17px);
   font-weight:500; color:rgba(214,200,238,.92); letter-spacing:2px; margin-top:6px; white-space:nowrap; }
 #screen-lucky .page-note.lucky-rule { font-size:clamp(12.5px,3.6vw,14px); color:rgba(196,182,222,.78);
-  margin-top:9px; line-height:1.6; }
+  margin-top:7px; line-height:1.55; }
 
 /* 抽卡券膠囊 */
-#screen-lucky .lk-econ { margin-top:14px; }
+#screen-lucky .lk-econ { margin-top:11px; }
 #screen-lucky .lk-chip { padding:9px 20px; border-radius:999px; font-size:14px; letter-spacing:1px;
   border:1px solid rgba(217,178,106,.45); background:rgba(217,178,106,.07); color:rgba(226,212,240,.9); }
 #screen-lucky .lk-chip b { font-family:var(--font-display); font-style:normal; font-size:19px; color:#F0DCA8; margin-left:3px; }
 
 /* 分隔線 + 收藏進度 */
-.lkc-div { height:1px; margin:18px 26px 0; background:linear-gradient(90deg,transparent,rgba(217,178,106,.26),transparent); }
-.lkc-title { text-align:center; margin-top:16px; font-family:var(--font-label); font-size:11.5px;
+.lkc-div { height:1px; margin:14px 26px 0; background:linear-gradient(90deg,transparent,rgba(217,178,106,.26),transparent); }
+.lkc-title { text-align:center; margin-top:12px; font-family:var(--font-label); font-size:11.5px;
   letter-spacing:4.5px; color:rgba(196,182,222,.72); }
-.lkc-count { text-align:center; margin-top:9px; font-family:var(--font-label);
+.lkc-count { text-align:center; margin-top:6px; font-family:var(--font-label);
   font-size:clamp(20px,5.6vw,24px); letter-spacing:2.5px; color:rgba(206,192,230,.86); }
 .lkc-count b { font-family:var(--font-display); font-style:normal; font-weight:700;
   font-size:clamp(26px,7.2vw,31px); color:#F0DCA8; margin-right:3px; }
-.lkc-track { display:flex; align-items:center; justify-content:center; margin:15px 22px 0; }
+.lkc-track { display:flex; align-items:center; justify-content:center; margin:11px 22px 0; }
 .lkc-node { flex:none; width:32px; height:32px; border-radius:50%; box-sizing:border-box;
   display:flex; align-items:center; justify-content:center; }
 .lkc-node svg { width:14px; height:14px; }
@@ -1694,11 +1694,11 @@ body { background: #08060C !important; }
 .lkc-node.off { border:1.5px solid rgba(132,104,178,.45); background:rgba(44,28,68,.5); color:rgba(178,158,214,.75); }
 .lkc-line { flex:1; min-width:8px; height:1.5px; margin:0 2px; background:rgba(132,104,178,.32); border-radius:2px; }
 .lkc-line.on { background:linear-gradient(90deg,#D9B26A,#F0DCA8); box-shadow:0 0 7px rgba(217,178,106,.5); }
-.lkc-left { text-align:center; margin-top:13px; font-size:13px; letter-spacing:1px; color:rgba(196,182,222,.72); }
+.lkc-left { text-align:center; margin-top:10px; font-size:13px; letter-spacing:1px; color:rgba(196,182,222,.72); }
 
 /* 3 × 2 圖鑑 */
 #screen-lucky #lucky-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(10px,3vw,14px);
-  padding:0 20px; margin-top:20px; }
+  padding:0 20px; margin-top:16px; }
 #screen-lucky .lkg { position:relative; aspect-ratio:2/3; border-radius:16px; overflow:hidden;
   border:1px solid rgba(150,120,190,.26); background:linear-gradient(165deg,#241539,#120B1E 70%); box-shadow:none; }
 #screen-lucky .lkg img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -1730,7 +1730,7 @@ body { background: #08060C !important; }
 @media (prefers-reduced-motion: reduce){ #screen-lucky .lkg.justlit{ animation:none; } }
 
 /* 抽卡操作區 */
-#screen-lucky #lucky-cta { margin:22px 20px 0; }
+#screen-lucky #lucky-cta { margin:18px 20px 0; }
 .lk-drawrow { display:flex; align-items:center; gap:14px; }
 .lk-deck { position:relative; flex:none; width:74px; height:74px; }
 .lk-deck-card { position:absolute; left:16px; top:9px; width:40px; height:56px; border-radius:8px;
@@ -5868,7 +5868,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B69</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B70</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

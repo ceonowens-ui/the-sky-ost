@@ -1,5 +1,5 @@
 /* CHANCE App Service Worker — 版本號跟著 build 印章走，每次部署要改 */
-var VERSION = "B69";
+var VERSION = "B70";
 var CACHE = "chance-app-" + VERSION;
 
 self.addEventListener("install", function (e) {
