@@ -732,11 +732,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 #screen-merch .page-title-en { font-family:var(--font-label); font-style:normal; font-size:12.5px;
   letter-spacing:6px; text-transform:uppercase; color:rgba(217,178,106,.92); }
 #screen-merch .page-title-tc { font-family:var(--font-display); font-style:normal; font-weight:600;
-  font-size:clamp(27px,8.2vw,38px); line-height:1.16; letter-spacing:.5px; color:#F6F1E8;
+  font-size:clamp(25px,8vw,36px); line-height:1.16; letter-spacing:.5px; color:#F6F1E8;
   margin-top:10px; white-space:nowrap; }
 #screen-merch .page-note { font-size:14.5px; line-height:1.5; color:rgba(198,182,224,.86); margin-top:9px; }
 
-.merch-list { padding: 0 16px calc(120px + env(safe-area-inset-bottom)); }
+.merch-list { padding: 0 16px calc(120px + env(safe-area-inset-bottom)); overflow-x: hidden; }
 
 /* 收藏進度 */
 .cprog-count { text-align:center; margin-top:20px; font-family:var(--font-label);
@@ -762,12 +762,13 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
   box-shadow:0 14px 34px rgba(0,0,0,.42); }
 .drop-star { flex:none; color:rgba(240,220,168,.9); font-size:17px; }
-.drop-info { flex:1; min-width:0; padding-left:14px; border-left:1px solid rgba(217,178,106,.35); }
+.drop-info { flex:1; min-width:0; overflow:hidden; padding-left:14px; border-left:1px solid rgba(217,178,106,.35); }
 .drop-label { font-family:var(--font-label); font-size:12px; letter-spacing:3px; color:rgba(233,199,126,.95); }
-.drop-when { font-size:15px; color:#F2ECE1; margin-top:5px; letter-spacing:.5px; white-space:nowrap; }
-.drop-btn { flex:none; padding:0 18px; height:46px; border:none; border-radius:14px; cursor:pointer;
+.drop-when { font-size:clamp(13px,3.9vw,15px); color:#F2ECE1; margin-top:5px; letter-spacing:.3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.drop-btn { flex:none; padding:0 clamp(12px,4vw,18px); height:46px; border:none; border-radius:14px; cursor:pointer;
   background:linear-gradient(135deg,#F0DCA8,#D2A65C); color:#211705;
-  font-family:var(--font-serif-tc); font-size:14px; font-weight:700; letter-spacing:1px;
+  font-family:var(--font-serif-tc); font-size:clamp(12.5px,3.6vw,14px); font-weight:700; letter-spacing:.5px;
   box-shadow:0 8px 20px rgba(217,178,106,.34); white-space:nowrap; -webkit-tap-highlight-color:transparent; }
 .drop-btn.done { background:rgba(217,178,106,.14); border:1px solid rgba(217,178,106,.5); color:#E9C77E; box-shadow:none; }
 .drop-btn:active { transform:scale(.97); }
@@ -776,7 +777,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .shop-tabs { display:flex; gap:10px; margin-top:20px; }
 .shop-tab { flex:1; min-width:0; height:50px; padding:0 6px; border-radius:15px; cursor:pointer;
   border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.045);
-  color:rgba(196,180,224,.86); font-family:var(--font-serif-tc); font-size:14.5px; letter-spacing:.5px;
+  color:rgba(196,180,224,.86); font-family:var(--font-serif-tc); font-size:clamp(13px,3.8vw,14.5px); letter-spacing:.3px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; -webkit-tap-highlight-color:transparent; }
 .shop-tab.active { background:linear-gradient(100deg,#8B5AD0 0%,#B583DC 45%,#EBCB86 100%);
   border-color:transparent; color:#fff; font-weight:600; box-shadow:0 8px 22px rgba(150,90,210,.3); }
@@ -5767,7 +5768,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B67</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B68</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
