@@ -444,7 +444,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
               color: rgba(255,255,255,.5); letter-spacing: 3px; }
 .form-input { width: 100%; margin: 9px 0 18px; padding: 15px; border-radius: 16px;
               border: 1.5px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
-              font-size: 14px; color: #fff; outline: none; font-family: var(--font-serif-tc); }
+              font-size: 16px; color: #fff; outline: none; font-family: var(--font-serif-tc); }
 .form-input:focus { border-color: rgba(var(--primary-rgb), .6); }
 .form-hint { text-align: center; font-size: 12px; color: rgba(255,255,255,.5); margin-top: 22px;
              cursor: pointer; }
@@ -484,7 +484,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
              -webkit-backdrop-filter: blur(10px);
              border: 1px solid rgba(var(--primary-rgb), .22);
              box-shadow: 0 12px 30px rgba(0,0,0,.3); }
-.mood-form .form-input { margin: 0; padding: 12px 14px; border-radius: 14px; font-size: 13.5px; }
+.mood-form .form-input { margin: 0; padding: 12px 14px; border-radius: 14px; font-size: 16px; }
 .mood-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
 .mood-tag { padding: 7px 14px; border-radius: 20px; font-size: 12px;
             font-family: var(--font-serif-tc); cursor: pointer;
@@ -1261,7 +1261,7 @@ body { background: #08060C !important; }
   font-size:12px; letter-spacing:1px; text-decoration:underline; text-underline-offset:3px; }
 .fl-form{ margin-top:13px; display:flex; flex-direction:column; gap:9px; }
 .fl-form input{ padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.06); color:#fff; font-size:14px; }
+  background:rgba(255,255,255,.06); color:#fff; font-size:16px; }
 .fl-form input::placeholder{ color:rgba(255,255,255,.35); }
 .fl-form button{ padding:12px; border:none; border-radius:999px; background:rgba(217,178,106,.18);
   border:1px solid rgba(217,178,106,.5); color:#F0DCA8;
@@ -4376,6 +4376,7 @@ window.ALBUM_SWITCH = {
       body: JSON.stringify({ email: email, code: code }),
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d.ok) { toast(d.message || "兌換碼或 email 不正確"); return; }
+      try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (_) {} /* 解鎖成功後先讓輸入框失焦，避免 iOS 縮放卡住不回復 */
       var pid = String(d.productId || "");
       if (pid === "full-unlock" || pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
@@ -5312,7 +5313,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B50</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B51</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
