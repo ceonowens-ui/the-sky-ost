@@ -727,70 +727,132 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 /* =====================================================================
  * 周邊分頁（聽片會票 + 手鍊）
  * =================================================================== */
-.merch-list { padding: 2px 16px calc(30px + env(safe-area-inset-bottom)); }
+/* ===== SHOP · THE SKY COLLECTION（B67）===== */
+#screen-merch .page-titles { padding-bottom: 0; }
+#screen-merch .page-title-en { font-family:var(--font-label); font-style:normal; font-size:12.5px;
+  letter-spacing:6px; text-transform:uppercase; color:rgba(217,178,106,.92); }
+#screen-merch .page-title-tc { font-family:var(--font-display); font-style:normal; font-weight:600;
+  font-size:clamp(27px,8.2vw,38px); line-height:1.16; letter-spacing:.5px; color:#F6F1E8;
+  margin-top:10px; white-space:nowrap; }
+#screen-merch .page-note { font-size:14.5px; line-height:1.5; color:rgba(198,182,224,.86); margin-top:9px; }
 
-/* Hero · 聽片會主打 */
-.shop-hero { position: relative; border-radius: 24px; overflow: hidden; margin: 6px 0 20px;
-             background: linear-gradient(135deg, rgba(217,178,106,.16), rgba(90,40,140,.30));
-             border: 1px solid rgba(217,178,106,.28); padding: 22px 20px 20px;
-             box-shadow: 0 18px 44px rgba(0,0,0,.42); }
-.shop-hero .hero-eyebrow { font-family: var(--font-label); font-size: 11px; letter-spacing: 3px;
-             color: rgba(217,178,106,.95); text-transform: uppercase; }
-.shop-hero .hero-title { font-family: var(--font-serif-tc); font-size: 22px; line-height: 1.4;
-             color: #fff; margin-top: 10px; font-weight: 600; }
-.shop-hero .hero-desc { font-size: 14px; line-height: 1.75; color: rgba(255,255,255,.72); margin-top: 10px; }
+.merch-list { padding: 0 16px calc(120px + env(safe-area-inset-bottom)); }
 
-/* 分類 chips */
-.shop-chips { display: flex; gap: 9px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-              padding: 2px 0 4px; margin-bottom: 16px; scrollbar-width: none; }
-.shop-chips::-webkit-scrollbar { display: none; }
-.shop-chip { flex: none; font-family: var(--font-serif-tc); font-size: 14px; letter-spacing: .5px;
-             padding: 9px 18px; border-radius: 999px; cursor: pointer; white-space: nowrap;
-             background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
-             color: rgba(255,255,255,.66); transition: all .18s; }
-.shop-chip.active { background: var(--grad); color: #fff; border-color: transparent;
-             box-shadow: 0 6px 16px rgba(217,178,106,.28); }
+/* 收藏進度 */
+.cprog-count { text-align:center; margin-top:20px; font-family:var(--font-label);
+  font-size:20px; letter-spacing:2.5px; color:#F0E9DC; }
+.cprog-count b { font-family:var(--font-display); font-style:normal; font-weight:700;
+  font-size:25px; color:#E9C77E; margin-right:3px; }
+.cprog { display:flex; align-items:center; justify-content:center; margin:16px 2px 0; }
+.cnode { flex:none; width:38px; height:38px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; box-sizing:border-box; }
+.cnode.on { border:1.5px solid rgba(240,220,168,.95);
+  background:radial-gradient(circle at 42% 36%, rgba(255,246,225,.28), rgba(217,178,106,.12));
+  box-shadow:0 0 16px rgba(217,178,106,.6), inset 0 0 12px rgba(240,220,168,.25); color:#FCEDC6; }
+.cnode.off { border:1.5px solid rgba(146,116,190,.42); background:rgba(52,32,80,.4); color:rgba(190,168,224,.7); }
+.cnode svg { width:16px; height:16px; }
+.cline { flex:1; min-width:10px; height:2px; margin:0 2px; }
+.cline.on { background:linear-gradient(90deg,#D9B26A,#F0DCA8); box-shadow:0 0 8px rgba(217,178,106,.5); border-radius:2px; }
+.cline.off { background:rgba(146,116,190,.3); border-radius:2px; }
 
-/* 商品格：預設雙欄，主打票券 span 滿版 */
-.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
-.merch-card { background: var(--surface); border: 1px solid rgba(255,255,255,.1);
-              border-radius: 20px; overflow: hidden; box-shadow: 0 14px 34px rgba(0,0,0,.38);
-              display: flex; flex-direction: column; }
-.merch-card.span { grid-column: 1 / -1; }
-.merch-card.soldout { opacity: .62; }
-.merch-card.hidden { display: none; }
-.merch-img { position: relative; width: 100%; background: #0B0709; }
-.merch-img img { width: 100%; height: auto; display: block; }
-.shop-grid .merch-card:not(.span) .merch-img { aspect-ratio: 1 / 1; }
-.shop-grid .merch-card:not(.span) .merch-img img { height: 100%; object-fit: cover; }
-.merch-img-ph { aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center;
-                font-size: 46px; color: rgba(var(--primary-rgb), .5);
-                background: linear-gradient(150deg, rgba(var(--primary-rgb), .14), rgba(16,32,48,.6)); }
-.merch-body { padding: 16px 16px 18px; display: flex; flex-direction: column; flex: 1; }
-.merch-badge { align-self: flex-start; font-family: var(--font-label); font-size: 10.5px;
-               letter-spacing: 1.6px; text-transform: uppercase; color: var(--primary);
-               background: rgba(var(--primary-rgb), .14); border: 1px solid rgba(var(--primary-rgb), .3);
-               padding: 4px 10px; border-radius: 9px; margin-bottom: 11px; }
-.merch-name { font-family: var(--font-serif-tc); font-weight: 600; letter-spacing: .3px;
-              font-size: 16px; line-height: 1.45; color: #fff; }
-.span .merch-name { font-size: 21px; }
-.merch-desc { font-size: 13px; line-height: 1.75; color: var(--muted); margin-top: 8px; }
-.span .merch-desc { font-size: 14.5px; }
-.merch-foot { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; margin: 14px 0 13px; }
-.merch-soon { font-family: var(--font-serif-tc) !important; font-style: normal !important;
-              font-size: 17px !important; letter-spacing: 3px; color: var(--muted) !important; }
-.merch-price { font-family: var(--font-display); font-style: italic; font-weight: 600;
-               font-size: 22px; color: #fff; }
-.span .merch-price { font-size: 28px; }
-.merch-was { font-family: var(--font-label); font-size: 13px; letter-spacing: .5px;
-             color: rgba(255,255,255,.38); text-decoration: line-through; }
-.merch-stock { display: inline-block; font-family: var(--font-label); font-size: 11px;
-               letter-spacing: 1px; color: rgba(217,178,106,.9);
-               background: rgba(217,178,106,.12); border: 1px solid rgba(217,178,106,.25);
-               padding: 3px 9px; border-radius: 999px; }
-.merch-buy { width: 100%; margin-top: auto; padding: 15px; border-radius: 14px;
-             font-size: 14.5px; letter-spacing: 1.5px; }
-.merch-buy:disabled { opacity: .5; cursor: not-allowed; }
+/* NEXT DROP */
+.drop-card { display:flex; align-items:center; gap:14px; margin-top:22px; padding:16px 16px 16px 18px;
+  border-radius:20px; border:1px solid rgba(217,178,106,.4);
+  background:linear-gradient(135deg, rgba(58,34,92,.62), rgba(20,12,30,.82));
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  box-shadow:0 14px 34px rgba(0,0,0,.42); }
+.drop-star { flex:none; color:rgba(240,220,168,.9); font-size:17px; }
+.drop-info { flex:1; min-width:0; padding-left:14px; border-left:1px solid rgba(217,178,106,.35); }
+.drop-label { font-family:var(--font-label); font-size:12px; letter-spacing:3px; color:rgba(233,199,126,.95); }
+.drop-when { font-size:15px; color:#F2ECE1; margin-top:5px; letter-spacing:.5px; white-space:nowrap; }
+.drop-btn { flex:none; padding:0 18px; height:46px; border:none; border-radius:14px; cursor:pointer;
+  background:linear-gradient(135deg,#F0DCA8,#D2A65C); color:#211705;
+  font-family:var(--font-serif-tc); font-size:14px; font-weight:700; letter-spacing:1px;
+  box-shadow:0 8px 20px rgba(217,178,106,.34); white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.drop-btn.done { background:rgba(217,178,106,.14); border:1px solid rgba(217,178,106,.5); color:#E9C77E; box-shadow:none; }
+.drop-btn:active { transform:scale(.97); }
+
+/* 分類 */
+.shop-tabs { display:flex; gap:10px; margin-top:20px; }
+.shop-tab { flex:1; min-width:0; height:50px; padding:0 6px; border-radius:15px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.045);
+  color:rgba(196,180,224,.86); font-family:var(--font-serif-tc); font-size:14.5px; letter-spacing:.5px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; -webkit-tap-highlight-color:transparent; }
+.shop-tab.active { background:linear-gradient(100deg,#8B5AD0 0%,#B583DC 45%,#EBCB86 100%);
+  border-color:transparent; color:#fff; font-weight:600; box-shadow:0 8px 22px rgba(150,90,210,.3); }
+
+/* 主打商品卡（全寬） */
+.pcard { margin-top:18px; border-radius:22px; overflow:hidden;
+  border:1px solid rgba(217,178,106,.3);
+  background:linear-gradient(170deg, rgba(38,22,58,.85), rgba(14,9,20,.94));
+  box-shadow:0 18px 44px rgba(0,0,0,.46); }
+.pcard-img { position:relative; width:100%; background:linear-gradient(160deg,#2A1A40,#150D22); }
+.pcard-img img { width:100%; height:auto; display:block; }
+.pcard-badge { position:absolute; top:14px; left:14px; z-index:2;
+  font-family:var(--font-label); font-size:10.5px; letter-spacing:2px; text-transform:uppercase;
+  color:#F0DCA8; background:rgba(18,11,26,.72); border:1px solid rgba(217,178,106,.55);
+  padding:6px 12px; border-radius:10px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+.pcard-body { padding:18px 18px 20px; }
+.pcard-name { font-family:var(--font-serif-tc); font-size:21px; font-weight:600; color:#F6F1E8; letter-spacing:.5px; line-height:1.35; }
+.pcard-desc { font-size:13.5px; line-height:1.65; color:rgba(214,202,232,.8); margin-top:9px; }
+.pcard-price { display:flex; align-items:baseline; gap:10px; margin-top:13px; }
+.pcard-now { font-family:var(--font-display); font-style:italic; font-weight:600; font-size:23px; color:#F0DCA8; }
+.pcard-was { font-size:13px; color:rgba(255,255,255,.36); text-decoration:line-through; }
+
+/* 收藏編號列 */
+.serials { display:flex; gap:0; margin-top:14px; padding:2px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.03);
+  overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.serials::-webkit-scrollbar { display:none; }
+.serial { flex:none; padding:10px 12px; font-family:var(--font-label); font-size:12px; letter-spacing:.5px;
+  color:rgba(206,192,230,.78); border-right:1px solid rgba(255,255,255,.07); white-space:nowrap; }
+.serial:last-child { border-right:none; }
+.serial.owned { color:#F0DCA8; text-shadow:0 0 10px rgba(217,178,106,.6); }
+.serial.sold { opacity:.38; text-decoration:line-through; }
+
+/* CTA */
+.pcard-cta { display:block; width:100%; min-height:54px; margin-top:16px; padding:0 18px;
+  border:none; border-radius:16px; cursor:pointer;
+  background:linear-gradient(100deg,#8B5AD0 0%,#B98BD8 42%,#EBCB86 100%); color:#fff;
+  font-family:var(--font-serif-tc); font-size:15.5px; font-weight:600; letter-spacing:1.5px;
+  box-shadow:0 10px 26px rgba(140,80,200,.3); -webkit-tap-highlight-color:transparent; }
+.pcard-cta:active { transform:scale(.99); }
+.pcard-cta.ghost { background:rgba(217,178,106,.1); border:1px solid rgba(217,178,106,.5);
+  color:#E9C77E; box-shadow:none; }
+.pcard-cta.off { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.45); box-shadow:none; }
+
+/* 橫向商品卡 */
+.prow { display:flex; align-items:stretch; gap:0; margin-top:16px; border-radius:20px; overflow:hidden;
+  border:1px solid rgba(217,178,106,.26);
+  background:linear-gradient(120deg, rgba(34,20,52,.88), rgba(14,9,20,.9));
+  box-shadow:0 14px 34px rgba(0,0,0,.4); }
+.prow-text { flex:1 1 56%; min-width:0; padding:18px 14px 18px 17px; display:flex; flex-direction:column; justify-content:center; }
+.prow-badge { align-self:flex-start; font-family:var(--font-label); font-size:9.5px; letter-spacing:1.8px;
+  text-transform:uppercase; color:#F0DCA8; border:1px solid rgba(217,178,106,.5);
+  padding:5px 10px; border-radius:9px; }
+.prow-name { font-family:var(--font-serif-tc); font-size:17px; font-weight:600; color:#F6F1E8; margin-top:11px; line-height:1.35; }
+.prow-desc { font-size:12.5px; line-height:1.6; color:rgba(210,198,230,.75); margin-top:7px; }
+.prow-cta { align-self:flex-start; margin-top:13px; padding:10px 15px; border-radius:12px; cursor:pointer;
+  background:rgba(217,178,106,.1); border:1px solid rgba(217,178,106,.5); color:#E9C77E;
+  font-family:var(--font-serif-tc); font-size:13px; letter-spacing:.5px; -webkit-tap-highlight-color:transparent; }
+.prow-img { flex:1 1 44%; min-width:0; position:relative; background:#120B1C; }
+.prow-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+/* 會員限定體驗 */
+.mexp-head { display:flex; align-items:center; gap:10px; margin:30px 2px 12px; }
+.mexp-head span { font-family:var(--font-label); font-size:11px; letter-spacing:3px; color:rgba(217,178,106,.85); white-space:nowrap; }
+.mexp-head i { flex:1; height:1px; background:linear-gradient(90deg, rgba(217,178,106,.34), transparent); }
+.mexp { border-radius:20px; padding:20px 18px; border:1px solid rgba(217,178,106,.28);
+  background:linear-gradient(135deg, rgba(217,178,106,.1), rgba(74,38,116,.24)); }
+.mexp-when { font-family:var(--font-label); font-size:11px; letter-spacing:2.4px; color:rgba(233,199,126,.9); }
+.mexp-title { font-family:var(--font-serif-tc); font-size:18px; font-weight:600; color:#F6F1E8; margin-top:9px; line-height:1.4; }
+.mexp-desc { font-size:13px; line-height:1.7; color:rgba(214,202,232,.78); margin-top:8px; }
+.mexp-btn { width:100%; min-height:52px; margin-top:15px; padding:0 16px; border-radius:15px; cursor:pointer;
+  background:rgba(217,178,106,.13); border:1px solid rgba(217,178,106,.55); color:#F0DCA8;
+  font-family:var(--font-serif-tc); font-size:14.5px; letter-spacing:1px; -webkit-tap-highlight-color:transparent; }
+.mexp-btn.done { opacity:.72; }
+.shop-empty { text-align:center; padding:38px 20px; font-size:14px; line-height:1.9; color:rgba(206,192,230,.6); }
 
 /* =====================================================================
  * 動態牆（SIGNAL feed）—— 全部 class 都 scope 在 #screen-mood 底下，
@@ -2734,8 +2796,8 @@ const THE_SKY = {
    * price 只是顯示用，真正金額由後端 PRODUCTS 決定（不信前端，防改價）。
    * ---------------------------------------------------------------- */
   merch: {
-    heading: "周邊 · 限量商品",
-    note: "只在 App 內販售 · 持有者專屬",
+    heading: "THE SKY COLLECTION",
+    note: "完成你的 THE SKY 收藏",
     currency: "NT$",
     /* ⚠️ 周邊總開關：true = 全部只顯示「敬請期待」、不顯示金額、按鈕鎖住。
        要開賣就改成 false（或直接刪掉這一行）。單一商品也可以自己加 comingSoon 覆蓋。
@@ -2743,7 +2805,7 @@ const THE_SKY = {
     comingSoon: true,
     items: [
       {
-        productKey: "ticket-normal",
+        productKey: "ticket-normal", dropAt: "2027-02-05T20:00",
         name: "THE SKY 2027 聽片會 · 一般票",
         desc: "三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。",
         price: 1350, originalPrice: 1500,   // 預購 10% off
@@ -2763,7 +2825,7 @@ const THE_SKY = {
         image: "assets/images/merch/ticket-vip.jpg",
       },
       {
-        productKey: "bracelet",
+        productKey: "bracelet", dropAt: "2027-02-05T20:00", serial: true,
         name: "CHANCE 紫火限量手鏈",
         desc: "THE SKY 世界觀延伸 · 全世界只有 10 條，編號限量，售完不補。",
         price: 6280,
@@ -2773,7 +2835,7 @@ const THE_SKY = {
         image: "assets/images/merch/bracelet.jpg",
       },
       {
-        productKey: "photobook",
+        productKey: "photobook", dropAt: "2027-02-05T20:00",
         name: "THE SKY 製作寫真",
         desc: "從 demo 到母帶的製作現場，收錄進一本實體寫真。",
         price: 680,               // TODO 確認售價
@@ -3837,6 +3899,17 @@ window.ALBUM_SWITCH = {
   /* ── B47：介面語言 中/EN ── DOM 翻譯層，只換字、不動任何邏輯。
    * FEED 對話、抽卡卡名、歌詞（另有意譯機制）與調校面板不翻。 */
   var I18N = {
+"完成你的 THE SKY 收藏": "Complete your THE SKY collection",
+"設定開賣提醒": "Set drop reminder",
+"✓ 已設定提醒": "✓ Reminder set",
+"開賣時通知我": "Notify me at drop",
+"本次 DROP": "This drop",
+"即將上架": "Upcoming",
+"已收藏": "Collected",
+"✓ 已收藏": "✓ Collected",
+"看內頁預覽": "Preview inside",
+"看大圖": "View larger",
+"尚未開賣": "Not on sale yet",
 "只差 SIGNAL": "Only SIGNAL left",
 "收藏 THE SKY 全套": "Collect the full THE SKY set",
 "完成你的 THE SKY 全收藏": "Complete your THE SKY collection",
@@ -4235,77 +4308,176 @@ window.ALBUM_SWITCH = {
   }
 
   /* ---------- 周邊（聽片會票 + 手鍊）---------- */
+  /* ---------- SHOP · THE SKY COLLECTION（B67）---------- */
+  /* 收藏狀態全部讀真實會員資料：專輯解鎖、SIGNAL 頻道、周邊兌換紀錄。 */
+  function merchOwnedMap() { return lsGet(UNS + ":merch", {}) || {}; }
+  function merchOwnedQ(pk) { return !!merchOwnedMap()[pk]; }
+  function remindMap() { return lsGet(NS + ":remind", {}) || {}; }
+  function remindQ(k) { return !!remindMap()[k]; }
+  function remindSet(k, email) { var m = remindMap(); m[k] = { email: email, ts: Date.now() }; lsSet(NS + ":remind", m); }
+
+  /* 收藏清單 = 專輯 + SIGNAL 頻道 + 未隱藏周邊（總數與已收藏數都動態） */
+  function collectionList() {
+    var fp = feedPassInfo();
+    var list = [
+      { key: "album", name: CFG.albumTitle || "THE SKY", owned: !!state.unlocked },
+      { key: "signal", name: "SIGNAL", owned: !!(fp.full || fp.unlocked) }
+    ];
+    ((CFG.merch || {}).items || []).forEach(function (it) {
+      if (it.hidden) return;
+      list.push({ key: it.productKey, name: it.name, owned: merchOwnedQ(it.productKey) });
+    });
+    return list;
+  }
+
+  /* 下一次 DROP：取所有未來 dropAt 中最近的一個；沒有就回 null（整張卡隱藏） */
+  function nextDropInfo() {
+    var now = Date.now(), best = null;
+    ((CFG.merch || {}).items || []).forEach(function (it) {
+      if (it.hidden || !it.dropAt) return;
+      var ts = new Date(it.dropAt).getTime();
+      if (!ts || ts <= now) return;
+      if (!best || ts < best.ts) best = { ts: ts, at: it.dropAt, item: it };
+    });
+    return best;
+  }
+  function fmtDrop(iso) {
+    var d = new Date(iso);
+    if (!d.getTime()) return "";
+    var mm = d.getMonth() + 1, dd = d.getDate();
+    var hh = ("0" + d.getHours()).slice(-2), mi = ("0" + d.getMinutes()).slice(-2);
+    return mm + " / " + dd + "・" + hh + ":" + mi + " 開賣";
+  }
+  /* 單一商品目前狀態：owned / soldout / onsale / upcoming */
+  function itemState(it) {
+    if (merchOwnedQ(it.productKey)) return "owned";
+    if (it.soldOut) return "soldout";
+    var soon = (it.comingSoon != null) ? it.comingSoon : !!(CFG.merch || {}).comingSoon;
+    if (it.dropAt) { var ts = new Date(it.dropAt).getTime(); if (ts && ts > Date.now()) return "upcoming"; }
+    return soon ? "upcoming" : "onsale";
+  }
+
   function renderMerch() {
     var M = CFG.merch || {};
-    $("merch-title-tc").textContent = M.heading || "周邊商品";
+    var CUR = M.currency || "NT$";
+    $("merch-title-en").textContent = "MERCH";
+    $("merch-title-tc").textContent = M.heading || "THE SKY COLLECTION";
     $("merch-note").textContent = M.note || "";
-    var items = M.items || [];
-    var cat = state.shopCat || "all";
-    var catOf = function (it) { return String(it.productKey || "").indexOf("ticket") === 0 ? "show" : "collect"; };
-    var hasShow = items.some(function (it) { return !it.hidden && catOf(it) === "show"; });
-    var hasCollect = items.some(function (it) { return !it.hidden && catOf(it) === "collect"; });
-    var chips = (hasShow && hasCollect)
-      ? '<div class="shop-chips" id="shop-chips">' +
-        [["all", "全部"], ["show", "聽片會"], ["collect", "收藏"]].map(function (c) {
-          return '<button class="shop-chip' + (cat === c[0] ? " active" : "") + '" data-cat="' + c[0] + '">' + c[1] + '</button>';
-        }).join("") + '</div>'
-      : "";
-    var cards = items.map(function (it, i) {
-      if (it.hidden) return "";
-      var soldout = it.soldOut;
-      var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
-      var stock = (it.limited != null)
-        ? '<span class="merch-stock">限量 ' + it.limited + (it.left != null && !soon ? ' · 剩 ' + it.left : '') + '</span>'
-        : "";
-      var img = it.image
-        ? '<div class="merch-img"><img src="' + esc(it.image) + '" alt="" loading="lazy"></div>'
-        : '<div class="merch-img merch-img-ph">' + esc(it.emoji || "◈") + '</div>';
-      var btn = soon
-        ? '<button class="btn-primary merch-buy" disabled>敬請期待 · 尚未上架</button>'
-        : soldout
-        ? '<button class="btn-primary merch-buy" disabled>已售罄</button>'
-        : '<button class="btn-primary merch-buy" data-merch="' + i + '">' +
-          (it.buyLabel || "購買") + ' · ' + (M.currency || "NT$") + it.price + "</button>";
-      var priceHtml = soon
-        ? '<span class="merch-price merch-soon">敬請期待</span>'
-        : '<span class="merch-price">' + (M.currency || "NT$") + it.price + "</span>";
-      var wasPrice = (!soon && it.originalPrice && it.originalPrice > it.price)
-        ? '<span class="merch-was">' + (M.currency || "NT$") + it.originalPrice + "</span>" : "";
-      var isTicket = String(it.productKey || "").indexOf("ticket") === 0;
-      var c = catOf(it);
-      var hide = (cat !== "all" && cat !== c) ? " hidden" : "";
-      return '<div class="merch-card' + (isTicket ? " span" : "") + (soldout && !soon ? " soldout" : "") + hide + '" data-cat="' + c + '">' + img +
-        '<div class="merch-body">' +
-          (it.badge ? '<div class="merch-badge">' + esc(it.badge) + "</div>" : "") +
-          '<div class="merch-name">' + esc(it.name) + "</div>" +
-          '<div class="merch-desc">' + esc(it.desc || "") + "</div>" +
-          '<div class="merch-foot">' + priceHtml + wasPrice + stock + "</div>" +
-          btn +
-        "</div></div>";
-    }).join("");
-    $("merch-list").innerHTML = interestCardHTML() + chips + '<div class="shop-grid" id="shop-grid">' + cards + '</div>';
-    /* 沒有周邊商品的專輯（BEFORE THE SKY，但強制顯示 5 顆分頁）：放「敬請期待」佔位，不留白 */
-    if (CFG.navShowAll && !items.length) {
-      $("merch-list").innerHTML =
-        '<div style="text-align:center;padding:44px 24px">' +
-        '<div class="page-note" style="font-size:15px;line-height:2.1">周邊商品敬請期待 ✨<br>上架後會在這裡跟你說</div>' +
-        '</div>';
+    var items = (M.items || []).map(function (it, i) { return { it: it, i: i }; })
+                  .filter(function (r) { return !r.it.hidden; });
+
+    /* ── 收藏進度（節點依收藏清單動態產生）── */
+    var coll = collectionList();
+    var ownedCount = coll.filter(function (c) { return c.owned; }).length;
+    var star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.3L20.5 10l-5.1 3.9L17 20.5 12 17l-5 3.5 1.6-6.6L3.5 10l6.3-1.7z"/></svg>';
+    var lockS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    var prog = '<div class="cprog-count"><b>' + ownedCount + '</b> / ' + coll.length + ' COLLECTED</div><div class="cprog">';
+    coll.forEach(function (c, idx) {
+      if (idx > 0) prog += '<span class="cline ' + (c.owned && coll[idx - 1].owned ? "on" : "off") + '"></span>';
+      prog += '<span class="cnode ' + (c.owned ? "on" : "off") + '">' + (c.owned ? star : lockS) + '</span>';
+    });
+    prog += '</div>';
+
+    /* ── NEXT DROP（時間讀商品 dropAt，沒有就整張隱藏）── */
+    var nd = nextDropInfo(), dropHtml = "";
+    if (nd) {
+      var rk = "drop-" + (nd.item.productKey || "next");
+      var set = remindQ(rk);
+      dropHtml = '<div class="drop-card">' +
+        '<span class="drop-star">✦</span>' +
+        '<div class="drop-info"><div class="drop-label">NEXT DROP</div>' +
+          '<div class="drop-when">' + fmtDrop(nd.at) + '</div></div>' +
+        '<button class="drop-btn' + (set ? " done" : "") + '" data-remind="' + esc(rk) + '">' +
+          (set ? "✓ 已設定提醒" : "設定開賣提醒") + '</button></div>';
     }
+
+    /* ── 分類：本次 DROP / 即將上架 / 已收藏 ── */
+    var cat = state.shopCat || "now";
+    var catOf = function (it) {
+      if (merchOwnedQ(it.productKey)) return "owned";
+      return String(it.productKey || "").indexOf("ticket") === 0 ? "soon" : "now";
+    };
+    var tabs = '<div class="shop-tabs" id="shop-tabs">' +
+      [["now", "本次 DROP"], ["soon", "即將上架"], ["owned", "已收藏"]].map(function (c) {
+        return '<button class="shop-tab' + (cat === c[0] ? " active" : "") + '" data-cat="' + c[0] + '">' + c[1] + '</button>';
+      }).join("") + '</div>';
+
+    var shown = items.filter(function (r) { return catOf(r.it) === cat; });
+
+    /* ── 商品卡：第一張全寬主打，其餘橫向卡 ── */
+    function ctaFor(r) {
+      var it = r.it, st = itemState(it), rk = "drop-" + (it.productKey || "x");
+      if (st === "owned") return '<button class="pcard-cta off" disabled>✓ 已收藏</button>';
+      if (st === "soldout") return '<button class="pcard-cta off" disabled>SOLD OUT</button>';
+      if (st === "upcoming") {
+        var set = remindQ(rk);
+        return '<button class="pcard-cta ghost' + (set ? " done" : "") + '" data-remind="' + esc(rk) + '">' +
+          (set ? "✓ 已設定提醒" : "開賣時通知我") + '</button>';
+      }
+      return '<button class="pcard-cta" data-merch="' + r.i + '">立即收藏 · ' + CUR + it.price + '</button>';
+    }
+    function serialsFor(it) {
+      if (!it.serial || !it.limited) return "";
+      var owned = merchOwnedMap()[it.productKey], out = '<div class="serials">';
+      for (var n = 1; n <= it.limited; n++) {
+        var label = "No." + ("0" + n).slice(-2);
+        var mine = owned && String(owned.serial || "") === String(n);
+        out += '<span class="serial' + (mine ? " owned" : "") + '">' + label + (mine ? " ✓" : "") + '</span>';
+      }
+      return out + '</div>';
+    }
+    function heroCard(r) {
+      var it = r.it, st = itemState(it);
+      var price = (st === "onsale")
+        ? '<div class="pcard-price"><span class="pcard-now">' + CUR + it.price + '</span>' +
+          (it.originalPrice && it.originalPrice > it.price ? '<span class="pcard-was">' + CUR + it.originalPrice + '</span>' : '') + '</div>'
+        : "";
+      return '<div class="pcard">' +
+        '<div class="pcard-img">' + (it.badge ? '<span class="pcard-badge">' + esc(it.badge) + '</span>' : '') +
+          (it.image ? '<img src="' + esc(it.image) + '" alt="" decoding="async">' : '') + '</div>' +
+        '<div class="pcard-body">' +
+          '<div class="pcard-name">' + esc(it.name) + '</div>' +
+          '<div class="pcard-desc">' + esc(it.desc || "") + '</div>' +
+          price + serialsFor(it) + ctaFor(r) +
+        '</div></div>';
+    }
+    function rowCard(r) {
+      var it = r.it, st = itemState(it);
+      var cta = (it.preview && it.preview.length)
+        ? '<button class="prow-cta" data-preview="' + r.i + '">看內頁預覽</button>'
+        : (it.image ? '<button class="prow-cta" data-preview="' + r.i + '">看大圖</button>' : '');
+      var sub = (st === "onsale") ? (CUR + it.price) : (st === "owned" ? "✓ 已收藏" : "尚未開賣");
+      return '<div class="prow">' +
+        '<div class="prow-text">' +
+          (it.badge ? '<span class="prow-badge">' + esc(it.badge) + '</span>' : '') +
+          '<div class="prow-name">' + esc(it.name) + '</div>' +
+          '<div class="prow-desc">' + esc(it.desc || "") + '</div>' + cta +
+        '</div>' +
+        '<div class="prow-img">' + (it.image ? '<img src="' + esc(it.image) + '" alt="" decoding="async">' : '') + '</div>' +
+      '</div>';
+    }
+    var cards = shown.length
+      ? shown.map(function (r, k) { return k === 0 ? heroCard(r) : rowCard(r); }).join("")
+      : '<div class="shop-empty">' + (cat === "owned" ? "還沒有收藏任何周邊<br>開賣後收藏的商品會出現在這裡" : "這個分類目前沒有商品") + '</div>';
+
+    $("merch-list").innerHTML = prog + dropHtml + tabs + cards + membersExpHTML();
   }
-  /* ── B28：聽片會「我想去」免費登記（零金流；先拿 2/20 的真實需求數字）── */
-  function interestCardHTML() {
-    var hasTicket = !!(CFG.merch && (CFG.merch.items || []).some(function (it) {
+
+  /* ── 會員限定體驗：聽片會「我想去」免費登記（放在商品之後）── */
+  function membersExpHTML() {
+    var has = ((CFG.merch || {}).items || []).some(function (it) {
       return String(it.productKey || "").indexOf("ticket") === 0;
-    }));
-    if (!hasTicket) return "";
+    });
+    if (!has) return "";
     var done = !!lsGet(NS + ":interest", null);
-    return '<div class="shop-hero">' +
-      '<div class="hero-eyebrow">2027.02.20 · 微風 MEGA STUDIO</div>' +
-      '<div class="hero-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
-      '<div class="hero-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
-      '<button class="int-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
-        (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
-    '</div>';
+    return '<div class="mexp-head"><span>MEMBERS EXPERIENCE</span><i></i></div>' +
+      '<div class="mexp">' +
+        '<div class="mexp-when">2027.02.20 · 微風 MEGA STUDIO</div>' +
+        '<div class="mexp-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
+        '<div class="mexp-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
+        '<button class="mexp-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
+          (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
+      '</div>';
   }
   $("merch-list").addEventListener("click", function (e) {
     var b = e.target.closest("#btn-interest");
@@ -4382,16 +4554,37 @@ window.ALBUM_SWITCH = {
   $("email-modal-input").addEventListener("keydown", function (e) {
     if (e.key === "Enter") $("email-modal-ok").click();
   });
+  function openLightbox(imgs) {
+    var lb = document.createElement("div"); lb.id = "__lb";
+    lb.innerHTML = imgs.map(function (s) { return '<img src="' + esc(s) + '" alt="">'; }).join("") + '<button class="lb-x">✕</button>';
+    lb.addEventListener("click", function () { lb.remove(); });
+    document.body.appendChild(lb);
+  }
   $("merch-list").addEventListener("click", function (e) {
-    var chip = e.target.closest(".shop-chip"); if (!chip) return;
-    var cat = chip.getAttribute("data-cat"); state.shopCat = cat; hap(6);
-    var chips = $("shop-chips");
-    if (chips) [].forEach.call(chips.children, function (c) { c.classList.toggle("active", c.getAttribute("data-cat") === cat); });
-    var grid = $("shop-grid");
-    if (grid) [].forEach.call(grid.querySelectorAll(".merch-card"), function (card) {
-      var cc = card.getAttribute("data-cat");
-      card.classList.toggle("hidden", cat !== "all" && cc !== cat);
-    });
+    var tab = e.target.closest(".shop-tab");
+    if (tab) { state.shopCat = tab.getAttribute("data-cat"); hap(6); renderMerch(); return; }
+    var rb = e.target.closest("[data-remind]");
+    if (rb) {
+      var rk = rb.getAttribute("data-remind"); hap(8);
+      if (remindQ(rk)) { var m = remindMap(); delete m[rk]; lsSet(NS + ":remind", m); toast("已取消提醒"); renderMerch(); return; }
+      askEmail({ title: "開賣提醒", desc: "免費登記、不用付款。開賣時會用這個信箱通知你。" }, function (email) {
+        fetch(CFG.api.workerBaseUrl + "/interest", {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({ email: email, event: rk })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (!d.ok) { toast(d.message || "登記失敗 · 再試一次"); return; }
+          remindSet(rk, email); hap([12, 30, 40]); toast("已設定 ♡ 開賣時通知你"); renderMerch();
+        }).catch(function () { toast("連線失敗 · 再試一次"); });
+      });
+      return;
+    }
+    var pv = e.target.closest("[data-preview]");
+    if (pv) {
+      var it = ((CFG.merch || {}).items || [])[+pv.getAttribute("data-preview")];
+      if (!it) return;
+      var imgs = (it.preview && it.preview.length) ? it.preview : (it.image ? [it.image] : []);
+      if (imgs.length) { hap(8); openLightbox(imgs); }
+    }
   });
   $("merch-list").addEventListener("click", function (e) {
     var b = e.target.closest("[data-merch]"); if (!b) return;
@@ -5574,7 +5767,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B66</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B67</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -5603,12 +5796,12 @@ window.ALBUM_SWITCH = {
     if (document.getElementById("__updBar")) return;
     var b = document.createElement("button");
     b.id = "__updBar"; b.textContent = "有新內容 ✨ 點此更新";
-    b.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);" +
-      "bottom:calc(78px + env(safe-area-inset-bottom));z-index:100001;" +
-      "padding:10px 18px;border-radius:999px;border:1px solid rgba(217,178,106,.7);" +
-      "background:linear-gradient(135deg,#D9B26A,#B98A3E);color:#1A0E2A;" +
-      "font:700 13px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1px;" +
-      "box-shadow:0 8px 24px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent";
+    b.style.cssText = "position:fixed;left:0;right:0;top:0;width:100%;z-index:100001;" +
+      "padding:calc(6px + env(safe-area-inset-top)) 12px 7px;border:none;" +
+      "border-bottom:1px solid rgba(217,178,106,.5);" +
+      "background:linear-gradient(135deg,rgba(217,178,106,.97),rgba(185,138,62,.97));color:#1A0E2A;" +
+      "font:600 12.5px/1.3 -apple-system,'PingFang TC',sans-serif;letter-spacing:.5px;" +
+      "-webkit-tap-highlight-color:transparent";
     b.addEventListener("click", function () {
       b.textContent = "更新中…"; b.disabled = true;
       if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
