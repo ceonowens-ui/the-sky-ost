@@ -1658,6 +1658,102 @@ body { background: #08060C !important; }
   background:rgba(10,6,16,.7); padding:2px 7px; border-radius:999px; }
 .lkg .lkg-lock{ position:absolute; inset:0; display:flex; flex-direction:column; gap:4px;
   align-items:center; justify-content:center; font-size:10px; letter-spacing:1.5px; color:#F0DCA8; }
+/* ===== LUCKY · 圖鑑收集優先（B69）===== */
+#screen-lucky.screen-sub { padding: calc(22px + env(safe-area-inset-top)) 0 calc(120px + env(safe-area-inset-bottom)); }
+#screen-lucky .page-titles { padding: 0 20px; }
+#screen-lucky .page-title-en { font-family:var(--font-display); font-style:italic; font-size:clamp(24px,6.6vw,29px);
+  color:#F3EADC; letter-spacing:.5px; }
+#screen-lucky .page-title-en::before { content:"✦ "; color:rgba(233,199,126,.9); font-style:normal; font-size:.62em; vertical-align:.18em; }
+#screen-lucky .page-title-en::after  { content:" ✦"; color:rgba(233,199,126,.9); font-style:normal; font-size:.62em; vertical-align:.18em; }
+#screen-lucky .page-title-tc { font-family:var(--font-serif-tc); font-size:clamp(15px,4.3vw,17px);
+  font-weight:500; color:rgba(214,200,238,.92); letter-spacing:2px; margin-top:6px; white-space:nowrap; }
+#screen-lucky .page-note.lucky-rule { font-size:clamp(12.5px,3.6vw,14px); color:rgba(196,182,222,.78);
+  margin-top:9px; line-height:1.6; }
+
+/* 抽卡券膠囊 */
+#screen-lucky .lk-econ { margin-top:14px; }
+#screen-lucky .lk-chip { padding:9px 20px; border-radius:999px; font-size:14px; letter-spacing:1px;
+  border:1px solid rgba(217,178,106,.45); background:rgba(217,178,106,.07); color:rgba(226,212,240,.9); }
+#screen-lucky .lk-chip b { font-family:var(--font-display); font-style:normal; font-size:19px; color:#F0DCA8; margin-left:3px; }
+
+/* 分隔線 + 收藏進度 */
+.lkc-div { height:1px; margin:18px 26px 0; background:linear-gradient(90deg,transparent,rgba(217,178,106,.26),transparent); }
+.lkc-title { text-align:center; margin-top:16px; font-family:var(--font-label); font-size:11.5px;
+  letter-spacing:4.5px; color:rgba(196,182,222,.72); }
+.lkc-count { text-align:center; margin-top:9px; font-family:var(--font-label);
+  font-size:clamp(20px,5.6vw,24px); letter-spacing:2.5px; color:rgba(206,192,230,.86); }
+.lkc-count b { font-family:var(--font-display); font-style:normal; font-weight:700;
+  font-size:clamp(26px,7.2vw,31px); color:#F0DCA8; margin-right:3px; }
+.lkc-track { display:flex; align-items:center; justify-content:center; margin:15px 22px 0; }
+.lkc-node { flex:none; width:32px; height:32px; border-radius:50%; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center; }
+.lkc-node svg { width:14px; height:14px; }
+.lkc-node.on { border:1.5px solid rgba(240,220,168,.95); color:#FFF0CB;
+  background:radial-gradient(circle at 42% 36%, rgba(255,246,225,.3), rgba(217,178,106,.1));
+  box-shadow:0 0 15px rgba(217,178,106,.62), inset 0 0 10px rgba(240,220,168,.22); }
+.lkc-node.off { border:1.5px solid rgba(132,104,178,.45); background:rgba(44,28,68,.5); color:rgba(178,158,214,.75); }
+.lkc-line { flex:1; min-width:8px; height:1.5px; margin:0 2px; background:rgba(132,104,178,.32); border-radius:2px; }
+.lkc-line.on { background:linear-gradient(90deg,#D9B26A,#F0DCA8); box-shadow:0 0 7px rgba(217,178,106,.5); }
+.lkc-left { text-align:center; margin-top:13px; font-size:13px; letter-spacing:1px; color:rgba(196,182,222,.72); }
+
+/* 3 × 2 圖鑑 */
+#screen-lucky #lucky-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(10px,3vw,14px);
+  padding:0 20px; margin-top:20px; }
+#screen-lucky .lkg { position:relative; aspect-ratio:2/3; border-radius:16px; overflow:hidden;
+  border:1px solid rgba(150,120,190,.26); background:linear-gradient(165deg,#241539,#120B1E 70%); box-shadow:none; }
+#screen-lucky .lkg img { width:100%; height:100%; object-fit:cover; display:block; }
+#screen-lucky .lkg.own { border:1.5px solid rgba(240,220,168,.85);
+  box-shadow:0 0 16px rgba(240,220,168,.34), 0 8px 20px rgba(0,0,0,.45); }
+#screen-lucky .lkg-tag { position:absolute; top:8px; left:50%; transform:translateX(-50%); z-index:3;
+  font-family:var(--font-label); font-size:9.5px; letter-spacing:1.6px; color:#F0DCA8;
+  background:rgba(16,10,26,.82); border:1px solid rgba(217,178,106,.5); padding:3px 9px; border-radius:7px; }
+#screen-lucky .lkg.own .lkg-tag { top:7px; }
+#screen-lucky .lkg-n { position:absolute; right:6px; bottom:6px; z-index:3; font-family:var(--font-label);
+  font-size:9.5px; font-weight:700; color:rgba(255,255,255,.88);
+  background:rgba(10,6,16,.72); padding:2px 7px; border-radius:999px; }
+/* 未收藏卡背：金色星軌幾何 + 低調 ? */
+#screen-lucky .lkg-orbit { position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.55;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 27%, rgba(217,178,106,.3) 27% 27.6%, transparent 28%),
+    radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(217,178,106,.16) 38% 38.5%, transparent 39%),
+    radial-gradient(1.6px 1.6px at 50% 12%, rgba(240,220,168,.75), transparent),
+    radial-gradient(1.6px 1.6px at 50% 88%, rgba(240,220,168,.55), transparent),
+    radial-gradient(1.4px 1.4px at 14% 50%, rgba(240,220,168,.5), transparent),
+    radial-gradient(1.4px 1.4px at 86% 50%, rgba(240,220,168,.5), transparent); }
+#screen-lucky .lkg-q { position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:clamp(22px,6.6vw,28px); color:rgba(226,208,246,.32); }
+/* 新卡亮起 */
+#screen-lucky .lkg.justlit { animation:lkgLit 1.15s ease-out 1; }
+@keyframes lkgLit { 0%{ box-shadow:0 0 0 rgba(240,220,168,0); transform:scale(.94); }
+  42%{ box-shadow:0 0 30px rgba(240,220,168,.95); transform:scale(1.04); }
+  100%{ box-shadow:0 0 16px rgba(240,220,168,.34); transform:scale(1); } }
+@media (prefers-reduced-motion: reduce){ #screen-lucky .lkg.justlit{ animation:none; } }
+
+/* 抽卡操作區 */
+#screen-lucky #lucky-cta { margin:22px 20px 0; }
+.lk-drawrow { display:flex; align-items:center; gap:14px; }
+.lk-deck { position:relative; flex:none; width:74px; height:74px; }
+.lk-deck-card { position:absolute; left:16px; top:9px; width:40px; height:56px; border-radius:8px;
+  background:linear-gradient(160deg,#3A2456,#1B1029); border:1px solid rgba(217,178,106,.5);
+  box-shadow:0 6px 16px rgba(0,0,0,.5); transform:rotate(-9deg); }
+.lk-deck-card::after { content:"✦"; position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:center; color:#F0DCA8; font-size:15px; text-shadow:0 0 10px rgba(240,220,168,.8); }
+.lk-deck-ring { position:absolute; inset:4px 0; border-radius:50%;
+  border:1px solid rgba(217,178,106,.45); border-left-color:transparent; border-right-color:transparent;
+  transform:rotate(-24deg); }
+.lk-deck-dot { position:absolute; width:4px; height:4px; border-radius:50%; background:#F0DCA8;
+  box-shadow:0 0 7px rgba(240,220,168,.9); }
+.lk-deck-dot.d1 { left:3px; top:26px; }
+.lk-deck-dot.d2 { right:5px; bottom:22px; width:3px; height:3px; opacity:.8; }
+#screen-lucky .lk-draw { flex:1; min-width:0; margin-top:0; width:auto; height:64px; padding:0 12px;
+  border:none; border-radius:18px; color:#241703;
+  background:linear-gradient(100deg,#F3DFAE 0%,#EBCB86 48%,#D2A65C 100%);
+  font-family:var(--font-serif-tc); font-size:clamp(15px,4.3vw,17.5px); font-weight:700; letter-spacing:1.5px;
+  box-shadow:0 10px 26px rgba(217,178,106,.32); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#screen-lucky .lk-draw:disabled { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.42); box-shadow:none; opacity:1; }
+#screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
+#screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
 </head>
 <body>
@@ -1843,9 +1939,8 @@ body { background: #08060C !important; }
       <div class="page-note lucky-rule" id="lucky-note">每天登入送 1 抽　聽完一首歌再 ＋1 抽</div>
     </div>
     <div id="lucky-stage"></div>
-    <div id="lucky-cta"></div>
-    <div class="lucky-coll-head"><span>COLLECTION · 圖鑑</span><span id="lucky-progress"></span></div>
     <div id="lucky-grid"></div>
+    <div id="lucky-cta"></div>
   </section>
 
   <!-- ================= BOTTOM SHEET（曲目表，可拖曳關閉）================= -->
@@ -5138,37 +5233,46 @@ window.ALBUM_SWITCH = {
     return pool[pool.length - 1];
   }
 
+  /* ---------- LUCKY · 圖鑑收集（B69）---------- */
+  /* 券數、卡池、已收藏、抽卡流程全部沿用既有真實狀態（luckState / luckCards / doLuckDraw）。 */
+  function luckStageHTML() {
+    var cards = luckCards(), st = luckState();
+    var tk = st.tk || 0;
+    var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
+    var left = cards.length - ownedCount;
+    var star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.1 6.2L20.4 10l-5 3.8L17 20.4 12 16.9 7 20.4l1.6-6.6L3.6 10l6.3-1.8z"/></svg>';
+    var lockS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    var track = '<div class="lkc-track">';
+    cards.forEach(function (c, i) {
+      var on = !!st.owned[c.id];
+      if (i > 0) track += '<span class="lkc-line' + (on && st.owned[cards[i - 1].id] ? " on" : "") + '"></span>';
+      track += '<span class="lkc-node ' + (on ? "on" : "off") + '">' + (on ? star : lockS) + '</span>';
+    });
+    track += '</div>';
+    return '<div class="lk-econ"><span class="lk-chip">抽卡券 <b>' + tk + '</b></span></div>' +
+      '<div class="lkc-div"></div>' +
+      '<div class="lkc-title">THE SKY COLLECTION</div>' +
+      '<div class="lkc-count" id="lucky-progress"><b>' + ownedCount + '</b> / ' + cards.length + ' COLLECTED</div>' +
+      track +
+      '<div class="lkc-left">' + (left > 0 ? "還差 " + left + " 張・完成圖鑑" : "圖鑑收藏完成") + '</div>';
+  }
+  /* 抽卡後只重畫進度區（沒有事件監聽，安全） */
+  function lkSyncProgress() { var el = $("lucky-stage"); if (el) el.innerHTML = luckStageHTML(); }
+
   function renderLucky() {
     var cards = luckCards(), st = luckState(), member = luckMemberQ();
     var tk = st.tk || 0;
-    var ownedCount = cards.filter(function (c) { return st.owned[c.id]; }).length;
-    $("lucky-progress").textContent = "已收集 " + ownedCount + " / " + cards.length;
-
-    var econ = '<div class="lk-econ">' +
-      '<span class="lk-chip">抽卡券 <b>' + tk + '</b></span>' +
-      '</div>';
-
-    var pity = "", earn = "";
-
-    $("lucky-stage").innerHTML = econ +
-      '<div class="orb-wrap" id="orb-wrap">' +
-        '<div class="orb-stage">' +
-          '<div class="orb-stars"></div>' +
-          '<div class="orb-orbit o2"><div class="head"></div></div>' +
-          '<div class="orb-orbit o1"><div class="head"></div></div>' +
-          '<div class="orb"><div class="orb-core"></div>' +
-            '<div class="orb-shell orb-l"></div><div class="orb-shell orb-r"></div></div>' +
-          '<div class="orb-card" id="orb-card"></div>' +
-        '</div>' +
+    $("lucky-stage").innerHTML = luckStageHTML();
+    $("lucky-cta").innerHTML =
+      '<div class="lk-drawrow">' +
+        '<div class="lk-deck"><span class="lk-deck-ring"></span><span class="lk-deck-card"></span>' +
+          '<span class="lk-deck-dot d1"></span><span class="lk-deck-dot d2"></span></div>' +
+        '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
+          (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '</div>' +
-      '<div class="lk-name" id="lk-name"></div>' +
-      '<button class="lk-draw" id="lk-draw"' + (tk > 0 ? "" : " disabled") + '>' +
-        (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
-      pity + earn;
-
-    $("lucky-cta").innerHTML = member ? "" :
-      '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
-      '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>';
+      (member ? "" :
+        '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
+        '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>');
     var gs = $("lk-goshop");
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
     var btn = $("lk-draw");
@@ -5325,8 +5429,7 @@ window.ALBUM_SWITCH = {
   /* 抽卡後 UI 統一更新（進度／券／星塵／保底／圖鑑／再抽按鈕） */
   function lkAfterReveal(c) {
     var st2 = luckState(), cards = luckCards();
-    $("lucky-progress").textContent = "已收集 " +
-      cards.filter(function (x) { return st2.owned[x.id]; }).length + " / " + cards.length;
+    lkSyncProgress();
     var chips = document.querySelectorAll(".lk-econ .lk-chip b");
     if (chips[0]) chips[0].textContent = st2.tk || 0;
     if (chips[1]) chips[1].textContent = st2.dust || 0;
@@ -5340,7 +5443,7 @@ window.ALBUM_SWITCH = {
       b2.disabled = tkLeft <= 0;
       if (tkLeft > 0) b2.addEventListener("click", function () { doLuckDraw(); }, { once: true });
     }
-    renderLuckGrid();
+    renderLuckGrid(c && c.id);
   }
 
   function lkReveal(c, dup) {
@@ -5375,20 +5478,17 @@ window.ALBUM_SWITCH = {
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
     lkReveal(c, dup);                          /* 影片 prime 必須在此同步手勢內發生 */
   }
-  function renderLuckGrid() {
-    var cards = luckCards(), st = luckState(), member = luckMemberQ();
+  function renderLuckGrid(newId) {
+    var cards = luckCards(), st = luckState();
     $("lucky-grid").innerHTML = cards.map(function (c) {
       var n = st.owned[c.id] || 0;
-      var lockedForFree = !member && c.tier === "member";
-      if (n) return '<div class="lkg own ' + esc(c.rarity) + '" data-lk="' + esc(c.id) + '"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
+      /* 已收藏：顯示真實卡面 + 金框；未收藏：一律卡背，不洩漏內容（含會員限定卡） */
+      if (n) return '<div class="lkg own' + (newId === c.id ? " justlit" : "") + '" data-lk="' + esc(c.id) + '">' +
+        '<img src="' + esc(c.img) + '" alt="" loading="lazy">' +
+        '<span class="lkg-tag">' + esc(c.rarity) + '</span>' +
         (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
-      if (lockedForFree) return '<div class="lkg lock"><img src="' + esc(c.img) + '" alt="" loading="lazy">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span>' +
-        '<span class="lkg-lock">🔒<span>會員限定</span></span></div>';
-      /* 未擁有（已購但還沒抽到）：問號占位 */
-      return '<div class="lkg none"><img src="' + esc(c.img) + '" alt="">' +
-        '<span class="lk-r lkg-r ' + esc(c.rarity) + '">' + esc(c.rarity) + '</span></div>';
+      return '<div class="lkg none"><span class="lkg-orbit"></span>' +
+        '<span class="lkg-tag">' + esc(c.rarity) + '</span><span class="lkg-q">?</span></div>';
     }).join("");
     $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
       el.addEventListener("click", function () {
@@ -5768,7 +5868,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B68</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B69</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
