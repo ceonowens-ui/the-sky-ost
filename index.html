@@ -1711,17 +1711,12 @@ body { background: #08060C !important; }
 #screen-lucky .lkg-n { position:absolute; right:6px; bottom:6px; z-index:3; font-family:var(--font-label);
   font-size:9.5px; font-weight:700; color:rgba(255,255,255,.88);
   background:rgba(10,6,16,.72); padding:2px 7px; border-radius:999px; }
-/* 未收藏卡背：金色星軌幾何 + 低調 ? */
-#screen-lucky .lkg-orbit { position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.55;
-  background:
-    radial-gradient(circle at 50% 50%, transparent 0 27%, rgba(217,178,106,.3) 27% 27.6%, transparent 28%),
-    radial-gradient(circle at 50% 50%, transparent 0 38%, rgba(217,178,106,.16) 38% 38.5%, transparent 39%),
-    radial-gradient(1.6px 1.6px at 50% 12%, rgba(240,220,168,.75), transparent),
-    radial-gradient(1.6px 1.6px at 50% 88%, rgba(240,220,168,.55), transparent),
-    radial-gradient(1.4px 1.4px at 14% 50%, rgba(240,220,168,.5), transparent),
-    radial-gradient(1.4px 1.4px at 86% 50%, rgba(240,220,168,.5), transparent); }
-#screen-lucky .lkg-q { position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-size:clamp(22px,6.6vw,28px); color:rgba(226,208,246,.32); }
+/* 未收藏卡背：改用完整卡背圖（含外框／星軌／問號），不再用 CSS 疊裝飾 */
+#screen-lucky .lkg.none { border:none; background-color:#120b1d;
+  background-image:url("assets/cards/the-sky-locked-card-back-v1.png");
+  background-position:center; background-repeat:no-repeat; background-size:cover; }
+#screen-lucky .lkg.none::before, #screen-lucky .lkg.none::after { content:none; }
+#screen-lucky .lkg-orbit, #screen-lucky .lkg-q { display:none; }
 /* 新卡亮起 */
 #screen-lucky .lkg.justlit { animation:lkgLit 1.15s ease-out 1; }
 @keyframes lkgLit { 0%{ box-shadow:0 0 0 rgba(240,220,168,0); transform:scale(.94); }
@@ -5487,8 +5482,7 @@ window.ALBUM_SWITCH = {
         '<img src="' + esc(c.img) + '" alt="" loading="lazy">' +
         '<span class="lkg-tag">' + esc(c.rarity) + '</span>' +
         (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
-      return '<div class="lkg none"><span class="lkg-orbit"></span>' +
-        '<span class="lkg-tag">' + esc(c.rarity) + '</span><span class="lkg-q">?</span></div>';
+      return '<div class="lkg none"><span class="lkg-tag">' + esc(c.rarity) + '</span></div>';
     }).join("");
     $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
       el.addEventListener("click", function () {
@@ -5868,7 +5862,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B70</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B71</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
