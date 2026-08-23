@@ -1,5 +1,5 @@
 {
-  "version": "2026-08-22-3",
+  "version": "2026-08-22-4",
   "feedChat": [
     {
       "day": "2026.08.20"
@@ -69,7 +69,7 @@
     {
       "id": "ssr-gaze",
       "img": "assets/cards/gaze.jpg",
-      "video": "assets/cards/gaze.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/gaze.mp4",
       "title": "一眼淪陷・魅惑滿格",
       "rarity": "SSR",
       "w": 19,
@@ -78,7 +78,7 @@
     {
       "id": "ssr-vow",
       "img": "assets/cards/vow.jpg",
-      "video": "assets/cards/vow.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/vow.mp4",
       "title": "戀愛宣言・心動支配者",
       "rarity": "SSR",
       "w": 19,
@@ -88,7 +88,7 @@
     {
       "id": "ssr-stage",
       "img": "assets/cards/stage.jpg",
-      "video": "assets/cards/stage.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/stage.mp4",
       "title": "演唱會萬人迷",
       "rarity": "SSR",
       "w": 19,
@@ -98,7 +98,7 @@
     {
       "id": "ssr-hands",
       "img": "assets/cards/hands.jpg",
-      "video": "assets/cards/hands.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/hands.mp4",
       "title": "千手幻相・萬象歸一",
       "rarity": "SSR",
       "w": 19,
@@ -108,7 +108,7 @@
     {
       "id": "ssr-mirror",
       "img": "assets/cards/mirror.jpg",
-      "video": "assets/cards/mirror.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/mirror.mp4",
       "title": "鏡像殘影・多重分身",
       "rarity": "SSR",
       "w": 19,
@@ -118,7 +118,7 @@
     {
       "id": "ssr-awaken",
       "img": "assets/cards/awaken.jpg",
-      "video": "assets/cards/awaken.mp4",
+      "video": "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/awaken.mp4",
       "title": "真身降臨・鎮池之卡",
       "rarity": "SSR",
       "w": 5,
