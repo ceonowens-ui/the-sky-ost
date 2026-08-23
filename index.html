@@ -481,24 +481,67 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
              cursor: pointer; }
 .form-hint b { color: var(--primary); font-weight: 500; }
 
-.unlocked-card { border-radius: 22px; background: rgba(var(--primary-rgb), .08);
-                 border: 1px solid rgba(var(--primary-rgb), .3);
-                 padding: 28px 22px; text-align: center; margin: 26px 24px 0; }
-.unlocked-check { width: 58px; height: 58px; border-radius: 50%; background: var(--grad);
-                  display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-.unlocked-eyebrow { font-family: var(--font-label); font-size: 11px; color: var(--primary);
-                    letter-spacing: 3px; }
-.unlocked-title { font-family: var(--font-serif-tc); font-size: 17px; margin-top: 8px;
-                  letter-spacing: 1px; }
-.unlocked-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center;
-                    flex-wrap: wrap; }
+/* ===== OWN · Digital Album Pass（B57）===== */
+.pass-card { position: relative; margin: 22px 18px 0; padding: 24px 20px 22px;
+            border-radius: 26px; text-align: center; overflow: hidden;
+            background: linear-gradient(165deg, rgba(42,22,58,.55), rgba(14,8,20,.72));
+            border: 1px solid rgba(217,178,106,.26);
+            box-shadow: 0 22px 55px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04); }
+.pass-art { position: relative; width: 100%; height: 188px; margin: 2px 0 4px; }
+.pass-art::before { content:""; position:absolute; left:50%; top:50%; width:300px; height:300px;
+            transform:translate(-50%,-50%); border-radius:50%; pointer-events:none; z-index:0;
+            background: repeating-radial-gradient(circle at 50% 50%, rgba(217,178,106,.06) 0 1px, transparent 1px 14px);
+            -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 76%);
+            mask-image: radial-gradient(circle, #000 55%, transparent 76%); opacity:.85; }
+.pass-vinyl { position:absolute; top:50%; left:50%; width:158px; height:158px; z-index:1;
+            transform: translate(-16%,-50%); border-radius:50%;
+            background: radial-gradient(circle at 50% 50%, #4a3358 0 13%, #0b0a10 14% 16%, transparent 16%),
+                        repeating-radial-gradient(circle at 50% 50%, #17141c 0 2px, #0a090d 2px 4px);
+            box-shadow: 0 14px 32px rgba(0,0,0,.55), inset 0 0 24px rgba(0,0,0,.6); }
+.pass-vinyl::after { content:""; position:absolute; inset:0; border-radius:50%;
+            background: conic-gradient(from 200deg, transparent, rgba(255,255,255,.07) 22%, transparent 42%); }
+.pass-cover { position:absolute; top:50%; left:50%; width:150px; height:150px; z-index:2;
+            transform: translate(-66%,-50%); border-radius:13px; object-fit:cover;
+            box-shadow: 0 16px 36px rgba(0,0,0,.55), 0 0 0 1px rgba(217,178,106,.28); }
+.pass-spark { position:absolute; width:4px; height:4px; border-radius:50%; z-index:3;
+            background:#F0DCA8; box-shadow:0 0 8px 2px rgba(240,220,168,.7); opacity:.85; }
+.pass-spark.s1 { top:26%; right:12%; }
+.pass-spark.s2 { bottom:20%; right:26%; width:3px; height:3px; opacity:.7; }
+.pass-track { display:flex; align-items:center; justify-content:center; margin:10px 6px 16px; }
+.pnode { flex:none; width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.pnode.on { background: radial-gradient(circle at 40% 35%, #FCEDC6, #D9B26A 72%);
+            box-shadow: 0 0 11px rgba(217,178,106,.8), 0 0 3px rgba(255,238,196,.9); }
+.pnode.off { background: rgba(78,52,112,.32); border:1px solid rgba(150,120,190,.42); }
+.pnode.off svg { width:9px; height:9px; color: rgba(196,176,224,.72); }
+.pnode.justlit { animation: passlit 1.25s ease-out 1; }
+@keyframes passlit { 0%{ transform:scale(.5); box-shadow:0 0 0 rgba(217,178,106,0);} 45%{ transform:scale(1.28); box-shadow:0 0 18px rgba(217,178,106,.95);} 100%{ transform:scale(1);} }
+.pconn { flex:0 1 34px; height:2px; margin:0 3px; }
+.pconn.on { background: linear-gradient(90deg,#D9B26A,#F0DCA8); border-radius:2px; }
+.pconn.off { background:none; border-top:2px dotted rgba(150,120,190,.34); height:0; }
+.pass-count { font-family:var(--font-label); font-size:14px; letter-spacing:3px; color:#E9C77E; }
+.pass-count .pc-num { font-family:var(--font-display); font-style:normal; font-weight:700; font-size:20px; color:#fff; margin-right:3px; }
+.pass-sub { font-size:13px; color:rgba(255,255,255,.6); margin-top:9px; letter-spacing:.5px; }
+.pass-next { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:16px; padding-top:15px;
+            border-top:1px solid rgba(255,255,255,.08);
+            font-family:var(--font-label); font-size:10.5px; letter-spacing:2px; color:rgba(200,180,225,.7); }
+.pass-next .pn-star { color:rgba(217,178,106,.85); }
+.pass-cta { margin-top:20px; }
+.pass-play { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; padding:16px;
+            border:none; border-radius:16px; cursor:pointer; color:#fff;
+            background: linear-gradient(100deg,#7B4BC6 0%,#A76BD8 34%,#E9C77E 100%);
+            font-family:var(--font-serif-tc); font-size:16px; font-weight:600; letter-spacing:2px;
+            box-shadow:0 12px 30px rgba(140,80,200,.3); }
+.pass-play:active { transform: scale(.985); }
+.pass-unlock { display:block; width:100%; margin-top:12px; padding:14px; border-radius:16px; cursor:pointer;
+            background: rgba(18,12,26,.5); color:#E9C77E; border:1px solid rgba(217,178,106,.5);
+            font-family:var(--font-serif-tc); font-size:14px; letter-spacing:1.5px; }
+.pass-unlock:active { transform: scale(.985); }
+.pass-unlock.hidden { display:none; }
 .btn-chip { display: flex; align-items: center; gap: 7px; padding: 13px 22px;
             border-radius: 14px; background: rgba(255,255,255,.08); color: #fff;
             border: 1px solid rgba(255,255,255,.16); font-family: var(--font-serif-tc);
             font-size: 13px; letter-spacing: 1.5px; cursor: pointer; text-decoration: none; }
 .btn-chip.grad { background: var(--grad); border: none; }
-.unlocked-note { font-size: 11px; color: rgba(255,255,255,.38); margin-top: 13px;
-                 letter-spacing: .5px; }
 .unlocked-reset { font-size: 11px; color: rgba(255,255,255,.28); margin-top: 16px;
                   letter-spacing: .5px; cursor: pointer; text-decoration: underline;
                   text-underline-offset: 3px; }
@@ -1575,18 +1618,21 @@ body { background: #08060C !important; }
 
     <!-- 已擁有 -->
     <div id="unlock-done-view" class="hidden">
-      <div class="unlocked-card">
-        <div class="unlocked-check">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="pass-card">
+        <div class="pass-art">
+          <div class="pass-vinyl"></div>
+          <img class="pass-cover" id="pass-cover" alt="">
+          <span class="pass-spark s1"></span>
+          <span class="pass-spark s2"></span>
         </div>
-        <div class="unlocked-eyebrow">YOU OWN THE SKY</div>
-        <div class="unlocked-title" id="unlocked-title"></div>
-        <div class="page-note" id="unlocked-desc" style="margin-top:8px"></div>
-        <div class="unlocked-actions">
-          <button class="btn-chip" id="btn-goto-player">前往聽歌 →</button>
-          <button class="btn-chip grad hidden" id="btn-upgrade">升級全解鎖 · 補 NT$500</button>
+        <div class="pass-track" id="pass-track"></div>
+        <div class="pass-count" id="pass-count"></div>
+        <div class="pass-sub">已收藏歌曲可不限次數聆聽</div>
+        <div class="pass-next" id="pass-next"></div>
+        <div class="pass-cta">
+          <button class="pass-play" id="btn-goto-player">▶ 播放已收藏歌曲</button>
+          <button class="pass-unlock hidden" id="btn-upgrade">解鎖完整專輯・補 NT$500</button>
         </div>
-        <div class="unlocked-note" id="unlocked-plan-note"></div>
       </div>
     </div>
 
@@ -3304,8 +3350,6 @@ window.ALBUM_SWITCH = {
   $("sheet-title").textContent = "曲目列表 · " + TOTAL + " 首";
   $("purchase-title-en").textContent = STR.purchaseTitleEn || "Unlock the Album";
   $("purchase-title-tc").textContent = "收藏完整專輯・持續更新";
-  $("unlocked-title").textContent = "已解鎖 " + TOTAL + " 首完整歌曲";
-  $("unlocked-desc").textContent = "已解鎖內容可不限次數聆聽";
   $("in-code").placeholder = (CFG.unlock && CFG.unlock.codePlaceholder) || "XXXX-XXXX";
   var freeCount = TRACKS.filter(function (t) { return t.free; }).length;
   $("purchase-note").textContent = freeCount >= TOTAL
@@ -3707,6 +3751,8 @@ window.ALBUM_SWITCH = {
   /* ── B47：介面語言 中/EN ── DOM 翻譯層，只換字、不動任何邏輯。
    * FEED 對話、抽卡卡名、歌詞（另有意譯機制）與調校面板不翻。 */
   var I18N = {
+"已收藏歌曲可不限次數聆聽": "Your tracks · listen anytime, unlimited",
+"▶ 播放已收藏歌曲": "▶ Play your tracks",
 "收藏完整專輯・持續更新": "The complete album · always growing",
 "每月解鎖全新歌曲": "New songs unlocked every month",
 "已解鎖內容可不限次數聆聽": "Unlocked content · listen without limits",
@@ -3874,6 +3920,7 @@ window.ALBUM_SWITCH = {
 "歌詞語言：中文": "介面語言：中文"
 };
   var I18N_RULES = [
+    [/^解鎖完整專輯・補 NT\$(\d+)$/, "Unlock full album · +NT$$$1"],
     [/^已解鎖 (\d+) 首完整歌曲$/, "$1 full tracks unlocked"],
     [/^開始下載 · (.+)$/, "Downloading · $1"],
     [/^解鎖成功 · (\d+) 首全部屬於你了 ♡$/, "Unlocked · all $1 tracks are yours ♡"],
@@ -4052,6 +4099,40 @@ window.ALBUM_SWITCH = {
       needConsent: true
     }, function (email) { goEcpay(P.productKeyUpgrade || "upgrade-799", email); });
   });
+
+  /* ---------- OWN · Digital Album Pass（收藏卡）---------- */
+  function renderPass(){
+    var P = CFG.payment || {};
+    var passCfg = CFG.albumPass || {};
+    var cover = $("pass-cover"); if (cover && !cover.src) cover.src = SKY_COVER;
+    var unlockedCount = TOTAL;                                        // 動態：已解鎖曲數 = 現有曲目數
+    var plannedTotal = passCfg.plannedTotal || (unlockedCount + 3);   // 未設定就預留 3 格「即將到來」
+    var total = Math.max(unlockedCount, plannedTotal);
+    var track = $("pass-track");
+    if (track){
+      var lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+      var prev = lsGet(NS + ":passUnlocked", 0);
+      var animFrom = (prev > 0 && unlockedCount > prev) ? prev : unlockedCount;   // 首次不放動畫，只有真的新增才點亮
+      var html = "";
+      for (var i = 0; i < total; i++){
+        if (i > 0) html += '<span class="pconn ' + (i < unlockedCount ? "on" : "off") + '"></span>';
+        var on = i < unlockedCount;
+        html += '<span class="pnode ' + (on ? "on" : "off") + (on && i >= animFrom ? " justlit" : "") + '">' + (on ? "" : lock) + '</span>';
+      }
+      track.innerHTML = html;
+      lsSet(NS + ":passUnlocked", unlockedCount);
+    }
+    var pc = $("pass-count");
+    if (pc) pc.innerHTML = '<span class="pc-num">' + unlockedCount + '</span> TRACKS UNLOCKED';
+    var pn = $("pass-next");
+    if (pn){
+      var nx = passCfg.next;
+      pn.innerHTML = (nx && nx.title)
+        ? '<span class="pn-star">✦</span> NEXT · ' + esc(nx.title) + (nx.date ? ' · ' + esc(nx.date) : '') + ' <span class="pn-star">✦</span>'
+        : '<span class="pn-star">✦</span> NEXT TRACK · COMING SOON <span class="pn-star">✦</span>';
+    }
+    $("btn-upgrade").textContent = "解鎖完整專輯・補 NT$" + (P.upgradePrice || 500);
+  }
 
   /* ---------- 周邊（聽片會票 + 手鍊）---------- */
   function renderMerch() {
@@ -4258,7 +4339,7 @@ window.ALBUM_SWITCH = {
     var fp = feedPassInfo();
     var full = (purchasedProduct() === "deluxe") || !!fp.full;
     $("btn-upgrade").classList.toggle("hidden", full);
-    $("unlocked-plan-note").style.display = "none";
+    renderPass();
   }
 
   function unlockNow(data) {
@@ -5360,7 +5441,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B56</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B57</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
