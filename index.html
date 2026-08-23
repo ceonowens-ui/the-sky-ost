@@ -418,6 +418,13 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                  color: rgba(255,255,255,.85); letter-spacing: 2px; margin-top: 8px; }
 .page-note { font-size: 12.5px; color: rgba(255,255,255,.5); margin-top: 12px; line-height: 1.75; }
 
+/* SHOP 標題放大 + 主題明確（只 scope 在周邊頁）*/
+#screen-merch .page-titles { padding-bottom: 2px; }
+#screen-merch .page-title-en { font-family: var(--font-label); font-style: normal; font-size: 14px;
+              letter-spacing: 4px; text-transform: uppercase; color: rgba(217,178,106,.9); }
+#screen-merch .page-title-tc { font-size: 27px; color: #fff; font-weight: 600; letter-spacing: 2px; margin-top: 8px; }
+#screen-merch .page-note { font-size: 14px; color: rgba(255,255,255,.62); margin-top: 11px; }
+
 .plans { padding: 28px 22px 0; display: flex; flex-direction: column; gap: 18px; }
 .plan { position: relative; border-radius: 22px; padding: 24px 22px; cursor: pointer;
         background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.12); }
@@ -2605,7 +2612,7 @@ const THE_SKY = {
         image: "assets/images/merch/ticket.jpg",
       },
       {
-        productKey: "ticket-vip",
+        productKey: "ticket-vip", hidden: true,
         name: "THE SKY 2027 聽片會 · VIP 票",
         desc: "VIP 席位 · 含限定周邊與會後交流。",
         price: 2250, originalPrice: 2500,   // 預購 10% off
@@ -4041,8 +4048,8 @@ window.ALBUM_SWITCH = {
     var items = M.items || [];
     var cat = state.shopCat || "all";
     var catOf = function (it) { return String(it.productKey || "").indexOf("ticket") === 0 ? "show" : "collect"; };
-    var hasShow = items.some(function (it) { return catOf(it) === "show"; });
-    var hasCollect = items.some(function (it) { return catOf(it) === "collect"; });
+    var hasShow = items.some(function (it) { return !it.hidden && catOf(it) === "show"; });
+    var hasCollect = items.some(function (it) { return !it.hidden && catOf(it) === "collect"; });
     var chips = (hasShow && hasCollect)
       ? '<div class="shop-chips" id="shop-chips">' +
         [["all", "全部"], ["show", "聽片會"], ["collect", "收藏"]].map(function (c) {
@@ -4050,6 +4057,7 @@ window.ALBUM_SWITCH = {
         }).join("") + '</div>'
       : "";
     var cards = items.map(function (it, i) {
+      if (it.hidden) return "";
       var soldout = it.soldOut;
       var soon = (it.comingSoon != null) ? it.comingSoon : !!M.comingSoon;
       var stock = (it.limited != null)
@@ -5341,7 +5349,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B53</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B54</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
