@@ -507,6 +507,14 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
             background:#F0DCA8; box-shadow:0 0 8px 2px rgba(240,220,168,.7); opacity:.85; }
 .pass-spark.s1 { top:26%; right:12%; }
 .pass-spark.s2 { bottom:20%; right:26%; width:3px; height:3px; opacity:.7; }
+.pring { position:absolute; left:50%; top:50%; width:70px; height:70px; margin:-35px 0 0 -35px;
+            border-radius:50%; border:1.5px solid rgba(217,178,106,.55); z-index:0;
+            transform:scale(.28); opacity:0; pointer-events:none;
+            animation: pring 3.6s ease-out infinite; }
+.pring.r2 { animation-delay:1.2s; }
+.pring.r3 { animation-delay:2.4s; }
+@keyframes pring { 0%{ transform:scale(.28); opacity:0; } 12%{ opacity:.62; } 68%{ opacity:.14; } 100%{ transform:scale(3.4); opacity:0; } }
+@media (prefers-reduced-motion: reduce){ .pring{ animation:none; opacity:0; } .pnode.justlit{ animation:none; } }
 .pass-track { display:flex; align-items:center; justify-content:center; margin:10px 6px 16px; }
 .pnode { flex:none; width:19px; height:19px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
 .pnode.on { background: radial-gradient(circle at 40% 35%, #FCEDC6, #D9B26A 72%);
@@ -1620,6 +1628,7 @@ body { background: #08060C !important; }
     <div id="unlock-done-view" class="hidden">
       <div class="pass-card">
         <div class="pass-art">
+          <span class="pring r1"></span><span class="pring r2"></span><span class="pring r3"></span>
           <div class="pass-vinyl"></div>
           <img class="pass-cover" id="pass-cover" alt="">
           <span class="pass-spark s1"></span>
@@ -5441,7 +5450,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B57</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B58</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
