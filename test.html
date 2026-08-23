@@ -3921,6 +3921,7 @@ window.ALBUM_SWITCH = {
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") renderLucky();
+    if (typeof bgmLuckyStart === "function") { if (screen === "lucky") bgmLuckyStart(); else bgmLuckyStop(); }
   }
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
@@ -4677,17 +4678,49 @@ window.ALBUM_SWITCH = {
     if (btn && tk > 0) btn.addEventListener("click", doLuckDraw);
     renderLuckGrid();
   }
-  /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
+  /* B50：抽卡沈浸式音效系統。檔案放 assets/sfx/，缺檔就靜默（drop-in 即生效，不用改程式）。
+   * 一次性 cue：flip(開場) sr(SR揭曉) ssr(SSR登場) charge(蓄力按下) tension(擦過鎮池) land(停格) reveal(定格卡照)
+   * 迴圈 cue：spin(轉盤滾動) bgm-lucky(LUCKY 頁背景樂)
+   * 首播都在使用者點擊手勢內 → iOS 可出聲。 */
   var LUCK_SFX = {};
+  var SFX_VOL = { flip: 0.6, sr: 0.8, ssr: 0.92, charge: 0.72, tension: 0.78, land: 0.85, reveal: 0.85, spin: 0.55, "bgm-lucky": 0.42 };
   (function () {
     try {
-      ["flip", "sr", "ssr"].forEach(function (k) {
-        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = 0.7;
+      Object.keys(SFX_VOL).forEach(function (k) {
+        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = SFX_VOL[k];
+        if (k === "spin" || k === "bgm-lucky") a.loop = true;
         LUCK_SFX[k] = a;
       });
     } catch (e) {}
   })();
   function playSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
+  function loopSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.loop = true; if (a.paused) { try { a.currentTime = 0; } catch (_) {} a.play().catch(function () {}); } } } catch (e) {} }
+  function stopSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.pause(); try { a.currentTime = 0; } catch (_) {} } } catch (e) {} }
+  /* LUCKY 頁背景樂：進頁淡入、離頁/切分頁/切背景淡出。抽卡揭曉時壓低(duck)、結束回升。 */
+  var __bgmFade = null;
+  function bgmFadeTo(target, step) {
+    var a = LUCK_SFX["bgm-lucky"]; if (!a) return;
+    try {
+      a.loop = true;
+      if (target > 0 && a.paused) { a.play().catch(function () {}); }
+      clearInterval(__bgmFade);
+      __bgmFade = setInterval(function () {
+        var v = a.volume;
+        if (v < target) a.volume = Math.min(target, v + step);
+        else a.volume = Math.max(target, v - step);
+        if (Math.abs(a.volume - target) < 0.005) { a.volume = target; clearInterval(__bgmFade); if (target <= 0.001) { try { a.pause(); } catch (_) {} } }
+      }, 55);
+    } catch (e) {}
+  }
+  function bgmLuckyStart() { bgmFadeTo(SFX_VOL["bgm-lucky"], 0.035); }
+  function bgmLuckyStop() { bgmFadeTo(0, 0.06); }
+  function bgmDuck() { var a = LUCK_SFX["bgm-lucky"]; if (a && !a.paused) bgmFadeTo(0.10, 0.06); }
+  function bgmUnduck() { if (state && state.screen === "lucky") bgmLuckyStart(); }
+  /* App 切到背景時停背景樂，回前景且在 LUCKY 頁時續播 */
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") { try { LUCK_SFX["bgm-lucky"] && LUCK_SFX["bgm-lucky"].pause(); LUCK_SFX["spin"] && LUCK_SFX["spin"].pause(); } catch (_) {} }
+    else if (state && state.screen === "lucky") bgmLuckyStart();
+  });
 
   /* B33：首抽全螢幕影片揭曉。overlay 掛 body（脫離 app 堆疊脈絡），
    * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
@@ -4716,6 +4749,7 @@ window.ALBUM_SWITCH = {
       '<div class="hold-name">' + esc(c.title || "") + '</div>' +
       '<div class="hold-tip">點一下收進圖鑑</div>';
     document.body.appendChild(ov);
+    playSfx("reveal");                          /* 定格真卡照的揭曉 swell */
     try { unlockBurstFx(); } catch (_) {}
     hap([15, 40, 15, 40, 15, 80]);
     var closed = false;
@@ -4723,6 +4757,7 @@ window.ALBUM_SWITCH = {
       if (closed) return; closed = true;
       ov.classList.add("out");
       setTimeout(function () { ov.remove(); }, 360);
+      bgmUnduck();                              /* 收進圖鑑 → 背景樂回升 */
       lkAfterReveal(c);
     }
     ov.addEventListener("click", close);
@@ -4794,17 +4829,21 @@ window.ALBUM_SWITCH = {
     var el = document.getElementById("sl-strip");
     var skip = document.getElementById("sl-skip");
     var landed = false, tmrs = [];
-    playSfx("flip"); hap([8, 16, 8, 16]);
+    playSfx("flip"); loopSfx("spin"); hap([8, 16, 8, 16]);   /* 開場 whoosh + 轉盤滾動迴圈 */
+    /* near-miss：減速尾巴擦過鎮池卡時的緊張音（配合 2.35s 減速） */
+    if (nearMiss) tmrs.push(setTimeout(function () { if (!landed) { playSfx("tension"); hap([6, 22, 6, 22, 6]); } }, 1550));
 
     function land() {
       if (landed) return; landed = true;
       tmrs.forEach(clearTimeout);
+      stopSfx("spin");                        /* 停轉盤迴圈 */
       el.classList.remove("spin");
       el.style.transition = "none";
       el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
       ov.classList.add("land");
       var isBoss = c.id === "ssr-awaken";
-      playSfx(isBoss ? "ssr" : "sr");
+      playSfx("land");                        /* 停格 thunk（每抽都放） */
+      playSfx(isBoss ? "ssr" : "sr");         /* 稀有度揭曉：SSR 大 fanfare／其餘 SR 音 */
       hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
       document.getElementById("sl-name").textContent = c.title || "";
       tmrs.push(setTimeout(function () {
@@ -4852,9 +4891,11 @@ window.ALBUM_SWITCH = {
     } else {
       lkSlot(c, !dup, function () {
         lkFlash(c.glow || "#FFDF8E");
+        playSfx("reveal");
         var dupGain = window.__lkDup || 0;
         toast((dupGain ? "又抽到 · " : "NEW ✦ ") + (c.title || ""), 1800);
         try { unlockBurstFx(); } catch (_) {}
+        bgmUnduck();
         lkAfterReveal(c);
       });
     }
@@ -4875,6 +4916,7 @@ window.ALBUM_SWITCH = {
     lsSet(LUCK_KEY, st);
     window.__lkDup = dup ? 1 : 0;
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
+    playSfx("charge"); bgmDuck();              /* 蓄力音 + 背景樂壓低，讓揭曉更突出 */
     lkReveal(c, dup);                          /* 影片 prime 必須在此同步手勢內發生 */
   }
   function renderLuckGrid() {
@@ -5270,7 +5312,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B49</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B50</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
