@@ -1879,6 +1879,7 @@ body { background: #08060C !important; }
         <div class="pass-cta">
           <button class="pass-play" id="btn-goto-player">▶ 播放已收藏歌曲</button>
           <button class="pass-unlock hidden" id="btn-upgrade">解鎖 SIGNAL 頻道・補 NT$500</button>
+          <button class="fl-redeem hidden" id="btn-redeem-owned">已購買？輸入兌換碼</button>
         </div>
       </div>
     </div>
@@ -4365,6 +4366,10 @@ window.ALBUM_SWITCH = {
     window.open(link, "_blank");
   });
   $("btn-goto-player").addEventListener("click", function () { go("player"); });
+  /* B74：已購專輯者的兌換入口（補 500 升級後拿到的碼從這裡輸入） */
+  $("btn-redeem-owned").addEventListener("click", function () {
+    hap(8); attachRedeemForm($("btn-redeem-owned").parentNode);
+  });
   /* B28：已有專輯 → 補 500 升級全解鎖（同一套兌換碼系統，不開第二條金流） */
   $("btn-upgrade").addEventListener("click", function () {
     var P = CFG.payment || {};
@@ -4734,6 +4739,7 @@ window.ALBUM_SWITCH = {
     var fp = feedPassInfo();
     var full = (purchasedProduct() === "deluxe") || !!fp.full;
     $("btn-upgrade").classList.toggle("hidden", full);
+    $("btn-redeem-owned").classList.toggle("hidden", full);
     renderPass();
   }
 
@@ -4754,6 +4760,14 @@ window.ALBUM_SWITCH = {
   $("btn-redeem").addEventListener("click", function () {
     var email = ($("in-email").value || "").trim();
     var code = ($("in-code").value || "").trim().toUpperCase();
+    redeemAny(email, code);
+  });
+
+  /* B74：解鎖入口統一在 OWN（購買分頁）。
+     這支能處理全部五種兌換碼：the-sky-album / full-unlock / upgrade-799 / feed-pass / video-*。
+     未購者用上方表單，已購專輯者用 Pass 卡下方的「已購買？輸入兌換碼」，兩邊都走這裡。 */
+  function redeemAny(email, code) {
+    email = (email || "").trim(); code = (code || "").trim().toUpperCase();
     if (!email || !code) { toast("請輸入 email 和兌換碼"); return; }
 
     /* ⚠️ DEMO 模式：config 的 demoCodes 是「純前端」捷徑，方便展示。
@@ -4788,7 +4802,7 @@ window.ALBUM_SWITCH = {
       if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); return; }
       unlockNow({ email: email, code: code, product: data.product || "299" });
     }).catch(function () { toast("連線失敗 · 後端未回應"); });
-  });
+  }
 
 
   /* ---------- 動態牆（SIGNAL feed · 只有 Chance 發文）----------
@@ -4873,7 +4887,6 @@ window.ALBUM_SWITCH = {
             '<div class="vl-title">' + esc(m.title || "獨家影片") + '</div>' +
             '<div class="vl-sub">' + esc(m.duration || "") + '</div>' +
             '<button class="vl-buy">' + (state.unlocked ? "去 OWN 解鎖 · 補 NT$500" : "去 OWN 解鎖 · NT$799") + '</button>' +
-            '<button class="vl-redeem">已購買？輸入兌換碼</button>' +
           '</div></div>';
           return;
         }
@@ -4957,7 +4970,6 @@ window.ALBUM_SWITCH = {
         '<div class="col-until">持續更新至 2027 / 2</div>' +
         '<div class="col-price"><span class="col-price-num">' + priceNum + '</span><span class="col-price-tag">' + priceTag + '</span></div>' +
         '<button class="fl-buy col-cta">Unlock</button>' +
-        '<button class="fl-redeem col-redeem">已購買？輸入兌換碼</button>' +
       '</div>' +
     '</div>';
   }
@@ -5008,7 +5020,7 @@ window.ALBUM_SWITCH = {
       var em = (f.children[0].value || "").trim().toLowerCase();
       var cd = (f.children[1].value || "").trim().toUpperCase();
       if (!em || !cd) { toast("請輸入 email 和兌換碼"); return; }
-      redeemFeed(em, cd);
+      redeemAny(em, cd);
     });
   }
   /* B73：付費入口統一 —— FEED 只負責「看到鎖」，結帳一律回 OWN 完成。
@@ -5029,9 +5041,6 @@ window.ALBUM_SWITCH = {
   function bindFeedLock() {
     var buy = document.querySelector("#feed-body .fl-buy");
     if (buy) buy.addEventListener("click", gotoOwnUnlock);
-    document.querySelectorAll("#feed-body .fl-redeem, #feed-body .vl-redeem").forEach(function (b) {
-      b.addEventListener("click", function () { attachRedeemForm(b.parentNode); });
-    });
     document.querySelectorAll("#feed-body .vl-buy").forEach(function (b) {
       /* B73：影片不再單賣，也不在 FEED 結帳 —— 一律導回 OWN */
       b.addEventListener("click", gotoOwnUnlock);
@@ -5864,7 +5873,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B73</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B74</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
