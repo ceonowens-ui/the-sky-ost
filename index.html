@@ -1468,7 +1468,7 @@ body { background: #08060C !important; }
   border:1px solid rgba(217,178,106,.32);
   -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
   box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05); }
-.col-eyebrow{ font-family:var(--font-label); font-size:11px; line-height:1.2; letter-spacing:4px; color:rgba(217,178,106,.9); }
+.col-eyebrow{ font-family:var(--font-label); font-size:13px; line-height:1.2; letter-spacing:4px; color:rgba(217,178,106,.9); }
 .col-count{ font-family:var(--font-label); font-size:23px; line-height:1.15; letter-spacing:3px; color:#fff; margin-top:9px; }
 .col-count b{ font-family:var(--font-display); font-style:normal; font-weight:700; color:#fff; font-size:30px; margin-right:2px; }
 
@@ -4006,6 +4006,8 @@ window.ALBUM_SWITCH = {
 "完成你的 THE SKY 全收藏": "Complete your THE SKY collection",
 "獨家照片・私人語音・限定影片": "Exclusive photos · private voice · limited films",
 "持續更新至 2027 / 2": "Updating through 2027 / 2",
+"私訊頻道": "Private Channel",
+"未公開照片・語音訊息・限定影片": "Unreleased photos · voice notes · exclusive films",
 "已收藏": "Collected",
 "未收藏": "Not yet",
 "最後一格": "Last piece",
@@ -4913,11 +4915,8 @@ window.ALBUM_SWITCH = {
        金流沿用：已有專輯 → 補 500 升級（upgrade-799）；未購 → 全解鎖 799（full-unlock）。 */
     var albumOwned = state.unlocked;
     var P = CFG.payment || {};
-    var collected = albumOwned ? 1 : 0;
     var priceNum = albumOwned ? ("補 NT$" + (P.upgradePrice || 500)) : ("NT$" + (P.deluxePrice || 799));
     var priceTag = albumOwned ? "專輯收藏者限定" : "全解鎖 · 專輯＋頻道";
-    var msg = albumOwned ? "只差 SIGNAL" : "收藏 THE SKY 全套";
-    var cta = albumOwned ? "補齊最後一格" : "解鎖全收藏";
     var check = '<span class="col-check"><svg viewBox="0 0 24 24" fill="none" stroke="#191510" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
     var lock = '<span class="col-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>';
     return '<div class="col-wrap">' +
@@ -4927,7 +4926,6 @@ window.ALBUM_SWITCH = {
       '</div>' +
       '<div class="col-panel">' +
         '<div class="col-eyebrow">THE SKY COLLECTION</div>' +
-        '<div class="col-count"><b>' + collected + '</b> / 2 COLLECTED</div>' +
         '<div class="col-items">' +
           '<div class="col-item ' + (albumOwned ? "done" : "locked") + '">' +
             '<div class="col-tile sky">' +
@@ -4945,12 +4943,11 @@ window.ALBUM_SWITCH = {
             '<div class="col-state dim">最後一格</div>' +
           '</div>' +
         '</div>' +
-        '<div class="col-msg">' + msg + '</div>' +
-        '<div class="col-msg-sub">完成你的 THE SKY 全收藏</div>' +
-        '<div class="col-perks">獨家照片・私人語音・限定影片</div>' +
+        '<div class="col-msg">私訊頻道</div>' +
+        '<div class="col-perks">未公開照片・語音訊息・限定影片</div>' +
         '<div class="col-until">持續更新至 2027 / 2</div>' +
         '<div class="col-price"><span class="col-price-num">' + priceNum + '</span><span class="col-price-tag">' + priceTag + '</span></div>' +
-        '<button class="fl-buy col-cta">' + cta + '</button>' +
+        '<button class="fl-buy col-cta">Unlock</button>' +
         '<button class="fl-redeem col-redeem">已購買？輸入兌換碼</button>' +
       '</div>' +
     '</div>';
@@ -5862,7 +5859,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B71</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B72</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
