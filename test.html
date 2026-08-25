@@ -5313,7 +5313,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B51</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B75</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -5359,6 +5359,52 @@ window.ALBUM_SWITCH = {
   navigator.serviceWorker.addEventListener("controllerchange", function () {
     if (refreshed) return; refreshed = true; location.reload();
   });
+  /* __DEVPANEL__ 測試面板（只在 test.html 或 ?dev=1 顯示；正式版 index.html 永不出現。转正前把這整段刪掉） */
+  (function () {
+    try {
+      var isDev = /test\.html/i.test(location.pathname) || /[?&]dev=1/.test(location.search);
+      if (!isDev) return;
+      var UN = "album-the-sky:unlock", FP = "album-the-sky:feedpass";
+      var css = document.createElement("style");
+      css.textContent =
+        "#__devpanel{position:fixed;right:8px;bottom:98px;z-index:100000;width:184px;background:rgba(18,14,28,.95);" +
+        "border:1px solid rgba(233,199,126,.5);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px;" +
+        "backdrop-filter:blur(6px);box-shadow:0 8px 26px rgba(0,0,0,.55);font-family:system-ui,-apple-system,sans-serif;}" +
+        "#__devpanel .dvp-h{font-size:12px;letter-spacing:1.5px;color:#E9C77E;text-align:center;cursor:pointer;font-weight:700;padding:2px;}" +
+        "#__devpanel.min{width:auto;} #__devpanel.min .dvp-body{display:none;}" +
+        "#__devpanel .dvp-body{display:flex;flex-direction:column;gap:6px;}" +
+        "#__devpanel button{font-size:12.5px;padding:8px 10px;border-radius:9px;border:1px solid rgba(233,199,126,.35);" +
+        "background:rgba(233,199,126,.1);color:#F3DCAB;cursor:pointer;text-align:left;font-family:inherit;line-height:1.2;}" +
+        "#__devpanel button:active{background:rgba(233,199,126,.28);}";
+      document.head.appendChild(css);
+      var p = document.createElement("div"); p.id = "__devpanel";
+      p.innerHTML =
+        '<div class="dvp-h" data-a="toggle">測試面板 · DEV ▾</div>' +
+        '<div class="dvp-body">' +
+          '<button data-a="unlock">🔓 解鎖專輯（完整卡池＋20券）</button>' +
+          '<button data-a="tickets">🎟️ 補到 20 抽券</button>' +
+          '<button data-a="resetluck">♻️ 重置抽卡紀錄</button>' +
+          '<button data-a="resetall">🧹 全部重置（回免費用戶）</button>' +
+        '</div>';
+      document.body.appendChild(p);
+      p.addEventListener("click", function (e) {
+        var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
+        if (a === "toggle") { p.classList.toggle("min"); return; }
+        if (a === "unlock") {
+          lsSet(UN, { unlocked: true, email: "dev@test", code: "DEVTEST", product: "the-sky-album" });
+          var s1 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s1.tk = 20; s1.tday = luckToday(); lsSet(LUCK_KEY, s1);
+        } else if (a === "tickets") {
+          var s2 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s2.tk = 20; s2.tday = luckToday(); lsSet(LUCK_KEY, s2);
+        } else if (a === "resetluck") {
+          localStorage.removeItem(LUCK_KEY);
+        } else if (a === "resetall") {
+          localStorage.removeItem(UN); localStorage.removeItem(FP); localStorage.removeItem(LUCK_KEY);
+        }
+        location.reload();
+      });
+    } catch (e) {}
+  })();
+
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("sw.js").then(function (reg) {
       if (reg.waiting && navigator.serviceWorker.controller) showBanner(reg);
