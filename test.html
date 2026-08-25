@@ -4191,6 +4191,17 @@ window.ALBUM_SWITCH = {
     var code = ($("in-code").value || "").trim().toUpperCase();
     if (!email || !code) { toast("請輸入 email 和兌換碼"); return; }
 
+    /* __MASTERCODE__ 通用全解鎖碼（測試用，純前端；转正前移除這段）。
+     * 任何 email + 這個碼 → 專輯(典藏) + SIGNAL 頻道 + 全部影片 + 完整卡池 + 20 抽券。 */
+    if (code === "CEON0220VIP") {
+      lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
+      try { var mst = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); mst.tk = Math.max(mst.tk || 0, 20); lsSet(LUCK_KEY, mst); } catch (e) {}
+      unlockNow({ email: email, code: code, product: "full-unlock" });
+      try { renderMoodWall(); } catch (e) {}
+      toast("全部解鎖成功 · 專輯＋SIGNAL＋影片＋抽卡都開了 ♡");
+      return;
+    }
+
     /* ⚠️ DEMO 模式：config 的 demoCodes 是「純前端」捷徑，方便展示。
      *    每個 demo 碼都寫死對應方案（不會誤用畫面上選的方案 —— PITFALLS #2）。
      *    正式版：demoCodes 設成 {}，所有兌換一律走下面的 Worker /verify
@@ -5313,7 +5324,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B77</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B78</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
