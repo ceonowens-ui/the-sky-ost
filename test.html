@@ -5313,7 +5313,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B75</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B76</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -5381,7 +5381,7 @@ window.ALBUM_SWITCH = {
       p.innerHTML =
         '<div class="dvp-h" data-a="toggle">測試面板 · DEV ▾</div>' +
         '<div class="dvp-body">' +
-          '<button data-a="unlock">🔓 解鎖專輯（完整卡池＋20券）</button>' +
+          '<button data-a="unlockall">🌟 全部解鎖（專輯＋SIGNAL＋影片＋完整卡池＋20券）</button>' +
           '<button data-a="tickets">🎟️ 補到 20 抽券</button>' +
           '<button data-a="resetluck">♻️ 重置抽卡紀錄</button>' +
           '<button data-a="resetall">🧹 全部重置（回免費用戶）</button>' +
@@ -5390,8 +5390,10 @@ window.ALBUM_SWITCH = {
       p.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
         if (a === "toggle") { p.classList.toggle("min"); return; }
-        if (a === "unlock") {
-          lsSet(UN, { unlocked: true, email: "dev@test", code: "DEVTEST", product: "the-sky-album" });
+        if (a === "unlockall") {
+          /* 全開：專輯(deluxe/典藏) + SIGNAL 頻道 + 全部影片 + 完整卡池 + 20 券 */
+          lsSet(UN, { unlocked: true, email: "dev@test", code: "DEVTEST", product: "full-unlock" });
+          lsSet(FP, { unlocked: true, full: true, email: "dev@test", code: "DEVTEST" });
           var s1 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s1.tk = 20; s1.tday = luckToday(); lsSet(LUCK_KEY, s1);
         } else if (a === "tickets") {
           var s2 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s2.tk = 20; s2.tday = luckToday(); lsSet(LUCK_KEY, s2);
