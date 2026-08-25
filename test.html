@@ -5313,7 +5313,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B76</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B77</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -5387,20 +5387,25 @@ window.ALBUM_SWITCH = {
           '<button data-a="resetall">🧹 全部重置（回免費用戶）</button>' +
         '</div>';
       document.body.appendChild(p);
+      /* 自帶 helper：本面板在獨立 <script> 區塊，讀不到 App 內部的 lsSet/lsGet，一律用原生 localStorage */
+      var LK = "album-the-sky:luck";
+      function J(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+      function G(k, fb) { try { var v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); } catch (e) { return fb; } }
+      function today() { var d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
       p.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
         if (a === "toggle") { p.classList.toggle("min"); return; }
         if (a === "unlockall") {
           /* 全開：專輯(deluxe/典藏) + SIGNAL 頻道 + 全部影片 + 完整卡池 + 20 券 */
-          lsSet(UN, { unlocked: true, email: "dev@test", code: "DEVTEST", product: "full-unlock" });
-          lsSet(FP, { unlocked: true, full: true, email: "dev@test", code: "DEVTEST" });
-          var s1 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s1.tk = 20; s1.tday = luckToday(); lsSet(LUCK_KEY, s1);
+          J(UN, { unlocked: true, product: "full-unlock", email: "dev@test", code: "DEVTEST" });
+          J(FP, { unlocked: true, full: true, email: "dev@test", code: "DEVTEST" });
+          J(LK, { owned: {}, last: "", draws: 0, tk: 20, tday: today() });
         } else if (a === "tickets") {
-          var s2 = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); s2.tk = 20; s2.tday = luckToday(); lsSet(LUCK_KEY, s2);
+          var s2 = G(LK, { owned: {}, last: "", draws: 0 }); s2.tk = 20; s2.tday = today(); J(LK, s2);
         } else if (a === "resetluck") {
-          localStorage.removeItem(LUCK_KEY);
+          localStorage.removeItem(LK);
         } else if (a === "resetall") {
-          localStorage.removeItem(UN); localStorage.removeItem(FP); localStorage.removeItem(LUCK_KEY);
+          localStorage.removeItem(UN); localStorage.removeItem(FP); localStorage.removeItem(LK);
         }
         location.reload();
       });
