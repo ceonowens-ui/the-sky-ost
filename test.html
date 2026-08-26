@@ -3050,9 +3050,9 @@ var LUCKY_CARDS = [
   { id: "ssr-gaze", glow: "#9FD8FF",   img: "assets/cards/gaze.jpg",   video: "assets/cards/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
   { id: "ssr-vow", glow: "#F2D9A6",    img: "assets/cards/vow.jpg",    video: "assets/cards/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
   { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.jpg",  video: "assets/cards/stage.mp4",  title: "演唱會萬人迷",         rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.jpg",  video: "assets/cards/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.jpg", video: "assets/cards/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.jpg", video: "assets/cards/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 5,  tier: "member" }
+  { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.jpg",  video: "assets/cards/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19 },
+  { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.jpg", video: "assets/cards/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19 },
+  { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.jpg", video: "assets/cards/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 3,  tier: "member" }
 ];
 
 const ALBUM_LIBRARY = { "the-sky": THE_SKY, "classics": CLASSICS };
@@ -4600,7 +4600,7 @@ window.ALBUM_SWITCH = {
   var TK_DAILY = 1;          /* 每日保底發 1 張 */
   var TK_SONG_CAP = 2;       /* 聽完整首歌換券，每日上限 */
   var TK_FEED_CAP = 1;       /* 聽完 FEED 語音／看完影片換券，每日上限 */
-  var NEW_PITY = 10;   /* B33：連續 10 抽重複 → 下一抽必出未擁有的新卡 */
+  var NEW_PITY = 30;   /* B33：連續 10 抽重複 → 下一抽必出未擁有的新卡 */
   var DUST_GAIN = { N: 10, R: 25, SR: 60, SSR: 150 };
   var DUST_COST = { N: 60, R: 150, SR: 400, SSR: 900 };
   function luckCards() { return window.LUCKY_CARDS_LIVE || (typeof LUCKY_CARDS !== "undefined" ? LUCKY_CARDS : []); }
@@ -5341,7 +5341,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B79</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B80</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
