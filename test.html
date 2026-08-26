@@ -1084,6 +1084,11 @@ body { background: #08060C !important; }
   letter-spacing:.5px; opacity:0; animation:holdUp .5s ease .3s forwards; text-align:center; padding:0 24px; }
 #lk-hold .hold-tip{ margin-top:16px; font:500 13px/1 -apple-system,sans-serif; color:rgba(255,255,255,.5);
   letter-spacing:1px; opacity:0; animation:holdUp .6s ease .7s forwards; }
+#lk-hold .hold-collect{ margin-top:20px; appearance:none; -webkit-appearance:none; cursor:pointer;
+  border:1px solid var(--lkglow,#FFDF8E); background:rgba(255,215,142,.14); color:#F3DCAB;
+  font:600 15px/1 -apple-system,system-ui,sans-serif; padding:13px 32px; border-radius:999px;
+  letter-spacing:1px; opacity:0; animation:holdUp .6s ease .9s forwards; }
+#lk-hold .hold-collect:active{ background:rgba(255,215,142,.28); }
 @keyframes holdCard{ to{ transform:translateY(0) scale(1); opacity:1 } }
 @keyframes holdUp{ to{ opacity:1 } }
 
@@ -4757,9 +4762,10 @@ window.ALBUM_SWITCH = {
     ov.style.setProperty("--lkglow", glow);
     ov.innerHTML =
       '<div class="hold-badge">' + (isNew ? "NEW ✦ 獲得新卡" : "✦ 已收藏") + '</div>' +
-      '<div class="hold-card"><img src="' + esc(c.img) + '" alt=""></div>' +
+      '<div class="hold-card"><img src="' + esc(c.img) + '" alt="" style="-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto"></div>' +
       '<div class="hold-name">' + esc(c.title || "") + '</div>' +
-      '<div class="hold-tip">點一下收進圖鑑</div>';
+      '<div class="hold-tip">長按卡片可存到相簿</div>' +
+      '<button class="hold-collect">收進圖鑑</button>';
     document.body.appendChild(ov);
     playSfx("reveal");                          /* 定格真卡照的揭曉 swell */
     try { unlockBurstFx(); } catch (_) {}
@@ -4772,7 +4778,8 @@ window.ALBUM_SWITCH = {
       bgmUnduck();                              /* 收進圖鑑 → 背景樂回升 */
       lkAfterReveal(c);
     }
-    ov.addEventListener("click", close);
+    /* 點卡片本身不關閉（保留長按存圖）；點按鈕或卡片外區域才收進圖鑑 */
+    ov.addEventListener("click", function (e) { if (e.target.closest(".hold-card")) return; close(); });
     return ov;
   }
 
@@ -4785,15 +4792,23 @@ window.ALBUM_SWITCH = {
       '<button class="cine-skip">跳過 ›</button>';
     document.body.appendChild(ov);
     var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
-    var done = false, shown = false;
+    var done = false, shown = false, endTmr = null, capTmr = null;
     function finish() {
       if (done) return; done = true;
+      clearTimeout(endTmr); clearTimeout(capTmr);
       try { v.pause(); } catch (_) {}
       ov.classList.add("out"); setTimeout(function () { ov.remove(); }, 380);
       lkCardHold(c, true);          /* 影片結束 → 定格真正的卡照 */
     }
     v.addEventListener("ended", function () { if (shown) finish(); });
     v.addEventListener("error", finish);
+    /* iOS/R2 常常不觸發 ended → 進度逼近結尾＋依時長 timeout 自動收尾，絕不卡黑畫面 */
+    v.addEventListener("timeupdate", function () {
+      if (shown && v.duration && isFinite(v.duration) && v.currentTime >= v.duration - 0.3) finish();
+    });
+    v.addEventListener("loadedmetadata", function () {
+      if (shown && v.duration && isFinite(v.duration)) { clearTimeout(endTmr); endTmr = setTimeout(finish, v.duration * 1000 + 1600); }
+    });
     skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
     /* 手勢內 prime */
     try { var p0 = v.play(); if (p0 && p0.then) p0.then(function () { if (!shown) v.pause(); }).catch(function () {}); else if (!shown) v.pause(); } catch (_) {}
@@ -4806,6 +4821,8 @@ window.ALBUM_SWITCH = {
           try { v.currentTime = 0; } catch (_) {}
           var pr = v.play(); if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
           setTimeout(function () { skip.classList.add("on"); }, 1600);
+          clearTimeout(capTmr); capTmr = setTimeout(finish, 14000);                 /* 硬上限保底 */
+          if (v.duration && isFinite(v.duration)) { clearTimeout(endTmr); endTmr = setTimeout(finish, v.duration * 1000 + 1600); }
         }, 120);
       }
     };
@@ -4952,8 +4969,8 @@ window.ALBUM_SWITCH = {
         if (!c) return;
         var lb = document.createElement("div"); lb.id = "__lb";
         lb.innerHTML = (c.video
-          ? '<video playsinline preload="auto" src="' + esc(c.video) + '" style="max-width:100vw;max-height:100dvh;object-fit:contain"></video>'
-          : '<img src="' + esc(c.img) + '" alt="">') + '<button class="lb-x">✕</button>';
+          ? '<video playsinline loop preload="auto" src="' + esc(c.video) + '" style="max-width:100vw;max-height:100dvh;object-fit:contain"></video>'
+          : '<img src="' + esc(c.img) + '" alt="" style="-webkit-touch-callout:default">') + '<button class="lb-x">✕</button>';
         lb.addEventListener("click", function (e) {
           if (e.target.tagName === "VIDEO") return;   /* 點影片本身不關閉 */
           var vv = lb.querySelector("video"); if (vv) { try { vv.pause(); } catch (_) {} }
@@ -5324,7 +5341,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B78</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B79</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
