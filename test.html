@@ -4077,10 +4077,38 @@ window.ALBUM_SWITCH = {
   function goEcpay(productKey, email, name) {
     var base = (CFG.api && CFG.api.workerBaseUrl) || "";
     if (!base) { toast("後端尚未設定"); return; }
-    var u = base.replace(/\/$/, "") + "/ecpay/create?productKey=" + encodeURIComponent(productKey) +
-            "&email=" + encodeURIComponent(email) +
-            (name ? "&name=" + encodeURIComponent(name) : "");
-    window.location.href = u;   // 同分頁導轉，付完綠界會用 ClientBackURL 導回
+    var endpoint = base.replace(/\/$/, "") + "/ecpay/create";
+
+    /* B85：改用 POST 送出購買資料。
+     * 原本是整頁跳轉到 /ecpay/create?email=...&name=...，
+     * 那是 top-level navigation → 粉絲的 email（買票時還有姓名）
+     * 會留在他自己手機的瀏覽器歷史紀錄裡。改成 POST 之後網址不再帶個資。
+     * Worker 回傳的是一張「自動送出到綠界」的表單，我們取出來submit —
+     * 送到綠界的欄位本來就沒有 email，所以整條路徑都乾淨。
+     * 任何一步失敗 → 退回原本的 GET 導轉，確保購買永遠不會卡住。 */
+    function fallbackGet() {
+      window.location.href = endpoint + "?productKey=" + encodeURIComponent(productKey) +
+        "&email=" + encodeURIComponent(email) +
+        (name ? "&name=" + encodeURIComponent(name) : "");
+    }
+    try {
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },   // 避免 CORS preflight
+        body: JSON.stringify({ productKey: productKey, email: email, name: name || "" }),
+      }).then(function (r) {
+        if (!r.ok) throw 0;
+        return r.text();
+      }).then(function (html) {
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var form = doc.querySelector("form");
+        if (!form) throw 0;
+        var f = document.importNode(form, true);
+        f.style.display = "none";
+        document.body.appendChild(f);
+        f.submit();                                                 // 整頁前往綠界（網址不含個資）
+      }).catch(function () { fallbackGet(); });
+    } catch (e) { fallbackGet(); }
   }
 
   /* ---------- Email 輸入視窗 ----------
@@ -5387,7 +5415,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B84</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B85</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
