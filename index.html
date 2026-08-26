@@ -4781,7 +4781,7 @@ window.ALBUM_SWITCH = {
       lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
       try { var mst = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); mst.tk = Math.max(mst.tk || 0, 20); lsSet(LUCK_KEY, mst); } catch (e) {}
       unlockNow({ email: email, code: code, product: "full-unlock" });
-      try { renderMoodWall(); } catch (e) {}
+      try { loadLiveFeed(true); renderMoodWall(); } catch (e) {}
       toast("全部解鎖成功 · 專輯＋SIGNAL＋影片＋抽卡都開了 ♡");
       return;
     }
@@ -4807,13 +4807,13 @@ window.ALBUM_SWITCH = {
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         unlockNow({ email: email, code: code, product: "full-unlock" });
-        renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); return;
       }
       if (pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         hap([12, 30, 12, 30, 40]);
         toast("升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡");
-        renderUnlockView(); renderMoodWall(); return;
+        renderUnlockView(); loadLiveFeed(true); renderMoodWall(); return;
       }
       if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); return; }
       unlockNow({ email: email, code: code, product: data.product || "299" });
@@ -4827,6 +4827,10 @@ window.ALBUM_SWITCH = {
   var FEED = CFG.feed || {};
   var FEED_POSTS = FEED.posts || [];
   var FEED_MONTHS = FEED.monthLabels || {};
+  var FEED_LIVE_POSTS = [];
+  var feedLiveLoading = false;
+  var feedLiveLoadedAt = 0;
+  var feedLiveRequest = 0;
   var feedCat = "all";
   var FEED_MATCH = { all: function () { return true; },
     voice: function (p) { return p.type === "voice"; },
@@ -4875,9 +4879,62 @@ window.ALBUM_SWITCH = {
     return '<article class="card media">' + pin + '<div class="m-wrap">' + inner + '</div>' +
       '<div class="cap">' + esc(p.caption) + '</div>' + foot + '</article>';
   }
-  function renderMoodWall() {
+
+  /* 發文台即時貼文：由 Worker /feed/live 提供。
+   * 公開貼文不需解鎖；SIGNAL 貼文沿用既有 email + 兌換碼驗證。 */
+  function loadLiveFeed(force) {
+    if (!CFG.api || !CFG.api.workerBaseUrl) return;
+    var now = Date.now();
+    if (!force && (feedLiveLoading || (now - feedLiveLoadedAt < 15000))) return;
+    var fp = feedPassInfo();
+    var q = "";
+    if (fp.unlocked && fp.email && fp.code) {
+      q = "?e=" + encodeURIComponent(fp.email) + "&c=" + encodeURIComponent(fp.code);
+    }
+    var requestNo = ++feedLiveRequest;
+    feedLiveLoading = true;
+    fetch(CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) {
+        if (requestNo !== feedLiveRequest) return;
+        if (!d || !d.ok || !Array.isArray(d.posts)) throw 0;
+        FEED_LIVE_POSTS = d.posts;
+        feedLiveLoadedAt = Date.now();
+        renderMoodWall();
+      })
+      .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ })
+      .then(function () { if (requestNo === feedLiveRequest) feedLiveLoading = false; });
+  }
+
+  function liveMediaURL(p) {
+    var q = "key=" + encodeURIComponent(p.media || "");
+    if (p.tier === "signal") {
+      var fp = feedPassInfo();
+      q += "&e=" + encodeURIComponent(fp.email || "") + "&c=" + encodeURIComponent(fp.code || "");
+    }
+    return CFG.api.workerBaseUrl + "/feed/media?" + q;
+  }
+
+  function livePostsToChat(posts) {
+    var out = [], lastDay = "";
+    posts.slice().sort(function (a, b) { return Number(a.ts || 0) - Number(b.ts || 0); })
+      .forEach(function (p) {
+        if (!p || p.locked) return;
+        var d = new Date(Number(p.ts || Date.now()));
+        var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
+        var day = d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate());
+        if (day !== lastDay) { out.push({ day: day }); lastDay = day; }
+        else if (out.length) out.push({ gap: 1 });
+        if (p.text) out.push({ text: p.text });
+        if (p.type === "photo" && p.media) out.push({ photo: liveMediaURL(p) });
+        if (p.type === "voice" && p.media) out.push({ voice: liveMediaURL(p), id: p.id || ("live-" + p.ts) });
+      });
+    return out;
+  }
+
+  function feedChatHTML(items) {
     var out = "";
-    (typeof FEED_CHAT !== "undefined" ? FEED_CHAT : []).forEach(function (m) {
+    items.forEach(function (m) {
       if (m.day)   { out += '<div class="chat-day">' + esc(m.day) + '</div>'; return; }
       if (m.gap)   { out += '<div class="chat-gap"></div>'; return; }
       if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(m.text) + '</div></div>'; return; }
@@ -4918,16 +4975,10 @@ window.ALBUM_SWITCH = {
         return;
       }
     });
-    var __ft = document.querySelector('#screen-mood .feed-tabs');
-    if (!feedUnlockedQ()) {
-      /* 未解鎖：隱藏創作者身份列，改用「THE SKY 收藏冊・差最後一格」收藏卡 */
-      if (__ft) __ft.classList.add('hidden');
-      $("feed-body").innerHTML = feedLockCard();
-      bindFeedLock();
-      return;
-    }
-    if (__ft) __ft.classList.remove('hidden');
-    $("feed-body").innerHTML = out;
+    return out;
+  }
+
+  function bindFeedContent() {
     bindFeedVoices();
     bindFeedVideos();
     bindFeedLock();
@@ -4940,6 +4991,28 @@ window.ALBUM_SWITCH = {
         hap(8);
       });
     });
+  }
+
+  function renderMoodWall() {
+    loadLiveFeed(false);
+    var unlocked = feedUnlockedQ();
+    var live = FEED_LIVE_POSTS.filter(function (p) {
+      return p && !p.locked && (unlocked || p.tier === "public");
+    });
+    var items = (unlocked && typeof FEED_CHAT !== "undefined" ? FEED_CHAT : [])
+      .concat(livePostsToChat(live));
+    var out = feedChatHTML(items);
+    var __ft = document.querySelector('#screen-mood .feed-tabs');
+    if (!unlocked) {
+      /* 未解鎖：公開貼文照常顯示，SIGNAL 內容仍使用原本的收藏解鎖卡。 */
+      if (__ft) __ft.classList.toggle('hidden', !out);
+      $("feed-body").innerHTML = out + feedLockCard();
+      bindFeedContent();
+      return;
+    }
+    if (__ft) __ft.classList.remove('hidden');
+    $("feed-body").innerHTML = out;
+    bindFeedContent();
   }
   /* ── B25：SIGNAL 頻道付費牆（買斷）＋影片單購 ──────────────
    * localStorage：LS.feedpass = {unlocked,email,code}
@@ -5006,12 +5079,12 @@ window.ALBUM_SWITCH = {
           renderTrackLists(true); renderNowPlaying();
         }
         hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
-        renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); return;
       }
       if (pid === "feed-pass") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
         hap([12, 30, 12, 30, 40]); toast("頻道解鎖成功 · 歡迎進來 ♡");
-        renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); return;
       }
       if (/^video-/.test(pid)) {
         var v = vidsOwned(); v[pid] = { email: email, code: code }; lsSet(LS.vids, v);
@@ -5617,6 +5690,9 @@ window.ALBUM_SWITCH = {
   renderMerch();
   renderMoodWall();
   window.__renderFeed = renderMoodWall;   /* B28：讓 content.json 載入後能即時重繪 FEED */
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) loadLiveFeed(true);
+  });
   renderProgress(pos.time || 0);
 })();
 
@@ -5945,7 +6021,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B81</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B82</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
