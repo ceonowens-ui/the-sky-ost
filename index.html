@@ -1317,6 +1317,43 @@ body { background: #08060C !important; }
 #lk-slot .sl-marquee span{ font-family:var(--font-label); font-size:10.5px; letter-spacing:4px;
   color:#F7E7BC; text-shadow:0 0 10px rgba(233,196,106,.6); }
 @keyframes slBulb{ 0%,100%{ opacity:1; } 50%{ opacity:.28; } }
+/* ===== B91：實體最大獎中獎畫面 ===== */
+#lk-phys{ position:fixed; inset:0; z-index:118500; display:flex; align-items:center; justify-content:center;
+  padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
+  background:radial-gradient(ellipse at 50% 30%, rgba(46,27,74,.92), rgba(5,3,10,.98) 78%);
+  animation:cineIn .34s ease; overflow-y:auto; }
+#lk-phys.out{ opacity:0; transition:opacity .35s ease; }
+#lk-phys .pz-inner{ width:100%; max-width:440px; text-align:center; }
+#lk-phys .pz-eyebrow{ font-family:var(--font-label); font-size:11px; letter-spacing:4px; color:#F7E7BC;
+  text-shadow:0 0 12px rgba(233,196,106,.6); }
+#lk-phys .pz-title{ font-family:var(--font-serif-tc); font-size:24px; font-weight:700; color:#fff; margin-top:8px;
+  letter-spacing:2px; text-shadow:0 0 22px var(--lkglow,#B78CFF); }
+#lk-phys .pz-cards{ display:flex; gap:12px; justify-content:center; margin:18px 0 4px; }
+#lk-phys .pz-card{ width:44%; max-width:180px; border-radius:12px; aspect-ratio:2/3; object-fit:cover;
+  box-shadow:0 14px 34px rgba(0,0,0,.6), 0 0 22px rgba(233,196,106,.4); animation:cardFloat 3s ease-in-out infinite; }
+#lk-phys .pz-card:nth-child(2){ animation-delay:.5s; }
+#lk-phys .pz-desc{ font-family:var(--font-serif-tc); font-size:14px; line-height:1.7; color:rgba(255,255,255,.82);
+  margin:14px 6px 0; }
+#lk-phys .pz-desc b{ color:#F7E7BC; }
+#lk-phys .pz-body{ margin-top:16px; }
+#lk-phys .pz-form{ display:flex; flex-direction:column; gap:9px; }
+#lk-phys .pz-form input, #lk-phys .pz-form textarea{ width:100%; padding:13px 14px; border-radius:13px;
+  border:1px solid rgba(247,231,188,.28); background:rgba(255,255,255,.06); color:#fff;
+  font-family:var(--font-serif-tc); font-size:14.5px; -webkit-appearance:none; resize:none; box-sizing:border-box; }
+#lk-phys .pz-form input::placeholder, #lk-phys .pz-form textarea::placeholder{ color:rgba(255,255,255,.42); }
+#lk-phys .pz-submit{ margin-top:5px; padding:15px; border:none; border-radius:15px; cursor:pointer;
+  background:linear-gradient(100deg,#E9C77E 0%,#F7E7BC 48%,#D6A748 100%); color:#2a1e08;
+  font-family:var(--font-serif-tc); font-size:15.5px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 12px 28px rgba(217,178,106,.42); }
+#lk-phys .pz-submit:disabled{ opacity:.6; }
+#lk-phys .pz-skip{ padding:11px; border:none; background:none; cursor:pointer;
+  color:rgba(255,255,255,.55); font-size:12.5px; text-decoration:underline; text-underline-offset:3px; }
+#lk-phys .pz-done{ font-family:var(--font-serif-tc); font-size:16px; line-height:1.7; color:#fff; padding:8px 6px 4px; }
+#lk-phys .pz-done span{ font-size:13px; color:rgba(255,255,255,.65); }
+#lk-phys .pz-done.sold b{ color:#F7E7BC; }
+#lk-phys .pz-close{ display:block; width:100%; margin-top:16px; padding:15px; border:none; border-radius:15px; cursor:pointer;
+  background:linear-gradient(100deg,#E9C77E,#F7E7BC 48%,#D6A748); color:#2a1e08;
+  font-family:var(--font-serif-tc); font-size:15px; font-weight:700; letter-spacing:2px; }
 /* ===== DEV-RESET（B89 測試用，明天正式版整段刪掉）===== */
 #screen-lucky .lk-devreset{ display:block; width:calc(100% - 44px); margin:18px 22px 0;
   padding:12px; border-radius:13px; cursor:pointer;
@@ -3447,7 +3484,7 @@ var LUCKY_CARDS = [
    * w = 抽中權重；tier:"member" 免費用戶抽不到；video = 首次取得播放的抽卡動畫 */
   { id: "ssr-gaze", glow: "#9FD8FF",   img: "assets/cards/gaze.jpg",   video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
   { id: "ssr-vow", glow: "#F2D9A6",    img: "assets/cards/vow.jpg",    video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.jpg",  video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/stage.mp4",  title: "演唱會萬人迷",         rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.jpg?v=b91",  img2: "assets/cards/stage-b.jpg?v=b91",  title: "最大獎 · 實體限定卡",  rarity: "SSR", w: 19, tier: "member", physical: true },
   { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.jpg",  video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19 },
   { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.jpg", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19 },
   { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.jpg", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 3,  tier: "member" }
@@ -5334,6 +5371,8 @@ window.ALBUM_SWITCH = {
    * 資格：免費也能每日 1 抽（只抽得到 N 卡，SR/SSR 圖鑑模糊誘餌）；
    *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
   var LUCK_KEY = "album-the-sky:luck";
+  var PHYSICAL_ID = "ssr-stage";                    /* B91：實體最大獎＝集滿最後一張 */
+  var PHYS_CLAIM_KEY = "album-the-sky:physclaim";   /* B91：實體卡領取紀錄（本機）*/
   var LUCK_RATES = [["SSR", 3], ["SR", 12], ["R", 25], ["N", 60]];
   /* B32 抽卡迴圈參數 */
   var TK_CAP = 5;            /* 券上限：不來就浪費，製造每天回訪的理由 */
@@ -5385,6 +5424,13 @@ window.ALBUM_SWITCH = {
   function luckPick(member, st) {
     var pool = luckCards().filter(function (c) { return member || c.tier !== "member"; });
     if (!pool.length) return null;
+    /* B91：實體最大獎＝集滿最後一張。其他卡沒收滿前不亂入；全滿且未擁有→保證抽出（大結局）。 */
+    if (pool.some(function (c) { return c.id === PHYSICAL_ID; })) {
+      var _others = pool.filter(function (c) { return c.id !== PHYSICAL_ID; });
+      var _allOthers = _others.length && _others.every(function (c) { return st.owned[c.id]; });
+      if (_allOthers && !st.owned[PHYSICAL_ID]) return pool.filter(function (c) { return c.id === PHYSICAL_ID; })[0];
+      pool = _others;
+    }
     var fresh = pool.filter(function (c) { return !st.owned[c.id]; });
     /* 新卡保底：連續 NEW_PITY 抽重複 → 這抽保證抽未擁有的 */
     if (fresh.length && (st.pNew || 0) >= NEW_PITY) pool = fresh;
@@ -5457,17 +5503,31 @@ window.ALBUM_SWITCH = {
     if (btn && tk > 0) btn.addEventListener("click", doLuckDraw);
     /* DEV-RESET（B89 測試用，明天正式版連同 CSS 一起刪）*/
     $("lucky-cta").insertAdjacentHTML("beforeend",
-      '<button class="lk-devreset" id="lk-devreset">🔄 重置抽卡（測試用・上線前移除）</button>');
+      '<button class="lk-devreset" id="lk-devreset">🔄 重置抽卡（測試用・上線前移除）</button>' +
+      '<button class="lk-devreset" id="lk-devfinale" style="margin-top:8px">🎯 測試最大獎（集滿其他卡・下一抽出）</button>');
     var dv = $("lk-devreset");
     if (dv) dv.addEventListener("click", lkDevReset);
+    var df = $("lk-devfinale");
+    if (df) df.addEventListener("click", lkDevFinale);
     renderLuckGrid();
   }
   /* DEV-RESET handler（B89 測試用，明天正式版刪）：清空圖鑑＋補到 20 張券，
      draws 歸零 → 首抽全螢幕動畫、新卡影片都能重測。 */
   function lkDevReset() {
     lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0, pNew: 0, dust: 0, eSong: 0, eFeed: 0, tk: 20, tday: luckToday() });
+    lsSet(PHYS_CLAIM_KEY, {});
     hap([10, 30, 10]);
     toast("已重置 · 20 張券、圖鑑清空（測試用）", 1600);
+    renderLucky();
+  }
+  /* DEV（B91 測試用，明天正式版刪）：集滿其他卡，下一抽保證是最大獎 */
+  function lkDevFinale() {
+    var o = {};
+    luckCards().forEach(function (c) { if (c.id !== PHYSICAL_ID) o[c.id] = 1; });
+    lsSet(LUCK_KEY, { owned: o, last: "", draws: 5, pNew: 0, dust: 0, eSong: 0, eFeed: 0, tk: 5, tday: luckToday() });
+    lsSet(PHYS_CLAIM_KEY, {});
+    hap([10, 30, 10]);
+    toast("已集滿其他卡 · 下一抽就是最大獎（測試用）", 1800);
     renderLucky();
   }
   /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
@@ -5710,7 +5770,9 @@ window.ALBUM_SWITCH = {
         return Math.random() < 0.25;
       } catch (e) { return Math.random() < 0.25; }
     })();
-    if (!dup && c.video) {
+    if (!dup && c.physical) {                  /* B91：實體最大獎 → 不播影片，跳中獎領取畫面 */
+      lkSlot(c, nm, function () { lkPhysicalWin(c); });
+    } else if (!dup && c.video) {
       var vid = lkBuildVideo(c);               /* 手勢內 prime */
       lkSlot(c, nm, function () { vid.reveal(); });
     } else {
@@ -5722,6 +5784,84 @@ window.ALBUM_SWITCH = {
         lkAfterReveal(c);
       });
     }
+  }
+
+  /* ===== B91：實體最大獎中獎畫面（集滿最後一張）=====
+   * 200 份全球上限＋收件資訊由 Worker /claim-physical 處理；
+   * 端點未部署／連線失敗 → 先存本機，客服再對，畫面照樣完成。 */
+  function lkPhysicalWin(c) {
+    var claimed = lsGet(PHYS_CLAIM_KEY, null);
+    var ov = document.createElement("div"); ov.id = "lk-phys";
+    ov.style.setProperty("--lkglow", c.glow || "#B78CFF");
+    ov.innerHTML =
+      '<div class="pz-inner">' +
+        '<div class="pz-eyebrow">✦ 集滿 · GRAND PRIZE ✦</div>' +
+        '<div class="pz-title">最大獎 · 實體限定卡</div>' +
+        '<div class="pz-cards">' +
+          '<img class="pz-card" src="' + esc(c.img) + '" alt="" decoding="async">' +
+          '<img class="pz-card" src="' + esc(c.img2 || c.img) + '" alt="" decoding="async">' +
+        '</div>' +
+        '<div class="pz-desc">恭喜集滿 THE SKY 全圖鑑！<br>前 <b>200</b> 名可獲得 <b>實體黑白典藏卡 ×2</b> 寄到家。</div>' +
+        '<div class="pz-body"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    try { unlockBurstFx(); } catch (_) {}
+    hap([15, 40, 15, 40, 15, 90]);
+    var body = ov.querySelector(".pz-body");
+    function byId(id) { return document.getElementById(id); }
+    function close() { ov.classList.add("out"); setTimeout(function () { ov.remove(); }, 360); lkAfterReveal(c); }
+    function bindClose() { var b = ov.querySelector(".pz-close"); if (b) b.addEventListener("click", close); }
+    function renderClaimed(info) {
+      body.innerHTML = '<div class="pz-done">✓ 已登記領取' + (info && info.number ? '（第 ' + info.number + ' 位）' : '') +
+        '<br><span>實體卡會依你填的地址寄出，客服會再與你確認 ♡</span></div>' +
+        '<button class="pz-close">收進圖鑑 · 完成</button>';
+      bindClose();
+    }
+    function renderSoldOut() {
+      body.innerHTML = '<div class="pz-done sold">實體卡 200 份已送完 · 這張為<b>數位典藏卡</b><br><span>一樣是你集滿的證明 ♡</span></div>' +
+        '<button class="pz-close">收進圖鑑 · 完成</button>';
+      bindClose();
+    }
+    function fallbackStore(payload) {
+      lsSet(PHYS_CLAIM_KEY, { pending: true, email: payload.email, data: payload });
+      renderClaimed({ number: null });
+    }
+    function submitClaim() {
+      var email = (byId("pz-email").value || "").trim().toLowerCase();
+      var name = (byId("pz-name").value || "").trim();
+      var phone = (byId("pz-phone").value || "").trim();
+      var addr = (byId("pz-addr").value || "").trim();
+      if (!EMAIL_RE.test(email)) { toast("請填正確 Email"); return; }
+      if (!name || !phone || !addr) { toast("姓名、手機、地址都要填喔"); return; }
+      var btn = ov.querySelector(".pz-submit"); btn.disabled = true; btn.textContent = "送出中…";
+      var payload = { email: email, name: name, phone: phone, address: addr };
+      var base = (CFG.api && CFG.api.workerBaseUrl) || "";
+      if (!base) { fallbackStore(payload); return; }
+      fetch(base + "/claim-physical", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok && d.physical) { var info = { number: d.number, email: email }; lsSet(PHYS_CLAIM_KEY, info); renderClaimed(info); }
+          else if (d && d.ok && d.physical === false) { lsSet(PHYS_CLAIM_KEY, { soldout: true, email: email }); renderSoldOut(); }
+          else { fallbackStore(payload); }
+        })
+        .catch(function () { fallbackStore(payload); });
+    }
+    function renderForm() {
+      body.innerHTML =
+        '<div class="pz-form">' +
+          '<input id="pz-email" type="email" placeholder="Email" autocapitalize="off" autocomplete="email">' +
+          '<input id="pz-name" type="text" placeholder="收件人姓名" autocomplete="name">' +
+          '<input id="pz-phone" type="tel" placeholder="手機（配送聯絡用）" autocomplete="tel">' +
+          '<textarea id="pz-addr" rows="2" placeholder="完整收件地址（郵遞區號＋縣市＋詳細地址）" autocomplete="street-address"></textarea>' +
+          '<button class="pz-submit">送出 · 領取實體卡</button>' +
+          '<button class="pz-skip">先跳過，之後在圖鑑補領</button>' +
+        '</div>';
+      ov.querySelector(".pz-submit").addEventListener("click", submitClaim);
+      ov.querySelector(".pz-skip").addEventListener("click", close);
+    }
+    if (claimed && (claimed.number || claimed.pending)) renderClaimed(claimed);
+    else if (claimed && claimed.soldout) renderSoldOut();
+    else renderForm();
   }
 
   var __lkBusy = false;                     /* B81：防重入（快速連點／重複監聽都只算一抽）*/
@@ -6137,7 +6277,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B90</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B91</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
