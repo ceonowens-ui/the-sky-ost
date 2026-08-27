@@ -1317,6 +1317,13 @@ body { background: #08060C !important; }
 #lk-slot .sl-marquee span{ font-family:var(--font-label); font-size:10.5px; letter-spacing:4px;
   color:#F7E7BC; text-shadow:0 0 10px rgba(233,196,106,.6); }
 @keyframes slBulb{ 0%,100%{ opacity:1; } 50%{ opacity:.28; } }
+/* ===== DEV-RESET（B89 測試用，明天正式版整段刪掉）===== */
+#screen-lucky .lk-devreset{ display:block; width:calc(100% - 44px); margin:18px 22px 0;
+  padding:12px; border-radius:13px; cursor:pointer;
+  background:rgba(232,120,120,.08); border:1px dashed rgba(232,120,120,.5);
+  color:rgba(255,180,180,.9); font-family:var(--font-serif-tc); font-size:13px; letter-spacing:1px;
+  -webkit-tap-highlight-color:transparent; }
+#screen-lucky .lk-devreset:active{ transform:scale(.99); }
 #lk-slot .sl-lever{ position:absolute; right:-13px; top:50%; width:9px; height:66px; transform:translateY(-50%);
   border-radius:6px; background:linear-gradient(#D9B26A,#8a6528 60%,#5a3f18);
   box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.35); }
@@ -5448,7 +5455,20 @@ window.ALBUM_SWITCH = {
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
     var btn = $("lk-draw");
     if (btn && tk > 0) btn.addEventListener("click", doLuckDraw);
+    /* DEV-RESET（B89 測試用，明天正式版連同 CSS 一起刪）*/
+    $("lucky-cta").insertAdjacentHTML("beforeend",
+      '<button class="lk-devreset" id="lk-devreset">🔄 重置抽卡（測試用・上線前移除）</button>');
+    var dv = $("lk-devreset");
+    if (dv) dv.addEventListener("click", lkDevReset);
     renderLuckGrid();
+  }
+  /* DEV-RESET handler（B89 測試用，明天正式版刪）：清空圖鑑＋補到 20 張券，
+     draws 歸零 → 首抽全螢幕動畫、新卡影片都能重測。 */
+  function lkDevReset() {
+    lsSet(LUCK_KEY, { owned: {}, last: "", draws: 0, pNew: 0, dust: 0, eSong: 0, eFeed: 0, tk: 20, tday: luckToday() });
+    hap([10, 30, 10]);
+    toast("已重置 · 20 張券、圖鑑清空（測試用）", 1600);
+    renderLucky();
   }
   /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
   var LUCK_SFX = {};
@@ -6117,7 +6137,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B88</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B89</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
