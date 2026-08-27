@@ -1304,6 +1304,28 @@ body { background: #08060C !important; }
 #lk-slot.land .sl-glow{ opacity:1; }
 #lk-slot.land .sl-win{ animation:slLand .42s cubic-bezier(.2,1.5,.35,1); }
 @keyframes slLand{ 0%{ transform:scale(1) } 42%{ transform:scale(1.08) } 100%{ transform:scale(1) } }
+/* ===== B88：拉霸機台框（金屬邊框＋跑馬燈＋拉桿）—— 只在抽卡揭曉時出現 ===== */
+#lk-slot .sl-cab{ position:relative; padding:15px 15px 17px; border-radius:24px;
+  background:linear-gradient(180deg,#2c1d40 0%,#171021 55%,#0e0817 100%);
+  box-shadow:0 0 0 2px rgba(247,231,188,.92), 0 0 0 7px rgba(120,88,38,.55),
+             0 0 34px rgba(233,196,106,.28), 0 22px 60px rgba(0,0,0,.72),
+             inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 26px rgba(120,80,150,.22); }
+#lk-slot .sl-marquee{ display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; }
+#lk-slot .sl-marquee i{ width:7px; height:7px; border-radius:50%; background:#FFE9AE;
+  box-shadow:0 0 8px #FFDF8E, 0 0 15px rgba(255,223,142,.75); animation:slBulb 1s ease-in-out infinite; }
+#lk-slot .sl-marquee i:nth-child(2n){ animation-delay:.5s; }
+#lk-slot .sl-marquee span{ font-family:var(--font-label); font-size:10.5px; letter-spacing:4px;
+  color:#F7E7BC; text-shadow:0 0 10px rgba(233,196,106,.6); }
+@keyframes slBulb{ 0%,100%{ opacity:1; } 50%{ opacity:.28; } }
+#lk-slot .sl-lever{ position:absolute; right:-13px; top:50%; width:9px; height:66px; transform:translateY(-50%);
+  border-radius:6px; background:linear-gradient(#D9B26A,#8a6528 60%,#5a3f18);
+  box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.35); }
+#lk-slot .sl-lever .sl-knob{ position:absolute; top:-13px; left:50%; width:23px; height:23px; margin-left:-11.5px;
+  border-radius:50%; background:radial-gradient(circle at 38% 32%,#F7E7BC,#C9303A 74%);
+  box-shadow:0 0 12px rgba(233,196,106,.6), inset 0 -2px 4px rgba(0,0,0,.35); }
+#lk-slot.land .sl-lever{ transform:translateY(-50%) rotate(0); }
+#lk-slot .sl-win{ box-shadow:0 0 0 2px rgba(0,0,0,.55), inset 0 0 0 1px rgba(247,231,188,.35), 0 0 26px rgba(0,0,0,.6); }
+@media (prefers-reduced-motion: reduce){ #lk-slot .sl-marquee i{ animation:none; } }
 #lk-slot .sl-name{ margin-top:20px; font-family:var(--font-serif-tc); font-size:16px; color:#fff;
   opacity:0; transition:opacity .3s ease .1s; text-align:center; min-height:24px; letter-spacing:.5px; }
 #lk-slot.land .sl-name{ opacity:1; }
@@ -1567,6 +1589,17 @@ body { background: #08060C !important; }
 
 /* ── B29：LUCKY 每日抽卡 · 球體開艙揭曉 ───────────────── */
 #screen-lucky{ padding-bottom:calc(130px + env(safe-area-inset-bottom)); }
+/* ===== B88：LUCKY 背景（演唱會聚光，放 R2）＋壓暗漸層 =====
+ * 圖片：https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/lucky-bg.jpg
+ * 沒上傳前 url 404 → 只留壓暗漸層蓋在原本的紫色 radial 上，畫面不會壞。 */
+#screen-lucky::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(6,4,10,.86) 0%, rgba(8,5,13,.46) 24%, rgba(8,5,13,.5) 52%, rgba(6,4,10,.9) 100%),
+    radial-gradient(120% 60% at 50% 6%, rgba(59,27,84,.42), transparent 60%),
+    url("https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/lucky-bg.jpg") center top / cover no-repeat;
+}
+#screen-lucky > *{ position:relative; z-index:1; }
 #lucky-stage{ position:relative; display:flex; flex-direction:column; align-items:center; padding:2px 24px 0; }
 
 /* 星海舞台 */
@@ -5538,8 +5571,13 @@ window.ALBUM_SWITCH = {
     for (var i = 0; i < seq.length; i++)
       strip += '<div class="sl-card" style="height:' + H + 'px"><img src="' + esc(seq[i].img) + '" alt=""></div>';
     strip += '</div>';
-    ov.innerHTML = '<div class="sl-win" style="width:' + W + 'px;height:' + H + 'px">' + strip +
-      '<div class="sl-glow"></div></div>' +
+    /* B88：機台框 —— 金屬外殼＋頂部跑馬燈＋右側拉桿，讓抽卡有真拉霸機感 */
+    ov.innerHTML = '<div class="sl-cab">' +
+        '<div class="sl-marquee"><i></i><i></i><i></i><span>THE SKY</span><i></i><i></i><i></i></div>' +
+        '<div class="sl-win" style="width:' + W + 'px;height:' + H + 'px">' + strip +
+          '<div class="sl-glow"></div></div>' +
+        '<div class="sl-lever"><span class="sl-knob"></span></div>' +
+      '</div>' +
       '<div class="sl-name" id="sl-name"></div>' +
       '<button class="cine-skip" id="sl-skip">跳過 ›</button>';
     document.body.appendChild(ov);
@@ -6079,7 +6117,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B87</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B88</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
