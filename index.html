@@ -1332,6 +1332,9 @@ body { background: #08060C !important; }
 #lk-phys .pz-card{ width:44%; max-width:180px; border-radius:12px; aspect-ratio:2/3; object-fit:cover;
   box-shadow:0 14px 34px rgba(0,0,0,.6), 0 0 22px rgba(233,196,106,.4); animation:cardFloat 3s ease-in-out infinite; }
 #lk-phys .pz-card:nth-child(2){ animation-delay:.5s; }
+#lk-phys .pz-cardwrap{ display:flex; flex-direction:column; align-items:center; gap:6px; width:44%; max-width:180px; }
+#lk-phys .pz-cardwrap .pz-card{ width:100%; max-width:none; }
+#lk-phys .pz-cardwrap span{ font-family:var(--font-serif-tc); font-size:11.5px; letter-spacing:1px; color:rgba(247,231,188,.9); }
 #lk-phys .pz-desc{ font-family:var(--font-serif-tc); font-size:14px; line-height:1.7; color:rgba(255,255,255,.82);
   margin:14px 6px 0; }
 #lk-phys .pz-desc b{ color:#F7E7BC; }
@@ -5668,7 +5671,7 @@ window.ALBUM_SWITCH = {
     var skip = document.getElementById("sl-skip");
     /* B94：實體大獎落定後，全屏卡停留 5 秒且不給跳過（強制看完再跳表單）*/
     var HOLD_MS = c.physical ? 5000 : 720;
-    if (c.physical && skip) skip.style.display = "none";
+    if (c.physical && skip) { skip.remove(); skip = null; }
     var landed = false, tmrs = [];
     playSfx("flip"); hap([8, 16, 8, 16]);
 
@@ -5683,13 +5686,24 @@ window.ALBUM_SWITCH = {
       playSfx(isBoss ? "ssr" : "sr");
       hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
       document.getElementById("sl-name").textContent = c.title || "";
+      if (c.physical && c.img2) {                 /* B95：全屏卡中途翻成金色黑白版，兩版都全屏呈現 */
+        var _tc = el.children[tgt], _tim = _tc && _tc.querySelector("img");
+        if (_tim) tmrs.push(setTimeout(function () {
+          _tim.style.transition = "opacity .4s ease, transform .4s ease";
+          _tim.style.opacity = "0"; _tim.style.transform = "scale(1.04)";
+          setTimeout(function () {
+            _tim.src = c.img2; _tim.style.opacity = "1"; _tim.style.transform = "scale(1)";
+            var _nm = document.getElementById("sl-name"); if (_nm) _nm.textContent = "限量黑白版 · 實體寄送到家";
+          }, 400);
+        }, 2500));
+      }
       tmrs.push(setTimeout(function () {
         ov.classList.add("out");
         setTimeout(function () { ov.remove(); }, 360);
         if (onLand) onLand();
       }, HOLD_MS));
     }
-    skip.addEventListener("click", function (e) { e.stopPropagation(); land(); });
+    if (skip) skip.addEventListener("click", function (e) { e.stopPropagation(); land(); });
 
     /* B87：兩段式拉霸 —— 先高速等速 whir（真正的速度感），再重煞停在目標卡。
      * 舊版整段都在減速、1.9~3.2s 太短沒有遊戲感；改成 cruise(高速)+brake(煞停)，
@@ -5804,8 +5818,8 @@ window.ALBUM_SWITCH = {
         '<div class="pz-eyebrow">✦ LIMITED · GRAND PRIZE ✦</div>' +
         '<div class="pz-title">恭喜你抽到限量實體卡</div>' +
         '<div class="pz-cards">' +
-          '<img class="pz-card" src="' + esc(c.img) + '" alt="" decoding="async">' +
-          '<img class="pz-card" src="' + esc(c.img2 || c.img) + '" alt="" decoding="async">' +
+          '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(c.img) + '" alt="" decoding="async"><span>數位版</span></div>' +
+          '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(c.img2 || c.img) + '" alt="" decoding="async"><span>實體黑白版</span></div>' +
         '</div>' +
         '<div class="pz-desc">你抽中了 THE SKY <b>限量實體卡</b>（集滿全圖鑑）！<br>前 <b>200</b> 名可獲得 <b>實體黑白典藏卡 ×2</b> 寄到家。</div>' +
         '<div class="pz-body"></div>' +
@@ -6284,7 +6298,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B94</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B95</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
