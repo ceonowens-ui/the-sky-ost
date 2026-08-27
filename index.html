@@ -5770,8 +5770,8 @@ window.ALBUM_SWITCH = {
         return Math.random() < 0.25;
       } catch (e) { return Math.random() < 0.25; }
     })();
-    if (!dup && c.physical) {                  /* B91：實體最大獎 → 不播影片，跳中獎領取畫面 */
-      lkSlot(c, nm, function () { lkPhysicalWin(c); });
+    if (!dup && c.physical) {                  /* B91：實體最大獎 → 不播影片、不近失，跳中獎領取畫面 */
+      lkSlot(c, false, function () { lkPhysicalWin(c); });
     } else if (!dup && c.video) {
       var vid = lkBuildVideo(c);               /* 手勢內 prime */
       lkSlot(c, nm, function () { vid.reveal(); });
@@ -5795,13 +5795,13 @@ window.ALBUM_SWITCH = {
     ov.style.setProperty("--lkglow", c.glow || "#B78CFF");
     ov.innerHTML =
       '<div class="pz-inner">' +
-        '<div class="pz-eyebrow">✦ 集滿 · GRAND PRIZE ✦</div>' +
-        '<div class="pz-title">最大獎 · 實體限定卡</div>' +
+        '<div class="pz-eyebrow">✦ LIMITED · GRAND PRIZE ✦</div>' +
+        '<div class="pz-title">恭喜你抽到限量實體卡</div>' +
         '<div class="pz-cards">' +
           '<img class="pz-card" src="' + esc(c.img) + '" alt="" decoding="async">' +
           '<img class="pz-card" src="' + esc(c.img2 || c.img) + '" alt="" decoding="async">' +
         '</div>' +
-        '<div class="pz-desc">恭喜集滿 THE SKY 全圖鑑！<br>前 <b>200</b> 名可獲得 <b>實體黑白典藏卡 ×2</b> 寄到家。</div>' +
+        '<div class="pz-desc">你抽中了 THE SKY <b>限量實體卡</b>（集滿全圖鑑）！<br>前 <b>200</b> 名可獲得 <b>實體黑白典藏卡 ×2</b> 寄到家。</div>' +
         '<div class="pz-body"></div>' +
       '</div>';
     document.body.appendChild(ov);
@@ -6277,7 +6277,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B91</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B92</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
