@@ -5524,7 +5524,7 @@ window.ALBUM_SWITCH = {
     var H = Math.round(W * 1.6);
     /* 序列：一堆亂序 + near-miss(鎮池) + 目標(最後一格) */
     var seq = [];
-    for (var k = 0; k < 22; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
+    for (var k = 0; k < 30; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
     var boss = null;
     for (var b = 0; b < cards.length; b++) if (cards[b].id === "ssr-awaken") boss = cards[b];
     if (nearMiss && boss && boss.id !== c.id) seq.push(boss);
@@ -5567,27 +5567,55 @@ window.ALBUM_SWITCH = {
     }
     skip.addEventListener("click", function (e) { e.stopPropagation(); land(); });
 
-    /* B81：轉盤手感隨機化 —— 停的時間 1.9~3.2s 每次不同（固定時長大腦會習慣）；
-     * 付費者近失時有機率「假停」在鎮池卡上再滑一格（免費用戶不做假停，不逗弄抽不到的卡）。 */
-    var DUR = 1.9 + Math.random() * 1.3;
+    /* B87：兩段式拉霸 —— 先高速等速 whir（真正的速度感），再重煞停在目標卡。
+     * 舊版整段都在減速、1.9~3.2s 太短沒有遊戲感；改成 cruise(高速)+brake(煞停)，
+     * 全程約 3.4~3.9s，尾端 tick 進目標格。近失假停、跳過、防重入全部沿用。 */
     var FAKE = nearMiss && luckMemberQ() && tgt >= 1 && Math.random() < 0.35;
     var stopAt = FAKE ? tgt - 1 : tgt;
-    requestAnimationFrame(function () { requestAnimationFrame(function () {
-      el.style.transition = "transform " + DUR.toFixed(2) + "s cubic-bezier(.15,.85,.23,1)";
-      el.style.transform = "translateY(" + (-(stopAt * H)) + "px)";
-    }); });
-    tmrs.push(setTimeout(function () { el.classList.remove("spin"); }, DUR * 830)); /* 尾端轉銳利 */
-    if (FAKE) {
-      tmrs.push(setTimeout(function () {
-        if (landed) return;
-        hap([7, 20]);                                    /* 假停的頓點 */
-        el.style.transition = "transform .5s cubic-bezier(.3,1.35,.4,1)";
+    var REDUCE = false;
+    try { REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+    if (REDUCE) {                                        /* 減動：不甩、直接短滑定格 */
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        el.style.transition = "transform .45s ease-out";
         el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
-        tmrs.push(setTimeout(land, 540));
-      }, DUR * 1000 + 340));
-    } else {
-      tmrs.push(setTimeout(land, DUR * 1000 + 40));
+      }); });
+      el.classList.remove("spin"); el.style.filter = "none";
+      tmrs.push(setTimeout(land, 520));
+      return;
     }
+
+    var CRUISE = 1.5;                                    /* 高速段：等速甩過整條卡池 */
+    var BRAKE  = 1.9 + Math.random() * 0.5;              /* 煞停段：每次略不同，避免大腦習慣 */
+    var cruiseAt = Math.max(0, tgt - 5);                 /* 高速段先滾到「離目標 5 張」交棒給煞停 */
+
+    /* Phase 1：launch → 高速等速（尾端微鬆，好接煞停），中段給更重的動態模糊 */
+    el.style.filter = "blur(4px) brightness(1.1)";
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      el.style.transition = "transform " + CRUISE.toFixed(2) + "s cubic-bezier(.22,.60,.40,.82)";
+      el.style.transform  = "translateY(" + (-(cruiseAt * H)) + "px)";
+    }); });
+    tmrs.push(setTimeout(function () { el.style.filter = "blur(2px) brightness(1.05)"; }, CRUISE * 700));
+
+    /* Phase 2：重煞停到目標，尾端關模糊、卡面轉銳利 */
+    tmrs.push(setTimeout(function () {
+      if (landed) return;
+      playSfx("flip"); hap([6, 14, 6]);
+      el.style.transition = "transform " + BRAKE.toFixed(2) + "s cubic-bezier(.09,.66,.12,1)";
+      el.style.transform  = "translateY(" + (-(stopAt * H)) + "px)";
+      tmrs.push(setTimeout(function () { el.classList.remove("spin"); el.style.filter = "none"; }, BRAKE * 820));
+      if (FAKE) {
+        tmrs.push(setTimeout(function () {
+          if (landed) return;
+          hap([7, 20]);                                  /* 假停的頓點 → 再滑一格進目標 */
+          el.style.transition = "transform .55s cubic-bezier(.3,1.35,.4,1)";
+          el.style.transform  = "translateY(" + (-(tgt * H)) + "px)";
+          tmrs.push(setTimeout(land, 580));
+        }, BRAKE * 1000 + 360));
+      } else {
+        tmrs.push(setTimeout(land, BRAKE * 1000 + 40));
+      }
+    }, CRUISE * 1000));
   }
 
   /* 抽卡後 UI 統一更新（進度／券／星塵／保底／圖鑑／再抽按鈕） */
@@ -6051,7 +6079,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B86</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B87</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
