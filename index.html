@@ -5666,6 +5666,9 @@ window.ALBUM_SWITCH = {
     document.body.appendChild(ov);
     var el = document.getElementById("sl-strip");
     var skip = document.getElementById("sl-skip");
+    /* B94：實體大獎落定後，全屏卡停留 5 秒且不給跳過（強制看完再跳表單）*/
+    var HOLD_MS = c.physical ? 5000 : 720;
+    if (c.physical && skip) skip.style.display = "none";
     var landed = false, tmrs = [];
     playSfx("flip"); hap([8, 16, 8, 16]);
 
@@ -5684,7 +5687,7 @@ window.ALBUM_SWITCH = {
         ov.classList.add("out");
         setTimeout(function () { ov.remove(); }, 360);
         if (onLand) onLand();
-      }, 720));
+      }, HOLD_MS));
     }
     skip.addEventListener("click", function (e) { e.stopPropagation(); land(); });
 
@@ -5865,10 +5868,7 @@ window.ALBUM_SWITCH = {
     /* B93：第一次抽中 → 先停留 5 秒欣賞卡＋恭喜，再浮出收件表單（強制看完，不給跳）*/
     if (claimed && (claimed.number || claimed.pending)) { renderClaimed(claimed); }
     else if (claimed && claimed.soldout) { renderSoldOut(); }
-    else {
-      body.innerHTML = '<div class="pz-hold"><span class="pz-hold-star">✦</span> 限量典藏 · 正在為你保留名額… <span class="pz-hold-star">✦</span></div>';
-      setTimeout(function () { if (document.body.contains(ov)) renderForm(); }, 5000);
-    }
+    else { renderForm(); }
   }
 
   var __lkBusy = false;                     /* B81：防重入（快速連點／重複監聽都只算一抽）*/
@@ -6284,7 +6284,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B93</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B94</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
