@@ -1335,6 +1335,10 @@ body { background: #08060C !important; }
 #lk-phys .pz-cardwrap{ display:flex; flex-direction:column; align-items:center; gap:6px; width:44%; max-width:180px; }
 #lk-phys .pz-cardwrap .pz-card{ width:100%; max-width:none; }
 #lk-phys .pz-cardwrap span{ font-family:var(--font-serif-tc); font-size:11.5px; letter-spacing:1px; color:rgba(247,231,188,.9); }
+#lk-phys .pz-cardwrap.won{ width:52%; max-width:210px; }
+#lk-phys .pz-cardwrap.won .pz-card{ box-shadow:0 14px 34px rgba(0,0,0,.6), 0 0 26px rgba(233,196,106,.65); outline:1.5px solid rgba(247,231,188,.6); outline-offset:2px; }
+#lk-phys .pz-cardwrap.won span{ color:#FFE9AE; font-weight:600; }
+#lk-phys .pz-cards{ align-items:flex-end; }
 #lk-phys .pz-desc{ font-family:var(--font-serif-tc); font-size:14px; line-height:1.7; color:rgba(255,255,255,.82);
   margin:14px 6px 0; }
 #lk-phys .pz-desc b{ color:#F7E7BC; }
@@ -5654,9 +5658,13 @@ window.ALBUM_SWITCH = {
 
     var ov = document.createElement("div"); ov.id = "lk-slot";
     ov.style.setProperty("--lkglow", glow); ov.style.setProperty("--slw", (W / 2) + "px");
+    /* B96：大獎目標卡顯示抽中那款（紫=img / 金=img2），其餘照舊 */
+    var _sv = (typeof luckState === "function") ? (luckState().stageVar || "gold") : "gold";
     var strip = '<div class="sl-strip spin" id="sl-strip">';
-    for (var i = 0; i < seq.length; i++)
-      strip += '<div class="sl-card" style="height:' + H + 'px"><img src="' + esc(seq[i].img) + '" alt=""></div>';
+    for (var i = 0; i < seq.length; i++) {
+      var _im = (seq[i].physical) ? ((_sv === "purple") ? seq[i].img : (seq[i].img2 || seq[i].img)) : seq[i].img;
+      strip += '<div class="sl-card" style="height:' + H + 'px"><img src="' + esc(_im) + '" alt=""></div>';
+    }
     strip += '</div>';
     /* B88：機台框 —— 金屬外殼＋頂部跑馬燈＋右側拉桿，讓抽卡有真拉霸機感 */
     ov.innerHTML = '<div class="sl-cab">' +
@@ -5686,17 +5694,6 @@ window.ALBUM_SWITCH = {
       playSfx(isBoss ? "ssr" : "sr");
       hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
       document.getElementById("sl-name").textContent = c.title || "";
-      if (c.physical && c.img2) {                 /* B95：全屏卡中途翻成金色黑白版，兩版都全屏呈現 */
-        var _tc = el.children[tgt], _tim = _tc && _tc.querySelector("img");
-        if (_tim) tmrs.push(setTimeout(function () {
-          _tim.style.transition = "opacity .4s ease, transform .4s ease";
-          _tim.style.opacity = "0"; _tim.style.transform = "scale(1.04)";
-          setTimeout(function () {
-            _tim.src = c.img2; _tim.style.opacity = "1"; _tim.style.transform = "scale(1)";
-            var _nm = document.getElementById("sl-name"); if (_nm) _nm.textContent = "限量黑白版 · 實體寄送到家";
-          }, 400);
-        }, 2500));
-      }
       tmrs.push(setTimeout(function () {
         ov.classList.add("out");
         setTimeout(function () { ov.remove(); }, 360);
@@ -5791,6 +5788,9 @@ window.ALBUM_SWITCH = {
       } catch (e) { return Math.random() < 0.25; }
     })();
     if (!dup && c.physical) {                  /* B91：實體最大獎 → 不播影片、不近失，跳中獎領取畫面 */
+      /* B96：兩款限量卡，隨機決定數位圖鑑收到哪款（紫 30 / 金 70）；實體一律兩張都寄 */
+      var _stv = luckState();
+      if (!_stv.stageVar) { _stv.stageVar = (Math.random() < 0.30) ? "purple" : "gold"; lsSet(LUCK_KEY, _stv); }
       lkSlot(c, false, function () { lkPhysicalWin(c); });
     } else if (!dup && c.video) {
       var vid = lkBuildVideo(c);               /* 手勢內 prime */
@@ -5817,11 +5817,16 @@ window.ALBUM_SWITCH = {
       '<div class="pz-inner">' +
         '<div class="pz-eyebrow">✦ LIMITED · GRAND PRIZE ✦</div>' +
         '<div class="pz-title">恭喜你抽到限量實體卡</div>' +
-        '<div class="pz-cards">' +
-          '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(c.img) + '" alt="" decoding="async"><span>數位版</span></div>' +
-          '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(c.img2 || c.img) + '" alt="" decoding="async"><span>實體黑白版</span></div>' +
-        '</div>' +
-        '<div class="pz-desc">你抽中了 THE SKY <b>限量實體卡</b>（集滿全圖鑑）！<br>前 <b>200</b> 名可獲得 <b>實體黑白典藏卡 ×2</b> 寄到家。</div>' +
+        (function(){
+          var sv = (luckState().stageVar || "gold");
+          var wonImg = (sv === "purple") ? c.img : (c.img2 || c.img);
+          var otherImg = (sv === "purple") ? (c.img2 || c.img) : c.img;
+          return '<div class="pz-cards">' +
+            '<div class="pz-cardwrap won"><img class="pz-card" src="' + esc(wonImg) + '" alt="" decoding="async"><span>你抽中 · 數位收藏</span></div>' +
+            '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(otherImg) + '" alt="" decoding="async"><span>實體加贈</span></div>' +
+          '</div>';
+        })() +
+        '<div class="pz-desc">你抽中了 THE SKY <b>限量實體卡</b>（集滿全圖鑑）！<br>前 <b>200</b> 名可獲得 <b>實體卡 ×2（紫＋金一次寄到家）</b>。</div>' +
         '<div class="pz-body"></div>' +
       '</div>';
     document.body.appendChild(ov);
@@ -5911,10 +5916,14 @@ window.ALBUM_SWITCH = {
     $("lucky-grid").innerHTML = cards.map(function (c) {
       var n = st.owned[c.id] || 0;
       /* 已收藏：顯示真實卡面 + 金框；未收藏：一律卡背，不洩漏內容（含會員限定卡） */
-      if (n) return '<div class="lkg own' + (newId === c.id ? " justlit" : "") + '" data-lk="' + esc(c.id) + '">' +
-        '<img src="' + esc(c.img) + '" alt="" loading="lazy">' +
+      if (n) {
+        var _gi = c.img;
+        if (c.physical) { var _sv2 = st.stageVar || "gold"; _gi = (_sv2 === "purple") ? c.img : (c.img2 || c.img); }
+        return '<div class="lkg own' + (newId === c.id ? " justlit" : "") + '" data-lk="' + esc(c.id) + '">' +
+        '<img src="' + esc(_gi) + '" alt="" loading="lazy">' +
         '<span class="lkg-tag">' + esc(c.rarity) + '</span>' +
         (n > 1 ? '<span class="lkg-n">×' + n + '</span>' : "") + '</div>';
+      }
       return '<div class="lkg none"><span class="lkg-tag">' + esc(c.rarity) + '</span></div>';
     }).join("");
     $("lucky-grid").querySelectorAll("[data-lk]").forEach(function (el) {
@@ -6298,7 +6307,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B95</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B96</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
