@@ -1329,6 +1329,12 @@ body { background: #08060C !important; }
 #lk-phys .pz-title{ font-family:var(--font-serif-tc); font-size:24px; font-weight:700; color:#fff; margin-top:8px;
   letter-spacing:2px; text-shadow:0 0 22px var(--lkglow,#B78CFF); }
 #lk-phys .pz-cards{ display:flex; gap:12px; justify-content:center; margin:18px 0 4px; }
+#lk-phys .pz-hero{ display:flex; justify-content:center; margin:20px 0 4px; }
+#lk-phys .pz-hero-card{ width:42%; max-width:200px; aspect-ratio:2/3; object-fit:cover; border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,.62), 0 0 30px var(--lkglow,#B78CFF); outline:1.5px solid rgba(247,231,188,.55); outline-offset:2px;
+  animation:pzFloat 3s ease-in-out infinite; }
+@keyframes pzFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-6px); } }
+@media (prefers-reduced-motion: reduce){ #lk-phys .pz-hero-card{ animation:none; } }
 #lk-phys .pz-card{ width:44%; max-width:180px; border-radius:12px; aspect-ratio:2/3; object-fit:cover;
   box-shadow:0 14px 34px rgba(0,0,0,.6), 0 0 22px rgba(233,196,106,.4); animation:cardFloat 3s ease-in-out infinite; }
 #lk-phys .pz-card:nth-child(2){ animation-delay:.5s; }
@@ -5820,11 +5826,7 @@ window.ALBUM_SWITCH = {
         (function(){
           var sv = (luckState().stageVar || "gold");
           var wonImg = (sv === "purple") ? c.img : (c.img2 || c.img);
-          var otherImg = (sv === "purple") ? (c.img2 || c.img) : c.img;
-          return '<div class="pz-cards">' +
-            '<div class="pz-cardwrap won"><img class="pz-card" src="' + esc(wonImg) + '" alt="" decoding="async"><span>你抽中 · 數位收藏</span></div>' +
-            '<div class="pz-cardwrap"><img class="pz-card" src="' + esc(otherImg) + '" alt="" decoding="async"><span>實體加贈</span></div>' +
-          '</div>';
+          return '<div class="pz-hero"><img class="pz-hero-card" src="' + esc(wonImg) + '" alt="" decoding="async"></div>';
         })() +
         '<div class="pz-desc">你抽中了 THE SKY <b>限量實體卡</b>（集滿全圖鑑）！<br>前 <b>200</b> 名可獲得 <b>實體卡 ×2（紫＋金一次寄到家）</b>。</div>' +
         '<div class="pz-body"></div>' +
@@ -6307,7 +6309,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B96</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B97</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
