@@ -1336,6 +1336,11 @@ body { background: #08060C !important; }
   margin:14px 6px 0; }
 #lk-phys .pz-desc b{ color:#F7E7BC; }
 #lk-phys .pz-body{ margin-top:16px; }
+#lk-phys .pz-hold{ font-family:var(--font-serif-tc); font-size:14px; letter-spacing:1.5px; color:rgba(255,255,255,.72);
+  padding:16px 8px; animation:pzHold 1.6s ease-in-out infinite; }
+#lk-phys .pz-hold-star{ color:#F7E7BC; }
+@keyframes pzHold{ 0%,100%{ opacity:.55; } 50%{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){ #lk-phys .pz-hold{ animation:none; opacity:.85; } }
 #lk-phys .pz-form{ display:flex; flex-direction:column; gap:9px; }
 #lk-phys .pz-form input, #lk-phys .pz-form textarea{ width:100%; padding:13px 14px; border-radius:13px;
   border:1px solid rgba(247,231,188,.28); background:rgba(255,255,255,.06); color:#fff;
@@ -5588,11 +5593,11 @@ window.ALBUM_SWITCH = {
     var old = document.getElementById("lk-cine"); if (old) old.remove();
     var glow = c.glow || "#FFDF8E";
     var ov = document.createElement("div"); ov.id = "lk-cine"; ov.className = "pre";
+    /* B93：新卡影片不給跳過，第一次一定看完（自動收尾保護全保留，卡住/壞掉仍會結束）*/
     ov.innerHTML =
-      '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>' +
-      '<button class="cine-skip">跳過 ›</button>';
+      '<video playsinline preload="auto" poster="' + esc(c.img) + '" src="' + esc(c.video) + '"></video>';
     document.body.appendChild(ov);
-    var v = ov.querySelector("video"), skip = ov.querySelector(".cine-skip");
+    var v = ov.querySelector("video");
     var done = false, shown = false, endTmr = null, capTmr = null;
     function finish() {
       if (done) return; done = true;
@@ -5610,7 +5615,6 @@ window.ALBUM_SWITCH = {
     v.addEventListener("loadedmetadata", function () {
       if (shown && v.duration && isFinite(v.duration)) { clearTimeout(endTmr); endTmr = setTimeout(finish, v.duration * 1000 + 1600); }
     });
-    skip.addEventListener("click", function (e) { e.stopPropagation(); finish(); });
     /* 手勢內 prime */
     try { var p0 = v.play(); if (p0 && p0.then) p0.then(function () { if (!shown) v.pause(); }).catch(function () {}); else if (!shown) v.pause(); } catch (_) {}
     return {
@@ -5621,8 +5625,7 @@ window.ALBUM_SWITCH = {
           ov.classList.remove("pre"); ov.classList.add("show");
           try { v.currentTime = 0; } catch (_) {}
           var pr = v.play(); if (pr && pr.catch) pr.catch(function () { v.muted = true; v.play().catch(finish); });
-          setTimeout(function () { skip.classList.add("on"); }, 1600);
-          clearTimeout(capTmr); capTmr = setTimeout(finish, 14000);                 /* 硬上限保底 */
+          clearTimeout(capTmr); capTmr = setTimeout(finish, 14000);                 /* 硬上限保底（卡住才會用到）*/
           if (v.duration && isFinite(v.duration)) { clearTimeout(endTmr); endTmr = setTimeout(finish, v.duration * 1000 + 1600); }
         }, 120);
       }
@@ -5859,9 +5862,13 @@ window.ALBUM_SWITCH = {
       ov.querySelector(".pz-submit").addEventListener("click", submitClaim);
       ov.querySelector(".pz-skip").addEventListener("click", close);
     }
-    if (claimed && (claimed.number || claimed.pending)) renderClaimed(claimed);
-    else if (claimed && claimed.soldout) renderSoldOut();
-    else renderForm();
+    /* B93：第一次抽中 → 先停留 5 秒欣賞卡＋恭喜，再浮出收件表單（強制看完，不給跳）*/
+    if (claimed && (claimed.number || claimed.pending)) { renderClaimed(claimed); }
+    else if (claimed && claimed.soldout) { renderSoldOut(); }
+    else {
+      body.innerHTML = '<div class="pz-hold"><span class="pz-hold-star">✦</span> 限量典藏 · 正在為你保留名額… <span class="pz-hold-star">✦</span></div>';
+      setTimeout(function () { if (document.body.contains(ov)) renderForm(); }, 5000);
+    }
   }
 
   var __lkBusy = false;                     /* B81：防重入（快速連點／重複監聽都只算一抽）*/
@@ -6277,7 +6284,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B92</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B93</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
