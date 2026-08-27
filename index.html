@@ -1305,7 +1305,7 @@ body { background: #08060C !important; }
 #lk-slot.land .sl-win{ animation:slLand .42s cubic-bezier(.2,1.5,.35,1); }
 @keyframes slLand{ 0%{ transform:scale(1) } 42%{ transform:scale(1.08) } 100%{ transform:scale(1) } }
 /* ===== B88：拉霸機台框（金屬邊框＋跑馬燈＋拉桿）—— 只在抽卡揭曉時出現 ===== */
-#lk-slot .sl-cab{ position:relative; padding:15px 15px 17px; border-radius:24px;
+#lk-slot .sl-cab{ position:relative; padding:10px 10px 12px; border-radius:20px;
   background:linear-gradient(180deg,#2c1d40 0%,#171021 55%,#0e0817 100%);
   box-shadow:0 0 0 2px rgba(247,231,188,.92), 0 0 0 7px rgba(120,88,38,.55),
              0 0 34px rgba(233,196,106,.28), 0 22px 60px rgba(0,0,0,.72),
@@ -5573,8 +5573,9 @@ window.ALBUM_SWITCH = {
     var old = document.getElementById("lk-slot"); if (old) old.remove();
     var cards = luckCards();
     var glow = c.glow || "#FFDF8E";
-    var W = Math.min(210, Math.round((window.innerWidth || 390) * 0.56));
-    var H = Math.round(W * 1.6);
+    /* B90：滾輪放大到接近全螢幕跑（不再是小格）——寬吃滿畫面、高約 72vh */
+    var W = Math.min((window.innerWidth || 390) - 26, 460);
+    var H = Math.round(Math.min((window.innerHeight || 844) * 0.72, W * 1.72));
     /* 序列：一堆亂序 + near-miss(鎮池) + 目標(最後一格) */
     var seq = [];
     for (var k = 0; k < 30; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
@@ -5596,7 +5597,6 @@ window.ALBUM_SWITCH = {
         '<div class="sl-marquee"><i></i><i></i><i></i><span>THE SKY</span><i></i><i></i><i></i></div>' +
         '<div class="sl-win" style="width:' + W + 'px;height:' + H + 'px">' + strip +
           '<div class="sl-glow"></div></div>' +
-        '<div class="sl-lever"><span class="sl-knob"></span></div>' +
       '</div>' +
       '<div class="sl-name" id="sl-name"></div>' +
       '<button class="cine-skip" id="sl-skip">跳過 ›</button>';
@@ -6137,7 +6137,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B89</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B90</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
