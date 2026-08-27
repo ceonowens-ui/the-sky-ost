@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="assets/images/cover.png">
+<link rel="icon" href="assets/images/icon-32.png">
 <style>html,body{touch-action:manipulation}</style>
 <!-- PWA / iPhone 加入主畫面 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
 <meta name="theme-color" content="#08060C">
 <!-- 標題與 icon 由 app.js 從 config 填入 -->
 <title>Album App</title>
-<link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/cover.png">
+<link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/icon-180.png">
 
 <!-- 字體（想換字體就改這行 + styles.css 的 --font-* 變數） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3154,7 +3154,7 @@ window.ALBUM_SWITCH = {
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = t.themeColor || t.bg || "#0d0a12";
     document.title = CFG.albumTitle || "Album App";
-    var icon = $("apple-touch-icon"); if (icon && CFG.coverImage) icon.href = CFG.coverImage;
+    var icon = $("apple-touch-icon"); if (icon && CFG.appIcon) icon.href = CFG.appIcon;   /* B86：不再把 1080x1800 直式專輯封面當主畫面圖示（iOS 會擠壓變形，而且是 245KB）。 預設用 HTML 裡的方形 icon-180.png；別的專輯要換就設 CFG.appIcon。 */
     if (CFG.backgroundImage) {
       document.body.style.background = 'url("' + CFG.backgroundImage + '") center/cover fixed';
     }
@@ -5415,7 +5415,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B85</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B86</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
