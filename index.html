@@ -5555,14 +5555,15 @@ window.ALBUM_SWITCH = {
   var LUCK_SFX = {};
   (function () {
     try {
-      var _sfxVol = { flip: 0.7, sr: 0.7, ssr: 0.7, jackpot: 0.85, jwin: 0.92 };  /* B101：jackpot/jwin=最大獎專用 */
+      var _sfxVol = { flip: 0.7, sr: 0.7, ssr: 0.7, jackpot: 0.85, jwin: 0.92, jspin: 0.5 };  /* B101/B102：jackpot/jwin=最大獎、jspin=一般卡短版滾動 */
       Object.keys(_sfxVol).forEach(function (k) {
         var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = _sfxVol[k];
         LUCK_SFX[k] = a;
       });
     } catch (e) {}
   })();
-  function playSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
+  function playSfx(k, v) { try { var a = LUCK_SFX[k]; if (a) { if (v != null) a.volume = v; a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
+  function stopSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.pause(); a.currentTime = 0; } } catch (e) {} }   /* B102：停掉滾動鋪底 */
 
   /* B33：首抽全螢幕影片揭曉。overlay 掛 body（脫離 app 堆疊脈絡），
    * video.play() 在點擊手勢內同步呼叫 → iOS 允許有聲播放。 */
@@ -5692,7 +5693,7 @@ window.ALBUM_SWITCH = {
     var HOLD_MS = c.physical ? 5000 : 720;
     if (c.physical && skip) { skip.remove(); skip = null; }
     var landed = false, tmrs = [];
-    playSfx(c.physical ? "jackpot" : "flip"); hap([8, 16, 8, 16]);   /* B101：最大獎放滾動音效 */
+    playSfx(c.physical ? "jackpot" : "jspin"); hap([8, 16, 8, 16]);   /* B102：一般卡放短版滾動音效（播一次、落定即停）*/
 
     function land() {
       if (landed) return; landed = true;
@@ -5702,7 +5703,7 @@ window.ALBUM_SWITCH = {
       el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
       ov.classList.add("land");
       var isBoss = c.id === "ssr-awaken";
-      playSfx(c.physical ? "jwin" : (isBoss ? "ssr" : "sr"));   /* B101：最大獎落定放卡停音效 */
+      stopSfx("jspin"); playSfx("jwin", c.physical ? 0.92 : 0.55);   /* B102：落定停鋪底、放卡停音效（一般卡音量較小）*/
       hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
       document.getElementById("sl-name").textContent = c.title || "";
       tmrs.push(setTimeout(function () {
@@ -5746,7 +5747,7 @@ window.ALBUM_SWITCH = {
     /* Phase 2：重煞停到目標，尾端關模糊、卡面轉銳利 */
     tmrs.push(setTimeout(function () {
       if (landed) return;
-      if (!c.physical) playSfx("flip"); hap([6, 14, 6]);   /* B101：最大獎煞停不疊 flip */
+      hap([6, 14, 6]);   /* B102：滾動改連續鋪底(jspin/jackpot)，煞停不再疊 flip */
       el.style.transition = "transform " + BRAKE.toFixed(2) + "s cubic-bezier(.09,.66,.12,1)";
       el.style.transform  = "translateY(" + (-(stopAt * H)) + "px)";
       tmrs.push(setTimeout(function () { el.classList.remove("spin"); el.style.filter = "none"; }, BRAKE * 820));
@@ -6314,7 +6315,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B101</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B102</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
