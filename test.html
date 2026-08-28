@@ -323,8 +323,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .tr-thumb .th-ol { position: absolute; inset: 0; display: flex; align-items: center;
                    justify-content: center; background: rgba(8,6,12,.45); }
 .sheet-lyrics { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-                padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-                font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
+                padding: 8px 30px calc(120px + env(safe-area-inset-bottom));
+                font-family: var(--font-serif-tc); font-size: 18px; line-height: 1.72;
                 color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                 letter-spacing: 1px; }
 .track-num { font-family: var(--font-label); font-size: 13px; width: 24px;
@@ -394,8 +394,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .lyrics-head { flex: none; padding: calc(20px + env(safe-area-inset-top)) 24px 10px;
                display: flex; align-items: flex-start; justify-content: space-between; }
 .lyrics-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-               padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-               font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
+               padding: 8px 30px calc(120px + env(safe-area-inset-bottom));
+               font-family: var(--font-serif-tc); font-size: 18px; line-height: 1.72;
                color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                letter-spacing: 1px; }
 /* 歌詞第一行＝歌名，放大；其餘歌詞維持中等字級 */
@@ -403,7 +403,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                      font-size: 30px; line-height: 1.25; letter-spacing: 1px;
                      color: #fff; text-align: center; margin: 2px 0 22px;
                      white-space: pre-wrap; }
-.lyrics-text { font-size: 18px; line-height: 2.2; white-space: pre-wrap; }
+.lyrics-text { font-size: 18px; line-height: 1.72; white-space: pre-wrap; }
 /* 製作名單（詞曲/製作人那幾行）自動縮小，不搶歌詞 */
 .lyrics-credits { margin-top: 26px; padding-top: 18px;
                   border-top: 1px solid rgba(255,255,255,.12);
