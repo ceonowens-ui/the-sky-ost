@@ -5555,8 +5555,9 @@ window.ALBUM_SWITCH = {
   var LUCK_SFX = {};
   (function () {
     try {
-      ["flip", "sr", "ssr"].forEach(function (k) {
-        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = 0.7;
+      var _sfxVol = { flip: 0.7, sr: 0.7, ssr: 0.7, jackpot: 0.85, jwin: 0.92 };  /* B101：jackpot/jwin=最大獎專用 */
+      Object.keys(_sfxVol).forEach(function (k) {
+        var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = _sfxVol[k];
         LUCK_SFX[k] = a;
       });
     } catch (e) {}
@@ -5657,7 +5658,8 @@ window.ALBUM_SWITCH = {
     var H = Math.round(Math.min((window.innerHeight || 844) * 0.72, W * 1.72));
     /* 序列：一堆亂序 + near-miss(鎮池) + 目標(最後一格) */
     var seq = [];
-    for (var k = 0; k < 30; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
+    var RN = c.physical ? 60 : 30;                       /* B101：最大獎卡條加長，拖長仍保持高速手感 */
+    for (var k = 0; k < RN; k++) seq.push(cards[Math.floor(Math.random() * cards.length)]);
     var boss = null;
     for (var b = 0; b < cards.length; b++) if (cards[b].id === "ssr-awaken") boss = cards[b];
     if (nearMiss && boss && boss.id !== c.id) seq.push(boss);
@@ -5690,7 +5692,7 @@ window.ALBUM_SWITCH = {
     var HOLD_MS = c.physical ? 5000 : 720;
     if (c.physical && skip) { skip.remove(); skip = null; }
     var landed = false, tmrs = [];
-    playSfx("flip"); hap([8, 16, 8, 16]);
+    playSfx(c.physical ? "jackpot" : "flip"); hap([8, 16, 8, 16]);   /* B101：最大獎放滾動音效 */
 
     function land() {
       if (landed) return; landed = true;
@@ -5700,7 +5702,7 @@ window.ALBUM_SWITCH = {
       el.style.transform = "translateY(" + (-(tgt * H)) + "px)";
       ov.classList.add("land");
       var isBoss = c.id === "ssr-awaken";
-      playSfx(isBoss ? "ssr" : "sr");
+      playSfx(c.physical ? "jwin" : (isBoss ? "ssr" : "sr"));   /* B101：最大獎落定放卡停音效 */
       hap(isBoss ? [15, 40, 15, 40, 15, 90] : [12, 30, 12]);
       document.getElementById("sl-name").textContent = c.title || "";
       tmrs.push(setTimeout(function () {
@@ -5729,8 +5731,8 @@ window.ALBUM_SWITCH = {
       return;
     }
 
-    var CRUISE = 1.5;                                    /* 高速段：等速甩過整條卡池 */
-    var BRAKE  = 1.9 + Math.random() * 0.5;              /* 煞停段：每次略不同，避免大腦習慣 */
+    var CRUISE = c.physical ? 3.2 : 1.5;                 /* 高速段：等速甩過整條卡池（B101 最大獎拖長對音效）*/
+    var BRAKE  = c.physical ? 2.66 : (1.9 + Math.random() * 0.5); /* 煞停段：最大獎約 5.9s 落定＝滾動音效尾端 */
     var cruiseAt = Math.max(0, tgt - 5);                 /* 高速段先滾到「離目標 5 張」交棒給煞停 */
 
     /* Phase 1：launch → 高速等速（尾端微鬆，好接煞停），中段給更重的動態模糊 */
@@ -5744,7 +5746,7 @@ window.ALBUM_SWITCH = {
     /* Phase 2：重煞停到目標，尾端關模糊、卡面轉銳利 */
     tmrs.push(setTimeout(function () {
       if (landed) return;
-      playSfx("flip"); hap([6, 14, 6]);
+      if (!c.physical) playSfx("flip"); hap([6, 14, 6]);   /* B101：最大獎煞停不疊 flip */
       el.style.transition = "transform " + BRAKE.toFixed(2) + "s cubic-bezier(.09,.66,.12,1)";
       el.style.transform  = "translateY(" + (-(stopAt * H)) + "px)";
       tmrs.push(setTimeout(function () { el.classList.remove("spin"); el.style.filter = "none"; }, BRAKE * 820));
@@ -6312,7 +6314,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B100</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B101</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
