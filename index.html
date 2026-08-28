@@ -323,8 +323,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .tr-thumb .th-ol { position: absolute; inset: 0; display: flex; align-items: center;
                    justify-content: center; background: rgba(8,6,12,.45); }
 .sheet-lyrics { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-                padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-                font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
+                padding: 8px 30px calc(120px + env(safe-area-inset-bottom));
+                font-family: var(--font-serif-tc); font-size: 18px; line-height: 1.72;
                 color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                 letter-spacing: 1px; }
 .track-num { font-family: var(--font-label); font-size: 13px; width: 24px;
@@ -394,8 +394,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .lyrics-head { flex: none; padding: calc(20px + env(safe-area-inset-top)) 24px 10px;
                display: flex; align-items: flex-start; justify-content: space-between; }
 .lyrics-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-               padding: 8px 30px calc(60px + env(safe-area-inset-bottom));
-               font-family: var(--font-serif-tc); font-size: 18px; line-height: 2.2;
+               padding: 8px 30px calc(120px + env(safe-area-inset-bottom));
+               font-family: var(--font-serif-tc); font-size: 18px; line-height: 1.72;
                color: rgba(255,255,255,.86); white-space: pre-wrap; text-align: center;
                letter-spacing: 1px; }
 /* 歌詞第一行＝歌名，放大；其餘歌詞維持中等字級 */
@@ -403,7 +403,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
                      font-size: 30px; line-height: 1.25; letter-spacing: 1px;
                      color: #fff; text-align: center; margin: 2px 0 22px;
                      white-space: pre-wrap; }
-.lyrics-text { font-size: 18px; line-height: 2.2; white-space: pre-wrap; }
+.lyrics-text { font-size: 18px; line-height: 1.72; white-space: pre-wrap; }
 /* 製作名單（詞曲/製作人那幾行）自動縮小，不搶歌詞 */
 .lyrics-credits { margin-top: 26px; padding-top: 18px;
                   border-top: 1px solid rgba(255,255,255,.12);
@@ -2754,27 +2754,34 @@ Blank pages glowing Opening time
 A universe rewriting life`,
 
   10: `I’m sorry 
+
+Ya I’m sorry but I’m lazy
+So tell me how I felt 
 Ya I’m sorry but I’m lazy
 So tell me what I want
 Ya I’m tired of all the noise
 I don’t need it anymore
+
 Ya I’m sorry but I’m drifting
 Somewhere in the dark
 世界劃分四等份
 我站在中央
+
 World cut into four directions
 Dropped the weight I didn’t want
 Left behind the old projections
 Now I’m moving calm and slow
+
 留下時間更多
 Time expanding as I go
-捲的煙
-still moving low
+捲的煙 still moving low
 藏著走過的路
+
 Turning circles through the silence
 I remember being lost
 轉著圈也曾無助
 Still I never called it lost
+
 Reason always led me forward
 理智追著自由
 Nothing left I need to prove
@@ -2783,18 +2790,7 @@ Still I keep my mind in motion
 繼續思考著
 I don’t let the feeling pull me
 不被情緒拖著
-No signal in the distance
-No pressure in my system
-I stopped asking for permission
-Now I move without resistance
-Ya I’m sorry but I’m lazy
-So tell me what I want
-Ya I’m done with expectations
-I don’t follow them anymore
-Ya I’m sorry but I’m drifting
-Far beyond the dark
-拋下憎恨之後
-時間變得更多
+
 Late night shadows on the sofa
 Quiet room but getting closer
 Thoughts still floating like a slow burn
@@ -2803,26 +2799,22 @@ Smoke still drawing hidden pathways
 Lines I walked but never chased
 藏著走過的路線
 Fading traces in my wake
-Circles turning without ending
-Time dissolving into space
-轉著圈也曾無助
-Still I kept a steady pace
-Reason leading me to silence
-Freedom growing in the shade
-理智追著自由
-Nothing left I need to save
+
 No signal in the skyline
 No voices in my mind
 Eyes open in the quiet
 I finally feel aligned
+
 Ya I’m sorry but I’m lazy
 So tell me what I want
 Ya I’m done with all the noise
 I don’t need it anymore
+
 Ya I’m sorry but I’m drifting
 Somewhere past the dark
 世界劃分四等份
 我離開中央
+
 Smoke fades into the ceiling
 Time moves without a meaning
 Stillness slowly breathing`,
@@ -2950,7 +2942,7 @@ const THE_SKY = {
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
-    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], artwork: null },
+    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsFull: true, artwork: null },
     { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: null },
     { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu,  artwork: null },
   ],
@@ -6281,7 +6273,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B103</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B104</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
