@@ -5413,6 +5413,8 @@ window.ALBUM_SWITCH = {
    * 跟上次看過的比對，不同就代表 Chance 有新訊號。
    * 純前端：不動 Worker、不加請求（用本來就會抓的資料）。 */
   var FEEDSEEN_KEY = "album-the-sky:feedseen";
+  /* 測試線專用：網址帶 ?sigreset=1 → 清掉已讀，橫幅/紅點重新出現一次（正式版路徑不生效） */
+  try { if (/test\.html/i.test(location.pathname) && /[?&]sigreset=1/.test(location.search)) localStorage.removeItem(FEEDSEEN_KEY); } catch (e) {}
   function feedFingerprint() {
     var n = 0;
     try { n = (typeof FEED_CHAT !== "undefined" && FEED_CHAT.length) || 0; } catch (e) {}
@@ -6657,7 +6659,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B126T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B126T2</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
