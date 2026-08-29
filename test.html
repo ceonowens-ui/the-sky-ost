@@ -278,6 +278,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .btn-ghost { background: none; border: none; cursor: pointer; padding: 6px;
              color: rgba(255,255,255,.85); }
 .btn-ghost:active { transform: scale(.9); }
+/* B126T：單曲重複。未開啟時退到 45%，開啟時金色亮起 */
+#btn-loop { color: rgba(255,255,255,.45); }
+#btn-loop.on { color: #E9C77E; filter: drop-shadow(0 0 5px rgba(233,199,126,.55)); }
 .btn-play {
   width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
   background: rgba(255,255,255,.85);
@@ -1110,6 +1113,16 @@ body { background: #08060C !important; }
 /* 控制鍵列：愛心金色實心、靠右獨立 */
 .np-controls { position: relative !important; }
 #btn-heart { position: absolute; right: 0; top: 50%; transform: translateY(-50%); padding: 6px; }
+#btn-loop { position: absolute; left: 0; top: 50%; transform: translateY(-50%); padding: 6px; }  /* B126T：跟愛心鏡像釘左 */
+/* 窄螢幕（SE / 小 Android）：中間三顆縮間距、兩端圖示略縮，讓五顆互不相撞 */
+@media (max-width: 374px) {
+  .np-controls { gap: 26px !important; }
+  #btn-loop svg { width: 21px !important; height: 21px !important; }
+  #btn-heart svg { width: 23px !important; height: 23px !important; }
+}
+@media (max-width: 330px) {
+  .np-controls { gap: 18px !important; }
+}
 #btn-heart svg { width: 26px !important; height: 26px !important; }
 
 /* Now Playing 標籤與副標 */
@@ -1912,6 +1925,9 @@ body { background: #08060C !important; }
 
         <!-- 控制鍵 -->
         <div class="np-controls">
+          <button class="btn-ghost" id="btn-loop" title="單曲重複">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/><text x="12" y="15" text-anchor="middle" font-size="8.5" font-weight="700" fill="currentColor" stroke="none">1</text></svg>
+          </button>
           <button class="btn-ghost" id="btn-prev" title="上一首">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M11 12 20 5.5v13L11 12zm-8 0L12 5.5v13L3 12z"/></svg>
           </button>
@@ -4072,7 +4088,15 @@ window.ALBUM_SWITCH = {
   });
   audio.addEventListener("play", function () { state.playing = true; renderPlayState(); });
   audio.addEventListener("pause", function () { state.playing = false; renderPlayState(); });
-  audio.addEventListener("ended", function () { if (window.__luckEarn) window.__luckEarn("song"); next(); });
+  /* B126T：單曲重複。刻意不用 audio.loop —— 那樣 ended 不會觸發，
+   * 聽完歌賺抽卡券的機制會失效；手動重播才能兩者兼得。 */
+  var loopOne = false;
+  try { loopOne = localStorage.getItem(NS + ":loop1") === "1"; } catch (e) {}
+  audio.addEventListener("ended", function () {
+    if (window.__luckEarn) window.__luckEarn("song");
+    if (loopOne) { try { audio.currentTime = 0; } catch (e) {} audio.play().catch(function () {}); return; }
+    next();
+  });
 
   /* B121：付費曲串流失敗要講清楚原因 ------------------------------------
    * 原本完全沒綁 error，Worker 擋下來（401/403）時 <audio> 靜靜失敗，
@@ -6281,6 +6305,17 @@ window.ALBUM_SWITCH = {
   $("btn-play").addEventListener("click", togglePlay);
   $("btn-prev").addEventListener("click", prev);
   $("btn-next").addEventListener("click", next);
+  (function () {                                     /* B126T：單曲重複開關 */
+    var lb = $("btn-loop"); if (!lb) return;
+    function paint() { lb.classList.toggle("on", loopOne); }
+    lb.addEventListener("click", function () {
+      loopOne = !loopOne;
+      try { localStorage.setItem(NS + ":loop1", loopOne ? "1" : "0"); } catch (e) {}
+      hap(10); paint();
+      toast(loopOne ? "單曲重複 · 開" : "單曲重複 · 關");
+    });
+    paint();
+  })();
 
   /* ---------- 開機 ---------- */
   renderNowPlaying();
@@ -6622,7 +6657,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B125T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B126T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
