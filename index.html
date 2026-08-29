@@ -2849,7 +2849,7 @@ var FEED_CHAT = [   /* 內建備援；正式內容以 content.json 為準（B23�
   { text: "凌晨四點，唱完最後一句" },
   { photo: "assets/feed/01.jpg" },
   { text: "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去" },
-  { video: "feed/04.mp4", id: "vid04", protected: true, productId: "video-01", price: 99, title: "I'M SORRY · 幕後", duration: "00:43" },
+  { video: "assets/feed/04.mp4", id: "vid04", protected: false, title: "I'M SORRY · 幕後", duration: "00:43" },
   { voice: "assets/feed/01.mp3", id: "v01" },
   { text: "聽完不准哭。哭了也只准在我這裡哭" },
 ];
@@ -3306,7 +3306,7 @@ It’s time to slay
 母帶後期處理製作人: 璽揚 CÉON
 母帶後期處理工程師: Wayson.H
 母帶後期處理錄音室:尾聲 W.S Studio`,
-  5: `一次到底 /奇蹟 kesi 插曲
+  5: `一次到底 /奇蹟 kisseki 插曲
 
 可以講點真道理嗎 到底
 All in 了 Balling 盜亦有道理
@@ -3359,9 +3359,7 @@ All in 了 Balling 盜亦有道理
 辜負自己 世道黑暗我們  無畏前行
 
 Living in the my new gang x 4
-
 Gang Gang Gang
-
 可以講點 真道理嗎 到底
 可以講點 真道義 一次到底 (都最有道理)
 可以講點 真道理嗎 到底 (封頂的風景)
@@ -6343,7 +6341,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B111</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B112</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -6353,6 +6351,10 @@ window.ALBUM_SWITCH = {
     .then(function (d) {
       if (d && Array.isArray(d.feedChat) && d.feedChat.length) {
         FEED_CHAT = d.feedChat;
+        /* B112：幕後影片對頻道解鎖者直接開放（雙保險，content.json 也已同步改） */
+        FEED_CHAT.forEach(function (m) {
+          if (m && m.id === "vid04") { m.video = "assets/feed/04.mp4"; m.protected = false; delete m.productId; delete m.price; }
+        });
         if (window.__renderFeed) window.__renderFeed();
       }
       if (d && Array.isArray(d.cards) && d.cards.length) {
