@@ -3544,16 +3544,16 @@ A ghost of yesterday 全都 fade away
 有你的世界 will never fade away
 
 
-詞:C hance 成晞 & CÉON  璽揚
+詞: Chance 成晞 & CÉON  璽揚
 曲: CÉON 璽揚 & Chance 成晞
 
 製作人/編曲 Producer&Arranger：CÉON 
 和聲編寫 Background Vocal Arrangement：CÉON 
 和聲 Background Vocalist：CHANCE&CÉON
 錄音師 Recording Engineers： CÉON 
-吉他 Guitars :範君豪
+吉他 Guitars :范君豪
 錄音室 Recording Studios ：THE VIBE STUDIO@Taipei
-Mix/ Record/ Master by：CÉON 
+Mix/ Record/ Master by：CÉON
 `,
   9: `愛愛到天亮 / 看見愛  插曲
 
@@ -3694,7 +3694,7 @@ const CLASSICS = {
     { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: "assets/images/classics/06.jpg" },
     { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, lyricsText: CLASSICS_LYRICS[7], lyricsFull: true, artwork: "assets/images/classics/07.jpg" },
     { n: 8, title: "Fade away",      titleNote: "〈秘密關係 Secret Lover 片尾曲〉", subtitle: "戒不掉的是 吻還是淚",           free: true, audioPath: "assets/audio/classics/08.mp3", protectedPath: null, lyricsPath: null, lyricsText: CLASSICS_LYRICS[8], lyricsFull: true, artwork: "assets/images/classics/08.jpg" },
-    { n: 9, title: "愛愛到天亮",     titleNote: "〈看見愛 See Your Love 插曲〉",   subtitle: "拜託像以前一樣 愛愛到天亮",     free: true, audioPath: "assets/audio/classics/09.mp3", protectedPath: null, lyricsPath: null, lyricsText: CLASSICS_LYRICS[9], lyricsFull: true, artwork: "assets/images/classics/09.jpg" },
+    { n: 9, title: "愛愛到天亮",     titleNote: "〈看見愛 See Your Love 插曲〉",   artist: "成晞 Chance, 璽揚 CÉON, 楊琳",   subtitle: "拜託像以前一樣 愛愛到天亮",     free: true, audioPath: "assets/audio/classics/09.mp3", protectedPath: null, lyricsPath: null, lyricsText: CLASSICS_LYRICS[9], lyricsFull: true, artwork: "assets/images/classics/09.jpg" },
   ],
 
   moodWall: {
@@ -4133,7 +4133,7 @@ window.ALBUM_SWITCH = {
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: isLocked(t) ? "Unlock" : t.title,
-        artist: CFG.artistName || "",
+        artist: t.artist || CFG.artistName || "",   /* B124T：合唱曲可各自標演唱人 */
         album: CFG.albumTitle || "",
         artwork: art ? [{ src: art, sizes: "512x512", type: "image/png" }] : [],
       });
@@ -4222,7 +4222,7 @@ window.ALBUM_SWITCH = {
       '<div class="tr-thumb"><img src="' + esc(_art) + '" alt="" loading="lazy">' + _ol + "</div>" +
       '<div class="tr-main"><div class="track-name"' + (locked ? "" : ' data-name="' + esc(t.title) + '"') + ">" +
         (locked ? "Unlock" : esc(t.title) + (t.titleNote ? '<span class="tn-note">' + esc(t.titleNote) + "</span>" : "")) + "</div>" +
-        '<div class="tr-sub">' + esc(CFG.artistName || "成晞 Chance") + "</div></div>" +
+        '<div class="tr-sub">' + esc(t.artist || CFG.artistName || "成晞 Chance") + "</div></div>" +
       '<div class="tr-action">' + right + "</div></div>";
   }
   function renderTrackLists(revealing) {
@@ -6563,7 +6563,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B123T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B124T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
