@@ -4746,7 +4746,7 @@ window.ALBUM_SWITCH = {
       '<div class="mexp">' +
         '<div class="mexp-when">2027.02.20 · 微風 MEGA STUDIO</div>' +
         '<div class="mexp-title">THE SKY 聽片會 · 最後三首全球首播</div>' +
-        '<div class="mexp-desc">2/5 開賣 · 會員限定 205 席。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
+        '<div class="mexp-desc">2/5 開賣 · 全場 205 席（一般票 150・VIP 席 55）。先按「我想去」（免費、不用付款），開賣時第一時間通知你。</div>' +
         '<button class="mexp-btn' + (done ? " done" : "") + '" id="btn-interest"' + (done ? " disabled" : "") + '>' +
           (done ? "已登記 ✓ 開賣時通知你" : "我想去 · 免費登記") + '</button>' +
       '</div>';
@@ -5469,9 +5469,15 @@ window.ALBUM_SWITCH = {
     if (!st.owned) st.owned = {};
     /* 換日：補發每日券、重置當日賺券計數 */
     var t = luckToday();
-    if (st.tday !== t) {
+    /* B114：防時間漏洞——日曆只能往前走。tnum 單調遞增，把手機日期改來改去不會重複發券。 */
+    var n = luckDayNum();
+    if (st.tnum == null) st.tnum = (st.tday ? (st.tday === t ? n : 0) : 0);
+    if (n > st.tnum) {
       st.tk = Math.min(TK_CAP, (st.tday ? (st.tk || 0) : 0) + TK_DAILY);
-      st.eSong = 0; st.eFeed = 0; st.tday = t;
+      st.eSong = 0; st.eFeed = 0; st.tday = t; st.tnum = n;
+      lsSet(LUCK_KEY, st);
+    } else if (st.tday !== t) {
+      st.tday = t;
       lsSet(LUCK_KEY, st);
     }
     if (st.tk == null) st.tk = TK_DAILY;
@@ -5501,6 +5507,11 @@ window.ALBUM_SWITCH = {
   function luckToday() {
     var d = new Date();
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+  /* B114：把日期映成單調遞增整數（真實日曆只會變大；改手機日期倒退時數字變小＝不發券） */
+  function luckDayNum() {
+    var d = new Date();
+    return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
   }
   function luckPick(member, st) {
     var pool = luckCards().filter(function (c) { return member || c.tier !== "member"; });
@@ -5915,6 +5926,7 @@ window.ALBUM_SWITCH = {
     function renderForm() {
       body.innerHTML =
         '<div class="pz-form">' +
+          '<div style="font-size:12px;line-height:1.7;color:#cfc6b8;text-align:center;margin:0 0 10px;opacity:.85">🌍 台灣與海外地址皆可填寫<br>海外寄送方式與郵資將以 Email 另行聯繫</div>' +
           '<input id="pz-email" type="email" placeholder="Email" autocapitalize="off" autocomplete="email">' +
           '<input id="pz-name" type="text" placeholder="收件人姓名" autocomplete="name">' +
           '<input id="pz-phone" type="tel" placeholder="手機（配送聯絡用）" autocomplete="tel">' +
@@ -5971,6 +5983,11 @@ window.ALBUM_SWITCH = {
       el.addEventListener("click", function () {
         var c = luckCards().filter(function (x) { return x.id === el.getAttribute("data-lk"); })[0];
         if (!c) return;
+        /* B114：實體大獎卡 → 還沒登記收件就重開領取表單（補領入口） */
+        if (c.physical) {
+          var cl0 = lsGet(PHYS_CLAIM_KEY, null);
+          if (!cl0 || (!cl0.number && !cl0.pending && !cl0.soldout)) { hap(8); lkPhysicalWin(c); return; }
+        }
         var lb = document.createElement("div"); lb.id = "__lb";
         lb.innerHTML = (c.video
           ? '<video playsinline loop preload="auto" src="' + esc(c.video) + '" style="max-width:100vw;max-height:100dvh;object-fit:contain"></video>'
@@ -6348,7 +6365,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B113</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B114</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
