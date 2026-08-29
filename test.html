@@ -6342,7 +6342,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B112T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B113T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -6352,6 +6352,10 @@ window.ALBUM_SWITCH = {
     .then(function (d) {
       if (d && Array.isArray(d.feedChat) && d.feedChat.length) {
         FEED_CHAT = d.feedChat;
+        /* B113T：幕後影片對頻道解鎖者直接開放（覆蓋 content.json 裡的鎖） */
+        FEED_CHAT.forEach(function (m) {
+          if (m && m.id === "vid04") { m.video = "assets/feed/04.mp4"; m.protected = false; delete m.productId; delete m.price; }
+        });
         if (window.__renderFeed) window.__renderFeed();
       }
       if (d && Array.isArray(d.cards) && d.cards.length) {
