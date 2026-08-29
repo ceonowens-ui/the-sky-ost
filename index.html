@@ -333,6 +333,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .track-name { min-width: 0; font-family: var(--font-serif-tc); font-size: 16.5px; line-height: 1.25;
               color: rgba(255,255,255,.9); white-space: normal; word-break: break-word; }
 .tr-main { flex: 1; min-width: 0; }
+/* 歌名後的小字註記（插曲／feat. 之類）：同明體家族、降級降透明，讓長歌名還能維持單行 */
+.tn-note { font-family: var(--font-serif-tc); font-size: clamp(9px, 2.8vw, 11.5px);
+           letter-spacing: .1px; color: rgba(255,255,255,.45);
+           margin-left: 5px; white-space: nowrap; }
+.track-row.locked .tn-note { display: none; }
 .tr-sub { margin-top: 3px; font-family: var(--font-label); font-size: 10.5px; letter-spacing: 1.5px;
           color: rgba(255,255,255,.45); }
 .tr-action { flex: none; display: flex; align-items: center; }
@@ -2944,21 +2949,19 @@ const THE_SKY = {
     codePlaceholder: "SKY1-XXXX-XXXX",
   },
 
-  /* ---- 曲目 -------------------------------------------------------
-   * 01~03 免費試聽，04~10 付費（R2 key 用 sky/ 前綴）。
-   * ⚠️ 05、08 是 WAV 原始檔（不是 mp3），protectedPath 副檔名要對，
-   *    worker.js 的 PROTECTED_FILES 白名單也要用一樣的副檔名。
-   * ---------------------------------------------------------------- */
   /* ---- 曲目 ----------------------------------------------------------
-   * 首發 3 首：The SKY / Don't Wanna Wake Up 免費試聽，I'm Sorry 付費解鎖。
+   * ⚠️ 這張專輯【沒有免費試聽】，三首都要解鎖才能播（free 全部 false）。
+   *    舊版曾經開放 The SKY / Don't Wanna Wake Up 試聽，已經取消，別再照舊註解改。
+   * ⚠️ 付費曲的 protectedPath = R2 的 object key，必須與 Worker 的
+   *    PROTECTED_FILES 白名單、R2 實際檔名三方完全一致（含副檔名）。
    * 商業模式：299 = 擁有這個播放器，每月更新新歌（見 payment 文案）。
    * 之後每月加新歌就在這個陣列往下加：免費放 assets/audio/，
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsFull: true, artwork: null },
-    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: null },
-    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu, lyricsFull: true,  artwork: null },
+    { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: "assets/images/sky/t02.jpg" },
+    { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu, lyricsFull: true,  artwork: "assets/images/sky/t03.jpg" },
   ],
 
   /* ---- 心情牆 ---------------------------------------------------- */
@@ -3448,6 +3451,66 @@ About you
 I’m waiting for you
 
 `,
+  7: `6 FPS
+
+Where u at 燃後聲音 來自心底
+Yeah we playing for the win
+All the games,All days,All the ways,All I wasted
+立命然而安身 Wish you have a good day
+
+I’m Setting 旁邊 Ready
+ On the city shining steady
+All on my step I’m already 
+Turn it up to worldwide 
+Don't dread it all
+
+We are the best setting
+The first city Ya we got it 
+Red setting Burning GTRR
+Make that booty feel it poppin
+
+I'm on my way home, wide awake.
+I'm not destroyed at all, and I’m not swayed.
+還要看血統 心中無悔
+In a tuxedo Hot pick and roll
+
+還要 6幀就能 feel so dope
+Now you feel me 還剩三分鐘
+愛い してる Gotta WoW
+Pick it up pick and roll 放心 來得速
+
+還要 6幀就能 feel so dope
+Now you feel me 還剩三分鐘
+愛い してる Gotta WoW
+Pick it up pick and roll 放心 來得速
+
+So take a breath x 4
+Fast break 
+
+One second, the ball's in play,
+On the field, we seize the day.
+這個是早就註定 要實現目標明確
+這邊早整備喝那杯 獎盃你隨意我乾杯
+Sponsor 塞爆我 鞋櫃
+
+還要 6幀就能 feel so dope
+還要對的起你的觀眾
+愛い してる Gotta WoW
+Pick it up pick and roll 放心 來得速
+
+還要 6幀就能 feel so dope
+Now you feel me 還剩三分鐘
+愛い してる Gotta WoW
+Pick it up pick and roll 放心 來得速
+
+
+製作人 Producer｜$$uperCandy
+錄音師 Recording Engineers｜$$uperCandy
+混音師 Mixing Engineer｜$$uperCandy
+母帶處理 Mastering｜Double@NERDYBOYMUSIC
+作詞 Lyricist｜Chance
+作曲 Composer｜Chance / $$uperCandy
+`,
 };
 
 const CLASSICS = {
@@ -3510,9 +3573,9 @@ const CLASSICS = {
     { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsEn: EN_LYRICS.never, lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
     { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsEn: EN_LYRICS.trap, lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
     { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], lyricsFull: true, artwork: "assets/images/classics/04.jpg" },
-    { n: 5, title: "一次到底",       subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: null },
-    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: null },
-    { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, artwork: null },
+    { n: 5, title: "一次到底", titleNote: "〈奇蹟 Kiseki: Dear to me 插曲〉", subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: "assets/images/classics/05.jpg" },
+    { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: "assets/images/classics/06.jpg" },
+    { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, lyricsText: CLASSICS_LYRICS[7], lyricsFull: true, artwork: "assets/images/classics/07.jpg" },
   ],
 
   moodWall: {
@@ -3888,6 +3951,31 @@ window.ALBUM_SWITCH = {
   audio.addEventListener("pause", function () { state.playing = false; renderPlayState(); });
   audio.addEventListener("ended", function () { if (window.__luckEarn) window.__luckEarn("song"); next(); });
 
+  /* B121：付費曲串流失敗要講清楚原因 ------------------------------------
+   * 原本完全沒綁 error，Worker 擋下來（401/403）時 <audio> 靜靜失敗，
+   * 畫面看起來像在播但沒有聲音 —— 使用者只會覺得「壞了」。
+   * 這裡在失敗當下補打一次同一支 API 讀狀態碼，把原因講明白。
+   * -------------------------------------------------------------------- */
+  var __audioErrAt = 0;
+  audio.addEventListener("error", function () {
+    if (Date.now() - __audioErrAt < 3000) return;      /* error 會連發，去重 */
+    __audioErrAt = Date.now();
+    state.playing = false; renderPlayState();
+    var t = TRACKS[state.cur];
+    if (!t) return;
+    if (t.free) { toast("這首歌載入失敗 · 檢查一下網路"); return; }
+    if (navigator.onLine === false) { toast("目前沒有網路 · 連上後再試"); return; }
+    fetch(srcFor(t), { headers: { Range: "bytes=0-1" } })
+      .then(function (r) {
+        if (r.status === 401)      { toast("伺服器認不得這組兌換碼 · 請重新兌換"); go("purchase"); }
+        else if (r.status === 403) { toast("這組兌換碼不能解鎖音檔"); go("purchase"); }
+        else if (r.status === 404) { toast("找不到這首歌的音檔 · 請聯絡客服"); }
+        else if (r.status >= 500)  { toast("伺服器忙線中 · 等一下再試"); }
+        else                       { toast("音檔載入失敗（" + r.status + "）"); }
+      })
+      .catch(function () { toast("連不上伺服器 · 檢查一下網路"); });
+  });
+
   function playTrack(i) {
     var t = TRACKS[i];
     if (isLocked(t)) { toast("需解鎖完整專輯才能播放"); go("purchase"); return; }
@@ -4013,7 +4101,8 @@ window.ALBUM_SWITCH = {
     else if (locked) _ol = '<span class="th-ol"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
       '<div class="tr-thumb"><img src="' + esc(_art) + '" alt="" loading="lazy">' + _ol + "</div>" +
-      '<div class="tr-main"><div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" +
+      '<div class="tr-main"><div class="track-name"' + (locked ? "" : ' data-name="' + esc(t.title) + '"') + ">" +
+        (locked ? "Unlock" : esc(t.title) + (t.titleNote ? '<span class="tn-note">' + esc(t.titleNote) + "</span>" : "")) + "</div>" +
         '<div class="tr-sub">' + esc(CFG.artistName || "成晞 Chance") + "</div></div>" +
       '<div class="tr-action">' + right + "</div></div>";
   }
@@ -4963,16 +5052,6 @@ window.ALBUM_SWITCH = {
     email = (email || "").trim(); code = (code || "").trim().toUpperCase();
     if (!email || !code) { toast("請輸入 email 和兌換碼"); return; }
 
-    /* __MASTERCODE__ 通用全解鎖碼（純前端；任何 email + 此碼 → 專輯典藏＋SIGNAL＋全部影片＋完整卡池＋20券）。
-     * ⚠️ 這是前端後門，碼外流＝有人可免費全解鎖；要收掉就刪這段。 */
-    if (code === "CEON0220VIP") {
-      lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
-      try { var mst = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); mst.tk = Math.max(mst.tk || 0, 20); lsSet(LUCK_KEY, mst); } catch (e) {}
-      unlockNow({ email: email, code: code, product: "full-unlock" });
-      try { loadLiveFeed(true); renderMoodWall(); } catch (e) {}
-      toast("全部解鎖成功 · 專輯＋SIGNAL＋影片＋抽卡都開了 ♡");
-      return;
-    }
 
     /* ⚠️ DEMO 模式：config 的 demoCodes 是「純前端」捷徑，方便展示。
      *    每個 demo 碼都寫死對應方案（不會誤用畫面上選的方案 —— PITFALLS #2）。
@@ -6053,7 +6132,7 @@ window.ALBUM_SWITCH = {
     last = cur;
     var rows = document.querySelectorAll("#tracklist .track-row .track-name, #sheet-list .track-name");
     var names = [], i;
-    for (i = 0; i < rows.length; i++) { var v = rows[i].textContent.trim(); if (names.indexOf(v) < 0) names.push(v); }
+    for (i = 0; i < rows.length; i++) { var v = (rows[i].getAttribute("data-name") || rows[i].textContent).trim(); if (names.indexOf(v) < 0) names.push(v); }
     var idx = names.indexOf(cur.trim());
     n.textContent = names.length ? names[(idx + 1 + names.length) % names.length] : "";
     var lab = document.getElementById("np-label");
@@ -6365,7 +6444,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B115</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B121</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

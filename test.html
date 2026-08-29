@@ -2949,13 +2949,11 @@ const THE_SKY = {
     codePlaceholder: "SKY1-XXXX-XXXX",
   },
 
-  /* ---- 曲目 -------------------------------------------------------
-   * 01~03 免費試聽，04~10 付費（R2 key 用 sky/ 前綴）。
-   * ⚠️ 05、08 是 WAV 原始檔（不是 mp3），protectedPath 副檔名要對，
-   *    worker.js 的 PROTECTED_FILES 白名單也要用一樣的副檔名。
-   * ---------------------------------------------------------------- */
   /* ---- 曲目 ----------------------------------------------------------
-   * 首發 3 首：The SKY / Don't Wanna Wake Up 免費試聽，I'm Sorry 付費解鎖。
+   * ⚠️ 這張專輯【沒有免費試聽】，三首都要解鎖才能播（free 全部 false）。
+   *    舊版曾經開放 The SKY / Don't Wanna Wake Up 試聽，已經取消，別再照舊註解改。
+   * ⚠️ 付費曲的 protectedPath = R2 的 object key，必須與 Worker 的
+   *    PROTECTED_FILES 白名單、R2 實際檔名三方完全一致（含副檔名）。
    * 商業模式：299 = 擁有這個播放器，每月更新新歌（見 payment 文案）。
    * 之後每月加新歌就在這個陣列往下加：免費放 assets/audio/，
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
@@ -3952,6 +3950,31 @@ window.ALBUM_SWITCH = {
   audio.addEventListener("play", function () { state.playing = true; renderPlayState(); });
   audio.addEventListener("pause", function () { state.playing = false; renderPlayState(); });
   audio.addEventListener("ended", function () { if (window.__luckEarn) window.__luckEarn("song"); next(); });
+
+  /* B121：付費曲串流失敗要講清楚原因 ------------------------------------
+   * 原本完全沒綁 error，Worker 擋下來（401/403）時 <audio> 靜靜失敗，
+   * 畫面看起來像在播但沒有聲音 —— 使用者只會覺得「壞了」。
+   * 這裡在失敗當下補打一次同一支 API 讀狀態碼，把原因講明白。
+   * -------------------------------------------------------------------- */
+  var __audioErrAt = 0;
+  audio.addEventListener("error", function () {
+    if (Date.now() - __audioErrAt < 3000) return;      /* error 會連發，去重 */
+    __audioErrAt = Date.now();
+    state.playing = false; renderPlayState();
+    var t = TRACKS[state.cur];
+    if (!t) return;
+    if (t.free) { toast("這首歌載入失敗 · 檢查一下網路"); return; }
+    if (navigator.onLine === false) { toast("目前沒有網路 · 連上後再試"); return; }
+    fetch(srcFor(t), { headers: { Range: "bytes=0-1" } })
+      .then(function (r) {
+        if (r.status === 401)      { toast("伺服器認不得這組兌換碼 · 請重新兌換"); go("purchase"); }
+        else if (r.status === 403) { toast("這組兌換碼不能解鎖音檔"); go("purchase"); }
+        else if (r.status === 404) { toast("找不到這首歌的音檔 · 請聯絡客服"); }
+        else if (r.status >= 500)  { toast("伺服器忙線中 · 等一下再試"); }
+        else                       { toast("音檔載入失敗（" + r.status + "）"); }
+      })
+      .catch(function () { toast("連不上伺服器 · 檢查一下網路"); });
+  });
 
   function playTrack(i) {
     var t = TRACKS[i];
@@ -5029,16 +5052,6 @@ window.ALBUM_SWITCH = {
     email = (email || "").trim(); code = (code || "").trim().toUpperCase();
     if (!email || !code) { toast("請輸入 email 和兌換碼"); return; }
 
-    /* __MASTERCODE__ 通用全解鎖碼（純前端；任何 email + 此碼 → 專輯典藏＋SIGNAL＋全部影片＋完整卡池＋20券）。
-     * ⚠️ 這是前端後門，碼外流＝有人可免費全解鎖；要收掉就刪這段。 */
-    if (code === "CEON0220VIP") {
-      lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
-      try { var mst = lsGet(LUCK_KEY, { owned: {}, last: "", draws: 0 }); mst.tk = Math.max(mst.tk || 0, 20); lsSet(LUCK_KEY, mst); } catch (e) {}
-      unlockNow({ email: email, code: code, product: "full-unlock" });
-      try { loadLiveFeed(true); renderMoodWall(); } catch (e) {}
-      toast("全部解鎖成功 · 專輯＋SIGNAL＋影片＋抽卡都開了 ♡");
-      return;
-    }
 
     /* ⚠️ DEMO 模式：config 的 demoCodes 是「純前端」捷徑，方便展示。
      *    每個 demo 碼都寫死對應方案（不會誤用畫面上選的方案 —— PITFALLS #2）。
@@ -6431,7 +6444,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B117T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B121T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
