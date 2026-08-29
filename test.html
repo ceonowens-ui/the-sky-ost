@@ -333,6 +333,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .track-name { min-width: 0; font-family: var(--font-serif-tc); font-size: 16.5px; line-height: 1.25;
               color: rgba(255,255,255,.9); white-space: normal; word-break: break-word; }
 .tr-main { flex: 1; min-width: 0; }
+/* 歌名後的小字註記（插曲／feat. 之類）：同明體家族、降級降透明，讓長歌名還能維持單行 */
+.tn-note { font-family: var(--font-serif-tc); font-size: clamp(9px, 2.8vw, 11.5px);
+           letter-spacing: .1px; color: rgba(255,255,255,.45);
+           margin-left: 5px; white-space: nowrap; }
+.track-row.locked .tn-note { display: none; }
 .tr-sub { margin-top: 3px; font-family: var(--font-label); font-size: 10.5px; letter-spacing: 1.5px;
           color: rgba(255,255,255,.45); }
 .tr-action { flex: none; display: flex; align-items: center; }
@@ -3510,7 +3515,7 @@ const CLASSICS = {
     { n: 2, title: "Never Know",     subtitle: "你永遠不會知道的，沒說出口",         free: true, audioPath: "assets/audio/classics/02.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/02.txt", lyricsText: CLASSICS_LYRICS[2], lyricsEn: EN_LYRICS.never, lyricsFull: true, artwork: "assets/images/classics/02.jpg" },
     { n: 3, title: "Trap My Soul",   subtitle: "量子糾纏，那還是愛",                 free: true, audioPath: "assets/audio/classics/03.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/03.txt", lyricsText: CLASSICS_LYRICS[3], lyricsEn: EN_LYRICS.trap, lyricsFull: true, artwork: "assets/images/classics/03.jpg" },
     { n: 4, title: "全集中，呼吸",   subtitle: "全集中呼吸 Blow away",               free: true, audioPath: "assets/audio/classics/04.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/04.txt", lyricsText: CLASSICS_LYRICS[4], lyricsFull: true, artwork: "assets/images/classics/04.jpg" },
-    { n: 5, title: "一次到底<奇蹟 Kiseki:Dear to me 插曲>", subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: "assets/images/classics/05.jpg" },
+    { n: 5, title: "一次到底", titleNote: "〈奇蹟 Kiseki: Dear to me 插曲〉", subtitle: "KISEKI 奇蹟 插曲 · All in 盜亦有道", free: true, audioPath: "assets/audio/classics/05.mp3", protectedPath: null, lyricsPath: "assets/lyrics/classics/05.txt", lyricsText: CLASSICS_LYRICS[5], lyricsEn: EN_LYRICS.yici, lyricsFull: true, artwork: "assets/images/classics/05.jpg" },
     { n: 6, title: "受不了",         subtitle: "有些情緒，壓到最後就是受不了",       free: true, audioPath: "assets/audio/classics/06.mp3?v=b46", protectedPath: null, lyricsPath: "assets/lyrics/classics/06.txt", lyricsText: CLASSICS_LYRICS[6], lyricsEn: EN_LYRICS.shou, lyricsFull: true, artwork: "assets/images/classics/06.jpg" },
     { n: 7, title: "6FPS",           subtitle: "慢速的畫格裡，把時間拉回自己手上",   free: true, audioPath: "assets/audio/classics/07.mp3", protectedPath: null, lyricsPath: null, artwork: "assets/images/classics/07.jpg" },
   ],
@@ -4013,7 +4018,8 @@ window.ALBUM_SWITCH = {
     else if (locked) _ol = '<span class="th-ol"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>';
     return '<div class="' + cls + '" data-i="' + i + '"' + style + '>' +
       '<div class="tr-thumb"><img src="' + esc(_art) + '" alt="" loading="lazy">' + _ol + "</div>" +
-      '<div class="tr-main"><div class="track-name">' + (locked ? "Unlock" : esc(t.title)) + "</div>" +
+      '<div class="tr-main"><div class="track-name"' + (locked ? "" : ' data-name="' + esc(t.title) + '"') + ">" +
+        (locked ? "Unlock" : esc(t.title) + (t.titleNote ? '<span class="tn-note">' + esc(t.titleNote) + "</span>" : "")) + "</div>" +
         '<div class="tr-sub">' + esc(CFG.artistName || "成晞 Chance") + "</div></div>" +
       '<div class="tr-action">' + right + "</div></div>";
   }
@@ -6053,7 +6059,7 @@ window.ALBUM_SWITCH = {
     last = cur;
     var rows = document.querySelectorAll("#tracklist .track-row .track-name, #sheet-list .track-name");
     var names = [], i;
-    for (i = 0; i < rows.length; i++) { var v = rows[i].textContent.trim(); if (names.indexOf(v) < 0) names.push(v); }
+    for (i = 0; i < rows.length; i++) { var v = (rows[i].getAttribute("data-name") || rows[i].textContent).trim(); if (names.indexOf(v) < 0) names.push(v); }
     var idx = names.indexOf(cur.trim());
     n.textContent = names.length ? names[(idx + 1 + names.length) % names.length] : "";
     var lab = document.getElementById("np-label");
