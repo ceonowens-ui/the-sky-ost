@@ -338,6 +338,10 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
            letter-spacing: .1px; color: rgba(255,255,255,.45);
            margin-left: 5px; white-space: nowrap; }
 .track-row.locked .tn-note { display: none; }
+/* B125T：FEED 未讀紅點（SIGNAL 有新訊號時掛在愛心圖示上） */
+.nav-dot { position: absolute; top: 5px; right: 15px; width: 8px; height: 8px;
+           border-radius: 50%; background: #FF5A76;
+           box-shadow: 0 0 7px rgba(255,90,118,.85); pointer-events: none; }
 .tr-sub { margin-top: 3px; font-family: var(--font-label); font-size: 10.5px; letter-spacing: 1.5px;
           color: rgba(255,255,255,.45); }
 .tr-action { flex: none; display: flex; align-items: center; }
@@ -4681,6 +4685,7 @@ window.ALBUM_SWITCH = {
       $("nav-ind").style.transform = "translateX(" + (activeBtn.offsetLeft - navBtns[0].offsetLeft) + "px)";
       void activeBtn.offsetWidth; activeBtn.classList.add("pop");
     }
+    if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") renderLucky();
@@ -5379,8 +5384,62 @@ window.ALBUM_SWITCH = {
     });
   }
 
+  /* ===== B125T：SIGNAL 未讀通知（紅點＋訊息橫幅）=========================
+   * 只給有購買的人看。指紋 = 頻道內容的長度 + 動態貼文 id 串，
+   * 跟上次看過的比對，不同就代表 Chance 有新訊號。
+   * 純前端：不動 Worker、不加請求（用本來就會抓的資料）。 */
+  var FEEDSEEN_KEY = "album-the-sky:feedseen";
+  function feedFingerprint() {
+    var n = 0;
+    try { n = (typeof FEED_CHAT !== "undefined" && FEED_CHAT.length) || 0; } catch (e) {}
+    var ids = "";
+    try { ids = FEED_LIVE_POSTS.map(function (p) { return p && p.id; }).join(","); } catch (e) {}
+    return n + "|" + ids;
+  }
+  function feedNewsSeen() {
+    try { localStorage.setItem(FEEDSEEN_KEY, feedFingerprint()); } catch (e) {}
+    var d = document.getElementById("__navDot"); if (d) d.remove();
+    var b = document.getElementById("__sigBar"); if (b) b.remove();
+  }
+  function feedNewsCheck() {
+    if (PLAYER_ONLY) return;                          /* player-only 專輯沒有 FEED 頁 */
+    if (!feedUnlockedQ()) return;                     /* 只通知有購買的人 */
+    if (state.screen === "mood") { feedNewsSeen(); return; }   /* 正在看＝已讀 */
+    var fp = feedFingerprint();
+    if (fp === "0|") return;                          /* 內容還沒載入，不誤判 */
+    var seen = "";
+    try { seen = localStorage.getItem(FEEDSEEN_KEY) || ""; } catch (e) {}
+    if (fp === seen) return;
+    /* 紅點 */
+    var btn = document.querySelector('.navbtn[data-screen="mood"]');
+    if (btn && !document.getElementById("__navDot")) {
+      var d = document.createElement("span");
+      d.id = "__navDot"; d.className = "nav-dot";
+      btn.appendChild(d);
+    }
+    /* 訊息橫幅：一個 session 只出現一次，點了直接進頻道 */
+    if (window.__sigShown || document.getElementById("__sigBar")) return;
+    window.__sigShown = true;
+    var b = document.createElement("button");
+    b.id = "__sigBar";
+    b.textContent = "SIGNAL · Chance 留下了新訊號";
+    var topOff = "0";
+    var upd = document.getElementById("__updBar");
+    if (upd) topOff = upd.offsetHeight + "px";        /* 跟更新橫幅同時出現時往下疊 */
+    b.style.cssText = "position:fixed;left:0;right:0;top:" + topOff + ";width:100%;z-index:100000;" +
+      "padding:calc(7px + env(safe-area-inset-top)) 12px 8px;border:none;" +
+      "border-bottom:1px solid rgba(183,140,255,.5);" +
+      "background:linear-gradient(135deg,rgba(46,32,72,.97),rgba(28,19,46,.97));color:#EBD9A8;" +
+      "font:600 12.5px/1.3 -apple-system,'PingFang TC',sans-serif;letter-spacing:1px;" +
+      "-webkit-tap-highlight-color:transparent";
+    b.addEventListener("click", function () { hap(10); go("mood"); });
+    document.body.appendChild(b);
+  }
+  setTimeout(feedNewsCheck, 3000);                    /* 開場資料載齊後查一次 */
+
   function renderMoodWall() {
     loadLiveFeed(false);
+    setTimeout(feedNewsCheck, 600);
     var unlocked = feedUnlockedQ();
     var live = FEED_LIVE_POSTS.filter(function (p) {
       return p && !p.locked && (unlocked || p.tier === "public");
@@ -6563,7 +6622,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B124T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B125T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
