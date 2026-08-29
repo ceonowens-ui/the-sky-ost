@@ -338,7 +338,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .tr-main { flex: 1; min-width: 0; }
 /* 歌名後的小字註記（插曲／feat. 之類）：同明體家族、降級降透明，讓長歌名還能維持單行 */
 .tn-note { font-family: var(--font-serif-tc); font-size: clamp(9px, 2.8vw, 11.5px);
-           letter-spacing: .1px; color: rgba(255,255,255,.45);
+           letter-spacing: .1px; color: rgba(255,255,255,.55);
            margin-left: 5px; white-space: nowrap; }
 .track-row.locked .tn-note { display: none; }
 /* B125T：FEED 未讀紅點（SIGNAL 有新訊號時掛在愛心圖示上） */
@@ -2038,7 +2038,7 @@ body { background: #08060C !important; }
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
     <div class="feed-tabs" style="display:flex;align-items:center;gap:12px;padding:13px 17px">
-      <img src="assets/images/sky/cover.jpg?v=0816" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
+      <img src="assets/images/avatar.jpg" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
       <div style="min-width:0">
         <div style="font-family:var(--font-serif-tc);font-size:16px;color:#fff">成晞 Chance</div>
         <div style="font-family:var(--font-label);font-size:10px;letter-spacing:2.2px;color:rgba(255,255,255,.45)">SIGNAL · 私訊頻道</div>
@@ -2080,7 +2080,7 @@ body { background: #08060C !important; }
         <button class="sheet-tab" id="tab-lyrics">LYRICS</button>
         <span id="sheet-title" style="display:none"></span>
       </div>
-      <button class="sheet-close" id="btn-close-sheet">
+      <button class="sheet-close" id="btn-close-sheet" aria-label="關閉曲目表">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
       </button>
     </div>
@@ -2095,7 +2095,7 @@ body { background: #08060C !important; }
         <div class="sheet-eyebrow" id="lyrics-eyebrow">Lyrics</div>
         <div class="sheet-title" id="lyrics-title"></div>
       </div>
-      <button class="sheet-close" id="btn-close-lyrics">
+      <button class="sheet-close" id="btn-close-lyrics" aria-label="關閉歌詞">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
       </button>
     </div>
@@ -3700,6 +3700,7 @@ const CLASSICS = {
   unlock: {
     demoCodes: {},                                 // 全免費，不需要兌換碼
     localStorageKey: "album-chance-classics",      // 播放進度/心情牆各自獨立
+    unlockShareKey: "album-the-sky",               // B127：SIGNAL/影片解鎖與 THE SKY 共用（買家兩面都開、通知兩面都亮）
     codePlaceholder: "SKY1-XXXX-XXXX",
   },
 
@@ -3765,12 +3766,12 @@ const CLASSICS = {
 var LUCKY_CARDS = [
   /* B33：六張 SSR 影片卡。id 發布後不可改（玩家收藏綁 id）。
    * w = 抽中權重；tier:"member" 免費用戶抽不到；video = 首次取得播放的抽卡動畫 */
-  { id: "ssr-gaze", glow: "#9FD8FF",   img: "assets/cards/gaze.jpg",   video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
-  { id: "ssr-vow", glow: "#F2D9A6",    img: "assets/cards/vow.jpg",    video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
-  { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.jpg?v=b91",  img2: "assets/cards/stage-b.jpg?v=b91",  title: "最大獎 · 實體限定卡",  rarity: "SSR", w: 19, tier: "member", physical: true },
-  { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.jpg",  video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19 },
-  { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.jpg", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19 },
-  { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.jpg", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 3,  tier: "member" }
+  { id: "ssr-gaze", glow: "#9FD8FF",   img: "assets/cards/gaze.webp",   video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/gaze.mp4",   title: "一眼淪陷・魅惑滿格",   rarity: "SSR", w: 19 },
+  { id: "ssr-vow", glow: "#F2D9A6",    img: "assets/cards/vow.webp",    video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/vow.mp4",    title: "戀愛宣言・心動支配者", rarity: "SSR", w: 19, tier: "member" },
+  { id: "ssr-stage", glow: "#B78CFF",  img: "assets/cards/stage.webp",  img2: "assets/cards/stage-b.webp",  title: "最大獎 · 實體限定卡",  rarity: "SSR", w: 19, tier: "member", physical: true },
+  { id: "ssr-hands", glow: "#FFA6C0",  img: "assets/cards/hands.webp",  video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/hands.mp4",  title: "千手幻相・萬象歸一",   rarity: "SSR", w: 19 },
+  { id: "ssr-mirror", glow: "#7FB2FF", img: "assets/cards/mirror.webp", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/mirror.mp4", title: "鏡像殘影・多重分身",   rarity: "SSR", w: 19 },
+  { id: "ssr-awaken", glow: "#8FE6B8", img: "assets/cards/awaken.webp", video: "https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/awaken.mp4", title: "真身降臨・鎮池之卡",   rarity: "SSR", w: 3,  tier: "member" }
 ];
 
 const ALBUM_LIBRARY = { "the-sky": THE_SKY, "classics": CLASSICS };
@@ -3853,6 +3854,13 @@ window.ALBUM_SWITCH = {
   var UNS = (CFG.unlock && CFG.unlock.unlockShareKey) || NS;
   var LS = { unlock: UNS + ":unlock", pos: NS + ":pos", mood: NS + ":mood", hearts: NS + ":hearts",
              feedpass: UNS + ":feedpass", vids: UNS + ":vids" };
+  /* B127：unlockShareKey 上線的一次性遷移 —— 舊 classics key 底下的頻道/影片解鎖搬到共用 key */
+  try {
+    if (UNS !== NS) ["feedpass", "vids", "unlock"].forEach(function (k) {
+      var old = localStorage.getItem(NS + ":" + k);
+      if (old && !localStorage.getItem(UNS + ":" + k)) localStorage.setItem(UNS + ":" + k, old);
+    });
+  } catch (e) {}
   function lsGet(k, fb) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? fb : v; } catch (e) { return fb; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -4712,7 +4720,7 @@ window.ALBUM_SWITCH = {
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
-    if (screen === "lucky") renderLucky();
+    if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
   }
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
@@ -5880,16 +5888,19 @@ window.ALBUM_SWITCH = {
   }
   /* B29：抽卡音效（純合成、tiny；首播在使用者點擊手勢內，iOS 可播） */
   var LUCK_SFX = {};
-  (function () {
+  /* B127：音效延遲載入 —— 開場不再預抓 6 檔 (~220KB)，第一次進 LUCKY 頁（或第一次播）才建。
+   * sfxEnsure 都在使用者手勢鏈內被呼叫，iOS 播放權限不受影響。 */
+  var _sfxVol = { flip: 0.7, sr: 0.7, ssr: 0.7, jackpot: 0.85, jwin: 0.92, jspin: 0.5 };  /* B101/B102：jackpot/jwin=最大獎、jspin=一般卡短版滾動 */
+  function sfxEnsure() {
+    if (LUCK_SFX.flip) return;
     try {
-      var _sfxVol = { flip: 0.7, sr: 0.7, ssr: 0.7, jackpot: 0.85, jwin: 0.92, jspin: 0.5 };  /* B101/B102：jackpot/jwin=最大獎、jspin=一般卡短版滾動 */
       Object.keys(_sfxVol).forEach(function (k) {
         var a = new Audio("assets/sfx/" + k + ".mp3"); a.preload = "auto"; a.volume = _sfxVol[k];
         LUCK_SFX[k] = a;
       });
     } catch (e) {}
-  })();
-  function playSfx(k, v) { try { var a = LUCK_SFX[k]; if (a) { if (v != null) a.volume = v; a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
+  }
+  function playSfx(k, v) { sfxEnsure(); try { var a = LUCK_SFX[k]; if (a) { if (v != null) a.volume = v; a.currentTime = 0; a.play().catch(function () {}); } } catch (e) {} }
   function stopSfx(k) { try { var a = LUCK_SFX[k]; if (a) { a.pause(); a.currentTime = 0; } } catch (e) {} }   /* B102：停掉滾動鋪底 */
 
   /* B33：首抽全螢幕影片揭曉。overlay 掛 body（脫離 app 堆疊脈絡），
@@ -6309,7 +6320,7 @@ window.ALBUM_SWITCH = {
   $("btn-next").addEventListener("click", next);
   (function () {                                     /* B126T：單曲重複開關 */
     var lb = $("btn-loop"); if (!lb) return;
-    function paint() { lb.classList.toggle("on", loopOne); }
+    function paint() { lb.classList.toggle("on", loopOne); lb.setAttribute("aria-pressed", loopOne ? "true" : "false"); }
     lb.addEventListener("click", function () {
       loopOne = !loopOne;
       try { localStorage.setItem(NS + ":loop1", loopOne ? "1" : "0"); } catch (e) {}
@@ -6659,7 +6670,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B126T2</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B127T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
