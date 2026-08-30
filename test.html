@@ -5193,6 +5193,7 @@ window.ALBUM_SWITCH = {
     unlockBurstFx();
     hap([12, 30, 12, 30, 40]);
     toast("解鎖成功 · " + TOTAL + " 首全部屬於你了 ♡");
+    try { cloudLoad(); cloudSave(); } catch (e) {}   /* B130T：解鎖後立刻拉雲端小卡＋把本機的推上去 */
   }
 
   $("btn-redeem").addEventListener("click", function () {
@@ -5571,7 +5572,7 @@ window.ALBUM_SWITCH = {
           renderTrackLists(true); renderNowPlaying();
         }
         hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
-        loadLiveFeed(true); renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); try { cloudLoad(); cloudSave(); } catch(e){} return;
       }
       if (pid === "feed-pass") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
@@ -6736,7 +6737,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B129T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B130T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
