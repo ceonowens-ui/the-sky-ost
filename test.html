@@ -5471,6 +5471,18 @@ window.ALBUM_SWITCH = {
   }
   setTimeout(feedNewsCheck, 3000);                    /* 開場資料載齊後查一次 */
   setTimeout(cloudLoad, 2000);                        /* B128T：開場把雲端小卡拉回合併 */
+  (function fetchServerDay() {                          /* B129T：跟伺服器對時，防改手機日期刷券 */
+    var base = (CFG.api && CFG.api.workerBaseUrl) || "";
+    if (!base) return;
+    fetch(base + "/now", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && d.ok && Number.isFinite(d.day)) {
+          _srvDay = d.day;
+          try { renderLucky(); } catch (e) {}           /* 用真日期重算一次發券 */
+        }
+      }).catch(function () {});                          /* 對時失敗就退回手機日期（離線容錯） */
+  })();
 
   function renderMoodWall() {
     loadLiveFeed(false);
@@ -5851,7 +5863,9 @@ window.ALBUM_SWITCH = {
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   }
   /* B116T：把日期映成單調遞增整數（真實日曆只會變大；改手機日期倒退時數字變小＝不發券） */
+  var _srvDay = null;   /* B129T：伺服器日期（防改手機時鐘刷券） */
   function luckDayNum() {
+    if (_srvDay != null) return _srvDay;               /* 有伺服器日期就用它，手機時鐘改了也沒用 */
     var d = new Date();
     return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
   }
@@ -6722,7 +6736,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B128T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B129T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
