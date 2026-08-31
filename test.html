@@ -204,8 +204,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .cover-card.playing img, .cover-card.playing video { animation-play-state: running; }
 /* 有設定 coverVideo 時：影片疊在封面圖上層，一開始透明、真的播了才淡入（B135T 修抖動）*/
 .cover-card video { display: none; }
-.cover-card.has-video video { display: block; z-index: 1; opacity: 0; transition: opacity .5s ease; }
+.cover-card.has-video video { display: block; z-index: 1; opacity: 0; }
+/* B137T：不淡入了 —— 淡入半秒裡「靜止底圖 × 已在動的影片」混在一起才是殘影感的來源。
+   底圖=影片第一格,開播瞬間整張切換是看不見的;切換後把底圖藏掉,徹底只剩影片。 */
 .cover-card.has-video.cover-video-on video { opacity: 1; }
+.cover-card.has-video.cover-video-on img { visibility: hidden; }
 /* 保留 img 當底層封面：影片還沒載入、載入失敗、或還沒開始播，靜態封面照樣頂著（不會黑、不會跳）*/
 .cover-shade {
   position: absolute; inset: 0;
@@ -6786,7 +6789,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B136T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B137T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
