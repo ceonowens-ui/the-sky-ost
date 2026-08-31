@@ -5539,9 +5539,9 @@ window.ALBUM_SWITCH = {
     var out = feedChatHTML(items);
     var __ft = document.querySelector('#screen-mood .feed-tabs');
     if (!unlocked) {
-      /* 未解鎖：公開貼文照常顯示，SIGNAL 內容仍使用原本的收藏解鎖卡。
-         B139T：頻道試看 —— 固定放「第一張照片＋第一則語音」當預覽(新訊息往後加,這兩則永遠不變)。
-         整塊 pointer-events:none：圖不能放大、語音不能播,只能看。 */
+      /* B145：未解鎖畫面極簡化(CÉON 指定)——公開貼文也不顯示,
+         整頁只有「1 張照片＋1 則語音」試看(點不動無聲) + 解鎖卡。
+         公開貼文只給已解鎖會員看;試看內容固定=頻道最開頭那組,不洩漏新訊息。 */
       var teaser = "";
       try {
         /* B144T：試看 = 1 張照片 + 1 則語音(照頻道原本順序,固定不變) */
@@ -5561,8 +5561,8 @@ window.ALBUM_SWITCH = {
           '</div>';
         }
       } catch (e) { teaser = ""; }
-      if (__ft) __ft.classList.toggle('hidden', !out);
-      $("feed-body").innerHTML = out + teaser + feedLockCard();
+      if (__ft) __ft.classList.add('hidden');
+      $("feed-body").innerHTML = teaser + feedLockCard();   /* B145：拿掉公開貼文 out,只剩試看+解鎖卡 */
       bindFeedContent();
       return;
     }
@@ -6820,7 +6820,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B144</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B145</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
