@@ -202,10 +202,11 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   animation-play-state: paused; /* 播放時 app.js 切成 running（呼吸動畫） */
 }
 .cover-card.playing img, .cover-card.playing video { animation-play-state: running; }
-/* 有設定 coverVideo 時，影片顯示、圖片當作影片載入前的 poster 用途隱藏 */
+/* 有設定 coverVideo 時：影片疊在封面圖上層，一開始透明、真的播了才淡入（B135T 修抖動）*/
 .cover-card video { display: none; }
-.cover-card.has-video video { display: block; z-index: 1; }
-/* 保留 img 當底層封面：影片還沒載入或載入失敗時，靜態封面照樣顯示（修「封面圖不見」）*/
+.cover-card.has-video video { display: block; z-index: 1; opacity: 0; transition: opacity .5s ease; }
+.cover-card.has-video.cover-video-on video { opacity: 1; }
+/* 保留 img 當底層封面：影片還沒載入、載入失敗、或還沒開始播，靜態封面照樣頂著（不會黑、不會跳）*/
 .cover-shade {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
@@ -3891,8 +3892,13 @@ window.ALBUM_SWITCH = {
     var cv = $("cover-video");
     cv.muted = true; cv.defaultMuted = true; // iOS Safari 自動播放必須用 JS 也設一次
     cv.setAttribute("muted", "");
+    cv.setAttribute("poster", CFG.coverImage || "");   /* B135T：poster=同一張封面,影片播前跟底層照片完全對齊,不會閃舊圖 */
     cv.src = CFG.coverVideo;
     $("cover-card").classList.add("has-video");
+    /* B135T：影片真的開始播了才淡入（加 cover-video-on）—— 之前是硬切,會抖一下 */
+    var cvShow = function () { $("cover-card").classList.add("cover-video-on"); };
+    cv.addEventListener("playing", cvShow);
+    cv.addEventListener("timeupdate", function () { if (cv.currentTime > 0.05) cvShow(); });
     /* B133T：iOS 真機/內建瀏覽器常擋第一次自動播放 —— 多路補播：
        載入完成、回到前景、第一次觸碰/點擊，只要還是暫停就再試一次 play() */
     var cvKick = function () {
@@ -6775,7 +6781,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B134T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B135T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
