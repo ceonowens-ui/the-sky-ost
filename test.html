@@ -3890,9 +3890,22 @@ window.ALBUM_SWITCH = {
   if (CFG.coverVideo) {
     var cv = $("cover-video");
     cv.muted = true; cv.defaultMuted = true; // iOS Safari 自動播放必須用 JS 也設一次
+    cv.setAttribute("muted", "");
     cv.src = CFG.coverVideo;
     $("cover-card").classList.add("has-video");
-    cv.play && cv.play().catch(function(){});
+    /* B133T：iOS 真機/內建瀏覽器常擋第一次自動播放 —— 多路補播：
+       載入完成、回到前景、第一次觸碰/點擊，只要還是暫停就再試一次 play() */
+    var cvKick = function () {
+      if (cv.paused) { var p = cv.play(); if (p && p.catch) p.catch(function () {}); }
+    };
+    try { cv.load(); } catch (e) {}
+    cv.addEventListener("loadedmetadata", cvKick);
+    cv.addEventListener("canplay", cvKick);
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) cvKick(); });
+    window.addEventListener("pageshow", cvKick);
+    document.addEventListener("touchstart", cvKick, { passive: true });
+    document.addEventListener("click", cvKick);
+    cvKick();
   }
   $("cover-eyebrow").textContent = CFG.albumEyebrow || "";
   $("cover-title-en").textContent = CFG.albumTitleEn || CFG.albumTitle || "";
@@ -5786,7 +5799,8 @@ window.ALBUM_SWITCH = {
         fetch(_cloudBase + "/cards/save", {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=UTF-8" },  /* 避免 CORS preflight */
-          body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {}, gday: st.tnum || 0 })   /* 卡片收藏 + 領券日(防換裝置重領) */
+          body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {}, gday: st.tnum || 0,
+                                 tk: st.tk || 0, eSong: st.eSong || 0, eFeed: st.eFeed || 0 })   /* B134T：卡片＋券數＋領券日＋當日賺券,全部跟人走 */
         }).catch(function () {});
       } catch (e) {}
     }, 1500);
@@ -5806,14 +5820,22 @@ window.ALBUM_SWITCH = {
         Object.keys(co).forEach(function (id) {
           if (!st.owned[id]) { st.owned[id] = co[id]; changed = true; }
         });
-        /* B131T：每日券跨裝置校正 —— 雲端今天已領過，就把本 session 多發的那張收回 */
+        /* B134T：券以雲端為準（登入會員）—— 一句話規則：券跟卡都存雲端、跟人走。
+         * 雲端記錄是今天(含以後)的 → 整組採用(本機這次多發的自動被蓋掉)；
+         * 雲端記錄是舊日子的     → 今天的券 = 雲端數 + 每日1張(上限5)，賺券計數歸零；
+         * 雲端還沒存過券(舊版記錄) → 保留本機數字,回存時一併上雲。 */
         var _today = luckDayNum();
-        var _cg = Number.isFinite(cloud.gday) ? cloud.gday : -1;
-        if (_cg >= _today && st.freshG === _today) {       /* 雲端今天已領過,本地又新發了 → 收回這張重複的 */
-          st.tk = Math.max(0, (st.tk || 0) - TK_DAILY); changed = true;
+        if (Number.isFinite(cloud.tk)) {
+          var _cg = Number.isFinite(cloud.gday) ? cloud.gday : 0;
+          if (_cg >= _today) {
+            st.tk = cloud.tk; st.eSong = cloud.eSong || 0; st.eFeed = cloud.eFeed || 0; st.tnum = _cg;
+          } else {
+            st.tk = Math.min(TK_CAP, cloud.tk + TK_DAILY);
+            st.eSong = 0; st.eFeed = 0; st.tnum = _today;
+          }
+          changed = true;
         }
-        if (_cg >= _today && (st.tnum || 0) < _cg) { st.tnum = _cg; changed = true; }  /* 標記今天已領,不再重發 */
-        if (st.freshG != null) { st.freshG = null; changed = true; }   /* 跟雲端對過就撕章,避免同機重開被誤收 */
+        if (st.freshG != null) { st.freshG = null; changed = true; }   /* 跟雲端對過就撕章 */
         if (changed) {
           lsSet(LUCK_KEY, st);
           try { renderLucky(); } catch (e) {}
@@ -5846,6 +5868,7 @@ window.ALBUM_SWITCH = {
       st.eSong = 0; st.eFeed = 0; st.tday = t; st.tnum = n;
       st.freshG = n;                   /* B131T：這張是本地新發的今日券,存進 st(不受初始化順序影響) */
       lsSet(LUCK_KEY, st);
+      try { cloudSave(); } catch (e) {}   /* B134T：發了券就上雲,別的裝置才知道今天領過 */
     } else if (st.tday !== t) {
       st.tday = t;                       /* 時鐘倒轉：只換顯示日，不發券、不重置每日上限 */
       lsSet(LUCK_KEY, st);
@@ -5865,6 +5888,7 @@ window.ALBUM_SWITCH = {
       st.eSong = (st.eSong || 0) + 1;
       st.tk = Math.min(TK_CAP, (st.tk || 0) + 1);
       lsSet(LUCK_KEY, st);
+      try { cloudSave(); } catch (e) {}   /* B134T：賺到券也上雲 */
       hap([8, 24, 8]);
       toast("聽完一首 · ＋1 抽卡券 ✦", 1600);
       if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
@@ -6751,7 +6775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B132T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B134T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
