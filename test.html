@@ -5480,7 +5480,12 @@ window.ALBUM_SWITCH = {
       .then(function (d) {
         if (d && d.ok && Number.isFinite(d.day)) {
           _srvDay = d.day;
-          try { renderLucky(); } catch (e) {}           /* 用真日期重算一次發券 */
+          /* 原因A修正：只有「本 session 已發過券(freshG存在)」且伺服器日期較大時才校準；
+           * 沒發過券就完全不碰狀態(避免在首次發券前寫入殘缺 state 害發券失效)。 */
+          try { var _s = lsGet(LUCK_KEY, null);
+            if (_s && _s.freshG != null && (_s.tnum || 0) < _srvDay) { _s.tnum = _srvDay; _s.freshG = _srvDay; lsSet(LUCK_KEY, _s); }
+          } catch (e) {}
+          try { renderLucky(); } catch (e) {}
         }
       }).catch(function () {});                          /* 對時失敗就退回手機日期（離線容錯） */
   })();
@@ -5757,6 +5762,7 @@ window.ALBUM_SWITCH = {
    * 資格：免費也能每日 1 抽（只抽得到 N 卡，SR/SSR 圖鑑模糊誘餌）；
    *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
   var LUCK_KEY = "album-the-sky:luck";
+  var _srvDay = null;       /* B129T：伺服器日期（防改手機時鐘刷券）— 宣告要在 luckState 首次呼叫前 */
   /* ===== B128T：小卡雲端同步 —— 收藏跟著人走，不跟著手機 =================
    * 只對「已解鎖付費會員」生效（要有 email+碼當鑰匙）。
    *   開 App / 解鎖 → 從雲端拉回，跟本機「聯集合併」（永不刪、只補齊）
@@ -5780,7 +5786,7 @@ window.ALBUM_SWITCH = {
         fetch(_cloudBase + "/cards/save", {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=UTF-8" },  /* 避免 CORS preflight */
-          body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {} })   /* 只同步卡片收藏；券是每日免費、不跨裝置 */
+          body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {}, gday: st.tnum || 0 })   /* 卡片收藏 + 領券日(防換裝置重領) */
         }).catch(function () {});
       } catch (e) {}
     }, 1500);
@@ -5800,6 +5806,14 @@ window.ALBUM_SWITCH = {
         Object.keys(co).forEach(function (id) {
           if (!st.owned[id]) { st.owned[id] = co[id]; changed = true; }
         });
+        /* B131T：每日券跨裝置校正 —— 雲端今天已領過，就把本 session 多發的那張收回 */
+        var _today = luckDayNum();
+        var _cg = Number.isFinite(cloud.gday) ? cloud.gday : -1;
+        if (_cg >= _today && st.freshG === _today) {       /* 雲端今天已領過,本地又新發了 → 收回這張重複的 */
+          st.tk = Math.max(0, (st.tk || 0) - TK_DAILY); changed = true;
+        }
+        if (_cg >= _today && (st.tnum || 0) < _cg) { st.tnum = _cg; changed = true; }  /* 標記今天已領,不再重發 */
+        if (st.freshG != null) { st.freshG = null; changed = true; }   /* 跟雲端對過就撕章,避免同機重開被誤收 */
         if (changed) {
           lsSet(LUCK_KEY, st);
           try { renderLucky(); } catch (e) {}
@@ -5830,6 +5844,7 @@ window.ALBUM_SWITCH = {
     if (n > st.tnum) {
       st.tk = Math.min(TK_CAP, (st.tday ? (st.tk || 0) : 0) + TK_DAILY);
       st.eSong = 0; st.eFeed = 0; st.tday = t; st.tnum = n;
+      st.freshG = n;                   /* B131T：這張是本地新發的今日券,存進 st(不受初始化順序影響) */
       lsSet(LUCK_KEY, st);
     } else if (st.tday !== t) {
       st.tday = t;                       /* 時鐘倒轉：只換顯示日，不發券、不重置每日上限 */
@@ -5864,7 +5879,6 @@ window.ALBUM_SWITCH = {
     return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
   }
   /* B116T：把日期映成單調遞增整數（真實日曆只會變大；改手機日期倒退時數字變小＝不發券） */
-  var _srvDay = null;   /* B129T：伺服器日期（防改手機時鐘刷券） */
   function luckDayNum() {
     if (_srvDay != null) return _srvDay;               /* 有伺服器日期就用它，手機時鐘改了也沒用 */
     var d = new Date();
@@ -6737,7 +6751,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B130T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B131T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
