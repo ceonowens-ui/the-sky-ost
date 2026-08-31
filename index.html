@@ -202,10 +202,15 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   animation-play-state: paused; /* 播放時 app.js 切成 running（呼吸動畫） */
 }
 .cover-card.playing img, .cover-card.playing video { animation-play-state: running; }
-/* 有設定 coverVideo 時，影片顯示、圖片當作影片載入前的 poster 用途隱藏 */
+/* 有設定 coverVideo 時：影片疊在封面圖上層，一開始透明、真的播了才淡入（B135T 修抖動）*/
 .cover-card video { display: none; }
+/* B138T：影片必須「全程可見」—— iOS 規定看不見的影片不自動播,B137 的先隱形後現身
+   會跟它互等(等播放才現身 × 等現身才播放),變成要手點。
+   防抖改交給 poster:影片自己的 poster = 第一格,原生接到播放逐像素一致,零抖動。
+   底圖 img(同一張第一格)只當「影片還沒載出 poster 前」的墊底,開始播就藏掉。 */
 .cover-card.has-video video { display: block; z-index: 1; }
-/* 保留 img 當底層封面：影片還沒載入或載入失敗時，靜態封面照樣顯示（修「封面圖不見」）*/
+.cover-card.has-video.cover-video-on img { visibility: hidden; }
+/* 保留 img 當底層封面：影片還沒載入、載入失敗、或還沒開始播，靜態封面照樣頂著（不會黑、不會跳）*/
 .cover-shade {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.33) 7%,
@@ -1528,6 +1533,12 @@ body { background: #08060C !important; }
   max-height:34vh; overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);
   mask-image:linear-gradient(180deg,#000 60%,transparent); }
+/* B139T：SIGNAL 頻道試看(未解鎖)—— 只能看不能點 */
+.feed-teaser{ position:relative; pointer-events:none; margin:4px 0 10px; }
+.feed-teaser .ft-head{ font-family:var(--font-label,inherit); font-size:10px; letter-spacing:4px;
+  color:var(--accent,#E0A94E); opacity:.85; margin:10px 4px 12px; }
+.feed-teaser .ft-hint{ text-align:center; font-size:12px; color:rgba(255,255,255,.45);
+  letter-spacing:1px; margin:14px 0 6px; }
 .feed-lock{ margin:-42px 22px 26px; position:relative; z-index:5; text-align:center;
   padding:26px 22px 22px; border-radius:26px; background:rgba(22,13,32,.78);
   border:1px solid rgba(217,178,106,.35);
@@ -1889,7 +1900,7 @@ body { background: #08060C !important; }
       <!-- 封面（換圖：album-config.js → coverImage） -->
       <div class="cover-card" id="cover-card">
         <img id="cover-img" src="" alt="">
-        <video id="cover-video" autoplay muted loop playsinline webkit-playsinline></video>
+        <video id="cover-video" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
         <div class="cover-shade"></div>
         <div class="cover-titles">
           <div class="cover-eyebrow" id="cover-eyebrow"></div>
@@ -2900,7 +2911,8 @@ const THE_SKY = {
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
   coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
-  coverVideo: "",            // 選填：6 秒循環影片取代靜態封面（自動靜音播放）
+  coverVideo: "assets/images/sky/cover-video.mp4?v=0831",  // B132T：I'M SORRY 封面影片（開 App 自動靜音循環，載入失敗退回 coverImage）
+  coverPoster: "assets/images/sky/cover-poster.jpg?v=0831", // B136T：影片第一格當開場底圖 —— 打開就是這格,影片從同一格接著動,零跳圖
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
   /* ---- 品牌配色（每張專輯的色系）-------------------------------- */
@@ -3890,9 +3902,31 @@ window.ALBUM_SWITCH = {
   if (CFG.coverVideo) {
     var cv = $("cover-video");
     cv.muted = true; cv.defaultMuted = true; // iOS Safari 自動播放必須用 JS 也設一次
+    cv.setAttribute("muted", "");
+    /* B136T：開場底圖換成「影片第一格」—— 打開看到的靜態圖 = 影片開頭,播起來從同一格繼續,完全無縫。
+       coverImage(舊封面)只退出 hero 開場,其他地方(鎖定畫面/曲目縮圖等)照用。 */
+    var cvPoster = CFG.coverPoster || CFG.coverImage || "";
+    if (cvPoster) { $("cover-img").src = cvPoster; }
+    cv.setAttribute("poster", cvPoster);
     cv.src = CFG.coverVideo;
     $("cover-card").classList.add("has-video");
-    cv.play && cv.play().catch(function(){});
+    /* B135T：影片真的開始播了才淡入（加 cover-video-on）—— 之前是硬切,會抖一下 */
+    var cvShow = function () { $("cover-card").classList.add("cover-video-on"); };
+    cv.addEventListener("playing", cvShow);
+    cv.addEventListener("timeupdate", function () { if (cv.currentTime > 0.05) cvShow(); });
+    /* B133T：iOS 真機/內建瀏覽器常擋第一次自動播放 —— 多路補播：
+       載入完成、回到前景、第一次觸碰/點擊，只要還是暫停就再試一次 play() */
+    var cvKick = function () {
+      if (cv.paused) { var p = cv.play(); if (p && p.catch) p.catch(function () {}); }
+    };
+    try { cv.load(); } catch (e) {}
+    cv.addEventListener("loadedmetadata", cvKick);
+    cv.addEventListener("canplay", cvKick);
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) cvKick(); });
+    window.addEventListener("pageshow", cvKick);
+    document.addEventListener("touchstart", cvKick, { passive: true });
+    document.addEventListener("click", cvKick);
+    cvKick();
   }
   $("cover-eyebrow").textContent = CFG.albumEyebrow || "";
   $("cover-title-en").textContent = CFG.albumTitleEn || CFG.albumTitle || "";
@@ -4563,7 +4597,7 @@ window.ALBUM_SWITCH = {
 "點一下收進圖鑑": "Tap to add to your collection",
 "會員限定": "Members only",
 "卡池尚未設定": "Card pool not set",
-"另外 5 張只有買了才抽得到 ✦": "The other 5 cards are owner-only ✦",
+"另外 3 張只有買了才抽得到 ✦": "The other 3 cards are owner-only ✦",
 "購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →": "Buy the album NT$299 · unlock all 6 cards + every song →",
 "解鎖後才能收藏這首的心動瞬間": "Unlock to collect this moment",
 "重置抽卡＋補滿券（測試用）": "Reset draws + refill tickets (testing)",
@@ -5193,6 +5227,7 @@ window.ALBUM_SWITCH = {
     unlockBurstFx();
     hap([12, 30, 12, 30, 40]);
     toast("解鎖成功 · " + TOTAL + " 首全部屬於你了 ♡");
+    try { cloudLoad(); cloudSave(); } catch (e) {}   /* B130T：解鎖後立刻拉雲端小卡＋把本機的推上去 */
   }
 
   $("btn-redeem").addEventListener("click", function () {
@@ -5230,7 +5265,7 @@ window.ALBUM_SWITCH = {
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         unlockNow({ email: email, code: code, product: "full-unlock" });
-        loadLiveFeed(true); renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); cloudLoad(); return;
       }
       if (pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
@@ -5470,11 +5505,32 @@ window.ALBUM_SWITCH = {
     document.body.appendChild(b);
   }
   setTimeout(feedNewsCheck, 3000);                    /* 開場資料載齊後查一次 */
+  setTimeout(cloudLoad, 2000);                        /* B128T：開場把雲端小卡拉回合併 */
+  (function fetchServerDay() {                          /* B129T：跟伺服器對時，防改手機日期刷券 */
+    var base = (CFG.api && CFG.api.workerBaseUrl) || "";
+    if (!base) return;
+    fetch(base + "/now", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && d.ok && Number.isFinite(d.day)) {
+          _srvDay = d.day;
+          /* 原因A修正：只有「本 session 已發過券(freshG存在)」且伺服器日期較大時才校準；
+           * 沒發過券就完全不碰狀態(避免在首次發券前寫入殘缺 state 害發券失效)。 */
+          try { var _s = lsGet(LUCK_KEY, null);
+            if (_s && _s.freshG != null && (_s.tnum || 0) < _srvDay) { _s.tnum = _srvDay; _s.freshG = _srvDay; lsSet(LUCK_KEY, _s); }
+          } catch (e) {}
+          try { renderLucky(); } catch (e) {}
+        }
+      }).catch(function () {});                          /* 對時失敗就退回手機日期（離線容錯） */
+  })();
 
   function renderMoodWall() {
     loadLiveFeed(false);
     setTimeout(feedNewsCheck, 600);
     var unlocked = feedUnlockedQ();
+    /* B142T：test 專用「粉絲視角」開關 —— test.html?fanview=1 強制用未解鎖畫面顯示,
+       方便 CÉON 用平常的 Safari 預覽粉絲看到的樣子(正式站 index.html 沒有這個開關) */
+    if (/test\.html/i.test(location.pathname) && /[?&]fanview=1/.test(location.search)) unlocked = false;
     var live = FEED_LIVE_POSTS.filter(function (p) {
       return p && !p.locked && (unlocked || p.tier === "public");
     });
@@ -5483,9 +5539,30 @@ window.ALBUM_SWITCH = {
     var out = feedChatHTML(items);
     var __ft = document.querySelector('#screen-mood .feed-tabs');
     if (!unlocked) {
-      /* 未解鎖：公開貼文照常顯示，SIGNAL 內容仍使用原本的收藏解鎖卡。 */
+      /* 未解鎖：公開貼文照常顯示，SIGNAL 內容仍使用原本的收藏解鎖卡。
+         B139T：頻道試看 —— 固定放「第一張照片＋第一則語音」當預覽(新訊息往後加,這兩則永遠不變)。
+         整塊 pointer-events:none：圖不能放大、語音不能播,只能看。 */
+      var teaser = "";
+      try {
+        /* B144T：試看 = 1 張照片 + 1 則語音(照頻道原本順序,固定不變) */
+        var tItems = [], tPhotos = 0, tVoices = 0;
+        if (typeof FEED_CHAT !== "undefined") {
+          for (var tj = 0; tj < FEED_CHAT.length && (tPhotos < 1 || tVoices < 1); tj++) {
+            var tn = FEED_CHAT[tj];
+            if (tn.photo && tPhotos < 1) { tItems.push(tn); tPhotos++; continue; }
+            if (tn.voice && tVoices < 1) { tItems.push(tn); tVoices++; }
+          }
+        }
+        if (tItems.length) {
+          teaser = '<div class="feed-teaser">' +
+            '<div class="ft-head">SIGNAL · 頻道試看</div>' +
+            feedChatHTML(tItems) +
+            '<div class="ft-hint">&#128274; 解鎖後可以聽語音、看完整頻道</div>' +
+          '</div>';
+        }
+      } catch (e) { teaser = ""; }
       if (__ft) __ft.classList.toggle('hidden', !out);
-      $("feed-body").innerHTML = out + feedLockCard();
+      $("feed-body").innerHTML = out + teaser + feedLockCard();
       bindFeedContent();
       return;
     }
@@ -5558,7 +5635,7 @@ window.ALBUM_SWITCH = {
           renderTrackLists(true); renderNowPlaying();
         }
         hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
-        loadLiveFeed(true); renderMoodWall(); return;
+        loadLiveFeed(true); renderMoodWall(); try { cloudLoad(); cloudSave(); } catch(e){} return;
       }
       if (pid === "feed-pass") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
@@ -5743,6 +5820,74 @@ window.ALBUM_SWITCH = {
    * 資格：免費也能每日 1 抽（只抽得到 N 卡，SR/SSR 圖鑑模糊誘餌）；
    *       已購專輯 299 或全解鎖 799 → 完整卡池（N60/R25/SR12/SSR3%）。 */
   var LUCK_KEY = "album-the-sky:luck";
+  var _srvDay = null;       /* B129T：伺服器日期（防改手機時鐘刷券）— 宣告要在 luckState 首次呼叫前 */
+  /* ===== B128T：小卡雲端同步 —— 收藏跟著人走，不跟著手機 =================
+   * 只對「已解鎖付費會員」生效（要有 email+碼當鑰匙）。
+   *   開 App / 解鎖 → 從雲端拉回，跟本機「聯集合併」（永不刪、只補齊）
+   *   抽到卡 / 券變動 → 去彈跳（debounce）存回雲端
+   * 純附加：後端沒設或斷線都靜默略過，抽卡照常，壞不了。 */
+  var _cloudBase = (CFG.api && CFG.api.workerBaseUrl) || "";
+  function cloudCreds() {
+    var u = unlockInfo(), f = feedPassInfo();
+    var email = (u.email || f.email || "").trim();
+    var code = (u.code || f.code || "").trim();
+    return (email && code) ? { email: email, code: code } : null;
+  }
+  var _cloudTimer = null;
+  function cloudSave() {
+    if (!_cloudBase) return;
+    var cr = cloudCreds(); if (!cr) return;                 /* 免費用戶沒鑰匙，不存 */
+    clearTimeout(_cloudTimer);
+    _cloudTimer = setTimeout(function () {
+      try {
+        var st = lsGet(LUCK_KEY, { owned: {}, tk: 0 });
+        fetch(_cloudBase + "/cards/save", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },  /* 避免 CORS preflight */
+          body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {}, gday: st.tnum || 0,
+                                 tk: st.tk || 0, eSong: st.eSong || 0, eFeed: st.eFeed || 0 })   /* B134T：卡片＋券數＋領券日＋當日賺券,全部跟人走 */
+        }).catch(function () {});
+      } catch (e) {}
+    }, 1500);
+  }
+  function cloudLoad() {
+    if (!_cloudBase) return;
+    var cr = cloudCreds(); if (!cr) return;
+    fetch(_cloudBase + "/cards/load?e=" + encodeURIComponent(cr.email) + "&c=" + encodeURIComponent(cr.code), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.ok || !d.data) return;
+        var cloud = d.data, st = lsGet(LUCK_KEY, { owned: {}, tk: 0 });
+        st.owned = st.owned || {};
+        var changed = false;
+        /* 聯集合併：雲端有、本機沒有的卡 → 補進來（永不刪本機的） */
+        var co = cloud.owned || {};
+        Object.keys(co).forEach(function (id) {
+          if (!st.owned[id]) { st.owned[id] = co[id]; changed = true; }
+        });
+        /* B134T：券以雲端為準（登入會員）—— 一句話規則：券跟卡都存雲端、跟人走。
+         * 雲端記錄是今天(含以後)的 → 整組採用(本機這次多發的自動被蓋掉)；
+         * 雲端記錄是舊日子的     → 今天的券 = 雲端數 + 每日1張(上限5)，賺券計數歸零；
+         * 雲端還沒存過券(舊版記錄) → 保留本機數字,回存時一併上雲。 */
+        var _today = luckDayNum();
+        if (Number.isFinite(cloud.tk)) {
+          var _cg = Number.isFinite(cloud.gday) ? cloud.gday : 0;
+          if (_cg >= _today) {
+            st.tk = cloud.tk; st.eSong = cloud.eSong || 0; st.eFeed = cloud.eFeed || 0; st.tnum = _cg;
+          } else {
+            st.tk = Math.min(TK_CAP, cloud.tk + TK_DAILY);
+            st.eSong = 0; st.eFeed = 0; st.tnum = _today;
+          }
+          changed = true;
+        }
+        if (st.freshG != null) { st.freshG = null; changed = true; }   /* 跟雲端對過就撕章 */
+        if (changed) {
+          lsSet(LUCK_KEY, st);
+          try { renderLucky(); } catch (e) {}
+          cloudSave();                                      /* 合併後回存，兩邊同步 */
+        }
+      }).catch(function () {});
+  }
   var PHYSICAL_ID = "ssr-stage";                    /* B91：實體最大獎＝集滿最後一張 */
   var PHYS_CLAIM_KEY = "album-the-sky:physclaim";   /* B91：實體卡領取紀錄（本機）*/
   var LUCK_RATES = [["SSR", 3], ["SR", 12], ["R", 25], ["N", 60]];
@@ -5766,7 +5911,9 @@ window.ALBUM_SWITCH = {
     if (n > st.tnum) {
       st.tk = Math.min(TK_CAP, (st.tday ? (st.tk || 0) : 0) + TK_DAILY);
       st.eSong = 0; st.eFeed = 0; st.tday = t; st.tnum = n;
+      st.freshG = n;                   /* B131T：這張是本地新發的今日券,存進 st(不受初始化順序影響) */
       lsSet(LUCK_KEY, st);
+      try { cloudSave(); } catch (e) {}   /* B134T：發了券就上雲,別的裝置才知道今天領過 */
     } else if (st.tday !== t) {
       st.tday = t;                       /* 時鐘倒轉：只換顯示日，不發券、不重置每日上限 */
       lsSet(LUCK_KEY, st);
@@ -5786,6 +5933,7 @@ window.ALBUM_SWITCH = {
       st.eSong = (st.eSong || 0) + 1;
       st.tk = Math.min(TK_CAP, (st.tk || 0) + 1);
       lsSet(LUCK_KEY, st);
+      try { cloudSave(); } catch (e) {}   /* B134T：賺到券也上雲 */
       hap([8, 24, 8]);
       toast("聽完一首 · ＋1 抽卡券 ✦", 1600);
       if (typeof state !== "undefined" && state.screen === "lucky") renderLucky();
@@ -5801,6 +5949,7 @@ window.ALBUM_SWITCH = {
   }
   /* B116T：把日期映成單調遞增整數（真實日曆只會變大；改手機日期倒退時數字變小＝不發券） */
   function luckDayNum() {
+    if (_srvDay != null) return _srvDay;               /* 有伺服器日期就用它，手機時鐘改了也沒用 */
     var d = new Date();
     return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
   }
@@ -5878,7 +6027,7 @@ window.ALBUM_SWITCH = {
           (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '</div>' +
       (member ? "" :
-        '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
+        '<button class="lk-cta" id="lk-goshop">另外 3 張只有買了才抽得到 ✦<br>' +
         '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>');
     var gs = $("lk-goshop");
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
@@ -6254,6 +6403,7 @@ window.ALBUM_SWITCH = {
     st.pNew = dup ? (st.pNew || 0) + 1 : 0;
     st.owned[c.id] = (st.owned[c.id] || 0) + 1;
     lsSet(LUCK_KEY, st);
+    cloudSave();                               /* B128T：抽到卡同步雲端 */
     window.__lkDup = dup ? 1 : 0;
     var btn = $("lk-draw"); if (btn) btn.disabled = true;
     lkReveal(c, dup);                          /* 影片 prime 必須在此同步手勢內發生 */
@@ -6670,7 +6820,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B127</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B144</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

@@ -5528,6 +5528,9 @@ window.ALBUM_SWITCH = {
     loadLiveFeed(false);
     setTimeout(feedNewsCheck, 600);
     var unlocked = feedUnlockedQ();
+    /* B142T：test 專用「粉絲視角」開關 —— test.html?fanview=1 強制用未解鎖畫面顯示,
+       方便 CÉON 用平常的 Safari 預覽粉絲看到的樣子(正式站 index.html 沒有這個開關) */
+    if (/test\.html/i.test(location.pathname) && /[?&]fanview=1/.test(location.search)) unlocked = false;
     var live = FEED_LIVE_POSTS.filter(function (p) {
       return p && !p.locked && (unlocked || p.tier === "public");
     });
@@ -5541,12 +5544,12 @@ window.ALBUM_SWITCH = {
          整塊 pointer-events:none：圖不能放大、語音不能播,只能看。 */
       var teaser = "";
       try {
-        /* B141T：試看 = 前 2 張照片 + 第 1 則語音(照頻道原本順序,固定不變) */
+        /* B144T：試看 = 1 張照片 + 1 則語音(照頻道原本順序,固定不變) */
         var tItems = [], tPhotos = 0, tVoices = 0;
         if (typeof FEED_CHAT !== "undefined") {
-          for (var tj = 0; tj < FEED_CHAT.length && (tPhotos < 2 || tVoices < 1); tj++) {
+          for (var tj = 0; tj < FEED_CHAT.length && (tPhotos < 1 || tVoices < 1); tj++) {
             var tn = FEED_CHAT[tj];
-            if (tn.photo && tPhotos < 2) { tItems.push(tn); tPhotos++; continue; }
+            if (tn.photo && tPhotos < 1) { tItems.push(tn); tPhotos++; continue; }
             if (tn.voice && tVoices < 1) { tItems.push(tn); tVoices++; }
           }
         }
@@ -6817,7 +6820,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B141T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B144T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
