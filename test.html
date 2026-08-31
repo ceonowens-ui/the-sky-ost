@@ -4597,7 +4597,7 @@ window.ALBUM_SWITCH = {
 "點一下收進圖鑑": "Tap to add to your collection",
 "會員限定": "Members only",
 "卡池尚未設定": "Card pool not set",
-"另外 5 張只有買了才抽得到 ✦": "The other 5 cards are owner-only ✦",
+"另外 3 張只有買了才抽得到 ✦": "The other 3 cards are owner-only ✦",
 "購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →": "Buy the album NT$299 · unlock all 6 cards + every song →",
 "解鎖後才能收藏這首的心動瞬間": "Unlock to collect this moment",
 "重置抽卡＋補滿券（測試用）": "Reset draws + refill tickets (testing)",
@@ -5541,15 +5541,15 @@ window.ALBUM_SWITCH = {
          整塊 pointer-events:none：圖不能放大、語音不能播,只能看。 */
       var teaser = "";
       try {
-        var tp = null, tv = null;
+        /* B141T：試看 = 前 2 張照片 + 第 1 則語音(照頻道原本順序,固定不變) */
+        var tItems = [], tPhotos = 0, tVoices = 0;
         if (typeof FEED_CHAT !== "undefined") {
-          for (var tj = 0; tj < FEED_CHAT.length && !(tp && tv); tj++) {
+          for (var tj = 0; tj < FEED_CHAT.length && (tPhotos < 2 || tVoices < 1); tj++) {
             var tn = FEED_CHAT[tj];
-            if (!tp && tn.photo) { tp = tn; continue; }
-            if (!tv && tn.voice) { tv = tn; }
+            if (tn.photo && tPhotos < 2) { tItems.push(tn); tPhotos++; continue; }
+            if (tn.voice && tVoices < 1) { tItems.push(tn); tVoices++; }
           }
         }
-        var tItems = [].concat(tp ? [tp] : [], tv ? [tv] : []);
         if (tItems.length) {
           teaser = '<div class="feed-teaser">' +
             '<div class="ft-head">SIGNAL · 頻道試看</div>' +
@@ -6024,7 +6024,7 @@ window.ALBUM_SWITCH = {
           (tk > 0 ? "抽卡 ✦ 剩 " + tk + " 張券" : "券用完了 · 去聽歌賺一張") + '</button>' +
       '</div>' +
       (member ? "" :
-        '<button class="lk-cta" id="lk-goshop">另外 5 張只有買了才抽得到 ✦<br>' +
+        '<button class="lk-cta" id="lk-goshop">另外 3 張只有買了才抽得到 ✦<br>' +
         '購買專輯 NT$299 · 解鎖全部 6 張＋所有歌曲 →</button>');
     var gs = $("lk-goshop");
     if (gs) gs.addEventListener("click", function () { go("purchase"); });
@@ -6817,7 +6817,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B139T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B141T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
