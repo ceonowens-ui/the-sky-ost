@@ -5374,20 +5374,27 @@ window.ALBUM_SWITCH = {
   }
 
   function livePostsToChat(posts) {
-    var out = [], lastDay = "";
-    posts.slice().sort(function (a, b) { return Number(a.ts || 0) - Number(b.ts || 0); })
+    var groups = [];
+    posts.slice().sort(function (a, b) { return Number(b.ts || 0) - Number(a.ts || 0); })
       .forEach(function (p) {
         if (!p || p.locked) return;
+        var its = [];
+        if (p.text) its.push({ text: p.text });
+        if (p.type === "photo" && p.media) its.push({ photo: liveMediaURL(p) });
+        if (p.type === "voice" && p.media) its.push({ voice: liveMediaURL(p), id: p.id || ("live-" + p.ts) });
+        if (p.type === "video" && p.media) its.push({ video: liveMediaURL(p), id: p.id || ("live-" + p.ts), protected: false });
+        if (!its.length) return;
         var d = new Date(Number(p.ts || Date.now()));
         var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
         var day = d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate());
-        if (day !== lastDay) { out.push({ day: day }); lastDay = day; }
-        else if (out.length) out.push({ gap: 1 });
-        if (p.text) out.push({ text: p.text });
-        if (p.type === "photo" && p.media) out.push({ photo: liveMediaURL(p) });
-        if (p.type === "voice" && p.media) out.push({ voice: liveMediaURL(p), id: p.id || ("live-" + p.ts) });
-        if (p.type === "video" && p.media) out.push({ video: liveMediaURL(p), id: p.id || ("live-" + p.ts), protected: false });
+        groups.push({ day: day, its: its });
       });
+    var out = [], lastDay = "";
+    groups.forEach(function (g) {
+      if (g.day !== lastDay) { out.push({ day: g.day }); lastDay = g.day; }
+      else if (out.length) out.push({ gap: 1 });
+      g.its.forEach(function (it) { out.push(it); });
+    });
     return out;
   }
 
@@ -5535,8 +5542,8 @@ window.ALBUM_SWITCH = {
     var live = FEED_LIVE_POSTS.filter(function (p) {
       return p && !p.locked && (unlocked || p.tier === "public");
     });
-    var items = (unlocked && typeof FEED_CHAT !== "undefined" ? FEED_CHAT : [])
-      .concat(livePostsToChat(live));
+    var items = livePostsToChat(live)
+      .concat(unlocked && typeof FEED_CHAT !== "undefined" ? FEED_CHAT : []);
     var out = feedChatHTML(items);
     var __ft = document.querySelector('#screen-mood .feed-tabs');
     if (!unlocked) {
@@ -6821,7 +6828,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B146T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B147T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
