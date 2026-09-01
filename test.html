@@ -5386,6 +5386,7 @@ window.ALBUM_SWITCH = {
         if (p.text) out.push({ text: p.text });
         if (p.type === "photo" && p.media) out.push({ photo: liveMediaURL(p) });
         if (p.type === "voice" && p.media) out.push({ voice: liveMediaURL(p), id: p.id || ("live-" + p.ts) });
+        if (p.type === "video" && p.media) out.push({ video: liveMediaURL(p), id: p.id || ("live-" + p.ts), protected: false });
       });
     return out;
   }
@@ -6820,7 +6821,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B145T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B146T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
