@@ -5287,7 +5287,7 @@ window.ALBUM_SWITCH = {
   var FEED_MONTHS = FEED.monthLabels || {};
   var FEED_LIVE_POSTS = [];
   var feedLiveLoading = false;
-  var feedLiveLoadedAt = 0;
+  var feedLiveLoadedAt = 0; var feedLiveKey = "";
   var feedLiveRequest = 0;
   var feedCat = "all";
   var FEED_MATCH = { all: function () { return true; },
@@ -5356,9 +5356,12 @@ window.ALBUM_SWITCH = {
       .then(function (d) {
         if (requestNo !== feedLiveRequest) return;
         if (!d || !d.ok || !Array.isArray(d.posts)) throw 0;
+        var liveKey = JSON.stringify(d.posts);
+        var liveChanged = (liveKey !== feedLiveKey);
+        feedLiveKey = liveKey;
         FEED_LIVE_POSTS = d.posts;
         feedLiveLoadedAt = Date.now();
-        renderMoodWall();
+        if (liveChanged) renderMoodWall();   /* B148：資料沒變就不重繪，避免殺掉正在播的影片/語音 */
       })
       .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ })
       .then(function () { if (requestNo === feedLiveRequest) feedLiveLoading = false; });
@@ -6828,7 +6831,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B147T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B148T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
