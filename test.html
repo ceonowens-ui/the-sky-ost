@@ -907,12 +907,20 @@ textarea, select { font-size: 16px !important; }
  * 不會跟播放器其他元件衝突。參考 Weverse / Apple Journal / X。
  * =================================================================== */
 #screen-mood.feedwrap { padding: 0 0 calc(96px + env(safe-area-inset-bottom)); }
-#screen-mood .feed-tabs { position: sticky; top: 0; z-index: 12;
-  display: flex; align-items: center; gap: 3px;
-  padding: calc(10px + env(safe-area-inset-top)) 13px 9px;
-  background: rgba(7,17,31,.93);
-  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-  border-bottom: 1px solid rgba(255,255,255,.07); }
+#screen-mood /* B152T：頻道標頭改浮動玻璃膠囊（跟通知膠囊同一套視覺），文字置中 */
+.feed-tabs { position: sticky; top: 0; z-index: 12;
+  display: flex; align-items: center; justify-content: center;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+  background: transparent; border-bottom: none; pointer-events: none; }
+.feedhead-cap { pointer-events: auto; position: relative; display: inline-flex; align-items: center; gap: 10px;
+  max-width: 100%; padding: 9px 18px 9px 10px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: linear-gradient(135deg,rgba(60,42,96,.42),rgba(30,20,52,.55));
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.18); }
+.feedhead-cap::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.10) 100%); }
+.feedhead-txt { align-items: center; text-align: center; flex: 0 1 auto; }
 #screen-mood .feed-tab { border: none; background: none; cursor: pointer;
   padding: 6px 12px; border-radius: 14px;
   font-family: var(--font-serif-tc); font-size: 12.5px; letter-spacing: 1.2px;
@@ -2072,11 +2080,13 @@ body { background: #08060C !important; }
 
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
-    <div class="feed-tabs" style="display:flex;align-items:center;gap:12px;padding:13px 17px">
-      <img src="assets/images/avatar.jpg" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(217,178,106,.5)">
-      <div style="min-width:0">
-        <div style="font-family:var(--font-serif-tc);font-size:16px;color:#fff">成晞 Chance</div>
-        <div style="font-family:var(--font-label);font-size:10px;letter-spacing:2.2px;color:rgba(255,255,255,.45)">SIGNAL · 私訊頻道</div>
+    <div class="feed-tabs">
+      <div class="feedhead-cap">
+        <img src="assets/images/avatar.jpg" alt="" class="sigbar-ava">
+        <span class="sigbar-txt feedhead-txt">
+          <span class="sigbar-eyebrow">SIGNAL · 私訊頻道</span>
+          <span class="sigbar-main">成晞 Chance</span>
+        </span>
       </div>
       <span class="feed-count hidden" id="feed-count"></span>
     </div>
@@ -6880,7 +6890,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B151T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B152T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
