@@ -346,6 +346,30 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
            letter-spacing: .1px; color: rgba(255,255,255,.55);
            margin-left: 5px; white-space: nowrap; }
 .track-row.locked .tn-note { display: none; }
+/* B149T：SIGNAL 新訊號橫幅 — Liquid Glass 浮動膠囊 */
+.sigbar{position:fixed;left:12px;right:12px;z-index:100000;display:flex;align-items:center;gap:10px;
+  padding:10px 14px 10px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(135deg,rgba(60,42,96,.42),rgba(30,20,52,.55));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 8px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.18);
+  color:#F3E6C4;text-align:left;font-family:-apple-system,'PingFang TC',sans-serif;
+  -webkit-tap-highlight-color:transparent;cursor:pointer;
+  transform:translateY(-18px);opacity:0;transition:transform .42s cubic-bezier(.2,.9,.25,1.2),opacity .3s ease}
+.sigbar.in{transform:translateY(0);opacity:1}
+.sigbar::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.10) 100%)}
+.sigbar-ava{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;border:1px solid rgba(232,199,126,.7);box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+.sigbar-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.sigbar-eyebrow{font:600 10px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1.6px;color:#B78CFF}
+.sigbar-main{font:600 14px/1.25 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sigbar-chev{flex:none;font:400 22px/1 -apple-system,sans-serif;color:rgba(247,235,203,.75);transform:translateY(-1px)}
+.sigbar:active{transform:translateY(0) scale(.985)}
+.updbar{z-index:100001;background:linear-gradient(135deg,rgba(217,178,106,.40),rgba(140,98,40,.52));border-color:rgba(255,236,190,.38)}
+.updbar .sigbar-main{color:#FFF4DC}
+.updbar .sigbar-eyebrow{color:#F3DDA6}
+.updbar .sigbar-chev{color:rgba(255,244,220,.8)}
+.sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
+.updbar:disabled{opacity:.8}
 /* B125T：FEED 未讀紅點（SIGNAL 有新訊號時掛在愛心圖示上） */
 .nav-dot { position: absolute; top: 5px; right: 15px; width: 8px; height: 8px;
            border-radius: 50%; background: #FF5A76;
@@ -5467,6 +5491,7 @@ window.ALBUM_SWITCH = {
    * 跟上次看過的比對，不同就代表 Chance 有新訊號。
    * 純前端：不動 Worker、不加請求（用本來就會抓的資料）。 */
   var FEEDSEEN_KEY = "album-the-sky:feedseen";
+  var SIGSHOWN_KEY = "album-the-sky:sigbar-shown";   /* B149T：橫幅已通知過的指紋（跟紅點的已讀分開） */
   /* 測試線專用：網址帶 ?sigreset=1 → 清掉已讀，橫幅/紅點重新出現一次（正式版路徑不生效） */
   try { if (/test\.html/i.test(location.pathname) && /[?&]sigreset=1/.test(location.search)) localStorage.removeItem(FEEDSEEN_KEY); } catch (e) {}
   function feedFingerprint() {
@@ -5497,23 +5522,47 @@ window.ALBUM_SWITCH = {
       d.id = "__navDot"; d.className = "nav-dot";
       btn.appendChild(d);
     }
-    /* 訊息橫幅：一個 session 只出現一次，點了直接進頻道 */
+    /* B149T：訊息橫幅 —— Liquid Glass 浮動膠囊；同一批新訊息只跳一次（一顯示就記進 localStorage，
+       下次開 App 不再跳）；紅點另外留到粉絲真的進 FEED 才消失 */
+    var shown = "";
+    try { shown = localStorage.getItem(SIGSHOWN_KEY) || ""; } catch (e) {}
+    if (shown === fp) return;                                  /* 這批已通知過 → 不再跳橫幅（紅點保留） */
     if (window.__sigShown || document.getElementById("__sigBar")) return;
     window.__sigShown = true;
-    var b = document.createElement("button");
-    b.id = "__sigBar";
-    b.textContent = "SIGNAL · Chance 留下了新訊號";
-    var topOff = "0";
+    try { localStorage.setItem(SIGSHOWN_KEY, fp); } catch (e) {} /* 一顯示就記住 */
+    var topOff = 0;
     var upd = document.getElementById("__updBar");
-    if (upd) topOff = upd.offsetHeight + "px";        /* 跟更新橫幅同時出現時往下疊 */
-    b.style.cssText = "position:fixed;left:0;right:0;top:" + topOff + ";width:100%;z-index:100000;" +
-      "padding:calc(7px + env(safe-area-inset-top)) 12px 8px;border:none;" +
-      "border-bottom:1px solid rgba(183,140,255,.5);" +
-      "background:linear-gradient(135deg,rgba(46,32,72,.97),rgba(28,19,46,.97));color:#EBD9A8;" +
-      "font:600 12.5px/1.3 -apple-system,'PingFang TC',sans-serif;letter-spacing:1px;" +
-      "-webkit-tap-highlight-color:transparent";
+    if (upd) topOff = upd.offsetHeight + 8;                    /* 跟更新膠囊同時出現時往下疊、留 8px */
+    /* B150T：1 對 1 感 —— 主文直接預覽他最新那則的開頭（像 LINE 的訊息預覽）；沒文字就退回「你在嗎？」 */
+    var latest = null;
+    try {
+      FEED_LIVE_POSTS.forEach(function (p) {
+        if (p && !p.locked && (!latest || Number(p.ts || 0) > Number(latest.ts || 0))) latest = p;
+      });
+    } catch (e) {}
+    var snip = "";
+    if (latest && latest.text) snip = String(latest.text).replace(/\s+/g, " ").trim();
+    if (snip.length > 18) snip = snip.slice(0, 18) + "…";
+    if (!snip && latest) {                                  /* B151T：沒文字就講他傳了什麼（像 LINE） */
+      if (latest.type === "photo") snip = "傳了一張照片給你";
+      else if (latest.type === "voice") snip = "留了一段語音給你";
+      else if (latest.type === "video") snip = "傳了一支影片給你";
+    }
+    if (!snip) snip = "你在嗎？";
+    var b = document.createElement("button");
+    b.id = "__sigBar"; b.className = "sigbar";
+    b.setAttribute("aria-label", "私訊頻道有新訊息：" + snip);
+    var ava = document.createElement("img"); ava.src = "assets/images/avatar.jpg"; ava.alt = ""; ava.className = "sigbar-ava";
+    var txt = document.createElement("span"); txt.className = "sigbar-txt";
+    var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "SIGNAL · 私訊頻道";
+    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = snip;   /* textContent：他的文字原樣顯示、不當 HTML */
+    txt.appendChild(eb); txt.appendChild(mn);
+    var ch = document.createElement("span"); ch.className = "sigbar-chev"; ch.setAttribute("aria-hidden", "true"); ch.textContent = "›";
+    b.appendChild(ava); b.appendChild(txt); b.appendChild(ch);
+    b.style.top = "calc(" + topOff + "px + env(safe-area-inset-top) + 10px)";
     b.addEventListener("click", function () { hap(10); go("mood"); });
     document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add("in"); });
   }
   setTimeout(feedNewsCheck, 3000);                    /* 開場資料載齊後查一次 */
   setTimeout(cloudLoad, 2000);                        /* B128T：開場把雲端小卡拉回合併 */
@@ -6831,7 +6880,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B148T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B151T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -6862,20 +6911,28 @@ window.ALBUM_SWITCH = {
   if (!("serviceWorker" in navigator)) return;
   function showBanner(reg) {
     if (document.getElementById("__updBar")) return;
+    /* B151T：更新提示改成 Liquid Glass 浮動膠囊（金色＝App 更新；紫色＝SIGNAL 訊息） */
     var b = document.createElement("button");
-    b.id = "__updBar"; b.textContent = "有新內容 ✨ 點此更新";
-    b.style.cssText = "position:fixed;left:0;right:0;top:0;width:100%;z-index:100001;" +
-      "padding:calc(6px + env(safe-area-inset-top)) 12px 7px;border:none;" +
-      "border-bottom:1px solid rgba(217,178,106,.5);" +
-      "background:linear-gradient(135deg,rgba(217,178,106,.97),rgba(185,138,62,.97));color:#1A0E2A;" +
-      "font:600 12.5px/1.3 -apple-system,'PingFang TC',sans-serif;letter-spacing:.5px;" +
-      "-webkit-tap-highlight-color:transparent";
+    b.id = "__updBar"; b.className = "sigbar updbar";
+    b.setAttribute("aria-label", "有新內容，點一下更新");
+    var ico = document.createElement("span"); ico.className = "sigbar-ico"; ico.textContent = "✨";
+    var txt = document.createElement("span"); txt.className = "sigbar-txt";
+    var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "有新內容";
+    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = "點一下更新";
+    txt.appendChild(eb); txt.appendChild(mn);
+    var ch = document.createElement("span"); ch.className = "sigbar-chev"; ch.setAttribute("aria-hidden", "true"); ch.textContent = "›";
+    b.appendChild(ico); b.appendChild(txt); b.appendChild(ch);
+    b.style.top = "calc(env(safe-area-inset-top) + 10px)";
     b.addEventListener("click", function () {
-      b.textContent = "更新中…"; b.disabled = true;
+      mn.textContent = "更新中…"; b.disabled = true;
       if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
       else location.reload();
     });
     document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add("in"); });
+    /* SIGNAL 膠囊已經在的話，往下推 */
+    var sb = document.getElementById("__sigBar");
+    if (sb) sb.style.top = "calc(" + (b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
   }
   var refreshed = false;
   navigator.serviceWorker.addEventListener("controllerchange", function () {
