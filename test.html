@@ -371,6 +371,36 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
 .updbar:disabled{opacity:.8}
 .sigbar-solo{justify-content:center}
+/* B155T：粉絲回覆框（參考 Weverse／主流聊天 composer：底部膠囊＋圓形送出） */
+.rpbar{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60}
+.rp-pill{display:flex;align-items:center;gap:8px;padding:7px 7px 7px 7px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:linear-gradient(135deg,rgba(60,42,96,.5),rgba(30,20,52,.62));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.24)}
+.rp-inp{flex:1;min-width:0;border:none;background:transparent;color:#F7EBCB;outline:none;
+  font:400 15px/1.3 -apple-system,'PingFang TC',sans-serif}
+.rp-inp::placeholder{color:rgba(247,235,203,.42)}
+.rp-inp:disabled{opacity:.6}
+.rp-send{flex:none;width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#E8C77E,#C8A056);color:#1A0E2A;font:700 17px/1 -apple-system,sans-serif;
+  transition:opacity .2s ease,transform .16s ease;-webkit-tap-highlight-color:transparent}
+.rp-send:disabled{opacity:.32;cursor:default}
+.rp-send:not(:disabled):active{transform:scale(.9)}
+.rp-mic{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.07);font-size:16px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform .15s ease,background .2s ease;user-select:none;-webkit-user-select:none}
+.rp-mic:disabled{opacity:.4}
+.rpbar.recording .rp-mic{background:rgba(255,90,118,.85);border-color:rgba(255,150,170,.8);transform:scale(1.14)}
+.rpbar.recording .rp-pill{border-color:rgba(255,90,118,.6);box-shadow:0 0 0 3px rgba(255,90,118,.16),0 10px 30px rgba(0,0,0,.4)}
+.rpbar.soon .rp-pill{opacity:.72}
+.rpbar.soon{cursor:pointer}
+.rp-soon{color:#B78CFF;font-weight:700}
+.rp-hint{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 14px 0;
+  font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:.3px}
+.rp-lock{color:rgba(183,140,255,.9)}
+.rp-left{color:rgba(255,255,255,.38)}
+body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(158px + env(safe-area-inset-bottom))}
 /* B154T：時間＋反應同一列 */
 .chat-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-2px 0 10px;padding:0 4px}
 .rx-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
@@ -4841,6 +4871,7 @@ window.ALBUM_SWITCH = {
     }
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
+    try { buildReplyBar(); } catch (e) {}                 /* B155T：粉絲回覆框 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
@@ -5580,6 +5611,134 @@ window.ALBUM_SWITCH = {
    * 純前端：不動 Worker、不加請求（用本來就會抓的資料）。 */
   var FEEDSEEN_KEY = "album-the-sky:feedseen";
   var SIGSHOWN_KEY = "album-the-sky:sigbar-shown";
+  /* B155T：粉絲回覆框。預設關閉；?reply=1 可先預覽。正式開放時：這裡改 true + Worker KV feed:settings.replyOpen=true */
+  var FEED_REPLY_OPEN = false;
+  var RPLEFT_KEY = "album-the-sky:reply-left";
+  function replyUIOn() {
+    try { if (/[?&]reply=1/.test(location.search)) return true; } catch (e) {}
+    return FEED_REPLY_OPEN;
+  }
+  function replyLeft() {
+    var today = new Date().toISOString().slice(0, 10);
+    try {
+      var o = JSON.parse(localStorage.getItem(RPLEFT_KEY) || "{}") || {};
+      if (o.d !== today) return 3;
+      return Math.max(0, 3 - (Number(o.n) || 0));
+    } catch (e) { return 3; }
+  }
+  function replyUsed() {
+    var today = new Date().toISOString().slice(0, 10);
+    try {
+      var o = JSON.parse(localStorage.getItem(RPLEFT_KEY) || "{}") || {};
+      var n = (o.d === today) ? (Number(o.n) || 0) : 0;
+      localStorage.setItem(RPLEFT_KEY, JSON.stringify({ d: today, n: n + 1 }));
+    } catch (e) {}
+  }
+  function buildReplyBar() {
+    var old = document.getElementById("__rpBar");
+    if (state.screen !== "mood" || !feedUnlockedQ()) { if (old) old.remove(); document.body.classList.remove("has-rpbar"); return; }
+    if (old) return;
+    var live = replyUIOn();                              /* B156T：false＝粉絲看得到但還不能用 */
+    var w = document.createElement("div"); w.id = "__rpBar"; w.className = "rpbar" + (live ? "" : " soon");
+    var pill = document.createElement("div"); pill.className = "rp-pill";
+    var mic = document.createElement("button"); mic.type = "button"; mic.className = "rp-mic"; mic.setAttribute("aria-label", "按住錄語音"); mic.textContent = "🎙";
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.maxLength = 200; inp.className = "rp-inp";
+    inp.placeholder = live ? "回一句給 Chance…" : "很快就能跟他說話";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("enterkeyhint", "send");
+    var send = document.createElement("button"); send.type = "button"; send.className = "rp-send";
+    send.setAttribute("aria-label", "送出"); send.textContent = "↑"; send.disabled = true;
+    var hint = document.createElement("div"); hint.className = "rp-hint";
+    function refreshHint() {
+      if (!live) { hint.innerHTML = '<span class="rp-lock">🔒 只有 Chance 看得到</span><span class="rp-soon">即將開放</span>'; return; }
+      var n = replyLeft();
+      hint.innerHTML = '<span class="rp-lock">🔒 只有 Chance 看得到</span>' +
+        '<span class="rp-left">' + (n > 0 ? ("今天還能說 " + n + " 次") : "今天的額度用完了") + '</span>';
+      if (n <= 0) { inp.disabled = true; mic.disabled = true; inp.placeholder = "明天再來跟他說話"; }
+    }
+    if (!live) {
+      inp.disabled = true; mic.disabled = true; send.disabled = true;
+      w.addEventListener("click", function () { toast("這個功能很快就開放，再等等 💛"); });
+    } else {
+      inp.addEventListener("input", function () { send.disabled = !inp.value.trim(); });
+      function afterSend(okMsg) { replyUsed(); refreshHint(); try { hap(14); } catch (e) {} toast(okMsg); }
+      function sendText() {
+        var txt = (inp.value || "").trim(); if (!txt) return;
+        if (replyLeft() <= 0) { toast("今天的額度用完了，明天再來"); return; }
+        var fp = feedPassInfo(); if (!fp.unlocked) { toast("請先解鎖"); return; }
+        send.disabled = true; inp.disabled = true;
+        fetch(CFG.api.workerBaseUrl + "/feed/reply", { method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ email: fp.email, code: fp.code, text: txt }) })
+          .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+          .then(function (o) { inp.disabled = false;
+            if (o.d && o.d.ok) { inp.value = ""; afterSend("送出了，他會看到 💛"); }
+            else if (o.s === 403) toast("回覆功能還沒開放");
+            else if (o.s === 429) { refreshHint(); toast("今天的額度用完了"); }
+            else toast("送不出去，等一下再試"); })
+          .catch(function () { inp.disabled = false; toast("網路不太順，等一下再試"); });
+      }
+      send.addEventListener("click", sendText);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") sendText(); });
+      /* ── 語音：按住錄、放開送（上限 30 秒） ── */
+      var rec = null, chunks = [], t0 = 0, timer = null, recording = false;
+      function stopRec(cancel) {
+        if (!recording) return; recording = false;
+        clearInterval(timer); timer = null;
+        w.classList.remove("recording");
+        inp.placeholder = "回一句給 Chance…";
+        try { if (rec && rec.state !== "inactive") rec.stop(); } catch (e) {}
+        if (cancel) chunks = [];
+      }
+      function startRec() {
+        if (replyLeft() <= 0) { toast("今天的額度用完了，明天再來"); return; }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast("這支瀏覽器不支援錄音"); return; }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          chunks = []; recording = true; t0 = Date.now();
+          w.classList.add("recording");
+          try { hap(12); } catch (e) {}
+          var mt = MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "audio/webm";
+          rec = new MediaRecorder(stream, { mimeType: mt });
+          rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+          rec.onstop = function () {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            var dur = Math.round((Date.now() - t0) / 1000);
+            if (!chunks.length || dur < 1) { toast("太短了，按住久一點"); return; }
+            var blob = new Blob(chunks, { type: mt });
+            var ext = mt.indexOf("mp4") >= 0 ? "m4a" : "webm";
+            var fp = feedPassInfo();
+            inp.placeholder = "送出中…";
+            fetch(CFG.api.workerBaseUrl + "/feed/reply-voice?e=" + encodeURIComponent(fp.email) +
+                  "&c=" + encodeURIComponent(fp.code) + "&ext=" + ext + "&dur=" + dur,
+                  { method: "POST", body: blob })
+              .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
+              .then(function (o) { inp.placeholder = "回一句給 Chance…";
+                if (o.d && o.d.ok) afterSend("語音送出了，他會聽到 💛");
+                else if (o.s === 403) toast("回覆功能還沒開放");
+                else if (o.s === 429) { refreshHint(); toast("今天的額度用完了"); }
+                else if (o.s === 413) toast("錄太長了，短一點再試");
+                else toast("送不出去，等一下再試"); })
+              .catch(function () { inp.placeholder = "回一句給 Chance…"; toast("網路不太順，等一下再試"); });
+          };
+          rec.start();
+          timer = setInterval(function () {
+            var sec = Math.round((Date.now() - t0) / 1000);
+            inp.placeholder = "錄音中 " + sec + "s／30s　放開送出";
+            if (sec >= 30) stopRec(false);
+          }, 250);
+        }).catch(function () { toast("要允許麥克風才能留語音"); });
+      }
+      mic.addEventListener("touchstart", function (e) { e.preventDefault(); startRec(); }, { passive: false });
+      mic.addEventListener("touchend", function (e) { e.preventDefault(); stopRec(false); }, { passive: false });
+      mic.addEventListener("mousedown", startRec);
+      mic.addEventListener("mouseup", function () { stopRec(false); });
+      mic.addEventListener("mouseleave", function () { if (recording) stopRec(false); });
+    }
+    pill.appendChild(mic); pill.appendChild(inp); pill.appendChild(send);
+    w.appendChild(pill); w.appendChild(hint);
+    document.body.appendChild(w);
+    refreshHint();
+    document.body.classList.add("has-rpbar");
+  }
   var REACT_KEY = "album-the-sky:my-reactions";     /* B154T：我按過哪些（可再按一次收回） */
   var REACT_EMO = { heart: "❤️", tear: "🥹", cry: "😭", fire: "🔥" };
   var FEED_REACTIONS = {};
@@ -7074,7 +7233,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B154T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B156T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
