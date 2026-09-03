@@ -372,8 +372,9 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .updbar:disabled{opacity:.8}
 .sigbar-solo{justify-content:center}
 /* B157T：粉絲回覆框 —— 與 nav 同寬同玻璃、直接貼在 nav 上方（Apple Music 迷你播放器疊法）；鎖頭在框內 */
-.rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none}
-.rp-stack{pointer-events:auto;width:var(--rp-w,320px);max-width:calc(100vw - 24px)}
+.rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none;
+  bottom:calc(env(safe-area-inset-bottom) + 88px)}   /* B158T：安全預設，JS 量到 nav 才微調 */
+.rp-stack{pointer-events:auto;width:var(--rp-w,min(342px, calc(100vw - 28px)));max-width:calc(100vw - 24px)}
 .rp-hint{display:none}
 .rp-pill{display:flex;align-items:center;gap:7px;padding:6px;border-radius:30px;
   border:1px solid rgba(255,255,255,.1);
@@ -5632,16 +5633,22 @@ window.ALBUM_SWITCH = {
       localStorage.setItem(RPLEFT_KEY, JSON.stringify({ d: today, n: n + 1 }));
     } catch (e) {}
   }
-  function dockReplyBar() {
+  function dockReplyBar(tries) {
     var w = document.getElementById("__rpBar"); if (!w) return;
-    var nav = document.querySelector(".nav"); if (!nav) return;
-    var r = nav.getBoundingClientRect();
-    /* 跟 nav 同寬、貼在 nav 正上方 8px —— Apple Music 迷你播放器的疊法 */
+    var nav = document.querySelector(".nav");
+    var r = nav ? nav.getBoundingClientRect() : null;
+    var ok = r && r.height > 20 && r.top > 60 && r.top < window.innerHeight;   /* 量到合理數值才用 */
+    if (!ok) {
+      /* 還沒排版好 → 保持 CSS 預設位置，稍後重試 */
+      w.style.removeProperty("bottom");
+      if ((tries || 0) < 8) setTimeout(function () { dockReplyBar((tries || 0) + 1); }, 150);
+      return;
+    }
     w.style.setProperty("--rp-w", Math.round(r.width) + "px");
-    w.style.bottom = Math.round(window.innerHeight - r.top + 6) + "px";   /* 貼緊 nav */
+    w.style.bottom = Math.round(window.innerHeight - r.top + 6) + "px";
   }
-  window.addEventListener("resize", function () { setTimeout(dockReplyBar, 60); });
-  window.addEventListener("orientationchange", function () { setTimeout(dockReplyBar, 220); });
+  window.addEventListener("resize", function () { setTimeout(function(){ dockReplyBar(0); }, 60); });
+  window.addEventListener("orientationchange", function () { setTimeout(function(){ dockReplyBar(0); }, 220); });
   function buildReplyBar() {
     var old = document.getElementById("__rpBar");
     if (state.screen !== "mood" || !feedUnlockedQ()) { if (old) old.remove(); document.body.classList.remove("has-rpbar"); return; }
@@ -5749,7 +5756,7 @@ window.ALBUM_SWITCH = {
     document.body.appendChild(w);
     refreshHint();
     document.body.classList.add("has-rpbar");
-    dockReplyBar();
+    requestAnimationFrame(function () { dockReplyBar(0); });
   }
   var REACT_KEY = "album-the-sky:my-reactions";     /* B154T：我按過哪些（可再按一次收回） */
   var REACT_EMO = { heart: "❤️", tear: "🥹", cry: "😭", fire: "🔥" };
@@ -7245,7 +7252,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B157T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B158T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
