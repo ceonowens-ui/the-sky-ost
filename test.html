@@ -370,6 +370,60 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .updbar .sigbar-chev{color:rgba(255,244,220,.8)}
 .sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
 .updbar:disabled{opacity:.8}
+.sigbar-solo{justify-content:center}
+/* B154T：時間＋反應同一列 */
+.chat-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-2px 0 10px;padding:0 4px}
+.rx-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.rx-chip,.rx-add{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);
+  font:600 12px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .16s ease,background .2s ease}
+.rx-chip b{font-weight:700;font-size:11px;opacity:.9}
+.rx-chip.on{background:rgba(183,140,255,.28);border-color:rgba(183,140,255,.6);color:#F3E6C4}
+.rx-chip:active,.rx-add:active{transform:scale(.92)}
+.rx-add{padding:0 10px;color:rgba(255,255,255,.45);font-size:14px}
+/* 反應選單 */
+.rxpick{position:fixed;z-index:100003;display:flex;gap:6px;padding:8px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(135deg,rgba(60,42,96,.7),rgba(30,20,52,.8));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.28);
+  transform:scale(.86);opacity:0;transition:transform .2s cubic-bezier(.2,.9,.25,1.3),opacity .16s ease}
+.rxpick.in{transform:scale(1);opacity:1}
+.rxpick button{width:38px;height:38px;border-radius:50%;border:none;background:transparent;font-size:21px;line-height:1;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .14s ease}
+.rxpick button:active{transform:scale(1.25)}
+/* B154T：訊息時間 */
+.chat-time{margin:-2px 0 8px;padding:0 4px;font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.34);letter-spacing:.5px;text-align:right}
+/* B154T：未讀分隔線 */
+.chat-newline{display:flex;align-items:center;gap:10px;margin:16px 2px 12px;
+  font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;color:#B78CFF}
+.chat-newline::before,.chat-newline::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(183,140,255,.45),transparent)}
+.chat-newline span{flex:none;opacity:.95}
+/* B154T：暱稱詢問卡（玻璃） */
+.nickwrap{position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:rgba(10,6,20,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s ease}
+.nickwrap.in{opacity:1}
+.nickcard{position:relative;width:100%;max-width:330px;border-radius:24px;padding:22px 20px 18px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(135deg,rgba(60,42,96,.6),rgba(30,20,52,.72));
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:0 18px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.28);
+  transform:translateY(10px) scale(.98);transition:transform .34s cubic-bezier(.2,.9,.25,1.2)}
+.nickwrap.in .nickcard{transform:translateY(0) scale(1)}
+.nickcard .nk-ava{width:52px;height:52px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 12px;border:1px solid rgba(232,199,126,.7)}
+.nickcard .nk-q{font:600 16px/1.45 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;text-align:center;margin:0 0 4px}
+.nickcard .nk-sub{font:400 12px/1.5 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.6);text-align:center;margin:0 0 16px}
+.nickcard input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.28);color:#fff;
+  font:500 15px/1.2 -apple-system,'PingFang TC',sans-serif;outline:none}
+.nickcard input:focus{border-color:rgba(232,199,126,.6)}
+.nickcard .nk-row{display:flex;gap:8px;margin-top:14px}
+.nickcard button{flex:1;min-height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  font:600 13.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.nickcard .nk-ok{background:linear-gradient(135deg,rgba(232,199,126,.95),rgba(200,160,86,.95));color:#1A0E2A;border-color:rgba(255,236,190,.5)}
+.nickcard .nk-skip{background:rgba(255,255,255,.08);color:rgba(247,235,203,.7)}
+.sigbar-solo .sigbar-main{font-size:15px;line-height:1.35}
 /* B125T：FEED 未讀紅點（SIGNAL 有新訊號時掛在愛心圖示上） */
 .nav-dot { position: absolute; top: 5px; right: 15px; width: 8px; height: 8px;
            border-radius: 50%; background: #FF5A76;
@@ -4786,6 +4840,7 @@ window.ALBUM_SWITCH = {
       void activeBtn.offsetWidth; activeBtn.classList.add("pop");
     }
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
+    if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
@@ -5424,13 +5479,19 @@ window.ALBUM_SWITCH = {
         var d = new Date(Number(p.ts || Date.now()));
         var pad = function (n) { return n < 10 ? "0" + n : "" + n; };
         var day = d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate());
-        groups.push({ day: day, its: its });
+        var hhmm = pad(d.getHours()) + ":" + pad(d.getMinutes());
+        groups.push({ day: day, its: its, t: hhmm, ts: Number(p.ts || 0), rid: p.id || ("live-" + p.ts) });
       });
-    var out = [], lastDay = "";
+    var seenTs = 0;
+    try { seenTs = Number(localStorage.getItem(SEENTS_KEY) || 0) || 0; } catch (e) {}
+    var out = [], lastDay = "", lineDone = false;
     groups.forEach(function (g) {
+      /* B154T：新的在上，跨過已讀線就插一條「以下是新訊息」 */
+      if (!lineDone && seenTs > 0 && g.ts <= seenTs) { out.push({ newline: 1 }); lineDone = true; lastDay = ""; }
       if (g.day !== lastDay) { out.push({ day: g.day }); lastDay = g.day; }
       else if (out.length) out.push({ gap: 1 });
       g.its.forEach(function (it) { out.push(it); });
+      if (g.t) out.push({ t: g.t, rid: g.rid });      /* B154T：時間＋表情反應 */
     });
     return out;
   }
@@ -5440,7 +5501,24 @@ window.ALBUM_SWITCH = {
     items.forEach(function (m) {
       if (m.day)   { out += '<div class="chat-day">' + esc(m.day) + '</div>'; return; }
       if (m.gap)   { out += '<div class="chat-gap"></div>'; return; }
-      if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(m.text) + '</div></div>'; return; }
+      if (m.newline) { out += '<div class="chat-newline"><span>以下是新訊息</span></div>'; return; }
+      if (m.t) {
+        var rid = m.rid || "", chips = "", mine = myReacts();
+        var rc = FEED_REACTIONS[rid] || {};
+        ["heart", "tear", "cry", "fire"].forEach(function (k) {
+          var n = Number(rc[k]) || 0; if (!n) return;
+          var on = mine[rid + "|" + k] ? " on" : "";
+          chips += '<button class="rx-chip' + on + '" data-rx="' + esc(rid) + '" data-emo="' + k + '">' +
+                   REACT_EMO[k] + '<b>' + n + '</b></button>';
+        });
+        out += '<div class="chat-meta">' +
+          '<div class="rx-row">' + chips +
+            (rid ? '<button class="rx-add" data-rxadd="' + esc(rid) + '" aria-label="加上反應">＋</button>' : '') +
+          '</div>' +
+          '<div class="chat-time">' + esc(m.t) + '</div></div>';
+        return;
+      }
+      if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(applyNick(m.text)) + '</div></div>'; return; }
       if (m.photo) { out += '<div class="chat-line"><div class="chat-photo"><img src="' + esc(m.photo) + '" alt="" loading="lazy"></div></div>'; return; }
       if (m.voice) {
         var bars = "";
@@ -5501,7 +5579,48 @@ window.ALBUM_SWITCH = {
    * 跟上次看過的比對，不同就代表 Chance 有新訊號。
    * 純前端：不動 Worker、不加請求（用本來就會抓的資料）。 */
   var FEEDSEEN_KEY = "album-the-sky:feedseen";
-  var SIGSHOWN_KEY = "album-the-sky:sigbar-shown";   /* B149T：橫幅已通知過的指紋（跟紅點的已讀分開） */
+  var SIGSHOWN_KEY = "album-the-sky:sigbar-shown";
+  var REACT_KEY = "album-the-sky:my-reactions";     /* B154T：我按過哪些（可再按一次收回） */
+  var REACT_EMO = { heart: "❤️", tear: "🥹", cry: "😭", fire: "🔥" };
+  var FEED_REACTIONS = {};
+  function myReacts() { try { return JSON.parse(localStorage.getItem(REACT_KEY) || "{}") || {}; } catch (e) { return {}; } }
+  function loadReactions() {
+    if (!CFG.api || !CFG.api.workerBaseUrl) return;
+    fetch(CFG.api.workerBaseUrl + "/feed/reactions", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS = d.reactions; renderMoodWall(); } })
+      .catch(function () {});
+  }
+  function sendReact(id, emo) {
+    var fp = feedPassInfo();
+    if (!fp.unlocked || !fp.email || !fp.code) return;
+    var mine = myReacts(); var key = id + "|" + emo;
+    var dir = mine[key] ? -1 : 1;
+    /* 先在畫面上反應（樂觀更新），失敗再回捲 */
+    if (dir === 1) mine[key] = 1; else delete mine[key];
+    try { localStorage.setItem(REACT_KEY, JSON.stringify(mine)); } catch (e) {}
+    FEED_REACTIONS[id] = FEED_REACTIONS[id] || {};
+    FEED_REACTIONS[id][emo] = Math.max(0, (Number(FEED_REACTIONS[id][emo]) || 0) + dir);
+    renderMoodWall();
+    try { hap(dir === 1 ? 12 : 8); } catch (e) {}
+    fetch(CFG.api.workerBaseUrl + "/feed/react", {
+      method: "POST", headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ email: fp.email, code: fp.code, id: id, emoji: emo, dir: dir })
+    }).then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS[id] = d.reactions; } })
+      .catch(function () {});
+  }
+  var NICK_KEY = "album-the-sky:nick";               /* B154T：粉絲暱稱（1 對 1 感） */
+  var SEENTS_KEY = "album-the-sky:feedseen-ts";      /* B154T：已讀到哪個時間點（未讀分隔線用） */
+  function fanNick() { try { return (localStorage.getItem(NICK_KEY) || "").trim(); } catch (e) { return ""; } }
+  function applyNick(txt) {
+    /* [名字] → 粉絲暱稱；沒設暱稱就整段拿掉，並清掉多餘空白/標點前空格，句子照樣通順 */
+    var n = fanNick();
+    if (!txt) return txt;
+    var r = String(txt);
+    if (n) return r.split("[名字]").join(n);
+    return r.split("[名字]").join("").replace(/[ \u3000]{2,}/g, " ").replace(/[ \u3000]+([，,。、！!？?~～])/g, "$1").trim();
+  }   /* B149T：橫幅已通知過的指紋（跟紅點的已讀分開） */
   /* 測試線專用：網址帶 ?sigreset=1 → 清掉已讀，橫幅/紅點重新出現一次（正式版路徑不生效） */
   try { if (/test\.html/i.test(location.pathname) && /[?&]sigreset=1/.test(location.search)) localStorage.removeItem(FEEDSEEN_KEY); } catch (e) {}
   function feedFingerprint() {
@@ -5511,8 +5630,69 @@ window.ALBUM_SWITCH = {
     try { ids = FEED_LIVE_POSTS.map(function (p) { return p && p.id; }).join(","); } catch (e) {}
     return n + "|" + ids;
   }
+  var NICKASK_KEY = "album-the-sky:nick-asked";
+  function askNick() {
+    if (document.getElementById("__nickWrap")) return;
+    if (fanNick()) return;
+    try { if (localStorage.getItem(NICKASK_KEY)) return; } catch (e) {}
+    var w = document.createElement("div");
+    w.id = "__nickWrap"; w.className = "nickwrap";
+    var card = document.createElement("div"); card.className = "nickcard";
+    var ava = document.createElement("img"); ava.src = "assets/images/avatar.jpg"; ava.alt = ""; ava.className = "nk-ava";
+    var q = document.createElement("div"); q.className = "nk-q"; q.textContent = "我要怎麼叫你？";
+    var sub = document.createElement("div"); sub.className = "nk-sub"; sub.textContent = "之後我傳訊息會這樣叫你";
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.maxLength = 12; inp.placeholder = "你的名字或暱稱";
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("enterkeyhint", "done");
+    var row = document.createElement("div"); row.className = "nk-row";
+    var skip = document.createElement("button"); skip.className = "nk-skip"; skip.type = "button"; skip.textContent = "以後再說";
+    var ok = document.createElement("button"); ok.className = "nk-ok"; ok.type = "button"; ok.textContent = "就這樣叫我";
+    function close() { w.classList.remove("in"); setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 260); }
+    function save() {
+      var v = (inp.value || "").trim().slice(0, 12);
+      try { if (v) localStorage.setItem(NICK_KEY, v); localStorage.setItem(NICKASK_KEY, "1"); } catch (e) {}
+      close();
+      if (v) { try { hap(12); } catch (e) {} renderMoodWall(); }   /* 存好立刻重繪，訊息就會叫他名字 */
+    }
+    skip.addEventListener("click", function () { try { localStorage.setItem(NICKASK_KEY, "1"); } catch (e) {} close(); });
+    ok.addEventListener("click", save);
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+    row.appendChild(skip); row.appendChild(ok);
+    card.appendChild(ava); card.appendChild(q); card.appendChild(sub); card.appendChild(inp); card.appendChild(row);
+    w.appendChild(card); document.body.appendChild(w);
+    requestAnimationFrame(function () { w.classList.add("in"); });
+  }
+  function closeRxPick() { var o = document.getElementById("__rxPick"); if (o) { o.classList.remove("in"); setTimeout(function(){ if(o.parentNode) o.parentNode.removeChild(o); }, 200); } }
+  function openRxPick(btn, id) {
+    closeRxPick();
+    var w = document.createElement("div"); w.id = "__rxPick"; w.className = "rxpick";
+    ["heart", "tear", "cry", "fire"].forEach(function (k) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = REACT_EMO[k];
+      b.addEventListener("click", function (e) { e.stopPropagation(); closeRxPick(); sendReact(id, k); });
+      w.appendChild(b);
+    });
+    document.body.appendChild(w);
+    var r = btn.getBoundingClientRect();
+    var wd = 4 * 44 + 20;
+    var left = Math.min(Math.max(8, r.left), window.innerWidth - wd - 8);
+    var top = r.top - 56; if (top < 8) top = r.bottom + 8;
+    w.style.left = left + "px"; w.style.top = top + "px";
+    requestAnimationFrame(function () { w.classList.add("in"); });
+  }
+  document.addEventListener("click", function (e) {
+    var chip = e.target.closest && e.target.closest(".rx-chip");
+    if (chip) { e.stopPropagation(); sendReact(chip.getAttribute("data-rx"), chip.getAttribute("data-emo")); return; }
+    var add = e.target.closest && e.target.closest(".rx-add");
+    if (add) { e.stopPropagation(); openRxPick(add, add.getAttribute("data-rxadd")); return; }
+    if (!(e.target.closest && e.target.closest(".rxpick"))) closeRxPick();
+  }, true);
   function feedNewsSeen() {
     try { localStorage.setItem(FEEDSEEN_KEY, feedFingerprint()); } catch (e) {}
+    try {                                            /* B154T：記下已讀到的最新時間，供未讀分隔線用 */
+      var mx = 0;
+      FEED_LIVE_POSTS.forEach(function (p) { if (p && !p.locked) mx = Math.max(mx, Number(p.ts || 0)); });
+      if (mx) localStorage.setItem(SEENTS_KEY, String(mx));
+    } catch (e) {}
     var d = document.getElementById("__navDot"); if (d) d.remove();
     var b = document.getElementById("__sigBar"); if (b) b.remove();
   }
@@ -5544,14 +5724,18 @@ window.ALBUM_SWITCH = {
     var upd = document.getElementById("__updBar");
     if (upd) topOff = upd.offsetHeight + 8;                    /* 跟更新膠囊同時出現時往下疊、留 8px */
     /* B150T：1 對 1 感 —— 主文直接預覽他最新那則的開頭（像 LINE 的訊息預覽）；沒文字就退回「你在嗎？」 */
-    var latest = null;
+    var latest = null, latestText = null;
     try {
       FEED_LIVE_POSTS.forEach(function (p) {
-        if (p && !p.locked && (!latest || Number(p.ts || 0) > Number(latest.ts || 0))) latest = p;
+        if (!p || p.locked) return;
+        if (!latest || Number(p.ts || 0) > Number(latest.ts || 0)) latest = p;
+        /* B153T：往前找最近一則「有文字」的，膠囊盡量顯示他真正說的話 */
+        if (p.text && String(p.text).trim() &&
+            (!latestText || Number(p.ts || 0) > Number(latestText.ts || 0))) latestText = p;
       });
     } catch (e) {}
     var snip = "";
-    if (latest && latest.text) snip = String(latest.text).replace(/\s+/g, " ").trim();
+    if (latestText && latestText.text) snip = String(latestText.text).replace(/\s+/g, " ").trim();
     if (snip.length > 18) snip = snip.slice(0, 18) + "…";
     if (!snip && latest) {                                  /* B151T：沒文字就講他傳了什麼（像 LINE） */
       if (latest.type === "photo") snip = "傳了一張照片給你";
@@ -5563,10 +5747,9 @@ window.ALBUM_SWITCH = {
     b.id = "__sigBar"; b.className = "sigbar";
     b.setAttribute("aria-label", "私訊頻道有新訊息：" + snip);
     var ava = document.createElement("img"); ava.src = "assets/images/avatar.jpg"; ava.alt = ""; ava.className = "sigbar-ava";
-    var txt = document.createElement("span"); txt.className = "sigbar-txt";
-    var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "SIGNAL · 私訊頻道";
-    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = snip;   /* textContent：他的文字原樣顯示、不當 HTML */
-    txt.appendChild(eb); txt.appendChild(mn);
+    var txt = document.createElement("span"); txt.className = "sigbar-txt sigbar-solo";
+    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = snip;   /* B153T：只顯示他寫的字，不放小標 */
+    txt.appendChild(mn);
     var ch = document.createElement("span"); ch.className = "sigbar-chev"; ch.setAttribute("aria-hidden", "true"); ch.textContent = "›";
     b.appendChild(ava); b.appendChild(txt); b.appendChild(ch);
     b.style.top = "calc(" + topOff + "px + env(safe-area-inset-top) + 10px)";
@@ -5574,7 +5757,8 @@ window.ALBUM_SWITCH = {
     document.body.appendChild(b);
     requestAnimationFrame(function () { b.classList.add("in"); });
   }
-  setTimeout(feedNewsCheck, 3000);                    /* 開場資料載齊後查一次 */
+  setTimeout(feedNewsCheck, 3000);
+  setTimeout(loadReactions, 2500);                   /* B154T：載入表情反應計數 */                    /* 開場資料載齊後查一次 */
   setTimeout(cloudLoad, 2000);                        /* B128T：開場把雲端小卡拉回合併 */
   (function fetchServerDay() {                          /* B129T：跟伺服器對時，防改手機日期刷券 */
     var base = (CFG.api && CFG.api.workerBaseUrl) || "";
@@ -6890,7 +7074,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B152T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B154T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
