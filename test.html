@@ -411,6 +411,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   font:600 14.5px/1 -apple-system,'PingFang TC',sans-serif;color:#C9A9FF}
 .rp-note-sub{font:400 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.42)}
 body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-inset-bottom))}
+#screen-mood.feedwrap{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 /* B160T：粉絲自己的訊息（左側紫玻璃，跟他的米色泡泡明確區分） */
 .my-line{display:flex;justify-content:flex-end;margin:6px 0 3px;padding:0 14px}
 .my-bubble{max-width:80%;padding:12px 16px;border-radius:20px;border-bottom-right-radius:6px;
@@ -456,7 +457,9 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
 @keyframes tyb{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 .typing-lbl{text-align:left;margin:7px 0 0 2px;font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.46)}
 /* B160T：我們認識 N 天 */
-.feedhead-days{font:500 11px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.6);margin-top:4px}
+.feedhead-sub{display:flex;align-items:center;gap:6px;margin-top:4px}
+.fh-dot{width:7px;height:7px;border-radius:50%;background:#B78CFF;box-shadow:0 0 8px rgba(183,140,255,.9);flex:none}
+.feedhead-days{font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.62);letter-spacing:.3px}
 .feedhead-days:empty{display:none}
 /* B154T：時間＋反應同一列 */
 .chat-meta{display:flex;align-items:center;gap:8px;margin:-1px 0 12px;padding:0 14px 0 50px}   /* B161T：對齊泡泡左緣（頭像寬+間距） */
@@ -1361,8 +1364,11 @@ body { background: #08060C !important; }
 /* ── B163T：SIGNAL 私訊頻道專屬背景（只作用於 #screen-mood，其他分頁不受影響）──
    固定定位 → 捲動時背景不跟著跑；isolation 讓 z-index:-1 只留在本頁層內，
    壓在內容之下、但在本頁底色之上。人物臉部在上半部，避開標頭。 */
-#screen-mood{ background:#0E0817 !important; isolation:isolate; }
-#screen-mood::before{
+/* 未解鎖：維持原本樣子 */
+#screen-mood{ background:linear-gradient(180deg,#2A1440 0%,#1A0E2A 38%,#0E0817 100%) !important; }
+/* 已解鎖才進入人像沉浸模式 */
+#screen-mood.mood-vip{ background:#0E0817 !important; isolation:isolate; }
+#screen-mood.mood-vip::before{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background-image:
     /* 標頭處極淡暗化，讓玻璃膠囊在亮背景上也讀得清楚 */
@@ -1386,13 +1392,13 @@ body { background: #08060C !important; }
   filter:saturate(.9) contrast(1.02);
 }
 /* B166T：往下滑進入對話時，背景自動加深，訊息才讀得清楚（背景本身不動，不會抖） */
-#screen-mood::after{
+#screen-mood.mood-vip::after{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background:linear-gradient(180deg, rgba(12,6,22,.86), rgba(10,5,18,.94));
   opacity:var(--veil, 0); transition:opacity .18s linear;
 }
 /* B166T：頻道開場 —— 先看到完整人像，往下滑才開始看訊息 */
-#screen-mood #feed-body{ padding-top:58vh; }
+#screen-mood.mood-vip #feed-body{ padding-top:58vh; }
 /* 下滑提示 */
 .feed-cue{ position:fixed; left:0; right:0; bottom:calc(150px + env(safe-area-inset-bottom));
   z-index:11; display:flex; flex-direction:column; align-items:center; gap:6px;
@@ -1404,15 +1410,15 @@ body { background: #08060C !important; }
   animation:cuedn 1.7s infinite ease-in-out; }
 @keyframes cuedn{ 0%,100%{transform:rotate(45deg) translate(0,0);opacity:.5} 50%{transform:rotate(45deg) translate(3px,3px);opacity:1} }
 /* 背景變亮後，把次要文字的對比補回來 */
-#screen-mood .chat-day{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
-#screen-mood .chat-time{ color:rgba(255,255,255,.58); text-shadow:0 1px 5px rgba(0,0,0,.7); }
-#screen-mood .rx-chip,#screen-mood .rx-add{ background:rgba(14,8,23,.5); border-color:rgba(255,255,255,.22);
+#screen-mood.mood-vip .chat-day{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
+#screen-mood.mood-vip .chat-time{ color:rgba(255,255,255,.58); text-shadow:0 1px 5px rgba(0,0,0,.7); }
+#screen-mood.mood-vip .rx-chip,#screen-mood.mood-vip .rx-add{ background:rgba(14,8,23,.5); border-color:rgba(255,255,255,.22);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
-#screen-mood .chat-newline{ text-shadow:0 1px 6px rgba(0,0,0,.8); }
-#screen-mood .typing-lbl{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
-#screen-mood .mine-lock{ text-shadow:0 1px 5px rgba(0,0,0,.7); }
-#screen-mood .chat-bubble{ box-shadow:0 6px 22px rgba(0,0,0,.42); }
-#screen-mood .my-bubble{ box-shadow:0 6px 22px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.18); }
+#screen-mood.mood-vip .chat-newline{ text-shadow:0 1px 6px rgba(0,0,0,.8); }
+#screen-mood.mood-vip .typing-lbl{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
+#screen-mood.mood-vip .mine-lock{ text-shadow:0 1px 5px rgba(0,0,0,.7); }
+#screen-mood.mood-vip .chat-bubble{ box-shadow:0 6px 22px rgba(0,0,0,.42); }
+#screen-mood.mood-vip .my-bubble{ box-shadow:0 6px 22px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.18); }
 .chat-day{ color:rgba(217,178,106,.55) !important; }
 .chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
   color:rgba(255,255,255,.35); margin:18px 0 6px; }
@@ -2284,9 +2290,8 @@ body { background: #08060C !important; }
       <div class="feedhead-cap">
         <img src="assets/images/avatar.jpg" alt="" class="sigbar-ava">
         <span class="sigbar-txt feedhead-txt">
-          <span class="sigbar-eyebrow">SIGNAL · 私訊頻道</span>
           <span class="sigbar-main">成晞 Chance</span>
-          <span class="feedhead-days" id="feed-days"></span>
+          <span class="feedhead-sub"><i class="fh-dot"></i><span class="feedhead-days" id="feed-days">SIGNAL</span></span>
         </span>
       </div>
       <span class="feed-count hidden" id="feed-count"></span>
@@ -4988,7 +4993,9 @@ window.ALBUM_SWITCH = {
     }
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
-    try { buildReplyBar(); } catch (e) {}                 /* B155T：粉絲回覆框 */
+    /* B168T：回覆框先不上線 —— 要開放時把這行還原即可
+    try { buildReplyBar(); } catch (e) {} */
+    try { var _rp = document.getElementById("__rpBar"); if (_rp) _rp.remove(); document.body.classList.remove("has-rpbar"); } catch (e) {}
     try { paintDays(); } catch (e) {}                     /* B160T：我們認識 N 天 */
     if (screen === "mood") { try { buildFeedCue(); } catch (e) {} }   /* B166T：開場人像＋下滑提示 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
@@ -5794,6 +5801,14 @@ window.ALBUM_SWITCH = {
   }
   function buildFeedCue() {
     var sm = document.getElementById("screen-mood"); if (!sm) return;
+    /* B168T：人像沉浸模式只給已解鎖的會員；未解鎖維持原本頁面 */
+    var vip = false; try { vip = !!feedUnlockedQ(); } catch (e) {}
+    sm.classList.toggle("mood-vip", vip);
+    if (!vip) {
+      var old = document.getElementById("__feedCue"); if (old) old.remove();
+      sm.style.removeProperty("--veil"); sm.style.removeProperty("--cue");
+      return;
+    }
     if (!document.getElementById("__feedCue")) {
       var c = document.createElement("div");
       c.id = "__feedCue"; c.className = "feed-cue";
@@ -5822,24 +5837,28 @@ window.ALBUM_SWITCH = {
   }
   window.addEventListener("resize", function () { setTimeout(function(){ dockReplyBar(0); }, 60); });
   window.addEventListener("orientationchange", function () { setTimeout(function(){ dockReplyBar(0); }, 220); });
-  var SINCE_KEY = "album-the-sky:since";
-  function knowDays() {
-    var t0 = 0;
-    try { t0 = Number(localStorage.getItem(SINCE_KEY) || 0) || 0; } catch (e) {}
-    if (!t0) {
-      t0 = Date.now();
-      try {
-        var fp = feedPassInfo();
-        if (fp && fp.at) t0 = Number(fp.at) || t0;
-      } catch (e) {}
-      try { localStorage.setItem(SINCE_KEY, String(t0)); } catch (e) {}
-    }
-    return Math.max(1, Math.floor((Date.now() - t0) / 86400000) + 1);
-  }
+  var SINCE_KEY = "album-the-sky:since";      /* B168T：購買日（相遇第 N 天的基準） */
+  function sinceTs() { try { return Number(localStorage.getItem(SINCE_KEY) || 0) || 0; } catch (e) { return 0; } }
+  function daysSince(t0) { return Math.max(1, Math.floor((Date.now() - t0) / 86400000) + 1); }
   function paintDays() {
     var el = document.getElementById("feed-days"); if (!el) return;
-    if (!feedUnlockedQ()) { el.textContent = ""; return; }
-    el.textContent = "我們認識 " + knowDays() + " 天";
+    if (!feedUnlockedQ()) { el.textContent = "SIGNAL"; return; }
+    var t0 = sinceTs();
+    el.textContent = t0 ? ("SIGNAL · 相遇第 " + daysSince(t0) + " 天") : "SIGNAL · 私訊頻道";
+    if (t0) return;
+    /* 沒有就跟伺服器要一次購買日，之後存本機 */
+    var fp = feedPassInfo();
+    if (!fp || !fp.unlocked || !fp.email || !fp.code || !CFG.api || !CFG.api.workerBaseUrl) return;
+    fetch(CFG.api.workerBaseUrl + "/feed/since?e=" + encodeURIComponent(fp.email) + "&c=" + encodeURIComponent(fp.code))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok || !d.since) return;
+        var t = Date.parse(d.since) || Number(d.since) || 0;
+        if (!t) return;
+        try { localStorage.setItem(SINCE_KEY, String(t)); } catch (e) {}
+        el.textContent = "SIGNAL · 相遇第 " + daysSince(t) + " 天";
+      })
+      .catch(function () {});
   }
   function buildReplyBar() {
     var old = document.getElementById("__rpBar");
@@ -7517,7 +7536,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B167T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B169T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
