@@ -400,17 +400,65 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .rpbar.soon .rp-pill{opacity:.8}
 .rpbar.soon .rp-stack{cursor:pointer}
 body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-inset-bottom))}
+/* B160T：粉絲自己的訊息（左側紫玻璃，跟他的米色泡泡明確區分） */
+.my-line{display:flex;justify-content:flex-end;margin:6px 0 3px;padding:0 14px}
+.my-bubble{max-width:80%;padding:11px 14px;border-radius:20px;border-bottom-right-radius:6px;
+  background:linear-gradient(135deg,rgba(120,84,200,.42),rgba(80,50,140,.55));
+  border:1px solid rgba(183,140,255,.35);color:#F7EBCB;
+  font:400 14.5px/1.55 -apple-system,'PingFang TC',sans-serif;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);white-space:pre-wrap;word-break:break-word}
+.my-bubble.voice{display:flex;align-items:center;gap:10px;padding:9px 12px 9px 9px;min-width:190px}
+.myv-play{width:32px;height:32px;border-radius:50%;border:none;flex:none;cursor:pointer;
+  background:linear-gradient(135deg,#E8C77E,#C8A056);color:#1A0E2A;font-size:12px;-webkit-tap-highlight-color:transparent}
+.myv-wave{display:flex;gap:2px;align-items:center;height:20px;flex:1}
+.myv-wave i{width:2.5px;border-radius:2px;background:rgba(247,235,203,.5);display:block;
+  height:calc(6px + 14px * var(--h,.5))}
+.myv-wave i:nth-child(3n){--h:.9}.myv-wave i:nth-child(3n+1){--h:.35}.myv-wave i:nth-child(4n){--h:.7}
+.myv-dur{font-size:11px;color:rgba(247,235,203,.6);flex:none}
+.chat-meta.mine{justify-content:flex-start;gap:10px}
+.mine-lock{font:500 10px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(183,140,255,.85)}
+.mine-lock::before{content:"🔒 "}
+/* B161T：新訊息浮標（讀舊訊息時不打斷） */
+.newpill{position:fixed;left:50%;transform:translate(-50%,10px);bottom:calc(168px + env(safe-area-inset-bottom));
+  z-index:70;display:inline-flex;align-items:center;gap:8px;padding:9px 15px 9px 9px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(135deg,rgba(60,42,96,.72),rgba(30,20,52,.85));
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.28);
+  color:#F7EBCB;font:600 12.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;
+  opacity:0;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.9,.25,1.2);-webkit-tap-highlight-color:transparent}
+.newpill.in{opacity:1;transform:translate(-50%,0)}
+.newpill img{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,199,126,.6)}
+.newpill:active{transform:translate(-50%,0) scale(.96)}
+/* B160T：Chance 正在輸入… */
+.typing-wrap{margin:8px 0 4px}
+.typing{display:flex;justify-content:flex-start;align-items:center}
+.typing{padding:0}
+.typing-wrap{margin:8px 14px 4px 48px}
+.typing-wrap .typing{display:inline-flex;background:linear-gradient(135deg,#F6EFDD,#EFDDB8);border-radius:20px;border-bottom-left-radius:6px;padding:13px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:#7a6a55;display:block;margin:0 2.5px;
+  animation:tyb 1.1s infinite ease-in-out}
+.typing{background:none}
+.typing::before{content:"";display:block}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes tyb{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.typing-lbl{text-align:left;margin:6px 0 0 2px;font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.4)}
+/* B160T：我們認識 N 天 */
+.feedhead-days{font:500 10px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.55);margin-top:3px}
+.feedhead-days:empty{display:none}
 /* B154T：時間＋反應同一列 */
-.chat-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-2px 0 10px;padding:0 4px}
+.chat-meta{display:flex;align-items:center;gap:8px;margin:-1px 0 12px;padding:0 14px 0 48px}   /* B161T：對齊泡泡左緣（頭像寬+間距） */
+.chat-meta.mine{justify-content:flex-end;padding:0 14px}
 .rx-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
-.rx-chip,.rx-add{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:999px;
+.rx-chip,.rx-add{display:inline-flex;align-items:center;gap:4px;height:23px;padding:0 8px;border-radius:999px;
   border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);
   font:600 12px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .16s ease,background .2s ease}
-.rx-chip b{font-weight:700;font-size:11px;opacity:.9}
+.rx-chip b{font-weight:700;font-size:10.5px;opacity:.9}
 .rx-chip.on{background:rgba(183,140,255,.28);border-color:rgba(183,140,255,.6);color:#F3E6C4}
 .rx-chip:active,.rx-add:active{transform:scale(.92)}
-.rx-add{padding:0 10px;color:rgba(255,255,255,.45);font-size:14px}
+.rx-add{padding:0 9px;color:rgba(255,255,255,.3);font-size:13px}
 /* 反應選單 */
 .rxpick{position:fixed;z-index:100003;display:flex;gap:6px;padding:8px 10px;border-radius:999px;
   border:1px solid rgba(255,255,255,.22);
@@ -423,7 +471,7 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
   cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .14s ease}
 .rxpick button:active{transform:scale(1.25)}
 /* B154T：訊息時間 */
-.chat-time{margin:-2px 0 8px;padding:0 4px;font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.34);letter-spacing:.5px;text-align:right}
+.chat-time{font:500 9.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.26);letter-spacing:.4px;margin-left:auto;flex:none}
 /* B154T：未讀分隔線 */
 .chat-newline{display:flex;align-items:center;gap:10px;margin:16px 2px 12px;
   font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;color:#B78CFF}
@@ -1303,11 +1351,15 @@ body { background: #08060C !important; }
 .chat-day{ color:rgba(217,178,106,.55) !important; }
 .chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
   color:rgba(255,255,255,.35); margin:18px 0 6px; }
-.chat-line{ display:flex; justify-content:flex-end; padding:3px 14px; }
+.chat-line{ display:flex; justify-content:flex-start; align-items:flex-end; gap:8px; padding:3px 14px; }
+/* B161T：Chance 固定左側、粉絲固定右側（一般聊天直覺） */
+.chat-ava{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex:none; margin-bottom:2px;
+  border:1px solid rgba(232,199,126,.55); background:#2a1d3f; }
+.chat-ava.ghost{ visibility:hidden; }
 .chat-bubble{ max-width:76%; background:linear-gradient(135deg,#F6EFDD,#EFDDB8); color:#221A10; border-radius:22px;
   padding:11px 16px; font:400 15.5px/1.45 -apple-system,'PingFang TC',sans-serif;
-  border-bottom-right-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.25); }
-.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-right-radius:8px;
+  border-bottom-left-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.25); }
+.chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-left-radius:8px;
   border:1px solid rgba(217,178,106,.28); cursor:zoom-in; }
 .chat-photo img{ width:100%; display:block; }
 
@@ -1630,7 +1682,7 @@ body { background: #08060C !important; }
   display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(217,178,106,.35); }
 .chat-voice .v-btn svg{ fill:#191510 !important; }
 .chat-video{ position:relative; max-width:82%; border-radius:24px; overflow:hidden;
-  border-bottom-right-radius:8px; border:1px solid rgba(217,178,106,.28); background:#000; cursor:pointer; }
+  border-bottom-left-radius:8px; border:1px solid rgba(217,178,106,.28); background:#000; cursor:pointer; }
 .chat-video video{ width:100%; display:block; }
 .chat-video .cv-play{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   width:56px; height:56px; border-radius:50%; border:none;
@@ -1764,7 +1816,7 @@ body { background: #08060C !important; }
 @media (prefers-reduced-motion: reduce){ .cta-flash{ animation:none; outline:2px solid rgba(233,196,106,.6); outline-offset:3px; } }
 .col-redeem{ display:block; width:100%; margin-top:15px; border:none; background:none; cursor:pointer;
   color:rgba(255,255,255,.6); font-size:13px; line-height:1.3; letter-spacing:1px; text-decoration:underline; text-underline-offset:3px; }
-.chat-vidlock{ width:82%; border-radius:24px; border-bottom-right-radius:8px;
+.chat-vidlock{ width:82%; border-radius:24px; border-bottom-left-radius:8px;
   border:1px solid rgba(217,178,106,.38);
   background:linear-gradient(150deg,rgba(126,63,168,.32),rgba(18,10,26,.9));
   padding:22px 18px 18px; text-align:center; }
@@ -2169,6 +2221,7 @@ body { background: #08060C !important; }
         <span class="sigbar-txt feedhead-txt">
           <span class="sigbar-eyebrow">SIGNAL · 私訊頻道</span>
           <span class="sigbar-main">成晞 Chance</span>
+          <span class="feedhead-days" id="feed-days"></span>
         </span>
       </div>
       <span class="feed-count hidden" id="feed-count"></span>
@@ -4871,6 +4924,7 @@ window.ALBUM_SWITCH = {
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
     try { buildReplyBar(); } catch (e) {}                 /* B155T：粉絲回覆框 */
+    try { paintDays(); } catch (e) {}                     /* B160T：我們認識 N 天 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
@@ -5480,7 +5534,14 @@ window.ALBUM_SWITCH = {
         feedLiveKey = liveKey;
         FEED_LIVE_POSTS = d.posts;
         feedLiveLoadedAt = Date.now();
-        if (liveChanged) renderMoodWall();   /* B148：資料沒變就不重繪，避免殺掉正在播的影片/語音 */
+        if (liveChanged) {
+          /* B161T：正在讀舊訊息時不強制重繪；改浮標讓使用者自己跳 */
+          var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
+          var reading = state.screen === "mood" && body && body.scrollTop > 120;
+          if (state.screen === "mood" && feedLiveKey && !reading) showTyping(renderMoodWall);
+          else if (reading) showNewPill();
+          else renderMoodWall();
+        }
       })
       .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ })
       .then(function () { if (requestNo === feedLiveRequest) feedLiveLoading = false; });
@@ -5512,6 +5573,17 @@ window.ALBUM_SWITCH = {
         var hhmm = pad(d.getHours()) + ":" + pad(d.getMinutes());
         groups.push({ day: day, its: its, t: hhmm, ts: Number(p.ts || 0), rid: p.id || ("live-" + p.ts) });
       });
+    /* B160T：把「我說過的話」也放進時間軸，變成真正的對話 */
+    myMsgs().forEach(function (m) {
+      var its = [];
+      if (m.kind === "voice") its.push({ myvoice: m.url || "", dur: m.dur || 0 });
+      else its.push({ mytext: m.text || "" });
+      var d0 = new Date(Number(m.ts || 0));
+      var p2 = function (n) { return n < 10 ? "0" + n : "" + n; };
+      groups.push({ day: d0.getFullYear() + "." + p2(d0.getMonth() + 1) + "." + p2(d0.getDate()),
+        its: its, t: p2(d0.getHours()) + ":" + p2(d0.getMinutes()), ts: Number(m.ts || 0), mine: true });
+    });
+    groups.sort(function (a, b) { return b.ts - a.ts; });
     var seenTs = 0;
     try { seenTs = Number(localStorage.getItem(SEENTS_KEY) || 0) || 0; } catch (e) {}
     var out = [], lastDay = "", lineDone = false;
@@ -5520,18 +5592,29 @@ window.ALBUM_SWITCH = {
       if (!lineDone && seenTs > 0 && g.ts <= seenTs) { out.push({ newline: 1 }); lineDone = true; lastDay = ""; }
       if (g.day !== lastDay) { out.push({ day: g.day }); lastDay = g.day; }
       else if (out.length) out.push({ gap: 1 });
-      g.its.forEach(function (it) { out.push(it); });
-      if (g.t) out.push({ t: g.t, rid: g.rid });      /* B154T：時間＋表情反應 */
+      g.its.forEach(function (it, ix) { if (!g.mine && ix === 0) it.first = 1; out.push(it); });
+      if (g.t) out.push({ t: g.t, rid: g.mine ? "" : g.rid, mine: !!g.mine });
     });
     return out;
   }
 
+  function avaTag(m) {
+    /* B161T：每組第一則帶小頭像，之後的用透明佔位對齊 */
+    return '<img class="chat-ava' + (m.first ? '' : ' ghost') + '" src="assets/images/avatar.jpg" alt="">';
+  }
   function feedChatHTML(items) {
     var out = "";
     items.forEach(function (m) {
       if (m.day)   { out += '<div class="chat-day">' + esc(m.day) + '</div>'; return; }
       if (m.gap)   { out += '<div class="chat-gap"></div>'; return; }
       if (m.newline) { out += '<div class="chat-newline"><span>以下是新訊息</span></div>'; return; }
+      if (m.mytext) { out += '<div class="my-line"><div class="my-bubble">' + esc(m.mytext) + '</div></div>'; return; }
+      if (m.myvoice !== undefined) {
+        out += '<div class="my-line"><div class="my-bubble voice"><button class="myv-play" data-src="' + esc(m.myvoice) + '">▶</button>' +
+               '<span class="myv-wave">' + '<i></i>'.repeat(18) + '</span>' +
+               '<span class="myv-dur">' + (m.dur ? (Math.floor(m.dur / 60) + ":" + (m.dur % 60 < 10 ? "0" : "") + (m.dur % 60)) : "語音") + '</span></div></div>';
+        return;
+      }
       if (m.t) {
         var rid = m.rid || "", chips = "", mine = myReacts();
         var rc = FEED_REACTIONS[rid] || {};
@@ -5541,6 +5624,8 @@ window.ALBUM_SWITCH = {
           chips += '<button class="rx-chip' + on + '" data-rx="' + esc(rid) + '" data-emo="' + k + '">' +
                    REACT_EMO[k] + '<b>' + n + '</b></button>';
         });
+        if (m.mine) { out += '<div class="chat-meta mine"><span class="mine-lock">只有他看得到</span>' +
+          '<div class="chat-time">' + esc(m.t) + '</div></div>'; return; }
         out += '<div class="chat-meta">' +
           '<div class="rx-row">' + chips +
             (rid ? '<button class="rx-add" data-rxadd="' + esc(rid) + '" aria-label="加上反應">＋</button>' : '') +
@@ -5548,7 +5633,7 @@ window.ALBUM_SWITCH = {
           '<div class="chat-time">' + esc(m.t) + '</div></div>';
         return;
       }
-      if (m.text)  { out += '<div class="chat-line"><div class="chat-bubble">' + esc(applyNick(m.text)) + '</div></div>'; return; }
+      if (m.text)  { out += '<div class="chat-line">' + avaTag(m) + '<div class="chat-bubble">' + esc(applyNick(m.text)) + '</div></div>'; return; }
       if (m.photo) { out += '<div class="chat-line"><div class="chat-photo"><img src="' + esc(m.photo) + '" alt="" loading="lazy"></div></div>'; return; }
       if (m.voice) {
         var bars = "";
@@ -5635,9 +5720,9 @@ window.ALBUM_SWITCH = {
   }
   function dockReplyBar(tries) {
     var w = document.getElementById("__rpBar"); if (!w) return;
-    var nav = document.querySelector(".nav");
+    var nav = document.getElementById("nav") || document.querySelector("#nav-wrap > div");
     var r = nav ? nav.getBoundingClientRect() : null;
-    var ok = r && r.height > 20 && r.top > 60 && r.top < window.innerHeight;   /* 量到合理數值才用 */
+    var ok = r && r.width > 100 && r.height > 20 && r.top > 0 && r.top < window.innerHeight;
     if (!ok) {
       /* 還沒排版好 → 保持 CSS 預設位置，稍後重試 */
       w.style.removeProperty("bottom");
@@ -5645,10 +5730,29 @@ window.ALBUM_SWITCH = {
       return;
     }
     w.style.setProperty("--rp-w", Math.round(r.width) + "px");
-    w.style.bottom = Math.round(window.innerHeight - r.top + 6) + "px";
+    w.style.bottom = Math.round(window.innerHeight - r.top + 4) + "px";   /* B159T：貼緊 nav */
   }
   window.addEventListener("resize", function () { setTimeout(function(){ dockReplyBar(0); }, 60); });
   window.addEventListener("orientationchange", function () { setTimeout(function(){ dockReplyBar(0); }, 220); });
+  var SINCE_KEY = "album-the-sky:since";
+  function knowDays() {
+    var t0 = 0;
+    try { t0 = Number(localStorage.getItem(SINCE_KEY) || 0) || 0; } catch (e) {}
+    if (!t0) {
+      t0 = Date.now();
+      try {
+        var fp = feedPassInfo();
+        if (fp && fp.at) t0 = Number(fp.at) || t0;
+      } catch (e) {}
+      try { localStorage.setItem(SINCE_KEY, String(t0)); } catch (e) {}
+    }
+    return Math.max(1, Math.floor((Date.now() - t0) / 86400000) + 1);
+  }
+  function paintDays() {
+    var el = document.getElementById("feed-days"); if (!el) return;
+    if (!feedUnlockedQ()) { el.textContent = ""; return; }
+    el.textContent = "我們認識 " + knowDays() + " 天";
+  }
   function buildReplyBar() {
     var old = document.getElementById("__rpBar");
     if (state.screen !== "mood" || !feedUnlockedQ()) { if (old) old.remove(); document.body.classList.remove("has-rpbar"); return; }
@@ -5687,7 +5791,7 @@ window.ALBUM_SWITCH = {
           body: JSON.stringify({ email: fp.email, code: fp.code, text: txt }) })
           .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
           .then(function (o) { inp.disabled = false;
-            if (o.d && o.d.ok) { inp.value = ""; afterSend("送出了，他會看到 💛"); }
+            if (o.d && o.d.ok) { pushMyMsg({ ts: Date.now(), kind: "text", text: txt }); inp.value = ""; afterSend("送出了，他會看到 💛"); renderMoodWall(); }
             else if (o.s === 403) toast("回覆功能還沒開放");
             else if (o.s === 429) { refreshHint(); toast("今天的額度用完了"); }
             else toast("送不出去，等一下再試"); })
@@ -5728,7 +5832,7 @@ window.ALBUM_SWITCH = {
                   { method: "POST", body: blob })
               .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
               .then(function (o) { inp.placeholder = "回一句給 Chance…";
-                if (o.d && o.d.ok) afterSend("語音送出了，他會聽到 💛");
+                if (o.d && o.d.ok) { pushMyMsg({ ts: Date.now(), kind: "voice", dur: dur, url: URL.createObjectURL(blob) }); afterSend("語音送出了，他會聽到 💛"); renderMoodWall(); }
                 else if (o.s === 403) toast("回覆功能還沒開放");
                 else if (o.s === 429) { refreshHint(); toast("今天的額度用完了"); }
                 else if (o.s === 413) toast("錄太長了，短一點再試");
@@ -5757,6 +5861,15 @@ window.ALBUM_SWITCH = {
     refreshHint();
     document.body.classList.add("has-rpbar");
     requestAnimationFrame(function () { dockReplyBar(0); });
+  }
+  var MYMSG_KEY = "album-the-sky:my-msgs";          /* B160T：我說過的話（存本機） */
+  function myMsgs() { try { return JSON.parse(localStorage.getItem(MYMSG_KEY) || "[]") || []; } catch (e) { return []; } }
+  function pushMyMsg(m) {
+    try {
+      var l = myMsgs(); l.push(m);
+      if (l.length > 200) l = l.slice(-200);
+      localStorage.setItem(MYMSG_KEY, JSON.stringify(l));
+    } catch (e) {}
   }
   var REACT_KEY = "album-the-sky:my-reactions";     /* B154T：我按過哪些（可再按一次收回） */
   var REACT_EMO = { heart: "❤️", tear: "🥹", cry: "😭", fire: "🔥" };
@@ -5858,6 +5971,14 @@ window.ALBUM_SWITCH = {
     requestAnimationFrame(function () { w.classList.add("in"); });
   }
   document.addEventListener("click", function (e) {
+    var mv = e.target.closest && e.target.closest(".myv-play");
+    if (mv) { e.stopPropagation();
+      if (mv.__au) { if (mv.__au.paused) { mv.__au.play(); mv.textContent = "❚❚"; } else { mv.__au.pause(); mv.textContent = "▶"; } return; }
+      var src = mv.getAttribute("data-src"); if (!src) { toast("這則語音只在當時的裝置上"); return; }
+      var au = new Audio(src); mv.__au = au;
+      au.onended = function () { mv.textContent = "▶"; };
+      au.play().then(function(){ mv.textContent = "❚❚"; }).catch(function(){ toast("播不出來"); });
+      return; }
     var chip = e.target.closest && e.target.closest(".rx-chip");
     if (chip) { e.stopPropagation(); sendReact(chip.getAttribute("data-rx"), chip.getAttribute("data-emo")); return; }
     var add = e.target.closest && e.target.closest(".rx-add");
@@ -5873,6 +5994,36 @@ window.ALBUM_SWITCH = {
     } catch (e) {}
     var d = document.getElementById("__navDot"); if (d) d.remove();
     var b = document.getElementById("__sigBar"); if (b) b.remove();
+  }
+  function keepScroll(fn) {
+    var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
+    var top = body ? body.scrollTop : 0, h = body ? body.scrollHeight : 0;
+    fn();
+    if (body && top > 0) { try { body.scrollTop = top + (body.scrollHeight - h); } catch (e) {} }
+  }
+  function showNewPill() {
+    if (document.getElementById("__newPill")) return;
+    var b = document.createElement("button");
+    b.id = "__newPill"; b.className = "newpill";
+    b.innerHTML = '<img src="assets/images/avatar.jpg" alt="">↑ 他剛說了一句';
+    b.addEventListener("click", function () {
+      b.remove();
+      renderMoodWall();
+      var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
+      if (body) body.scrollTo({ top: 0, behavior: "smooth" });
+      try { hap(12); } catch (e) {}
+    });
+    document.body.appendChild(b);
+    requestAnimationFrame(function () { b.classList.add("in"); });
+  }
+  function showTyping(then) {
+    var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
+    if (!body || state.screen !== "mood") { then(); return; }
+    var w = document.createElement("div"); w.className = "typing-wrap";
+    w.innerHTML = '<div class="typing"><i></i><i></i><i></i></div><div class="typing-lbl">Chance 正在輸入…</div>';
+    body.appendChild(w);
+    try { body.scrollTop = 0; } catch (e) {}
+    setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); try { hap(10); } catch (e) {} then(); }, 1500);
   }
   function feedNewsCheck() {
     if (PLAYER_ONLY) return;                          /* player-only 專輯沒有 FEED 頁 */
@@ -7252,7 +7403,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B158T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B161T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
