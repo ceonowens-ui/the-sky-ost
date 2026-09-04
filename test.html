@@ -1057,14 +1057,19 @@ textarea, select { font-size: 16px !important; }
   display: flex; align-items: center; justify-content: center;
   padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
   background: transparent; border-bottom: none; pointer-events: none; }
-.feedhead-cap { pointer-events: auto; position: relative; display: inline-flex; align-items: center; gap: 10px;
-  max-width: 100%; padding: 9px 18px 9px 10px; border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.22);
-  background: linear-gradient(135deg,rgba(60,42,96,.42),rgba(30,20,52,.55));
-  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
-  box-shadow: 0 8px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.18); }
+/* B170T：黑色玻璃底 + 1px 香檳金細框（不用紫色底、不用白框） */
+.feedhead-cap { pointer-events: auto; position: relative; display: inline-flex; align-items: center; gap: 11px;
+  max-width: 100%; padding: 8px 20px 8px 9px; border-radius: 999px;
+  border: 1px solid rgba(217,178,106,.65);
+  background: rgba(7,7,10,.58);
+  -webkit-backdrop-filter: blur(24px) saturate(150%); backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(232,199,126,.16), inset 0 -1px 0 rgba(0,0,0,.35); }
 .feedhead-cap::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.10) 100%); }
+  background:linear-gradient(118deg,rgba(232,199,126,.10) 0%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 64%,rgba(232,199,126,.07) 100%); }
+.feedhead-cap .sigbar-ava { width:36px; height:36px; border:1px solid rgba(217,178,106,.78); box-shadow:0 0 0 1px rgba(0,0,0,.4); }
+.feedhead-cap .sigbar-main { color:#F5EFE3; }
+.feedhead-cap .feedhead-days { color:rgba(198,184,212,.74); }
+.feedhead-cap .fh-dot { background:#A98CFF; box-shadow:0 0 7px rgba(169,140,255,.75); }
 .feedhead-txt { align-items: center; text-align: center; flex: 0 1 auto; }
 #screen-mood .feed-tab { border: none; background: none; cursor: pointer;
   padding: 6px 12px; border-radius: 14px;
@@ -7536,7 +7541,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B169T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B170T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
