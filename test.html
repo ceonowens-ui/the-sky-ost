@@ -360,8 +360,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   background:linear-gradient(115deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.10) 100%)}
 .sigbar-ava{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;border:1px solid rgba(232,199,126,.7);box-shadow:0 0 0 2px rgba(0,0,0,.25)}
 .sigbar-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.sigbar-eyebrow{font:600 10px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1.6px;color:#B78CFF}
-.sigbar-main{font:600 14px/1.25 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sigbar-eyebrow{font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1.7px;color:#B78CFF}
+.sigbar-main{font:600 15.5px/1.3 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sigbar-chev{flex:none;font:400 22px/1 -apple-system,sans-serif;color:rgba(247,235,203,.75);transform:translateY(-1px)}
 .sigbar:active{transform:translateY(0) scale(.985)}
 .updbar{z-index:100001;background:linear-gradient(135deg,rgba(217,178,106,.40),rgba(140,98,40,.52));border-color:rgba(255,236,190,.38)}
@@ -387,7 +387,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .rp-mic:disabled{opacity:.4}
 .rp-lockicon{flex:none;font-size:11px;line-height:1;opacity:.62;margin-left:2px}
 .rp-inp{flex:1;min-width:0;border:none;background:transparent;color:#F7EBCB;outline:none;padding:0 2px;
-  font:400 14px/1.3 -apple-system,'PingFang TC',sans-serif}
+  font:400 15.5px/1.3 -apple-system,'PingFang TC',sans-serif}
 .rp-inp::placeholder{color:rgba(247,235,203,.38)}
 .rp-inp:disabled{opacity:.62}
 .rp-send{flex:none;width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
@@ -408,15 +408,15 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .rp-note:active{transform:scale(.985)}
 .rp-note-lock{flex:none;font-size:13px;opacity:.8}
 .rp-note-t{display:flex;flex-direction:column;gap:3px;
-  font:600 13px/1 -apple-system,'PingFang TC',sans-serif;color:#C9A9FF}
-.rp-note-sub{font:400 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.36)}
+  font:600 14.5px/1 -apple-system,'PingFang TC',sans-serif;color:#C9A9FF}
+.rp-note-sub{font:400 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.42)}
 body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-inset-bottom))}
 /* B160T：粉絲自己的訊息（左側紫玻璃，跟他的米色泡泡明確區分） */
 .my-line{display:flex;justify-content:flex-end;margin:6px 0 3px;padding:0 14px}
-.my-bubble{max-width:80%;padding:11px 14px;border-radius:20px;border-bottom-right-radius:6px;
+.my-bubble{max-width:80%;padding:12px 16px;border-radius:20px;border-bottom-right-radius:6px;
   background:linear-gradient(135deg,rgba(120,84,200,.42),rgba(80,50,140,.55));
   border:1px solid rgba(183,140,255,.35);color:#F7EBCB;
-  font:400 14.5px/1.55 -apple-system,'PingFang TC',sans-serif;
+  font:400 17px/1.5 -apple-system,'PingFang TC',sans-serif;
   -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18);white-space:pre-wrap;word-break:break-word}
 .my-bubble.voice{display:flex;align-items:center;gap:10px;padding:9px 12px 9px 9px;min-width:190px}
@@ -426,9 +426,9 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
 .myv-wave i{width:2.5px;border-radius:2px;background:rgba(247,235,203,.5);display:block;
   height:calc(6px + 14px * var(--h,.5))}
 .myv-wave i:nth-child(3n){--h:.9}.myv-wave i:nth-child(3n+1){--h:.35}.myv-wave i:nth-child(4n){--h:.7}
-.myv-dur{font-size:11px;color:rgba(247,235,203,.6);flex:none}
+.myv-dur{font-size:12.5px;color:rgba(247,235,203,.6);flex:none}
 .chat-meta.mine{justify-content:flex-start;gap:10px}
-.mine-lock{font:500 10px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(183,140,255,.85)}
+.mine-lock{font:500 11px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(183,140,255,.85)}
 .mine-lock::before{content:"🔒 "}
 /* B161T：新訊息浮標（讀舊訊息時不打斷） */
 .newpill{position:fixed;left:50%;transform:translate(-50%,10px);bottom:calc(168px + env(safe-area-inset-bottom));
@@ -437,7 +437,7 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
   background:linear-gradient(135deg,rgba(60,42,96,.72),rgba(30,20,52,.85));
   -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
   box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.28);
-  color:#F7EBCB;font:600 12.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;
+  color:#F7EBCB;font:600 13.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;
   opacity:0;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.9,.25,1.2);-webkit-tap-highlight-color:transparent}
 .newpill.in{opacity:1;transform:translate(-50%,0)}
 .newpill img{width:22px;height:22px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,199,126,.6)}
@@ -454,22 +454,22 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
 .typing::before{content:"";display:block}
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
 @keyframes tyb{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
-.typing-lbl{text-align:left;margin:6px 0 0 2px;font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.4)}
+.typing-lbl{text-align:left;margin:7px 0 0 2px;font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.46)}
 /* B160T：我們認識 N 天 */
-.feedhead-days{font:500 10px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.55);margin-top:3px}
+.feedhead-days{font:500 11px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.6);margin-top:4px}
 .feedhead-days:empty{display:none}
 /* B154T：時間＋反應同一列 */
-.chat-meta{display:flex;align-items:center;gap:8px;margin:-1px 0 12px;padding:0 14px 0 48px}   /* B161T：對齊泡泡左緣（頭像寬+間距） */
+.chat-meta{display:flex;align-items:center;gap:8px;margin:-1px 0 12px;padding:0 14px 0 50px}   /* B161T：對齊泡泡左緣（頭像寬+間距） */
 .chat-meta.mine{justify-content:flex-end;padding:0 14px}
 .rx-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
-.rx-chip,.rx-add{display:inline-flex;align-items:center;gap:4px;height:23px;padding:0 8px;border-radius:999px;
+.rx-chip,.rx-add{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px;border-radius:999px;
   border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);
-  font:600 12px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font:600 13.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .16s ease,background .2s ease}
-.rx-chip b{font-weight:700;font-size:10.5px;opacity:.9}
+.rx-chip b{font-weight:700;font-size:12px;opacity:.9}
 .rx-chip.on{background:rgba(183,140,255,.28);border-color:rgba(183,140,255,.6);color:#F3E6C4}
 .rx-chip:active,.rx-add:active{transform:scale(.92)}
-.rx-add{padding:0 9px;color:rgba(255,255,255,.3);font-size:13px}
+.rx-add{padding:0 11px;color:rgba(255,255,255,.38);font-size:15px}
 /* 反應選單 */
 .rxpick{position:fixed;z-index:100003;display:flex;gap:6px;padding:8px 10px;border-radius:999px;
   border:1px solid rgba(255,255,255,.22);
@@ -482,10 +482,10 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
   cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .14s ease}
 .rxpick button:active{transform:scale(1.25)}
 /* B154T：訊息時間 */
-.chat-time{font:500 9.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.26);letter-spacing:.4px;margin-left:auto;flex:none}
+.chat-time{font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.34);letter-spacing:.4px;margin-left:auto;flex:none}
 /* B154T：未讀分隔線 */
 .chat-newline{display:flex;align-items:center;gap:10px;margin:16px 2px 12px;
-  font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;color:#B78CFF}
+  font:600 11.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:2px;color:#B78CFF}
 .chat-newline::before,.chat-newline::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(183,140,255,.45),transparent)}
 .chat-newline span{flex:none;opacity:.95}
 /* B154T：暱稱詢問卡（玻璃） */
@@ -511,7 +511,7 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
   font:600 13.5px/1 -apple-system,'PingFang TC',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .nickcard .nk-ok{background:linear-gradient(135deg,rgba(232,199,126,.95),rgba(200,160,86,.95));color:#1A0E2A;border-color:rgba(255,236,190,.5)}
 .nickcard .nk-skip{background:rgba(255,255,255,.08);color:rgba(247,235,203,.7)}
-.sigbar-solo .sigbar-main{font-size:15px;line-height:1.35}
+.sigbar-solo .sigbar-main{font-size:16px;line-height:1.35}
 /* B125T：FEED 未讀紅點（SIGNAL 有新訊號時掛在愛心圖示上） */
 .nav-dot { position: absolute; top: 5px; right: 15px; width: 8px; height: 8px;
            border-radius: 50%; background: #FF5A76;
@@ -1397,7 +1397,7 @@ body { background: #08060C !important; }
 .feed-cue{ position:fixed; left:0; right:0; bottom:calc(150px + env(safe-area-inset-bottom));
   z-index:11; display:flex; flex-direction:column; align-items:center; gap:6px;
   pointer-events:none; opacity:var(--cue,1); transition:opacity .3s ease; }
-.feed-cue span{ font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px;
+.feed-cue span{ font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px;
   color:rgba(255,255,255,.62); text-shadow:0 1px 8px rgba(0,0,0,.8); }
 .feed-cue i{ display:block; width:8px; height:8px; border-right:1.4px solid rgba(255,255,255,.6);
   border-bottom:1.4px solid rgba(255,255,255,.6); transform:rotate(45deg);
@@ -1405,7 +1405,7 @@ body { background: #08060C !important; }
 @keyframes cuedn{ 0%,100%{transform:rotate(45deg) translate(0,0);opacity:.5} 50%{transform:rotate(45deg) translate(3px,3px);opacity:1} }
 /* 背景變亮後，把次要文字的對比補回來 */
 #screen-mood .chat-day{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
-#screen-mood .chat-time{ color:rgba(255,255,255,.5); text-shadow:0 1px 5px rgba(0,0,0,.7); }
+#screen-mood .chat-time{ color:rgba(255,255,255,.58); text-shadow:0 1px 5px rgba(0,0,0,.7); }
 #screen-mood .rx-chip,#screen-mood .rx-add{ background:rgba(14,8,23,.5); border-color:rgba(255,255,255,.22);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
 #screen-mood .chat-newline{ text-shadow:0 1px 6px rgba(0,0,0,.8); }
@@ -1418,11 +1418,11 @@ body { background: #08060C !important; }
   color:rgba(255,255,255,.35); margin:18px 0 6px; }
 .chat-line{ display:flex; justify-content:flex-start; align-items:flex-end; gap:8px; padding:3px 14px; }
 /* B161T：Chance 固定左側、粉絲固定右側（一般聊天直覺） */
-.chat-ava{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex:none; margin-bottom:2px;
+.chat-ava{ width:28px; height:28px; border-radius:50%; object-fit:cover; flex:none; margin-bottom:2px;
   border:1px solid rgba(232,199,126,.55); background:#2a1d3f; }
 .chat-ava.ghost{ visibility:hidden; }
 .chat-bubble{ max-width:76%; background:linear-gradient(135deg,#F6EFDD,#EFDDB8); color:#221A10; border-radius:22px;
-  padding:11px 16px; font:400 15.5px/1.45 -apple-system,'PingFang TC',sans-serif;
+  padding:12px 17px; font:400 17px/1.5 -apple-system,'PingFang TC',sans-serif;
   border-bottom-left-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.25); }
 .chat-photo{ max-width:82%; border-radius:24px; overflow:hidden; border-bottom-left-radius:8px;
   border:1px solid rgba(217,178,106,.28); cursor:zoom-in; }
@@ -7517,7 +7517,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B166T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B167T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
