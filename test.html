@@ -1365,29 +1365,44 @@ body { background: #08060C !important; }
 #screen-mood::before{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background-image:
-    /* 暗角，收邊、讓中央人物更立體 */
-    radial-gradient(130% 88% at 50% 30%, transparent 46%, rgba(8,4,16,.55) 100%),
-    /* 上淡下深：上半保留辨識度，下半接近純深紫黑讓訊息清楚 */
+    /* 標頭處極淡暗化，讓玻璃膠囊在亮背景上也讀得清楚 */
+    linear-gradient(180deg, rgba(10,5,20,.46) 0%, rgba(10,5,20,.14) 130px, transparent 210px),
+    /* 暗角，收邊、讓人物更立體 */
+    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(8,4,16,.58) 100%),
+    /* B166T：人像完整露出 —— 上 2/3 幾乎不壓，底部才收深 */
     linear-gradient(180deg,
-      rgba(18,10,32,.24) 0%,
-      rgba(18,10,32,.34) 26%,
-      rgba(16,9,28,.62) 46%,
-      rgba(14,8,23,.88) 62%,
-      rgba(14,8,23,.96) 76%,
-      #0E0817 88%),
+      rgba(18,10,32,.10) 0%,
+      rgba(18,10,32,.12) 42%,
+      rgba(16,9,28,.30) 62%,
+      rgba(14,8,23,.66) 78%,
+      rgba(14,8,23,.90) 90%,
+      #0E0817 100%),
     /* 輕微紫調 */
-    linear-gradient(180deg, rgba(120,70,200,.16) 0%, rgba(70,40,130,.10) 40%, transparent 70%),
+    linear-gradient(180deg, rgba(120,70,200,.14) 0%, rgba(70,40,130,.09) 42%, transparent 72%),
     url("assets/images/artist-background.jpg");
   background-repeat:no-repeat;
-  background-size:cover, cover, cover, cover;
-  background-position:center top, center top, center top, center top;
+  background-size:cover, cover, cover, cover, cover;
+  background-position:center top, center top, center top, center top, center top;
   filter:saturate(.9) contrast(1.02);
 }
-/* 標頭下方一層極淡的暗化，讓玻璃膠囊在亮背景上也讀得清楚 */
+/* B166T：往下滑進入對話時，背景自動加深，訊息才讀得清楚（背景本身不動，不會抖） */
 #screen-mood::after{
-  content:""; position:fixed; left:0; right:0; top:0; height:190px; z-index:-1; pointer-events:none;
-  background:linear-gradient(180deg, rgba(10,5,20,.5) 0%, rgba(10,5,20,.18) 60%, transparent 100%);
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(12,6,22,.86), rgba(10,5,18,.94));
+  opacity:var(--veil, 0); transition:opacity .18s linear;
 }
+/* B166T：頻道開場 —— 先看到完整人像，往下滑才開始看訊息 */
+#screen-mood #feed-body{ padding-top:58vh; }
+/* 下滑提示 */
+.feed-cue{ position:fixed; left:0; right:0; bottom:calc(150px + env(safe-area-inset-bottom));
+  z-index:11; display:flex; flex-direction:column; align-items:center; gap:6px;
+  pointer-events:none; opacity:var(--cue,1); transition:opacity .3s ease; }
+.feed-cue span{ font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif; letter-spacing:2px;
+  color:rgba(255,255,255,.62); text-shadow:0 1px 8px rgba(0,0,0,.8); }
+.feed-cue i{ display:block; width:8px; height:8px; border-right:1.4px solid rgba(255,255,255,.6);
+  border-bottom:1.4px solid rgba(255,255,255,.6); transform:rotate(45deg);
+  animation:cuedn 1.7s infinite ease-in-out; }
+@keyframes cuedn{ 0%,100%{transform:rotate(45deg) translate(0,0);opacity:.5} 50%{transform:rotate(45deg) translate(3px,3px);opacity:1} }
 /* 背景變亮後，把次要文字的對比補回來 */
 #screen-mood .chat-day{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
 #screen-mood .chat-time{ color:rgba(255,255,255,.5); text-shadow:0 1px 5px rgba(0,0,0,.7); }
@@ -4975,6 +4990,7 @@ window.ALBUM_SWITCH = {
     if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
     try { buildReplyBar(); } catch (e) {}                 /* B155T：粉絲回覆框 */
     try { paintDays(); } catch (e) {}                     /* B160T：我們認識 N 天 */
+    if (screen === "mood") { try { buildFeedCue(); } catch (e) {} }   /* B166T：開場人像＋下滑提示 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
@@ -5768,6 +5784,28 @@ window.ALBUM_SWITCH = {
       localStorage.setItem(RPLEFT_KEY, JSON.stringify({ d: today, n: n + 1 }));
     } catch (e) {}
   }
+  function feedScrollFx() {
+    var sm = document.getElementById("screen-mood"); if (!sm) return;
+    var y = sm.scrollTop, vh = window.innerHeight || 800;
+    var start = vh * 0.16, end = vh * 0.52;          /* 開始滑就漸暗，滑過半屏完全暗 */
+    var v = Math.max(0, Math.min(1, (y - start) / (end - start)));
+    sm.style.setProperty("--veil", v.toFixed(3));
+    sm.style.setProperty("--cue", (y > 24 ? 0 : 1));
+  }
+  function buildFeedCue() {
+    var sm = document.getElementById("screen-mood"); if (!sm) return;
+    if (!document.getElementById("__feedCue")) {
+      var c = document.createElement("div");
+      c.id = "__feedCue"; c.className = "feed-cue";
+      c.innerHTML = '<span>往下看他說了什麼</span><i></i>';
+      sm.appendChild(c);
+    }
+    if (!sm.__fxBound) {
+      sm.addEventListener("scroll", feedScrollFx, { passive: true });
+      sm.__fxBound = 1;
+    }
+    feedScrollFx();
+  }
   function dockReplyBar(tries) {
     var w = document.getElementById("__rpBar"); if (!w) return;
     var nav = document.getElementById("nav") || document.querySelector("#nav-wrap > div");
@@ -5952,7 +5990,7 @@ window.ALBUM_SWITCH = {
     try { localStorage.setItem(REACT_KEY, JSON.stringify(mine)); } catch (e) {}
     FEED_REACTIONS[id] = FEED_REACTIONS[id] || {};
     FEED_REACTIONS[id][emo] = Math.max(0, (Number(FEED_REACTIONS[id][emo]) || 0) + dir);
-    renderMoodWall();
+    setTimeout(function () { keepScroll(renderMoodWall); }, 120);   /* B165T：等手勢結束再重繪，避免誤觸 */
     try { hap(dir === 1 ? 12 : 8); } catch (e) {}
     fetch(CFG.api.workerBaseUrl + "/feed/react", {
       method: "POST", headers: { "Content-Type": "text/plain" },
@@ -6013,13 +6051,29 @@ window.ALBUM_SWITCH = {
     w.appendChild(card); document.body.appendChild(w);
     requestAnimationFrame(function () { w.classList.add("in"); });
   }
+  /* B165T：表情操作後的點擊護盾 —— iOS 放開手指會補送一次 click，
+     那時畫面已重繪，照片剛好在同位置 → 會誤開燈箱。這裡在捕獲階段先吞掉。 */
+  var rxGuardUntil = 0;
+  function rxGuard() { rxGuardUntil = Date.now() + 550; }
+  document.addEventListener("click", function (e) {
+    if (Date.now() < rxGuardUntil && !(e.target.closest && e.target.closest(".rxpick, .rx-chip, .rx-add"))) {
+      e.stopPropagation(); e.preventDefault();
+    }
+  }, true);
   function closeRxPick() { var o = document.getElementById("__rxPick"); if (o) { o.classList.remove("in"); setTimeout(function(){ if(o.parentNode) o.parentNode.removeChild(o); }, 200); } }
   function openRxPick(btn, id) {
     closeRxPick();
     var w = document.createElement("div"); w.id = "__rxPick"; w.className = "rxpick";
     ["heart", "tear", "cry", "fire"].forEach(function (k) {
       var b = document.createElement("button"); b.type = "button"; b.textContent = REACT_EMO[k];
-      b.addEventListener("click", function (e) { e.stopPropagation(); closeRxPick(); sendReact(id, k); });
+      var fired = false;
+      function pick(e) {
+        if (fired) return; fired = true;
+        e.preventDefault(); e.stopPropagation();
+        rxGuard(); closeRxPick(); sendReact(id, k);
+      }
+      b.addEventListener("touchend", pick, { passive: false });
+      b.addEventListener("click", pick);
       w.appendChild(b);
     });
     document.body.appendChild(w);
@@ -6040,9 +6094,9 @@ window.ALBUM_SWITCH = {
       au.play().then(function(){ mv.textContent = "❚❚"; }).catch(function(){ toast("播不出來"); });
       return; }
     var chip = e.target.closest && e.target.closest(".rx-chip");
-    if (chip) { e.stopPropagation(); sendReact(chip.getAttribute("data-rx"), chip.getAttribute("data-emo")); return; }
+    if (chip) { e.stopPropagation(); e.preventDefault(); rxGuard(); sendReact(chip.getAttribute("data-rx"), chip.getAttribute("data-emo")); return; }
     var add = e.target.closest && e.target.closest(".rx-add");
-    if (add) { e.stopPropagation(); openRxPick(add, add.getAttribute("data-rxadd")); return; }
+    if (add) { e.stopPropagation(); e.preventDefault(); rxGuard(); openRxPick(add, add.getAttribute("data-rxadd")); return; }
     if (!(e.target.closest && e.target.closest(".rxpick"))) closeRxPick();
   }, true);
   function feedNewsSeen() {
@@ -7463,7 +7517,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B164T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B166T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
