@@ -361,7 +361,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .sigbar-ava{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;border:1px solid rgba(232,199,126,.7);box-shadow:0 0 0 2px rgba(0,0,0,.25)}
 .sigbar-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .sigbar-eyebrow{font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1.7px;color:#B78CFF}
-.sigbar-main{font:600 14px/1.2 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sigbar-main{font:600 15.5px/1.25 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sigbar-chev{flex:none;font:400 22px/1 -apple-system,sans-serif;color:rgba(247,235,203,.75);transform:translateY(-1px)}
 .sigbar:active{transform:translateY(0) scale(.985)}
 .updbar{z-index:100001;background:linear-gradient(135deg,rgba(217,178,106,.40),rgba(140,98,40,.52));border-color:rgba(255,236,190,.38)}
@@ -457,9 +457,9 @@ body.has-rpbar #screen-mood.feedwrap{padding-bottom:calc(168px + env(safe-area-i
 @keyframes tyb{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 .typing-lbl{text-align:left;margin:7px 0 0 2px;font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.46)}
 /* B160T：我們認識 N 天 */
-.feedhead-sub{display:flex;align-items:center;gap:5px;margin-top:2px}
-.fh-dot{width:5px;height:5px;border-radius:50%;background:#A98CFF;box-shadow:0 0 6px rgba(169,140,255,.7);flex:none}
-.feedhead-days{font:500 10.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.62);letter-spacing:.3px}
+.feedhead-sub{display:flex;align-items:center;gap:6px;margin-top:4px}
+.fh-dot{width:6px;height:6px;border-radius:50%;background:#A98CFF;box-shadow:0 0 7px rgba(169,140,255,.75);flex:none}
+.feedhead-days{font:500 11.5px/1 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.62);letter-spacing:.3px}
 .feedhead-days:empty{display:none}
 /* B154T：時間＋反應同一列 */
 .chat-meta{display:flex;align-items:center;gap:8px;margin:-1px 0 12px;padding:0 14px 0 50px}   /* B161T：對齊泡泡左緣（頭像寬+間距） */
@@ -1055,24 +1055,24 @@ textarea, select { font-size: 16px !important; }
 #screen-mood /* B152T：頻道標頭改浮動玻璃膠囊（跟通知膠囊同一套視覺），文字置中 */
 .feed-tabs { position: sticky; top: 0; z-index: 12;
   display: flex; align-items: center; justify-content: center;
-  padding: calc(9px + env(safe-area-inset-top)) 12px 8px;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
   background: transparent; border-bottom: none; pointer-events: none; }
 /* B170T：黑色玻璃底 + 1px 香檳金細框（不用紫色底、不用白框） */
 /* B172T：往下滑時標頭往上收走；滑回頂端再滑回來 */
 #screen-mood.mood-vip .feed-tabs{ transition:transform .34s cubic-bezier(.22,.9,.28,1), opacity .26s ease; will-change:transform; }
 #screen-mood.mood-vip.head-hide .feed-tabs{ transform:translateY(calc(-100% - env(safe-area-inset-top) - 8px)); opacity:0; pointer-events:none; }
 /* B171T：更透、更細長 —— 只是身份標示，不搶人物 */
-.feedhead-cap { pointer-events: auto; position: relative; display: inline-flex; align-items: center; gap: 9px;
-  max-width: 100%; padding: 5px 16px 5px 5px; border-radius: 999px;
-  border: 1px solid rgba(217,178,106,.42);
-  background: rgba(8,8,12,.28);
-  -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
-  box-shadow: 0 6px 20px rgba(0,0,0,.32), inset 0 1px 0 rgba(232,199,126,.10); }
+.feedhead-cap { pointer-events: auto; position: relative; display: inline-flex; align-items: center; gap: 11px;
+  max-width: 100%; padding: 8px 20px 8px 8px; border-radius: 999px;
+  border: 1px solid rgba(217,178,106,.34);
+  background: rgba(8,8,12,.16);
+  -webkit-backdrop-filter: blur(26px) saturate(135%); backdrop-filter: blur(26px) saturate(135%);
+  box-shadow: 0 5px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(232,199,126,.08); }
 .feedhead-cap::before { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:linear-gradient(118deg,rgba(232,199,126,.07) 0%,rgba(255,255,255,0) 42%,rgba(255,255,255,0) 66%,rgba(232,199,126,.05) 100%); }
-.feedhead-cap .sigbar-ava { width:30px; height:30px; border:1px solid rgba(217,178,106,.55); box-shadow:none; }
-.feedhead-cap .sigbar-main { color:#F5EFE3; }
-.feedhead-cap .feedhead-days { color:rgba(198,184,212,.66); }
+.feedhead-cap .sigbar-ava { width:36px; height:36px; border:1px solid rgba(217,178,106,.5); box-shadow:none; }
+.feedhead-cap .sigbar-main { color:#F7F1E6; text-shadow:0 1px 6px rgba(0,0,0,.75); }
+.feedhead-cap .feedhead-days { color:rgba(206,194,220,.78); text-shadow:0 1px 6px rgba(0,0,0,.7); }
 .feedhead-cap .fh-dot { background:#A98CFF; box-shadow:0 0 7px rgba(169,140,255,.75); }
 .feedhead-txt { align-items: center; text-align: center; flex: 0 1 auto; }
 #screen-mood .feed-tab { border: none; background: none; cursor: pointer;
@@ -5684,6 +5684,24 @@ window.ALBUM_SWITCH = {
     /* B161T：每組第一則帶小頭像，之後的用透明佔位對齊 */
     return '<img class="chat-ava' + (m.first ? '' : ' ghost') + '" src="assets/images/avatar.jpg" alt="">';
   }
+  function rxRowHTML(rid) {
+    var chips = "", mine = myReacts(), rc = FEED_REACTIONS[rid] || {};
+    ["heart", "tear", "cry", "fire"].forEach(function (k) {
+      var n = Number(rc[k]) || 0; if (!n) return;
+      var on = mine[rid + "|" + k] ? " on" : "";
+      chips += '<button class="rx-chip' + on + '" data-rx="' + esc(rid) + '" data-emo="' + k + '">' +
+               REACT_EMO[k] + '<b>' + n + '</b></button>';
+    });
+    return chips + (rid ? '<button class="rx-add" data-rxadd="' + esc(rid) + '" aria-label="加上反應">＋</button>' : '');
+  }
+  /* B174T：按表情只換那一列，不重建訊息區 —— 畫面完全不會跳 */
+  function paintReactions(rid) {
+    var sel = rid ? '.rx-row[data-rxrow="' + rid + '"]' : ".rx-row[data-rxrow]";
+    var rows = document.querySelectorAll(sel);
+    Array.prototype.forEach.call(rows, function (el) {
+      el.innerHTML = rxRowHTML(el.getAttribute("data-rxrow") || "");
+    });
+  }
   function feedChatHTML(items) {
     var out = "";
     items.forEach(function (m) {
@@ -5698,20 +5716,11 @@ window.ALBUM_SWITCH = {
         return;
       }
       if (m.t) {
-        var rid = m.rid || "", chips = "", mine = myReacts();
-        var rc = FEED_REACTIONS[rid] || {};
-        ["heart", "tear", "cry", "fire"].forEach(function (k) {
-          var n = Number(rc[k]) || 0; if (!n) return;
-          var on = mine[rid + "|" + k] ? " on" : "";
-          chips += '<button class="rx-chip' + on + '" data-rx="' + esc(rid) + '" data-emo="' + k + '">' +
-                   REACT_EMO[k] + '<b>' + n + '</b></button>';
-        });
+        var rid = m.rid || "";
         if (m.mine) { out += '<div class="chat-meta mine"><span class="mine-lock">只有他看得到</span>' +
           '<div class="chat-time">' + esc(m.t) + '</div></div>'; return; }
         out += '<div class="chat-meta">' +
-          '<div class="rx-row">' + chips +
-            (rid ? '<button class="rx-add" data-rxadd="' + esc(rid) + '" aria-label="加上反應">＋</button>' : '') +
-          '</div>' +
+          '<div class="rx-row" data-rxrow="' + esc(rid) + '">' + rxRowHTML(rid) + '</div>' +
           '<div class="chat-time">' + esc(m.t) + '</div></div>';
         return;
       }
@@ -6013,7 +6022,7 @@ window.ALBUM_SWITCH = {
     if (!CFG.api || !CFG.api.workerBaseUrl) return;
     fetch(CFG.api.workerBaseUrl + "/feed/reactions", { cache: "no-store" })
       .then(function (r) { return r.json(); })
-      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS = d.reactions; renderMoodWall(); } })
+      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS = d.reactions; paintReactions(null); } })
       .catch(function () {});
   }
   function sendReact(id, emo) {
@@ -6026,13 +6035,13 @@ window.ALBUM_SWITCH = {
     try { localStorage.setItem(REACT_KEY, JSON.stringify(mine)); } catch (e) {}
     FEED_REACTIONS[id] = FEED_REACTIONS[id] || {};
     FEED_REACTIONS[id][emo] = Math.max(0, (Number(FEED_REACTIONS[id][emo]) || 0) + dir);
-    setTimeout(function () { keepScroll(renderMoodWall); }, 120);   /* B165T：等手勢結束再重繪，避免誤觸 */
+    paintReactions(id);                               /* B174T：就地更新，不重繪、不跳位 */
     try { hap(dir === 1 ? 12 : 8); } catch (e) {}
     fetch(CFG.api.workerBaseUrl + "/feed/react", {
       method: "POST", headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ email: fp.email, code: fp.code, id: id, emoji: emo, dir: dir })
     }).then(function (r) { return r.json(); })
-      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS[id] = d.reactions; } })
+      .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS[id] = d.reactions; paintReactions(id); } })
       .catch(function () {});
   }
   var NICK_KEY = "album-the-sky:nick";               /* B154T：粉絲暱稱（1 對 1 感） */
@@ -6146,10 +6155,11 @@ window.ALBUM_SWITCH = {
     var b = document.getElementById("__sigBar"); if (b) b.remove();
   }
   function keepScroll(fn) {
-    var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
-    var top = body ? body.scrollTop : 0, h = body ? body.scrollHeight : 0;
+    /* B174T：真正的捲動容器是 #screen-mood，不是 feed-body */
+    var sc = document.getElementById("screen-mood") || document.getElementById("feed-body");
+    var top = sc ? sc.scrollTop : 0, h = sc ? sc.scrollHeight : 0;
     fn();
-    if (body && top > 0) { try { body.scrollTop = top + (body.scrollHeight - h); } catch (e) {} }
+    if (sc && top > 0) { try { sc.scrollTop = top + (sc.scrollHeight - h); } catch (e) {} }
   }
   function showNewPill() {
     if (document.getElementById("__newPill")) return;
@@ -7553,7 +7563,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B172T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B174T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
