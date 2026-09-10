@@ -3279,7 +3279,7 @@ const THE_SKY = {
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
-    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsTime: [2.16,6.91,11.56,16.88,21.84,26.71,31.66,34.42,36.60,39.37,42.20,44.63,47.01,49.05,51.39,53.89,56.42,58.86,61.43,63.84,66.28,68.81,71.25,73.90,76.20,78.70,81.17,83.84,86.07,88.85,91.61,93.98,96.55,98.96,101.50,104.04,106.24,108.31,111.63,113.98,116.55,118.86,120.80,125.56,130.61,135.41,140.53,143.35,145.38,148.16,153.05,158.06,164.00,170.92], lyricsFull: true, artwork: null },
+    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsTime: [2.16,6.91,11.56,16.88,21.84,26.71,31.66,34.42,36.60,39.37,42.20,44.63,47.01,49.05,51.39,53.89,56.42,58.86,61.43,63.84,66.28,68.81,71.25,73.90,76.20,78.70,81.17,83.84,86.07,88.85,91.61,93.98,96.55,98.96,101.50,104.04,106.24,108.31,111.63,113.98,116.55,118.86,120.80,125.56,130.61,135.41,140.53,143.35,145.38,148.16,153.05,158.06,170.92], lyricsFull: true, artwork: null },
     { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: "assets/images/sky/t02.jpg" },
     { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu, lyricsFull: true,  artwork: "assets/images/sky/t03.jpg" },
   ],
@@ -4769,10 +4769,12 @@ window.ALBUM_SWITCH = {
       _lyInjectCSS();
       var lines = String(raw || "").replace(/\r/g, "").split("\n");
       while (lines.length && !lines[0].trim()) lines.shift();
+      var _title = (lines.shift() || title || "").trim();
+      while (lines.length && !lines[0].trim()) lines.shift();
       var cut = lines.length;
       for (var i = lines.length - 1; i >= 0; i--) { var L = lines[i].trim(); if (!L) continue; if (CREDIT_RE.test(L)) cut = i; else break; }
       var bodyLines = lines.slice(0, cut), credits = lines.slice(cut).join("\n").trim();
-      var html = '<div class="ly-wrap"><div class="ly-title">' + esc(title || "") + '</div>', idx = 0, count = 0;
+      var html = '<div class="ly-wrap"><div class="ly-title">' + esc(_title || title || "") + '</div>', idx = 0, count = 0;
       for (var j = 0; j < bodyLines.length; j++) {
         var t = bodyLines[j];
         if (!t.trim()) { html += '<div class="ly-gap"></div>'; continue; }
@@ -7810,7 +7812,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B181T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B184T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
