@@ -3279,7 +3279,7 @@ const THE_SKY = {
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
-    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsFull: true, artwork: null },
+    { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsTime: [2.16,6.91,11.56,16.88,21.84,26.71,31.66,34.42,36.60,39.37,42.20,44.63,47.01,49.05,51.39,53.89,56.42,58.86,61.43,63.84,66.28,68.81,71.25,73.90,76.20,78.70,81.17,83.84,86.07,88.85,91.61,93.98,96.55,98.96,101.50,104.04,106.24,108.31,111.63,113.98,116.55,118.86,120.80,125.56,130.61,135.41,140.53,143.35,145.38,148.16,153.05,158.06,164.00,170.92], lyricsFull: true, artwork: null },
     { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: "assets/images/sky/t02.jpg" },
     { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu, lyricsFull: true,  artwork: "assets/images/sky/t03.jpg" },
   ],
@@ -4394,6 +4394,7 @@ window.ALBUM_SWITCH = {
     var d = audio.duration;
     if (isFinite(d) && d > 0) state.dur = d;
     renderProgress(audio.currentTime);
+    try { updateSyncedLyrics(audio.currentTime); } catch (e) {}
     if (Date.now() - saveT > 4000) { saveT = Date.now(); lsSet(LS.pos, { cur: state.cur, time: audio.currentTime }); }
   });
   /* 串流檔常回報 duration:Infinity → 逼瀏覽器解析真實長度 */
@@ -4727,6 +4728,9 @@ window.ALBUM_SWITCH = {
     return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
   }
   function renderLyrics(body, raw, fallbackTitle) {
+    _syncLy.box = null;
+    var _st = TRACKS[state.cur];
+    if (_st && _st.lyricsTime && renderSyncedLyrics(body, raw, _st.lyricsTime, (_st.title || fallbackTitle))) return;
     var lines = String(raw || "").replace(/\r/g, "").split("\n");
     while (lines.length && !lines[0].trim()) lines.shift();
     var title = (lines.shift() || fallbackTitle || "").trim();
@@ -4745,6 +4749,66 @@ window.ALBUM_SWITCH = {
       '<div class="lyrics-text">' + esc(lyric) + "</div>" +
       (credits ? '<div class="lyrics-credits">' + esc(credits) + "</div>" : "");
   }
+  /* ── I'm Sorry 逐句同步歌詞（B180T 新增；只加不改。行數不符自動退回原顯示，絕不錯位）── */
+  var _syncLy = { box: null, times: null, idx: -2, lines: null };
+  function _lyInjectCSS() {
+    if (document.getElementById("synced-ly-css")) return;
+    var st = document.createElement("style"); st.id = "synced-ly-css";
+    st.textContent =
+      ".ly-wrap{padding:2px 2px 42vh}" +
+      ".ly-title{font-family:var(--font-display,serif);font-size:14px;color:var(--muted);letter-spacing:.04em;margin:2px 0 18px;opacity:.8}" +
+      ".ly-line{font-size:18px;line-height:1.5;color:rgba(255,255,255,.3);padding:7px 0;transition:color .22s ease,opacity .22s ease,transform .22s ease;transform-origin:left center}" +
+      ".ly-line.near{color:rgba(255,255,255,.5)}" +
+      ".ly-line.cur{color:#F0DCA8;opacity:1;font-weight:600;transform:scale(1.05);text-shadow:0 0 22px rgba(217,178,106,.28)}" +
+      ".ly-gap{height:12px}" +
+      ".ly-credits{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:var(--muted);white-space:pre-wrap;line-height:1.7}";
+    document.head.appendChild(st);
+  }
+  function renderSyncedLyrics(body, raw, timeArr, title) {
+    try {
+      _lyInjectCSS();
+      var lines = String(raw || "").replace(/\r/g, "").split("\n");
+      while (lines.length && !lines[0].trim()) lines.shift();
+      var cut = lines.length;
+      for (var i = lines.length - 1; i >= 0; i--) { var L = lines[i].trim(); if (!L) continue; if (CREDIT_RE.test(L)) cut = i; else break; }
+      var bodyLines = lines.slice(0, cut), credits = lines.slice(cut).join("\n").trim();
+      var html = '<div class="ly-wrap"><div class="ly-title">' + esc(title || "") + '</div>', idx = 0, count = 0;
+      for (var j = 0; j < bodyLines.length; j++) {
+        var t = bodyLines[j];
+        if (!t.trim()) { html += '<div class="ly-gap"></div>'; continue; }
+        html += '<div class="ly-line" data-i="' + idx + '">' + esc(t) + '</div>'; idx++; count++;
+      }
+      html += credits ? '<div class="ly-credits">' + esc(credits) + '</div>' : '';
+      html += '</div>';
+      if (count !== timeArr.length) return false;   /* 行數不符 → 退回原顯示 */
+      body.innerHTML = html;
+      _syncLy.box = body; _syncLy.times = timeArr; _syncLy.idx = -2;
+      _syncLy.lines = body.querySelectorAll(".ly-line");
+      updateSyncedLyrics((typeof audio !== "undefined" && audio.currentTime) || 0);
+      return true;
+    } catch (e) { return false; }
+  }
+  function updateSyncedLyrics(t) {
+    var S = _syncLy;
+    if (!S.box || !S.times || !S.lines || !S.lines.length) return;
+    if (!document.body.contains(S.box) || S.box.classList.contains("hidden")) return;
+    var k = -1, T = S.times;
+    for (var i = 0; i < T.length; i++) { if (T[i] <= t) k = i; else break; }
+    if (k === S.idx) return; S.idx = k;
+    for (var j = 0; j < S.lines.length; j++) {
+      var el = S.lines[j]; el.classList.remove("cur", "near");
+      if (j === k) el.classList.add("cur");
+      else if (Math.abs(j - k) <= 1) el.classList.add("near");
+    }
+    if (k >= 0 && S.lines[k]) {
+      try {
+        var line = S.lines[k], box = S.box;
+        var lr = line.getBoundingClientRect(), br = box.getBoundingClientRect();
+        box.scrollBy({ top: (lr.top - br.top) - box.clientHeight / 2 + lr.height / 2, behavior: "smooth" });
+      } catch (e) {}
+    }
+  }
+
   function loadLyricsInto(body) {
     var t = TRACKS[state.cur];
     if (lyricLang === "en" && t.lyricsEn) { renderLyrics(body, t.lyricsEn, t.title); return; }
@@ -7746,7 +7810,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B179T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B181T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
