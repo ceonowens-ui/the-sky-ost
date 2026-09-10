@@ -1422,6 +1422,17 @@ body { background: #08060C !important; }
   background-position:center top, center top, center top, center top, center top;
   filter:saturate(.9) contrast(1.02);
 }
+/* B179T：3D 深度視差背景（WebGL）。放在 ::before 靜態圖之上、::after 遮罩之下；不支援 WebGL 時自動不建立，退回靜態圖 */
+#screen-mood.mood-vip #__fx3d{ position:fixed; z-index:-1; pointer-events:none; display:block;
+  opacity:0; transition:opacity .6s ease; }
+#screen-mood.mood-vip #__fx3d.on{ opacity:1; }
+#screen-mood.mood-vip #__fx3dveil{ position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(10,5,20,.46) 0%, rgba(10,5,20,.14) 130px, transparent 210px),
+    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(8,4,16,.58) 100%),
+    linear-gradient(180deg, rgba(18,10,32,.10) 0%, rgba(18,10,32,.12) 42%, rgba(16,9,28,.30) 62%, rgba(14,8,23,.66) 78%, rgba(14,8,23,.90) 90%, #0E0817 100%),
+    linear-gradient(180deg, rgba(120,70,200,.14) 0%, rgba(70,40,130,.09) 42%, transparent 72%); }
+@media (prefers-reduced-motion: reduce){ #screen-mood.mood-vip #__fx3d, #screen-mood.mood-vip #__fx3dveil{ display:none; } }
 /* B166T：往下滑進入對話時，背景自動加深，訊息才讀得清楚（背景本身不動，不會抖） */
 #screen-mood.mood-vip::after{
   content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
@@ -5082,6 +5093,7 @@ window.ALBUM_SWITCH = {
     try { var _rp = document.getElementById("__rpBar"); if (_rp) _rp.remove(); document.body.classList.remove("has-rpbar"); } catch (e) {}
     try { paintDays(); } catch (e) {}                     /* B160T：我們認識 N 天 */
     if (screen === "mood") { try { buildFeedCue(); } catch (e) {} }   /* B166T：開場人像＋下滑提示 */
+    try { fx3dSync(); } catch (e) {}                       /* B179T：3D 視差只在 FEED 跑 */
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
@@ -5891,6 +5903,79 @@ window.ALBUM_SWITCH = {
       var n = (o.d === today) ? (Number(o.n) || 0) : 0;
       localStorage.setItem(RPLEFT_KEY, JSON.stringify({ d: today, n: n + 1 }));
     } catch (e) {}
+  }
+  /* ═══ B179T：3D 深度視差 + 液態波紋（只給已解鎖會員；WebGL 不支援就不做） ═══ */
+  var FX3D = null;
+  function fx3dInit() {
+    if (FX3D || !window.WebGLRenderingContext) return;
+    var sm = document.getElementById("screen-mood"); if (!sm || !sm.classList.contains("mood-vip")) return;
+    try { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return; } catch (e) {}
+    var cv = document.createElement("canvas"); cv.id = "__fx3d";
+    var gl = cv.getContext("webgl", { alpha: false, antialias: false, premultipliedAlpha: false });
+    if (!gl) return;
+    sm.insertBefore(cv, sm.firstChild);
+    var veil = document.createElement("div"); veil.id = "__fx3dveil"; sm.insertBefore(veil, cv.nextSibling);
+    var vs = "attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,1.0-(p.y*.5+.5));gl_Position=vec4(p,0.,1.);}";
+    var fs = "precision highp float;varying vec2 v;uniform sampler2D img;uniform sampler2D dep;uniform vec2 off;uniform float str;uniform float zoom;uniform vec4 rp[4];uniform float now;" +
+      "void main(){ vec2 uv=(v-.5)/zoom+.5; float d=texture2D(dep,uv).r; vec2 shift=off*str*(d-.35); vec2 s=uv+shift;" +
+      " for(int i=0;i<4;i++){ vec4 r=rp[i]; if(r.w<0.5) continue; float t=now-r.z; if(t<0.0||t>2.2) continue;" +
+      "   vec2 dv=uv-r.xy; dv.x*=0.667; float dist=length(dv); float wave=sin(dist*46.0 - t*9.0)*exp(-dist*5.0)*exp(-t*1.6);" +
+      "   s+=normalize(dv+1e-5)*wave*0.024; }" +
+      " s=clamp(s,vec2(0.002),vec2(0.998)); gl_FragColor=vec4(texture2D(img,s).rgb,1.); }";
+    function sh(t, src) { var x = gl.createShader(t); gl.shaderSource(x, src); gl.compileShader(x); return x; }
+    var pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(pr); gl.useProgram(pr);
+    var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var U = { off: gl.getUniformLocation(pr,"off"), str: gl.getUniformLocation(pr,"str"), zoom: gl.getUniformLocation(pr,"zoom"), rp: gl.getUniformLocation(pr,"rp"), now: gl.getUniformLocation(pr,"now") };
+    gl.uniform1i(gl.getUniformLocation(pr,"img"), 0); gl.uniform1i(gl.getUniformLocation(pr,"dep"), 1);
+    var ready = 0;
+    function tex(unit, src) { var t = gl.createTexture(); var im = new Image(); im.onload = function () {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, im); ready++; if (ready >= 2) cv.classList.add("on"); }; im.src = src; }
+    tex(0, "assets/images/artist-background.jpg?v=3d1"); tex(1, "assets/images/artist-depth.jpg?v=3d1");
+    function size() {
+      var dpr = Math.min(devicePixelRatio || 1, 2), IW = 1200, IH = 1800;
+      var sc = Math.max(innerWidth / IW, innerHeight / IH);          /* = CSS background-size:cover */
+      var w = Math.round(IW * sc), h = Math.round(IH * sc);
+      cv.style.width = w + "px"; cv.style.height = h + "px";
+      cv.style.left = Math.round((innerWidth - w) / 2) + "px"; cv.style.top = "0px";   /* center top */
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); gl.viewport(0, 0, cv.width, cv.height);
+    }
+    size(); addEventListener("resize", size);
+    var S = { tx:0, ty:0, cx:0, cy:0, active:false, idle:0, rip:[], arr:new Float32Array(16), t0:performance.now(), raf:0, lastRip:0, running:false };
+    function ripple(x, y) { var r = cv.getBoundingClientRect(); S.rip.push({ x:(x-r.left)/r.width, y:(y-r.top)/r.height, t:(performance.now()-S.t0)/1000 }); if (S.rip.length > 4) S.rip.shift(); }
+    function toN(x, y) { var r = cv.getBoundingClientRect(); S.tx = Math.max(-1, Math.min(1, ((x-r.left)/r.width-.5)*2)); S.ty = Math.max(-1, Math.min(1, ((y-r.top)/r.height-.5)*2)); }
+    /* 觸碰：不攔截捲動（passive），只在人像還看得到時（捲動量小）反應 */
+    function heroVisible() { return sm.scrollTop < innerHeight * 0.55; }
+    sm.addEventListener("touchstart", function (e) { if (!heroVisible()) return; var t = e.touches[0]; S.active = true; toN(t.clientX, t.clientY);
+      if (t.clientY < innerHeight * 0.62) { ripple(t.clientX, t.clientY); S.lastRip = performance.now(); try { hap(6); } catch (x) {} } }, { passive:true });
+    sm.addEventListener("touchmove", function (e) { if (!S.active) return; var t = e.touches[0]; toN(t.clientX, t.clientY);
+      var n = performance.now(); if (n - S.lastRip > 520 && t.clientY < innerHeight * 0.62) { ripple(t.clientX, t.clientY); S.lastRip = n; } }, { passive:true });
+    function end() { S.active = false; S.tx = 0; S.ty = 0; }
+    sm.addEventListener("touchend", end, { passive:true }); sm.addEventListener("touchcancel", end, { passive:true });
+    function loop() {
+      if (!S.running) { S.raf = 0; return; }
+      if (!S.active) { S.idle += 0.008; S.tx = Math.sin(S.idle)*0.18; S.ty = Math.cos(S.idle*0.7)*0.10; }
+      /* 捲動也帶一點視差：往下滑，人物慢慢後退 */
+      var sc = Math.min(1, sm.scrollTop / (innerHeight * 0.6));
+      S.cx += (S.tx - S.cx) * (S.active ? 0.18 : 0.03); S.cy += ((S.ty + sc*0.35) - S.cy) * (S.active ? 0.18 : 0.03);
+      if (ready >= 2) { for (var i = 0; i < 4; i++) { var q = S.rip[i]; S.arr[i*4]=q?q.x:0; S.arr[i*4+1]=q?q.y:0; S.arr[i*4+2]=q?q.t:0; S.arr[i*4+3]=q?1:0; }
+        gl.uniform4fv(U.rp, S.arr); gl.uniform1f(U.now, (performance.now()-S.t0)/1000);
+        gl.uniform2f(U.off, S.cx, S.cy); gl.uniform1f(U.str, 0.042); gl.uniform1f(U.zoom, 1.06); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+      S.raf = requestAnimationFrame(loop);
+    }
+    FX3D = { start: function () { if (S.running) return; S.running = true; if (!S.raf) S.raf = requestAnimationFrame(loop); },
+             stop:  function () { S.running = false; } };
+    FX3D.start();
+    /* 不在前景就停，省電 */
+    document.addEventListener("visibilitychange", function () { if (document.hidden) FX3D.stop(); else if (state.screen === "mood") FX3D.start(); });
+  }
+  function fx3dSync() {
+    var sm = document.getElementById("screen-mood");
+    var vip = sm && sm.classList.contains("mood-vip") && state.screen === "mood";
+    if (vip) { fx3dInit(); if (FX3D) FX3D.start(); } else if (FX3D) FX3D.stop();
   }
   var _lastY = 0;
   function feedScrollFx() {
@@ -7661,7 +7746,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B178</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B179</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
