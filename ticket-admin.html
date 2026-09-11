@@ -59,8 +59,8 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
       <div class="grid2"><div class="row"><span class="label">票號前綴</span><input id="f_code" placeholder="1227" autocapitalize="characters" autocorrect="off" /></div><div class="row"><span class="label">名稱</span><input id="f_name" placeholder="CHANCE 見面會 12/27" /></div></div>
       <div class="row"><span class="label">開演時間（台北）</span><input id="f_start" type="datetime-local" /></div>
       <div class="row"><span class="label">場地</span><input id="f_venue" placeholder="微風影城 A 廳" /></div>
-      <div class="grid3"><div class="row"><span class="label">可售張數</span><input id="f_cap" type="number" placeholder="181" /></div><div class="row"><span class="label">票價</span><input id="f_price" type="number" placeholder="0" /></div><div class="row"><span class="label">綠界 productKey</span><input id="f_pk" placeholder="meet-20261227" /></div></div>
-      <div class="row"><span class="label">開賣中</span><select id="f_sale"><option value="true">是</option><option value="false">否（隱藏購買）</option></select></div>
+      <div class="grid3"><div class="row"><span class="label">可售張數</span><input id="f_cap" type="number" placeholder="181" /></div><div class="row"><span class="label">票價（0＝不能買）</span><input id="f_price" type="number" placeholder="0" /></div><div class="row"><span class="label">開賣中</span><select id="f_sale"><option value="true">是</option><option value="false">否（隱藏購買）</option></select></div></div>
+      <div class="grid3"><div class="row"><span class="label">PhotoPass 價格（0＝不賣）</span><input id="f_pprice" type="number" placeholder="0" /></div><div class="row"><span class="label">PhotoPass 開賣</span><select id="f_psale"><option value="true">是</option><option value="false">否</option></select></div><div class="row"><span class="label">綠界商品代號（自動）</span><input id="f_pk" disabled placeholder="meet-…／pp-meet-…" /></div></div>
       <button class="btn primary" onclick="saveEvent()">儲存場次</button><div class="msg" id="evMsg"></div>
     </details>
   </div>
@@ -123,10 +123,11 @@ async function pickEvent() {
 }
 function fillForm(e) {
   $("f_id").value = e ? e.id : ""; $("f_id").disabled = !!e; $("f_code").value = e ? (e.code || "") : ""; $("f_name").value = e ? (e.name || "") : ""; $("f_start").value = e ? toLocalInput(e.startAt) : "";
-  $("f_venue").value = e ? (e.venue || "") : ""; $("f_cap").value = e ? (e.capacity || "") : ""; $("f_price").value = e ? (e.price || "") : ""; $("f_pk").value = e ? (e.productKey || "") : ""; $("f_sale").value = e && e.onSale === false ? "false" : "true";
+  $("f_venue").value = e ? (e.venue || "") : ""; $("f_cap").value = e ? (e.capacity || "") : ""; $("f_price").value = e ? (e.price || "") : ""; $("f_pk").value = e ? (e.id + "　pp-" + e.id) : ""; $("f_sale").value = e && e.onSale === false ? "false" : "true";
+  $("f_pprice").value = e ? (e.photoPrice || "") : ""; $("f_psale").value = e && e.photoOnSale === false ? "false" : "true";
 }
 async function saveEvent() {
-  const ev = { id: $("f_id").value.trim().toLowerCase().replace(/\s+/g, "-"), code: $("f_code").value.trim().toUpperCase(), name: $("f_name").value.trim(), startAt: fromLocalInput($("f_start").value), venue: $("f_venue").value.trim(), capacity: Number($("f_cap").value || 0), price: Number($("f_price").value || 0), productKey: $("f_pk").value.trim() || null, onSale: $("f_sale").value === "true" };
+  const ev = { id: $("f_id").value.trim().toLowerCase().replace(/\s+/g, "-"), code: $("f_code").value.trim().toUpperCase(), name: $("f_name").value.trim(), startAt: fromLocalInput($("f_start").value), venue: $("f_venue").value.trim(), capacity: Number($("f_cap").value || 0), price: Number($("f_price").value || 0), onSale: $("f_sale").value === "true", photoPrice: Number($("f_pprice").value || 0), photoOnSale: $("f_psale").value === "true" };
   if (!ev.id) return $("evMsg").innerHTML = '<span class="err">要有 eventId</span>';
   const j = await api("/ticket/admin/event", { event: ev });
   $("evMsg").innerHTML = j.ok ? '<span class="ok">已儲存</span>' : '<span class="err">' + ({ bad_id: "eventId 只能用小寫英文、數字和 -", forbidden: "鑰匙不對，重新連線" }[j.error] || j.error || "失敗") + "</span>";
@@ -146,7 +147,7 @@ async function refresh() {
   const j = await api("/ticket/stats?eventId=" + encodeURIComponent(cur.id));
   if (!j.ok) return;
   stats = j; cur = j.event;
-  $("sCap").textContent = cur.capacity || "–"; $("sSold").textContent = cur.sold || 0; $("sUsed").textContent = j.counts.used || 0; $("sLeft").textContent = cur.capacity ? Math.max(0, cur.capacity - (cur.sold || 0)) : "–";
+  $("sCap").textContent = cur.capacity || "–"; $("sSold").textContent = cur.sold || 0; $("sUsed").textContent = (j.counts.used || 0) + (j.counts.photopass ? "　📸" + j.counts.photopass : ""); $("sLeft").textContent = cur.capacity ? Math.max(0, cur.capacity - (cur.sold || 0)) : "–";
   renderList();
 }
 function renderList() {
