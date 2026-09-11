@@ -52,10 +52,11 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
   <div class="card" id="evCard" style="display:none">
     <h3>場次</h3>
     <select id="event" onchange="pickEvent()"></select>
+    <button class="btn primary" id="btnQuick" onclick="quickTest()">⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）</button>
     <div class="stat"><div><b id="sCap">–</b><span>可售</span></div><div><b id="sSold">–</b><span>已售</span></div><div><b id="sUsed">–</b><span>已入場</span></div><div><b id="sLeft">–</b><span>剩餘</span></div></div>
-    <details class="row"><summary>編輯／新增場次</summary>
-      <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" /></div>
-      <div class="grid2"><div class="row"><span class="label">票號前綴</span><input id="f_code" placeholder="1227" /></div><div class="row"><span class="label">名稱</span><input id="f_name" placeholder="CHANCE 見面會 12/27" /></div></div>
+    <details class="row" id="evDetails"><summary>編輯／新增場次</summary>
+      <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
+      <div class="grid2"><div class="row"><span class="label">票號前綴</span><input id="f_code" placeholder="1227" autocapitalize="characters" autocorrect="off" /></div><div class="row"><span class="label">名稱</span><input id="f_name" placeholder="CHANCE 見面會 12/27" /></div></div>
       <div class="row"><span class="label">開演時間（台北）</span><input id="f_start" type="datetime-local" /></div>
       <div class="row"><span class="label">場地</span><input id="f_venue" placeholder="微風影城 A 廳" /></div>
       <div class="grid3"><div class="row"><span class="label">可售張數</span><input id="f_cap" type="number" placeholder="181" /></div><div class="row"><span class="label">票價</span><input id="f_price" type="number" placeholder="0" /></div><div class="row"><span class="label">綠界 productKey</span><input id="f_pk" placeholder="meet-20261227" /></div></div>
@@ -106,7 +107,9 @@ async function connect() {
     localStorage.setItem("chance-admin-key", key());
     events = j.events; $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次</span>';
     ["evCard", "issueCard", "listCard"].forEach((id) => $(id).style.display = "block");
-    const sel = $("event"); sel.innerHTML = '<option value="">— 選場次 —</option>';
+    const sel = $("event"); sel.innerHTML = events.length ? '<option value="">— 選場次 —</option>' : '<option value="">（還沒有場次 → 按下面金色按鈕建立）</option>';
+    $("btnQuick").style.display = events.find((e) => e.id === "meet-test") ? "none" : "block";
+    if (!events.length) $("evDetails").open = true;
     for (const e of events) { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name + " · " + fmt(e.startAt); sel.appendChild(o); }
     const saved = localStorage.getItem("chance-admin-event"); if (saved && events.find((e) => e.id === saved)) { sel.value = saved; pickEvent(); }
   } catch (e) { $("connMsg").innerHTML = '<span class="err">' + e.message + "</span>"; }
@@ -123,11 +126,20 @@ function fillForm(e) {
   $("f_venue").value = e ? (e.venue || "") : ""; $("f_cap").value = e ? (e.capacity || "") : ""; $("f_price").value = e ? (e.price || "") : ""; $("f_pk").value = e ? (e.productKey || "") : ""; $("f_sale").value = e && e.onSale === false ? "false" : "true";
 }
 async function saveEvent() {
-  const ev = { id: $("f_id").value.trim(), code: $("f_code").value.trim(), name: $("f_name").value.trim(), startAt: fromLocalInput($("f_start").value), venue: $("f_venue").value.trim(), capacity: Number($("f_cap").value || 0), price: Number($("f_price").value || 0), productKey: $("f_pk").value.trim() || null, onSale: $("f_sale").value === "true" };
+  const ev = { id: $("f_id").value.trim().toLowerCase().replace(/\s+/g, "-"), code: $("f_code").value.trim().toUpperCase(), name: $("f_name").value.trim(), startAt: fromLocalInput($("f_start").value), venue: $("f_venue").value.trim(), capacity: Number($("f_cap").value || 0), price: Number($("f_price").value || 0), productKey: $("f_pk").value.trim() || null, onSale: $("f_sale").value === "true" };
   if (!ev.id) return $("evMsg").innerHTML = '<span class="err">要有 eventId</span>';
   const j = await api("/ticket/admin/event", { event: ev });
-  $("evMsg").innerHTML = j.ok ? '<span class="ok">已儲存</span>' : '<span class="err">' + (j.error || "失敗") + "</span>";
+  $("evMsg").innerHTML = j.ok ? '<span class="ok">已儲存</span>' : '<span class="err">' + ({ bad_id: "eventId 只能用小寫英文、數字和 -", forbidden: "鑰匙不對，重新連線" }[j.error] || j.error || "失敗") + "</span>";
   if (j.ok) { await connect(); $("event").value = ev.id; pickEvent(); }
+}
+async function quickTest() {
+  const b = $("btnQuick"); b.disabled = true; b.textContent = "建立中…";
+  const start = new Date(Date.now() + 3600e3).toISOString();
+  const j = await api("/ticket/admin/event", { event: { id: "meet-test", code: "TEST", name: "測試場", startAt: start, venue: "測試", capacity: 10, price: 0, productKey: null, onSale: false } });
+  b.disabled = false; b.textContent = "⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）";
+  if (!j.ok) { $("connMsg").innerHTML = '<span class="err">建立失敗：' + (j.error || "") + "</span>"; return; }
+  await connect(); $("event").value = "meet-test"; await pickEvent();
+  $("i_email").focus(); $("issueMsg").innerHTML = '<span class="ok">測試場建好了 → 填 email 按「發票」</span>';
 }
 async function refresh() {
   if (!cur) { $("tbody").innerHTML = ""; return; }
