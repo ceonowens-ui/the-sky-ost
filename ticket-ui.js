@@ -1,4 +1,4 @@
-/* ticket-ui.js v1 — CHANCE 你的票（含 QRious 4.0.2）*/
+/* ticket-ui.js v2 — THE SKY COLLECTION（含 QRious 4.0.2）*/
 /*! QRious v4.0.2 | (C) 2017 Alasdair Mercer | GPL v3 License
 Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 */
@@ -6,11 +6,12 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 
 //# sourceMappingURL=qrious.min.js.map
 /* =====================================================================
- * CHANCE 「你的票」 周邊分頁模組  ticket-ui.js  v1 (B186T)
+ * THE SKY COLLECTION — 收藏分頁模組  ticket-ui.js  v2 (B187T)
  * ---------------------------------------------------------------------
  * 只加不改：test.html / index.html 只要在 </body> 前加一行
- *   <script src="ticket-ui.js?v=1" defer></script>
- * 它會自己把「你的票」區塊插進 #screen-merch（周邊分頁）標題下面。
+ *   <script src="ticket-ui.js?v=2" defer></script>
+ * 它把 SHOP 分頁改成三層：收藏首頁 → 票夾／周邊收藏 → 入場票／收藏詳情。
+ * 原本的商店（NEXT DROP、商品、我想去）原封不動，放在收藏首頁下方。
  *
  * 流程：買（綠界）→ 票在 app（綁 email）→ 轉讓（QR/連結）→ 掃碼進場 → 票根留著
  * 身分：已解鎖粉絲用 localStorage 的 email+解鎖碼自動登入；其他人 email+驗證碼。
@@ -20,14 +21,18 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   "use strict";
   var C = {
     api: "https://the-sky-ost-api.anthonywen0693.workers.dev",
-    unlockKeys: ["album-the-sky:unlock", "album-the-sky:feedpass"],   // 從這些 key 撿 email+code 自動登入
+    unlockKeys: ["album-the-sky:unlock", "album-the-sky:feedpass"],
+    merchKey: "album-the-sky:merch",
     mount: "#screen-merch", before: "#merch-list",
     merchNavSel: '.navbtn[data-screen="merch"]',
+    navSel: { player: '.navbtn[data-screen="player"]', mood: '.navbtn[data-screen="mood"]', merch: '.navbtn[data-screen="merch"]' },
     demo: /[?&]tkdemo=1/.test(location.search),
     pollMs: 5000,
   };
   var K = { sess: "tk:session", email: "tk:email" };
-  var S = { session: null, email: "", tickets: [], events: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null };
+  var S = { session: null, email: "", tickets: [], events: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
+            layers: [], sel: null, qrOpen: false, merchFilter: "all", detail: null };
+
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -35,54 +40,105 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function fmt(iso) { var d = new Date(iso); if (isNaN(d)) return ""; var t = new Date(d.getTime() + 8 * 3600e3); var w = "日一二三四五六"[t.getUTCDay()]; return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + "（" + w + "）" + ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2); }
   function fmtT(iso) { var d = new Date(iso); if (isNaN(d)) return ""; var t = new Date(d.getTime() + 8 * 3600e3); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2); }
   function hap(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
-
   /* ---------- CSS ---------- */
   var CSS = "\
-.tk{margin:14px 16px 6px;color:#f6f1e7;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif}\
-.tk *{box-sizing:border-box}\
-.tk-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}\
-.tk-eyebrow{font-size:10px;letter-spacing:.22em;color:#d8bc80;text-transform:uppercase}\
-.tk-h{font-size:22px;font-weight:650;letter-spacing:-.02em;margin:4px 0 0}\
-.tk-sub{font-size:11px;color:#9c9589}\
-.tk-card{background:#121212;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:16px;margin-top:10px}\
-.tk-card p{margin:0 0 8px;font-size:13px;line-height:1.55;color:#cfc7b8}\
-.tk-in{width:100%;border:1px solid rgba(255,255,255,.12);background:#0b0b0b;color:#f6f1e7;padding:13px 14px;border-radius:14px;font:inherit;font-size:15px;margin-top:8px;-webkit-appearance:none}\
-.tk-btn{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px;background:#151515;color:#f6f1e7;font:inherit;font-size:13px;font-weight:720;margin-top:10px;cursor:pointer}\
+:root{--tkg:#d8bc80;--tkg2:#f1ddb0;--tki:#f3efe6;--tkm:#a89f92;--tkt:#f6f1e7}\
+#screen-merch .page-titles{display:none}\
+.tk,.tk-layer{color:var(--tkt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}\
+.tk *,.tk-layer *{box-sizing:border-box}\
+.tk{padding:calc(14px + env(safe-area-inset-top)) 16px 0}\
+.tk-serif{font-family:var(--font-display,'Playfair Display'),Georgia,serif;font-weight:500}\
+.tk-eyebrow{font-family:var(--font-label,'Bodoni Moda'),Georgia,serif;font-size:11px;letter-spacing:.3em;color:var(--tkg);text-transform:uppercase}\
+.tk-h1{font-size:34px;line-height:1.15;letter-spacing:.06em;margin:10px 0 6px;color:#fff}\
+.tk-sub{font-size:14px;color:rgba(255,255,255,.62);letter-spacing:.02em}\
+.tk-top{display:flex;justify-content:space-between;align-items:flex-start;text-align:center}\
+.tk-top>div{flex:1}.tk-top .tk-sp{flex:0 0 40px}\
+.tk-prof{flex:0 0 40px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(216,188,128,.45);background:rgba(216,188,128,.08);color:var(--tkg);display:grid;place-items:center;font:600 14px/1 var(--font-label,serif);cursor:pointer;margin-top:-2px}\
+.tk-ent{position:relative;display:block;width:100%;text-align:left;border:1px solid rgba(216,188,128,.22);border-radius:26px;padding:22px 20px;margin-top:16px;overflow:hidden;cursor:pointer;color:var(--tkt);font:inherit;transition:transform .18s ease}\
+.tk-ent:active{transform:scale(.985)}\
+.tk-ent.tix{background:radial-gradient(circle at 78% 22%,rgba(216,188,128,.34),transparent 32%),linear-gradient(150deg,#3a2718 0%,#160f0d 55%,#0b0809 100%);min-height:220px}\
+.tk-ent.mer{background:radial-gradient(circle at 80% 25%,rgba(150,110,220,.32),transparent 34%),linear-gradient(150deg,#2b1a44 0%,#150c22 60%,#0b0710 100%);min-height:200px}\
+.tk-ent .lab{font-family:var(--font-label,serif);font-size:11px;letter-spacing:.3em;color:var(--tkg)}\
+.tk-ent .ttl{font-size:27px;letter-spacing:.06em;margin:8px 0 6px;color:#fff}\
+.tk-ent .st{font-size:14px;color:rgba(255,255,255,.72)}\
+.tk-ent.tix .st,.tk-ent.tix .nx{max-width:calc(100% - 132px)}.tk-ent .nx{display:flex;gap:8px;align-items:center;margin-top:16px;font-size:12px;color:rgba(255,255,255,.62)}.tk-ent .nx b{display:block;color:#fff;font-size:15px;letter-spacing:.06em;margin-top:2px;font-weight:600}\
+.tk-ent .nx i{width:18px;height:18px;border:1px solid rgba(216,188,128,.6);border-radius:4px;display:inline-block;position:relative;flex:0 0 18px}.tk-ent .nx i:after{content:'';position:absolute;left:3px;right:3px;top:5px;height:1px;background:rgba(216,188,128,.7)}\
+.tk-gold{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:12px 18px;border-radius:14px;background:linear-gradient(#f1ddb0,#d8bc80);color:#181209;font-size:14px;font-weight:700;border:0;font:inherit;cursor:pointer;min-height:44px}\
+.tk-ent .more{position:absolute;right:20px;bottom:20px;font-size:12px;color:rgba(255,255,255,.55)}\
+.tk-ent .circ{position:absolute;left:20px;bottom:20px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;color:#fff;font-size:18px}\
+.tk-stub{position:absolute;right:16px;top:22px;width:118px;height:150px;border-radius:12px;background:linear-gradient(160deg,#1b1410,#0a0808);border:1px solid rgba(216,188,128,.35);box-shadow:0 18px 40px rgba(0,0,0,.55);transform:rotate(6deg);overflow:hidden}\
+.tk-stub:before{content:'';position:absolute;right:-30px;top:44px;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a2b2a,#0d0a0b 70%);box-shadow:inset -12px -8px 26px rgba(0,0,0,.7),0 0 26px rgba(216,188,128,.18)}\
+.tk-stub:after{content:'THE SKY';position:absolute;left:12px;top:14px;font:600 11px/1 var(--font-label,serif);letter-spacing:.22em;color:#f4e4c1}\
+.tk-stub s{position:absolute;left:12px;bottom:14px;text-decoration:none;font-size:6px;letter-spacing:.18em;color:rgba(244,228,193,.7);line-height:1.6;text-transform:uppercase}\
+.tk-stub em{position:absolute;left:-6px;top:50%;width:12px;height:12px;border-radius:50%;background:#1c1029;margin-top:-6px}\
+.tk-stack{position:absolute;right:14px;top:18px;width:150px;height:170px}\
+.tk-stack img,.tk-stack span{position:absolute;width:92px;height:122px;border-radius:12px;object-fit:cover;border:1px solid rgba(216,188,128,.3);box-shadow:0 16px 34px rgba(0,0,0,.55);background:linear-gradient(160deg,#2a1a3a,#0c0812)}\
+.tk-stack :nth-child(1){right:0;top:0;transform:rotate(9deg)}.tk-stack :nth-child(2){right:34px;top:14px;transform:rotate(-4deg)}.tk-stack :nth-child(3){right:64px;top:30px;transform:rotate(-14deg)}\
+.tk-stack span{display:grid;place-items:center;font:600 10px/1 var(--font-label,serif);letter-spacing:.2em;color:#f4e4c1}\
+.tk-ctx{margin:14px 4px 6px;font-size:12px;color:rgba(255,255,255,.5);text-align:center}\
+.tk-div{display:flex;align-items:center;gap:12px;margin:26px 0 4px;font-family:var(--font-label,serif);font-size:11px;letter-spacing:.3em;color:rgba(216,188,128,.75)}.tk-div:before,.tk-div:after{content:'';flex:1;height:1px;background:rgba(216,188,128,.2)}\
+#nav-wrap{transition:transform .22s ease,opacity .22s ease}body.tk-open #nav-wrap{transform:translateY(130%);opacity:0;pointer-events:none}\
+.tk-layer{position:fixed;inset:0;z-index:99990;background:radial-gradient(circle at 50% -10%,var(--bg-top,#2a0e13),transparent 45%),var(--bg,#0b0709);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px calc(40px + env(safe-area-inset-bottom));transform:translateX(28px);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.2,.7,.2,1),opacity .2s ease}\
+.tk-layer.in{transform:none;opacity:1;pointer-events:auto}.tk-layer.out{transform:translateX(-18px);opacity:0}\
+@media (prefers-reduced-motion:reduce){.tk-layer,#nav-wrap,.tk-ent{transition:none}}\
+.tk-bar{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 10px;margin:0 -16px 6px;padding-left:12px;padding-right:12px;background:linear-gradient(var(--bg,#0b0709) 70%,transparent)}\
+.tk-bar button{background:none;border:0;color:#fff;font:inherit;font-size:15px;min-height:44px;min-width:44px;display:flex;align-items:center;gap:6px;cursor:pointer;padding:0 4px}\
+.tk-bar .r{justify-content:flex-end}.tk-bar .c{font-family:var(--font-label,serif);font-size:12px;letter-spacing:.3em;color:var(--tkg);text-align:center}\
+.tk-bar .chev{font-size:22px;line-height:1;color:var(--tkg)}\
+.tk-hd{padding:6px 2px 14px}.tk-hd .tk-h1{font-size:34px}\
+.tk-row{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:rgba(20,12,18,.7);border:1px solid rgba(216,188,128,.16);border-radius:18px;padding:16px 16px;margin-top:10px;color:var(--tkt);font:inherit;cursor:pointer;min-height:64px;transition:transform .16s}\
+.tk-row:active{transform:scale(.985)}.tk-row.on{border-color:rgba(216,188,128,.55);background:rgba(28,18,22,.9)}\
+.tk-row b{display:block;font-size:17px;letter-spacing:.06em;font-weight:600}.tk-row span{display:block;font-size:12px;color:rgba(255,255,255,.62);margin-top:5px;letter-spacing:.04em}\
+.tk-pill{font-size:10px;font-weight:800;letter-spacing:.16em;padding:6px 10px;border-radius:999px;background:rgba(74,130,90,.25);color:#8fd4a0;border:1px solid rgba(143,212,160,.35);white-space:nowrap}\
+.tk-pill.warn{background:rgba(160,120,40,.22);color:#efd9a9;border-color:rgba(239,217,169,.35)}.tk-pill.bad{background:rgba(140,60,60,.22);color:#e7a3a3;border-color:rgba(231,163,163,.35)}\
+.tk-row .chv{color:var(--tkg);font-size:20px;flex:0 0 auto}\
+.tk-past{margin-top:22px}.tk-past .tk-eyebrow{opacity:.7}.tk-past .tk-row{opacity:.6}\
+.tk-pass{border-radius:22px;overflow:hidden;background:var(--tki);color:#111;box-shadow:0 26px 60px rgba(0,0,0,.55);margin-top:16px}\
+.tk-pass.used,.tk-pass.dead{filter:saturate(.3);opacity:.8}\
+.tk-art{height:118px;position:relative;background:radial-gradient(circle at 78% 20%,rgba(232,198,136,.55),transparent 22%),linear-gradient(140deg,#3a2a20,#0f0d0d 62%)}\
+.tk-art b{position:absolute;left:20px;bottom:16px;font:400 34px/1 var(--font-display,'Playfair Display'),Georgia,serif;letter-spacing:.14em;color:#fff3df}\
+.tk-art i{position:absolute;right:18px;top:16px;font-style:normal;font:500 10px/1 var(--font-label,serif);letter-spacing:.26em;color:#f4dfb8}\
+.tk-body{padding:18px 20px 20px}\
+.tk-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.tk-title b{font-size:22px;font-weight:600;letter-spacing:.04em;line-height:1.2;font-family:var(--font-display,serif),serif}\
+.tk-st{font-size:11px;font-weight:800;letter-spacing:.16em;color:#3f7a4c;white-space:nowrap;padding-top:6px}.tk-st.bad{color:#8e4949}.tk-st.warn{color:#8a6a1f}\
+.tk-info{display:grid;grid-template-columns:1.15fr 1fr;gap:14px 12px;padding-top:16px}\
+.tk-lab{font-size:9px;color:#8a8275;letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px}.tk-val{font-size:15px;line-height:1.3;font-weight:650;word-break:break-all}\
+.tk-tear{height:0;border-top:1px dashed rgba(0,0,0,.22);margin:18px -20px 16px;position:relative}.tk-tear:before,.tk-tear:after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--bg,#0b0709);top:50%;transform:translateY(-50%)}.tk-tear:before{left:-31px}.tk-tear:after{right:-31px}\
+.tk-qrwrap2{display:flex;flex-direction:column;align-items:center;padding:6px 0 2px}\
+.tk-qrwrap2 canvas{width:min(240px,62vw)!important;height:min(240px,62vw)!important;display:block;max-width:none;background:#fff}\
+.tk-qrid{font:11px ui-monospace,Menlo,monospace;color:#555;letter-spacing:.14em;margin-top:10px}\
+.tk-reveal{width:100%;min-height:52px;border-radius:14px;border:1px dashed rgba(0,0,0,.3);background:#fff;color:#111;font:inherit;font-size:15px;font-weight:700;cursor:pointer;padding:14px}.tk-reveal small{display:block;font-size:11px;font-weight:500;color:#777;margin-top:4px}\
+.tk-stubbox{background:#e6e0d3;border-radius:14px;padding:22px 12px;text-align:center;color:#4a4237}.tk-stubbox b{display:block;font-size:22px;letter-spacing:.1em}.tk-stubbox span{font-size:11px;letter-spacing:.06em}\
+.tk-acts{display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-top:14px}\
+.tk-btn{width:100%;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px;background:#151015;color:var(--tkt);font:inherit;font-size:14px;font-weight:700;margin-top:10px;cursor:pointer;min-height:48px}\
 .tk-btn.p{border-color:transparent;background:linear-gradient(#f1ddb0,#d8bc80);color:#181209}.tk-btn.g{background:transparent}.tk-btn:disabled{opacity:.4}\
-.tk-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tk-row .tk-btn{margin-top:10px}\
+.tk-acts .tk-btn{margin-top:0}\
+.tk-card{background:rgba(20,12,18,.7);border:1px solid rgba(216,188,128,.16);border-radius:22px;padding:16px;margin-top:12px}\
+.tk-card p{margin:0 0 8px;font-size:14px;line-height:1.6;color:rgba(255,255,255,.78)}\
+.tk-in{width:100%;border:1px solid rgba(255,255,255,.14);background:#0b0709;color:var(--tkt);padding:14px;border-radius:14px;font:inherit;font-size:16px;margin-top:8px;-webkit-appearance:none}\
 .tk-msg{font-size:12px;color:#e6a3a3;min-height:14px;margin-top:6px}.tk-msg.ok{color:#9bd1a6}\
-.tk-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:6px -16px 0;padding:6px 16px 18px;scrollbar-width:none}.tk-rail::-webkit-scrollbar{display:none}\
-.tk-pass{flex:0 0 min(82vw,340px);scroll-snap-align:center;border-radius:26px;overflow:hidden;background:#f1eee6;color:#111;box-shadow:0 24px 60px rgba(0,0,0,.5);position:relative}\
-.tk-pass.used,.tk-pass.dead{filter:saturate(.25);opacity:.75}\
-.tk-art{height:150px;position:relative;background:radial-gradient(circle at 76% 18%,rgba(232,198,136,.62),transparent 18%),radial-gradient(circle at 15% 78%,rgba(120,73,45,.55),transparent 32%),linear-gradient(140deg,#382a20,#101010 62%)}\
-.tk-art b{position:absolute;left:18px;bottom:14px;font:34px Georgia,serif;font-weight:400;letter-spacing:.12em;color:#fff3df}\
-.tk-art i{position:absolute;right:16px;top:14px;font-style:normal;font-size:10px;letter-spacing:.22em;color:#f4dfb8}\
-.tk-body{padding:16px 18px 18px}\
-.tk-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.tk-title b{font-size:17px;font-weight:760;line-height:1.15}\
-.tk-st{font-size:10px;font-weight:800;letter-spacing:.14em;color:#47784e;white-space:nowrap;padding-top:3px}.tk-st.bad{color:#8e4949}.tk-st.warn{color:#8a6a1f}\
-.tk-info{display:grid;grid-template-columns:1.1fr 1fr;gap:12px 12px;padding-top:14px}\
-.tk-lab{font-size:9px;color:#847d72;letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px}.tk-val{font-size:13px;line-height:1.3;font-weight:650;word-break:break-all}\
-.tk-tear{height:1px;background:rgba(0,0,0,.12);margin:16px -18px 14px;position:relative}.tk-tear:before,.tk-tear:after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:var(--bg,#0b0b0b);top:50%;transform:translateY(-50%)}.tk-tear:before{left:-28px}.tk-tear:after{right:-28px}\
-.tk-qr{background:#fff;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}\
-.tk-qr canvas{width:180px!important;height:180px!important;display:block;max-width:none}.tk-qr small{font:9px ui-monospace,Menlo,monospace;color:#666;letter-spacing:.1em;margin-top:6px}\
-.tk-qr:after{content:'';position:absolute;width:50px;height:140%;top:-20%;left:-80px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-15deg);animation:tkglow 4.4s linear infinite}@keyframes tkglow{0%{left:-80px}65%,100%{left:110%}}\
-.tk-stub{background:#e9e4d8;border-radius:14px;padding:18px 12px;text-align:center;color:#4a4237}.tk-stub b{display:block;font-size:22px;letter-spacing:.1em}.tk-stub span{font-size:11px;letter-spacing:.06em}\
-.tk-act{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.tk-act .tk-btn{margin-top:0;padding:11px;font-size:12px}\
-.tk-pass .tk-btn{background:#151515}.tk-pass .tk-btn.p{background:linear-gradient(#f1ddb0,#d8bc80)}\
-.tk-dots{display:flex;justify-content:center;gap:6px;margin-top:-8px}.tk-dots i{width:5px;height:5px;border-radius:50%;background:#444}.tk-dots i.on{width:16px;border-radius:99px;background:#ead4a6}\
-.tk-ev{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.08)}.tk-ev:first-child{border-top:0;padding-top:4px}\
-.tk-ev b{display:block;font-size:14px}.tk-ev span{display:block;font-size:11px;color:#9c9589;margin-top:3px}\
-.tk-ev .tk-btn{width:auto;margin:0;padding:10px 14px;font-size:12px;white-space:nowrap}\
-.tk-note{margin-top:10px;padding:11px 13px;border:1px solid rgba(216,188,128,.18);background:rgba(216,188,128,.045);border-radius:14px;color:#cec5b4;font-size:11px;line-height:1.55}\
-.tk-link{color:#d8bc80;font-size:12px;text-decoration:underline;background:none;border:0;padding:6px 0;font:inherit;cursor:pointer}\
+.tk-chips{display:flex;gap:8px;margin:4px 0 14px;overflow-x:auto;scrollbar-width:none}.tk-chips::-webkit-scrollbar{display:none}\
+.tk-chip{flex:0 0 auto;padding:9px 14px;border-radius:12px;border:1px solid rgba(216,188,128,.3);background:rgba(20,12,18,.6);color:rgba(255,255,255,.8);font:inherit;font-size:13px;cursor:pointer;min-height:38px}.tk-chip.on{background:linear-gradient(#f1ddb0,#d8bc80);color:#181209;border-color:transparent;font-weight:700}\
+.tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}\
+.tk-item{background:rgba(20,12,18,.7);border:1px solid rgba(216,188,128,.16);border-radius:20px;overflow:hidden;text-align:left;padding:0;color:var(--tkt);font:inherit;cursor:pointer;transition:transform .16s}.tk-item:active{transform:scale(.98)}\
+.tk-item .im{aspect-ratio:1/1.05;background:linear-gradient(160deg,#241634,#0c0812);position:relative;display:grid;place-items:center;overflow:hidden}.tk-item .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\
+.tk-item .im .ph{font:600 12px/1 var(--font-label,serif);letter-spacing:.24em;color:#f4e4c1}\
+.tk-tag{position:absolute;left:10px;bottom:10px;font-size:10px;letter-spacing:.08em;padding:5px 9px;border-radius:8px;background:rgba(10,6,10,.75);border:1px solid rgba(216,188,128,.35);color:#f4e4c1}\
+.tk-item .nm{padding:12px 12px 4px;font-size:15px;font-weight:600}.tk-item .ds{padding:0 12px 14px;font-size:12px;color:rgba(255,255,255,.6)}\
+.tk-empty{padding:34px 18px;text-align:center;color:rgba(255,255,255,.6);font-size:14px;line-height:1.6;border:1px dashed rgba(216,188,128,.25);border-radius:20px;margin-top:6px}\
+.tk-hero{border-radius:24px;overflow:hidden;background:linear-gradient(160deg,#241634,#0c0812);aspect-ratio:1/1;display:grid;place-items:center;margin-top:8px;border:1px solid rgba(216,188,128,.2);position:relative}.tk-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.tk-hero .ph{font:600 16px/1 var(--font-label,serif);letter-spacing:.3em;color:#f4e4c1}\
+.tk-dl{margin-top:16px}.tk-dl .k{font-size:10px;letter-spacing:.18em;color:var(--tkg);text-transform:uppercase;margin-top:14px}.tk-dl .v{font-size:16px;margin-top:4px;color:#fff}.tk-dl .v.big{font-size:26px;font-family:var(--font-display,serif),serif;letter-spacing:.04em}\
+.tk-ben{margin:6px 0 0;padding:0;list-style:none}.tk-ben li{padding:10px 0;border-top:1px solid rgba(255,255,255,.08);font-size:14px;display:flex;gap:10px;align-items:center}.tk-ben li:before{content:'✦';color:var(--tkg);font-size:11px}\
 .tk-sheet{position:fixed;inset:0;background:rgba(0,0,0,.74);z-index:100000;display:none;align-items:flex-end;justify-content:center}.tk-sheet.show{display:flex}\
-.tk-box{width:min(100%,470px);max-height:92vh;overflow:auto;background:#121212;border:1px solid rgba(255,255,255,.1);border-radius:28px 28px 0 0;padding:22px 18px calc(28px + env(safe-area-inset-bottom));color:#f6f1e7;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif}\
-.tk-box h3{font-size:22px;margin:4px 0 6px}.tk-box .tk-hint{font-size:12px;line-height:1.55;color:#9c9589}\
+.tk-box{width:min(100%,470px);max-height:92vh;overflow:auto;background:#130c12;border:1px solid rgba(216,188,128,.18);border-radius:28px 28px 0 0;padding:22px 18px calc(28px + env(safe-area-inset-bottom));color:var(--tkt);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif}\
+.tk-box h3{font-size:22px;margin:4px 0 6px;font-family:var(--font-display,serif),serif;font-weight:500;letter-spacing:.04em}.tk-box .tk-hint{font-size:13px;line-height:1.6;color:rgba(255,255,255,.62)}\
 .tk-qrwrap{display:flex;justify-content:center;margin:18px 0 10px}.tk-qrbox{padding:14px;background:#f3f0e8;border-radius:22px;line-height:0}.tk-qrbox canvas{width:220px!important;height:220px!important;display:block;max-width:none}\
 .tk-count{text-align:center;font-size:13px;color:#efd9a9;font-variant-numeric:tabular-nums;margin:6px 0}\
-.tk-tiny{font-size:10px;color:#9c9589;word-break:break-all;line-height:1.5;text-align:center}\
+.tk-tiny{font-size:10px;color:var(--tkm);word-break:break-all;line-height:1.5;text-align:center}\
 .tk-big{text-align:center;padding:26px 0 8px}.tk-big .ic{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;font-size:30px;border:1px solid rgba(216,188,128,.42);color:#efd9a9}.tk-big .ic.ok{border-color:rgba(155,209,166,.4);color:#9bd1a6;background:rgba(155,209,166,.07)}\
-.tk-toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1b1b;border:1px solid rgba(216,188,128,.3);color:#f6f1e7;padding:10px 16px;border-radius:999px;font-size:12px;z-index:100001;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}.tk-toast.in{opacity:1}\
+.tk-menu{display:flex;flex-direction:column;gap:2px}.tk-menu button{text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.08);color:var(--tkt);font:inherit;font-size:16px;padding:16px 4px;min-height:52px;cursor:pointer}.tk-menu button.danger{color:#e7a3a3}.tk-menu button:first-child{border-top:0}\
+.tk-toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1418;border:1px solid rgba(216,188,128,.3);color:var(--tkt);padding:10px 16px;border-radius:999px;font-size:12px;z-index:100001;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}.tk-toast.in{opacity:1}\
+@media (max-width:360px){.tk-h1{font-size:28px}.tk-ent .ttl{font-size:22px}.tk-stub{width:92px;height:118px;right:12px}.tk-ent.tix .st,.tk-ent.tix .nx{max-width:calc(100% - 100px)}.tk-ent .nx b{font-size:13px}.tk-stack{width:120px}.tk-stack img,.tk-stack span{width:72px;height:96px}.tk-grid{grid-template-columns:1fr}}\
 ";
 
   /* ---------- API（text/plain 免 preflight） ---------- */
@@ -146,98 +202,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
       if (j && j.ok) { S.tickets = j.tickets || []; S.email = j.email || S.email; S.lastFetch = Date.now(); }
     }).catch(function () {});
   }
-  function refresh(force) {
-    if (S.loading) return; S.loading = true; render();
-    ensureSession().then(function () { return Promise.all([loadEvents(), loadMine(force)]); })
-      .then(function () { S.loading = false; render(); });
-  }
-
-  /* ---------- 畫面 ---------- */
-  var root, body;
-  function mount() {
-    if (document.getElementById("tk-root")) return;
-    var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
-    root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
-    root.innerHTML = '<div class="tk-head"><div><div class="tk-eyebrow">Tickets</div><div class="tk-h">你的票</div></div><div class="tk-sub" id="tk-sub"></div></div><div id="tk-body"></div>';
-    var host = $(C.mount), before = host && $(C.before, host);
-    if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
-    body = $("#tk-body", root);
-    root.addEventListener("click", onClick);
-    root.addEventListener("submit", function (e) { e.preventDefault(); });
-  }
-  function render() {
-    if (!body) return;
-    $("#tk-sub").textContent = S.email ? S.email : "";
-    var h = "";
-    if (S.loading && !S.tickets.length && !S.events.length) { body.innerHTML = '<div class="tk-card"><p style="color:#9c9589">載入中…</p></div>'; return; }
-    if (!S.session) h += loginCard();
-    if (S.session) h += S.tickets.length ? ticketsHTML() : '<div class="tk-card"><p><b>還沒有票。</b>買了之後票會直接出現在這裡；朋友轉讓給你的票也會進來。</p></div>';
-    h += eventsHTML();
-    body.innerHTML = h;
-    S.tickets.forEach(function (t) { if (t.qr && t.status === "valid") drawQR($("#tkqr-" + cssId(t.id)), t.qr, 180); });
-  }
-  function cssId(s) { return String(s).replace(/[^A-Za-z0-9]/g, "_"); }
-  function loginCard() {
-    return '<div class="tk-card" id="tk-login"><p><b>用 email 看票</b><br>買過專輯的話會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收轉讓票也用這個）。</p>' +
-      '<form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '">' +
-      '<div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div>' +
-      '<div class="tk-msg" id="tk-lmsg"></div>' +
-      '<button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button>' +
-      '<button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div>';
-  }
-  function eventsHTML() {
-    if (!S.events.length) return "";
-    var rows = S.events.map(function (e) {
-      var owned = S.tickets.filter(function (t) { return t.eventId === e.id; }).length;
-      var cta;
-      if (e.onSale && e.productKey && (e.left == null || e.left > 0)) cta = '<button class="tk-btn p" data-act="buy" data-ev="' + esc(e.id) + '">買票 NT$' + esc(e.price || "") + '</button>';
-      else if (e.onSale && e.productKey) cta = '<button class="tk-btn" disabled>SOLD OUT</button>';
-      else cta = '<button class="tk-btn g" disabled>尚未開賣</button>';
-      return '<div class="tk-ev"><div><b>' + esc(e.name) + '</b><span>' + esc(fmt(e.startAt)) + ' · ' + esc(e.venue || "") + (owned ? ' · 你有 ' + owned + ' 張' : '') + '</span></div>' + cta + '</div>';
-    }).join("");
-    return '<div class="tk-card" style="padding-top:8px"><div class="tk-eyebrow" style="margin:6px 0 4px">見面會</div>' + rows + '</div>';
-  }
-  function ticketsHTML() {
-    var cards = S.tickets.map(function (t) {
-      var ev = t.event || {}, st, cls = "", stTxt;
-      if (t.status === "used") { cls = "used"; stTxt = '<span class="tk-st warn">已入場</span>'; }
-      else if (t.status === "void") { cls = "dead"; stTxt = '<span class="tk-st bad">已作廢</span>'; }
-      else if (t.expired) { cls = "dead"; stTxt = '<span class="tk-st bad">已結束</span>'; }
-      else if (t.transferPending) { stTxt = '<span class="tk-st warn">轉讓中</span>'; }
-      else stTxt = '<span class="tk-st">VALID</span>';
-      var mid;
-      if (t.status === "valid" && t.qr && !t.expired) mid = '<div class="tk-qr"><canvas id="tkqr-' + cssId(t.id) + '" width="180" height="180"></canvas><small>' + esc(t.id) + '</small></div>';
-      else if (t.status === "used") mid = '<div class="tk-stub"><b>✓ 已入場</b><span>' + esc(fmtT(t.usedAt)) + ' · ' + esc(t.id) + '</span></div>';
-      else mid = '<div class="tk-stub"><b>—</b><span>' + esc(t.id) + '</span></div>';
-      var act = "";
-      if (t.status === "valid" && !t.expired) {
-        act = t.transferPending
-          ? '<div class="tk-act"><button class="tk-btn" data-act="showtransfer" data-id="' + esc(t.id) + '">看轉讓 QR</button><button class="tk-btn" data-act="cancel" data-id="' + esc(t.id) + '">取消轉讓</button></div>'
-          : '<div class="tk-act"><button class="tk-btn" data-act="refresh">重新整理</button><button class="tk-btn p" data-act="transfer" data-id="' + esc(t.id) + '">轉讓給朋友</button></div>';
-      }
-      return '<article class="tk-pass ' + cls + '"><div class="tk-art"><i>' + esc(ev.code ? "MEET · " + ev.code : "MEET") + '</i><b>CHANCE</b></div><div class="tk-body">' +
-        '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + stTxt + '</div>' +
-        '<div class="tk-info"><div><div class="tk-lab">Date</div><div class="tk-val">' + esc(fmt(ev.startAt)) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "") + '</div></div>' +
-        '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:11px">' + esc(S.email) + '</div></div><div><div class="tk-lab">Ticket</div><div class="tk-val">自由入座</div></div></div>' +
-        '<div class="tk-tear"></div>' + mid + act + '</div></article>';
-    }).join("");
-    var dots = S.tickets.length > 1 ? '<div class="tk-dots">' + S.tickets.map(function (_, i) { return '<i class="' + (i ? "" : "on") + '"></i>'; }).join("") + '</div>' : "";
-    return '<div class="tk-rail" id="tk-rail">' + cards + '</div>' + dots + '<div class="tk-note">入場時把 QR 給工作人員掃。要給朋友就按「轉讓給朋友」，對方掃了票就是他的，你的 QR 立刻失效。開演後 2 小時票就不能轉讓也不能入場。</div>';
-  }
   function drawQR(canvas, value, size) { if (!canvas || !window.QRious) return; new QRious({ element: canvas, value: value, size: size * 2, level: "M", background: "#fff", foreground: "#111" }); }
-
-  /* ---------- 事件 ---------- */
-  function onClick(e) {
-    var b = e.target.closest("[data-act]"); if (!b) return;
-    var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
-    if (act === "otp") return sendOtp();
-    if (act === "login") return doLogin();
-    if (act === "refresh") return refresh(true);
-    if (act === "buy") return buy(b.getAttribute("data-ev"));
-    if (act === "transfer") return startTransfer(id);
-    if (act === "showtransfer") return S.transfer && S.transfer.ticketId === id ? openTransferSheet() : startTransfer(id);
-    if (act === "cancel") return cancelTransfer(id);
-  }
   function msg(sel, t, ok) { var m = $(sel); if (m) { m.textContent = t || ""; m.className = "tk-msg" + (ok ? " ok" : ""); } }
   function sendOtp() {
     var em = ($("#tk-em").value || "").trim().toLowerCase();
@@ -280,7 +245,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function sheet(html) {
     if (!sheetEl) { sheetEl = document.createElement("div"); sheetEl.className = "tk-sheet"; sheetEl.addEventListener("click", function (e) { if (e.target === sheetEl) closeSheet(); }); document.body.appendChild(sheetEl); }
     sheetEl.innerHTML = '<div class="tk-box">' + html + '</div>'; sheetEl.classList.add("show");
-    sheetEl.querySelectorAll("[data-sact]").forEach(function (b) { b.addEventListener("click", function () { sheetAct(b.getAttribute("data-sact"), b); }); });
+    sheetEl.querySelectorAll("[data-sact]").forEach(function (b) { b.addEventListener("click", function () { sheetAct2(b.getAttribute("data-sact"), b); }); });
   }
   function closeSheet() { if (sheetEl) sheetEl.classList.remove("show"); stopPoll(); }
   function startTransfer(id) {
@@ -376,6 +341,272 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   var toastEl, toastT;
   function toast(t) { if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "tk-toast"; document.body.appendChild(toastEl); } toastEl.textContent = t; toastEl.classList.add("in"); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove("in"); }, 2200); }
 
+  /* ---------- 共用小工具 ---------- */
+  function cssId(s) { return String(s).replace(/[^A-Za-z0-9]/g, "_"); }
+  function maskEmail(e) { var p = String(e || "").split("@"); if (p.length < 2) return "—"; return p[0].slice(0, 3) + "••••@" + p[1]; }
+  function fmtShort(iso) { var d = new Date(iso); if (isNaN(d)) return ""; var t = new Date(d.getTime() + 8 * 3600e3); var w = "日一二三四五六"[t.getUTCDay()]; return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + "（" + w + "）· " + ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2); }
+  function jget(k) { try { return JSON.parse(lsGet(k) || "null") || {}; } catch (e) { return {}; } }
+  function refresh(force) {
+    if (S.loading) return; S.loading = true; render();
+    ensureSession().then(function () { return Promise.all([loadEvents(), loadMine(force)]); })
+      .then(function () { S.loading = false; render(); });
+  }
+  function validTickets() { return S.tickets.filter(function (t) { return t.status === "valid" && !t.expired; }); }
+  function pastTickets() { return S.tickets.filter(function (t) { return !(t.status === "valid" && !t.expired); }); }
+  function nextTicket() { var v = validTickets().slice().sort(function (a, b) { return String(a.event && a.event.startAt || "").localeCompare(String(b.event && b.event.startAt || "")); }); return v[0] || null; }
+  function ticketById(id) { return S.tickets.filter(function (t) { return t.id === id; })[0] || null; }
+
+  /* ---------- 周邊資料（讀 app 既有設定與購買紀錄，不寫死） ---------- */
+  function merchItems() {
+    var CFG = window.ALBUM_CONFIG || {}, owned = jget(C.merchKey), un = jget(C.unlockKeys[0]), fp = jget(C.unlockKeys[1]);
+    var list = [
+      { key: "album", name: CFG.albumTitle || "THE SKY", type: "digital", label: "數位特典", desc: "數位專輯", img: CFG.coverPoster || CFG.coverImage || "", owned: !!un.unlocked, since: un.ts || null, benefits: ["完整專輯線上收聽", "每日抽卡・小卡收藏"], go: "player" },
+      { key: "signal", name: "SIGNAL", type: "digital", label: "數位特典", desc: "Chance 私訊頻道", img: "assets/images/avatar.jpg", owned: !!(fp.unlocked || fp.full), since: fp.ts || null, benefits: ["Chance 的私訊頻道", "獨家影片・語音"], go: "mood" },
+    ];
+    (((CFG.merch || {}).items) || []).forEach(function (it) {
+      if (!it.productKey) return;
+      var rec = owned[it.productKey], isTix = String(it.productKey).indexOf("ticket") === 0;
+      list.push({ key: it.productKey, name: it.name || it.productKey, type: isTix ? "limited" : "physical", label: isTix ? "限量周邊" : "實體收藏", desc: it.desc || "", img: it.image || "", owned: !!rec, since: rec && (rec.ts || rec.at) || null, serial: rec && rec.serial || null, order: rec && (rec.orderRef || rec.code || rec.merchantTradeNo) || null, benefits: [], go: null });
+    });
+    return list;
+  }
+  function ownedItems() { return merchItems().filter(function (i) { return i.owned; }); }
+
+  /* ---------- 收藏首頁 ---------- */
+  var root, body;
+  function mount() {
+    if (document.getElementById("tk-root")) return;
+    var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
+    root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
+    var host = $(C.mount), before = host && $(C.before, host);
+    if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
+    body = root;
+    root.addEventListener("click", onClick);
+    var lay = document.createElement("div"); lay.id = "tk-layers"; document.body.appendChild(lay);
+    lay.addEventListener("click", onClick);
+    lay.addEventListener("submit", function (e) { e.preventDefault(); });
+  }
+  function render() {
+    if (!body) return;
+    var vt = validTickets(), nx = nextTicket(), logged = !!S.session, creds = !!unlockCreds();
+    var own = ownedItems();
+    var stat = !logged && !creds ? "登入看票" : (S.loading && !S.tickets.length ? "載入中…" : (vt.length ? vt.length + " 張有效" : "還沒有票"));
+    var preview = nx ? '<div class="nx"><i></i><div>下一場次<b>' + esc(fmtShort(nx.event && nx.event.startAt)) + '</b></div></div>' : '<div class="nx" style="color:rgba(255,255,255,.45)">買了或收到轉讓的票，會直接出現在票夾裡。</div>';
+    var cta = nx ? '<button class="tk-gold" data-act="open-now">立即開票 <span>→</span></button>' : (!logged && !creds ? '<button class="tk-gold" data-act="open-wallet">登入看票 <span>→</span></button>' : '<button class="tk-gold" data-act="open-wallet" style="background:rgba(216,188,128,.14);color:#f4e4c1;border:1px solid rgba(216,188,128,.4)">打開票夾 <span>→</span></button>');
+    var stack = own.slice(0, 3).map(function (i) { return '<span' + (i.img ? ' style="background-image:url(\'' + esc(i.img) + '\');background-size:cover;background-position:center;color:transparent"' : '') + '>THE SKY</span>'; }).join("");
+    while ((stack.match(/<img|<span/g) || []).length < 3) stack += '<span>THE SKY</span>';
+    body.innerHTML =
+      '<div class="tk-top"><div class="tk-sp"></div><div><div class="tk-eyebrow">The Sky Collection</div><div class="tk-h1 tk-serif">你的收藏</div><div class="tk-sub">票券與周邊，各自收好。</div></div>' +
+      '<button class="tk-prof" data-act="profile" aria-label="帳號">' + (S.email ? esc(S.email[0].toUpperCase()) : "○") + '</button></div>' +
+      '<div class="tk-ent tix" data-act="open-wallet" role="button" tabindex="0"><div class="lab">TICKETS</div><div class="ttl tk-serif">你的票夾</div><div class="st">' + esc(stat) + '</div>' + preview + cta +
+        '<div class="more">查看全部 ›</div><div class="tk-stub"><s>Music<br>lives beyond<br>the moment</s><em></em></div></div>' +
+      '<div class="tk-ent mer" data-act="open-merch" role="button" tabindex="0"><div class="lab">MERCH</div><div class="ttl tk-serif">周邊收藏</div><div class="st">' + own.length + ' 件收藏</div><div class="nx" style="margin-top:10px">實體與數位特典</div>' +
+        '<div class="circ">›</div><div class="more">瀏覽收藏</div><div class="tk-stack">' + stack + '</div></div>' +
+      '<div class="tk-ctx">活動當天會把立即開票放到最前面。</div>' +
+      '<div class="tk-div">SHOP · 商店</div>';
+    S.layers.forEach(function (l) { renderLayer(l); });
+  }
+
+  /* ---------- 分層導覽 ---------- */
+  function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
+  function openLayer(name, opts) {
+    opts = opts || {};
+    if (name === "wallet") { S.sel = opts.sel || (S.sel && ticketById(S.sel) ? S.sel : (nextTicket() || S.tickets[0] || {}).id || null); S.qrOpen = !!opts.qr; }
+    if (name === "detail") S.detail = opts.key;
+    if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
+    S.layers.push(name);
+    try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
+    var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
+    document.getElementById("tk-layers").appendChild(el);
+    renderLayer(name);
+    document.body.classList.add("tk-open");
+    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
+    if (name === "wallet") loadMine(true).then(function () { renderLayer("wallet"); });
+  }
+  function popLayer() {
+    var name = S.layers.pop(); if (!name) return;
+    var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
+    if (!S.layers.length) document.body.classList.remove("tk-open");
+    if (name === "wallet") { S.qrOpen = false; render(); }
+  }
+  function back() { if (S.layers.length) history.back(); }
+  function closeAll() { while (S.layers.length) popLayer(); }
+  window.addEventListener("popstate", function (e) {
+    var want = (e.state && e.state.tk) || 0;
+    while (S.layers.length > want) popLayer();
+  });
+  function bar(backLabel, center, right) {
+    return '<div class="tk-bar"><button data-act="back"><span class="chev">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled style="opacity:0"') + '>' + (right ? right.icon : "") + '</button></div>';
+  }
+  function renderLayer(name) {
+    var el = layerEl(name); if (!el) return;
+    if (name === "wallet") el.innerHTML = walletHTML();
+    if (name === "merch") el.innerHTML = merchHTML();
+    if (name === "detail") el.innerHTML = detailHTML();
+    if (name === "wallet" && S.qrOpen) { var t = ticketById(S.sel); if (t && t.qr) drawQR($("#tkqr-" + cssId(t.id), el), t.qr, 240); }
+  }
+
+  /* ---------- 2A 票夾 + 3A 入場票 ---------- */
+  function loginCard() {
+    return '<div class="tk-card" id="tk-login"><p><b>用 email 看票</b><br>買過專輯的話會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收轉讓票也用這個）。</p>' +
+      '<form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '">' +
+      '<div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div>' +
+      '<div class="tk-msg" id="tk-lmsg"></div>' +
+      '<button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button>' +
+      '<button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div>';
+  }
+  function pillFor(t) {
+    if (t.status === "used") return '<span class="tk-pill warn">已入場</span>';
+    if (t.status === "void") return '<span class="tk-pill bad">已作廢</span>';
+    if (t.expired) return '<span class="tk-pill bad">已結束</span>';
+    if (t.transferPending) return '<span class="tk-pill warn">轉讓中</span>';
+    return '<span class="tk-pill">VALID</span>';
+  }
+  function rowHTML(t) {
+    var ev = t.event || {};
+    return '<button class="tk-row' + (S.sel === t.id ? " on" : "") + '" data-act="sel" data-id="' + esc(t.id) + '"><div><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(fmtT(ev.startAt)) + (ev.venue ? ' · ' + esc(ev.venue) : '') + '</span></div>' + pillFor(t) + '<span class="chv">›</span></button>';
+  }
+  function passHTML(t) {
+    var ev = t.event || {}, cls = t.status === "used" ? "used" : ((t.status === "void" || t.expired) ? "dead" : ""), stTxt;
+    if (t.status === "used") stTxt = '<span class="tk-st warn">已入場</span>';
+    else if (t.status === "void") stTxt = '<span class="tk-st bad">已作廢</span>';
+    else if (t.expired) stTxt = '<span class="tk-st bad">已結束</span>';
+    else if (t.transferPending) stTxt = '<span class="tk-st warn">轉讓中</span>';
+    else stTxt = '<span class="tk-st">VALID</span>';
+    var mid;
+    if (t.status === "valid" && !t.expired && t.qr) {
+      mid = S.qrOpen
+        ? '<div class="tk-qrwrap2"><canvas id="tkqr-' + cssId(t.id) + '" width="480" height="480"></canvas><div class="tk-qrid">' + esc(t.id) + '</div></div>'
+        : '<button class="tk-reveal" data-act="reveal">顯示入場 QR<small>點擊後請把螢幕亮度調高</small></button>';
+    } else if (t.status === "used") mid = '<div class="tk-stubbox"><b>✓ 已入場</b><span>' + esc(fmtT(t.usedAt)) + ' · ' + esc(t.id) + '</span></div>';
+    else mid = '<div class="tk-stubbox"><b>—</b><span>' + esc(t.id) + '</span></div>';
+    var acts = "";
+    if (t.status === "valid" && !t.expired) {
+      acts = '<div class="tk-acts"><button class="tk-btn" data-act="rules">查看入場須知</button>' +
+        (S.qrOpen ? '<button class="tk-btn p" data-act="refresh-ticket">更新票券</button>' : '<button class="tk-btn p" data-act="ready">準備入場</button>') + '</div>';
+    }
+    return '<div class="tk-eyebrow" style="margin-top:22px">Entry Pass</div>' +
+      '<article class="tk-pass ' + cls + '"><div class="tk-art"><i>' + esc(ev.code ? "MEET · " + ev.code : "MEET") + '</i><b>CHANCE</b></div><div class="tk-body">' +
+      '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + stTxt + '</div>' +
+      '<div class="tk-info"><div><div class="tk-lab">Date</div><div class="tk-val">' + esc(fmt(ev.startAt)) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "—") + '</div></div>' +
+      '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:13px">' + esc(maskEmail(S.email)) + '</div></div><div><div class="tk-lab">Ticket</div><div class="tk-val">自由入座</div></div></div>' +
+      '<div class="tk-tear"></div>' + mid + '</div></article>' + acts;
+  }
+  function walletHTML() {
+    var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
+    h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div><div class="tk-sub">每一場相遇，都是天空的一部分。</div></div>';
+    if (!S.session) { h += loginCard(); return h; }
+    var vt = validTickets(), pt = pastTickets();
+    if (S.loading && !S.tickets.length) h += '<div class="tk-empty">載入中…</div>';
+    else if (!vt.length && !pt.length) h += '<div class="tk-empty"><b>票夾是空的</b><br>買了之後票會直接出現在這裡；朋友轉讓給你的票也會進來。</div>';
+    h += vt.map(rowHTML).join("");
+    var sel = ticketById(S.sel);
+    if (sel && sel.status === "valid" && !sel.expired) h += passHTML(sel);
+    var onSale = S.events.filter(function (e) { return e.onSale && e.productKey && (e.left == null || e.left > 0); });
+    if (onSale.length) h += '<div class="tk-past"><div class="tk-eyebrow">On Sale</div>' + onSale.map(function (e) { return '<button class="tk-row" data-act="buy" data-ev="' + esc(e.id) + '"><div><b>' + esc(e.name) + '</b><span>' + esc(fmtShort(e.startAt)) + ' · ' + esc(e.venue || "") + '</span></div><span class="tk-pill" style="background:rgba(216,188,128,.16);color:#f4e4c1;border-color:rgba(216,188,128,.4)">NT$' + esc(e.price || "") + '</span></button>'; }).join("") + '</div>';
+    if (pt.length) h += '<div class="tk-past"><div class="tk-eyebrow">過往票券</div>' + pt.map(rowHTML).join("") + (sel && !(sel.status === "valid" && !sel.expired) ? passHTML(sel) : "") + '</div>';
+    return h;
+  }
+
+  /* ---------- 2B 周邊收藏 + 3B 收藏詳情 ---------- */
+  function merchHTML() {
+    var all = ownedItems(), f = S.merchFilter;
+    var cnt = { all: all.length, physical: all.filter(function (i) { return i.type !== "digital"; }).length, digital: all.filter(function (i) { return i.type === "digital"; }).length };
+    var shown = f === "all" ? all : all.filter(function (i) { return f === "digital" ? i.type === "digital" : i.type !== "digital"; });
+    var h = bar("收藏", "MERCH ARCHIVE", { act: "filter", label: "篩選", icon: "···" });
+    h += '<div class="tk-hd"><div class="tk-eyebrow">Owned by You</div><div class="tk-h1 tk-serif">周邊收藏</div><div class="tk-sub">收藏喜歡的，讓天空一直都在。</div></div>';
+    h += '<div class="tk-chips">' + [["all", "全部"], ["physical", "實體收藏"], ["digital", "數位特典"]].map(function (c) { return '<button class="tk-chip' + (f === c[0] ? " on" : "") + '" data-act="mfilter" data-f="' + c[0] + '">' + c[1] + ' (' + cnt[c[0]] + ')</button>'; }).join("") + '</div>';
+    if (!shown.length) h += '<div class="tk-empty"><b>還沒有收藏</b><br>買了專輯或周邊，會出現在這裡。</div>';
+    else h += '<div class="tk-grid">' + shown.map(function (i) {
+      return '<button class="tk-item" data-act="open-detail" data-key="' + esc(i.key) + '"><div class="im"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '<span class="tk-tag">' + esc(i.label) + '</span></div><div class="nm">' + esc(i.name) + '</div><div class="ds">' + esc(i.desc) + '</div></button>';
+    }).join("") + '</div>';
+    return h;
+  }
+  function detailHTML() {
+    var i = merchItems().filter(function (x) { return x.key === S.detail; })[0];
+    if (!i) return bar("周邊", "COLLECTIBLE") + '<div class="tk-empty">找不到這件收藏</div>';
+    var h = bar("周邊", "COLLECTIBLE", { act: "share", label: "分享", icon: "⇪" });
+    h += '<div class="tk-hero"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" onerror="this.remove()">' : '') + '</div>';
+    h += '<div class="tk-dl"><span class="tk-tag" style="position:static;display:inline-block">' + esc(i.label) + '</span>' +
+      '<div class="v big">' + esc(i.name) + '</div>' +
+      (i.desc ? '<div class="tk-sub" style="margin-top:4px">' + esc(i.desc) + '</div>' : '') +
+      '<div class="k">收藏編號</div><div class="v">' + esc(i.serial ? "No." + i.serial : (i.order ? i.order : "—")) + '</div>' +
+      '<div class="k">收藏狀態</div><div class="v">' + (i.owned ? "已收藏" + (i.since ? " · " + esc(fmtT(new Date(i.since).toISOString())) : "") : "尚未收藏") + '</div>';
+    if (i.benefits.length) h += '<div class="k">包含的數位特典</div><ul class="tk-ben">' + i.benefits.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join("") + '</ul>';
+    h += '</div>';
+    h += i.go ? '<button class="tk-btn p" data-act="goto" data-go="' + esc(i.go) + '">查看數位特典</button>' : '<button class="tk-btn p" disabled>數位特典尚未開放</button>';
+    h += '<button class="tk-btn g" data-act="order" data-key="' + esc(i.key) + '">配送與訂單資訊</button>';
+    return h;
+  }
+
+  /* ---------- 選單／說明 ---------- */
+  function profileSheet() {
+    sheet('<div class="tk-eyebrow">Account</div><h3>' + (S.email ? esc(maskEmail(S.email)) : "尚未登入票務") + '</h3><div class="tk-hint">票綁在這個 email 上，換手機用同一個 email 登入就看得到。</div>' +
+      '<div class="tk-menu" style="margin-top:14px">' + (S.email ? '<button data-sact="showmail">顯示完整 email</button><button class="danger" data-sact="logout">登出票務</button>' : '<button data-sact="openwallet">登入看票</button>') + '<button data-sact="close">關閉</button></div>');
+  }
+  function walletMenu() {
+    var t = ticketById(S.sel), can = t && t.status === "valid" && !t.expired;
+    sheet('<div class="tk-eyebrow">Ticket</div><h3>' + esc(t && t.event ? t.event.name : "票夾") + '</h3><div class="tk-menu" style="margin-top:8px">' +
+      '<button data-sact="refresh">更新票券</button><button data-sact="rules">查看入場須知</button>' +
+      (can ? (t.transferPending ? '<button data-sact="showtransfer">看轉讓 QR</button><button class="danger" data-sact="cancel-transfer">取消轉讓</button>' : '<button data-sact="transfer-confirm">轉讓給朋友</button>') : "") +
+      '<button data-sact="close">關閉</button></div>');
+  }
+  function rulesSheet() {
+    sheet('<div class="tk-eyebrow">Entry</div><h3>入場須知</h3><div class="tk-hint" style="color:rgba(255,255,255,.8);line-height:1.8">' +
+      '・開演前 3 小時開放入場，開演後 2 小時票即失效<br>・入場時打開「顯示入場 QR」給工作人員掃，掃過就完成入場<br>・一張票只能入場一次，掃過後票卡會變成票根留在票夾<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的、你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票<br>・沒訊號也能出示 QR：先打開這一頁再進場</div>' +
+      '<button class="tk-btn p" data-sact="close">知道了</button>');
+  }
+  function transferConfirm() {
+    var t = ticketById(S.sel); if (!t) return;
+    sheet('<div class="tk-big"><div class="ic">↗</div><div class="tk-eyebrow">Transfer</div><h3>要把這張票轉讓給朋友？</h3><div class="tk-hint">' + esc(t.event ? t.event.name : t.id) + '<br><br>轉讓連結產生後 10 分鐘內有效。朋友接受的那一刻，<b style="color:#e7a3a3">你原本的入場 QR 會立即失效</b>，票會從你的票夾消失。</div></div>' +
+      '<button class="tk-btn p" data-sact="transfer-go">確定，產生轉讓連結</button><button class="tk-btn g" data-sact="close">取消</button>');
+  }
+  function orderSheet(key) {
+    var i = merchItems().filter(function (x) { return x.key === key; })[0]; if (!i) return;
+    var body = i.type === "digital" ? "這是數位商品，沒有配送。用同一個 email 在任何裝置登入都能使用。" :
+      (i.order ? "訂單編號：" + esc(i.order) + "<br>" : "") + "出貨進度會以 email 通知，訂單編號在購買確認信裡。需要修改收件資訊請直接回覆那封信。";
+    sheet('<div class="tk-eyebrow">Order</div><h3>配送與訂單資訊</h3><div class="tk-hint" style="line-height:1.8">' + body + '</div><button class="tk-btn p" data-sact="close">關閉</button>');
+  }
+  function navTo(screen) { closeAll(); var nb = $(C.navSel[screen]); if (nb) nb.click(); }
+
+  /* ---------- 事件 ---------- */
+  function onClick(e) {
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+    if (act === "back") return back();
+    if (act === "profile") return profileSheet();
+    if (act === "open-wallet") return openLayer("wallet");
+    if (act === "open-now") { e.stopPropagation(); var nx = nextTicket(); return openLayer("wallet", { sel: nx && nx.id, qr: true }); }
+    if (act === "open-merch") return openLayer("merch");
+    if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
+    if (act === "sel") { S.sel = id; S.qrOpen = false; renderLayer("wallet"); return; }
+    if (act === "reveal" || act === "ready") { S.qrOpen = true; renderLayer("wallet"); hap(10); var el = layerEl("wallet"), c = el && $(".tk-pass", el); if (c) setTimeout(function () { c.scrollIntoView({ behavior: "smooth", block: "center" }); }, 60); return; }
+    if (act === "refresh-ticket") { loadMine(true).then(function () { renderLayer("wallet"); toast("票券已更新"); }); return; }
+    if (act === "rules") return rulesSheet();
+    if (act === "menu") return walletMenu();
+    if (act === "filter") { S.merchFilter = S.merchFilter === "all" ? "physical" : (S.merchFilter === "physical" ? "digital" : "all"); renderLayer("merch"); return; }
+    if (act === "mfilter") { S.merchFilter = b.getAttribute("data-f"); renderLayer("merch"); return; }
+    if (act === "share") { var i = merchItems().filter(function (x) { return x.key === S.detail; })[0]; if (navigator.share) navigator.share({ title: "THE SKY COLLECTION", text: "我的收藏：" + (i ? i.name : ""), url: location.origin + location.pathname }).catch(function () {}); else toast("這個瀏覽器不支援分享"); return; }
+    if (act === "goto") return navTo(b.getAttribute("data-go"));
+    if (act === "order") return orderSheet(b.getAttribute("data-key"));
+    if (act === "otp") return sendOtp();
+    if (act === "login") return doLogin();
+    if (act === "buy") return buy(b.getAttribute("data-ev"));
+  }
+  function sheetAct2(a) {
+    if (a === "showmail") { toast(S.email); return; }
+    if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
+    if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
+    if (a === "refresh") { closeSheet(); loadMine(true).then(function () { renderLayer("wallet"); render(); toast("票券已更新"); }); return; }
+    if (a === "rules") { rulesSheet(); return; }
+    if (a === "transfer-confirm") { transferConfirm(); return; }
+    if (a === "transfer-go") { closeSheet(); startTransfer(S.sel); return; }
+    if (a === "showtransfer") { if (S.transfer && S.transfer.ticketId === S.sel) openTransferSheet(); else startTransfer(S.sel); return; }
+    if (a === "cancel-transfer") { cancelTransfer(S.sel); return; }
+    if (a === "tomerch") { closeSheet(); closeAll(); var nb = $(C.merchNavSel); if (nb) nb.click(); refresh(true); setTimeout(function () { openLayer("wallet"); }, 120); return; }
+    return sheetAct(a);
+  }
+
   /* ---------- 啟動 ---------- */
   function boot() {
     mount(); render();
@@ -385,10 +616,9 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
       mo.observe(host, { attributes: true, attributeFilter: ["class"] });
       if (host.classList.contains("active")) refresh(false);
     } else refresh(false);
-    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(render); });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(function () { render(); }); });
     var m = /[?&]transfer=([A-Za-z0-9]+)/.exec(location.search);
     if (m) { var nb = $(C.merchNavSel); if (nb) setTimeout(function () { nb.click(); }, 300); handleIncoming(m[1]); }
-    else if (!host) refresh(false);
     if (unlockCreds() || lsGet(K.sess)) refresh(false);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
