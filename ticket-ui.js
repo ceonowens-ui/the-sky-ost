@@ -1,4 +1,4 @@
-/* ticket-ui.js v2 — THE SKY COLLECTION（含 QRious 4.0.2）*/
+/* ticket-ui.js v3 — THE SKY COLLECTION（含 QRious 4.0.2）*/
 /*! QRious v4.0.2 | (C) 2017 Alasdair Mercer | GPL v3 License
 Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 */
@@ -6,12 +6,12 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 
 //# sourceMappingURL=qrious.min.js.map
 /* =====================================================================
- * THE SKY COLLECTION — 收藏分頁模組  ticket-ui.js  v2 (B187T)
+ * THE SKY COLLECTION — 收藏分頁模組  ticket-ui.js  v3 (B188T)
  * ---------------------------------------------------------------------
  * 只加不改：test.html / index.html 只要在 </body> 前加一行
- *   <script src="ticket-ui.js?v=2" defer></script>
- * 它把 SHOP 分頁改成三層：收藏首頁 → 票夾／周邊收藏 → 入場票／收藏詳情。
- * 原本的商店（NEXT DROP、商品、我想去）原封不動，放在收藏首頁下方。
+ *   <script src="ticket-ui.js?v=3" defer></script>
+ * 它把 SHOP 分頁改成三層：收藏首頁（兩張卡）→ 票夾（一場活動一張卡）／周邊收藏櫃 → 入場票／收藏詳情。
+ * 原本的商店列表（#merch-list）隱藏；票收進票夾、商品收進周邊。購買沿用 app 原本的按鈕。
  *
  * 流程：買（綠界）→ 票在 app（綁 email）→ 轉讓（QR/連結）→ 掃碼進場 → 票根留著
  * 身分：已解鎖粉絲用 localStorage 的 email+解鎖碼自動登入；其他人 email+驗證碼。
@@ -25,13 +25,13 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     merchKey: "album-the-sky:merch",
     mount: "#screen-merch", before: "#merch-list",
     merchNavSel: '.navbtn[data-screen="merch"]',
-    navSel: { player: '.navbtn[data-screen="player"]', mood: '.navbtn[data-screen="mood"]', merch: '.navbtn[data-screen="merch"]' },
+    navSel: { player: '.navbtn[data-screen="player"]', mood: '.navbtn[data-screen="mood"]', merch: '.navbtn[data-screen="merch"]', purchase: '.navbtn[data-screen="purchase"]' },
     demo: /[?&]tkdemo=1/.test(location.search),
     pollMs: 5000,
   };
   var K = { sess: "tk:session", email: "tk:email" };
   var S = { session: null, email: "", tickets: [], events: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
-            layers: [], sel: null, qrOpen: false, merchFilter: "all", detail: null };
+            layers: [], sel: null, tab: "up", detail: null };
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
@@ -43,7 +43,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   /* ---------- CSS ---------- */
   var CSS = "\
 :root{--tkg:#d8bc80;--tkg2:#f1ddb0;--tki:#f3efe6;--tkm:#a89f92;--tkt:#f6f1e7}\
-#screen-merch .page-titles{display:none}\
+#screen-merch .page-titles,#merch-list{display:none!important}\
 .tk,.tk-layer{color:var(--tkt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;-webkit-tap-highlight-color:transparent}\
 .tk *,.tk-layer *{box-sizing:border-box}\
 .tk{padding:calc(14px + env(safe-area-inset-top)) 16px 0}\
@@ -56,7 +56,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 .tk-prof{flex:0 0 40px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(216,188,128,.45);background:rgba(216,188,128,.08);color:var(--tkg);display:grid;place-items:center;font:600 14px/1 var(--font-label,serif);cursor:pointer;margin-top:-2px}\
 .tk-ent{position:relative;display:block;width:100%;text-align:left;border:1px solid rgba(216,188,128,.22);border-radius:26px;padding:22px 20px;margin-top:16px;overflow:hidden;cursor:pointer;color:var(--tkt);font:inherit;transition:transform .18s ease}\
 .tk-ent:active{transform:scale(.985)}\
-.tk-ent.tix{background:radial-gradient(circle at 78% 22%,rgba(216,188,128,.34),transparent 32%),linear-gradient(150deg,#3a2718 0%,#160f0d 55%,#0b0809 100%);min-height:220px}\
+.tk-ent.tix{min-height:250px;background:radial-gradient(circle at 78% 22%,rgba(216,188,128,.34),transparent 32%),linear-gradient(150deg,#3a2718 0%,#160f0d 55%,#0b0809 100%);min-height:220px}\
 .tk-ent.mer{background:radial-gradient(circle at 80% 25%,rgba(150,110,220,.32),transparent 34%),linear-gradient(150deg,#2b1a44 0%,#150c22 60%,#0b0710 100%);min-height:200px}\
 .tk-ent .lab{font-family:var(--font-label,serif);font-size:11px;letter-spacing:.3em;color:var(--tkg)}\
 .tk-ent .ttl{font-size:27px;letter-spacing:.06em;margin:8px 0 6px;color:#fff}\
@@ -138,6 +138,30 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 .tk-big{text-align:center;padding:26px 0 8px}.tk-big .ic{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;font-size:30px;border:1px solid rgba(216,188,128,.42);color:#efd9a9}.tk-big .ic.ok{border-color:rgba(155,209,166,.4);color:#9bd1a6;background:rgba(155,209,166,.07)}\
 .tk-menu{display:flex;flex-direction:column;gap:2px}.tk-menu button{text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.08);color:var(--tkt);font:inherit;font-size:16px;padding:16px 4px;min-height:52px;cursor:pointer}.tk-menu button.danger{color:#e7a3a3}.tk-menu button:first-child{border-top:0}\
 .tk-toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1418;border:1px solid rgba(216,188,128,.3);color:var(--tkt);padding:10px 16px;border-radius:999px;font-size:12px;z-index:100001;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}.tk-toast.in{opacity:1}\
+.tk-cd{display:flex;gap:6px;margin-top:14px}.tk-cd div{background:rgba(0,0,0,.35);border:1px solid rgba(216,188,128,.28);border-radius:10px;padding:6px 8px;text-align:center;min-width:48px}.tk-cd b{display:block;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.tk-cd span{font-size:9px;color:#b9ad97;letter-spacing:.1em}\
+.tk-ent .st2{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}\
+.tk-seg{display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:4px;margin:6px 0 4px}.tk-seg button{flex:1;border:0;background:none;color:rgba(255,255,255,.55);font:inherit;font-size:14px;padding:10px 0;border-radius:9px;cursor:pointer;min-height:40px}.tk-seg button.on{background:rgba(216,188,128,.18);color:#f4e4c1;font-weight:600}\
+.tk-day{display:flex;align-items:baseline;gap:8px;margin:18px 0 8px 2px;font-size:14px}.tk-day b{font-size:16px}.tk-day span{color:#8f8676;font-size:13px}.tk-day i{width:8px;height:8px;border-radius:50%;background:#d8bc80;display:inline-block;margin-right:2px;transform:translateY(-1px)}.tk-day i.pu{background:#8b6fc0}\
+.tk-ev{display:block;width:100%;text-align:left;border-radius:20px;overflow:hidden;border:1px solid rgba(216,188,128,.22);position:relative;color:var(--tkt);font:inherit;padding:0;cursor:pointer;transition:transform .16s}.tk-ev:active{transform:scale(.985)}\
+.tk-ev.gold{background:radial-gradient(circle at 85% 20%,rgba(216,188,128,.28),transparent 40%),linear-gradient(150deg,#3a2718,#130d0c)}.tk-ev.pu{background:radial-gradient(circle at 85% 20%,rgba(150,110,220,.3),transparent 40%),linear-gradient(150deg,#2b1a44,#110a1a)}\
+.tk-ev .top{display:flex;gap:14px;padding:16px;align-items:center}\
+.tk-poster{width:78px;height:98px;border-radius:12px;flex:0 0 78px;border:1px solid rgba(216,188,128,.3);position:relative;overflow:hidden;background:radial-gradient(circle at 60% 30%,#6b4a2c,#140e0c 70%)}.tk-ev.pu .tk-poster{background:radial-gradient(circle at 60% 30%,#4b3272,#0e0916 70%)}\
+.tk-poster b{position:absolute;left:8px;bottom:8px;font:600 9px/1 var(--font-label,serif);letter-spacing:.2em;color:#f4e4c1}\
+.tk-ev .n{font:500 19px/1.3 var(--font-display,serif),serif;letter-spacing:.04em}.tk-ev .m{font-size:12px;color:rgba(255,255,255,.66);margin-top:6px;line-height:1.5}\
+.tk-ev .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:rgba(0,0,0,.35);border-top:1px solid rgba(216,188,128,.14);font-size:13px;min-height:52px}\
+.tk-ev .foot .l{color:#e9dfcf}.tk-ev .foot .l.dim{color:rgba(255,255,255,.66)}\
+.tk-chip{padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;border:0;font-family:inherit;white-space:nowrap;cursor:pointer;min-height:34px}.tk-chip.g{background:rgba(74,130,90,.25);color:#8fd4a0;border:1px solid rgba(143,212,160,.35)}.tk-chip.o{background:linear-gradient(#f1ddb0,#d8bc80);color:#181209}.tk-chip.d{background:rgba(216,188,128,.16);color:#f4e4c1;border:1px solid rgba(216,188,128,.4)}.tk-chip.x{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}\
+.tk-hint2{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-top:18px;line-height:1.6}\
+.tk-lock{text-align:center;padding:4px 0 2px}.tk-lock .ic{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;border:1.5px solid #c9b37f;display:grid;place-items:center;font-size:22px;color:#8a6a1f}.tk-lock b{font-size:15px}.tk-lock p{font-size:12px;color:#6d6558;margin-top:6px;line-height:1.6}\
+.tk-lcd{display:flex;justify-content:center;gap:8px;margin-top:12px}.tk-lcd div{background:#e7e1d4;border-radius:10px;padding:7px 10px;min-width:56px;text-align:center}.tk-lcd b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.tk-lcd span{font-size:10px;color:#7a7266}\
+.tk-list{margin-top:14px;border-radius:18px;background:rgba(20,12,18,.8);border:1px solid rgba(216,188,128,.14);overflow:hidden}\
+.tk-list button{display:flex;width:100%;justify-content:space-between;align-items:center;padding:14px 16px;font:inherit;font-size:15px;color:var(--tkt);background:none;border:0;border-top:1px solid rgba(255,255,255,.07);cursor:pointer;min-height:50px;text-align:left}.tk-list button:first-child{border-top:0}.tk-list button span{color:var(--tkg);font-size:16px}.tk-list button.dim{color:rgba(255,255,255,.7)}\
+.tk-banner{margin-top:12px;padding:10px 14px;border-radius:14px;background:rgba(216,188,128,.12);border:1px solid rgba(216,188,128,.35);color:#f4e4c1;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}\
+.tk-prog{margin:12px 0 4px}.tk-prog .tt{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:rgba(255,255,255,.7)}.tk-prog .tt b{font:500 22px var(--font-display,serif),serif;color:#f0dcaa}\
+.tk-pbar{height:6px;border-radius:9px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}.tk-pbar i{display:block;height:100%;background:linear-gradient(90deg,#b58df0,#d8bc80)}\
+.tk-item.lk .im:after{content:'🔒';position:absolute;inset:0;display:grid;place-items:center;font-size:24px;background:rgba(8,5,10,.42)}.tk-item.lk .im img{filter:saturate(.55)}.tk-item.lk .nm{color:rgba(255,255,255,.7)}\
+.tk-item .ibtn{display:block;margin:0 12px 12px;padding:9px 0;border-radius:10px;border:1px solid rgba(216,188,128,.4);text-align:center;font-size:12px;color:#f4e4c1;background:none;font-family:inherit;width:calc(100% - 24px);cursor:pointer;min-height:36px}.tk-item .ibtn.done{background:rgba(216,188,128,.16)}.tk-item .ibtn.buy{background:linear-gradient(#f1ddb0,#d8bc80);color:#181209;border-color:transparent;font-weight:700}\
+.tk-pastrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:rgba(20,12,18,.6);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 14px;margin-top:10px;color:var(--tkt);font:inherit;cursor:pointer;min-height:60px}.tk-pastrow .pp{width:34px;height:44px;border-radius:8px;background:linear-gradient(160deg,#3a2a20,#0f0d0d);flex:0 0 34px;border:1px solid rgba(216,188,128,.25)}.tk-pastrow b{display:block;font-size:15px}.tk-pastrow span{display:block;font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}.tk-pastrow .chv{margin-left:auto;color:var(--tkg)}\
 @media (max-width:360px){.tk-h1{font-size:28px}.tk-ent .ttl{font-size:22px}.tk-stub{width:92px;height:118px;right:12px}.tk-ent.tix .st,.tk-ent.tix .nx{max-width:calc(100% - 100px)}.tk-ent .nx b{font-size:13px}.tk-stack{width:120px}.tk-stack img,.tk-stack span{width:72px;height:96px}.tk-grid{grid-template-columns:1fr}}\
 ";
 
@@ -152,14 +176,15 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   /* ---------- 假資料（?tkdemo=1） ---------- */
   var DEMO = (function () {
     var now = Date.now();
-    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 見面會 12/27", startAt: "2026-12-27T14:00:00+08:00", venue: "微風影城 A 廳", price: 1200, capacity: 181, sold: 96, left: 85, productKey: "meet-20261227", onSale: true },
-              { id: "meet-20270213", code: "0213", name: "CHANCE 見面會 2/13", startAt: "2027-02-13T14:00:00+08:00", venue: "微風影城 A 廳", price: 1200, capacity: 181, sold: 0, left: 181, productKey: null, onSale: false }];
+    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T13:00:00+08:00"), venue: "微風影城 A 廳", price: 0, capacity: 181, sold: 96, left: 85, productKey: null, onSale: false },
+              { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", price: 0, capacity: 181, sold: 0, left: 181, productKey: null, onSale: false }];
     var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
-             { id: "1227-DEMO6789", eventId: "meet-20261227", status: "used", ver: 2, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: new Date(now - 3600e3).toISOString(), owner: "you@demo", transferPending: false, event: ev[0], qr: null, canTransfer: false, expired: false }];
+             { id: "0901-DEMO6789", eventId: "meet-past", status: "used", ver: 2, issuedAt: new Date(now - 30 * 86400e3).toISOString(), usedAt: "2026-09-01T13:12:00+08:00", owner: "you@demo", transferPending: false, event: { id: "meet-past", code: "0901", name: "THE SKY 上線派對", startAt: "2026-09-01T13:00:00+08:00", venue: "微風 MEGA STUDIO" }, qr: null, canTransfer: false, expired: true }];
     var pending = null, sessions = {};
     return { call: function (p, b) { return new Promise(function (res) { setTimeout(function () { res(route(p, b)); }, 350); }); } };
     function route(p, b) {
       if (p === "/ticket/events") return { ok: true, events: ev };
+      if (p === "/interest") return { ok: true };
       if (p === "/ticket/otp") return { ok: true, sent: true };
       if (p === "/ticket/login") { if (b.otp && b.otp !== "123456") return { ok: false, error: "otp_wrong" }; var s = "demo-" + b.email; sessions[s] = b.email; if (b.code) T.forEach(function (t) { if (t.owner === "you@demo") t.owner = b.email; }); return { ok: true, session: s, email: b.email }; }
       var me = sessions[b.session] || "you@demo";
@@ -237,7 +262,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { toast(j.message); return; } } catch (e) {} throw 0; }
         var f = document.importNode(form, true); f.style.display = "none"; document.body.appendChild(f); f.submit();
-      }).catch(function () { location.href = endpoint + "?productKey=" + encodeURIComponent(ev.productKey) + "&email=" + encodeURIComponent(email); });
+      }).catch(function () { toast("付款頁開不起來，請稍後再試"); });
   }
 
   /* ---------- 轉讓（我給別人） ---------- */
@@ -342,35 +367,85 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function toast(t) { if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "tk-toast"; document.body.appendChild(toastEl); } toastEl.textContent = t; toastEl.classList.add("in"); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove("in"); }, 2200); }
 
   /* ---------- 共用小工具 ---------- */
+  var QR_LOCK_H = 3;   // 開場前幾小時才出現 QR（0 = 永遠顯示）
   function cssId(s) { return String(s).replace(/[^A-Za-z0-9]/g, "_"); }
   function maskEmail(e) { var p = String(e || "").split("@"); if (p.length < 2) return "—"; return p[0].slice(0, 3) + "••••@" + p[1]; }
-  function fmtShort(iso) { var d = new Date(iso); if (isNaN(d)) return ""; var t = new Date(d.getTime() + 8 * 3600e3); var w = "日一二三四五六"[t.getUTCDay()]; return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + "（" + w + "）· " + ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2); }
+  function tw(iso) { var d = new Date(typeof iso === "string" ? twParse(iso) : iso); if (isNaN(d)) return null; return new Date(d.getTime() + 8 * 3600e3); }
+  function md(iso) { var t = tw(iso); return t ? (t.getUTCMonth() + 1) + "/" + t.getUTCDate() : ""; }
+  function wk(iso) { var t = tw(iso); return t ? "星期" + "日一二三四五六"[t.getUTCDay()] : ""; }
+  function hm(iso) { var t = tw(iso); return t ? ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2) : ""; }
+  function twParse(v) { if (!v) return NaN; var x = String(v); if (/T\d\d:\d\d(:\d\d)?$/.test(x)) x += "+08:00"; return Date.parse(x); }   // 沒寫時區的一律當台北時間
   function jget(k) { try { return JSON.parse(lsGet(k) || "null") || {}; } catch (e) { return {}; } }
+  function startMs(ev) { var v = ev && ev.startAt ? Date.parse(ev.startAt) : NaN; return isNaN(v) ? null : v; }
+  function closeMs(ev) { var s = startMs(ev); return s == null ? null : s + 2 * 3600e3; }
+  function openMs(ev) { var s = startMs(ev); return s == null ? null : s - QR_LOCK_H * 3600e3; }
+  function qrUnlocked(ev) { if (!QR_LOCK_H) return true; var o = openMs(ev); return o == null || Date.now() >= o; }
+  function isEventDay(ev) { var s = startMs(ev); if (s == null) return false; var n = Date.now(); return n >= s - 24 * 3600e3 && n <= s + 2 * 3600e3; }
+  function parts(ms) { ms = Math.max(0, ms); return { d: Math.floor(ms / 864e5), h: Math.floor(ms % 864e5 / 36e5), m: Math.floor(ms % 36e5 / 6e4) }; }
+  function cdHTML(to, cls) { var p = parts(to - Date.now()); return '<div class="' + cls + '" data-cd="' + to + '"><div><b>' + p.d + '</b><span>天</span></div><div><b>' + p.h + '</b><span>時</span></div><div><b>' + p.m + '</b><span>分</span></div></div>'; }
+  function evKind(ev) { var n = String(ev && ev.name || ""); if (/生日/.test(n)) return { cls: "gold", lab: "BIRTHDAY", dot: "" }; if (/聽片|THE SKY/i.test(n)) return { cls: "pu", lab: "THE SKY", dot: "pu" }; return { cls: "gold", lab: "MEET", dot: "" }; }
   function refresh(force) {
     if (S.loading) return; S.loading = true; render();
     ensureSession().then(function () { return Promise.all([loadEvents(), loadMine(force)]); })
       .then(function () { S.loading = false; render(); });
   }
-  function validTickets() { return S.tickets.filter(function (t) { return t.status === "valid" && !t.expired; }); }
-  function pastTickets() { return S.tickets.filter(function (t) { return !(t.status === "valid" && !t.expired); }); }
-  function nextTicket() { var v = validTickets().slice().sort(function (a, b) { return String(a.event && a.event.startAt || "").localeCompare(String(b.event && b.event.startAt || "")); }); return v[0] || null; }
+  function isLive(t) { return t.status === "valid" && !t.expired; }
+  function validTickets() { return S.tickets.filter(isLive); }
+  function pastTickets() { return S.tickets.filter(function (t) { return !isLive(t); }); }
   function ticketById(id) { return S.tickets.filter(function (t) { return t.id === id; })[0] || null; }
+  function ticketsFor(evId) { return validTickets().filter(function (t) { return t.eventId === evId; }); }
+  function eventById(id) { return S.events.filter(function (e) { return e.id === id; })[0] || null; }
+  /* 即將到來的活動 = 還沒結束的場次 ＋ 我手上有效票的場次 */
+  function upcoming() {
+    var map = {};
+    S.events.forEach(function (e) { var c = closeMs(e); if (c == null || c > Date.now()) map[e.id] = e; });
+    validTickets().forEach(function (t) { if (!map[t.eventId]) map[t.eventId] = Object.assign({ id: t.eventId }, t.event || {}); });
+    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return String(a.startAt || "").localeCompare(String(b.startAt || "")); });
+  }
+  function nextMine() { var v = validTickets().slice().sort(function (a, b) { return String(a.event && a.event.startAt || "").localeCompare(String(b.event && b.event.startAt || "")); }); return v[0] || null; }
+
+  /* ---------- 提醒（本機記住＋送到後台登記，粉絲不用重按） ---------- */
+  function remindKey(k) { return "tk:rm:" + k; }
+  function reminded(k, ev) {
+    if (lsGet(remindKey(k))) return true;
+    if (ev && /聽片/.test(ev.name || "") && lsGet("album-the-sky:interest")) return true;   // 舊「我想去」＝2/13 聽片會提醒
+    return false;
+  }
+  function setRemind(k) {
+    lsSet(remindKey(k), "1"); hap(15); toast("開賣時會通知你 ✓");
+    var em = S.email || (unlockCreds() || {}).email || lsGet(K.email) || "";
+    if (em) api("/interest", { email: em, event: String(k).slice(0, 40) }).catch(function () {});
+  }
 
   /* ---------- 周邊資料（讀 app 既有設定與購買紀錄，不寫死） ---------- */
   function merchItems() {
-    var CFG = window.ALBUM_CONFIG || {}, owned = jget(C.merchKey), un = jget(C.unlockKeys[0]), fp = jget(C.unlockKeys[1]);
+    var CFG = window.ALBUM_CONFIG || {}, M = CFG.merch || {}, owned = jget(C.merchKey), un = jget(C.unlockKeys[0]), fp = jget(C.unlockKeys[1]);
     var list = [
-      { key: "album", name: CFG.albumTitle || "THE SKY", type: "digital", label: "數位特典", desc: "數位專輯", img: CFG.coverPoster || CFG.coverImage || "", owned: !!un.unlocked, since: un.ts || null, benefits: ["完整專輯線上收聽", "每日抽卡・小卡收藏"], go: "player" },
-      { key: "signal", name: "SIGNAL", type: "digital", label: "數位特典", desc: "Chance 私訊頻道", img: "assets/images/avatar.jpg", owned: !!(fp.unlocked || fp.full), since: fp.ts || null, benefits: ["Chance 的私訊頻道", "獨家影片・語音"], go: "mood" },
+      { key: "album", idx: -1, name: CFG.albumTitle || "THE SKY", type: "digital", label: "數位特典", desc: "數位專輯", img: CFG.coverPoster || CFG.coverImage || "", owned: !!un.unlocked, since: un.ts || null, benefits: ["完整專輯線上收聽", "每日抽卡・小卡收藏"], go: "player" },
+      { key: "signal", idx: -1, name: "SIGNAL", type: "digital", label: "數位特典", desc: "Chance 私訊頻道", img: "assets/images/avatar.jpg", owned: !!(fp.unlocked || fp.full), since: fp.ts || null, benefits: ["Chance 的私訊頻道", "獨家影片・語音"], go: "mood" },
     ];
-    (((CFG.merch || {}).items) || []).forEach(function (it) {
-      if (!it.productKey) return;
-      var rec = owned[it.productKey], isTix = String(it.productKey).indexOf("ticket") === 0;
-      list.push({ key: it.productKey, name: it.name || it.productKey, type: isTix ? "limited" : "physical", label: isTix ? "限量周邊" : "實體收藏", desc: it.desc || "", img: it.image || "", owned: !!rec, since: rec && (rec.ts || rec.at) || null, serial: rec && rec.serial || null, order: rec && (rec.orderRef || rec.code || rec.merchantTradeNo) || null, benefits: [], go: null });
+    (M.items || []).forEach(function (it, idx) {
+      if (!it.productKey || String(it.productKey).indexOf("ticket") === 0) return;   // 票不算周邊
+      var rec = owned[it.productKey];
+      if (it.hidden && !rec) return;
+      var drop = it.dropAt ? twParse(it.dropAt) : NaN;
+      var soon = !rec && ((M.comingSoon && !it.onSale) || it.comingSoon || (!isNaN(drop) && drop > Date.now()));
+      var sold = !rec && it.limited && it.left === 0;
+      list.push({ key: it.productKey, idx: idx, name: it.name || it.productKey, type: "physical", label: it.serial ? "限量周邊" : "實體收藏", desc: it.desc || "", img: it.image || "", owned: !!rec,
+        since: rec && (rec.ts || rec.at) || null, serial: rec && rec.serial || null, order: rec && (rec.orderRef || rec.code || rec.merchantTradeNo) || null, benefits: [], go: null,
+        dropAt: isNaN(drop) ? null : it.dropAt, soon: soon, sold: sold, price: it.price, limited: it.limited, serialAll: !!it.serial });
     });
     return list;
   }
-  function ownedItems() { return merchItems().filter(function (i) { return i.owned; }); }
+  function cabinet() { var l = merchItems(); return { all: l, owned: l.filter(function (i) { return i.owned; }) }; }
+  function dropLabel(i) { if (i.type === "digital") return i.label; if (i.sold) return "SOLD OUT"; if (i.dropAt) { var t = tw(i.dropAt); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + hm(i.dropAt); } return i.limited ? "ONLY " + i.limited : "即將上架"; }
+  function itemBtn(i) {
+    if (i.owned) return "";
+    if (i.type === "digital") return '<button class="ibtn buy" data-act="goto" data-go="purchase">去解鎖</button>';
+    if (i.sold) return '<button class="ibtn" disabled>SOLD OUT</button>';
+    if (!i.soon && i.price) return '<button class="ibtn buy" data-act="mbuy" data-key="' + esc(i.key) + '">NT$' + esc(i.price) + ' 購買</button>';
+    return reminded("merch-" + i.key) ? '<button class="ibtn done" data-act="noop">✓ 已設定提醒</button>' : '<button class="ibtn" data-act="mremind" data-key="' + esc(i.key) + '">開賣時通知我</button>';
+  }
 
   /* ---------- 收藏首頁 ---------- */
   var root, body;
@@ -388,22 +463,24 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   }
   function render() {
     if (!body) return;
-    var vt = validTickets(), nx = nextTicket(), logged = !!S.session, creds = !!unlockCreds();
-    var own = ownedItems();
-    var stat = !logged && !creds ? "登入看票" : (S.loading && !S.tickets.length ? "載入中…" : (vt.length ? vt.length + " 張有效" : "還沒有票"));
-    var preview = nx ? '<div class="nx"><i></i><div>下一場次<b>' + esc(fmtShort(nx.event && nx.event.startAt)) + '</b></div></div>' : '<div class="nx" style="color:rgba(255,255,255,.45)">買了或收到轉讓的票，會直接出現在票夾裡。</div>';
-    var cta = nx ? '<button class="tk-gold" data-act="open-now">立即開票 <span>→</span></button>' : (!logged && !creds ? '<button class="tk-gold" data-act="open-wallet">登入看票 <span>→</span></button>' : '<button class="tk-gold" data-act="open-wallet" style="background:rgba(216,188,128,.14);color:#f4e4c1;border:1px solid rgba(216,188,128,.4)">打開票夾 <span>→</span></button>');
-    var stack = own.slice(0, 3).map(function (i) { return '<span' + (i.img ? ' style="background-image:url(\'' + esc(i.img) + '\');background-size:cover;background-position:center;color:transparent"' : '') + '>THE SKY</span>'; }).join("");
-    while ((stack.match(/<img|<span/g) || []).length < 3) stack += '<span>THE SKY</span>';
+    var vt = validTickets(), mine = nextMine(), ups = upcoming(), cab = cabinet();
+    var nextEv = mine ? Object.assign({}, eventById(mine.eventId) || {}, mine.event || {}) : ups[0];
+    var stat = S.loading && !S.tickets.length && !S.events.length ? "載入中…" : (vt.length ? vt.length + " 張有效" : (ups.length ? "還沒有票" : "目前沒有活動"));
+    var line2 = nextEv ? "下一場 · " + md(nextEv.startAt) + " " + esc(nextEv.name || "") : "";
+    var cd = nextEv && startMs(nextEv) && startMs(nextEv) > Date.now() ? cdHTML(startMs(nextEv), "tk-cd") : "";
+    var cta = mine && isEventDay(nextEv) ? '<button class="tk-gold" data-act="open-now">立即開票 <span>→</span></button>' : '<button class="tk-gold" data-act="open-wallet">打開票夾 <span>→</span></button>';
+    var drops = cab.all.filter(function (i) { return !i.owned && i.soon && i.dropAt; }).sort(function (a, b) { return twParse(a.dropAt) - twParse(b.dropAt); });
+    var dropLine = drops.length ? esc(drops[0].name.replace(/^THE SKY\s*/, "")) + " " + md(drops[0].dropAt) + " 開賣" : "實體與數位特典";
+    var imgs = cab.all.filter(function (i) { return i.img; }).sort(function (a, b) { return (b.owned ? 1 : 0) - (a.owned ? 1 : 0); }).slice(0, 3);
+    var stack = [0, 1, 2].map(function (k) { var i = imgs[k]; return '<span' + (i ? ' style="background-image:url(\'' + esc(i.img) + '\');background-size:cover;background-position:center;color:transparent' + (i.owned ? '' : ';filter:brightness(.55) saturate(.6)') + '"' : '') + '>THE SKY</span>'; }).join("");
     body.innerHTML =
       '<div class="tk-top"><div class="tk-sp"></div><div><div class="tk-eyebrow">The Sky Collection</div><div class="tk-h1 tk-serif">你的收藏</div><div class="tk-sub">票券與周邊，各自收好。</div></div>' +
       '<button class="tk-prof" data-act="profile" aria-label="帳號">' + (S.email ? esc(S.email[0].toUpperCase()) : "○") + '</button></div>' +
-      '<div class="tk-ent tix" data-act="open-wallet" role="button" tabindex="0"><div class="lab">TICKETS</div><div class="ttl tk-serif">你的票夾</div><div class="st">' + esc(stat) + '</div>' + preview + cta +
-        '<div class="more">查看全部 ›</div><div class="tk-stub"><s>Music<br>lives beyond<br>the moment</s><em></em></div></div>' +
-      '<div class="tk-ent mer" data-act="open-merch" role="button" tabindex="0"><div class="lab">MERCH</div><div class="ttl tk-serif">周邊收藏</div><div class="st">' + own.length + ' 件收藏</div><div class="nx" style="margin-top:10px">實體與數位特典</div>' +
-        '<div class="circ">›</div><div class="more">瀏覽收藏</div><div class="tk-stack">' + stack + '</div></div>' +
-      '<div class="tk-ctx">活動當天會把立即開票放到最前面。</div>' +
-      '<div class="tk-div">SHOP · 商店</div>';
+      '<div class="tk-ent tix" data-act="open-wallet" role="button" tabindex="0"><div class="lab">TICKETS</div><div class="ttl tk-serif">你的票夾</div><div class="st">' + esc(stat) + '</div>' +
+        (line2 ? '<div class="st2">' + line2 + '</div>' : '') + cd + cta + '<div class="tk-stub"><s>Music<br>lives beyond<br>the moment</s><em></em></div></div>' +
+      '<div class="tk-ent mer" data-act="open-merch" role="button" tabindex="0"><div class="lab">MERCH</div><div class="ttl tk-serif">周邊收藏</div><div class="st">' + cab.owned.length + ' / ' + cab.all.length + ' 已收藏</div><div class="st2">' + dropLine + '</div>' +
+        '<div class="more">瀏覽收藏 ›</div><div class="tk-stack">' + stack + '</div></div>' +
+      '<div class="tk-ctx">活動當天，這張卡會變成「立即開票」。</div>';
     S.layers.forEach(function (l) { renderLayer(l); });
   }
 
@@ -411,7 +488,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
   function openLayer(name, opts) {
     opts = opts || {};
-    if (name === "wallet") { S.sel = opts.sel || (S.sel && ticketById(S.sel) ? S.sel : (nextTicket() || S.tickets[0] || {}).id || null); S.qrOpen = !!opts.qr; }
+    if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     S.layers.push(name);
@@ -421,13 +498,13 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     renderLayer(name);
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
-    if (name === "wallet") loadMine(true).then(function () { renderLayer("wallet"); });
+    if (name === "wallet" || name === "pass") loadMine(true).then(function () { renderLayer(name); });
+    if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
   function popLayer() {
     var name = S.layers.pop(); if (!name) return;
     var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
-    if (!S.layers.length) document.body.classList.remove("tk-open");
-    if (name === "wallet") { S.qrOpen = false; render(); }
+    if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); }
   }
   function back() { if (S.layers.length) history.back(); }
   function closeAll() { while (S.layers.length) popLayer(); }
@@ -441,170 +518,214 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function renderLayer(name) {
     var el = layerEl(name); if (!el) return;
     if (name === "wallet") el.innerHTML = walletHTML();
+    if (name === "pass") el.innerHTML = passHTML();
     if (name === "merch") el.innerHTML = merchHTML();
     if (name === "detail") el.innerHTML = detailHTML();
-    if (name === "wallet" && S.qrOpen) { var t = ticketById(S.sel); if (t && t.qr) drawQR($("#tkqr-" + cssId(t.id), el), t.qr, 240); }
+    if (name === "pass") { var t = ticketById(S.sel); if (t && t.qr && isLive(t) && qrUnlocked(t.event)) drawQR($("#tkqr-" + cssId(t.id), el), t.qr, 240); }
   }
 
-  /* ---------- 2A 票夾 + 3A 入場票 ---------- */
+  /* ---------- 票夾：一場活動一張卡 ---------- */
   function loginCard() {
-    return '<div class="tk-card" id="tk-login"><p><b>用 email 看票</b><br>買過專輯的話會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收轉讓票也用這個）。</p>' +
+    return '<div class="tk-card" id="tk-login"><p><b>用 email 看你的票</b><br>買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。</p>' +
       '<form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '">' +
       '<div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div>' +
       '<div class="tk-msg" id="tk-lmsg"></div>' +
       '<button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button>' +
       '<button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div>';
   }
-  function pillFor(t) {
-    if (t.status === "used") return '<span class="tk-pill warn">已入場</span>';
-    if (t.status === "void") return '<span class="tk-pill bad">已作廢</span>';
-    if (t.expired) return '<span class="tk-pill bad">已結束</span>';
-    if (t.transferPending) return '<span class="tk-pill warn">轉讓中</span>';
-    return '<span class="tk-pill">VALID</span>';
-  }
-  function rowHTML(t) {
-    var ev = t.event || {};
-    return '<button class="tk-row' + (S.sel === t.id ? " on" : "") + '" data-act="sel" data-id="' + esc(t.id) + '"><div><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(fmtT(ev.startAt)) + (ev.venue ? ' · ' + esc(ev.venue) : '') + '</span></div>' + pillFor(t) + '<span class="chv">›</span></button>';
-  }
-  function passHTML(t) {
-    var ev = t.event || {}, cls = t.status === "used" ? "used" : ((t.status === "void" || t.expired) ? "dead" : ""), stTxt;
-    if (t.status === "used") stTxt = '<span class="tk-st warn">已入場</span>';
-    else if (t.status === "void") stTxt = '<span class="tk-st bad">已作廢</span>';
-    else if (t.expired) stTxt = '<span class="tk-st bad">已結束</span>';
-    else if (t.transferPending) stTxt = '<span class="tk-st warn">轉讓中</span>';
-    else stTxt = '<span class="tk-st">VALID</span>';
-    var mid;
-    if (t.status === "valid" && !t.expired && t.qr) {
-      mid = S.qrOpen
-        ? '<div class="tk-qrwrap2"><canvas id="tkqr-' + cssId(t.id) + '" width="480" height="480"></canvas><div class="tk-qrid">' + esc(t.id) + '</div></div>'
-        : '<button class="tk-reveal" data-act="reveal">顯示入場 QR<small>點擊後請把螢幕亮度調高</small></button>';
-    } else if (t.status === "used") mid = '<div class="tk-stubbox"><b>✓ 已入場</b><span>' + esc(fmtT(t.usedAt)) + ' · ' + esc(t.id) + '</span></div>';
-    else mid = '<div class="tk-stubbox"><b>—</b><span>' + esc(t.id) + '</span></div>';
-    var acts = "";
-    if (t.status === "valid" && !t.expired) {
-      acts = '<div class="tk-acts"><button class="tk-btn" data-act="rules">查看入場須知</button>' +
-        (S.qrOpen ? '<button class="tk-btn p" data-act="refresh-ticket">更新票券</button>' : '<button class="tk-btn p" data-act="ready">準備入場</button>') + '</div>';
+  function footFor(ev) {
+    var mine = ticketsFor(ev.id);
+    if (mine.length) {
+      var pend = mine.some(function (t) { return t.transferPending; });
+      var right = pend ? '<span class="tk-chip d">轉讓中</span>' : (qrUnlocked(ev) ? '<span class="tk-chip o">出示入場 QR</span>' : '<span class="tk-chip g">開場前 ' + QR_LOCK_H + ' 小時出現 QR</span>');
+      return '<div class="l">🎫 你有 ' + mine.length + ' 張票</div>' + right;
     }
-    return '<div class="tk-eyebrow" style="margin-top:22px">Entry Pass</div>' +
-      '<article class="tk-pass ' + cls + '"><div class="tk-art"><i>' + esc(ev.code ? "MEET · " + ev.code : "MEET") + '</i><b>CHANCE</b></div><div class="tk-body">' +
-      '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + stTxt + '</div>' +
-      '<div class="tk-info"><div><div class="tk-lab">Date</div><div class="tk-val">' + esc(fmt(ev.startAt)) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "—") + '</div></div>' +
-      '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:13px">' + esc(maskEmail(S.email)) + '</div></div><div><div class="tk-lab">Ticket</div><div class="tk-val">自由入座</div></div></div>' +
-      '<div class="tk-tear"></div>' + mid + '</div></article>' + acts;
+    if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
+    if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
+    return '<div class="l dim">尚未開賣</div>' + (reminded(ev.id, ev) ? '<span class="tk-chip d">✓ 已設定提醒</span>' : '<button class="tk-chip o" data-act="eremind" data-ev="' + esc(ev.id) + '">🔔 開賣提醒</button>');
+  }
+  function evCard(ev) {
+    var k = evKind(ev), mine = ticketsFor(ev.id);
+    var meta = hm(ev.startAt) + (ev.venue ? ' · ' + esc(ev.venue) : '') + '<br>自由入座' + (ev.capacity ? ' · ' + ev.capacity + ' 席' : '');
+    return '<div class="tk-day"><i class="' + k.dot + '"></i><b>' + md(ev.startAt) + '</b><span>' + wk(ev.startAt) + '</span></div>' +
+      '<div class="tk-ev ' + k.cls + '" role="button" tabindex="0" ' + (mine.length ? 'data-act="open-pass" data-id="' + esc(mine[0].id) + '"' : '') + '>' +
+      '<div class="top"><div class="tk-poster"><b>' + k.lab + '</b></div><div><div class="n">' + esc(ev.name || "CHANCE") + '</div><div class="m">' + meta + '</div></div></div>' +
+      '<div class="foot">' + footFor(ev) + '</div></div>';
   }
   function walletHTML() {
     var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
-    h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div><div class="tk-sub">每一場相遇，都是天空的一部分。</div></div>';
-    if (!S.session) { h += loginCard(); return h; }
-    var vt = validTickets(), pt = pastTickets();
-    if (S.loading && !S.tickets.length) h += '<div class="tk-empty">載入中…</div>';
-    else if (!vt.length && !pt.length) h += '<div class="tk-empty"><b>票夾是空的</b><br>買了之後票會直接出現在這裡；朋友轉讓給你的票也會進來。</div>';
-    h += vt.map(rowHTML).join("");
-    var sel = ticketById(S.sel);
-    if (sel && sel.status === "valid" && !sel.expired) h += passHTML(sel);
-    var onSale = S.events.filter(function (e) { return e.onSale && e.productKey && (e.left == null || e.left > 0); });
-    if (onSale.length) h += '<div class="tk-past"><div class="tk-eyebrow">On Sale</div>' + onSale.map(function (e) { return '<button class="tk-row" data-act="buy" data-ev="' + esc(e.id) + '"><div><b>' + esc(e.name) + '</b><span>' + esc(fmtShort(e.startAt)) + ' · ' + esc(e.venue || "") + '</span></div><span class="tk-pill" style="background:rgba(216,188,128,.16);color:#f4e4c1;border-color:rgba(216,188,128,.4)">NT$' + esc(e.price || "") + '</span></button>'; }).join("") + '</div>';
-    if (pt.length) h += '<div class="tk-past"><div class="tk-eyebrow">過往票券</div>' + pt.map(rowHTML).join("") + (sel && !(sel.status === "valid" && !sel.expired) ? passHTML(sel) : "") + '</div>';
+    h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div></div>';
+    h += '<div class="tk-seg"><button class="' + (S.tab !== "past" ? "on" : "") + '" data-act="tab" data-tab="up">即將到來</button><button class="' + (S.tab === "past" ? "on" : "") + '" data-act="tab" data-tab="past">過往</button></div>';
+    if (!S.session && !unlockCreds()) h += loginCard();
+    if (S.tab === "past") {
+      var pt = pastTickets();
+      if (!pt.length) h += '<div class="tk-empty">還沒有過往的票。<br>入場過的票會變成票根留在這裡。</div>';
+      h += pt.map(function (t) { var ev = t.event || {}; return '<button class="tk-pastrow" data-act="open-pass" data-id="' + esc(t.id) + '"><div class="pp"></div><div><b>' + esc(ev.name || t.id) + '</b><span>' + md(ev.startAt) + ' · ' + (t.status === "used" ? "已入場 " + hm(t.usedAt) : (t.status === "void" ? "已作廢" : "已結束")) + '</span></div><span class="chv">›</span></button>'; }).join("");
+      return h;
+    }
+    var ups = upcoming();
+    if (S.loading && !ups.length) h += '<div class="tk-empty">載入中…</div>';
+    else if (!ups.length) h += '<div class="tk-empty">目前沒有活動。<br>新活動公布時會出現在這裡。</div>';
+    h += ups.map(evCard).join("");
+    if (ups.length) h += '<div class="tk-hint2">一場活動一張卡，底部就是你的下一步。</div>';
     return h;
   }
 
-  /* ---------- 2B 周邊收藏 + 3B 收藏詳情 ---------- */
+  /* ---------- 入場票 ---------- */
+  function passHTML() {
+    var t = ticketById(S.sel);
+    var h = bar("票夾", "ENTRY PASS", { act: "share-ev", label: "分享", icon: "⇪" });
+    if (!t) return h + '<div class="tk-empty">找不到這張票，可能已轉讓給朋友。</div>';
+    var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {}), k = evKind(ev), live = isLive(t), open = live && qrUnlocked(ev);
+    var st = t.status === "used" ? '<span class="tk-st warn">已入場</span>' : (t.status === "void" ? '<span class="tk-st bad">已作廢</span>' : (t.expired ? '<span class="tk-st bad">已結束</span>' : '<span class="tk-st">VALID</span>'));
+    var mid;
+    if (open && t.qr) mid = '<div class="tk-qrwrap2"><canvas id="tkqr-' + cssId(t.id) + '" width="480" height="480"></canvas><div class="tk-qrid">' + esc(t.id) + '</div></div>';
+    else if (live) mid = '<div class="tk-lock"><div class="ic">🔒</div><b>入場 QR 還沒出現</b><p>為了防止截圖轉賣，開場前 ' + QR_LOCK_H + ' 小時<br>（' + md(ev.startAt) + ' ' + hm(new Date(openMs(ev)).toISOString()) + '）會自動出現在這裡</p>' + cdHTML(openMs(ev), "tk-lcd") + '</div>';
+    else if (t.status === "used") mid = '<div class="tk-stubbox"><b>✓ 已入場</b><span>' + md(t.usedAt) + ' ' + hm(t.usedAt) + ' · ' + esc(t.id) + '</span></div>';
+    else mid = '<div class="tk-stubbox"><b>—</b><span>' + esc(t.id) + '</span></div>';
+    h += '<article class="tk-pass ' + (t.status === "used" ? "used" : (!live ? "dead" : "")) + '"><div class="tk-art" style="' + (open ? 'height:70px' : '') + '"><i>' + k.lab + (ev.code ? ' · ' + esc(ev.code) : '') + '</i><b' + (open ? ' style="font-size:24px"' : '') + '>CHANCE</b></div><div class="tk-body">' +
+      '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + st + '</div>' +
+      '<div class="tk-info">' + (open ? '' : '<div><div class="tk-lab">Date</div><div class="tk-val">' + md(ev.startAt) + '（' + wk(ev.startAt).slice(-1) + '）' + hm(ev.startAt) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "—") + '</div></div>') +
+      '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:13px">' + esc(maskEmail(S.email)) + '</div></div><div><div class="tk-lab">Ticket</div><div class="tk-val">自由入座</div></div></div>' +
+      '<div class="tk-tear"></div>' + mid + '</div></article>';
+    if (t.transferPending) h += '<div class="tk-banner"><span>這張票正在轉讓中（10 分鐘內有效）</span><button class="tk-chip d" data-act="show-transfer">看轉讓 QR</button></div>';
+    if (live) {
+      h += '<div class="tk-list">' + (open ? '' : '<button data-act="ics">加到行事曆<span>›</span></button>') +
+        '<button data-act="map">導航到' + esc((ev.venue || "會場").replace(/\s*[A-Z]\s*廳$/, "")) + '<span>›</span></button>' +
+        '<button data-act="rules">入場須知<span>›</span></button>' +
+        (open ? '<button data-act="refresh-ticket">更新票券<span>›</span></button>' : '') +
+        (t.transferPending ? '<button class="dim" data-act="cancel-transfer">取消轉讓<span>›</span></button>' : '<button class="dim" data-act="transfer">轉讓給朋友<span>›</span></button>') + '</div>';
+    }
+    return h;
+  }
+
+  /* ---------- 周邊收藏櫃 ---------- */
   function merchHTML() {
-    var all = ownedItems(), f = S.merchFilter;
-    var cnt = { all: all.length, physical: all.filter(function (i) { return i.type !== "digital"; }).length, digital: all.filter(function (i) { return i.type === "digital"; }).length };
-    var shown = f === "all" ? all : all.filter(function (i) { return f === "digital" ? i.type === "digital" : i.type !== "digital"; });
-    var h = bar("收藏", "MERCH ARCHIVE", { act: "filter", label: "篩選", icon: "···" });
-    h += '<div class="tk-hd"><div class="tk-eyebrow">Owned by You</div><div class="tk-h1 tk-serif">周邊收藏</div><div class="tk-sub">收藏喜歡的，讓天空一直都在。</div></div>';
-    h += '<div class="tk-chips">' + [["all", "全部"], ["physical", "實體收藏"], ["digital", "數位特典"]].map(function (c) { return '<button class="tk-chip' + (f === c[0] ? " on" : "") + '" data-act="mfilter" data-f="' + c[0] + '">' + c[1] + ' (' + cnt[c[0]] + ')</button>'; }).join("") + '</div>';
-    if (!shown.length) h += '<div class="tk-empty"><b>還沒有收藏</b><br>買了專輯或周邊，會出現在這裡。</div>';
-    else h += '<div class="tk-grid">' + shown.map(function (i) {
-      return '<button class="tk-item" data-act="open-detail" data-key="' + esc(i.key) + '"><div class="im"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '<span class="tk-tag">' + esc(i.label) + '</span></div><div class="nm">' + esc(i.name) + '</div><div class="ds">' + esc(i.desc) + '</div></button>';
+    var cab = cabinet(), n = cab.all.length, o = cab.owned.length;
+    var h = bar("收藏", "MERCH");
+    h += '<div class="tk-hd"><div class="tk-eyebrow">Owned by You</div><div class="tk-h1 tk-serif">周邊收藏</div></div>';
+    h += '<div class="tk-prog"><div class="tt"><span>收藏進度</span><span><b>' + o + '</b> / ' + n + '</span></div><div class="tk-pbar"><i style="width:' + (n ? Math.round(o / n * 100) : 0) + '%"></i></div></div>';
+    var list = cab.all.slice().sort(function (a, b) { return (b.owned ? 1 : 0) - (a.owned ? 1 : 0); });
+    h += '<div class="tk-grid" style="margin-top:14px">' + list.map(function (i) {
+      return '<div class="tk-item' + (i.owned ? '' : ' lk') + '"><button style="all:unset;display:block;cursor:pointer;width:100%" data-act="open-detail" data-key="' + esc(i.key) + '"><div class="im"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') +
+        '<span class="tk-tag">' + esc(i.owned ? i.label : dropLabel(i)) + '</span></div><div class="nm">' + esc(i.name) + '</div>' + (i.owned ? '<div class="ds">' + esc(i.desc) + ' · 已收藏</div>' : '') + '</button>' + itemBtn(i) + '</div>';
     }).join("") + '</div>';
+    if (!n) h += '<div class="tk-empty">還沒有收藏品。</div>';
     return h;
   }
   function detailHTML() {
     var i = merchItems().filter(function (x) { return x.key === S.detail; })[0];
     if (!i) return bar("周邊", "COLLECTIBLE") + '<div class="tk-empty">找不到這件收藏</div>';
     var h = bar("周邊", "COLLECTIBLE", { act: "share", label: "分享", icon: "⇪" });
-    h += '<div class="tk-hero"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" onerror="this.remove()">' : '') + '</div>';
-    h += '<div class="tk-dl"><span class="tk-tag" style="position:static;display:inline-block">' + esc(i.label) + '</span>' +
-      '<div class="v big">' + esc(i.name) + '</div>' +
-      (i.desc ? '<div class="tk-sub" style="margin-top:4px">' + esc(i.desc) + '</div>' : '') +
-      '<div class="k">收藏編號</div><div class="v">' + esc(i.serial ? "No." + i.serial : (i.order ? i.order : "—")) + '</div>' +
-      '<div class="k">收藏狀態</div><div class="v">' + (i.owned ? "已收藏" + (i.since ? " · " + esc(fmtT(new Date(i.since).toISOString())) : "") : "尚未收藏") + '</div>';
-    if (i.benefits.length) h += '<div class="k">包含的數位特典</div><ul class="tk-ben">' + i.benefits.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join("") + '</ul>';
-    h += '</div>';
-    h += i.go ? '<button class="tk-btn p" data-act="goto" data-go="' + esc(i.go) + '">查看數位特典</button>' : '<button class="tk-btn p" disabled>數位特典尚未開放</button>';
-    h += '<button class="tk-btn g" data-act="order" data-key="' + esc(i.key) + '">配送與訂單資訊</button>';
+    h += '<div class="tk-hero"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" onerror="this.remove()"' + (i.owned ? '' : ' style="filter:saturate(.6) brightness(.8)"') + '>' : '') + '</div>';
+    h += '<div class="tk-dl"><span class="tk-tag" style="position:static;display:inline-block">' + esc(i.label) + '</span><div class="v big">' + esc(i.name) + '</div>' + (i.desc ? '<div class="tk-sub" style="margin-top:6px;line-height:1.6">' + esc(i.desc) + '</div>' : '');
+    if (i.owned) {
+      h += '<div class="k">收藏編號</div><div class="v">' + esc(i.serial ? "No." + ("0" + i.serial).slice(-2) : (i.order || "—")) + '</div>' +
+        '<div class="k">收藏狀態</div><div class="v">已收藏' + (i.since ? " · " + md(new Date(i.since).toISOString()) : "") + '</div>';
+      if (i.benefits.length) h += '<div class="k">包含的數位特典</div><ul class="tk-ben">' + i.benefits.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join("") + '</ul>';
+      h += '</div>' + (i.go ? '<button class="tk-btn p" data-act="goto" data-go="' + esc(i.go) + '">查看數位特典</button>' : '') + '<button class="tk-btn g" data-act="order" data-key="' + esc(i.key) + '">配送與訂單資訊</button>';
+    } else {
+      if (i.type === "digital") return h + '<div class="k">狀態</div><div class="v">尚未解鎖</div></div><button class="tk-btn p" data-act="goto" data-go="purchase">去解鎖</button>';
+      h += '<div class="k">狀態</div><div class="v">' + (i.sold ? "已售完" : (i.soon ? (i.dropAt ? dropLabel(i) + " 開賣" : "即將上架") : "販售中")) + '</div>' + (i.price ? '<div class="k">價格</div><div class="v">NT$' + esc(i.price) + '</div>' : '') + (i.limited ? '<div class="k">限量</div><div class="v">全球 ' + i.limited + ' 件</div>' : '') + '</div>';
+      h += i.sold ? '<button class="tk-btn" disabled>SOLD OUT</button>' : (!i.soon && i.price ? '<button class="tk-btn p" data-act="mbuy" data-key="' + esc(i.key) + '">NT$' + esc(i.price) + ' 購買</button>' : (reminded("merch-" + i.key) ? '<button class="tk-btn" disabled>✓ 已設定提醒</button>' : '<button class="tk-btn p" data-act="mremind" data-key="' + esc(i.key) + '">開賣時通知我</button>'));
+    }
     return h;
   }
 
-  /* ---------- 選單／說明 ---------- */
+  /* ---------- 選單／說明／小動作 ---------- */
   function profileSheet() {
     sheet('<div class="tk-eyebrow">Account</div><h3>' + (S.email ? esc(maskEmail(S.email)) : "尚未登入票務") + '</h3><div class="tk-hint">票綁在這個 email 上，換手機用同一個 email 登入就看得到。</div>' +
       '<div class="tk-menu" style="margin-top:14px">' + (S.email ? '<button data-sact="showmail">顯示完整 email</button><button class="danger" data-sact="logout">登出票務</button>' : '<button data-sact="openwallet">登入看票</button>') + '<button data-sact="close">關閉</button></div>');
   }
   function walletMenu() {
-    var t = ticketById(S.sel), can = t && t.status === "valid" && !t.expired;
-    sheet('<div class="tk-eyebrow">Ticket</div><h3>' + esc(t && t.event ? t.event.name : "票夾") + '</h3><div class="tk-menu" style="margin-top:8px">' +
-      '<button data-sact="refresh">更新票券</button><button data-sact="rules">查看入場須知</button>' +
-      (can ? (t.transferPending ? '<button data-sact="showtransfer">看轉讓 QR</button><button class="danger" data-sact="cancel-transfer">取消轉讓</button>' : '<button data-sact="transfer-confirm">轉讓給朋友</button>') : "") +
-      '<button data-sact="close">關閉</button></div>');
+    sheet('<div class="tk-eyebrow">Wallet</div><h3>票夾</h3><div class="tk-menu" style="margin-top:8px"><button data-sact="refresh">更新票券</button><button data-sact="rules">入場須知</button><button data-sact="close">關閉</button></div>');
   }
   function rulesSheet() {
     sheet('<div class="tk-eyebrow">Entry</div><h3>入場須知</h3><div class="tk-hint" style="color:rgba(255,255,255,.8);line-height:1.8">' +
-      '・開演前 3 小時開放入場，開演後 2 小時票即失效<br>・入場時打開「顯示入場 QR」給工作人員掃，掃過就完成入場<br>・一張票只能入場一次，掃過後票卡會變成票根留在票夾<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的、你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票<br>・沒訊號也能出示 QR：先打開這一頁再進場</div>' +
+      '・入場 QR 在開場前 ' + QR_LOCK_H + ' 小時自動出現，之前看不到是正常的（防止截圖轉賣）<br>・開場後 2 小時票就失效<br>・給工作人員掃 QR 就完成入場，掃過後會變成票根留在「過往」<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的，你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票<br>・會場訊號不好的話，進場前先打開這張票</div>' +
       '<button class="tk-btn p" data-sact="close">知道了</button>');
   }
   function transferConfirm() {
     var t = ticketById(S.sel); if (!t) return;
-    sheet('<div class="tk-big"><div class="ic">↗</div><div class="tk-eyebrow">Transfer</div><h3>要把這張票轉讓給朋友？</h3><div class="tk-hint">' + esc(t.event ? t.event.name : t.id) + '<br><br>轉讓連結產生後 10 分鐘內有效。朋友接受的那一刻，<b style="color:#e7a3a3">你原本的入場 QR 會立即失效</b>，票會從你的票夾消失。</div></div>' +
+    sheet('<div class="tk-big"><div class="ic">↗</div><div class="tk-eyebrow">Transfer</div><h3>要把這張票轉讓給朋友？</h3><div class="tk-hint">' + esc(t.event ? t.event.name : t.id) + '<br><br>轉讓連結 10 分鐘內有效。朋友接受的那一刻，<b style="color:#e7a3a3">你原本的票會立即失效</b>，並從你的票夾消失。</div></div>' +
       '<button class="tk-btn p" data-sact="transfer-go">確定，產生轉讓連結</button><button class="tk-btn g" data-sact="close">取消</button>');
   }
   function orderSheet(key) {
     var i = merchItems().filter(function (x) { return x.key === key; })[0]; if (!i) return;
-    var body = i.type === "digital" ? "這是數位商品，沒有配送。用同一個 email 在任何裝置登入都能使用。" :
-      (i.order ? "訂單編號：" + esc(i.order) + "<br>" : "") + "出貨進度會以 email 通知，訂單編號在購買確認信裡。需要修改收件資訊請直接回覆那封信。";
-    sheet('<div class="tk-eyebrow">Order</div><h3>配送與訂單資訊</h3><div class="tk-hint" style="line-height:1.8">' + body + '</div><button class="tk-btn p" data-sact="close">關閉</button>');
+    var bd = i.type === "digital" ? "這是數位商品，沒有配送。用同一個 email 在任何裝置登入都能使用。" : (i.order ? "訂單編號：" + esc(i.order) + "<br>" : "") + "出貨進度會以 email 通知，訂單編號在購買確認信裡。需要修改收件資訊請直接回覆那封信。";
+    sheet('<div class="tk-eyebrow">Order</div><h3>配送與訂單資訊</h3><div class="tk-hint" style="line-height:1.8">' + bd + '</div><button class="tk-btn p" data-sact="close">關閉</button>');
   }
   function navTo(screen) { closeAll(); var nb = $(C.navSel[screen]); if (nb) nb.click(); }
+  function curEv() { var t = ticketById(S.sel); return t ? Object.assign({}, eventById(t.eventId) || {}, t.event || {}) : null; }
+  function downloadICS() {
+    var ev = curEv(); if (!ev || !startMs(ev)) return;
+    var f = function (ms) { return new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""); };
+    var ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//CHANCE//THE SKY//ZH", "BEGIN:VEVENT", "UID:" + ev.id + "@chance1228.com", "DTSTAMP:" + f(Date.now()), "DTSTART:" + f(startMs(ev)), "DTEND:" + f(startMs(ev) + 4 * 3600e3),
+      "SUMMARY:" + (ev.name || "CHANCE"), "LOCATION:" + (ev.venue || ""), "DESCRIPTION:入場 QR 會在開場前 " + QR_LOCK_H + " 小時出現在 CHANCE app → SHOP → 票夾", "BEGIN:VALARM", "TRIGGER:-PT3H", "ACTION:DISPLAY", "DESCRIPTION:入場 QR 已經出現", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    var url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })), a = document.createElement("a");
+    a.href = url; a.download = (ev.name || "CHANCE") + ".ics"; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1000);
+  }
+  function openMap() {
+    var ev = curEv(); var q = "台北 " + String((ev && ev.venue) || "微風影城").replace(/\s*[A-Z]\s*廳$/, "");
+    var ios = /iPhone|iPad|Macintosh/.test(navigator.userAgent);
+    window.open(ios ? "https://maps.apple.com/?q=" + encodeURIComponent(q) : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q), "_blank");
+  }
+  function merchBuy(key) {
+    var i = merchItems().filter(function (x) { return x.key === key; })[0]; if (!i) return;
+    var b = document.querySelector('#merch-list [data-merch="' + i.idx + '"]');   // 沿用 app 原本的購買流程
+    if (b) { closeAll(); b.click(); } else toast("這件商品目前還不能購買");
+  }
 
   /* ---------- 事件 ---------- */
   function onClick(e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+    if (act === "noop") return;
     if (act === "back") return back();
     if (act === "profile") return profileSheet();
-    if (act === "open-wallet") return openLayer("wallet");
-    if (act === "open-now") { e.stopPropagation(); var nx = nextTicket(); return openLayer("wallet", { sel: nx && nx.id, qr: true }); }
+    if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
+    if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); openLayer("wallet"); if (nm) setTimeout(function () { openLayer("pass", { sel: nm.id }); }, 60); return; }
     if (act === "open-merch") return openLayer("merch");
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
-    if (act === "sel") { S.sel = id; S.qrOpen = false; renderLayer("wallet"); return; }
-    if (act === "reveal" || act === "ready") { S.qrOpen = true; renderLayer("wallet"); hap(10); var el = layerEl("wallet"), c = el && $(".tk-pass", el); if (c) setTimeout(function () { c.scrollIntoView({ behavior: "smooth", block: "center" }); }, 60); return; }
-    if (act === "refresh-ticket") { loadMine(true).then(function () { renderLayer("wallet"); toast("票券已更新"); }); return; }
+    if (act === "open-pass") return openLayer("pass", { sel: id });
+    if (act === "tab") { S.tab = b.getAttribute("data-tab"); renderLayer("wallet"); return; }
+    if (act === "eremind") { e.stopPropagation(); var ev = eventById(b.getAttribute("data-ev")); setRemind(ev ? ev.id : b.getAttribute("data-ev")); renderLayer("wallet"); return; }
+    if (act === "mremind") { e.stopPropagation(); setRemind("merch-" + b.getAttribute("data-key")); renderLayer("merch"); renderLayer("detail"); return; }
+    if (act === "mbuy") { e.stopPropagation(); return merchBuy(b.getAttribute("data-key")); }
+    if (act === "buy") { e.stopPropagation(); return buy(b.getAttribute("data-ev")); }
+    if (act === "refresh-ticket") { loadMine(true).then(function () { renderLayer("pass"); toast("票券已更新"); }); return; }
     if (act === "rules") return rulesSheet();
     if (act === "menu") return walletMenu();
-    if (act === "filter") { S.merchFilter = S.merchFilter === "all" ? "physical" : (S.merchFilter === "physical" ? "digital" : "all"); renderLayer("merch"); return; }
-    if (act === "mfilter") { S.merchFilter = b.getAttribute("data-f"); renderLayer("merch"); return; }
-    if (act === "share") { var i = merchItems().filter(function (x) { return x.key === S.detail; })[0]; if (navigator.share) navigator.share({ title: "THE SKY COLLECTION", text: "我的收藏：" + (i ? i.name : ""), url: location.origin + location.pathname }).catch(function () {}); else toast("這個瀏覽器不支援分享"); return; }
+    if (act === "transfer") return transferConfirm();
+    if (act === "show-transfer") { if (S.transfer && S.transfer.ticketId === S.sel) openTransferSheet(); else startTransfer(S.sel); return; }
+    if (act === "cancel-transfer") return cancelTransfer(S.sel);
+    if (act === "ics") return downloadICS();
+    if (act === "map") return openMap();
+    if (act === "share-ev") { var ce = curEv(); if (navigator.share && ce) navigator.share({ title: ce.name, text: (ce.name || "") + " · " + md(ce.startAt) + " " + hm(ce.startAt) + " · " + (ce.venue || ""), url: location.origin + "/" }).catch(function () {}); else toast("這個瀏覽器不支援分享"); return; }
+    if (act === "share") { var it = merchItems().filter(function (x) { return x.key === S.detail; })[0]; if (navigator.share) navigator.share({ title: "THE SKY COLLECTION", text: "我的收藏：" + (it ? it.name : ""), url: location.origin + "/" }).catch(function () {}); else toast("這個瀏覽器不支援分享"); return; }
     if (act === "goto") return navTo(b.getAttribute("data-go"));
     if (act === "order") return orderSheet(b.getAttribute("data-key"));
     if (act === "otp") return sendOtp();
     if (act === "login") return doLogin();
-    if (act === "buy") return buy(b.getAttribute("data-ev"));
   }
   function sheetAct2(a) {
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
-    if (a === "refresh") { closeSheet(); loadMine(true).then(function () { renderLayer("wallet"); render(); toast("票券已更新"); }); return; }
+    if (a === "refresh") { closeSheet(); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); toast("票券已更新"); }); return; }
     if (a === "rules") { rulesSheet(); return; }
-    if (a === "transfer-confirm") { transferConfirm(); return; }
     if (a === "transfer-go") { closeSheet(); startTransfer(S.sel); return; }
-    if (a === "showtransfer") { if (S.transfer && S.transfer.ticketId === S.sel) openTransferSheet(); else startTransfer(S.sel); return; }
-    if (a === "cancel-transfer") { cancelTransfer(S.sel); return; }
     if (a === "tomerch") { closeSheet(); closeAll(); var nb = $(C.merchNavSel); if (nb) nb.click(); refresh(true); setTimeout(function () { openLayer("wallet"); }, 120); return; }
     return sheetAct(a);
+  }
+
+  /* ---------- 倒數：每 20 秒更新數字，時間到自動解鎖 QR ---------- */
+  function tick() {
+    document.querySelectorAll("[data-cd]").forEach(function (el) {
+      var to = Number(el.getAttribute("data-cd")), p = parts(to - Date.now()), bs = el.querySelectorAll("b");
+      if (bs.length === 3) { bs[0].textContent = p.d; bs[1].textContent = p.h; bs[2].textContent = p.m; }
+      if (to <= Date.now() && el.classList.contains("tk-lcd")) { renderLayer("pass"); toast("☀︎ 入場 QR 出現了，把螢幕亮度調到最亮"); }
+    });
   }
 
   /* ---------- 啟動 ---------- */
@@ -617,6 +738,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
       if (host.classList.contains("active")) refresh(false);
     } else refresh(false);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(function () { render(); }); });
+    setInterval(tick, 20000);
     var m = /[?&]transfer=([A-Za-z0-9]+)/.exec(location.search);
     if (m) { var nb = $(C.merchNavSel); if (nb) setTimeout(function () { nb.click(); }, 300); handleIncoming(m[1]); }
     if (unlockCreds() || lsGet(K.sess)) refresh(false);
