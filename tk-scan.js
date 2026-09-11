@@ -10,7 +10,10 @@
   function start(video, onResult) {
     stop();
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.reject(new Error("no camera"));
-    return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } } }).then(function (s) {
+    var gum = function (c) { return navigator.mediaDevices.getUserMedia(c); };
+    return gum({ audio: false, video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } } })
+      .catch(function (e) { if (e && (e.name === "NotAllowedError" || e.name === "SecurityError")) throw e; return gum({ audio: false, video: true }); })
+      .then(function (s) {
       stream = s; video.srcObject = s; video.setAttribute("playsinline", ""); video.muted = true;
       return video.play().catch(function () {});
     }).then(function () {

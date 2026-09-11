@@ -29,7 +29,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     demo: /[?&]tkdemo=1/.test(location.search),
     pollMs: 5000,
     base: (function () { try { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/[^\/]*$/, "") : ""; } catch (e) { return ""; } })(),   // tk-scan.js 跟 ticket-ui.js 放一起
-    scanFile: "tk-scan.js?v=1",
+    scanFile: "tk-scan.js?v=2",
   };
   var K = { sess: "tk:session", email: "tk:email" };
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
@@ -214,7 +214,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     return null;
   }
   function ensureSession() {
-    S.session = lsGet(K.sess); S.email = lsGet(K.email) || "";
+    if (!(C.demo && S.session)) { S.session = lsGet(K.sess); S.email = lsGet(K.email) || ""; }   // demo 自動登入的 session 不要被覆蓋掉
     if (S.session) return Promise.resolve(true);
     var u = unlockCreds();
     if (!u) return Promise.resolve(false);
@@ -407,15 +407,17 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     if (cam) startScan(); else { var inp = $("#tk-code"); if (inp) { inp.focus(); inp.addEventListener("input", function () { var v = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6); inp.value = v.length > 3 ? v.slice(0, 3) + " " + v.slice(3) : v; }); } }
   }
   function startScan() {
-    var txt = $("#tk-camtxt");
-    loadScan().then(function () {
-      var v = $("#tk-cam"); if (!v) return;
+    var txt = $("#tk-camtxt"), v = $("#tk-cam"); if (!v) return;
+    // iOS：getUserMedia 一定要在點擊當下同步呼叫，不能等 script 載完再叫（否則被判定不是使用者手勢而擋掉）→ 進票夾就先預載
+    var go = function () {
       scanOn = true;
-      return window.TKScan.start(v, function (text) { if (!scanOn) return; onScanned(text); }).then(function () { if (txt) txt.textContent = ""; });
-    }).catch(function (e) {
-      scanOn = false;
-      if (txt) txt.textContent = (e && e.name === "NotAllowedError") ? "相機權限被拒，改用「輸入代碼」" : "這台手機開不了相機，改用「輸入代碼」";
-    });
+      window.TKScan.start(v, function (text) { if (!scanOn) return; onScanned(text); })
+        .then(function () { if (txt) txt.textContent = ""; })
+        .catch(function (e) { scanOn = false; if (txt) txt.textContent = (e && (e.name === "NotAllowedError" || e.name === "SecurityError")) ? "相機權限被拒 → 改用「輸入代碼」，或到 iPhone 設定→Safari→相機 開權限" : "這台手機開不了相機，改用「輸入代碼」"; });
+    };
+    if (window.TKScan) return go();
+    if (txt) txt.textContent = "載入相機…";
+    loadScan().then(go).catch(function () { if (txt) txt.textContent = "相機元件載入失敗，改用「輸入代碼」"; });
   }
   function stopScan() { scanOn = false; try { window.TKScan && window.TKScan.stop(); } catch (e) {} }
   function onScanned(text) {
@@ -577,6 +579,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     renderLayer(name);
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
+    if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
     if (name === "wallet" || name === "pass") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
@@ -840,6 +843,8 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     var m = /[?&]transfer=([A-Za-z0-9]+)/.exec(location.search);
     if (m) { var nb = $(C.merchNavSel); if (nb) setTimeout(function () { nb.click(); }, 300); handleIncoming(m[1]); }
     document.addEventListener("visibilitychange", function () { if (document.visibilityState !== "visible") stopScan(); });
+    // demo 測試：直接當成「已登入・已有一張票」，PhotoPass／轉讓／相機一次點得到（?tkdemo=1&anon=1 可看未登入樣子）
+    if (C.demo && !/[?&]anon=1/.test(location.search)) { S.session = "demo-auto"; S.email = "you@demo"; refresh(true); return; }
     if (unlockCreds() || lsGet(K.sess)) refresh(false);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
