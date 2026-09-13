@@ -9,9 +9,9 @@
   function art(i,detail){
     var generated=cfg().artEdition==='generated'||/[?&]shopart=generated(?:&|$)/.test(location.search);
     if(i.concept&&i.art==='photo'&&generated) return '<img class="sv-generated-photo" src="'+esc(cfg().assets.photo)+'" alt="THE SKY 寫真組合概念美術">';
-    if(i.concept&&i.art==='photo'&&detail) return artWindow('references/collectible-detail.png','0 105 853 740','THE SKY 寫真組合概念美術');
+    if(i.concept&&i.art==='photo'&&detail) return artWindow('references/collectible-detail.jpg','0 105 853 740','THE SKY 寫真組合概念美術');
     var boxes={tee:'24 754 402 847',card:'446 730 380 348',photo:'446 1233 380 366'};
-    if(i.concept&&boxes[i.art]) return artWindow('references/merch-archive.png',boxes[i.art],i.name+' 概念美術');
+    if(i.concept&&boxes[i.art]) return artWindow('references/merch-archive.jpg',boxes[i.art],i.name+' 概念美術');
     return i.img?'<img src="'+esc(i.img)+'" alt="'+esc(i.name)+'" loading="lazy">':'<span class="sv-art-fallback">THE SKY<br><small>圖片尚未提供</small></span>';
   }
   function motif(){return '<div class="sv-poem" aria-hidden="true">MUSIC<br>LIVES<br>BEYOND<br>THE<br>MOMENT</div><div class="sv-sign" aria-hidden="true"><i>The<br>Sky</i><small>A<br>HIGHER<br>VERSION<br>OF<br>US</small></div>';}
