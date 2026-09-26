@@ -1,7 +1,35 @@
-/* ticket-ui.js v4 — THE SKY COLLECTION（含 QRious 4.0.2）：＋加入票券（相機／代碼）、PhotoPass 加購 */
+/* ticket-ui.js v7 — THE SKY COLLECTION：三票種＋退票＋確認卡＋付款回票夾＋加入票券＋PhotoPass */
 /*! QRious v4.0.2 | (C) 2017 Alasdair Mercer | GPL v3 License
 Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 */
+
+/* ════════════════════════════════════════════════════════
+   ✏️ SHOP 首頁文字設定（直接改這裡，不用動下面程式）
+   活動名稱／日期／票價／席次 從 Worker 場次資料即時讀，不在這改
+   ════════════════════════════════════════════════════════ */
+var SHOP_TEXT = {
+  brand:     "THE SKY — PRIVATE ARCHIVE",
+  title:     "你的收藏",
+  subtitle:  "票券與周邊，各自收好。",
+  sideEn:    ["MUSIC","LIVES","BEYOND","THE","MOMENT"],
+  sideZh:    "收藏不只是擁有｜而是與你的時間並肩。",
+  higher:    ["A","HIGHER","VERSION","OF","US"],
+  secTickets:"01 / TICKETS",
+  secMerch:  "02 / MERCH ARCHIVE",
+  merchTitle:"周邊收藏",
+  goTickets: "立即購票",
+  goRemind:  "即將開賣 · 設定提醒",
+  goSoldOut: "已售完",
+  goMine:    "查看我的票",
+  goMerch:   "瀏覽收藏",
+  assets: {
+    portrait:  "shop-assets/portrait.jpg",
+    signature: "shop-assets/signature.png",
+    logo:      "shop-assets/ts-logo.png",
+    merch:     "shop-assets/merch-cards.jpg"
+  }
+};
+
 !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):t.QRious=e()}(this,function(){"use strict";function t(t,e){var n;return"function"==typeof Object.create?n=Object.create(t):(s.prototype=t,n=new s,s.prototype=null),e&&i(!0,n,e),n}function e(e,n,s,r){var o=this;return"string"!=typeof e&&(r=s,s=n,n=e,e=null),"function"!=typeof n&&(r=s,s=n,n=function(){return o.apply(this,arguments)}),i(!1,n,o,r),n.prototype=t(o.prototype,s),n.prototype.constructor=n,n.class_=e||o.class_,n.super_=o,n}function i(t,e,i){for(var n,s,a=0,h=(i=o.call(arguments,2)).length;a<h;a++){s=i[a];for(n in s)t&&!r.call(s,n)||(e[n]=s[n])}}function n(){}var s=function(){},r=Object.prototype.hasOwnProperty,o=Array.prototype.slice,a=e;n.class_="Nevis",n.super_=Object,n.extend=a;var h=n,f=h.extend(function(t,e,i){this.qrious=t,this.element=e,this.element.qrious=t,this.enabled=Boolean(i)},{draw:function(t){},getElement:function(){return this.enabled||(this.enabled=!0,this.render()),this.element},getModuleSize:function(t){var e=this.qrious,i=e.padding||0,n=Math.floor((e.size-2*i)/t.width);return Math.max(1,n)},getOffset:function(t){var e=this.qrious,i=e.padding;if(null!=i)return i;var n=this.getModuleSize(t),s=Math.floor((e.size-n*t.width)/2);return Math.max(0,s)},render:function(t){this.enabled&&(this.resize(),this.reset(),this.draw(t))},reset:function(){},resize:function(){}}),c=f.extend({draw:function(t){var e,i,n=this.qrious,s=this.getModuleSize(t),r=this.getOffset(t),o=this.element.getContext("2d");for(o.fillStyle=n.foreground,o.globalAlpha=n.foregroundAlpha,e=0;e<t.width;e++)for(i=0;i<t.width;i++)t.buffer[i*t.width+e]&&o.fillRect(s*e+r,s*i+r,s,s)},reset:function(){var t=this.qrious,e=this.element.getContext("2d"),i=t.size;e.lineWidth=1,e.clearRect(0,0,i,i),e.fillStyle=t.background,e.globalAlpha=t.backgroundAlpha,e.fillRect(0,0,i,i)},resize:function(){var t=this.element;t.width=t.height=this.qrious.size}}),u=h.extend(null,{BLOCK:[0,11,15,19,23,27,31,16,18,20,22,24,26,28,20,22,24,24,26,28,28,22,24,24,26,26,28,28,24,24,26,26,26,28,28,24,26,26,26,28,28]}),l=h.extend(null,{BLOCKS:[1,0,19,7,1,0,16,10,1,0,13,13,1,0,9,17,1,0,34,10,1,0,28,16,1,0,22,22,1,0,16,28,1,0,55,15,1,0,44,26,2,0,17,18,2,0,13,22,1,0,80,20,2,0,32,18,2,0,24,26,4,0,9,16,1,0,108,26,2,0,43,24,2,2,15,18,2,2,11,22,2,0,68,18,4,0,27,16,4,0,19,24,4,0,15,28,2,0,78,20,4,0,31,18,2,4,14,18,4,1,13,26,2,0,97,24,2,2,38,22,4,2,18,22,4,2,14,26,2,0,116,30,3,2,36,22,4,4,16,20,4,4,12,24,2,2,68,18,4,1,43,26,6,2,19,24,6,2,15,28,4,0,81,20,1,4,50,30,4,4,22,28,3,8,12,24,2,2,92,24,6,2,36,22,4,6,20,26,7,4,14,28,4,0,107,26,8,1,37,22,8,4,20,24,12,4,11,22,3,1,115,30,4,5,40,24,11,5,16,20,11,5,12,24,5,1,87,22,5,5,41,24,5,7,24,30,11,7,12,24,5,1,98,24,7,3,45,28,15,2,19,24,3,13,15,30,1,5,107,28,10,1,46,28,1,15,22,28,2,17,14,28,5,1,120,30,9,4,43,26,17,1,22,28,2,19,14,28,3,4,113,28,3,11,44,26,17,4,21,26,9,16,13,26,3,5,107,28,3,13,41,26,15,5,24,30,15,10,15,28,4,4,116,28,17,0,42,26,17,6,22,28,19,6,16,30,2,7,111,28,17,0,46,28,7,16,24,30,34,0,13,24,4,5,121,30,4,14,47,28,11,14,24,30,16,14,15,30,6,4,117,30,6,14,45,28,11,16,24,30,30,2,16,30,8,4,106,26,8,13,47,28,7,22,24,30,22,13,15,30,10,2,114,28,19,4,46,28,28,6,22,28,33,4,16,30,8,4,122,30,22,3,45,28,8,26,23,30,12,28,15,30,3,10,117,30,3,23,45,28,4,31,24,30,11,31,15,30,7,7,116,30,21,7,45,28,1,37,23,30,19,26,15,30,5,10,115,30,19,10,47,28,15,25,24,30,23,25,15,30,13,3,115,30,2,29,46,28,42,1,24,30,23,28,15,30,17,0,115,30,10,23,46,28,10,35,24,30,19,35,15,30,17,1,115,30,14,21,46,28,29,19,24,30,11,46,15,30,13,6,115,30,14,23,46,28,44,7,24,30,59,1,16,30,12,7,121,30,12,26,47,28,39,14,24,30,22,41,15,30,6,14,121,30,6,34,47,28,46,10,24,30,2,64,15,30,17,4,122,30,29,14,46,28,49,10,24,30,24,46,15,30,4,18,122,30,13,32,46,28,48,14,24,30,42,32,15,30,20,4,117,30,40,7,47,28,43,22,24,30,10,67,15,30,19,6,118,30,18,31,47,28,34,34,24,30,20,61,15,30],FINAL_FORMAT:[30660,29427,32170,30877,26159,25368,27713,26998,21522,20773,24188,23371,17913,16590,20375,19104,13663,12392,16177,14854,9396,8579,11994,11245,5769,5054,7399,6608,1890,597,3340,2107],LEVELS:{L:1,M:2,Q:3,H:4}}),_=h.extend(null,{EXPONENT:[1,2,4,8,16,32,64,128,29,58,116,232,205,135,19,38,76,152,45,90,180,117,234,201,143,3,6,12,24,48,96,192,157,39,78,156,37,74,148,53,106,212,181,119,238,193,159,35,70,140,5,10,20,40,80,160,93,186,105,210,185,111,222,161,95,190,97,194,153,47,94,188,101,202,137,15,30,60,120,240,253,231,211,187,107,214,177,127,254,225,223,163,91,182,113,226,217,175,67,134,17,34,68,136,13,26,52,104,208,189,103,206,129,31,62,124,248,237,199,147,59,118,236,197,151,51,102,204,133,23,46,92,184,109,218,169,79,158,33,66,132,21,42,84,168,77,154,41,82,164,85,170,73,146,57,114,228,213,183,115,230,209,191,99,198,145,63,126,252,229,215,179,123,246,241,255,227,219,171,75,150,49,98,196,149,55,110,220,165,87,174,65,130,25,50,100,200,141,7,14,28,56,112,224,221,167,83,166,81,162,89,178,121,242,249,239,195,155,43,86,172,69,138,9,18,36,72,144,61,122,244,245,247,243,251,235,203,139,11,22,44,88,176,125,250,233,207,131,27,54,108,216,173,71,142,0],LOG:[255,0,1,25,2,50,26,198,3,223,51,238,27,104,199,75,4,100,224,14,52,141,239,129,28,193,105,248,200,8,76,113,5,138,101,47,225,36,15,33,53,147,142,218,240,18,130,69,29,181,194,125,106,39,249,185,201,154,9,120,77,228,114,166,6,191,139,98,102,221,48,253,226,152,37,179,16,145,34,136,54,208,148,206,143,150,219,189,241,210,19,92,131,56,70,64,30,66,182,163,195,72,126,110,107,58,40,84,250,133,186,61,202,94,155,159,10,21,121,43,78,212,229,172,115,243,167,87,7,112,192,247,140,128,99,13,103,74,222,237,49,197,254,24,227,165,153,119,38,184,180,124,17,68,146,217,35,32,137,46,55,63,209,91,149,188,207,205,144,135,151,178,220,252,190,97,242,86,211,171,20,42,93,158,132,60,57,83,71,109,65,162,31,45,67,216,183,123,164,118,196,23,73,236,127,12,111,246,108,161,59,82,41,157,85,170,251,96,134,177,187,204,62,90,203,89,95,176,156,169,160,81,11,245,22,235,122,117,44,215,79,174,213,233,230,231,173,232,116,214,244,234,168,80,88,175]}),d=h.extend(null,{BLOCK:[3220,1468,2713,1235,3062,1890,2119,1549,2344,2936,1117,2583,1330,2470,1667,2249,2028,3780,481,4011,142,3098,831,3445,592,2517,1776,2234,1951,2827,1070,2660,1345,3177]}),v=h.extend(function(t){var e,i,n,s,r,o=t.value.length;for(this._badness=[],this._level=l.LEVELS[t.level],this._polynomial=[],this._value=t.value,this._version=0,this._stringBuffer=[];this._version<40&&(this._version++,n=4*(this._level-1)+16*(this._version-1),s=l.BLOCKS[n++],r=l.BLOCKS[n++],e=l.BLOCKS[n++],i=l.BLOCKS[n],n=e*(s+r)+r-3+(this._version<=9),!(o<=n)););this._dataBlock=e,this._eccBlock=i,this._neccBlock1=s,this._neccBlock2=r;var a=this.width=17+4*this._version;this.buffer=v._createArray(a*a),this._ecc=v._createArray(e+(e+i)*(s+r)+r),this._mask=v._createArray((a*(a+1)+1)/2),this._insertFinders(),this._insertAlignments(),this.buffer[8+a*(a-8)]=1,this._insertTimingGap(),this._reverseMask(),this._insertTimingRowAndColumn(),this._insertVersion(),this._syncMask(),this._convertBitStream(o),this._calculatePolynomial(),this._appendEccToData(),this._interleaveBlocks(),this._pack(),this._finish()},{_addAlignment:function(t,e){var i,n=this.buffer,s=this.width;for(n[t+s*e]=1,i=-2;i<2;i++)n[t+i+s*(e-2)]=1,n[t-2+s*(e+i+1)]=1,n[t+2+s*(e+i)]=1,n[t+i+1+s*(e+2)]=1;for(i=0;i<2;i++)this._setMask(t-1,e+i),this._setMask(t+1,e-i),this._setMask(t-i,e-1),this._setMask(t+i,e+1)},_appendData:function(t,e,i,n){var s,r,o,a=this._polynomial,h=this._stringBuffer;for(r=0;r<n;r++)h[i+r]=0;for(r=0;r<e;r++){if(255!==(s=_.LOG[h[t+r]^h[i]]))for(o=1;o<n;o++)h[i+o-1]=h[i+o]^_.EXPONENT[v._modN(s+a[n-o])];else for(o=i;o<i+n;o++)h[o]=h[o+1];h[i+n-1]=255===s?0:_.EXPONENT[v._modN(s+a[0])]}},_appendEccToData:function(){var t,e=0,i=this._dataBlock,n=this._calculateMaxLength(),s=this._eccBlock;for(t=0;t<this._neccBlock1;t++)this._appendData(e,i,n,s),e+=i,n+=s;for(t=0;t<this._neccBlock2;t++)this._appendData(e,i+1,n,s),e+=i+1,n+=s},_applyMask:function(t){var e,i,n,s,r=this.buffer,o=this.width;switch(t){case 0:for(s=0;s<o;s++)for(n=0;n<o;n++)n+s&1||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 1:for(s=0;s<o;s++)for(n=0;n<o;n++)1&s||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 2:for(s=0;s<o;s++)for(e=0,n=0;n<o;n++,e++)3===e&&(e=0),e||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 3:for(i=0,s=0;s<o;s++,i++)for(3===i&&(i=0),e=i,n=0;n<o;n++,e++)3===e&&(e=0),e||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 4:for(s=0;s<o;s++)for(e=0,i=s>>1&1,n=0;n<o;n++,e++)3===e&&(e=0,i=!i),i||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 5:for(i=0,s=0;s<o;s++,i++)for(3===i&&(i=0),e=0,n=0;n<o;n++,e++)3===e&&(e=0),(n&s&1)+!(!e|!i)||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 6:for(i=0,s=0;s<o;s++,i++)for(3===i&&(i=0),e=0,n=0;n<o;n++,e++)3===e&&(e=0),(n&s&1)+(e&&e===i)&1||this._isMasked(n,s)||(r[n+s*o]^=1);break;case 7:for(i=0,s=0;s<o;s++,i++)for(3===i&&(i=0),e=0,n=0;n<o;n++,e++)3===e&&(e=0),(e&&e===i)+(n+s&1)&1||this._isMasked(n,s)||(r[n+s*o]^=1)}},_calculateMaxLength:function(){return this._dataBlock*(this._neccBlock1+this._neccBlock2)+this._neccBlock2},_calculatePolynomial:function(){var t,e,i=this._eccBlock,n=this._polynomial;for(n[0]=1,t=0;t<i;t++){for(n[t+1]=1,e=t;e>0;e--)n[e]=n[e]?n[e-1]^_.EXPONENT[v._modN(_.LOG[n[e]]+t)]:n[e-1];n[0]=_.EXPONENT[v._modN(_.LOG[n[0]]+t)]}for(t=0;t<=i;t++)n[t]=_.LOG[n[t]]},_checkBadness:function(){var t,e,i,n,s,r=0,o=this._badness,a=this.buffer,h=this.width;for(s=0;s<h-1;s++)for(n=0;n<h-1;n++)(a[n+h*s]&&a[n+1+h*s]&&a[n+h*(s+1)]&&a[n+1+h*(s+1)]||!(a[n+h*s]||a[n+1+h*s]||a[n+h*(s+1)]||a[n+1+h*(s+1)]))&&(r+=v.N2);var f=0;for(s=0;s<h;s++){for(i=0,o[0]=0,t=0,n=0;n<h;n++)t===(e=a[n+h*s])?o[i]++:o[++i]=1,f+=(t=e)?1:-1;r+=this._getBadness(i)}f<0&&(f=-f);var c=0,u=f;for(u+=u<<2,u<<=1;u>h*h;)u-=h*h,c++;for(r+=c*v.N4,n=0;n<h;n++){for(i=0,o[0]=0,t=0,s=0;s<h;s++)t===(e=a[n+h*s])?o[i]++:o[++i]=1,t=e;r+=this._getBadness(i)}return r},_convertBitStream:function(t){var e,i,n=this._ecc,s=this._version;for(i=0;i<t;i++)n[i]=this._value.charCodeAt(i);var r=this._stringBuffer=n.slice(),o=this._calculateMaxLength();t>=o-2&&(t=o-2,s>9&&t--);var a=t;if(s>9){for(r[a+2]=0,r[a+3]=0;a--;)e=r[a],r[a+3]|=255&e<<4,r[a+2]=e>>4;r[2]|=255&t<<4,r[1]=t>>4,r[0]=64|t>>12}else{for(r[a+1]=0,r[a+2]=0;a--;)e=r[a],r[a+2]|=255&e<<4,r[a+1]=e>>4;r[1]|=255&t<<4,r[0]=64|t>>4}for(a=t+3-(s<10);a<o;)r[a++]=236,r[a++]=17},_getBadness:function(t){var e,i=0,n=this._badness;for(e=0;e<=t;e++)n[e]>=5&&(i+=v.N1+n[e]-5);for(e=3;e<t-1;e+=2)n[e-2]===n[e+2]&&n[e+2]===n[e-1]&&n[e-1]===n[e+1]&&3*n[e-1]===n[e]&&(0===n[e-3]||e+3>t||3*n[e-3]>=4*n[e]||3*n[e+3]>=4*n[e])&&(i+=v.N3);return i},_finish:function(){this._stringBuffer=this.buffer.slice();var t,e,i=0,n=3e4;for(e=0;e<8&&(this._applyMask(e),(t=this._checkBadness())<n&&(n=t,i=e),7!==i);e++)this.buffer=this._stringBuffer.slice();i!==e&&this._applyMask(i),n=l.FINAL_FORMAT[i+(this._level-1<<3)];var s=this.buffer,r=this.width;for(e=0;e<8;e++,n>>=1)1&n&&(s[r-1-e+8*r]=1,e<6?s[8+r*e]=1:s[8+r*(e+1)]=1);for(e=0;e<7;e++,n>>=1)1&n&&(s[8+r*(r-7+e)]=1,e?s[6-e+8*r]=1:s[7+8*r]=1)},_interleaveBlocks:function(){var t,e,i=this._dataBlock,n=this._ecc,s=this._eccBlock,r=0,o=this._calculateMaxLength(),a=this._neccBlock1,h=this._neccBlock2,f=this._stringBuffer;for(t=0;t<i;t++){for(e=0;e<a;e++)n[r++]=f[t+e*i];for(e=0;e<h;e++)n[r++]=f[a*i+t+e*(i+1)]}for(e=0;e<h;e++)n[r++]=f[a*i+t+e*(i+1)];for(t=0;t<s;t++)for(e=0;e<a+h;e++)n[r++]=f[o+t+e*s];this._stringBuffer=n},_insertAlignments:function(){var t,e,i,n=this._version,s=this.width;if(n>1)for(t=u.BLOCK[n],i=s-7;;){for(e=s-7;e>t-3&&(this._addAlignment(e,i),!(e<t));)e-=t;if(i<=t+9)break;i-=t,this._addAlignment(6,i),this._addAlignment(i,6)}},_insertFinders:function(){var t,e,i,n,s=this.buffer,r=this.width;for(t=0;t<3;t++){for(e=0,n=0,1===t&&(e=r-7),2===t&&(n=r-7),s[n+3+r*(e+3)]=1,i=0;i<6;i++)s[n+i+r*e]=1,s[n+r*(e+i+1)]=1,s[n+6+r*(e+i)]=1,s[n+i+1+r*(e+6)]=1;for(i=1;i<5;i++)this._setMask(n+i,e+1),this._setMask(n+1,e+i+1),this._setMask(n+5,e+i),this._setMask(n+i+1,e+5);for(i=2;i<4;i++)s[n+i+r*(e+2)]=1,s[n+2+r*(e+i+1)]=1,s[n+4+r*(e+i)]=1,s[n+i+1+r*(e+4)]=1}},_insertTimingGap:function(){var t,e,i=this.width;for(e=0;e<7;e++)this._setMask(7,e),this._setMask(i-8,e),this._setMask(7,e+i-7);for(t=0;t<8;t++)this._setMask(t,7),this._setMask(t+i-8,7),this._setMask(t,i-8)},_insertTimingRowAndColumn:function(){var t,e=this.buffer,i=this.width;for(t=0;t<i-14;t++)1&t?(this._setMask(8+t,6),this._setMask(6,8+t)):(e[8+t+6*i]=1,e[6+i*(8+t)]=1)},_insertVersion:function(){var t,e,i,n,s=this.buffer,r=this._version,o=this.width;if(r>6)for(t=d.BLOCK[r-7],e=17,i=0;i<6;i++)for(n=0;n<3;n++,e--)1&(e>11?r>>e-12:t>>e)?(s[5-i+o*(2-n+o-11)]=1,s[2-n+o-11+o*(5-i)]=1):(this._setMask(5-i,2-n+o-11),this._setMask(2-n+o-11,5-i))},_isMasked:function(t,e){var i=v._getMaskBit(t,e);return 1===this._mask[i]},_pack:function(){var t,e,i,n=1,s=1,r=this.width,o=r-1,a=r-1,h=(this._dataBlock+this._eccBlock)*(this._neccBlock1+this._neccBlock2)+this._neccBlock2;for(e=0;e<h;e++)for(t=this._stringBuffer[e],i=0;i<8;i++,t<<=1){128&t&&(this.buffer[o+r*a]=1);do{s?o--:(o++,n?0!==a?a--:(n=!n,6===(o-=2)&&(o--,a=9)):a!==r-1?a++:(n=!n,6===(o-=2)&&(o--,a-=8))),s=!s}while(this._isMasked(o,a))}},_reverseMask:function(){var t,e,i=this.width;for(t=0;t<9;t++)this._setMask(t,8);for(t=0;t<8;t++)this._setMask(t+i-8,8),this._setMask(8,t);for(e=0;e<7;e++)this._setMask(8,e+i-7)},_setMask:function(t,e){var i=v._getMaskBit(t,e);this._mask[i]=1},_syncMask:function(){var t,e,i=this.width;for(e=0;e<i;e++)for(t=0;t<=e;t++)this.buffer[t+i*e]&&this._setMask(t,e)}},{_createArray:function(t){var e,i=[];for(e=0;e<t;e++)i[e]=0;return i},_getMaskBit:function(t,e){var i;return t>e&&(i=t,t=e,e=i),i=e,i+=e*e,i>>=1,i+=t},_modN:function(t){for(;t>=255;)t=((t-=255)>>8)+(255&t);return t},N1:3,N2:3,N3:40,N4:10}),p=v,m=f.extend({draw:function(){this.element.src=this.qrious.toDataURL()},reset:function(){this.element.src=""},resize:function(){var t=this.element;t.width=t.height=this.qrious.size}}),g=h.extend(function(t,e,i,n){this.name=t,this.modifiable=Boolean(e),this.defaultValue=i,this._valueTransformer=n},{transform:function(t){var e=this._valueTransformer;return"function"==typeof e?e(t,this):t}}),k=h.extend(null,{abs:function(t){return null!=t?Math.abs(t):null},hasOwn:function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},noop:function(){},toUpperCase:function(t){return null!=t?t.toUpperCase():null}}),w=h.extend(function(t){this.options={},t.forEach(function(t){this.options[t.name]=t},this)},{exists:function(t){return null!=this.options[t]},get:function(t,e){return w._get(this.options[t],e)},getAll:function(t){var e,i=this.options,n={};for(e in i)k.hasOwn(i,e)&&(n[e]=w._get(i[e],t));return n},init:function(t,e,i){"function"!=typeof i&&(i=k.noop);var n,s;for(n in this.options)k.hasOwn(this.options,n)&&(s=this.options[n],w._set(s,s.defaultValue,e),w._createAccessor(s,e,i));this._setAll(t,e,!0)},set:function(t,e,i){return this._set(t,e,i)},setAll:function(t,e){return this._setAll(t,e)},_set:function(t,e,i,n){var s=this.options[t];if(!s)throw new Error("Invalid option: "+t);if(!s.modifiable&&!n)throw new Error("Option cannot be modified: "+t);return w._set(s,e,i)},_setAll:function(t,e,i){if(!t)return!1;var n,s=!1;for(n in t)k.hasOwn(t,n)&&this._set(n,t[n],e,i)&&(s=!0);return s}},{_createAccessor:function(t,e,i){var n={get:function(){return w._get(t,e)}};t.modifiable&&(n.set=function(n){w._set(t,n,e)&&i(n,t)}),Object.defineProperty(e,t.name,n)},_get:function(t,e){return e["_"+t.name]},_set:function(t,e,i){var n="_"+t.name,s=i[n],r=t.transform(null!=e?e:t.defaultValue);return i[n]=r,r!==s}}),M=w,b=h.extend(function(){this._services={}},{getService:function(t){var e=this._services[t];if(!e)throw new Error("Service is not being managed with name: "+t);return e},setService:function(t,e){if(this._services[t])throw new Error("Service is already managed with name: "+t);e&&(this._services[t]=e)}}),B=new M([new g("background",!0,"white"),new g("backgroundAlpha",!0,1,k.abs),new g("element"),new g("foreground",!0,"black"),new g("foregroundAlpha",!0,1,k.abs),new g("level",!0,"L",k.toUpperCase),new g("mime",!0,"image/png"),new g("padding",!0,null,k.abs),new g("size",!0,100,k.abs),new g("value",!0,"")]),y=new b,O=h.extend(function(t){B.init(t,this,this.update.bind(this));var e=B.get("element",this),i=y.getService("element"),n=e&&i.isCanvas(e)?e:i.createCanvas(),s=e&&i.isImage(e)?e:i.createImage();this._canvasRenderer=new c(this,n,!0),this._imageRenderer=new m(this,s,s===e),this.update()},{get:function(){return B.getAll(this)},set:function(t){B.setAll(t,this)&&this.update()},toDataURL:function(t){return this.canvas.toDataURL(t||this.mime)},update:function(){var t=new p({level:this.level,value:this.value});this._canvasRenderer.render(t),this._imageRenderer.render(t)}},{use:function(t){y.setService(t.getName(),t)}});Object.defineProperties(O.prototype,{canvas:{get:function(){return this._canvasRenderer.getElement()}},image:{get:function(){return this._imageRenderer.getElement()}}});var A=O,L=h.extend({getName:function(){}}).extend({createCanvas:function(){},createImage:function(){},getName:function(){return"element"},isCanvas:function(t){},isImage:function(t){}}).extend({createCanvas:function(){return document.createElement("canvas")},createImage:function(){return document.createElement("img")},isCanvas:function(t){return t instanceof HTMLCanvasElement},isImage:function(t){return t instanceof HTMLImageElement}});return A.use(new L),A});
 
 //# sourceMappingURL=qrious.min.js.map
@@ -30,6 +58,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     pollMs: 5000,
     base: (function () { try { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/[^\/]*$/, "") : ""; } catch (e) { return ""; } })(),   // tk-scan.js 跟 ticket-ui.js 放一起
     scanFile: "tk-scan.js?v=2",
+    terms: "售出後恕不退款，換人請用票夾內「轉讓給朋友」；活動取消或改期將全額退款。",   // TODO 退換票條款待 CÉON 定案
   };
   var K = { sess: "tk:session", email: "tk:email" };
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
@@ -164,6 +193,24 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 .tk-item.lk .im:after{content:'🔒';position:absolute;inset:0;display:grid;place-items:center;font-size:24px;background:rgba(8,5,10,.42)}.tk-item.lk .im img{filter:saturate(.55)}.tk-item.lk .nm{color:rgba(255,255,255,.7)}\
 .tk-item .ibtn{display:block;margin:0 12px 12px;padding:9px 0;border-radius:10px;border:1px solid rgba(216,188,128,.4);text-align:center;font-size:12px;color:#f4e4c1;background:none;font-family:inherit;width:calc(100% - 24px);cursor:pointer;min-height:36px}.tk-item .ibtn.done{background:rgba(216,188,128,.16)}.tk-item .ibtn.buy{background:linear-gradient(#f1ddb0,#d8bc80);color:#181209;border-color:transparent;font-weight:700}\
 .tk-pastrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:rgba(20,12,18,.6);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 14px;margin-top:10px;color:var(--tkt);font:inherit;cursor:pointer;min-height:60px}.tk-pastrow .pp{width:34px;height:44px;border-radius:8px;background:linear-gradient(160deg,#3a2a20,#0f0d0d);flex:0 0 34px;border:1px solid rgba(216,188,128,.25)}.tk-pastrow b{display:block;font-size:15px}.tk-pastrow span{display:block;font-size:12px;color:rgba(255,255,255,.55);margin-top:3px}.tk-pastrow .chv{margin-left:auto;color:var(--tkg)}\
+.tk-tierlist{margin:6px 0 12px;display:flex;flex-direction:column;gap:10px}\
+.tk-tier{display:block;width:100%;text-align:left;background:rgba(255,255,255,.05);border:1px solid rgba(216,188,128,.28);border-radius:14px;padding:13px 15px;color:var(--tkt);font:inherit;cursor:pointer;min-height:64px}\
+.tk-tier .tt{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.tk-tier .tt b{font-size:16px;color:#f4e4c1}.tk-tier .pr{font:600 17px var(--font-display,serif),serif;color:#f0dcaa}\
+.tk-tier .mt{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px}.tk-tier .mt .so{color:#e7a3a3}\
+.tk-tier .pk{font-size:12px;color:rgba(255,255,255,.5);margin-top:6px;line-height:1.5}\
+.tk-tier.off{opacity:.45;border-style:dashed;cursor:default}\
+.tk-perks,.tk-perkbox{background:rgba(216,188,128,.07);border:1px solid rgba(216,188,128,.2);border-radius:12px;padding:11px 14px;margin:0 0 12px}\
+.tk-perkbox{margin:12px 16px 0}\
+.tk-perks .pt,.tk-perkbox .pt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9a86a;margin-bottom:6px}\
+.tk-perks ul,.tk-perkbox ul{margin:0;padding-left:16px}.tk-perks li,.tk-perkbox li{font-size:13px;line-height:1.7;color:rgba(255,255,255,.82)}\
+.tk-seatnote{font-size:12px;line-height:1.6;color:rgba(255,255,255,.62);margin:0 0 12px}.tk-seatnote b{color:#f0dcaa}\
+.tk-tierbadge{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:2px 0 10px}.tk-tierbadge .bd{font-size:12px;font-weight:700;color:#181209;background:linear-gradient(#f1ddb0,#d8bc80);border-radius:20px;padding:4px 11px}.tk-tierbadge .sn{font-size:12px;color:#c9a86a;letter-spacing:.05em}\
+.tk-steps{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 14px;font-size:12px;color:rgba(255,255,255,.4)}.tk-steps .on{color:#f0dcaa;font-weight:600}.tk-steps i{color:rgba(255,255,255,.25)}\
+.tk-order{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin:4px 0 12px}.tk-order .r{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;font-size:14px;color:rgba(255,255,255,.82)}.tk-order .r b{color:#f4e4c1}.tk-order .r.tot{border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:9px;font-size:15px}.tk-order .r.tot b{font:600 19px var(--font-display,serif),serif;color:#f0dcaa}\
+.tk-to{font-size:13px;color:rgba(255,255,255,.8);margin:2px 0 10px}.tk-to b{color:#f4e4c1}.tk-to.dim{color:rgba(255,255,255,.6)}\
+.tk-terms{font-size:11px;line-height:1.6;color:rgba(255,255,255,.42);margin:2px 0 12px}\
+.tk-a2hs{font-size:12px;line-height:1.6;color:rgba(255,255,255,.62);background:rgba(216,188,128,.08);border:1px solid rgba(216,188,128,.22);border-radius:12px;padding:10px 12px;margin:2px 0 12px}.tk-a2hs b{color:#f4e4c1}\
+.tk-spin{width:34px;height:34px;margin:0 auto 12px;border:3px solid rgba(216,188,128,.25);border-top-color:#e8c987;border-radius:50%;animation:tksp .8s linear infinite}@keyframes tksp{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.tk-spin{animation-duration:2s}}\
 .tk-codebox{margin:10px auto 0;text-align:center}.tk-codebox span{display:block;font-size:11px;letter-spacing:.2em;color:var(--tkm);text-transform:uppercase}.tk-codebox b{display:block;font:700 30px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:#f4e4c1;margin-top:4px}\
 .tk-tabs{display:flex;background:rgba(255,255,255,.07);border-radius:12px;padding:3px;margin:14px 0 12px}.tk-tabs button{flex:1;min-height:40px;border:0;border-radius:10px;background:none;color:rgba(255,255,255,.6);font:inherit;font-size:14px;cursor:pointer}.tk-tabs button.on{background:rgba(216,188,128,.22);color:#f4e4c1;font-weight:600}\
 .tk-cam{position:relative;width:100%;aspect-ratio:1/1;max-height:60vh;background:#000;border-radius:16px;overflow:hidden}.tk-cam video{width:100%;height:100%;object-fit:cover;display:block}.tk-cam .fr{position:absolute;inset:14%;border:2px solid rgba(255,255,255,.75);border-radius:14px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}.tk-camtxt{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#fff;font-size:13px;text-shadow:0 1px 3px #000;min-height:18px}\
@@ -185,12 +232,20 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   /* ---------- 假資料（?tkdemo=1） ---------- */
   var DEMO = (function () {
     var now = Date.now();
-    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T13:00:00+08:00"), venue: "微風影城 A 廳", price: 0, capacity: 181, sold: 96, left: 85, productKey: "meet-20261227", onSale: false, photoPrice: 690, photoOnSale: true, ppKey: "pp-meet-20261227" },
-              { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", price: 0, capacity: 181, sold: 0, left: 181, productKey: "meet-20270213", onSale: false, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20270213" }];
-    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
+    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T13:00:00+08:00"), venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
+                { key: "vvip", name: "VVIP 守護席", price: 3280, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 90 秒", "合照", "簽名海報", "限定編號拍立得", "專屬語音（叫你名字，錄進 App）", "優先入場", "前排座位"], productKey: "meet-20261227-vvip", onSale: true },
+                { key: "vip", name: "VIP", price: 2280, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["單獨合照", "簽名", "海報", "限定編號拍立得", "優先入場"], productKey: "meet-20261227-vip", onSale: true },
+                { key: "ga", name: "一般", price: 1280, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["含餐（飲料＋爆米花）", "抽獎", "第一支 MV 全球首播", "散場擊掌"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 690, photoOnSale: true, ppKey: "pp-meet-20261227" },
+              { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
+                { key: "vvip", name: "VVIP 守護席", price: 3280, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 90 秒", "合照", "簽名海報", "限定編號拍立得", "專屬語音（叫你名字，錄進 App）", "優先入場", "前排座位"], productKey: "meet-20270213-vvip", onSale: true },
+                { key: "vip", name: "VIP", price: 2280, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["單獨合照", "簽名", "海報", "限定編號拍立得", "優先入場"], productKey: "meet-20270213-vip", onSale: true },
+                { key: "ga", name: "一般", price: 1280, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["含餐（飲料＋爆米花）", "抽獎", "第一支 MV 全球首播", "散場擊掌"], productKey: "meet-20270213-ga", onSale: true } ], productKey: "meet-20270213", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20270213" }];
+    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, tier: "vvip", tierName: "VVIP 守護席", seatNo: 7, seat: "007", perks: ["一對一 90 秒", "合照", "簽名海報", "限定編號拍立得", "專屬語音（叫你名字，錄進 App）", "優先入場", "前排座位"], event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
              { id: "0901-DEMO6789", eventId: "meet-past", status: "used", ver: 2, issuedAt: new Date(now - 30 * 86400e3).toISOString(), usedAt: "2026-09-01T13:12:00+08:00", owner: "you@demo", transferPending: false, event: { id: "meet-past", code: "0901", name: "THE SKY 上線派對", startAt: "2026-09-01T13:00:00+08:00", venue: "微風 MEGA STUDIO" }, qr: null, canTransfer: false, expired: true }];
     var pending = null, sessions = {}, PP = {};
-    return { call: function (p, b) { return new Promise(function (res) { setTimeout(function () { res(route(p, b)); }, 350); }); }, buyPP: function (email, evId) { (PP[email] = PP[email] || []).push(evId); } };
+    return { call: function (p, b) { return new Promise(function (res) { setTimeout(function () { res(route(p, b)); }, 350); }); },
+      buyPP: function (email, evId) { (PP[email] = PP[email] || []).push(evId); },
+      buyTicket: function (email, evId, tier) { var e = ev.filter(function (x) { return x.id === evId; })[0]; var T2 = (e && e.tiers) ? e.tiers.filter(function (x) { return x.key === tier; })[0] : null; var seatNo = T2 ? (T2.numFrom + T2.sold) : null; var t = { id: (e && e.code || "TK") + "-" + Math.random().toString(36).slice(2, 10).toUpperCase(), eventId: evId, status: "valid", ver: 1, issuedAt: new Date().toISOString(), usedAt: null, owner: email, transferPending: false, tier: tier || null, tierName: T2 ? T2.name : null, seatNo: seatNo, seat: seatNo ? ("00" + seatNo).slice(-3) : null, perks: T2 ? T2.perks : [], event: e, canTransfer: true, expired: false }; t.qr = "CT1." + t.id + ".1.0123456789abcdef0123"; T.push(t); if (T2) { T2.sold++; T2.left = Math.max(0, (T2.left || T2.cap) - 1); } if (e) { e.sold++; } return t; } };
     function route(p, b) {
       if (p === "/ticket/events") return { ok: true, events: ev };
       if (p === "/interest") return { ok: true };
@@ -208,7 +263,6 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 
   /* ---------- 身分 ---------- */
   function unlockCreds() {
-    if (C.demo) return null;
     for (var i = 0; i < C.unlockKeys.length; i++) {
       try { var o = JSON.parse(lsGet(C.unlockKeys[i]) || "null"); if (o && o.email && o.code) return { email: String(o.email).trim().toLowerCase(), code: String(o.code).trim() }; } catch (e) {}
     }
@@ -228,15 +282,14 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function clearSession() { S.session = null; S.tickets = []; lsSet(K.sess, null); }
 
   /* ---------- 資料 ---------- */
-  function loadEvents() { return api("/ticket/events").then(function (j) { if(!j || !Array.isArray(j.events)) throw new Error('events'); S.events = j.events; S.eventsError = ''; }).catch(function () { S.eventsError = '活動暫時無法更新，請檢查網路後重試。'; }); }
+  function loadEvents() { return api("/ticket/events").then(function (j) { S.events = (j && j.events) || []; }).catch(function () {}); }
   function loadMine(force) {
     if (!S.session) return Promise.resolve();
     if (!force && Date.now() - S.lastFetch < 2500) return Promise.resolve();
     return api("/ticket/mine", { session: S.session }).then(function (j) {
       if (j && j.error === "no_session") { clearSession(); return; }
-      if (j && j.ok) { S.tickets = j.tickets || []; S.photopass = j.photopass || []; S.email = j.email || S.email; S.lastFetch = Date.now(); S.mineError = ''; }
-      else S.mineError = '票券暫時無法更新，請稍後重試。';
-    }).catch(function () { S.mineError = '票券暫時無法更新，請檢查網路後重試。'; });
+      if (j && j.ok) { S.tickets = j.tickets || []; S.photopass = j.photopass || []; S.email = j.email || S.email; S.lastFetch = Date.now(); }
+    }).catch(function () {});
   }
   function drawQR(canvas, value, size) { if (!canvas || !window.QRious) return; new QRious({ element: canvas, value: value, size: size * 2, level: "M", background: "#fff", foreground: "#111" }); }
   function msg(sel, t, ok) { var m = $(sel); if (m) { m.textContent = t || ""; m.className = "tk-msg" + (ok ? " ok" : ""); } }
@@ -261,32 +314,142 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
       if (S.pendingTransfer) acceptIncoming(S.pendingTransfer);
     }).catch(function () { msg("#tk-lmsg", "連不上伺服器"); });
   }
-  function buy(evId, kind) {
-    var ev = eventById(evId) || (ticketsFor(evId)[0] || {}).event; if (!ev) return;
-    var key = kind === "pp" ? ev.ppKey : ev.productKey; if (!key) return;
-    var email = S.email || (unlockCreds() || {}).email || lsGet(K.email) || "";
-    if (!email) { toast("先在票夾用 email 登入"); return; }
-    if (C.demo) { if (kind === "pp") { DEMO.buyPP(email, evId); toast("DEMO：付款完成，PhotoPass 已加購"); loadMine(true).then(function () { S.layers.forEach(renderLayer); }); } else toast("DEMO：這裡會跳去綠界付款"); return; }
-    var endpoint = C.api + "/ecpay/create";
-    fetch(endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, email: email }) })
-      .then(function (r) { if (!r.ok) throw 0; return r.text(); })
+  /* ---------- 買票／加購：確認卡 → 付款 → 回票夾 ---------- */
+  function buyEvent(evId) { return eventById(evId) || (ticketsFor(evId)[0] || {}).event || null; }
+  function loggedIn() { return !!(S.session || unlockCreds()); }
+  function myEmail() { return S.email || (unlockCreds() || {}).email || lsGet(K.email) || ""; }
+  function tierSheet(evId) {
+    var ev = buyEvent(evId); if (!ev || !ev.tiers) return;
+    S.tierEv = evId;
+    var rows = ev.tiers.map(function (t) {
+      var sold = t.left === 0 || t.onSale === false;
+      var perks = (t.perks || []).slice(0, 3).join("・");
+      return '<button class="tk-tier' + (sold ? " off" : "") + '"' + (sold ? " disabled" : ' data-sact="tier:' + esc(t.key) + '"') + '>' +
+        '<div class="tt"><b>' + esc(t.name) + '</b><span class="pr">NT$' + esc(t.price) + '</span></div>' +
+        '<div class="mt">' + (sold ? '<span class="so">已售完</span>' : '剩 ' + (t.left == null ? "—" : t.left) + ' 席') + ' · 終身編號 ' + ("00" + t.numFrom).slice(-3) + '–' + ("00" + t.numTo).slice(-3) + '</div>' +
+        (perks ? '<div class="pk">' + esc(perks) + (t.perks.length > 3 ? " …" : "") + '</div>' : '') + '</button>';
+    }).join("");
+    sheet('<div class="tk-eyebrow">Choose your ticket</div><h3>選擇票種</h3><div class="tk-hint">' + esc(ev.name || "") + '　每個票種每人限 1 張。越早買，終身編號越前面。</div>' +
+      '<div class="tk-tierlist">' + rows + '</div><button class="tk-btn g" data-sact="close">關閉</button>');
+  }
+  function buyConfirm(evId, kind, tier) {
+    kind = kind || "meet";
+    var ev = buyEvent(evId); if (!ev) return;
+    if (kind === "pp" ? !ev.ppKey : !ev.productKey) return;
+    if (kind === "meet" && ev.tiers && ev.tiers.length && !tier) return tierSheet(evId);   // 三票種一定要先選票種
+    S.buy = { evId: evId, kind: kind, tier: tier || null, otpSent: false };
+    confirmSheet();
+  }
+  function confirmSheet() {
+    var b = S.buy; if (!b) return;
+    var ev = buyEvent(b.evId), pp = b.kind === "pp";
+    var TR = (!pp && b.tier && ev.tiers) ? ev.tiers.filter(function (t) { return t.key === b.tier; })[0] : null;
+    var price = pp ? ev.photoPrice : (TR ? TR.price : ev.price);
+    var title = pp ? "PhotoPass 合照包" : (esc(ev.name || "CHANCE") + (TR ? " · " + esc(TR.name) : ""));
+    var line = pp ? "《" + esc(ev.name || "") + "》活動照片整包" : (md(ev.startAt) + "（" + wk(ev.startAt).slice(-1) + "）" + hm(ev.startAt) + " · " + esc(ev.venue || ""));
+    var itemLabel = pp ? "合照包 × 1" : (TR ? esc(TR.name) + " × 1" : "一般入場 × 1");
+    var h = '<div class="tk-eyebrow">確認訂單</div><h3>' + title + '</h3>' +
+      '<div class="tk-steps"><span class="on">確認</span><i>›</i><span>付款</span><i>›</i><span>' + (pp ? "開通" : "票進票夾") + '</span></div>' +
+      '<div class="tk-order"><div class="r"><span>' + esc(line) + '</span></div><div class="r"><span>' + itemLabel + '</span><b>NT$' + esc(price) + '</b></div><div class="r tot"><span>合計</span><b>NT$' + esc(price) + '</b></div></div>';
+    if (TR) {
+      if (TR.perks && TR.perks.length) h += '<div class="tk-perks"><div class="pt">這個票種享有</div><ul>' + TR.perks.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>';
+      if (TR.numFrom) h += '<div class="tk-seatnote">付款後配一組專屬 <b>終身編號</b>（' + TR.name + ' No.' + ("00" + TR.numFrom).slice(-3) + '–' + ("00" + TR.numTo).slice(-3) + '），越早買號越前，永久留在 App。</div>';
+    }
+    if (loggedIn()) {
+      h += '<div class="tk-to">' + (pp ? "開通後綁定" : "票會寄到") + ' <b>' + esc(maskEmail(myEmail())) + '</b></div>' +
+        '<div class="tk-terms">' + esc(C.terms) + '</div>' +
+        '<button class="tk-btn p" data-sact="pay">前往付款 · NT$' + esc(price) + '</button><button class="tk-btn g" data-sact="close">再想想</button>';
+    } else {
+      h += '<div class="tk-to dim">' + (pp ? "先確認你的 email，付款後照片綁在這個信箱" : "先確認你的 email，付款後票會寄到這裡也存進票夾") + '</div>' +
+        '<input class="tk-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"' + (b.otpSent ? " disabled" : "") + '>' +
+        (b.otpSent ? '<input class="tk-in" id="tk-botp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼">' : '') +
+        '<div class="tk-msg" id="tk-bmsg"></div><div class="tk-terms">' + esc(C.terms) + '</div>' +
+        (b.otpSent
+          ? '<button class="tk-btn p" data-sact="pay-verify">驗證並前往付款 · NT$' + esc(price) + '</button><button class="tk-btn g" data-sact="otp-resend">沒收到？重寄</button>'
+          : '<button class="tk-btn p" data-sact="otp-send">寄驗證碼給我</button><button class="tk-btn g" data-sact="close">取消</button>');
+    }
+    sheet(h);
+    var f = $("#tk-bem"); if (f && !b.otpSent) setTimeout(function () { f.focus(); }, 60);
+    var o = $("#tk-botp"); if (o) setTimeout(function () { o.focus(); }, 60);
+  }
+  function buyOtpSend() {
+    var em = (($("#tk-bem") || {}).value || "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return msg("#tk-bmsg", "email 格式不對");
+    S.buy.email = em; lsSet(K.email, em); msg("#tk-bmsg", "寄送中…", true);
+    api("/ticket/otp", { email: em }).then(function (j) {
+      if (!j.ok) return msg("#tk-bmsg", j.error === "rate" ? "一分鐘內只能寄一次，等一下再按" : "寄不出去，再試一次");
+      S.buy.otpSent = true; confirmSheet(); msg("#tk-bmsg", "驗證碼已寄到 " + em, true);
+    }).catch(function () { msg("#tk-bmsg", "連不上伺服器"); });
+  }
+  function buyVerifyPay() {
+    var em = S.buy.email || (($("#tk-bem") || {}).value || "").trim().toLowerCase();
+    var otp = (($("#tk-botp") || {}).value || "").trim();
+    if (otp.length !== 6) return msg("#tk-bmsg", "驗證碼是 6 位數");
+    msg("#tk-bmsg", "驗證中…", true);
+    api("/ticket/login", { email: em, otp: otp }).then(function (j) {
+      if (!j.ok) return msg("#tk-bmsg", j.error === "otp_expired" ? "驗證碼過期了，按重寄" : "驗證碼不對");
+      setSession(j.session, j.email); hap(20); payNow();
+    }).catch(function () { msg("#tk-bmsg", "連不上伺服器"); });
+  }
+  function payNow() {
+    var b = S.buy; if (!b) return;
+    var ev = buyEvent(b.evId), pp = b.kind === "pp", key = pp ? ev.ppKey : (b.tier ? (ev.id + "-" + b.tier) : ev.productKey);
+    var email = myEmail(); if (!email) return msg("#tk-bmsg", "請先確認 email");
+    if (C.demo) {   // demo：不跳綠界，模擬付款成功後走跟真實一樣的「輪詢→成功」流程
+      closeSheet();
+      if (pp) DEMO.buyPP(email, b.evId); else DEMO.buyTicket(email, b.evId, b.tier);
+      var be = b.evId, bk = b.kind;
+      setTimeout(function () { awaitPurchase(be, bk); }, 400);
+      return;
+    }
+    var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);   // 回到目前這頁（不帶個資）
+    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, email: email, back: back }) })
+      .then(function (r) { return r.text(); })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
-        if (!form) { try { var j = JSON.parse(html); if (j && j.message) { toast(j.message); return; } } catch (e) {} throw 0; }
+        if (!form) { try { var j = JSON.parse(html); if (j && j.message) { msg("#tk-bmsg", j.message); return; } } catch (e) {} throw 0; }
         var f = document.importNode(form, true); f.style.display = "none"; document.body.appendChild(f); f.submit();
-      }).catch(function () { toast("付款頁開不起來，請稍後再試"); });
+      }).catch(function () { msg("#tk-bmsg", "付款頁開不起來，請稍後再試"); });
+  }
+  /* 付款回來（?tkbought / ?tkphoto）或 demo 付完：輪詢票夾直到票進來，再跳成功畫面 */
+  function awaitPurchase(evId, kind) {
+    openLayer("wallet");
+    var before = kind === "pp" ? -1 : ticketsFor(evId).length;
+    var tries = 0;
+    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Payment received</div><h3>付款成功，' + (kind === "pp" ? "PhotoPass 開通中…" : "票整理中…") + '</h3><div class="tk-hint">通常幾秒內就好，別關掉這個畫面。</div></div>');
+    (function poll() {
+      loadMine(true).then(function () {
+        var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
+        if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind); }
+        if (++tries >= 8) return purchaseSlow(evId, kind);
+        setTimeout(poll, 1800);
+      }).catch(function () { if (++tries >= 8) purchaseSlow(evId, kind); else setTimeout(poll, 1800); });
+    })();
+  }
+  function purchaseDone(evId, kind) {
+    hap([20, 40, 20]); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); });
+    var ev = buyEvent(evId) || {};
+    if (kind === "pp") { sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">PhotoPass</div><h3>PhotoPass 已開通</h3><div class="tk-hint">' + esc(ev.name || "") + '<br>活動後照片整理好會出現在票夾 → 過往 → 這場票根裡。</div></div>' + a2hsHint() + '<button class="tk-btn p" data-sact="close">好</button>'); return; }
+    var t = ticketsFor(evId)[0];
+    sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">In your wallet</div><h3>你的票在票夾了</h3><div class="tk-hint">' + esc(ev.name || "CHANCE") + (t && t.tierName ? '　' + esc(t.tierName) : "") + (t && t.seat ? '<br><b style="color:#f0dcaa;font-size:16px">終身編號 No.' + esc(t.seat) + '</b>' : "") + '<br>入場 QR 會在開場前 ' + QR_LOCK_H + ' 小時出現。</div></div>' +
+      (t ? '<button class="tk-btn p" data-sact="see-ticket">看我的票</button><button class="tk-btn g" data-sact="give">轉給朋友</button>' : '') + a2hsHint() + '<button class="tk-btn g" data-sact="close">完成</button>');
+  }
+  function purchaseSlow(evId, kind) {
+    sheet('<div class="tk-big"><div class="ic">⏳</div><h3>' + (kind === "pp" ? "PhotoPass 開通處理中" : "票還在路上") + '</h3><div class="tk-hint">付款已收到，' + (kind === "pp" ? "開通" : "票") + '通常一兩分鐘內就進來，也會寄到你的 email。可以按「更新」再看一次。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">更新</button><button class="tk-btn g" data-sact="close">關閉</button>');
+  }
+  function a2hsHint() {
+    var ios = /iPhone|iPad/.test(navigator.userAgent);
+    return '<div class="tk-a2hs">📲 <b>加到主畫面</b>，活動當天一點就開票' + (ios ? '：點下方 <b>分享</b> → <b>加入主畫面</b>' : '') + '</div>';
   }
 
   /* ---------- 轉讓（我給別人） ---------- */
   var sheetEl;
   function sheet(html) {
     if (!sheetEl) { sheetEl = document.createElement("div"); sheetEl.className = "tk-sheet"; sheetEl.addEventListener("click", function (e) { if (e.target === sheetEl) closeSheet(); }); document.body.appendChild(sheetEl); }
-    if(!sheetEl.classList.contains('show'))sheetEl._returnFocus=document.activeElement;
-    sheetEl.innerHTML = '<div class="tk-box" role="dialog" aria-modal="true" aria-label="票務操作">' + html + '</div>'; sheetEl.classList.add("show");
-    var first=sheetEl.querySelector('input,button');if(first)first.focus({preventScroll:true});
+    sheetEl.innerHTML = '<div class="tk-box">' + html + '</div>'; sheetEl.classList.add("show");
     sheetEl.querySelectorAll("[data-sact]").forEach(function (b) { b.addEventListener("click", function () { sheetAct2(b.getAttribute("data-sact"), b); }); });
   }
-  function closeSheet() { if (sheetEl) {sheetEl.classList.remove("show");if(sheetEl._returnFocus&&sheetEl._returnFocus.isConnected)sheetEl._returnFocus.focus({preventScroll:true});} stopPoll(); stopScan(); }
+  function closeSheet() { if (sheetEl) sheetEl.classList.remove("show"); stopPoll(); stopScan(); }
   function startTransfer(id) {
     api("/ticket/transfer/start", { session: S.session, ticketId: id }).then(function (j) {
       if (!j.ok) return toast(j.message || (j.error === "expired" ? "開演後 2 小時不能轉讓了" : "現在不能轉讓"));
@@ -316,18 +479,15 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     stopPoll();
     S.pollTimer = setInterval(function () {
       if (!S.transfer) return stopPoll();
-      var transfer = S.transfer;
       loadMine(true).then(function () {
-        if (!S.transfer || S.transfer !== transfer || S.mineError) return;
-        var still = S.tickets.some(function (t) { return t.id === transfer.ticketId; });
+        var still = S.tickets.some(function (t) { return t.id === S.transfer.ticketId; });
         if (!still) { var id = S.transfer.ticketId; S.transfer = null; stopPoll(); hap([20, 40, 20]); sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Transfer complete</div><h3>票已經是朋友的了</h3><div class="tk-hint">' + esc(id) + ' 已轉出，你這邊的 QR 已失效。</div></div><button class="tk-btn p" data-sact="close">好</button>'); render(); }
       });
     }, C.pollMs);
   }
   function stopPoll() { clearInterval(S.pollTimer); S.pollTimer = null; }
   function cancelTransfer(id) {
-    if(S.cancelBusy)return;S.cancelBusy=true;
-    api("/ticket/transfer/cancel", { session: S.session, ticketId: id }).then(function (j) {if(!j||!j.ok)throw new Error('cancel'); S.transfer = null; closeSheet(); toast("已取消轉讓"); refresh(true); }).catch(function(){toast('取消未成功，請檢查網路後重試。');}).finally(function(){S.cancelBusy=false;});
+    api("/ticket/transfer/cancel", { session: S.session, ticketId: id }).then(function () { S.transfer = null; closeSheet(); toast("已取消轉讓"); refresh(true); });
   }
   function sheetAct(a) {
     if (a === "close") return closeSheet();
@@ -464,7 +624,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function hm(iso) { var t = tw(iso); return t ? ("0" + t.getUTCHours()).slice(-2) + ":" + ("0" + t.getUTCMinutes()).slice(-2) : ""; }
   function twParse(v) { if (!v) return NaN; var x = String(v); if (/T\d\d:\d\d(:\d\d)?$/.test(x)) x += "+08:00"; return Date.parse(x); }   // 沒寫時區的一律當台北時間
   function jget(k) { try { return JSON.parse(lsGet(k) || "null") || {}; } catch (e) { return {}; } }
-  function startMs(ev) { var v = ev && ev.startAt ? twParse(ev.startAt) : NaN; return isNaN(v) ? null : v; }
+  function startMs(ev) { var v = ev && ev.startAt ? Date.parse(ev.startAt) : NaN; return isNaN(v) ? null : v; }
   function closeMs(ev) { var s = startMs(ev); return s == null ? null : s + 2 * 3600e3; }
   function openMs(ev) { var s = startMs(ev); return s == null ? null : s - QR_LOCK_H * 3600e3; }
   function qrUnlocked(ev) { if (!QR_LOCK_H) return true; var o = openMs(ev); return o == null || Date.now() >= o; }
@@ -477,7 +637,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     ensureSession().then(function () { return Promise.all([loadEvents(), loadMine(force)]); })
       .then(function () { S.loading = false; render(); });
   }
-  function isLive(t) { var end=closeMs(t.event||eventById(t.eventId)); return t.status === "valid" && !t.expired && (end==null||Date.now()<end); }
+  function isLive(t) { return t.status === "valid" && !t.expired; }
   function validTickets() { return S.tickets.filter(isLive); }
   function pastTickets() { return S.tickets.filter(function (t) { return !isLive(t); }); }
   function ticketById(id) { return S.tickets.filter(function (t) { return t.id === id; })[0] || null; }
@@ -493,27 +653,16 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function nextMine() { var v = validTickets().slice().sort(function (a, b) { return String(a.event && a.event.startAt || "").localeCompare(String(b.event && b.event.startAt || "")); }); return v[0] || null; }
 
   /* ---------- 提醒（本機記住＋送到後台登記，粉絲不用重按） ---------- */
-  function remindKey(k) { return (C.demo?'tk:demo:rm:':"tk:rm:") + k; }
+  function remindKey(k) { return "tk:rm:" + k; }
   function reminded(k, ev) {
     if (lsGet(remindKey(k))) return true;
     if (ev && /聽片/.test(ev.name || "") && lsGet("album-the-sky:interest")) return true;   // 舊「我想去」＝2/13 聽片會提醒
     return false;
   }
   function setRemind(k) {
+    lsSet(remindKey(k), "1"); hap(15); toast("開賣時會通知你 ✓");
     var em = S.email || (unlockCreds() || {}).email || lsGet(K.email) || "";
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em) && !C.demo){
-      S.reminderTarget = k;
-      sheet('<div class="tk-eyebrow">STAY IN THE MOMENT</div><h3>開賣時通知你</h3><p class="tk-hint">留下 email，只用於這項開賣提醒。</p><label for="tk-remail">Email</label><input class="tk-in" id="tk-remail" type="email" autocomplete="email" placeholder="你的 email"><div class="tk-msg" id="tk-remmsg" role="status"></div><button class="tk-btn p" data-sact="save-reminder">確認訂閱提醒</button><button class="tk-btn g" data-sact="close">取消</button>');return;
-    }
-    return saveReminder(k,em);
-  }
-  function saveReminder(k,em){
-    if(S.reminderBusy)return; S.reminderBusy=true;
-    toast('正在登記提醒…');
-    return api('/interest',{email:em,event:String(k).slice(0,40)}).then(function(j){
-      if(!j||!j.ok)throw new Error('interest');
-      lsSet(remindKey(k),'1'); hap(15);if(S.reminderTarget===k){S.reminderTarget=null;closeSheet();}toast('開賣提醒已登記 ✓');S.layers.forEach(renderLayer);
-    }).catch(function(){toast('提醒未登記成功，請稍後再試。');msg('#tk-remmsg','登記失敗，請重試。');}).finally(function(){S.reminderBusy=false;});
+    if (em) api("/interest", { email: em, event: String(k).slice(0, 40) }).catch(function () {});
   }
 
   /* ---------- 周邊資料（讀 app 既有設定與購買紀錄，不寫死） ---------- */
@@ -553,8 +702,8 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   function mount() {
     if (document.getElementById("tk-root")) return;
     var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
-    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=20260912-complete3"; document.head.appendChild(design);
-    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=3';document.head.appendChild(edition);
+    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B200T"; document.head.appendChild(design);
+    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B200T';document.head.appendChild(edition);
     root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
     var host = $(C.mount), before = host && $(C.before, host);
     if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
@@ -565,7 +714,23 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     lay.addEventListener("submit", function (e) { e.preventDefault(); });
     document.addEventListener("keydown", shopKeys);
   }
-  function render() {
+  
+function dataNotice() {
+    return (C.demo ? '<p class="tk-demo" role="status">DEMO 設計示範 · 收藏與票券皆非真實權限，不能入場</p>' : '') +
+      (S.eventsError || S.mineError ? '<div class="tk-error" role="status">' + esc(S.eventsError || S.mineError) + '<button data-act="retry-data">重新載入</button></div>' : '');
+  }
+
+
+function shopKeys(e) {
+    var topSheet = sheetEl && sheetEl.classList.contains('show') ? sheetEl : null;
+    var activeLayer = S.layers.length ? layerEl(S.layers[S.layers.length-1]) : null;
+    var scope = topSheet || activeLayer;
+    if(e.key==='Escape' && scope){e.preventDefault();if(topSheet)closeSheet();else back();return;}
+    if((e.key==='Enter'||e.key===' ') && e.target.matches('[role="button"][data-act]')){e.preventDefault();e.target.click();return;}
+    if(e.key==='Tab' && scope){var items=Array.from(scope.querySelectorAll('button:not(:disabled),input,summary,a[href],[tabindex="0"]')).filter(function(x){return x.getClientRects().length&&!x.closest('[inert]');});if(!items.length)return;var first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||!scope.contains(document.activeElement))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(document.activeElement===last||!scope.contains(document.activeElement))){e.preventDefault();first.focus();}}
+  }
+
+function render() {
     if (!body) return;
     var vt = validTickets(), mine = nextMine(), ups = upcoming(), cab = cabinet();
     var nextEv = mine ? Object.assign({}, eventById(mine.eventId) || {}, mine.event || {}) : ups[0];
@@ -575,42 +740,101 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     S.coverClock = coverClockKey();
     S.layers.forEach(function (l) { renderLayer(l); });
   }
+  /* B200T：SHOP 首頁 v3 樣式，隨 JS 注入 */
+  (function(){ if(document.getElementById('sv3-style')) return; var st=document.createElement('style'); st.id='sv3-style'; st.textContent="/* B200T · SHOP 首頁 v3（文字可改；校準 853×1844×0.504→430） */\n#tk-root:has(> .sv3){padding:0}\n.sv3{--sv3-bg:#0B090D;--sv3-ink:#F3EEEA;--sv3-soft:#CFC7D4;--sv3-dim:#9A93A8;--sv3-gold:#E8BF7A;--sv3-gl:rgba(232,191,122,.55);--sv3-gf:rgba(232,191,122,.22);--sv3-pad:5.35%;\n  position:relative;width:100%;margin:0;min-height:100%;background:var(--sv3-bg);color:var(--sv3-ink);\n  font-family:'Noto Sans TC',-apple-system,'PingFang TC',sans-serif;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;\n  padding-bottom:calc(126px + env(safe-area-inset-bottom))}\n.sv3 *{box-sizing:border-box}\n.sv3 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;text-align:left;padding:0;margin:0;-webkit-tap-highlight-color:transparent}\n.sv3 img{display:block;max-width:100%}\n.sv3 .bd{font-family:'Bodoni Moda','Noto Serif TC',serif;font-weight:400;font-optical-sizing:none;font-variation-settings:\"opsz\" 11}\n.sv3-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}\n.sv3-bg-img{position:absolute;top:-2%;left:-4%;width:112%;height:auto;filter:contrast(1.05) saturate(.9)}\n.sv3-bg-left{position:absolute;inset:0;background:linear-gradient(98deg,rgba(11,9,13,.86) 0%,rgba(11,9,13,.56) 22%,rgba(11,9,13,.1) 46%,transparent 62%)}\n.sv3-bg-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,9,13,.30) 0%,rgba(11,9,13,.08) 14%,rgba(11,9,13,.18) 40%,rgba(11,9,13,.46) 52%,rgba(11,9,13,.78) 63%,rgba(11,9,13,.95) 74%,#0B090D 82%)}\n.sv3-wrap{position:relative;z-index:2;padding:0 var(--sv3-pad)}\n.sv3-cover{position:relative}\n.sv3-cover::before{content:'';float:left;padding-top:123.7%}\n.sv3-cover::after{content:'';display:table;clear:both}\n.sv3-top{padding-top:21px}\n.sv3-brand{font-size:10.5px;letter-spacing:.28em;line-height:1.4;color:var(--sv3-gold);text-transform:uppercase;margin:0 0 9px;white-space:nowrap}\n.sv3-h1{font-family:'Noto Serif TC',serif;font-weight:500;font-size:51px;line-height:1.08;letter-spacing:.08em;color:var(--sv3-gold);white-space:nowrap;margin:0;text-shadow:0 2px 22px rgba(0,0,0,.55)}\n.sv3-sub{font-family:'Noto Serif TC',serif;font-weight:400;font-size:12.5px;letter-spacing:.14em;line-height:1.7;color:var(--sv3-ink);margin:6px 0 0;text-shadow:0 1px 10px rgba(0,0,0,.6)}\n.sv3-side-l{margin-top:6px}\n.sv3-rule{width:1px;height:37px;background:var(--sv3-gl);margin-bottom:9px}\n.sv3-side-en{font-size:8.5px;letter-spacing:.2em;line-height:1.6;color:var(--sv3-gold);text-transform:uppercase}\n.sv3-side-en .dash{display:block;width:10px;height:1px;background:var(--sv3-gl);margin-top:9px}\n.sv3-ts{position:absolute;top:22px;right:0;width:56px;height:56px;z-index:3}\n.sv3-ts img{width:56px;height:56px}\n.sv3-side-zh{position:absolute;top:108px;right:0;width:12px;z-index:3;display:flex;flex-direction:column;align-items:center;font-family:'Noto Serif TC',serif;font-weight:400;font-size:9px;line-height:12px;color:var(--sv3-ink);text-shadow:0 1px 10px rgba(0,0,0,.9)}\n.sv3-side-zh span{display:block;height:12px}\n.sv3-side-zh .vd{width:1px;height:10px;background:var(--sv3-gl);margin:3px 0 5px;display:block}\n.sv3-side-zh .pd{height:12px;position:relative}\n.sv3-side-zh .pd::after{content:'';position:absolute;left:5px;top:6px;width:2px;height:2px;border-radius:50%;background:var(--sv3-ink)}\n.sv3-sig{position:absolute;right:-2px;top:75.8%;width:84px;z-index:3;opacity:.96}\n.sv3-higher{position:absolute;right:3px;top:89.7%;width:40px;z-index:3;font-size:7.5px;letter-spacing:.18em;line-height:1.7;color:var(--sv3-ink);text-align:left;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.85)}\n.sv3-higher::after{content:'';display:block;width:24px;height:1px;background:var(--sv3-gl);margin-top:8px}\n.sv3-sec{position:relative}\n.sv3-sec-hd{display:flex;align-items:center;gap:14px;margin-bottom:13px}\n.sv3-sec-num{font-size:10.5px;letter-spacing:.24em;color:var(--sv3-gold);text-transform:uppercase;white-space:nowrap}\n.sv3-sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--sv3-gl),rgba(232,191,122,.15))}\n.sv3-block{display:block;width:100%;position:relative}\n.sv3-block:active{opacity:.85}\n.sv3-block[disabled]{cursor:default}\n.sv3-grid{display:grid;grid-template-columns:minmax(160px,1fr) min(190px,44%);gap:12px;align-items:start}\n.sv3-block-h{font-family:'Noto Serif TC',serif;font-weight:500;font-size:26px;line-height:1.28;letter-spacing:.03em;color:var(--sv3-ink);margin:0 0 9px;text-shadow:0 2px 14px rgba(0,0,0,.5)}\n.sv3-block-m{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:13.5px;line-height:1.7;letter-spacing:0;color:var(--sv3-soft);margin:0}\n.sv3-block-m .num{font-family:'Bodoni Moda',serif;font-weight:400;font-optical-sizing:none;font-variation-settings:\"opsz\" 11;font-size:15px;color:var(--sv3-gold)}\n.sv3-go{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:'Noto Sans TC',sans-serif;font-size:14px;letter-spacing:.04em;color:var(--sv3-gold);padding-bottom:6px;border-bottom:1px solid var(--sv3-gl)}\n.sv3-go i{font-style:normal;font-size:15px}\n.sv3-go.on{animation:sv3glow 2.8s ease-in-out infinite}\n@keyframes sv3glow{0%,100%{text-shadow:none}50%{text-shadow:0 0 14px rgba(232,191,122,.55)}}\n.sv3-ticket{width:100%;transform:rotate(-7deg);transform-origin:60% 40%;filter:drop-shadow(0 12px 22px rgba(0,0,0,.55));margin-top:4px}\n.sv3-ticket svg{width:100%;height:auto;display:block}\n.sv3-merch-grid{grid-template-columns:minmax(160px,1fr) min(190px,44%)}\n#sv3-merch .sv3-sec-hd{margin-bottom:8px}\n#sv3-merch .sv3-block-h{margin-bottom:6px}\n#sv3-merch .sv3-go{margin-top:10px}\n#sv3-merch{padding-bottom:24px}\n.sv3-merch-wrap{position:absolute;right:-6px;top:-72px;width:min(216px,50%);aspect-ratio:567/640;transform:rotate(1.5deg);filter:drop-shadow(0 14px 24px rgba(0,0,0,.55));z-index:1;pointer-events:none}\n.sv3-merch-wrap img{width:100%;height:100%;object-fit:cover;border-radius:3px}\n.sv3-divide{height:1px;background:linear-gradient(90deg,var(--sv3-gf),transparent);margin:10px 0 10px}\n@media (min-width:431px){.sv3-h1{font-size:56px}.sv3-block-h{font-size:29px}.sv3-sub{font-size:13.5px}.sv3-block-m{font-size:14.5px}}\n@media (max-width:399px){.sv3-h1{font-size:46px}.sv3-block-h{font-size:24px}.sv3-sig{width:76px}}\n@media (max-width:359px){.sv3{--sv3-pad:5.6%}.sv3-brand{font-size:9.5px;letter-spacing:.24em}.sv3-h1{font-size:38px}.sv3-sub{font-size:11.5px}.sv3-block-h{font-size:21px}.sv3-block-m{font-size:12.5px}.sv3-grid,.sv3-merch-grid{grid-template-columns:minmax(128px,1fr) min(160px,44%);gap:10px}.sv3-sig{width:64px}.sv3-side-zh{top:100px}}\n@media (prefers-reduced-motion:reduce){.sv3-go.on{animation:none}}\n"; document.head.appendChild(st); })();
 
-  function coverClockKey() {
-    var mine=nextMine(),ev=mine?Object.assign({},eventById(mine.eventId)||{},mine.event||{}):upcoming()[0];
-    return [validTickets().length,ev&&ev.id,ev&&startMs(ev)?Math.max(0,Math.ceil((startMs(ev)-Date.now())/864e5)):'',!!(mine&&isEventDay(ev))].join('|');
-  }
-
-  /* The supplied 853 × 1844 artwork is the source of truth for fixed cover
-     lettering, photography, signature and decorative card artwork. Live data
-     remains accessible text. The reference proof never changes ticket data. */
-  function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
+function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
     var proof = /[?&]shopcover=reference(?:&|$)/.test(location.search);
     var stat = S.loading && !S.tickets.length && !S.events.length ? '載入中…' : vt.length ? vt.length + ' 張有效票券' : '還沒有票';
     var eventLine = ev ? md(ev.startAt) + ' · ' + (ev.name || 'CHANCE') : S.loading ? '活動載入中…' : '新活動即將公布';
     var days = ev && startMs(ev) ? String(Math.max(0, Math.ceil((startMs(ev) - Date.now()) / 864e5))) : '—';
     var count = cab.owned.length + ' / ' + cab.all.length + ' 已收藏';
     var action = mine && isEventDay(ev) ? 'open-now' : 'open-wallet';
-    var cover = '<div class="tk-reference-cover" aria-label="THE SKY 私人收藏">' +
-      '<img class="tk-reference-image" src="' + esc(C.base + 'shop-assets/collection-cover.jpg') + '" width="853" height="1844" alt="" fetchpriority="high" decoding="sync" draggable="false">' +
-      '<header class="tk-cover-a11y"><h1>你的收藏</h1><p>票券與周邊，各自收好。</p><p>收藏不只是擁有，而是與你的時間並肩。</p></header>' +
-      '<button class="tk-cover-hit tk-cover-profile" data-act="profile" aria-label="帳號與票務登入"></button>' +
-      '<button class="tk-cover-hit tk-cover-ticket" data-act="' + action + '" aria-label="' + (action==='open-now'?'立即開票':'查看活動與你的票夾') + '"></button>' +
-      '<button class="tk-cover-hit tk-cover-merch" data-act="open-merch" aria-label="瀏覽周邊收藏"></button>';
-    if(!proof){
-      cover += coverValue('status',stat,'還沒有票') + coverValue('event',eventLine,'12/27 · CHANCE 生日會') +
-        coverValue('days',days,'107') + coverValue('count',count,'0 / 3 已收藏') + coverValue('drop',dropLine,'製作寫真 2/5 開賣');
-      if(action==='open-now')cover += '<span class="tk-cover-live tk-cover-live-cta" aria-hidden="true">立即開票 →</span>';
-    }
-    cover += '<nav class="tk-cover-nav" aria-label="主要導覽">' + [['player','PLAY'],['mood','FEED'],['merch','SHOP'],['purchase','OWN'],['lucky','LUCKY']].map(function(v){
-      return '<button class="tk-cover-hit" data-act="cover-nav" data-go="' + v[0] + '" aria-label="' + v[1] + '"' + (v[0]==='merch'?' aria-current="page"':'') + '></button>';
-    }).join('') + '</nav></div>';
-    var notice = !proof && (C.demo || S.eventsError || S.mineError) ? '<div class="tk-cover-notice">'+dataNotice()+'</div>' : '';
-    return cover + notice;
+    var _tiers = (ev && ev.tiers) || null;
+    var _minP = _tiers && _tiers.length ? Math.min.apply(null, _tiers.map(function(t){return +t.price||0;}).filter(function(n){return n>0;})) : (ev && ev.price || 0);
+    var _onSale = _tiers && _tiers.length ? _tiers.some(function(t){return t.onSale;}) : (ev && ev.onSale);
+    var _soldOut = _tiers && _tiers.length ? _tiers.every(function(t){return t.left===0;}) : false;
+    var _ctaLabel = mine ? ('查看我的票' + (mine.seatNo ? ' · No.' + ('00'+mine.seatNo).slice(-3) : ''))
+                    : _soldOut ? '已售完'
+                    : _onSale ? ('立即購票 · NT$' + (_minP? _minP.toLocaleString('en-US') : '') + ' 起')
+                    : '即將開賣 · 設定提醒';
+    var _ctaAct = mine ? 'open-now' : 'open-wallet';
+    var T = SHOP_TEXT, A = T.assets;
+    var goLabel = mine ? (T.goMine + (mine.seatNo ? ' · No.' + ('00'+mine.seatNo).slice(-3) : ''))
+                : _soldOut ? T.goSoldOut : _onSale ? T.goTickets : T.goRemind;
+    var evName  = ev ? (ev.name || 'CHANCE') : (S.loading ? '載入中…' : '尚未公布活動');
+    var evDate  = ev ? (md(ev.startAt) + '（' + wk(ev.startAt) + '）' + hm(ev.startAt)) : '';
+    var evVenue = ev ? ((ev.venue || '') + (ev.capacity ? ' · ' + ev.capacity + ' 席' : '')) : '';
+    var evPrice = _minP ? '<span class="num">NT$' + _minP.toLocaleString('en-US') + '</span> 起' : '';
+    var zhParts = String(T.sideZh).split('｜');
+    var zhHTML  = zhParts.map(function(part, idx){
+      var chars = part.split('').map(function(c){ return c === '。' ? '<span class="pd"></span>' : '<span>' + esc(c) + '</span>'; }).join('');
+      return chars + (idx < zhParts.length-1 ? '<i class="vd"></i>' : '');
+    }).join('');
+    var merchSub = esc(count) + (dropLine ? '<br>' + esc(dropLine) : '');
+    return '<div class="sv3">' +
+      '<div class="sv3-bg"><img class="sv3-bg-img" src="' + esc(A.portrait) + '" alt=""><div class="sv3-bg-left"></div><div class="sv3-bg-fade"></div></div>' +
+      '<div class="sv3-wrap">' +
+        '<section class="sv3-cover">' +
+          '<header class="sv3-top"><div class="sv3-brand bd">' + esc(T.brand) + '</div><h1 class="sv3-h1">' + esc(T.title) + '</h1><p class="sv3-sub">' + esc(T.subtitle) + '</p></header>' +
+          '<div class="sv3-side-l"><div class="sv3-rule"></div><div class="sv3-side-en bd">' + T.sideEn.map(esc).join('<br>') + '<span class="dash"></span></div></div>' +
+          '<button class="sv3-ts" data-act="profile" aria-label="帳號"><img src="' + esc(A.logo) + '" alt="T｜S"></button>' +
+          '<div class="sv3-side-zh" aria-label="' + esc(T.sideZh.replace('｜','，')) + '">' + zhHTML + '</div>' +
+          '<img class="sv3-sig" src="' + esc(A.signature) + '" alt="The Sky">' +
+          '<div class="sv3-higher bd">' + T.higher.map(esc).join('<br>') + '</div>' +
+        '</section>' +
+        '<section class="sv3-sec" id="sv3-tickets">' +
+          '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secTickets) + '</span><i class="sv3-sec-line"></i></div>' +
+          '<button class="sv3-block" data-act="' + _ctaAct + '"' + (_soldOut && !mine ? ' disabled' : '') + '>' +
+            '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2><p class="sv3-block-m">' + esc(evDate) + '<br>' + esc(evVenue) + (evPrice ? '<br>' + evPrice : '') + '</p></div>' +
+            '<div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div>' +
+            '<span class="sv3-go' + (_onSale && !mine ? ' on' : '') + '">' + esc(goLabel) + ' <i>→</i></span>' +
+          '</button>' +
+        '</section>' +
+        '<div class="sv3-divide"></div>' +
+        '<section class="sv3-sec" id="sv3-merch">' +
+          '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secMerch) + '</span><i class="sv3-sec-line"></i></div>' +
+          '<button class="sv3-block" data-act="open-merch">' +
+            '<div class="sv3-grid sv3-merch-grid"><div><h2 class="sv3-block-h">' + esc(T.merchTitle) + '</h2><p class="sv3-block-m">' + merchSub + '</p></div><div aria-hidden="true"></div></div>' +
+            '<span class="sv3-go">' + esc(T.goMerch) + ' <i>→</i></span>' +
+            '<div class="sv3-merch-wrap"><img src="' + esc(A.merch) + '" alt="周邊收藏卡"></div>' +
+          '</button>' +
+        '</section>' +
+      '</div>' +
+    '</div>';
   }
-  function coverValue(key,value,reference) {
+  function sv3TicketSVG(ev){
+    var d = ev && ev.startAt ? new Date(ev.startAt) : null;
+    var mmdd = d ? (d.getMonth()+1) + '.' + d.getDate() : '';
+    return '<svg viewBox="0 0 230 136" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="票券">' +
+      '<defs><linearGradient id="sv3pg" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#221d27"/><stop offset=".55" stop-color="#14111a"/><stop offset="1" stop-color="#0c0a10"/></linearGradient>' +
+      '<radialGradient id="sv3mn" cx=".37" cy=".31"><stop offset="0" stop-color="#f0d9a2"/><stop offset=".42" stop-color="#9c7c42"/><stop offset="1" stop-color="#241b10"/></radialGradient>' +
+      '<filter id="sv3paper"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" result="n"/><feColorMatrix in="n" type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".055"/></feComponentTransfer></filter>' +
+      '<mask id="sv3notch"><rect width="230" height="136" fill="#fff"/><circle cx="158" cy="0" r="5" fill="#000"/><circle cx="158" cy="136" r="5" fill="#000"/></mask></defs>' +
+      '<g mask="url(#sv3notch)"><rect x="1" y="1" width="228" height="134" rx="8" fill="url(#sv3pg)" stroke="#C9A05A" stroke-width="1.1"/><rect x="1" y="1" width="228" height="134" rx="8" filter="url(#sv3paper)" opacity=".85"/></g>' +
+      '<line x1="158" y1="10" x2="158" y2="126" stroke="#C9A05A" stroke-width=".9" stroke-dasharray="4 5" opacity=".8"/>' +
+      '<circle cx="122" cy="66" r="30" fill="url(#sv3mn)" opacity=".9"/>' +
+      '<text x="16" y="38" fill="#EFE7D6" font-family="Bodoni Moda,serif" font-size="15" letter-spacing="2">THE SKY</text>' +
+      '<text x="16" y="98" fill="#A99E8C" font-family="Bodoni Moda,serif" font-size="6.4" letter-spacing="1.2">MUSIC</text>' +
+      '<text x="16" y="108" fill="#A99E8C" font-family="Bodoni Moda,serif" font-size="6.4" letter-spacing="1.2">LIVES BEYOND</text>' +
+      '<text x="16" y="118" fill="#A99E8C" font-family="Bodoni Moda,serif" font-size="6.4" letter-spacing="1.2">THE MOMENT</text>' +
+      '<line x1="16" y1="126" x2="30" y2="126" stroke="#C9A05A" stroke-width=".9"/>' +
+      '<text x="172" y="38" fill="#E8BF7A" font-family="Bodoni Moda,serif" font-size="17" letter-spacing=".5">' + esc(mmdd) + '</text>' +
+      '<text x="172" y="58" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">CHANCE</text>' +
+      '<text x="172" y="70" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">BIRTHDAY</text>' +
+      '<text x="172" y="82" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">LIVE</text>' +
+      '<line x1="172" y1="94" x2="188" y2="94" stroke="#C9A05A" stroke-width=".9"/></svg>';
+  }
+
+function coverValue(key,value,reference) {
     return '<span class="' + (value===reference?'tk-cover-a11y':'tk-cover-live tk-cover-live-'+key) + '"' + (key==='status'?' role="status"':'') + '><span>' + esc(value) + '</span></span>';
   }
+
+function coverClockKey() {
+    var mine=nextMine(),ev=mine?Object.assign({},eventById(mine.eventId)||{},mine.event||{}):upcoming()[0];
+    return [validTickets().length,ev&&ev.id,ev&&startMs(ev)?Math.max(0,Math.ceil((startMs(ev)-Date.now())/864e5)):'',!!(mine&&isEventDay(ev))].join('|');
+  }
+
 
   /* ---------- 分層導覽 ---------- */
   function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
@@ -621,24 +845,19 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     S.layers.push(name);
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
-    var previous = S.layers.length > 1 ? layerEl(S.layers[S.layers.length-2]) : $(C.mount);
-    if(previous) previous.inert = true;
-    var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name); el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label',({wallet:'我的票夾',pass:'入場券',merch:'周邊收藏',detail:'收藏詳情'})[name]); el._returnFocus = document.activeElement;
+    var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
     document.getElementById("tk-layers").appendChild(el);
     renderLayer(name);
     document.body.classList.add("tk-open");
-    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in");var first=el.querySelector('button');if(first)first.focus({preventScroll:true}); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
     if (name === "wallet" || name === "pass") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
   function popLayer() {
     var name = S.layers.pop(); if (!name) return;
-    var previous = S.layers.length ? layerEl(S.layers[S.layers.length-1]) : $(C.mount); if(previous)previous.inert=false;
-    var el = layerEl(name); if (el) { el.inert=true; el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
+    var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
     if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); }
-    if(el&&el._returnFocus&&el._returnFocus.isConnected)el._returnFocus.focus({preventScroll:true});
-    else if(previous){var focus=previous.querySelector('[data-act="'+(name==='wallet'?'open-wallet':name==='merch'?'open-merch':'back')+'"]');if(focus)focus.focus({preventScroll:true});}
   }
   function back() { if (S.layers.length) history.back(); }
   function closeAll() { while (S.layers.length) popLayer(); }
@@ -647,38 +866,41 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     while (S.layers.length > want) popLayer();
   });
   function bar(backLabel, center, right) {
-    var graphic = right && /share/.test(right.act) ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 15V2m-4 4 4-4 4 4M7 10H4v11h16V10h-3"/></svg>' : right ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="20" cy="12" r="1.6"/></svg>' : '';
-    return '<div class="tk-bar"><button data-act="back"><span class="chev" aria-hidden="true">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled aria-hidden="true" style="opacity:0"') + '>' + graphic + '</button></div>';
+    return '<div class="tk-bar"><button data-act="back"><span class="chev">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled style="opacity:0"') + '>' + (right ? right.icon : "") + '</button></div>';
   }
   function renderLayer(name) {
     var el = layerEl(name); if (!el) return;
-    var savedScroll = el.scrollTop;
-    var focused = el.contains(document.activeElement) ? document.activeElement : null;
-    var focusAct = focused && focused.getAttribute('data-act'), focusFilter = focused && focused.getAttribute('data-filter');
     if (name === "wallet") el.innerHTML = walletHTML();
     if (name === "pass") el.innerHTML = passHTML();
     if (name === "merch") el.innerHTML = merchHTML();
     if (name === "detail") el.innerHTML = detailHTML();
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.qr && isLive(t) && qrUnlocked(t.event)) drawQR($("#tkqr-" + cssId(t.id), el), t.qr, 240); }
-    el.scrollTop = savedScroll;
-    if(focusAct){var targets=el.querySelectorAll('[data-act]');for(var z=0;z<targets.length;z++){if(targets[z].getAttribute('data-act')===focusAct&&targets[z].getAttribute('data-filter')===focusFilter){targets[z].focus({preventScroll:true});break;}}}
   }
 
   /* ---------- 票夾：一場活動一張卡 ---------- */
-  function loginCard() {
-    return '<div class="tk-card" id="tk-login"><p><b>用 email 看你的票</b><br>買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。</p>' +
-      '<form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '">' +
-      '<div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div>' +
-      '<div class="tk-msg" id="tk-lmsg"></div>' +
-      '<button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button>' +
-      '<button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div>';
-  }
+  function loginCard() { return '<details class="tk-login-fold" id="tk-login"><summary class="tk-login-sum"><span>已買過票？<b>用 email 找回你的票</b></span><i>›</i></summary><div class="tk-login-body"><p class="tk-login-hint">買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。</p><form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"><div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div><div class="tk-msg" id="tk-lmsg"></div><button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button><button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div></details>'; }
   function footFor(ev) {
     var mine = ticketsFor(ev.id);
     if (mine.length) {
       var pend = mine.some(function (t) { return t.transferPending; });
       var right = pend ? '<span class="tk-chip d">轉讓中</span>' : (qrUnlocked(ev) ? '<span class="tk-chip o">出示入場 QR</span>' : '<span class="tk-chip g">開場前 ' + QR_LOCK_H + ' 小時出現 QR</span>');
       return '<div class="l">🎫 你有 ' + mine.length + ' 張票</div>' + right;
+    }
+    if (ev.tiers && ev.tiers.length) {
+      var anyOn = ev.tiers.some(function (t) { return t.onSale && t.left !== 0; });
+      if (!anyOn && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
+      if (anyOn) return '<div class="tk-tierlist-inline">' + ev.tiers.map(function(t){
+      var so = t.left === 0 || t.onSale === false;
+      var perks = (t.perks||[]).slice(0,3).join('・');
+      var nrange = ('00'+t.numFrom).slice(-3) + '–' + ('00'+t.numTo).slice(-3);
+      return '<div class="tk-tinline' + (so?' off':'') + '">'
+        + '<div class="tk-tinline-h"><b>' + esc(t.name) + '</b><span class="pr">NT$' + (+t.price).toLocaleString('en-US') + '</span></div>'
+        + '<div class="tk-tinline-m">' + (so? '<span class="so">已售完</span>' : '剩 ' + (t.left==null?'—':t.left) + ' 席 · No.' + nrange) + '</div>'
+        + (perks? '<div class="tk-tinline-p">' + esc(perks) + (t.perks.length>3?' …':'') + '</div>' : '')
+        + (so? '<button class="tk-tinline-btn off" disabled>已售完</button>'
+             : '<button class="tk-tinline-btn" data-act="buytier" data-ev="' + esc(ev.id) + '" data-tier="' + esc(t.key) + '">購買 · NT$' + (+t.price).toLocaleString('en-US') + '</button>')
+        + '</div>';
+    }).join('') + '<div class="tk-tierlist-note">每個票種每人限 1 張・越早買，終身編號越前面</div></div>';
     }
     if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
     if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
@@ -699,54 +921,43 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   }
   function walletHTML() {
     var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
-    h += '<div class="tk-wallet-hero">' + signature() + '<div class="tk-hd"><div class="tk-eyebrow">MY WALLET</div><h1 class="tk-h1 tk-serif">我的票夾</h1><p class="tk-sub">每一場相遇，都是天空的一部分。</p></div></div>' + dataNotice();
+    h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div></div>';
+    h += '<div class="tk-seg"><button class="' + (S.tab !== "past" ? "on" : "") + '" data-act="tab" data-tab="up">即將到來</button><button class="' + (S.tab === "past" ? "on" : "") + '" data-act="tab" data-tab="past">過往</button></div>';
     if (!S.session && !unlockCreds()) h += loginCard();
-    var vt = validTickets().slice().sort(function(a,b){return (startMs(a.event)||0)-(startMs(b.event)||0);});
-    var pt = pastTickets().slice().sort(function(a,b){return (startMs(b.event)||0)-(startMs(a.event)||0);});
-    h += chapter('UPCOMING', vt.length) + (vt.length ? vt.map(archiveTicket).join('') : '<div class="tk-empty">' + (S.loading ? '票券載入中…' : '還沒有即將到來的票券。<br>可以查看活動，或加入朋友轉讓的票。') + '</div>');
-    h += chapter('ARCHIVE', pt.length) + (pt.length ? pt.map(archiveTicket).join('') : '<div class="tk-empty">入場後的票根，會收藏在這裡。</div>');
-    h += '<button class="tk-addbtn" data-act="add">＋ 加入票券<span>朋友轉給你的票，掃 QR 或輸入代碼</span></button>';
-    h += '<details class="tk-events"><summary>查看活動 <span>→</span></summary><div>' + (upcoming().length ? upcoming().map(evCard).join('') : '<div class="tk-empty">目前沒有公布的活動。</div>') + '</div></details>';
+    if (S.tab !== "past") h += '<button class="tk-addbtn" data-act="add">＋ 加入票券<span>朋友轉給你的票，掃 QR 或輸代碼</span></button>';
+    if (S.tab === "past") {
+      var pt = pastTickets();
+      if (!pt.length) h += '<div class="tk-empty">還沒有過往的票。<br>入場過的票會變成票根留在這裡。</div>';
+      h += pt.map(function (t) { var ev = t.event || {}; return '<button class="tk-pastrow" data-act="open-pass" data-id="' + esc(t.id) + '"><div class="pp"></div><div><b>' + esc(ev.name || t.id) + '</b><span>' + md(ev.startAt) + ' · ' + (t.status === "used" ? "已入場 " + hm(t.usedAt) : (t.status === "refunded" ? "已退票" : (t.status === "void" ? "已作廢" : "已結束"))) + '</span></div><span class="chv">›</span></button>'; }).join("");
+      return h;
+    }
+    var ups = upcoming();
+    if (S.loading && !ups.length) h += '<div class="tk-empty">載入中…</div>';
+    else if (!ups.length) h += '<div class="tk-empty">目前沒有活動。<br>新活動公布時會出現在這裡。</div>';
+    h += ups.map(evCard).join("");
+    if (ups.length) h += '<div class="tk-hint2">一場活動一張卡，底部就是你的下一步。</div>';
     return h;
-  }
-
-  function signature() {
-    return '<div class="tk-poem" aria-hidden="true">MUSIC<br>LIVES<br>BEYOND<br>THE<br>MOMENT<span>—</span></div><div class="tk-sign" aria-hidden="true"><i>The<br>Sky</i><small>A HIGHER<br>VERSION<br>OF US</small></div>';
-  }
-  function chapter(label, count) { return '<h2 class="tk-chapter">' + label + ' / ' + String(count).padStart(2,'0') + '<span></span></h2>'; }
-  function dataNotice() {
-    return (C.demo ? '<p class="tk-demo" role="status">DEMO 設計示範 · 收藏與票券皆非真實權限，不能入場</p>' : '') +
-      (S.eventsError || S.mineError ? '<div class="tk-error" role="status">' + esc(S.eventsError || S.mineError) + '<button data-act="retry-data">重新載入</button></div>' : '');
-  }
-  function archiveTicket(t) {
-    var ev = Object.assign({},eventById(t.eventId)||{},t.event||{}), live = isLive(t);
-    var label = live ? (t.transferPending ? '轉讓中' : 'VALID') : (t.status==='used' ? 'USED' : (t.status==='void' ? 'VOID' : 'EXPIRED'));
-    return '<button class="tk-archive-ticket' + (live ? '' : ' archived') + '" data-act="open-pass" data-id="' + esc(t.id) + '" aria-label="查看' + esc(ev.name||t.id) + '，' + label + '">' +
-      '<div class="tk-ticket-main"><div class="tk-ticket-kicker">THE SKY — PRIVATE ARCHIVE</div><h3>' + esc(ev.name||'CHANCE') + '</h3>' +
-      '<div class="tk-ticket-meta"><div><small>DATE</small><span>' + md(ev.startAt) + '</span></div><div><small>TIME</small><span>' + hm(ev.startAt) + '</span></div><div><small>TYPE</small><span>自由入座</span></div></div><span class="tk-eclipse" aria-hidden="true"></span></div>' +
-      '<div class="tk-ticket-end"><small>' + (live ? 'NEXT<br>ENTRY' : 'PAST<br>MOMENT') + '</small><span class="tk-ticket-status">' + label + '</span><span class="tk-ticket-arrow" aria-hidden="true">→</span></div></button>';
   }
 
   /* ---------- 入場票 ---------- */
   function passHTML() {
     var t = ticketById(S.sel);
-    var h = bar("票夾", "ENTRY PASS", { act: "share-ev", label: "分享", icon: "⇪" }) + dataNotice();
+    var h = bar("票夾", "ENTRY PASS", { act: "share-ev", label: "分享", icon: "⇪" });
     if (!t) return h + '<div class="tk-empty">找不到這張票，可能已轉讓給朋友。</div>';
     var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {}), k = evKind(ev), live = isLive(t), open = live && qrUnlocked(ev);
-    var st = t.status === "used" ? '<span class="tk-st warn">已入場</span>' : (t.status === "void" ? '<span class="tk-st bad">已作廢</span>' : (!live ? '<span class="tk-st bad">已結束</span>' : '<span class="tk-st">VALID</span>'));
+    var st = t.status === "used" ? '<span class="tk-st warn">已入場</span>' : (t.status === "refunded" ? '<span class="tk-st bad">已退票</span>' : (t.status === "void" ? '<span class="tk-st bad">已作廢</span>' : (t.expired ? '<span class="tk-st bad">已結束</span>' : '<span class="tk-st">VALID</span>')));
     var mid;
-    if (open && t.qr) mid = '<div class="tk-qrwrap2"><canvas role="img" aria-label="入場 QR，請交由工作人員掃描" id="tkqr-' + cssId(t.id) + '" width="480" height="480"></canvas><div class="tk-qrid">' + esc(t.id) + '</div></div>';
-    else if(open)mid='<div class="tk-lock"><b>正在取得入場 QR</b><p>請確認網路連線，再更新票券。</p><button class="tk-btn" data-act="refresh-ticket">重新取得 QR</button></div>';
+    if (open && t.qr) mid = '<div class="tk-qrwrap2"><canvas id="tkqr-' + cssId(t.id) + '" width="480" height="480"></canvas><div class="tk-qrid">' + esc(t.id) + '</div></div>';
     else if (live) mid = '<div class="tk-lock"><div class="ic">🔒</div><b>入場 QR 還沒出現</b><p>為了防止截圖轉賣，開場前 ' + QR_LOCK_H + ' 小時<br>（' + md(ev.startAt) + ' ' + hm(new Date(openMs(ev)).toISOString()) + '）會自動出現在這裡</p>' + cdHTML(openMs(ev), "tk-lcd") + '</div>';
     else if (t.status === "used") mid = '<div class="tk-stubbox"><b>✓ 已入場</b><span>' + md(t.usedAt) + ' ' + hm(t.usedAt) + ' · ' + esc(t.id) + '</span></div>' + (isEventDay(ev) ? '<button class="tk-btn p" style="margin:0 16px 16px;width:calc(100% - 32px)" data-act="photo-qr">📸 拍照用 QR（給攝影師拍）</button>' : '');
     else mid = '<div class="tk-stubbox"><b>—</b><span>' + esc(t.id) + '</span></div>';
-    h += '<div class="sv-entry-hero" aria-hidden="true">'+signature()+'</div>';
-    h += '<article class="tk-pass sv-pass ' + (t.status === "used" ? "used" : (!live ? "dead" : "")) + '"><div class="tk-art"><small class="sv-pass-kicker">THE SKY — PRIVATE ARCHIVE</small><b>CHANCE</b><i>' + k.lab + (ev.code ? ' · ' + esc(ev.code) : '') + '</i><span class="sv-pass-motto">MUSIC LIVES BEYOND<br>THE MOMENT</span></div><div class="tk-body">' +
+    h += '<article class="tk-pass ' + (t.status === "used" ? "used" : (!live ? "dead" : "")) + '"><div class="tk-art" style="' + (open ? 'height:70px' : '') + '"><i>' + k.lab + (ev.code ? ' · ' + esc(ev.code) : '') + '</i><b' + (open ? ' style="font-size:24px"' : '') + '>CHANCE</b></div><div class="tk-body">' +
       '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + st + '</div>' +
-      '<div class="tk-info"><div><div class="tk-lab">Date</div><div class="tk-val">' + md(ev.startAt) + '（' + wk(ev.startAt).slice(-1) + '）' + hm(ev.startAt) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "—") + '</div></div>' +
-      '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:13px">' + esc(maskEmail(S.email)) + '</div></div><div><div class="tk-lab">Ticket</div><div class="tk-val">自由入座</div></div></div>' +
-      '<div class="tk-tear"></div>' + mid + (open ? '<p class="sv-brightness">請手動調高螢幕亮度，方便現場掃描</p>' : '') + '</div></article>';
-    if (open) h += '<button class="tk-btn p sv-entry-button" data-act="entry-ready">準備入場 <span aria-hidden="true">→</span></button><p class="sv-entry-note">出示此畫面供工作人員掃描</p>';
+      (t.tierName ? '<div class="tk-tierbadge"><span class="bd">' + esc(t.tierName) + '</span>' + (t.seat ? '<span class="sn">終身編號 No.' + esc(t.seat) + '</span>' : '') + '</div>' : '') +
+      '<div class="tk-info">' + (open ? '' : '<div><div class="tk-lab">Date</div><div class="tk-val">' + md(ev.startAt) + '（' + wk(ev.startAt).slice(-1) + '）' + hm(ev.startAt) + '</div></div><div><div class="tk-lab">Venue</div><div class="tk-val">' + esc(ev.venue || "—") + '</div></div>') +
+      '<div><div class="tk-lab">Holder</div><div class="tk-val" style="font-size:13px">' + esc(maskEmail(S.email)) + '</div></div><div><div class="tk-lab">' + (t.tierName ? "票種" : "Ticket") + '</div><div class="tk-val">' + esc(t.tierName || "自由入座") + '</div></div></div>' +
+      '<div class="tk-tear"></div>' + mid + '</div></article>';
+    if (t.perks && t.perks.length) h += '<div class="tk-perkbox"><div class="pt">你的票種享有</div><ul>' + t.perks.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>';
     if (t.transferPending) h += '<div class="tk-banner"><span>這張票正在轉讓中（10 分鐘內有效）</span><button class="tk-chip d" data-act="show-transfer">看轉讓 QR</button></div>';
     if (live) {
       h += '<div class="tk-list">' + (open ? '' : '<button data-act="ics">加到行事曆<span>›</span></button>') +
@@ -754,6 +965,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
         '<button data-act="rules">入場須知<span>›</span></button>' +
         (open ? '<button data-act="refresh-ticket">更新票券<span>›</span></button>' : '') +
         ppRow(ev, t) +
+        (ev.onSale && ev.productKey && (ev.left == null || ev.left > 0) ? '<button data-act="rebuy" data-ev="' + esc(ev.id) + '">再買一張給朋友<span>›</span></button>' : '') +
         (t.transferPending ? '<button class="dim" data-act="cancel-transfer">取消轉讓<span>›</span></button>' : '<button class="dim" data-act="transfer">轉讓給朋友<span>›</span></button>') + '</div>';
     } else if (t.status === "used") {
       var pr = ppRow(ev, t);
@@ -770,25 +982,21 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
 
   /* ---------- 周邊收藏櫃 ---------- */
   function merchHTML() {
-    if (window.TheSkyShopViews) return window.TheSkyShopViews.merch({items:merchItems(),filter:S.mfilter||'all',bar:bar('收藏','MERCH ARCHIVE',{act:'filters',label:'收藏篩選'}),notice:dataNotice(),itemBtn:itemBtn});
     var cab = cabinet(), n = cab.all.length, o = cab.owned.length;
-    var h = bar("收藏", "MERCH ARCHIVE");
-    h += '<div class="tk-merch-hero"><div class="tk-hd"><div class="tk-eyebrow">OWNED BY YOU</div><h1 class="tk-h1 tk-serif">周邊收藏</h1><p class="tk-sub">收藏你與 THE SKY 的每一個瞬間。</p></div>' + signature() + '</div>';
-    h += '<div class="tk-filters" role="group" aria-label="收藏分類">' + [['all','全部'],['physical','實體收藏'],['digital','數位特典'],['owned','已收藏']].map(function(f){var count=cab.all.filter(function(i){return f[0]==='all'||(f[0]==='owned'?i.owned:i.type===f[0]);}).length;return '<button data-act="filter" data-filter="'+f[0]+'" aria-pressed="'+((S.mfilter||'all')===f[0])+'">'+f[1]+' <span>'+count+'</span></button>';}).join('') + '</div>';
-    var list = cab.all.slice().sort(function (a, b) { return (b.owned ? 1 : 0) - (a.owned ? 1 : 0) || (b.type==='physical'?1:0)-(a.type==='physical'?1:0); });
-    list = list.filter(function(i){return !S.mfilter||S.mfilter==='all'||(S.mfilter==='owned'?i.owned:i.type===S.mfilter);});
-    h += '<div class="tk-grid">' + list.map(function (i, idx) {
-      return '<article class="tk-item' + (i.owned ? ' owned' : '') + '"><button class="tk-product-link" data-act="open-detail" data-key="' + esc(i.key) + '"><div class="tk-item-no"><span>' + String(idx+1).padStart(2,'0') + '</span><i></i><small>' + (i.owned?'COLLECTED':'THE SKY') + '</small></div><div class="im"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="' + esc(i.name) + '" loading="lazy" onerror="this.remove()">' : '') +
-        '<span class="tk-tag">' + esc(i.owned ? '已收藏' : dropLabel(i)) + '</span></div><h2 class="nm">' + esc(i.name) + '</h2><div class="ds">' + esc(i.label) + ' <span aria-hidden="true">↗</span></div></button>' + itemBtn(i) + '</article>';
+    var h = bar("收藏", "MERCH");
+    h += '<div class="tk-hd"><div class="tk-eyebrow">Owned by You</div><div class="tk-h1 tk-serif">周邊收藏</div></div>';
+    h += '<div class="tk-prog"><div class="tt"><span>收藏進度</span><span><b>' + o + '</b> / ' + n + '</span></div><div class="tk-pbar"><i style="width:' + (n ? Math.round(o / n * 100) : 0) + '%"></i></div></div>';
+    var list = cab.all.slice().sort(function (a, b) { return (b.owned ? 1 : 0) - (a.owned ? 1 : 0); });
+    h += '<div class="tk-grid" style="margin-top:14px">' + list.map(function (i) {
+      return '<div class="tk-item' + (i.owned ? '' : ' lk') + '"><button style="all:unset;display:block;cursor:pointer;width:100%" data-act="open-detail" data-key="' + esc(i.key) + '"><div class="im"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') +
+        '<span class="tk-tag">' + esc(i.owned ? i.label : dropLabel(i)) + '</span></div><div class="nm">' + esc(i.name) + '</div>' + (i.owned ? '<div class="ds">' + esc(i.desc) + ' · 已收藏</div>' : '') + '</button>' + itemBtn(i) + '</div>';
     }).join("") + '</div>';
-    if (!list.length) h += '<div class="tk-empty">這個分類還沒有收藏品。<br>到「全部」探索你的下一件收藏。</div>';
-    h += '<div class="tk-archive-foot">' + String(o).padStart(2,'0') + ' PIECES IN YOUR ARCHIVE</div>';
+    if (!n) h += '<div class="tk-empty">還沒有收藏品。</div>';
     return h;
   }
   function detailHTML() {
     var i = merchItems().filter(function (x) { return x.key === S.detail; })[0];
     if (!i) return bar("周邊", "COLLECTIBLE") + '<div class="tk-empty">找不到這件收藏</div>';
-    if (window.TheSkyShopViews) return window.TheSkyShopViews.detail({item:i,bar:bar('周邊','COLLECTIBLE',{act:'share',label:'分享'}),notice:dataNotice(),itemBtn:itemBtn,dropLabel:dropLabel});
     var h = bar("周邊", "COLLECTIBLE", { act: "share", label: "分享", icon: "⇪" });
     h += '<div class="tk-hero"><div class="ph">THE SKY</div>' + (i.img ? '<img src="' + esc(i.img) + '" alt="" onerror="this.remove()"' + (i.owned ? '' : ' style="filter:saturate(.6) brightness(.8)"') + '>' : '') + '</div>';
     h += '<div class="tk-dl"><span class="tk-tag" style="position:static;display:inline-block">' + esc(i.label) + '</span><div class="v big">' + esc(i.name) + '</div>' + (i.desc ? '<div class="tk-sub" style="margin-top:6px;line-height:1.6">' + esc(i.desc) + '</div>' : '');
@@ -825,7 +1033,6 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   }
   function orderSheet(key) {
     var i = merchItems().filter(function (x) { return x.key === key; })[0]; if (!i) return;
-    if(i.concept)return sheet('<div class="tk-eyebrow">DESIGN PREVIEW</div><h3>配送與訂單資訊</h3><p class="tk-hint">這是訂單介面示範，沒有真實訂單、付款或配送。正式商品沿用原有訂單信件與出貨流程。</p><button class="tk-btn p" data-sact="close">返回收藏</button>');
     var bd = i.type === "digital" ? "這是數位商品，沒有配送。用同一個 email 在任何裝置登入都能使用。" : (i.order ? "訂單編號：" + esc(i.order) + "<br>" : "") + "出貨進度會以 email 通知，訂單編號在購買確認信裡。需要修改收件資訊請直接回覆那封信。";
     sheet('<div class="tk-eyebrow">Order</div><h3>配送與訂單資訊</h3><div class="tk-hint" style="line-height:1.8">' + bd + '</div><button class="tk-btn p" data-sact="close">關閉</button>');
   }
@@ -845,7 +1052,6 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     window.open(ios ? "https://maps.apple.com/?q=" + encodeURIComponent(q) : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q), "_blank");
   }
   function merchBuy(key) {
-    if(C.demo){toast('DEMO：這裡會開啟原有商品結帳流程');return;}
     var i = merchItems().filter(function (x) { return x.key === key; })[0]; if (!i) return;
     var b = document.querySelector('#merch-list [data-merch="' + i.idx + '"]');   // 沿用 app 原本的購買流程
     if (b) { closeAll(); b.click(); } else toast("這件商品目前還不能購買");
@@ -856,13 +1062,7 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
     if (act === "noop") return;
-    if (act === 'filters') {var f=layerEl('merch').querySelector('.sv-filters');if(f){f.scrollIntoView({block:'center',behavior:'smooth'});f.querySelector('button').focus({preventScroll:true});}return;}
-    if (act === 'entry-ready') {var qr=layerEl('pass').querySelector('.tk-qrwrap2');if(qr)qr.scrollIntoView({block:'center',behavior:'smooth'});toast('請手動調高螢幕亮度，再出示 QR；此操作不會核銷票券。');return;}
-    if (act === 'preview-benefit') return sheet('<div class="tk-eyebrow">DESIGN PREVIEW</div><h3>數位特典</h3><p class="tk-hint">這是介面設計示範，尚未提供特典影片。正式內容需接上實際商品權限與影片網址；不會授予或變更你的收藏權限。</p><button class="tk-btn p" data-sact="close">返回收藏</button>');
     if (act === "back") return back();
-    if (act === "cover-nav") {var screen=b.getAttribute('data-go');if(screen==='merch'){var host=$(C.mount);if(host)host.scrollTo({top:0,behavior:'smooth'});return;}closeAll();var target=document.querySelector('.navbtn[data-screen="'+screen+'"]');if(target)target.click();return;}
-    if (act === "retry-data") return refresh(true);
-    if (act === "filter") { S.mfilter = b.getAttribute('data-filter'); renderLayer('merch'); return; }
     if (act === "profile") return profileSheet();
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
     if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); openLayer("wallet"); if (nm) setTimeout(function () { openLayer("pass", { sel: nm.id }); }, 60); return; }
@@ -873,11 +1073,13 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     if (act === "eremind") { e.stopPropagation(); var ev = eventById(b.getAttribute("data-ev")); setRemind(ev ? ev.id : b.getAttribute("data-ev")); renderLayer("wallet"); return; }
     if (act === "mremind") { e.stopPropagation(); setRemind("merch-" + b.getAttribute("data-key")); renderLayer("merch"); renderLayer("detail"); return; }
     if (act === "mbuy") { e.stopPropagation(); return merchBuy(b.getAttribute("data-key")); }
-    if (act === "buy") { e.stopPropagation(); return buy(b.getAttribute("data-ev")); }
-    if (act === "buy-pp") { e.stopPropagation(); return buy(b.getAttribute("data-ev"), "pp"); }
+    if (act === "pick-tier") { e.stopPropagation(); return tierSheet(b.getAttribute("data-ev")); } if(act==="buytier"){ e.stopPropagation(); var _ev=b.getAttribute("data-ev"), _tier=b.getAttribute("data-tier"); S.tierEv=_ev; buyConfirm(_ev,"meet",_tier); return; }
+    if (act === "buy") { e.stopPropagation(); return buyConfirm(b.getAttribute("data-ev")); }
+    if (act === "buy-pp") { e.stopPropagation(); return buyConfirm(b.getAttribute("data-ev"), "pp"); }
+    if (act === "rebuy") { return buyConfirm(b.getAttribute("data-ev")); }
     if (act === "add") { e.stopPropagation(); return addSheet(); }
     if (act === "photo-qr") return photoQrSheet();
-    if (act === "refresh-ticket") { b.disabled=true;loadMine(true).then(function () { renderLayer("pass"); toast(S.mineError||"票券已更新"); }); return; }
+    if (act === "refresh-ticket") { loadMine(true).then(function () { renderLayer("pass"); toast("票券已更新"); }); return; }
     if (act === "rules") return rulesSheet();
     if (act === "menu") return walletMenu();
     if (act === "transfer") return transferConfirm();
@@ -893,13 +1095,20 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     if (act === "login") return doLogin();
   }
   function sheetAct2(a) {
-    if(a==='save-reminder'){var em=($('#tk-remail').value||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return msg('#tk-remmsg','請輸入有效的 email');return saveReminder(S.reminderTarget,em);}
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
-    if (a === "refresh") { closeSheet(); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); toast(S.mineError||"票券已更新"); }); return; }
+    if (a === "refresh") { closeSheet(); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); toast("票券已更新"); }); return; }
     if (a === "rules") { rulesSheet(); return; }
     if (a === "transfer-go") { closeSheet(); startTransfer(S.sel); return; }
+    if (a.indexOf("tier:") === 0) { closeSheet(); buyConfirm(S.tierEv, "meet", a.slice(5)); return; }
+    if (a === "otp-send") { buyOtpSend(); return; }
+    if (a === "otp-resend") { buyOtpSend(); return; }
+    if (a === "pay") { payNow(); return; }
+    if (a === "pay-verify") { buyVerifyPay(); return; }
+    if (a === "see-ticket") { closeSheet(); var tt = S.buy && ticketsFor(S.buy.evId)[0]; if (tt) openLayer("pass", { sel: tt.id }); return; }
+    if (a === "give") { closeSheet(); var tg = S.buy && ticketsFor(S.buy.evId)[0]; if (tg) { openLayer("pass", { sel: tg.id }); setTimeout(function () { S.sel = tg.id; transferConfirm(); }, 200); } return; }
+    if (a === "repoll") { var el = sheetEl && sheetEl.querySelector('[data-sact="repoll"]'); var ev = el && el.getAttribute("data-ev"), kd = el && el.getAttribute("data-kind"); if (ev) { closeSheet(); awaitPurchase(ev, kd); } return; }
     if (a === "tomerch") { closeSheet(); closeAll(); var nb = $(C.merchNavSel); if (nb) nb.click(); refresh(true); setTimeout(function () { openLayer("wallet"); }, 120); return; }
     return sheetAct(a);
   }
@@ -915,23 +1124,11 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
   }
 
   /* ---------- 啟動 ---------- */
-  function shopKeys(e) {
-    var topSheet = sheetEl && sheetEl.classList.contains('show') ? sheetEl : null;
-    var activeLayer = S.layers.length ? layerEl(S.layers[S.layers.length-1]) : null;
-    var scope = topSheet || activeLayer;
-    if(e.key==='Escape' && scope){e.preventDefault();if(topSheet)closeSheet();else back();return;}
-    if((e.key==='Enter'||e.key===' ') && e.target.matches('[role="button"][data-act]')){e.preventDefault();e.target.click();return;}
-    if(e.key==='Tab' && scope){var items=Array.from(scope.querySelectorAll('button:not(:disabled),input,summary,a[href],[tabindex="0"]')).filter(function(x){return x.getClientRects().length&&!x.closest('[inert]');});if(!items.length)return;var first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||!scope.contains(document.activeElement))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(document.activeElement===last||!scope.contains(document.activeElement))){e.preventDefault();first.focus();}}
-  }
   function boot() {
-    if(C.demo){K.sess='tk:demo:session';K.email='tk:demo:email';}
     mount(); render();
-    if(location.hash==='#shop')requestAnimationFrame(function(){var b=$(C.merchNavSel);if(b)b.click();});
     var host = $(C.mount);
     if (host) {
-      var syncCover = function(){document.body.classList.toggle('tk-cover-active',host.classList.contains('active'));};
-      syncCover();
-      var mo = new MutationObserver(function () {syncCover(); if (host.classList.contains("active")) refresh(false); });
+      var mo = new MutationObserver(function () { if (host.classList.contains("active")) refresh(false); });
       mo.observe(host, { attributes: true, attributeFilter: ["class"] });
       if (host.classList.contains("active")) refresh(false);
     } else refresh(false);
@@ -940,6 +1137,14 @@ Based on jsqrencode | (C) 2010 tz@execpc.com | GPL v3 License
     var m = /[?&]transfer=([A-Za-z0-9]+)/.exec(location.search);
     if (m) { var nb = $(C.merchNavSel); if (nb) setTimeout(function () { nb.click(); }, 300); handleIncoming(m[1]); }
     document.addEventListener("visibilitychange", function () { if (document.visibilityState !== "visible") stopScan(); });
+    var mbuy = /[?&]tkbought=([a-z0-9-]+)/.exec(location.search), mpho = /[?&]tkphoto=([a-z0-9-]+)/.exec(location.search);
+    if (mbuy || mpho) {
+      try { history.replaceState(null, "", location.pathname + (C.demo ? "?tkdemo=1" : "")); } catch (e) {}
+      var nb2 = $(C.merchNavSel); if (nb2) setTimeout(function () { nb2.click(); }, 300);
+      var pe = (mbuy ? mbuy[1] : mpho[1]), pk = mbuy ? "meet" : "pp";
+      ensureSession().then(function () { render(); setTimeout(function () { awaitPurchase(pe, pk); }, 500); });
+      return;
+    }
     // demo 測試：直接當成「已登入・已有一張票」，PhotoPass／轉讓／相機一次點得到（?tkdemo=1&anon=1 可看未登入樣子）
     if (C.demo && !/[?&]anon=1/.test(location.search)) { S.session = "demo-auto"; S.email = "you@demo"; refresh(true); return; }
     if (unlockCreds() || lsGet(K.sess)) refresh(false);
