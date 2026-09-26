@@ -504,6 +504,9 @@ var SHOP_TEXT = {
     hap([20, 40, 20]); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); });
     var ev = buyEvent(evId) || {};
     if (kind === "pp") { sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">PhotoPass</div><h3>PhotoPass 已開通</h3><div class="tk-hint">' + esc(ev.name || "") + '<br>活動後照片整理好會出現在票夾 → 過往 → 這場票根裡。</div></div>' + a2hsHint() + '<button class="tk-btn p" data-sact="close">好</button>'); return; }
+    var mineEv = ticketsFor(evId), want = S.buy && S.buy.evId === evId ? S.buy.tier : null;
+    var nt0 = (want && mineEv.filter(function (x) { return x.tier === want; }).slice(-1)[0]) || mineEv.slice(-1)[0];
+    if (nt0 || want) { closeSheet(); S.done = { evId: evId, ticketId: nt0 ? nt0.id : null }; openLayer("done"); return; }
     var t = ticketsFor(evId)[0];
     sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">In your wallet</div><h3>你的票在票夾了</h3><div class="tk-hint">' + esc(ev.name || "CHANCE") + (t && t.tierName ? '　' + esc(t.tierName) : "") + (t && t.seat ? '<br><b style="color:#f0dcaa;font-size:16px">終身編號 No.' + esc(t.seat) + '</b>' : "") + '<br>入場 QR 會在開場前 ' + QR_LOCK_H + ' 小時出現。</div></div>' +
       (t ? '<button class="tk-btn p" data-sact="see-ticket">看我的票</button><button class="tk-btn g" data-sact="give">轉給朋友</button>' : '') + a2hsHint() + '<button class="tk-btn g" data-sact="close">完成</button>');
@@ -776,8 +779,8 @@ var SHOP_TEXT = {
   function mount() {
     if (document.getElementById("tk-root")) return;
     var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
-    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B201T"; document.head.appendChild(design);
-    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B201T';document.head.appendChild(edition);
+    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B202T"; document.head.appendChild(design);
+    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B202T';document.head.appendChild(edition);
     root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
     var host = $(C.mount), before = host && $(C.before, host);
     if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
@@ -832,7 +835,7 @@ function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
                     : _soldOut ? '已售完'
                     : _onSale ? ('立即購票 · NT$' + (_minP? _minP.toLocaleString('en-US') : '') + ' 起')
                     : '即將開賣 · 設定提醒';
-    var _ctaAct = mine ? 'open-now' : 'open-wallet';
+    var _ctaAct = mine ? 'open-now' : 'open-buy';
     var T = SHOP_TEXT, A = T.assets;
     var goLabel = mine ? (T.goMine + (mine.seatNo ? ' · No.' + ('00'+mine.seatNo).slice(-3) : ''))
                 : _soldOut ? T.goSoldOut : _onSale ? T.goTickets : T.goRemind;
@@ -859,7 +862,7 @@ function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
         '</section>' +
         '<section class="sv3-sec" id="sv3-tickets">' +
           '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secTickets) + '</span><i class="sv3-sec-line"></i></div>' +
-          '<button class="sv3-block" data-act="' + _ctaAct + '"' + (_soldOut && !mine ? ' disabled' : '') + '>' +
+          '<button class="sv3-block" data-act="' + _ctaAct + '" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut && !mine ? ' disabled' : '') + '>' +
             '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2><p class="sv3-block-m">' + esc(evDate) + '<br>' + esc(evVenue) + (evPrice ? '<br>' + evPrice : '') + '</p></div>' +
             '<div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div>' +
             '<span class="sv3-go' + (_onSale && !mine ? ' on' : '') + '">' + esc(goLabel) + ' <i>→</i></span>' +
@@ -925,7 +928,7 @@ function coverClockKey() {
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
-    if (name === "wallet" || name === "pass") loadMine(true).then(function () { renderLayer(name); });
+    if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
   function popLayer() {
@@ -948,6 +951,9 @@ function coverClockKey() {
     if (name === "pass") el.innerHTML = passHTML();
     if (name === "merch") el.innerHTML = merchHTML();
     if (name === "detail") el.innerHTML = detailHTML();
+    if (name === "buy") el.innerHTML = buyHTML();
+    if (name === "checkout") el.innerHTML = checkoutHTML();
+    if (name === "done") el.innerHTML = doneHTML();
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.qr && isLive(t) && qrUnlocked(t.event)) drawQR($("#tkqr-" + cssId(t.id), el), t.qr, 240); }
   }
 
@@ -963,18 +969,8 @@ function coverClockKey() {
     if (ev.tiers && ev.tiers.length) {
       var anyOn = ev.tiers.some(function (t) { return t.onSale && t.left !== 0; });
       if (!anyOn && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
-      if (anyOn) return '<div class="tk-tierlist-inline">' + ev.tiers.map(function(t){
-      var so = t.left === 0 || t.onSale === false;
-      var perks = (t.perks||[]).slice(0,3).join('・');
-      var nrange = ('00'+t.numFrom).slice(-3) + '–' + ('00'+t.numTo).slice(-3);
-      return '<div class="tk-tinline' + (so?' off':'') + '">'
-        + '<div class="tk-tinline-h"><b>' + esc(t.name) + '</b><span class="pr">NT$' + (+t.price).toLocaleString('en-US') + '</span></div>'
-        + '<div class="tk-tinline-m">' + (so? '<span class="so">已售完</span>' : '剩 ' + (t.left==null?'—':t.left) + ' 席 · No.' + nrange) + '</div>'
-        + (perks? '<div class="tk-tinline-p">' + esc(perks) + (t.perks.length>3?' …':'') + '</div>' : '')
-        + (so? '<button class="tk-tinline-btn off" disabled>已售完</button>'
-             : '<button class="tk-tinline-btn" data-act="buytier" data-ev="' + esc(ev.id) + '" data-tier="' + esc(t.key) + '">購買 · NT$' + (+t.price).toLocaleString('en-US') + '</button>')
-        + '</div>';
-    }).join('') + '<div class="tk-tierlist-note">每個票種每人限 1 張・越早買，終身編號越前面</div></div>';
+      if (anyOn) { var mp = Math.min.apply(null, ev.tiers.filter(function (t) { return t.onSale && t.left !== 0; }).map(function (t) { return +t.price || 0; }));
+        return '<div class="l">三種票 · NT$' + mp.toLocaleString("en-US") + ' 起</div><button class="tk-chip o" data-act="open-buy" data-ev="' + esc(ev.id) + '">選擇票種 ›</button>'; }
     }
     if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
     if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
@@ -1132,6 +1128,180 @@ function coverClockKey() {
   }
 
   /* ---------- 事件 ---------- */
+var C128=["11011001100", "11001101100", "11001100110", "10010011000", "10010001100", "10001001100", "10011001000", "10011000100", "10001100100", "11001001000", "11001000100", "11000100100", "10110011100", "10011011100", "10011001110", "10111001100", "10011101100", "10011100110", "11001110010", "11001011100", "11001001110", "11011100100", "11001110100", "11101101110", "11101001100", "11100101100", "11100100110", "11101100100", "11100110100", "11100110010", "11011011000", "11011000110", "11000110110", "10100011000", "10001011000", "10001000110", "10110001000", "10001101000", "10001100010", "11010001000", "11000101000", "11000100010", "10110111000", "10110001110", "10001101110", "10111011000", "10111000110", "10001110110", "11101110110", "11010001110", "11000101110", "11011101000", "11011100010", "11011101110", "11101011000", "11101000110", "11100010110", "11101101000", "11101100010", "11100011010", "11101111010", "11001000010", "11110001010", "10100110000", "10100001100", "10010110000", "10010000110", "10000101100", "10000100110", "10110010000", "10110000100", "10011010000", "10011000010", "10000110100", "10000110010", "11000010010", "11001010000", "11110111010", "11000010100", "10001111010", "10100111100", "10010111100", "10010011110", "10111100100", "10011110100", "10011110010", "11110100100", "11110010100", "11110010010", "11011011110", "11011110110", "11110110110", "10101111000", "10100011110", "10001011110", "10111101000", "10111100010", "11110101000", "11110100010", "10111011110", "10111101110", "11101011110", "11110101110", "11010000100", "11010010000", "11010011100"];
+  /* ════════════════════════════════════════════════════════════════
+     B202T · 購買頁（選票種 → 票種詳情 → 購買確認 → 購買成功）
+     ✏️ 活動主視覺文字改 BUY_TEXT；價格/席次/福利從 Worker 場次資料讀
+     ════════════════════════════════════════════════════════════════ */
+  var BUY_TEXT = {
+    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY" },
+    _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
+    assets: { hero: "shop-assets/buy-hero.jpg", thumb: "shop-assets/buy-thumb.jpg", ticket: "shop-assets/buy-ticket.jpg" },
+    note: "※ 詳細內容以現場安排為準",
+    limitNote: "每人每票種限購 1 張"
+  };
+  function bt(ev) { return (ev && BUY_TEXT[ev.id]) || BUY_TEXT._default; }
+  function asset(p) { return (C.base || "") + p; }
+
+  var ICON = {
+    crown: '<path d="M3.5 8.5l4.2 3.6L12 5l4.3 7.1 4.2-3.6-1.8 10H5.3z"/><path d="M5.6 20.5h12.8"/>',
+    bow: '<path d="M12 12L4 7.2v9.6z"/><path d="M12 12l8-4.8v9.6z"/><circle cx="12" cy="12" r="1.9"/>',
+    people: '<circle cx="9" cy="8.2" r="3.1"/><path d="M3.2 19.5c.4-3.4 2.8-5.4 5.8-5.4s5.4 2 5.8 5.4"/><circle cx="17" cy="9.4" r="2.4"/><path d="M15.6 14.4c2.8 0 4.8 1.6 5.2 4.6"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 9.8h17M8 3v4M16 3v4"/>',
+    pin: '<path d="M12 21s-6.6-5.9-6.6-11.1a6.6 6.6 0 0113.2 0C18.6 15.1 12 21 12 21z"/><circle cx="12" cy="9.9" r="2.3"/>',
+    star: '<path d="M12 3.8l2.5 5.1 5.6.8-4.1 4 1 5.6-5-2.7-5 2.7 1-5.6-4.1-4 5.6-.8z"/>',
+    camera: '<rect x="3" y="7" width="18" height="13" rx="2.2"/><path d="M8.5 7l1.6-2.6h3.8L15.5 7"/><circle cx="12" cy="13.4" r="3.4"/>',
+    pen: '<path d="M4.5 19.5l3.6-.8 10.6-10.6-2.8-2.8L5.3 15.9z"/><path d="M14.2 7l2.8 2.8"/>',
+    diamond: '<path d="M6.5 4.5h11l3.3 4.8L12 20 3.2 9.3z"/><path d="M3.2 9.3h17.6M9 4.5l3 15.5 3-15.5"/>',
+    gift: '<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5v8h14v-8M12 8.5v12"/><path d="M12 8.5S10.6 4 8 4.6c-2.2.5-1 3.9 4 3.9zM12 8.5s1.4-4.5 4-3.9c2.2.5 1 3.9-4 3.9z"/>',
+    play: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M10 9l5 3-5 3z"/>',
+    mic: '<rect x="9" y="3.5" width="6" height="10.5" rx="3"/><path d="M5.8 11.5a6.2 6.2 0 0012.4 0M12 17.8v2.7"/>',
+    cup: '<path d="M6 7.5h12l-1.4 12.5H7.4z"/><path d="M5 7.5h14M9.5 7.5L11 3.5"/>',
+    hand: '<path d="M8 12.5V6.2a1.4 1.4 0 012.8 0v5M10.8 11V4.9a1.4 1.4 0 012.8 0V11M13.6 11V5.9a1.4 1.4 0 012.8 0v7.4M8 12.5l-1.7-1.8a1.5 1.5 0 00-2.2 2l3.6 4.5c1.2 1.6 3 2.4 5 2.4h.6c2.8 0 4.9-2.3 4.9-5.1v-2.2a1.4 1.4 0 00-2.8 0"/>',
+    check: '<path d="M6 12.5l4 4 8-9"/>',
+    chev: '<path d="M9.5 6l6 6-6 6"/>', close: '<path d="M6 6l12 12M18 6L6 18"/>', lock: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/>'
+  };
+  function ic(n, cls) { return '<svg class="' + (cls || "bi") + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICON[n] || ICON.star) + '</svg>'; }
+  function tierIcon(t) { var k = (t && t.key) || ""; return k === "vvip" ? "crown" : k === "vip" ? "bow" : "people"; }
+  function perkIcon(p) {
+    p = String(p);
+    if (/一對一/.test(p)) return "star"; if (/合照|拍照/.test(p)) return "camera"; if (/簽名|海報/.test(p)) return "pen";
+    if (/優先|Priority|入場/.test(p)) return "diamond"; if (/語音/.test(p)) return "mic"; if (/MV|首播/.test(p)) return "play";
+    if (/餐|飲料|爆米花/.test(p)) return "cup"; if (/擊掌/.test(p)) return "hand"; if (/拍立得|限定|抽獎|周邊/.test(p)) return "gift";
+    return "star";
+  }
+  function perkShort(p) {
+    p = String(p);
+    var par = /[（(]([^）)]+)[）)]/.exec(p);
+    if (/^含餐/.test(p) && par) return par[1].replace(/＋/g, "+");
+    if (/MV/.test(p)) return "MV 首播";
+    return p.replace(/[（(][^）)]*[）)]/g, "").trim();
+  }
+  function num3(n) { return ("00" + n).slice(-3); }
+  function nt(n) { return "NT$" + Number(n || 0).toLocaleString("en-US"); }
+  function tierLeft(t) { return t.left != null ? t.left : Math.max(0, (t.cap || 0) - (t.sold || 0)); }
+  function tierOwned(ev, t) { return ticketsFor(ev.id).filter(function (x) { return x.tier === t.key; })[0] || null; }
+  function tierBuyable(ev, t) { return !!(ev.onSale !== false && t.onSale && tierLeft(t) > 0 && !tierOwned(ev, t)); }
+  function buyEv() { return eventById(S.buyEv) || buyEvent(S.buyEv) || upcoming().filter(function (e) { return e.tiers && e.tiers.length; })[0] || null; }
+  function selTier(ev) { if (!ev || !S.buySel) return null; return (ev.tiers || []).filter(function (t) { return t.key === S.buySel; })[0] || null; }
+
+  function buyBar(backLabel, center, right) {
+    return '<div class="tk-bar tkb-bar"><button data-act="back"><span class="chev">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div>' +
+      (right || '<button class="r" disabled style="opacity:0"></button>') + '</div>';
+  }
+  function heroHTML(ev) {
+    var T = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
+    return '<div class="tkb-hero"><img src="' + esc(asset(BUY_TEXT.assets.hero)) + '" alt="" decoding="async"><div class="tkb-hero-fade"></div>' +
+      '<div class="tkb-hero-tx"><div class="k">' + esc(T.kicker) + '</div><div class="t">' + T.title.map(esc).join("<br>") + '</div>' +
+      '<div class="d"><b>' + esc(mmdd) + '</b><span>' + esc(T.city) + '</span></div><div class="g">' + esc(T.tag) + '</div></div></div>';
+  }
+  function summaryHTML(ev) {
+    var cap = ev.capacity || (ev.tiers || []).reduce(function (a, t) { return a + (t.cap || 0); }, 0);
+    return '<div class="tkb-sum">' +
+      '<div>' + ic("cal") + '<p><b>' + esc(md(ev.startAt)) + ' ' + esc(hm(ev.startAt)) + '</b><span>（' + esc(wk(ev.startAt)) + '）</span></p></div>' +
+      '<div>' + ic("pin") + '<p><b>' + esc(ev.venue || "—") + '</b><span>' + esc(bt(ev).city === "TAIPEI" ? "台北" : bt(ev).city) + '</span></p></div>' +
+      '<div>' + ic("people") + '<p><b>' + esc(cap) + ' 席</b><span>限定</span></p></div></div>';
+  }
+  function chipsHTML(t, n) { return '<div class="tkb-chips">' + (t.perks || []).slice(0, n || 3).map(function (p) { return '<span>' + esc(perkShort(p)) + '</span>'; }).join("") + '</div>'; }
+  function tierRow(ev, t) {
+    var own = tierOwned(ev, t), left = tierLeft(t), ok = tierBuyable(ev, t), sel = S.buySel === t.key && ok;
+    var state = own ? '<em class="own">已擁有 No.' + esc(own.seat || num3(own.seatNo || "")) + '</em>' : left === 0 ? '<em>已售完</em>' : (!t.onSale || ev.onSale === false) ? '<em>尚未開賣</em>' : '';
+    return '<div class="tkb-row' + (sel ? " sel" : "") + (ok ? "" : " off") + (t.key === "vvip" ? " vv" : "") + '" data-act="' + (ok ? "tier-sel" : "tier-info") + '" data-tier="' + esc(t.key) + '" role="radio" aria-checked="' + (sel ? "true" : "false") + '" tabindex="0">' +
+      '<div class="ib">' + ic(tierIcon(t)) + '</div>' +
+      '<div class="mid"><div class="nm">' + esc(t.name) + (t.key === "vvip" ? '<i class="lim">LIMITED</i>' : '') + '</div>' +
+      '<div class="meta">剩 ' + esc(left) + ' 席 · No.' + num3(t.numFrom) + '–' + num3(t.numTo) + '</div>' + state + '</div>' +
+      '<div class="rt"><div class="pr">' + nt(t.price) + '</div><span class="rd"></span></div>' + chipsHTML(t, 3) +
+      '<button class="more" data-act="tier-info" data-tier="' + esc(t.key) + '" aria-label="查看 ' + esc(t.name) + ' 完整內容">' + ic("chev", "bi s") + '</button></div>';
+  }
+  function buyHTML() {
+    var ev = buyEv(), n = validTickets().length;
+    var right = '<button class="r tkb-mine" data-act="open-wallet">我的票' + (n ? ' <b>' + n + '</b>' : '') + '</button>';
+    var h = buyBar("周邊", "TICKETS", right);
+    if (!ev) return h + '<div class="tk-empty">' + (S.loading ? "載入中…" : "目前沒有開放購票的活動。") + '</div>';
+    var tiers = ev.tiers || [];
+    h += heroHTML(ev) + summaryHTML(ev);
+    h += '<div class="tkb-list" role="radiogroup" aria-label="選擇票種">' + tiers.map(function (t) { return tierRow(ev, t); }).join("") + '</div>';
+    h += '<p class="tkb-fine">' + esc(BUY_TEXT.limitNote) + '　·　' + esc(C.terms) + '</p>';
+    var T = selTier(ev), anyBuy = tiers.some(function (t) { return tierBuyable(ev, t); }), notOpen = !tiers.some(function (t) { return t.onSale; }) || ev.onSale === false;
+    var foot;
+    if (T) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>已選擇 ' + esc(T.name) + '</span><b>' + nt(T.price) + '</b></div><button class="tkb-cta" data-act="buy-go">立即購買 <i>→</i></button>';
+    else if (notOpen) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">尚未開賣</b></div><button class="tkb-cta ghost" data-act="buy-remind">' + (reminded(ev.id) ? "已設定提醒 ✓" : "🔔 開賣提醒") + '</button>';
+    else if (!anyBuy) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">目前無可購買票種</b></div><button class="tkb-cta ghost" data-act="open-wallet">我的票</button>';
+    else foot = '<div class="fx"><span>還沒選擇票種</span><b class="dim">點上方票種開始</b></div><button class="tkb-cta" disabled>選擇票種</button>';
+    h += '<div class="tkb-foot">' + foot + '</div>';
+    return '<div class="tkb">' + h + '</div>';
+  }
+  function tierDetailSheet(key) {
+    var ev = buyEv(); if (!ev) return;
+    var t = (ev.tiers || []).filter(function (x) { return x.key === key; })[0]; if (!t) return;
+    S.detailTier = key;
+    var ok = tierBuyable(ev, t), own = tierOwned(ev, t);
+    var btn = ok ? '<button class="tk-btn p tkb-pick" data-sact="tier-pick">選擇 ' + esc(t.key === "ga" ? "一般" : t.key.toUpperCase()) + '</button>'
+      : '<button class="tk-btn g" data-sact="close">' + (own ? "你已擁有這個票種" : tierLeft(t) === 0 ? "已售完" : "尚未開賣") + '</button>';
+    sheet('<div class="tkb-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button>' +
+      '<div class="hd"><div class="ib">' + ic(tierIcon(t)) + '</div><div><b>' + esc(t.name) + '</b><span>剩 ' + esc(tierLeft(t)) + ' 席 · No.' + num3(t.numFrom) + '–' + num3(t.numTo) + '</span></div><em>' + nt(t.price) + '</em></div>' +
+      '<div class="pt">票種福利</div><ul>' + (t.perks || []).map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' +
+      '<div class="nt">終身編號：付款後依購買順序配發 No.' + num3(t.numFrom) + '–' + num3(t.numTo) + '，永久留在 App。</div>' +
+      '<div class="nt">' + esc(BUY_TEXT.note) + '</div>' + btn + '</div>');
+    var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
+  }
+
+  /* ---------- 購買確認頁 ---------- */
+  function createOrder(evId, tier) { S.buy = { evId: evId, kind: "meet", tier: tier, otpSent: false }; return S.buy; }   // hook：之後改成向伺服器建單也只換這裡
+  function startPayment() {                                                                                              // hook：付款一律走伺服器 /ecpay/create
+    if (loggedIn()) { var b = $('[data-act="co-pay"]'); if (b) { b.disabled = true; b.textContent = "前往綠界付款…"; } payNow(); }
+    else buyPayEmail(false);
+  }
+  /* paymentWebhook / issueTicket：伺服器端（Worker 收綠界通知 → 發票寄信），前端不寫死付款結果，只用 awaitPurchase 輪詢票夾 */
+  try { window.CHANCE_TICKETS = { createOrder: createOrder, startPayment: startPayment, awaitIssue: function (e) { awaitPurchase(e, "meet"); } }; } catch (e) {}
+
+  function checkoutHTML() {
+    var b = S.buy || {}, ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0];
+    var h = buyBar("", "購買票券");
+    if (!ev || !T) return '<div class="tkb">' + h + '<div class="tk-empty">請先選擇票種。</div></div>';
+    var X = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
+    h += '<div class="tkb-ev"><div class="po"><img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="pt"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + '</i></div></div>' +
+      '<div class="in"><h3>' + esc(ev.name || "CHANCE") + '</h3><p>' + ic("cal", "bi s") + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '</p><p>' + ic("pin", "bi s") + esc(ev.venue || "") + '</p><p>' + ic("people", "bi s") + esc(ev.capacity || "") + ' 席</p></div></div>';
+    h += '<div class="tkb-sec">已選擇票種</div><div class="tkb-row sel static"><div class="ib">' + ic(tierIcon(T)) + '</div><div class="mid"><div class="nm">' + esc(T.name) + '</div><div class="meta">剩 ' + esc(tierLeft(T)) + ' 席 · No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '</div></div><div class="rt"><div class="pr">' + nt(T.price) + '</div></div>' + chipsHTML(T, 3) + '</div>';
+    h += '<div class="tkb-qty"><div class="tkb-sec">數量</div><div class="row"><div class="stp"><button disabled aria-label="減少">−</button><b>1</b><button disabled aria-label="增加">+</button></div><span>' + esc(BUY_TEXT.limitNote) + '</span></div></div>';
+    h += '<div class="tkb-seat">' + ic("star", "bi s") + '<span>付款後配發 <b>終身編號</b>（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '），越早買號越前，永久留在 App。</span></div>';
+    if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
+    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
+    h += '<div class="tk-msg" id="tk-bmsg"></div>';
+    h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(T.price) + '</b></div><p class="tkb-fine">' + esc(C.terms) + '</p>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 <i>→</i></button><div class="tkb-sec2">綠界 ECPay 安全付款 · 付款後票直接進票夾</div></div>';
+    return '<div class="tkb">' + h + '</div>';
+  }
+
+  /* ---------- 購買成功頁 ---------- */
+  function c128svg(txt) {
+    var vals = [104], i, sum = 104;
+    for (i = 0; i < txt.length; i++) { var v = txt.charCodeAt(i) - 32; if (v < 0 || v > 94) v = 0; vals.push(v); sum += v * (i + 1); }
+    vals.push(sum % 103);
+    var bits = vals.map(function (v) { return C128[v]; }).join("") + "1100011101011";
+    var x = 0, r = "";
+    for (i = 0; i < bits.length; i++) { if (bits[i] === "1") r += '<rect x="' + x + '" y="0" width="1" height="40"/>'; x++; }
+    return '<svg class="tkb-bc" viewBox="-10 0 ' + (bits.length + 20) + ' 40" preserveAspectRatio="none" role="img" aria-label="票號條碼 ' + esc(txt) + '">' + r + '</svg>';
+  }
+  function doneHTML() {
+    var dn = S.done || {}, ev = buyEvent(dn.evId) || eventById(dn.evId) || {}, t = ticketById(dn.ticketId) || ticketsFor(dn.evId)[0] || null;
+    var X = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
+    var tierLbl = t ? (t.tier === "ga" ? "GENERAL" : String(t.tier || "").toUpperCase()) : "";
+    var h = '<div class="tk-bar tkb-bar"><button disabled style="opacity:0"></button><div class="c">購買成功</div><button class="r tkb-mine" data-act="done-close">完成</button></div>';
+    h += '<div class="tkb-ok"><div class="ck">' + ic("check", "bi") + '</div><h2>購買成功</h2><p>你的票券已加入我的票夾</p></div>';
+    h += '<div class="tkb-tkt"><div class="im"><img src="' + esc(asset(BUY_TEXT.assets.ticket)) + '" alt=""><div class="fd"></div>' +
+      (tierLbl ? '<em class="bd">' + esc(tierLbl) + '</em>' : '') +
+      '<div class="tx"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + ' <small>' + esc(X.city) + '</small></i></div>' +
+      (t && t.seat ? '<div class="no">No.<b>' + esc(t.seat) + '</b></div>' : '') + '</div>' +
+      '<div class="stub">' + (t ? c128svg(t.id) + '<div class="id">' + esc(t.id) + '</div>' : '<div class="id">票整理中…</div>') + '</div></div>';
+    h += '<div class="tkb-okinfo">' + ic("lock", "bi s") + '<span>上方為票號條碼。<b>入場 QR</b> 會在開場前 ' + QR_LOCK_H + ' 小時出現在票夾，防截圖轉賣。</span></div>';
+    h += '<button class="tkb-cta wide" data-act="done-wallet">查看我的票夾 <i>→</i></button><button class="tkb-cta ghost wide" data-act="done-close">繼續逛周邊</button>';
+    h += a2hsHint();
+    return '<div class="tkb">' + h + '</div>';
+  }
+
+  (function(){ if(document.getElementById('tkb-style')) return; var st=document.createElement('style'); st.id='tkb-style'; st.textContent="/* B202T 購買頁 · 沿用 --tkg 金色 token */\n.tk-layer[data-layer=buy],.tk-layer[data-layer=checkout],.tk-layer[data-layer=done]{padding-bottom:0;background:#080808}\n.tkb{--tkp:22px;--g:var(--tkg,#e5be7d);--g2:var(--tkg2,#f0d4a5);--ink:#f3eee6;--mut:#a39a91;--line:rgba(229,190,125,.14);--card:#121011;\n  min-height:100%;display:flex;flex-direction:column;color:var(--ink);font-family:-apple-system,\"SF Pro Text\",\"PingFang TC\",\"Noto Sans TC\",sans-serif;-webkit-font-smoothing:antialiased}\n.tkb .bi{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}\n.tkb .bi.s{width:15px;height:15px}\n.tkb-bar{position:sticky;top:0;background:linear-gradient(#080808e6,#08080800)!important;border-bottom:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}\n.tkb-bar .c{font:500 12px/1.2 var(--shop-serif,Georgia,serif)!important;letter-spacing:.3em!important}\n.tkb-mine{font:500 13px/1 -apple-system,sans-serif!important;color:var(--g)!important;letter-spacing:.02em;white-space:nowrap}\n.tkb-mine b{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:3px;border-radius:9px;background:var(--g);color:#140f08;font-size:11px}\n/* Hero */\n.tkb-hero{position:relative;margin:calc(-52px - env(safe-area-inset-top)) calc(-1 * var(--tkp)) 0;aspect-ratio:1/.76;overflow:hidden;background:#0b0806}\n.tkb-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 16%}\n.tkb-hero-fade{position:absolute;inset:0;background:linear-gradient(180deg,#080808b0 0%,#08080800 22%,#08080800 45%,#080808c8 78%,#080808 100%),linear-gradient(90deg,#080808a8 0%,#08080800 62%)}\n.tkb-hero-tx{position:absolute;left:24px;right:24px;bottom:12px}\n.tkb-hero-tx .k{font:500 16px/1 var(--shop-serif,Georgia,serif);letter-spacing:.2em;color:#efe4d2;margin-bottom:6px}\n.tkb-hero-tx .t{font:500 clamp(38px,11.4vw,50px)/.9 var(--shop-serif,Georgia,serif);letter-spacing:.01em;color:var(--g2);text-transform:uppercase;text-shadow:0 2px 24px #000a}\n.tkb-hero-tx .d{display:flex;align-items:baseline;gap:12px;margin-top:10px}\n.tkb-hero-tx .d b{font:400 clamp(30px,8.8vw,38px)/1 var(--shop-serif,Georgia,serif);color:#f3eee6;letter-spacing:.01em}\n.tkb-hero-tx .d span{font:500 11px/1 var(--shop-serif,Georgia,serif);letter-spacing:.24em;color:#d8cbb8}\n.tkb-hero-tx .g{margin-top:9px;font:500 10px/1.2 var(--shop-serif,Georgia,serif);letter-spacing:.22em;color:#bfb1a0}\n/* 活動摘要 */\n.tkb-sum{display:grid;grid-template-columns:1fr 1.25fr .9fr;gap:6px;margin:10px 0 12px;padding:12px 10px;border:1px solid var(--line);border-radius:14px;background:#0f0d0e}\n.tkb-sum>div{display:flex;align-items:center;gap:8px;min-width:0;color:var(--g)}\n.tkb-sum>div+div{border-left:1px solid #ffffff0d;padding-left:8px}\n.tkb-sum p{margin:0;min-width:0}\n.tkb-sum b{display:block;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tkb-sum span{display:block;font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tkb-sec{font-size:13px;font-weight:600;color:#d9d1c7;letter-spacing:.04em;margin:0 2px 10px}\n.tkb-sec2{font-size:11px;color:var(--mut);text-align:center;margin-top:8px}\n/* 票種列 */\n.tkb-list{display:flex;flex-direction:column;gap:9px}\n.tkb-row{position:relative;display:grid;grid-template-columns:46px 1fr auto;column-gap:12px;row-gap:0;align-items:start;padding:12px 12px 11px 13px;border:1px solid #ffffff12;border-radius:16px;background:var(--card);cursor:pointer;transition:border-color .18s,background .18s,transform .12s;-webkit-tap-highlight-color:transparent}\n.tkb-row:active{transform:scale(.99)}\n.tkb-row.vv{border-color:rgba(229,190,125,.28)}\n.tkb-row.sel{border-color:var(--g);background:linear-gradient(135deg,rgba(229,190,125,.16),rgba(229,190,125,.04) 60%),var(--card);box-shadow:0 0 0 1px rgba(229,190,125,.25) inset}\n.tkb-row.off{opacity:.55;cursor:default}\n.tkb-row.static{cursor:default}\n.tkb-row .ib{grid-row:1/3;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--g);background:linear-gradient(145deg,#2a2016,#171210);border:1px solid rgba(229,190,125,.22)}\n.tkb-row .ib .bi{width:24px;height:24px}\n.tkb-row .mid{min-width:0}\n.tkb-row .nm{font-size:16px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px}\n.tkb-row .lim{font-style:normal;font:600 9px/1 -apple-system,sans-serif;letter-spacing:.16em;color:var(--g);border:1px solid rgba(229,190,125,.45);border-radius:4px;padding:3px 5px}\n.tkb-row .meta{font-size:12px;color:var(--mut);margin-top:3px}\n.tkb-row em{display:inline-block;font-style:normal;font-size:11.5px;color:#d8a9a0;margin-top:6px}\n.tkb-row em.own{color:#9fd8b0}\n.tkb-chips{grid-column:2/4;display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;min-width:0;padding-right:24px}\n.tkb-chips span{font-size:11px;line-height:1;color:#d9cfc2;background:#1e1a1a;border:1px solid #ffffff10;border-radius:6px;padding:5px 7px;white-space:nowrap}\n.tkb-row .rt{display:flex;flex-direction:column;align-items:flex-end;gap:9px}\n.tkb-row .pr{font:500 17px/1 var(--shop-serif,Georgia,serif);color:var(--g2);letter-spacing:.02em;white-space:nowrap}\n.tkb-row .rd{width:20px;height:20px;border-radius:50%;border:1.5px solid #6d6258;display:grid;place-items:center}\n.tkb-row.sel .rd{border-color:var(--g)}\n.tkb-row.sel .rd::after{content:\"\";width:10px;height:10px;border-radius:50%;background:var(--g)}\n.tkb-row .more{position:absolute;right:4px;bottom:5px;width:32px;height:30px;margin:0;padding:0;display:grid;place-items:center;color:#9c9187;background:none;border:0;border-radius:8px;-webkit-appearance:none;appearance:none}\n.tkb-row .more:active{background:#ffffff0d}\n.tkb-row.static .more,.tkb-row.static .rd{display:none}\n.tkb-fine{font-size:11px;line-height:1.6;color:#8a8178;margin:12px 2px 0}\n/* 底部固定購買列 */\n.tkb-foot{position:sticky;bottom:0;margin:auto calc(-1 * var(--tkp)) 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;background:linear-gradient(#0d0b0cf2,#0a0909);border-top:1px solid var(--line);box-shadow:0 -12px 30px #000c;z-index:4}\n.tkb-list+.tkb-fine+.tkb-foot{margin-top:18px}\n.tkb-foot img{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid rgba(229,190,125,.3)}\n.tkb-foot .fx{flex:1;min-width:0}\n.tkb-foot .fx span{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.tkb-foot .fx b{display:block;font:500 20px/1.2 var(--shop-serif,Georgia,serif);color:var(--g2)}\n.tkb-foot .fx b.dim{font:600 14px/1.4 -apple-system,sans-serif;color:#d9d1c7}\n.tkb-foot.solo{flex-direction:column;align-items:stretch;gap:0}\n.tkb-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 22px;border-radius:25px;border:0;font:700 15px/1 -apple-system,\"PingFang TC\",sans-serif;letter-spacing:.04em;color:#1a1208;background:linear-gradient(180deg,#f4dcae,#dcb173);box-shadow:0 6px 18px rgba(229,190,125,.22);cursor:pointer;white-space:nowrap}\n.tkb-cta i{font-style:normal;font-size:17px}\n.tkb-cta:active{transform:scale(.98)}\n.tkb-cta[disabled]{background:#2a2522;color:#8f857b;box-shadow:none;cursor:default}\n.tkb-cta.ghost{background:transparent;color:var(--ink);border:1px solid #ffffff2a;box-shadow:none}\n.tkb-cta.wide{width:100%;height:54px;border-radius:14px;margin-top:10px}\n.tkb-foot .tkb-cta.wide{margin-top:0}\n/* 票種詳情 Bottom Sheet */\n.tkb-shbox{padding-top:26px!important;position:relative}\n.tkb-shbox::before{content:\"\";position:absolute;top:9px;left:50%;width:40px;height:4px;border-radius:2px;background:#ffffff2e;transform:translateX(-50%)}\n.tkb-sh{position:relative;color:#f3eee6;font-family:-apple-system,\"PingFang TC\",sans-serif}\n.tkb-sh .bi{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}\n.tkb-sh .x{position:absolute;right:-6px;top:-14px;width:36px;height:36px;display:grid;place-items:center;color:#cfc5b9;background:none;border:0}\n.tkb-sh .hd{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:4px 0 16px;border-bottom:1px solid #ffffff12}\n.tkb-sh .hd .ib{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;color:var(--tkg,#e5be7d);background:linear-gradient(145deg,#2a2016,#171210);border:1px solid rgba(229,190,125,.25)}\n.tkb-sh .hd .ib .bi{width:26px;height:26px}\n.tkb-sh .hd b{display:block;font-size:18px;font-weight:600}\n.tkb-sh .hd span{display:block;font-size:12px;color:#a39a91;margin-top:2px}\n.tkb-sh .hd em{font:500 19px/1 'Cormorant Garamond',Georgia,serif;font-style:normal;color:#f0d4a5}\n.tkb-sh .pt{font-size:13px;font-weight:600;color:#d9d1c7;margin:16px 0 8px}\n.tkb-sh ul{list-style:none;margin:0;padding:0}\n.tkb-sh li{display:flex;align-items:center;gap:12px;font-size:15px;padding:8px 0;color:#ece6dd}\n.tkb-sh li i{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:9px;background:#1d1917;border:1px solid #ffffff12;color:var(--tkg,#e5be7d)}\n.tkb-sh .nt{font-size:11.5px;color:#8f867c;margin-top:10px;line-height:1.6}\n.tkb-sh .tkb-pick{margin-top:16px;height:52px;font-size:15px}\n/* 購買確認頁 */\n.tkb-ev{display:grid;grid-template-columns:104px 1fr;gap:16px;margin:10px 0 22px;padding-bottom:20px;border-bottom:1px solid #ffffff10}\n.tkb-ev .po{position:relative;width:104px;height:132px;border-radius:10px;overflow:hidden;border:1px solid rgba(229,190,125,.3)}\n.tkb-ev .po img{width:100%;height:100%;object-fit:cover}\n.tkb-ev .pt{position:absolute;left:0;right:0;bottom:0;padding:18px 8px 7px;background:linear-gradient(#08080800,#080808e0)}\n.tkb-ev .pt span{display:block;font:500 7px/1 var(--shop-serif,Georgia,serif);letter-spacing:.2em;color:#e9dfcf}\n.tkb-ev .pt b{display:block;font:500 11px/1.05 var(--shop-serif,Georgia,serif);color:var(--g2);letter-spacing:.02em;margin-top:2px}\n.tkb-ev .pt i{display:block;font:400 15px/1 var(--shop-serif,Georgia,serif);font-style:normal;color:#f3eee6;margin-top:3px}\n.tkb-ev h3{margin:2px 0 10px;font:500 21px/1.2 var(--shop-cn,'Noto Serif TC',serif);color:var(--ink)}\n.tkb-ev p{margin:0 0 7px;display:flex;align-items:center;gap:8px;font-size:13.5px;color:#d7cec3}\n.tkb-ev p .bi{color:var(--g)}\n.tkb-qty{margin:22px 0 16px}\n.tkb-qty .row{display:flex;align-items:center;gap:14px}\n.tkb-qty .stp{display:grid;grid-template-columns:44px 52px 44px;height:44px;border:1px solid #ffffff1c;border-radius:12px;overflow:hidden;background:#121011}\n.tkb-qty .stp button{border:0;background:#1a1717;color:#6d655e;font-size:20px}\n.tkb-qty .stp b{display:grid;place-items:center;font-size:17px;border-left:1px solid #ffffff12;border-right:1px solid #ffffff12}\n.tkb-qty .row span{font-size:12px;color:var(--mut)}\n.tkb-seat,.tkb-mail,.tkb-okinfo{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.6;color:#cfc5b9;background:#12100f;border:1px solid #ffffff0f;border-radius:12px;padding:10px 12px;margin-bottom:10px}\n.tkb-seat .bi,.tkb-mail .bi,.tkb-okinfo .bi{color:var(--g);margin-top:3px}\n.tkb-seat b,.tkb-mail b,.tkb-okinfo b{color:var(--g2);font-weight:600}\n.tkb-in{margin:0 0 6px!important}\n.tkb-total{display:flex;align-items:baseline;justify-content:space-between;margin:14px 2px 0;padding-top:16px;border-top:1px solid #ffffff10}\n.tkb-total span{font-size:14px;font-weight:600;color:#d9d1c7}\n.tkb-total b{font:500 34px/1 var(--shop-serif,Georgia,serif);color:var(--g2);letter-spacing:.01em}\n.tkb .tk-msg{min-height:0}\n/* 購買成功頁 */\n.tkb-ok{text-align:center;margin:18px 0 20px}\n.tkb-ok .ck{width:66px;height:66px;margin:0 auto 14px;border-radius:50%;border:2px solid var(--g);display:grid;place-items:center;color:var(--g);box-shadow:0 0 30px rgba(229,190,125,.2)}\n.tkb-ok .ck .bi{width:32px;height:32px;stroke-width:2}\n.tkb-ok h2{margin:0;font:600 24px/1.3 var(--shop-cn,'Noto Serif TC',serif);color:var(--ink);letter-spacing:.06em}\n.tkb-ok p{margin:6px 0 0;font-size:13.5px;color:var(--mut)}\n.tkb-tkt{position:relative;margin:0 6px 14px;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 20px 50px #000c,0 0 0 1px rgba(229,190,125,.35)}\n.tkb-tkt .im{position:relative;aspect-ratio:1/.78;background:#0b0806}\n.tkb-tkt .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}\n.tkb-tkt .fd{position:absolute;inset:0;background:linear-gradient(180deg,#08080800 35%,#080808d8 100%)}\n.tkb-tkt .bd{position:absolute;top:14px;right:16px;font:500 18px/1 var(--shop-serif,Georgia,serif);font-style:normal;letter-spacing:.12em;color:var(--g2)}\n.tkb-tkt .tx{position:absolute;left:18px;bottom:16px}\n.tkb-tkt .tx span{display:block;font:500 10px/1 var(--shop-serif,Georgia,serif);letter-spacing:.22em;color:#e9dfcf}\n.tkb-tkt .tx b{display:block;font:500 20px/1.05 var(--shop-serif,Georgia,serif);color:var(--g2);margin-top:4px}\n.tkb-tkt .tx i{display:block;font:400 26px/1 var(--shop-serif,Georgia,serif);font-style:normal;color:#f3eee6;margin-top:6px}\n.tkb-tkt .tx small{font-size:10px;letter-spacing:.2em;color:#d8cbb8;margin-left:6px}\n.tkb-tkt .no{position:absolute;right:16px;bottom:16px;font:500 11px/1 var(--shop-serif,Georgia,serif);letter-spacing:.14em;color:#d8cbb8;text-align:right}\n.tkb-tkt .no b{display:block;font:500 26px/1 var(--shop-serif,Georgia,serif);color:var(--g2);letter-spacing:.04em;margin-top:3px}\n.tkb-tkt .stub{position:relative;padding:14px 16px 12px;background:#faf8f3;border-top:2px dashed #d9d2c4}\n.tkb-tkt .stub::before,.tkb-tkt .stub::after{content:\"\";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:#080808}\n.tkb-tkt .stub::before{left:-10px}.tkb-tkt .stub::after{right:-10px}\n.tkb-bc{display:block;width:100%;height:52px;fill:#111}\n.tkb-tkt .id{margin-top:6px;text-align:center;font:600 12px/1 ui-monospace,\"SF Mono\",monospace;letter-spacing:.12em;color:#2a2622}\n.tkb .tk-a2hs{margin-top:12px}\n.tkb-okinfo{margin:0 6px 4px}\n@media (max-width:359px){.tkb{--tkp:16px}.tkb-sum .bi,.tkb-row .lim{display:none}.tkb-sum{padding:10px 8px}.tkb-sum b{font-size:12px}.tkb-sum{grid-template-columns:1fr 1fr 1fr}.tkb-row{grid-template-columns:42px 1fr auto;gap:10px;padding:12px 12px 10px}.tkb-row .ib{width:42px;height:42px}.tkb-row .nm{font-size:15px}.tkb-ev{grid-template-columns:88px 1fr}.tkb-ev .po{width:88px;height:112px}.tkb-cta{padding:0 16px}}\n"; document.head.appendChild(st); })();
+  document.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target && e.target.getAttribute && e.target.getAttribute("role") === "radio" && e.target.hasAttribute("data-act")) { e.preventDefault(); e.target.click(); } });
   function onClick(e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
@@ -1140,6 +1310,14 @@ function coverClockKey() {
     if (act === "profile") return profileSheet();
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
     if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); openLayer("wallet"); if (nm) setTimeout(function () { openLayer("pass", { sel: nm.id }); }, 60); return; }
+    if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; return openLayer("buy"); }
+    if (act === "tier-sel") { var tk = b.getAttribute("data-tier"); S.buySel = S.buySel === tk ? null : tk; hap(8); renderLayer("buy"); return; }
+    if (act === "tier-info") { e.stopPropagation(); return tierDetailSheet(b.getAttribute("data-tier")); }
+    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); return openLayer("checkout"); }
+    if (act === "buy-remind") { var rev = buyEv(); if (rev) { setRemind(rev.id); renderLayer("buy"); } return; }
+    if (act === "co-pay") { return startPayment(); }
+    if (act === "done-wallet") { closeAll(); S.tab = "up"; setTimeout(function () { openLayer("wallet"); }, 260); return; }
+    if (act === "done-close") { closeAll(); return; }
     if (act === "open-merch") return openLayer("merch");
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
     if (act === "open-pass") return openLayer("pass", { sel: id });
@@ -1169,6 +1347,7 @@ function coverClockKey() {
     if (act === "login") return doLogin();
   }
   function sheetAct2(a) {
+    if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
