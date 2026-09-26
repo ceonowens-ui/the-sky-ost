@@ -360,17 +360,90 @@ var SHOP_TEXT = {
         '<div class="tk-terms">' + esc(C.terms) + '</div>' +
         '<button class="tk-btn p" data-sact="pay">前往付款 · NT$' + esc(price) + '</button><button class="tk-btn g" data-sact="close">再想想</button>';
     } else {
-      h += '<div class="tk-to dim">' + (pp ? "先確認你的 email，付款後照片綁在這個信箱" : "先確認你的 email，付款後票會寄到這裡也存進票夾") + '</div>' +
-        '<input class="tk-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"' + (b.otpSent ? " disabled" : "") + '>' +
-        (b.otpSent ? '<input class="tk-in" id="tk-botp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼">' : '') +
+      h += '<div class="tk-to dim">' + (pp ? "照片會綁在這個 email" : "票會寄到這個 email，也會存進票夾") + '</div>' +
+        '<input class="tk-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '">' +
         '<div class="tk-msg" id="tk-bmsg"></div><div class="tk-terms">' + esc(C.terms) + '</div>' +
-        (b.otpSent
-          ? '<button class="tk-btn p" data-sact="pay-verify">驗證並前往付款 · NT$' + esc(price) + '</button><button class="tk-btn g" data-sact="otp-resend">沒收到？重寄</button>'
-          : '<button class="tk-btn p" data-sact="otp-send">寄驗證碼給我</button><button class="tk-btn g" data-sact="close">取消</button>');
+        '<button class="tk-btn p" data-sact="pay-email">前往付款 · NT$' + esc(price) + '</button><button class="tk-btn g" data-sact="close">取消</button>';
     }
     sheet(h);
-    var f = $("#tk-bem"); if (f && !b.otpSent) setTimeout(function () { f.focus(); }, 60);
-    var o = $("#tk-botp"); if (o) setTimeout(function () { o.focus(); }, 60);
+    var f = $("#tk-bem");
+    if (f) { if (!f.value) setTimeout(function () { f.focus(); }, 60);
+      f.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); buyPayEmail(); } }); }
+  }
+
+  /* B201：email 常見錯字（gmai.com / yahoo.com.t…）→ 付款前提示一次，不擋 */
+  var EM_DOMAINS = ["gmail.com","yahoo.com.tw","yahoo.com","hotmail.com","outlook.com","icloud.com","me.com","msn.com","live.com","pchome.com.tw","kimo.com"];
+  function emDist(a, b) {
+    var m = a.length, n = b.length, d = [], i, j;
+    for (i = 0; i <= m; i++) { d[i] = [i]; }
+    for (j = 1; j <= n; j++) d[0][j] = j;
+    for (i = 1; i <= m; i++) for (j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    return d[m][n];
+  }
+  function emSuggest(em) {
+    var at = em.lastIndexOf("@"); if (at < 1) return "";
+    var dom = em.slice(at + 1); if (EM_DOMAINS.indexOf(dom) >= 0) return "";
+    var best = "", bd = 3;
+    EM_DOMAINS.forEach(function (x) { var dd = emDist(dom, x); if (dd < bd) { bd = dd; best = x; } });
+    return best && bd <= 2 ? em.slice(0, at + 1) + best : "";
+  }
+  function buyPayEmail(force) {
+    var el = $("#tk-bem");
+    var em = ((el || {}).value || "").trim().toLowerCase().replace(/\s+/g, "");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return msg("#tk-bmsg", "email 格式不對，再看一下");
+    var sug = force ? "" : emSuggest(em);
+    if (sug) {
+      S.buy.sug = sug;
+      var box = $("#tk-bmsg");
+      if (box) { box.className = "tk-msg on"; box.innerHTML = '是不是 <b>' + esc(sug) + '</b>？<span class="tk-emfix"><button class="tk-btn s" data-sact="em-fix" data-em="' + esc(sug) + '">改成這個</button><button class="tk-btn g s" data-sact="em-keep">沒錯，用我打的</button></span>';
+        box.querySelectorAll("[data-sact]").forEach(function (x) { x.addEventListener("click", function () { sheetAct2(x.getAttribute("data-sact")); }); }); }
+      return;
+    }
+    S.buy.email = em; lsSet(K.email, em);
+    try { localStorage.setItem("tk:pending", JSON.stringify({ email: em, evId: S.buy.evId, kind: S.buy.kind, t: Date.now() })); } catch (e) {}
+    var btn = document.querySelector('[data-sact="pay-email"]'); if (btn) { btn.disabled = true; btn.textContent = "前往綠界付款…"; }
+    payNow();
+  }
+  /* 付款回來但這支手機還沒登入 → 驗證一次，把票收進票夾（錢已經付了，不擋付款） */
+  function claimSheet(evId, kind) {
+    var p = {}; try { p = JSON.parse(localStorage.getItem("tk:pending") || "{}"); } catch (e) {}
+    var em = p.email || lsGet(K.email) || "";
+    S.claim = { evId: evId, kind: kind, email: em };
+    openLayer("wallet");
+    sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Almost there</div><h3>最後一步：收進票夾</h3>' +
+      '<div class="tk-hint">付款成功後，' + (kind === "pp" ? "開通通知" : "電子票") + '會寄到 <b>' + esc(maskEmail(em) || "你的信箱") + '</b></div></div>' +
+      '<div class="tk-to dim">我們剛寄了 6 位數驗證碼到同一個信箱，輸入後票就收進這支手機。</div>' +
+      '<input class="tk-in" id="tk-cotp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼">' +
+      '<div class="tk-msg" id="tk-cmsg"></div>' +
+      '<button class="tk-btn p" data-sact="claim-verify">收進票夾</button>' +
+      '<button class="tk-btn g" data-sact="claim-resend">沒收到？重寄</button>' +
+      '<button class="tk-btn g" data-sact="close">稍後再說（票在信箱裡，不會不見）</button>');
+    var o = $("#tk-cotp");
+    if (o) { setTimeout(function () { o.focus(); }, 80);
+      o.addEventListener("input", function () { if (o.value.replace(/\D/g, "").length === 6) claimVerify(); }); }
+    if (em) claimSend(true);
+  }
+  function claimSend(silent) {
+    var c = S.claim || {}; if (!c.email) return msg("#tk-cmsg", "找不到你的 email，請到票夾登入");
+    if (!silent) msg("#tk-cmsg", "寄送中…", true);
+    api("/ticket/otp", { email: c.email }).then(function (j) {
+      if (!j.ok) return msg("#tk-cmsg", j.error === "rate" ? "一分鐘內只能寄一次，稍等再按" : "寄不出去，再試一次");
+      msg("#tk-cmsg", "驗證碼已寄到 " + maskEmail(c.email), true);
+    }).catch(function () { msg("#tk-cmsg", "連不上伺服器"); });
+  }
+  function claimVerify() {
+    var c = S.claim || {}; if (c.busy) return;
+    var otp = (($("#tk-cotp") || {}).value || "").replace(/\D/g, "");
+    if (otp.length !== 6) return msg("#tk-cmsg", "驗證碼是 6 位數");
+    c.busy = true; msg("#tk-cmsg", "驗證中…", true);
+    api("/ticket/login", { email: c.email, otp: otp }).then(function (j) {
+      c.busy = false;
+      if (!j.ok) return msg("#tk-cmsg", j.error === "otp_expired" ? "驗證碼過期了，按重寄" : "驗證碼不對");
+      setSession(j.session, j.email); hap(20);
+      try { localStorage.removeItem("tk:pending"); } catch (e) {}
+      closeSheet(); awaitPurchase(c.evId, c.kind);
+    }).catch(function () { c.busy = false; msg("#tk-cmsg", "連不上伺服器"); });
   }
   function buyOtpSend() {
     var em = (($("#tk-bem") || {}).value || "").trim().toLowerCase();
@@ -394,7 +467,7 @@ var SHOP_TEXT = {
   function payNow() {
     var b = S.buy; if (!b) return;
     var ev = buyEvent(b.evId), pp = b.kind === "pp", key = pp ? ev.ppKey : (b.tier ? (ev.id + "-" + b.tier) : ev.productKey);
-    var email = myEmail(); if (!email) return msg("#tk-bmsg", "請先確認 email");
+    var email = (!S.session && b.email) ? b.email : myEmail(); if (!email) return msg("#tk-bmsg", "請先確認 email");
     if (C.demo) {   // demo：不跳綠界，模擬付款成功後走跟真實一樣的「輪詢→成功」流程
       closeSheet();
       if (pp) DEMO.buyPP(email, b.evId); else DEMO.buyTicket(email, b.evId, b.tier);
@@ -413,6 +486,7 @@ var SHOP_TEXT = {
   }
   /* 付款回來（?tkbought / ?tkphoto）或 demo 付完：輪詢票夾直到票進來，再跳成功畫面 */
   function awaitPurchase(evId, kind) {
+    if (!loggedIn()) return claimSheet(evId, kind);
     openLayer("wallet");
     var before = kind === "pp" ? -1 : ticketsFor(evId).length;
     var tries = 0;
@@ -702,8 +776,8 @@ var SHOP_TEXT = {
   function mount() {
     if (document.getElementById("tk-root")) return;
     var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
-    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B200T"; document.head.appendChild(design);
-    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B200T';document.head.appendChild(edition);
+    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B201T"; document.head.appendChild(design);
+    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B201T';document.head.appendChild(edition);
     root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
     var host = $(C.mount), before = host && $(C.before, host);
     if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
@@ -1105,6 +1179,11 @@ function coverClockKey() {
     if (a === "otp-send") { buyOtpSend(); return; }
     if (a === "otp-resend") { buyOtpSend(); return; }
     if (a === "pay") { payNow(); return; }
+    if (a === "pay-email") { buyPayEmail(false); return; }
+    if (a === "em-keep") { buyPayEmail(true); return; }
+    if (a === "em-fix") { var fe = $("#tk-bem"); if (fe && S.buy && S.buy.sug) fe.value = S.buy.sug; buyPayEmail(true); return; }
+    if (a === "claim-verify") { claimVerify(); return; }
+    if (a === "claim-resend") { claimSend(false); return; }
     if (a === "pay-verify") { buyVerifyPay(); return; }
     if (a === "see-ticket") { closeSheet(); var tt = S.buy && ticketsFor(S.buy.evId)[0]; if (tt) openLayer("pass", { sel: tt.id }); return; }
     if (a === "give") { closeSheet(); var tg = S.buy && ticketsFor(S.buy.evId)[0]; if (tg) { openLayer("pass", { sel: tg.id }); setTimeout(function () { S.sel = tg.id; transferConfirm(); }, 200); } return; }

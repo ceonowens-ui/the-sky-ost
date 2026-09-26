@@ -276,3 +276,7 @@ body.tk-cover-active:not(.tk-open) #nav-wrap{visibility:hidden;pointer-events:no
 .tk-login-fold[open] .tk-login-sum i{ transform:rotate(90deg) }
 .tk-login-body{ padding:0 16px 16px }
 .tk-login-hint{ margin:2px 0 12px; font:400 12.5px/1.6 'Noto Sans TC',sans-serif; color:#9a92a8 }
+
+/* B201：email 錯字提示 */
+.tk-emfix{display:flex;gap:8px;margin-top:8px}
+.tk-emfix .tk-btn{flex:1;margin:0;padding:9px 10px;font-size:13px}
