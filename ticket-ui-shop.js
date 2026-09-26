@@ -1107,9 +1107,9 @@ function coverClockKey() {
       '<div class="pt">終身編號</div><ul>' + li('依付款完成順序配發；有人退票時，釋出的號碼由下一位購買者遞補。') + li('終身編號不是座位號碼；編號與福利隨票轉讓，歸新持有人。') + '</ul>' +
       '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li('VVIP 最先入場、自由選位；其餘依現場引導入場。') + li('入場憑 App 票夾的入場 QR，開場前 ' + QR_LOCK_H + ' 小時出現，給工作人員掃描即完成入場。') + '</ul>' +
       '<div class="pt">合照與照片</div><ul>' + li('合照由官方攝影師拍攝；照片活動後可在 App 預覽，選購 PhotoPass 後下載原圖，只提供給該票券持有人。') + '</ul>' +
-      '<div class="pt">專屬語音（VVIP）</div><ul>' + li('活動前會在 App 票夾開放填寫希望被叫的稱呼（12/20 前填寫）；票券轉讓時由新持有人填寫。') + li('語音於 2027/1/31 前放進 App 票夾。') + '</ul>' +
-      '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。') + li('因主辦單位因素取消、改期或主要演出內容變更，全額退款、不收手續費。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信客服信箱，註明購票 Email 與票號。') + '</ul>' +
-      '<div class="pt">主辦單位</div><ul>' + li('名稱：【待填】') + li('負責人：【待填】') + li('客服信箱：【待填】') + li('地址：【待填】') + '</ul>' +
+      '<div class="pt">專屬語音（VVIP）</div><ul>' + li('活動前會在 App 票夾開放填寫希望被叫的稱呼；票券轉讓時由新持有人填寫。') + li('語音於 2027/2/1 前放進 App 票夾。') + '</ul>' +
+      '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。') + li('因主辦單位因素取消、改期或主要演出內容變更，全額退款、不收手續費。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。') + '</ul>' +
+      '<div class="pt">主辦單位</div><ul>' + li('名稱：夏米爾企業社') + li('負責人：張紫瑩') + li('客服信箱：heartbeats0693@gmail.com') + li('地址：臺北市中正區懷寧街76號') + '</ul>' +
       '<div class="nt">' + esc(BUY_TEXT.note) + '</div></div><button class="tk-btn p" data-sact="close">知道了</button>';
     sheet(h);
     var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
