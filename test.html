@@ -1777,6 +1777,8 @@ body { background: #08060C !important; }
   font:500 11.5px/1.4 -apple-system,system-ui,sans-serif; color:rgba(217,178,106,.85);
   text-decoration:underline; text-underline-offset:3px; }
 .legal-foot .lf-info{ font:400 10.8px/1.75 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.36); }
+/* B219T：SHOP 頁購買須知被底部導覽列蓋住 → 底部留白推到導覽列上方（shop-design.css 設 24px，這裡蓋過） */
+#screen-merch .legal-foot{ padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important; }
 .email-consent a,.email-consent .tm-link{ color:#E7C77E; text-decoration:underline; text-underline-offset:2px; }
 .email-privacy{ font:400 10.8px/1.65 -apple-system,system-ui,sans-serif; color:rgba(255,255,255,.42);
   text-align:left; margin:8px 2px 14px; }
@@ -7837,7 +7839,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B218T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B219T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
