@@ -2262,6 +2262,17 @@ body { background: #08060C !important; }
 
   <!-- ================= 擁有（購買 + 解鎖 · 同一頁）================= -->
   <section id="screen-purchase" class="screen screen-sub">
+    <!-- B220T：B「時尚雜誌版」Hero（無字照片＋HTML 標題；原有文案一字未動） -->
+    <div class="own-b-hero">
+      <img class="own-b-photo" src="assets/images/sky/own-hero-b.webp" width="900" height="833" alt="CHANCE 黑白人像" fetchpriority="high" decoding="async">
+      <div class="own-b-shade" aria-hidden="true"></div>
+      <div class="own-b-top">
+        <button type="button" class="own-b-back" id="own-b-back" aria-label="返回"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg></button>
+        <div class="own-b-toptitle">OWN</div>
+        <span aria-hidden="true"></span>
+      </div>
+      <div class="own-b-mast"><div class="own-b-artist">CHANCE</div><div class="own-b-work">I'M SORRY</div></div>
+    </div>
     <div class="page-titles">
       <div class="page-title-en" id="purchase-title-en"></div>
       <div class="page-title-tc" id="purchase-title-tc"></div>
@@ -2270,13 +2281,13 @@ body { background: #08060C !important; }
 
     <!-- 未擁有：方案 + 結帳 + 兌換碼（不用跳頁）-->
     <div id="unlock-form-view">
-      <div class="plans" id="plans"></div>
+      <div class="plans" id="plans" role="radiogroup" aria-label="選擇方案"></div>
       <div class="cta-block">
         <button class="btn-primary" id="btn-checkout"></button>
       </div>
 
-      <div class="redeem-divider"><span>已經購買了？</span></div>
-      <div class="form-block">
+      <button type="button" class="redeem-divider own-rd-toggle" id="own-rd-toggle" aria-expanded="false" aria-controls="own-rd-form"><span>已經購買了？</span><i class="own-rd-ic" aria-hidden="true"></i></button>
+      <div class="form-block" id="own-rd-form">
         <div class="page-note" style="margin-top:0;padding:0 4px 14px">兌換碼會寄到信箱，用「購買時的 email」解鎖</div>
         <label class="form-label" for="in-email">EMAIL</label>
         <input class="form-input" id="in-email" type="email" placeholder="you@example.com" autocomplete="email">
@@ -5205,9 +5216,9 @@ window.ALBUM_SWITCH = {
     }
     $("plans").innerHTML = plans.map(function (p) {
       var check = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-      return '<div class="plan' + (p.deluxe ? " deluxe" : "") + (state.selectedPlan === p.key ? " selected" : "") + '" data-plan="' + p.key + '">' +
+      return '<div class="plan' + (p.deluxe ? " deluxe" : "") + (state.selectedPlan === p.key ? " selected" : "") + '" data-plan="' + p.key + '" role="radio" aria-checked="' + (state.selectedPlan === p.key) + '" tabindex="' + (state.selectedPlan === p.key ? 0 : -1) + '">' +
         (p.deluxe && P.deluxeBadge ? '<div class="plan-badge">' + esc(P.deluxeBadge) + "</div>" : "") +
-        '<div class="plan-name">' + esc(p.name) + "</div>" +
+        '<div class="plan-name"><span class="own-pn">' + esc(p.name) + '</span><span class="own-radio" aria-hidden="true"></span></div>' +
         '<div class="plan-price">' + esc(P.currency || "NT$") + p.price +
           (p.deluxe && P.deluxeWasPrice ? '<span class="plan-was">' + esc(P.currency || "NT$") + P.deluxeWasPrice + "</span>" : "") + "</div>" +
         '<div class="plan-features">' + p.features.map(function (f) {
@@ -7839,7 +7850,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B219T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B220T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -7986,5 +7997,115 @@ window.ALBUM_SWITCH = {
 <script src="shop-content.js?v=3" defer></script>
 <script src="shop-views.js?v=3" defer></script>
 <script src="ticket-ui-shop.js?v=B218T" defer></script>
+<style id="own-b-style">
+/* ===== B220T OWN｜B「時尚雜誌版」—— 只作用在 #screen-purchase；只改視覺，不改任何文案 ===== */
+#screen-purchase{ background:#080809 !important; padding-top:0 !important; }
+#screen-purchase .own-b-hero{ position:relative; width:100%; aspect-ratio:900/833; max-height:430px; overflow:hidden; background:#080809; }
+#screen-purchase .own-b-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:60% 40%; display:block; filter:grayscale(1); }
+#screen-purchase .own-b-shade{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,8,9,.62) 0%,rgba(8,8,9,0) 24%,rgba(8,8,9,0) 58%,rgba(8,8,9,.86) 88%,#080809 100%),
+             linear-gradient(90deg,rgba(8,8,9,.55) 0%,rgba(8,8,9,0) 46%); }
+#screen-purchase .own-b-top{ position:absolute; left:0; right:0; top:0; z-index:2; display:grid; grid-template-columns:44px 1fr 44px; align-items:center;
+  padding:calc(8px + env(safe-area-inset-top)) 10px 0; }
+#screen-purchase .own-b-back{ width:44px; height:44px; display:grid; place-items:center; padding:0; background:none; border:0; border-radius:22px; color:#E6DAC4; cursor:pointer; -webkit-appearance:none; appearance:none; }
+#screen-purchase .own-b-back:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase .own-b-toptitle{ text-align:center; font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:16px; letter-spacing:.34em; padding-left:.34em; color:#D8C3A0; }
+#screen-purchase .own-b-mast{ position:absolute; left:20px; top:calc(76px + env(safe-area-inset-top)); z-index:1; }
+#screen-purchase .own-b-artist{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:12px; letter-spacing:.44em; color:#CFC6B8; }
+#screen-purchase .own-b-work{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-weight:400; font-size:clamp(30px,8.6vw,38px); line-height:1.05; letter-spacing:.01em; color:#D8C3A0; margin-top:8px; white-space:nowrap; }
+
+/* 原主標／副標：沿用原文字，改成左對齊雜誌排版，允許自然換行（不截字） */
+#screen-purchase .page-titles{ position:relative; z-index:2; text-align:left !important; padding:0 20px !important; margin-top:-30px; }
+#screen-purchase .page-title-en{ font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:11.5px !important; letter-spacing:.36em !important; color:#D8C3A0 !important; }
+#screen-purchase .page-title-tc{ font-family:var(--font-serif-tc) !important; font-size:clamp(23px,6.6vw,28px) !important; font-weight:600 !important; line-height:1.32 !important; letter-spacing:.04em !important; color:#F3EDE3 !important; margin-top:10px !important; white-space:normal !important; }
+#screen-purchase .page-titles .page-note{ font-size:15px !important; line-height:1.6 !important; color:#B9AE9F !important; margin-top:8px !important; letter-spacing:.06em; }
+#screen-purchase #unlock-form-view{ margin-top:22px !important; }
+#screen-purchase #unlock-done-view{ margin-top:26px !important; }
+
+/* 299／799 方案卡：左右並排，卡片依完整權益自動增高；過窄時改上下排列 */
+#screen-purchase #plans{ display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important; padding:0 20px !important; align-items:stretch; }
+@media (max-width:359px){ #screen-purchase #plans{ grid-template-columns:1fr; } }
+#screen-purchase #plans .plan{ display:flex; flex-direction:column; min-width:0; background:#0C0C0E !important; border:1px solid #2A2A2F !important; border-radius:14px !important; padding:14px 13px 15px !important; box-shadow:none !important; transition:border-color .18s,background .18s; }
+#screen-purchase #plans .plan.selected{ border-color:#D8C3A0 !important; background:linear-gradient(180deg,#15130F,#0C0C0E 55%) !important; }
+#screen-purchase #plans .plan:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase #plans .plan-badge{ position:static !important; order:-1; align-self:flex-start; margin:0 0 10px; padding:4px 8px !important; border-radius:6px !important;
+  background:rgba(216,195,160,.10) !important; border:1px solid rgba(216,195,160,.34); color:#E3D0AE !important;
+  font-family:inherit !important; font-size:12px !important; line-height:1.45; letter-spacing:.02em !important; white-space:normal; }
+#screen-purchase #plans .plan-name{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:var(--font-serif-tc) !important; font-size:16.5px !important; letter-spacing:.06em !important; color:#EDE6DA; }
+#screen-purchase #plans .own-radio{ flex:none; position:relative; width:20px; height:20px; border-radius:50%; border:1.5px solid #5A5960; }
+#screen-purchase #plans .plan.selected .own-radio{ border-color:#D8C3A0; }
+#screen-purchase #plans .plan.selected .own-radio::after{ content:""; position:absolute; inset:4px; border-radius:50%; background:#D8C3A0; }
+#screen-purchase #plans .plan-price{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:8px; row-gap:2px; margin-top:10px !important;
+  font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:clamp(26px,7.6vw,32px) !important; font-weight:500 !important; line-height:1.1; color:#A9A39A; }
+#screen-purchase #plans .plan.selected .plan-price{ color:#E3C893; }
+#screen-purchase #plans .plan-was{ margin-left:0 !important; font-size:14px !important; font-weight:400 !important; color:#8E877D !important; text-decoration:line-through !important; }
+#screen-purchase #plans .plan-features{ margin-top:12px !important; padding-top:12px; border-top:1px solid rgba(255,255,255,.07); gap:8px !important; }
+#screen-purchase #plans .plan-feature{ align-items:flex-start !important; gap:7px !important; font-size:13.5px !important; line-height:1.55 !important; color:#CFC7BA !important; }
+#screen-purchase #plans .plan-feature,#screen-purchase #plans .plan-badge,#screen-purchase .page-title-tc,#screen-purchase .page-titles .page-note{ word-break:keep-all; overflow-wrap:anywhere; }   /* 中文只在原本的空白／「·」處換行，避免單字落單；太長時仍可換行不溢出 */
+#screen-purchase #plans .plan:not(.selected) .plan-feature{ color:#A8A196 !important; }
+#screen-purchase #plans .plan-feature svg{ flex:none; width:12px; height:12px; margin-top:5px; stroke:#BFA77F !important; }
+
+/* 結帳：全寬膠囊、紫→金；文字由原本 renderPlans 產生（不硬編碼價格） */
+#screen-purchase .cta-block{ padding:16px 20px 0 !important; }
+#screen-purchase #btn-checkout{ position:relative; min-height:56px; padding:14px 52px !important; border-radius:999px !important; border:0 !important;
+  background:linear-gradient(90deg,#7460A6 0%,#A28BB0 48%,#D9BE91 100%) !important; color:#17121D !important;
+  font-family:var(--font-serif-tc) !important; font-size:16px !important; font-weight:600 !important; letter-spacing:.08em !important; line-height:1.4;
+  box-shadow:0 12px 28px -16px rgba(217,190,145,.6) !important; }
+#screen-purchase #btn-checkout::after{ content:"→"; position:absolute; right:22px; top:50%; transform:translateY(-50%); font-size:18px; font-family:-apple-system,system-ui,sans-serif; }
+#screen-purchase #btn-checkout:focus-visible{ outline:2px solid #D8C3A0; outline-offset:3px; }
+
+/* 「已經購買了？」：預設收合，細分隔線＋右側＋ */
+#screen-purchase .own-rd-toggle{ display:flex !important; align-items:center; justify-content:space-between; width:calc(100% - 40px); margin:22px 20px 0 !important; padding:17px 2px !important;
+  background:none; border:0; border-top:1px solid rgba(255,255,255,.09); border-bottom:1px solid rgba(255,255,255,.09); color:#CFC6B8; text-align:left; cursor:pointer; -webkit-appearance:none; appearance:none; font:inherit; }
+#screen-purchase .own-rd-toggle::before,#screen-purchase .own-rd-toggle::after{ content:none !important; display:none !important; }
+#screen-purchase .own-rd-toggle span{ font-family:var(--font-serif-tc),sans-serif !important; font-size:15px !important; letter-spacing:.06em !important; text-transform:none !important; color:#CFC6B8 !important; white-space:normal !important; }
+#screen-purchase .own-rd-toggle:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase .own-rd-ic{ position:relative; flex:none; width:16px; height:16px; }
+#screen-purchase .own-rd-ic::before,#screen-purchase .own-rd-ic::after{ content:""; position:absolute; left:0; right:0; top:50%; height:1.5px; margin-top:-.75px; background:#CFC6B8; transition:transform .2s; }
+#screen-purchase .own-rd-ic::after{ transform:rotate(90deg); }
+#screen-purchase .own-rd-toggle[aria-expanded="true"] .own-rd-ic::after{ transform:rotate(0deg); }
+#screen-purchase #unlock-form-view.own-rd-closed .form-block{ display:none !important; }
+#screen-purchase .form-block{ padding-top:16px; }
+#screen-purchase .form-block .page-note{ color:#B9AE9F !important; font-size:14.5px !important; line-height:1.65 !important; word-break:keep-all; overflow-wrap:anywhere; }
+</style>
+<script>
+/* B220T OWN B 版：返回鍵、方案鍵盤操作、兌換收合（只加介面行為；結帳／兌換／付款邏輯完全沿用原本） */
+(function () {
+  function $(id) { return document.getElementById(id); }
+  var plans = $("plans");
+  if (plans) plans.addEventListener("keydown", function (e) {
+    var cards = [].slice.call(plans.querySelectorAll("[data-plan]")), i = cards.indexOf(document.activeElement);
+    if (i < 0) return;
+    var k = e.key, t = null;
+    if (k === " " || k === "Enter") t = cards[i];
+    else if (k === "ArrowRight" || k === "ArrowDown") t = cards[(i + 1) % cards.length];
+    else if (k === "ArrowLeft" || k === "ArrowUp") t = cards[(i - 1 + cards.length) % cards.length];
+    if (!t) return;
+    e.preventDefault();
+    var key = t.getAttribute("data-plan"); t.click();              // 交給原本的 click → 設定方案、重畫、更新結帳價格
+    var n = plans.querySelector('[data-plan="' + key + '"]'); if (n) n.focus();
+  });
+  var tg = $("own-rd-toggle"), form = $("own-rd-form"), view = $("unlock-form-view");
+  if (tg && form && view) {
+    var setOpen = function (open) { view.classList.toggle("own-rd-closed", !open); tg.setAttribute("aria-expanded", String(open)); };
+    setOpen(false);
+    tg.addEventListener("click", function () {
+      var open = tg.getAttribute("aria-expanded") !== "true"; setOpen(open);
+      if (open) setTimeout(function () { try { form.scrollIntoView({ behavior: "smooth", block: "nearest" }); } catch (_) {} }, 40);
+    });
+  }
+  /* 返回：回到進 OWN 之前的分頁（沒有紀錄就回 PLAY），一律透過原本的分頁按鈕切換 */
+  var prev = "player";
+  [].slice.call(document.querySelectorAll("section.screen")).forEach(function (sec) {
+    new MutationObserver(function () { if (sec.classList.contains("active") && sec.id !== "screen-purchase") prev = sec.id.replace("screen-", ""); })
+      .observe(sec, { attributes: true, attributeFilter: ["class"] });
+  });
+  var back = $("own-b-back");
+  if (back) back.addEventListener("click", function () {
+    var nb = document.querySelector('.navbtn[data-screen="' + prev + '"]') || document.querySelector('.navbtn[data-screen="player"]');
+    if (nb) nb.click();
+  });
+})();
+</script>
 </body>
 </html>
