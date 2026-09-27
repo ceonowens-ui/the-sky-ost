@@ -7850,7 +7850,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B221T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B222T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -8107,5 +8107,21 @@ window.ALBUM_SWITCH = {
   });
 })();
 </script>
+<style id="app-black-style">
+/* ===== B222T：整個 App 底色改黑（跟 OWN 頁一致 #080809）＋ Nav 島改黑 =====
+   只改「底色」：不動內容卡片、按鈕、封面、付費會員 SIGNAL 人像背景與任何文字 */
+#stage, #screen-player { background:#080809 !important; }
+.screen-sub, #screen-mood, #screen-mood.mood-vip { background:#080809 !important; }
+#sheet { background:#0C0C0E !important; }
+#sheet-backdrop { background:rgba(0,0,0,.6) !important; }
+@media (min-width:520px){ body { background:#050506 !important; } }
+/* Nav 島：黑色玻璃、細框、光暈減弱；選中＝香檳金 */
+#nav, .nav-island { background:rgba(10,10,12,.88) !important; border-color:rgba(255,255,255,.08) !important; }
+#nav::before { opacity:.35; }
+.navbtn { color:rgba(206,198,186,.55) !important; }
+.navbtn.active { color:#E3C893 !important; }
+#nav-ind { background:linear-gradient(180deg,rgba(216,195,160,.20),rgba(216,195,160,.08)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.35) !important; }
+</style>
 </body>
 </html>
