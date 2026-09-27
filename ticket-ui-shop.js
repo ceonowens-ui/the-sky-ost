@@ -233,14 +233,14 @@ var SHOP_TEXT = {
   var DEMO = (function () {
     var now = Date.now();
     var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T13:00:00+08:00"), venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
-                { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "簽名海報", "最先入場・自由選位"], productKey: "meet-20261227-vvip", onSale: true },
-                { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["合照（官方攝影師拍攝）", "簽名海報"], productKey: "meet-20261227-vip", onSale: true },
+                { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "合照原圖（PhotoPass 免費）", "簽名海報", "最先入場・自由選位"], productKey: "meet-20261227-vvip", onSale: true },
+                { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["合照（官方攝影師拍攝，原圖可選購 PhotoPass）", "簽名海報"], productKey: "meet-20261227-vip", onSale: true },
                 { key: "ga", name: "一般", price: 980, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["活動入場"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 690, photoOnSale: true, ppKey: "pp-meet-20261227" },
               { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
-                { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "簽名海報", "最先入場・自由選位"], productKey: "meet-20270213-vvip", onSale: true },
-                { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["合照（官方攝影師拍攝）", "簽名海報"], productKey: "meet-20270213-vip", onSale: true },
+                { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "合照原圖（PhotoPass 免費）", "簽名海報", "最先入場・自由選位"], productKey: "meet-20270213-vvip", onSale: true },
+                { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["合照（官方攝影師拍攝，原圖可選購 PhotoPass）", "簽名海報"], productKey: "meet-20270213-vip", onSale: true },
                 { key: "ga", name: "一般", price: 980, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["活動入場"], productKey: "meet-20270213-ga", onSale: true } ], productKey: "meet-20270213", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20270213" }];
-    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, tier: "vvip", tierName: "VVIP 守護席", seatNo: 7, seat: "007", perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "簽名海報", "最先入場・自由選位"], event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
+    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, tier: "vvip", tierName: "VVIP 守護席", seatNo: 7, seat: "007", perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "專屬語音（CHANCE 叫你的名字，錄進 App）", "合照原圖（PhotoPass 免費）", "簽名海報", "最先入場・自由選位"], event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
              { id: "0901-DEMO6789", eventId: "meet-past", status: "used", ver: 2, issuedAt: new Date(now - 30 * 86400e3).toISOString(), usedAt: "2026-09-01T13:12:00+08:00", owner: "you@demo", transferPending: false, event: { id: "meet-past", code: "0901", name: "THE SKY 上線派對", startAt: "2026-09-01T13:00:00+08:00", venue: "微風 MEGA STUDIO" }, qr: null, canTransfer: false, expired: true }];
     var pending = null, sessions = {}, PP = {};
     return { call: function (p, b) { return new Promise(function (res) { setTimeout(function () { res(route(p, b)); }, 350); }); },
@@ -700,6 +700,7 @@ var SHOP_TEXT = {
     handleIncoming(null, c);
   }
   function ppOwned(evId) { return S.photopass.indexOf(evId) >= 0; }
+  function ppIncluded(evId) { return ticketsFor(evId).some(function (t) { return t.tier === "vvip"; }); }
   function photoQrSheet() {
     var t = ticketById(S.sel); if (!t) return;
     var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {});
@@ -1013,8 +1014,8 @@ function coverClockKey() {
   }
   function ppFoot(ev, mine) {
     if (!mine.length || !(ev.photoPrice > 0) || ev.photoOnSale === false) return "";
-    if (ppOwned(ev.id)) return '<div class="foot pp"><div class="l">📸 PhotoPass 合照包</div><span class="tk-chip d">✓ 已加購</span></div>';
-    return '<div class="foot pp"><div class="l">📸 PhotoPass 合照包<small>活動照片整包下載</small></div><button class="tk-chip o" data-act="buy-pp" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.photoPrice) + ' 加購</button></div>';
+    if (ppOwned(ev.id) || ppIncluded(ev.id)) return '<div class="foot pp"><div class="l">📸 PhotoPass 合照包</div><span class="tk-chip d">✓ ' + (ppOwned(ev.id) ? '已加購' : 'VVIP 已含') + '</span></div>';
+    return '<div class="foot pp"><div class="l">📸 PhotoPass 合照包<small>你的合照原圖＋活動精選，活動後在 App 下載</small></div><button class="tk-chip o" data-act="buy-pp" data-ev="' + esc(ev.id) + '">預購 NT$' + esc(ev.photoPrice) + '</button></div>';
   }
   function walletHTML() {
     var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
@@ -1073,8 +1074,8 @@ function coverClockKey() {
   }
   function ppRow(ev, t) {
     if (!(ev.photoPrice > 0) || ev.photoOnSale === false) return "";
-    if (ppOwned(t.eventId)) return '<button data-act="noop"><span style="color:#8fd39a;font-size:13px">✓ 已加購</span>📸 PhotoPass 合照包</button>';
-    return '<button data-act="buy-pp" data-ev="' + esc(t.eventId) + '">📸 PhotoPass 合照包 <small style="color:rgba(255,255,255,.5)">整包 NT$' + esc(ev.photoPrice) + '</small><span>加購 ›</span></button>';
+    if (ppOwned(t.eventId) || ppIncluded(t.eventId)) return '<button data-act="noop"><span style="color:#8fd39a;font-size:13px">✓ ' + (ppOwned(t.eventId) ? '已加購' : 'VVIP 已含') + '</span>📸 PhotoPass 合照包</button>';
+    return '<button data-act="buy-pp" data-ev="' + esc(t.eventId) + '">📸 PhotoPass 合照包 <small style="color:rgba(255,255,255,.5)">預購 NT$' + esc(ev.photoPrice) + '</small><span>預購 ›</span></button>';
   }
 
   /* ---------- 周邊收藏櫃 ---------- */
@@ -1133,7 +1134,7 @@ function coverClockKey() {
         tiers.map(function (t) { return li('<b>' + esc(t.name) + '</b>（' + nt(t.price) + '，編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '）：' + (t.perks || []).map(esc).join("、")); }).join("") + '</ul>' +
       '<div class="pt">終身編號</div><ul>' + li('依付款完成順序配發；有人退票時，釋出的號碼由下一位購買者遞補。') + li('終身編號不是座位號碼；編號與福利隨票轉讓，歸新持有人。') + '</ul>' +
       '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li('購票時需填寫稱呼，僅用於本活動（報到與 VVIP 專屬語音）。') + li('VVIP 最先入場、自由選位；其餘依現場引導入場。') + li('入場憑 App 票夾的入場 QR，開場前 ' + QR_LOCK_H + ' 小時出現，給工作人員掃描即完成入場。') + '</ul>' +
-      '<div class="pt">合照與照片</div><ul>' + li('合照由官方攝影師拍攝；照片活動後可在 App 預覽，喜歡再自由選購 PhotoPass 下載原圖（不強制購買），只提供給該票券持有人。') + '</ul>' +
+      '<div class="pt">合照與照片</div><ul>' + li('合照由官方攝影師拍攝；VVIP 已含合照原圖，活動後在 App 直接下載。') + li('其他票種：照片活動後可在 App 預覽，喜歡再選購 PhotoPass（' + esc((bt(ev) || {}).ppNote || "") + '），不強制購買；照片只提供給該票券持有人。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>' +
       '<div class="pt">專屬語音（VVIP）</div><ul>' + li('購票時填寫的稱呼，就是 CHANCE 錄語音時叫你的名字，請確認寫法。') + li('票券轉讓後，新持有人請於活動前來信 heartbeats0693@gmail.com 更新稱呼。') + li('語音於 2027/2/1 前放進 App 票夾。') + '</ul>' +
       '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。') + li('因主辦單位因素取消、改期或主要演出內容變更，全額退款、不收手續費。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。') + '</ul>' +
       '<div class="pt">主辦單位</div><ul>' + li('名稱：夏米爾企業社') + li('負責人：張紫瑩') + li('客服信箱：heartbeats0693@gmail.com') + li('地址：臺北市中正區懷寧街76號') + '</ul>' +
@@ -1143,7 +1144,7 @@ function coverClockKey() {
   }
   function rulesSheet() {
     sheet('<div class="tk-eyebrow">Entry</div><h3>入場須知</h3><div class="tk-hint" style="color:rgba(255,255,255,.8);line-height:1.8">' +
-      '・入場 QR 在開場前 ' + QR_LOCK_H + ' 小時自動出現，之前看不到是正常的（防止截圖轉賣）<br>・開場後 2 小時票就失效<br>・給工作人員掃 QR 就完成入場，掃過後會變成票根留在「過往」<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的，你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票；收票在票夾按「＋ 加入票券」掃 QR 或輸代碼<br>・現場有官方攝影：合照前把票根上的「拍照用 QR」舉給攝影師拍一張，照片才會對到你；照片活動後可在 App 預覽，喜歡再自由選購 PhotoPass 下載原圖（不強制），只提供給該票券持有人<br>・會場訊號不好的話，進場前先打開這張票</div>' +
+      '・入場 QR 在開場前 ' + QR_LOCK_H + ' 小時自動出現，之前看不到是正常的（防止截圖轉賣）<br>・開場後 2 小時票就失效<br>・給工作人員掃 QR 就完成入場，掃過後會變成票根留在「過往」<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的，你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票；收票在票夾按「＋ 加入票券」掃 QR 或輸代碼<br>・現場有官方攝影：合照前把票根上的「拍照用 QR」舉給攝影師拍一張，照片才會對到你；VVIP 已含合照原圖；其他人照片活動後可在 App 預覽，喜歡再自由選購 PhotoPass（不強制），只提供給該票券持有人<br>・會場訊號不好的話，進場前先打開這張票</div>' +
       '<button class="tk-btn p" data-sact="close">知道了</button>');
   }
   function transferConfirm() {
@@ -1184,7 +1185,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ✏️ 活動主視覺文字改 BUY_TEXT；價格/席次/福利從 Worker 場次資料讀
      ════════════════════════════════════════════════════════════════ */
   var BUY_TEXT = {
-    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["第一支 MV 現場搶先首映", "現場抽獎", "散場擊掌"] },
+    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["第一支 MV 現場搶先首映", "現場抽獎", "散場擊掌"], ppNote: "活動前預購 NT$390／活動後 NT$490" },
     _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
     assets: { hero: "shop-assets/buy-hero.jpg", thumb: "shop-assets/buy-thumb.jpg", ticket: "shop-assets/buy-ticket.jpg" },
     note: "※ 現場流程時間以當日公告為準",
@@ -1293,7 +1294,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<div class="pt">票種福利</div><ul>' + (t.perks || []).map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' +
       sharedList(ev) +
       '<div class="nt">終身編號：依付款完成順序配發 No.' + num3(t.numFrom) + '–' + num3(t.numTo) + '；有人退票時，釋出的號碼由下一位遞補。編號隨票轉讓。</div>' +
-      ((t.perks || []).some(function (p) { return /合照/.test(p); }) ? '<div class="nt">合照由官方攝影師拍攝，照片活動後可在 App 預覽，喜歡再自由選購 PhotoPass 下載原圖（不強制）。</div>' : '') +
+      ((t.perks || []).some(function (p) { return /合照/.test(p); }) ? '<div class="nt">' + (t.key === "vvip" ? '合照由官方攝影師拍攝，<b>合照原圖已含在 VVIP</b>，活動後在 App 直接下載。' : '合照由官方攝影師拍攝，照片活動後可在 App 預覽，喜歡再選購 PhotoPass（' + esc((bt(ev) || {}).ppNote || "") + '，不強制）。') + '</div>' : '') +
       '<div class="nt">' + esc(BUY_TEXT.note) + '　<button class="tkb-lk" data-sact="buy-terms">完整購票須知 ›</button></div>' + btn + '</div>');
     var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
   }
