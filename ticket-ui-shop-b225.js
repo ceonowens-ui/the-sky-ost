@@ -240,7 +240,7 @@ var SHOP_TEXT = {
                 { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"], productKey: "meet-20270213-vvip", onSale: true },
                 { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["1:1 官方合照", "親簽海報", "照片免費（自己的合格合照成片全數下載）", "第二批入場"], productKey: "meet-20270213-vip", onSale: true },
                 { key: "ga", name: "一般", price: 980, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["完整生日活動入場", "可加購生日牆合照（與 CHANCE 合照，NT$390）"], productKey: "meet-20270213-ga", onSale: true } ], productKey: "meet-20270213", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20270213" }];
-    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, tier: "vvip", tierName: "VVIP 守護席", seatNo: 7, seat: "007", perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"], event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
+    var T = [{ id: "1227-DEMO2345", eventId: "meet-20261227", status: "valid", ver: 1, issuedAt: new Date(now - 86400e3).toISOString(), usedAt: null, owner: "you@demo", transferPending: false, tier: dT().tier, tierName: dT().name, seatNo: 7, seat: "007", perks: dT().perks, event: ev[0], qr: "CT1.1227-DEMO2345.1.0123456789abcdef0123", canTransfer: true, expired: false },
              { id: "0901-DEMO6789", eventId: "meet-past", status: "used", ver: 2, issuedAt: new Date(now - 30 * 86400e3).toISOString(), usedAt: "2026-09-01T13:12:00+08:00", owner: "you@demo", transferPending: false, event: { id: "meet-past", code: "0901", name: "THE SKY 上線派對", startAt: "2026-09-01T13:00:00+08:00", venue: "微風 MEGA STUDIO" }, qr: null, canTransfer: false, expired: true }];
     var pending = null, sessions = {}, PP = {};
     return { call: function (p, b) { return new Promise(function (res) { setTimeout(function () { res(route(p, b)); }, 350); }); },
@@ -1404,13 +1404,16 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var h = buyBar("周邊", "TICKETS", right);
     if (!ev) return h + '<div class="tk-empty">' + (S.loading ? "載入中…" : "目前沒有開放購票的活動。") + '</div>';
     var tiers = ev.tiers || [];
+    if (isSolo(ev) && tierBuyable(ev, tiers[0])) S.buySel = tiers[0].key;   // B225T：只有一種票就直接選好
     h += heroHTML(ev) + summaryHTML(ev);
     h += '<div class="tkb-list" role="radiogroup" aria-label="選擇票種">' + tiers.map(function (t) { return tierRow(ev, t); }).join("") + '</div>';
-    h += '<p class="tkb-fine">' + esc(BUY_TEXT.limitNote) + '　·　' + esc(termsFor(ev)) + '　<button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></p>';
-    h += mBuySection(ev);
+    var T0 = selTier(ev), solo = isSolo(ev) && !!T0;
+    if (!solo) h += '<p class="tkb-fine">' + esc(BUY_TEXT.limitNote) + '　·　' + esc(termsFor(ev)) + '　<button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></p>';
+    h += solo ? mPreRows(ev) : mBuySection(ev);
     var T = selTier(ev), anyBuy = tiers.some(function (t) { return tierBuyable(ev, t); }), notOpen = !tiers.some(function (t) { return t.onSale; }) || ev.onSale === false;
     var foot;
-    if (T) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>已選擇 ' + esc(T.name) + '</span><b>' + nt(T.price) + '</b></div><button class="tkb-cta" data-act="buy-go">立即購買 <i>→</i></button>';
+    if (T && solo) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>合計</span><b>' + nt(preTotal(ev, T)) + '</b></div><button class="tkb-cta" data-act="buy-go">下一步 <i>→</i></button>';
+    else if (T) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>已選擇 ' + esc(T.name) + '</span><b>' + nt(T.price) + '</b></div><button class="tkb-cta" data-act="buy-go">立即購買 <i>→</i></button>';
     else if (notOpen) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">尚未開賣</b></div><button class="tkb-cta ghost" data-act="buy-remind">' + (reminded(ev.id) ? "已設定提醒 ✓" : "🔔 開賣提醒") + '</button>';
     else if (!anyBuy) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">目前無可購買票種</b></div><button class="tkb-cta ghost" data-act="open-wallet">我的票</button>';
     else foot = '<div class="fx"><span>還沒選擇票種</span><b class="dim">點上方票種開始</b></div><button class="tkb-cta" disabled>選擇票種</button>';
@@ -1465,6 +1468,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var b = S.buy || {}, ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0];
     var h = buyBar("", "購買票券");
     if (!ev || !T) return '<div class="tkb">' + h + '<div class="tk-empty">請先選擇票種。</div></div>';
+    if (isSolo(ev)) return checkoutSolo(ev, T, b, h);   // B225T：精簡確認頁
     var X = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
     h += '<div class="tkb-ev"><div class="po"><img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="pt"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + '</i></div></div>' +
       '<div class="in"><h3>' + esc(ev.name || "CHANCE") + '</h3><p>' + ic("cal", "bi s") + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '</p><p>' + ic("pin", "bi s") + esc(ev.venue || "") + '</p><p>' + ic("people", "bi s") + esc(ev.capacity || "") + ' 席</p></div></div>';
@@ -1547,6 +1551,54 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!o) return "";
     var nm = o.code === "s" && mi ? mi.m.items.s.name : (MLBL[o.code] || o.code);
     return '<div class="tkb-okinfo tkm-ok">🎁<span>已加購 <b>' + esc(nm) + '</b>，' + esc(md(ev.startAt)) + ' 活動當天憑票現場領取' + (o.code === "s" ? "（含一對一 60 秒）" : "") + '。</span></div>';
+  }
+  /* ---- B225T 精簡購票：單一票種時，第 1 頁就能勾周邊，第 2 頁只確認 ---- */
+  S.pre = {};
+  function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
+  function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
+  function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
+  function mPreRows(ev) {
+    var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
+    if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
+    var I = mi.m.items, o = S.pre, sm = mSetMode(ev, o);
+    var row = function (k) {
+      var it = I[k]; if (!it) return "";
+      var own = mOwned(ev.id, k) || (k === "s" && (mOwned(ev.id, "b") || mOwned(ev.id, "h"))), out = it.left <= 0;
+      var on = !own && !out && (k === "s" ? sm : (!!o["m" + k] && !sm));
+      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : it.perk;
+      return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
+        '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
+        '<span class="tx"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + (k === "s" && !out ? '<i class="tkm-bdg">★ 最划算・剩 ' + esc(it.left) + ' 組</i>' : '') + '</b><small>' + esc(sub) + '</small></span><em>＋' + nt(it.price) + '</em></button>';
+    };
+    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") +
+      '<p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
+  }
+  function preMToggle(k) {
+    var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || mOwned(ev.id, k)) return;
+    var o = S.pre, sm = mSetMode(ev, o);
+    if (k === "s") { o.mb = o.mh = !sm; }
+    else if (sm) { if (k === "b") o.mh = false; else o.mb = false; }
+    else o["m" + k] = !o["m" + k];
+    hap(8);
+    var L = layerEl("buy"); if (!L) return;
+    var box = L.querySelector("#tkm-pre"); if (box) box.outerHTML = mPreRows(ev);
+    var T = selTier(ev), fb = L.querySelector(".tkb-foot .fx b"); if (fb && T) fb.textContent = nt(preTotal(ev, T));
+  }
+  function checkoutSolo(ev, T, b, h) {
+    var mi = mInfo(ev.id), r = mi ? mResolve(mi, mSel(b)) : null;
+    h += '<div class="tkc-ev"><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '・' + esc(ev.venue || "") + '</span></div>';
+    h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span>' + esc(T.name) + '</span><b>' + nt(T.price) + '</b>' +
+      (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (r.code === "s" ? '<small>含一對一 60 秒・戴手鍊・簽帽T</small>' : '') + '</span><b>' + nt(r.price) + '</b>' : '') + '</div>';
+    h += ppAddonHTML(ev, T, b);
+    if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
+    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
+    h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>';
+    h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>每人限購 1 張（以收票 Email 認定）</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
+      (r ? '<li>周邊於活動當天憑票現場領取</li>' : '') + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
+    h += '<div class="tk-msg" id="tk-bmsg"></div>';
+    h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">綠界 ECPay 安全付款 · 付款後票直接進票夾</div></div>';
+    return '<div class="tkb">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
   function mBuySection(ev) {
@@ -1680,6 +1732,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         li('採中華郵政 e 小包，活動後陸續寄出並提供追蹤號碼。') + li('寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄。') + li('關稅與進口稅由收件人負擔。') + '</ul>' : '');
   }
   /* ---- demo（?tkdemo=1；加 &tkppt=1 看 PPT 版單一票價） ---- */
+  function dT() {   // demo 預先擁有的票：tkppt=1 時跟著 PPT 版變入場票
+    return /[?&]tkppt=1/.test(location.search)
+      ? { tier: "ga", name: "入場票", perks: ["完整生日活動入場・發餐", "第一支 MV 首播・嘉賓演出", "生日牆全體合照・全場大合照", "散場擊掌送客", "現場抽獎資格（5 位：手鍊／帽T）"] }
+      : { tier: "vvip", name: "VVIP 守護席", perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"] };
+  }
   var DMO = [], DMCFG = null;
   function demoPPT(ev) {
     if (/[?&]tkppt=1/.test(location.search) && ev[0] && ev[0].tiers && ev[0].tiers.length > 1) {
@@ -1734,7 +1791,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     ".tkm-seg button.on{border-color:var(--g2,#f1ddb0);background:#1a160f}.tkm-seg button:disabled{opacity:.4}" +
     ".tkm-sh select.tk-in{appearance:auto}.tkm-sh .tk-in{margin-bottom:8px}" +
     ".tkm-sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:12px 0 4px;font-size:14px;color:#b9aea1}.tkm-sum b{color:#f3eee6;font-weight:600;text-align:right}" +
-    ".tkm-ok{margin-top:10px}";
+    ".tkm-ok{margin-top:10px}" +
+    ".tkm-bdg{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:99px;background:var(--g2,#f1ddb0);color:#1a1409;font-style:normal;font-size:11px;font-weight:700;vertical-align:2px}" +
+    ".tkc-ev{margin:2px 0 20px}.tkc-ev b{display:block;font-size:19px;color:#f3eee6;font-weight:600}.tkc-ev span{display:block;margin-top:4px;font-size:13px;color:#b9aea1}" +
+    ".tkc-sum{margin:0 0 16px;padding:14px;border:1px solid #ffffff1a;border-radius:16px;background:#121011;font-size:15px}.tkc-sum small{display:block;margin-top:2px;font-size:12px;color:#9c9589}" +
+    "#tkm-pre{margin-top:24px}.tkc-note .bi{align-self:flex-start;margin-top:3px}.tkc-note{align-items:flex-start}.tkc-note>div{flex:1}.tkc-note b{color:#f3eee6}.tkc-note ul{margin:6px 0 6px;padding-left:18px;font-size:13px;line-height:1.75;color:#b9aea1}";
     document.head.appendChild(st); })();
   /* ===== B225T 結束 ===== */
 
@@ -1776,10 +1837,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "profile") return profileSheet();
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
     if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); openLayer("wallet"); if (nm) setTimeout(function () { openLayer("pass", { sel: nm.id }); }, 60); return; }
-    if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; return openLayer("buy"); }
+    if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; S.pre = {}; return openLayer("buy"); }
     if (act === "tier-sel") { var tk = b.getAttribute("data-tier"); S.buySel = S.buySel === tk ? null : tk; hap(8); renderLayer("buy"); return; }
     if (act === "tier-info") { e.stopPropagation(); return tierDetailSheet(b.getAttribute("data-tier")); }
-    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); return openLayer("checkout"); }
+    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; } return openLayer("checkout"); }
+    if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
     if (act === "buy-remind") { var rev = buyEv(); if (rev) { setRemind(rev.id); renderLayer("buy"); } return; }
     if (act === "co-pay") { return startPayment(); }
     if (act === "co-pp") return coPPToggle();
