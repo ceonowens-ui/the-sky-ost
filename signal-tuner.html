@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIGNAL 未解鎖頁 · 即時調整</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2a30,#111);
+  font-family:-apple-system,"PingFang TC",sans-serif;color:#cfcfd6;padding:22px 14px}
+.wrap{display:flex;gap:34px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.panel{width:380px;max-width:100%;display:flex;flex-direction:column;gap:12px}
+h1{font-size:16px;font-weight:600;margin:0;color:#E0CBA7}
+.hint{font-size:12px;color:#8b8b95;line-height:1.6}
+.box{background:#1c1c1f;border:1px solid #2c2c30;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.box h2{margin:0 0 2px;font-size:12px;font-weight:600;color:#E0CBA7;letter-spacing:.08em}
+.r{display:flex;align-items:center;gap:10px}
+.r label{font-size:12px;color:#a9a9b2;width:92px;flex:none}
+.r input[type=range]{flex:1;accent-color:#BFA477}
+.r .v{font-size:12px;color:#e6e6ea;width:56px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.r input[type=text],.r select{flex:1;background:#111;color:#eee;border:1px solid #3a3a42;border-radius:8px;padding:6px 8px;font-size:12px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{padding:8px 14px;border-radius:10px;border:1px solid #4a4a52;background:#2a2a30;color:#fff;font-size:13px;cursor:pointer}
+button:hover{background:#3a3a42}
+button.p{background:#BFA477;border-color:#BFA477;color:#1a1409;font-weight:600}
+.device{position:relative;flex:none;border-radius:55px;background:#000;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 13px #1c1c1e,0 0 0 15px #3a3a3c}
+.screen{position:absolute;inset:13px;border-radius:44px;overflow:hidden;background:#080809}
+.screen iframe{border:0;display:block;background:#080809;transform-origin:0 0}
+.island{position:absolute;left:50%;transform:translateX(-50%);background:#000;border-radius:20px;z-index:20;pointer-events:none}
+.statusbar{position:absolute;left:13px;right:13px;height:44px;z-index:19;pointer-events:none;display:flex;justify-content:space-between;align-items:center;padding:0 34px;color:#fff;font-size:15px;font-weight:600}
+.home{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.55);z-index:20;pointer-events:none}
+#msg{font-size:12px;color:#9fd29f;min-height:16px}
+pre{margin:0;white-space:pre-wrap;font-size:11px;color:#d7c9ad;background:#111;border:1px solid #2c2c30;border-radius:10px;padding:10px;max-height:190px;overflow:auto}
+</style></head><body>
+<div class="wrap">
+<div class="panel">
+  <h1>SIGNAL 未解鎖頁 · 即時調整</h1>
+  <div class="hint">拖滑桿即時預覽（只改這個預覽，不會動到線上）。調好按「複製設定」，把整段貼給 Claude，就會烘進 App。<br>畫面沒出現 SIGNAL 頁 → 按「重新整理」。</div>
+  <div class="box">
+    <div class="r"><label>目標網址</label><input type="text" id="src" value="test225.html?fanview=1"><button onclick="loadSrc()">載入</button></div>
+    <div class="r"><label>機型</label><select id="dev" onchange="setDevice(this.value)"></select></div>
+  </div>
+  <div id="groups"></div>
+  <div class="btns">
+    <button onclick="reload()">重新整理</button>
+    <button onclick="resetAll()">全部重設</button>
+    <button class="p" onclick="copyConfig()">複製設定</button>
+  </div>
+  <div id="msg"></div>
+  <pre id="out"></pre>
+</div>
+<div class="device" id="device">
+  <div class="statusbar"><span>9:41</span><span>●●●</span></div>
+  <div class="island" id="island"></div>
+  <div class="screen"><iframe id="f" title="CHANCE 預覽"></iframe></div>
+  <div class="home" id="home"></div>
+</div>
+</div>
+<script>
+/* 機型：數字來自 iphone-frame-live-tuner 的 DEVICE_PRESETS.md（量過的，不是猜的） */
+var DEVICES = [
+  {id:'iphone14plus',name:'iPhone 14 Plus（428）',   w:428,h:926,top:47,bottom:34,island:false},
+  {id:'iphone14',    name:'iPhone 12/13/14（390）',  w:390,h:844,top:47,bottom:34,island:false},
+  {id:'iphone15',    name:'iPhone 15/16（393）',     w:393,h:852,top:59,bottom:34,island:true},
+  {id:'iphone15plus',name:'iPhone 15/16 Pro Max（430）',w:430,h:932,top:59,bottom:34,island:true},
+  {id:'mini',        name:'iPhone 12/13 mini（375）',w:375,h:812,top:50,bottom:34,island:false},
+  {id:'se',          name:'iPhone SE（375）',        w:375,h:667,top:20,bottom:0, island:false}
+];
+/* 滑桿：每一條對應 test225.html 裡一個 --sg-* 變數；def＝App 目前的數值 */
+var GROUPS = [
+  {title:'人像背景', items:[
+    {key:'--sg-img-size',   label:'圖片縮放',   min:80, max:170,step:1,  def:100, unit:'%',  fmt:function(v){return v+'% auto';}},
+    {key:'--sg-img-x',      label:'左右位置',   min:-120,max:120,step:1, def:0,   unit:'px'},
+    {key:'--sg-img-y',      label:'上下位置',   min:-220,max:160,step:1, def:0,   unit:'px'},
+    {key:'--sg-fade-start', label:'漸黑開始',   min:20, max:95, step:1,  def:52,  unit:'%'},
+    {key:'--sg-fade-end',   label:'全黑位置',   min:40, max:100,step:1,  def:88,  unit:'%'}
+  ]},
+  {title:'SIGNAL 標題', items:[
+    {key:'--sg-title-top',  label:'距頂部',     min:0,  max:140,step:1,  def:22,  unit:'px'},
+    {key:'--sg-title-size', label:'字級',       min:12, max:30, step:0.5,def:17,  unit:'px'},
+    {key:'--sg-title-ls',   label:'字距',       min:0,  max:0.9,step:0.01,def:0.48,unit:'em'}
+  ]},
+  {title:'Unlock 按鈕', items:[
+    {key:'--sg-btn-w',      label:'寬度',       min:140,max:360,step:1,  def:216, unit:'px'},
+    {key:'--sg-btn-h',      label:'高度',       min:36, max:72, step:1,  def:48,  unit:'px'},
+    {key:'--sg-btn-font',   label:'字級',       min:14, max:30, step:0.5,def:19,  unit:'px'},
+    {key:'--sg-btn-ls',     label:'字距',       min:0,  max:0.3,step:0.01,def:0.07,unit:'em'},
+    {key:'--sg-btn-gap',    label:'距導覽列',   min:0,  max:160,step:1,  def:26,  unit:'px'},
+    {key:'--sg-btn-ring',   label:'外框粗細',   min:0.5,max:4,  step:0.5,def:1.5, unit:'px'},
+    {key:'--sg-sweep',      label:'流光一圈',   min:3,  max:20, step:0.5,def:8,   unit:'s'}
+  ]}
+];
+var ALL=[].concat.apply([],GROUPS.map(function(g){return g.items;}));
+var f=document.getElementById('f'), state={}, inputs={}, cur=DEVICES[0];
+function val(s,v){ return s.fmt ? s.fmt(v) : v+s.unit; }
+function build(){
+  var sel=document.getElementById('dev');
+  DEVICES.forEach(function(d){ var o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o); });
+  var G=document.getElementById('groups');
+  GROUPS.forEach(function(g){
+    var box=document.createElement('div'); box.className='box'; box.innerHTML='<h2>'+g.title+'</h2>'; G.appendChild(box);
+    g.items.forEach(function(s){
+      state[s.key]=s.def;
+      var r=document.createElement('div'); r.className='r';
+      var lab=document.createElement('label'); lab.textContent=s.label;
+      var inp=document.createElement('input'); inp.type='range'; inp.min=s.min; inp.max=s.max; inp.step=s.step; inp.value=s.def;
+      var v=document.createElement('div'); v.className='v'; v.textContent=s.def+s.unit;
+      inp.addEventListener('input',function(){ state[s.key]=Number(inp.value); v.textContent=inp.value+s.unit; apply(false); });
+      inputs[s.key]={inp:inp,v:v};
+      r.appendChild(lab); r.appendChild(inp); r.appendChild(v); box.appendChild(r);
+    });
+  });
+}
+function doc(){ try{ return f.contentDocument; }catch(e){ return null; } }
+function apply(fire){
+  var d=doc(); if(!d||!d.documentElement) return;
+  var root=d.documentElement;
+  ALL.forEach(function(s){
+    if(s.key==='--sg-img-size' && state[s.key]===s.def) root.style.removeProperty(s.key);   /* 100% 時用 App 原本的 cover */
+    else root.style.setProperty(s.key, val(s,state[s.key]));
+  });
+  root.style.setProperty('--sat', cur.top+'px'); root.style.setProperty('--sab', cur.bottom+'px');
+  if(fire){ var w=d.defaultView; if(w){ try{ w.dispatchEvent(new Event('resize')); }catch(e){} } }
+}
+function gotoFeed(){
+  var d=doc(); if(!d) return;
+  var b=d.querySelector('.navbtn[data-screen="mood"]'); if(b) b.click();
+  setTimeout(function(){ apply(true); },300);
+}
+function setDevice(id){
+  cur=DEVICES.filter(function(x){return x.id===id;})[0]||DEVICES[0];
+  var dev=document.getElementById('device'); dev.style.width=cur.w+'px'; dev.style.height=cur.h+'px';
+  f.style.width=(cur.w-26)+'px'; f.style.height=(cur.h-26)+'px';
+  var isl=document.getElementById('island');
+  if(cur.island){ isl.style.top='24px'; isl.style.width='118px'; isl.style.height='33px'; }
+  else if(cur.top>20){ isl.style.top='13px'; isl.style.width='164px'; isl.style.height='30px'; }
+  else { isl.style.width='0'; }
+  document.querySelector('.statusbar').style.top=(cur.island?24:14)+'px';
+  document.getElementById('home').style.display=cur.bottom>0?'block':'none';
+  apply(true); setTimeout(gotoFeed,200);
+}
+function loadSrc(){ var v=document.getElementById('src').value.trim(); if(v) f.src=v; }
+function reload(){ var u=document.getElementById('src').value.trim(); f.src=u+(u.indexOf('?')<0?'?':'&')+'t='+Date.now(); }
+function resetAll(){ ALL.forEach(function(s){ state[s.key]=s.def; inputs[s.key].inp.value=s.def; inputs[s.key].v.textContent=s.def+s.unit; }); apply(); msg('已重設成 App 目前的數值'); }
+function msg(t){ var m=document.getElementById('msg'); m.textContent=t; clearTimeout(msg._t); msg._t=setTimeout(function(){m.textContent='';},2600); }
+function copyConfig(){
+  var show=function(s,v){ return (s.key==='--sg-img-size' && v===s.def) ? 'cover' : val(s,v); };
+  var lines=ALL.map(function(s){ var ch=state[s.key]!==s.def; return '  '+s.key+': '+show(s,state[s.key])+';'+(ch?'   /* 改過（原 '+show(s,s.def)+'） */':''); });
+  var css='/* SIGNAL 未解鎖頁設定（'+cur.name+' 上調的） */\n#screen-mood.sgl-locked{\n'+lines.join('\n')+'\n}';
+  document.getElementById('out').textContent=css;
+  var done=function(){ msg('已複製，貼給 Claude 就好'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(css).then(done,function(){ fallbackCopy(css); done(); });
+  else { fallbackCopy(css); done(); }
+}
+function fallbackCopy(t){ var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove(); }
+f.addEventListener('load',function(){ apply(); setTimeout(gotoFeed,1200); setTimeout(gotoFeed,2600); });
+setInterval(function(){ apply(false); },500);   /* App 自己重繪時持續補套用 */
+build(); setDevice(DEVICES[0].id); loadSrc();
+</script>
+</body></html>

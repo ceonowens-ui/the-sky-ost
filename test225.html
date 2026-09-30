@@ -2183,29 +2183,32 @@ body { background: #08060C !important; }
 #screen-mood.sgl-locked .feed-tabs{ display:none !important; }
 #screen-mood.sgl-locked #feed-body{ position:absolute; inset:0; padding:0; margin:0; }
 #screen-mood.sgl-locked .sgl-bg{ position:absolute; inset:0; z-index:0; pointer-events:none;
-  background:#080809 url("assets/images/signal/feed-portrait-clean.jpg?v=1") center top / cover no-repeat; }
+  background:#080809 url("assets/images/signal/feed-portrait-clean.jpg?v=1") no-repeat;
+  background-size:var(--sg-img-size, cover);
+  background-position:calc(50% + var(--sg-img-x, 0px)) var(--sg-img-y, 0px); }
 #screen-mood.sgl-locked .sgl-bg::after{ content:""; position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(8,8,9,0) 0%, rgba(8,8,9,0) 52%, rgba(8,8,9,.55) 70%, #080809 88%); }
+  background:linear-gradient(180deg, rgba(8,8,9,0) 0%, rgba(8,8,9,0) var(--sg-fade-start, 52%),
+    rgba(8,8,9,.55) calc((var(--sg-fade-start, 52%) + var(--sg-fade-end, 88%)) / 2), #080809 var(--sg-fade-end, 88%)); }
 #screen-mood.sgl-locked .sgl-title{ position:absolute; z-index:1; left:0; right:0; margin:0;
-  top:calc(env(safe-area-inset-top, 0px) + 22px); text-align:center;
-  font-family:Georgia, "Times New Roman", serif; font-size:17px; font-weight:400; line-height:1.2;
-  letter-spacing:.48em; padding-left:.48em; color:#E0CBA7; opacity:1; text-shadow:none; pointer-events:none; }
+  top:calc(var(--sat, env(safe-area-inset-top, 0px)) + var(--sg-title-top, 22px)); text-align:center;
+  font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-title-size, 17px); font-weight:400; line-height:1.2;
+  letter-spacing:var(--sg-title-ls, .48em); padding-left:var(--sg-title-ls, .48em); color:#E0CBA7; opacity:1; text-shadow:none; pointer-events:none; }
 /* B227T：Unlock 小膠囊 —— 兩層：外層＝流光外框（conic-gradient，1.5px 內距＝框寬，任何瀏覽器都不會取整），
    內層 .sgl-in＝純黑底＋金字（固定不動）。角度用 @property 註冊成 <angle>，動畫才能連續插值；順時針 8 秒一圈。 */
 @property --sgl-a { syntax:"<angle>"; inherits:false; initial-value:0deg; }
 @keyframes sglSweep { from { --sgl-a:0deg; } to { --sgl-a:360deg; } }
 #screen-mood.sgl-locked .sgl-btn{ position:absolute; z-index:2; left:0; right:0; margin:0 auto; display:block;
-  bottom:var(--sgl-bottom, calc(env(safe-area-inset-bottom, 0px) + 100px));
-  width:216px; max-width:calc(100% - 64px); height:48px; min-height:0; min-width:0; padding:1.5px; box-sizing:border-box;
+  bottom:calc(var(--sgl-navspace, calc(env(safe-area-inset-bottom, 0px) + 74px)) + var(--sg-btn-gap, 26px));
+  width:var(--sg-btn-w, 216px); max-width:calc(100% - 64px); height:var(--sg-btn-h, 48px); min-height:0; min-width:0; padding:var(--sg-btn-ring, 1.5px); box-sizing:border-box;
   border:0; border-radius:999px;
   background:conic-gradient(from var(--sgl-a), #897149 0deg, #897149 296deg, rgba(136,118,139,.55) 318deg, #F3DDB1 348deg, #897149 358deg, #897149 360deg);
-  animation:sglSweep 8s linear infinite;
+  animation:sglSweep var(--sg-sweep, 8s) linear infinite;
   color:#E0CBA7; opacity:1; transform:none; box-shadow:none; text-shadow:none;
   backdrop-filter:none; -webkit-backdrop-filter:none; filter:none; transition:none;
   -webkit-appearance:none; appearance:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 #screen-mood.sgl-locked .sgl-btn .sgl-in{ display:flex; align-items:center; justify-content:center; width:100%; height:100%;
   box-sizing:border-box; padding:0 16px; border-radius:999px; background:#0B0B0C;
-  color:#E0CBA7; opacity:1; font-family:Georgia, "Times New Roman", serif; font-size:19px; font-weight:400; line-height:1.2; letter-spacing:.07em;
+  color:#E0CBA7; opacity:1; font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-btn-font, 19px); font-weight:400; line-height:1.2; letter-spacing:var(--sg-btn-ls, .07em);
   white-space:nowrap; pointer-events:none; }
 #screen-mood.sgl-locked .sgl-btn::before, #screen-mood.sgl-locked .sgl-btn::after{ content:none; display:none; }
 #screen-mood.sgl-locked .sgl-btn:focus-visible{ outline:2px solid #E0CBA7; outline-offset:3px; }
@@ -6626,7 +6629,7 @@ window.ALBUM_SWITCH = {
     var unlocked = feedUnlockedQ();
     /* B142T：test 專用「粉絲視角」開關 —— test.html?fanview=1 強制用未解鎖畫面顯示,
        方便 CÉON 用平常的 Safari 預覽粉絲看到的樣子(正式站 index.html 沒有這個開關) */
-    if (/test\.html/i.test(location.pathname) && /[?&]fanview=1/.test(location.search)) unlocked = false;
+    if (/test[\w-]*\.html/i.test(location.pathname) && /[?&]fanview=1/.test(location.search)) unlocked = false;   /* B228T：test225.html 也適用 */
     var live = FEED_LIVE_POSTS.filter(function (p) {
       return p && !p.locked && (unlocked || p.tier === "public");
     });
@@ -6762,7 +6765,7 @@ window.ALBUM_SWITCH = {
     var nv = document.getElementById("nav"); if (nv) { var r = nv.getBoundingClientRect(); if (r.height) top = Math.min(top, r.top); }
     var mp = document.querySelector(".mini-player"); if (mp && !mp.classList.contains("hidden")) { var r2 = mp.getBoundingClientRect(); if (r2.height) top = Math.min(top, r2.top); }
     if (top >= H) top = H - 96;
-    sm.style.setProperty("--sgl-bottom", Math.round(H - top + 26) + "px");   /* B227T：按鈕底緣距離導覽列上緣 26px */
+    sm.style.setProperty("--sgl-navspace", Math.round(H - top) + "px");   /* B228T：導覽列上緣以下的高度；按鈕間距由 --sg-btn-gap（預設 26px）決定 */
     if (!_sglObs && window.MutationObserver) {
       _sglObs = new MutationObserver(function () { sglPlace(); });
       _sglObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
@@ -8186,7 +8189,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B227T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B228T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
