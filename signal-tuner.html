@@ -67,25 +67,25 @@ var DEVICES = [
 /* 滑桿：每一條對應 test225.html 裡一個 --sg-* 變數；def＝App 目前的數值 */
 var GROUPS = [
   {title:'人像背景', items:[
-    {key:'--sg-img-size',   label:'圖片縮放',   min:80, max:170,step:1,  def:100, unit:'%',  fmt:function(v){return v+'% auto';}},
+    {key:'--sg-img-size',   label:'圖片縮放',   min:80, max:170,step:1,  def:111, unit:'%',  fmt:function(v){return v+'% auto';}},
     {key:'--sg-img-x',      label:'左右位置',   min:-120,max:120,step:1, def:0,   unit:'px'},
     {key:'--sg-img-y',      label:'上下位置',   min:-220,max:160,step:1, def:0,   unit:'px'},
     {key:'--sg-fade-start', label:'漸黑開始',   min:20, max:95, step:1,  def:52,  unit:'%'},
     {key:'--sg-fade-end',   label:'全黑位置',   min:40, max:100,step:1,  def:88,  unit:'%'}
   ]},
   {title:'SIGNAL 標題', items:[
-    {key:'--sg-title-top',  label:'距頂部',     min:0,  max:140,step:1,  def:22,  unit:'px'},
-    {key:'--sg-title-size', label:'字級',       min:12, max:30, step:0.5,def:17,  unit:'px'},
-    {key:'--sg-title-ls',   label:'字距',       min:0,  max:0.9,step:0.01,def:0.48,unit:'em'}
+    {key:'--sg-title-top',  label:'距頂部',     min:0,  max:140,step:1,  def:17,  unit:'px'},
+    {key:'--sg-title-size', label:'字級',       min:12, max:30, step:0.5,def:17.5,unit:'px'},
+    {key:'--sg-title-ls',   label:'字距',       min:0,  max:1.4,step:0.01,def:0.9, unit:'em'}
   ]},
   {title:'Unlock 按鈕', items:[
-    {key:'--sg-btn-w',      label:'寬度',       min:140,max:360,step:1,  def:216, unit:'px'},
-    {key:'--sg-btn-h',      label:'高度',       min:36, max:72, step:1,  def:48,  unit:'px'},
+    {key:'--sg-btn-w',      label:'寬度',       min:140,max:360,step:1,  def:226, unit:'px'},
+    {key:'--sg-btn-h',      label:'高度',       min:36, max:72, step:1,  def:36,  unit:'px'},
     {key:'--sg-btn-font',   label:'字級',       min:14, max:30, step:0.5,def:19,  unit:'px'},
-    {key:'--sg-btn-ls',     label:'字距',       min:0,  max:0.3,step:0.01,def:0.07,unit:'em'},
-    {key:'--sg-btn-gap',    label:'距導覽列',   min:0,  max:160,step:1,  def:26,  unit:'px'},
-    {key:'--sg-btn-ring',   label:'外框粗細',   min:0.5,max:4,  step:0.5,def:1.5, unit:'px'},
-    {key:'--sg-sweep',      label:'流光一圈',   min:3,  max:20, step:0.5,def:8,   unit:'s'}
+    {key:'--sg-btn-ls',     label:'字距',       min:0,  max:0.3,step:0.01,def:0.12,unit:'em'},
+    {key:'--sg-btn-gap',    label:'距導覽列',   min:0,  max:160,step:1,  def:88,  unit:'px'},
+    {key:'--sg-btn-ring',   label:'外框粗細',   min:0.5,max:4,  step:0.5,def:2.5, unit:'px'},
+    {key:'--sg-sweep',      label:'流光一圈',   min:3,  max:20, step:0.5,def:3,   unit:'s'}
   ]}
 ];
 var ALL=[].concat.apply([],GROUPS.map(function(g){return g.items;}));
@@ -114,8 +114,7 @@ function apply(fire){
   var d=doc(); if(!d||!d.documentElement) return;
   var root=d.documentElement;
   ALL.forEach(function(s){
-    if(s.key==='--sg-img-size' && state[s.key]===s.def) root.style.removeProperty(s.key);   /* 100% 時用 App 原本的 cover */
-    else root.style.setProperty(s.key, val(s,state[s.key]));
+    root.style.setProperty(s.key, val(s,state[s.key]));
   });
   root.style.setProperty('--sat', cur.top+'px'); root.style.setProperty('--sab', cur.bottom+'px');
   if(fire){ var w=d.defaultView; if(w){ try{ w.dispatchEvent(new Event('resize')); }catch(e){} } }
@@ -142,7 +141,7 @@ function reload(){ var u=document.getElementById('src').value.trim(); f.src=u+(u
 function resetAll(){ ALL.forEach(function(s){ state[s.key]=s.def; inputs[s.key].inp.value=s.def; inputs[s.key].v.textContent=s.def+s.unit; }); apply(); msg('已重設成 App 目前的數值'); }
 function msg(t){ var m=document.getElementById('msg'); m.textContent=t; clearTimeout(msg._t); msg._t=setTimeout(function(){m.textContent='';},2600); }
 function copyConfig(){
-  var show=function(s,v){ return (s.key==='--sg-img-size' && v===s.def) ? 'cover' : val(s,v); };
+  var show=function(s,v){ return val(s,v); };
   var lines=ALL.map(function(s){ var ch=state[s.key]!==s.def; return '  '+s.key+': '+show(s,state[s.key])+';'+(ch?'   /* 改過（原 '+show(s,s.def)+'） */':''); });
   var css='/* SIGNAL 未解鎖頁設定（'+cur.name+' 上調的） */\n#screen-mood.sgl-locked{\n'+lines.join('\n')+'\n}';
   document.getElementById('out').textContent=css;

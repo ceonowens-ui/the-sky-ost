@@ -2178,42 +2178,60 @@ body { background: #08060C !important; }
 #screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
 <style id="sgl-locked-style">
-/* B226T：FEED／SIGNAL 未解鎖畫面（只在 #screen-mood.sgl-locked 生效） */
+/* B226T：FEED／SIGNAL 未解鎖畫面（只在 #screen-mood.sgl-locked 生效）
+   B229T：預設值改為 CÉON 在 signal-tuner（iPhone 14 Plus）調好的數字 */
 #screen-mood.sgl-locked{ background:#080809 !important; padding:0 !important; overflow:hidden !important; }
 #screen-mood.sgl-locked .feed-tabs{ display:none !important; }
 #screen-mood.sgl-locked #feed-body{ position:absolute; inset:0; padding:0; margin:0; }
 #screen-mood.sgl-locked .sgl-bg{ position:absolute; inset:0; z-index:0; pointer-events:none;
   background:#080809 url("assets/images/signal/feed-portrait-clean.jpg?v=1") no-repeat;
-  background-size:var(--sg-img-size, cover);
+  background-size:var(--sg-img-size, 111% auto);
   background-position:calc(50% + var(--sg-img-x, 0px)) var(--sg-img-y, 0px); }
 #screen-mood.sgl-locked .sgl-bg::after{ content:""; position:absolute; inset:0;
   background:linear-gradient(180deg, rgba(8,8,9,0) 0%, rgba(8,8,9,0) var(--sg-fade-start, 52%),
     rgba(8,8,9,.55) calc((var(--sg-fade-start, 52%) + var(--sg-fade-end, 88%)) / 2), #080809 var(--sg-fade-end, 88%)); }
 #screen-mood.sgl-locked .sgl-title{ position:absolute; z-index:1; left:0; right:0; margin:0;
-  top:calc(var(--sat, env(safe-area-inset-top, 0px)) + var(--sg-title-top, 22px)); text-align:center;
-  font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-title-size, 17px); font-weight:400; line-height:1.2;
-  letter-spacing:var(--sg-title-ls, .48em); padding-left:var(--sg-title-ls, .48em); color:#E0CBA7; opacity:1; text-shadow:none; pointer-events:none; }
+  top:calc(var(--sat, env(safe-area-inset-top, 0px)) + var(--sg-title-top, 17px)); text-align:center;
+  font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-title-size, 17.5px); font-weight:400; line-height:1.2;
+  letter-spacing:var(--sg-title-ls, .9em); padding-left:var(--sg-title-ls, .9em); color:#E0CBA7; opacity:1; text-shadow:none; pointer-events:none; }
 /* B227T：Unlock 小膠囊 —— 兩層：外層＝流光外框（conic-gradient，1.5px 內距＝框寬，任何瀏覽器都不會取整），
    內層 .sgl-in＝純黑底＋金字（固定不動）。角度用 @property 註冊成 <angle>，動畫才能連續插值；順時針 8 秒一圈。 */
 @property --sgl-a { syntax:"<angle>"; inherits:false; initial-value:0deg; }
 @keyframes sglSweep { from { --sgl-a:0deg; } to { --sgl-a:360deg; } }
 #screen-mood.sgl-locked .sgl-btn{ position:absolute; z-index:2; left:0; right:0; margin:0 auto; display:block;
-  bottom:calc(var(--sgl-navspace, calc(env(safe-area-inset-bottom, 0px) + 74px)) + var(--sg-btn-gap, 26px));
-  width:var(--sg-btn-w, 216px); max-width:calc(100% - 64px); height:var(--sg-btn-h, 48px); min-height:0; min-width:0; padding:var(--sg-btn-ring, 1.5px); box-sizing:border-box;
+  bottom:calc(var(--sgl-navspace, calc(env(safe-area-inset-bottom, 0px) + 74px)) + var(--sg-btn-gap, 88px));
+  width:var(--sg-btn-w, 226px); max-width:calc(100% - 64px); height:var(--sg-btn-h, 36px); min-height:0; min-width:0; padding:var(--sg-btn-ring, 2.5px); box-sizing:border-box;
   border:0; border-radius:999px;
   background:conic-gradient(from var(--sgl-a), #897149 0deg, #897149 296deg, rgba(136,118,139,.55) 318deg, #F3DDB1 348deg, #897149 358deg, #897149 360deg);
-  animation:sglSweep var(--sg-sweep, 8s) linear infinite;
+  animation:sglSweep var(--sg-sweep, 3s) linear infinite;
   color:#E0CBA7; opacity:1; transform:none; box-shadow:none; text-shadow:none;
   backdrop-filter:none; -webkit-backdrop-filter:none; filter:none; transition:none;
   -webkit-appearance:none; appearance:none; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 #screen-mood.sgl-locked .sgl-btn .sgl-in{ display:flex; align-items:center; justify-content:center; width:100%; height:100%;
   box-sizing:border-box; padding:0 16px; border-radius:999px; background:#0B0B0C;
-  color:#E0CBA7; opacity:1; font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-btn-font, 19px); font-weight:400; line-height:1.2; letter-spacing:var(--sg-btn-ls, .07em);
+  color:#E0CBA7; opacity:1; font-family:Georgia, "Times New Roman", serif; font-size:var(--sg-btn-font, 19px); font-weight:400; line-height:1.2; letter-spacing:var(--sg-btn-ls, .12em);
   white-space:nowrap; pointer-events:none; }
 #screen-mood.sgl-locked .sgl-btn::before, #screen-mood.sgl-locked .sgl-btn::after{ content:none; display:none; }
 #screen-mood.sgl-locked .sgl-btn:focus-visible{ outline:2px solid #E0CBA7; outline-offset:3px; }
 @media (prefers-reduced-motion: reduce){
   #screen-mood.sgl-locked .sgl-btn{ animation:none; background:#897149; }
+}
+</style>
+<style id="cp-apple-lyrics">
+/* B230T：同步歌詞 Apple Music 式 —— 只有正在唱的那句清楚，其他句依距離變暗＋模糊。只作用在有時間戳的行（.cp-line[data-time]）。 */
+#screen-player #cp-lyrics .cp-line[data-time]{ color:#fff; opacity:.42; filter:blur(3.4px);
+  transition:opacity .5s ease, filter .5s ease; will-change:opacity, filter; }
+#screen-player #cp-lyrics .cp-line[data-time].past{ opacity:.3; }
+#screen-player #cp-lyrics .cp-line[data-time][data-d="1"]{ filter:blur(1.1px); }
+#screen-player #cp-lyrics .cp-line[data-time][data-d="2"]{ filter:blur(2.2px); }
+#screen-player #cp-lyrics .cp-line[data-time][data-d="x"]{ filter:none; opacity:.22; will-change:auto; }
+#screen-player #cp-lyrics .cp-line[data-time].current{ opacity:1; filter:none; color:#fff; }
+#screen-player #cp-lyrics .cp-line[data-time]:hover{ color:#fff; }
+/* 手動捲動時全部變清楚，方便找句子 */
+#screen-player #cp-lyrics.cp-free .cp-line[data-time]{ filter:none; opacity:.72; }
+#screen-player #cp-lyrics.cp-free .cp-line[data-time].current{ opacity:1; }
+@media (prefers-reduced-motion: reduce){
+  #screen-player #cp-lyrics .cp-line[data-time]{ transition:none; }
 }
 </style>
 </head>
@@ -6765,7 +6783,7 @@ window.ALBUM_SWITCH = {
     var nv = document.getElementById("nav"); if (nv) { var r = nv.getBoundingClientRect(); if (r.height) top = Math.min(top, r.top); }
     var mp = document.querySelector(".mini-player"); if (mp && !mp.classList.contains("hidden")) { var r2 = mp.getBoundingClientRect(); if (r2.height) top = Math.min(top, r2.top); }
     if (top >= H) top = H - 96;
-    sm.style.setProperty("--sgl-navspace", Math.round(H - top) + "px");   /* B228T：導覽列上緣以下的高度；按鈕間距由 --sg-btn-gap（預設 26px）決定 */
+    sm.style.setProperty("--sgl-navspace", Math.round(H - top) + "px");   /* B228T：導覽列上緣以下的高度；按鈕間距由 --sg-btn-gap（預設 88px）決定 */
     if (!_sglObs && window.MutationObserver) {
       _sglObs = new MutationObserver(function () { sglPlace(); });
       _sglObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
@@ -7745,7 +7763,7 @@ window.ALBUM_SWITCH = {
     });
     $("cp-queue").addEventListener("error",function(e){if(e.target.tagName==="IMG"&&e.target.getAttribute("src")!==CFG.coverImage)e.target.src=CFG.coverImage;},true);
 
-    function resetLyrics() {requestID++;songKey="";lyricTimes=null;lyricNodes=[];activeLine=-2;following=true;follow.hidden=true;$("cp-lyrics").scrollTop=0;}
+    function resetLyrics() {requestID++;songKey="";lyricTimes=null;lyricNodes=[];activeLine=-2;following=true;follow.hidden=true;clearTimeout(refollowTimer);$("cp-lyrics").classList.remove("cp-free");$("cp-lyrics").scrollTop=0;}
     function showLyrics(raw, t, translated) {
       var parts=cpSplitLyrics(raw), times=translated?t.lyricsEnTime:t.lyricsTime;
       lyricTimes=cpValidTimes(parts.lines,times)?times:null;
@@ -7782,15 +7800,18 @@ window.ALBUM_SWITCH = {
       var time=audio.src?audio.currentTime:0,k=-1;
       for(var j=0;j<lyricTimes.length;j++){if(lyricTimes[j]<=time)k=j;else break;}
       if(k===activeLine&&!force)return;activeLine=k;
-      lyricNodes.forEach(function(n,i){n.classList.toggle("current",i===k);n.classList.toggle("past",i<k);if(i===k)n.setAttribute("aria-current","true");else n.removeAttribute("aria-current");});
+      lyricNodes.forEach(function(n,i){n.classList.toggle("current",i===k);n.classList.toggle("past",i<k);if(i===k)n.setAttribute("aria-current","true");else n.removeAttribute("aria-current");
+        var d=k<0?i+1:Math.abs(i-k); n.setAttribute("data-d",d>6?"x":String(d));});   /* B230T：Apple Music 式模糊，依距離分級 */
       if(following)scrollToLine(!force);
     }
-    function stopFollowing(){if(!lyricTimes||mode!=="lyrics")return;following=false;follow.hidden=false;}
+    var refollowTimer=null;
+    function stopFollowing(){if(!lyricTimes||mode!=="lyrics")return;following=false;follow.hidden=false;$("cp-lyrics").classList.add("cp-free");
+      clearTimeout(refollowTimer);refollowTimer=setTimeout(function(){if(following||mode!=="lyrics")return;following=true;follow.hidden=true;$("cp-lyrics").classList.remove("cp-free");syncLine(true);},3000);}   /* B230T：停手 3 秒回到跟唱 */
     $("cp-lyrics").addEventListener("wheel",stopFollowing,{passive:true});
     $("cp-lyrics").addEventListener("touchmove",stopFollowing,{passive:true});
     $("cp-lyrics").addEventListener("keydown",function(e){if(["ArrowDown","ArrowUp","PageDown","PageUp","Home","End"].indexOf(e.key)>=0)stopFollowing();});
     $("cp-lyrics").addEventListener("scroll",function(){if(Date.now()>ignoreScrollUntil)stopFollowing();},{passive:true});
-    follow.addEventListener("click",function(){following=true;follow.hidden=true;syncLine(true);focus($("cp-lyrics"));});
+    follow.addEventListener("click",function(){clearTimeout(refollowTimer);following=true;follow.hidden=true;$("cp-lyrics").classList.remove("cp-free");syncLine(true);focus($("cp-lyrics"));});
     var pendingSeek=null;
     function seek(seconds, start) {
       var t=TRACKS[state.cur]; if(isLocked(t)){playTrack(state.cur);return;}
@@ -7799,7 +7820,7 @@ window.ALBUM_SWITCH = {
         try {audio.currentTime=Math.max(0,Math.min(seconds,isFinite(dur)?dur:seconds));}catch(_){return;}
         if(start&&audio.paused)audio.play().catch(function(){message("請再點播放開始聆聽");});
       }
-      following=true;follow.hidden=true;syncLine(true);msPosition();
+      clearTimeout(refollowTimer);$("cp-lyrics").classList.remove("cp-free");following=true;follow.hidden=true;syncLine(true);msPosition();
     }
     $("cp-lyrics").addEventListener("click",function(e){var line=e.target.closest("[data-time]");if(line)seek(Number(line.getAttribute("data-time")),true);});
     prog.addEventListener("keydown",function(e){var d=audio.duration;if(!isFinite(d)||d<=0)return;var target=audio.currentTime;
@@ -8189,7 +8210,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B228T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B230T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
