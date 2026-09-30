@@ -2177,6 +2177,30 @@ body { background: #08060C !important; }
 #screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
 #screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
+<style id="sgl-locked-style">
+/* B226T：FEED／SIGNAL 未解鎖畫面（只在 #screen-mood.sgl-locked 生效） */
+#screen-mood.sgl-locked{ background:#080809 !important; padding:0 !important; overflow:hidden !important; }
+#screen-mood.sgl-locked .feed-tabs{ display:none !important; }
+#screen-mood.sgl-locked #feed-body{ position:absolute; inset:0; padding:0; margin:0; }
+#screen-mood.sgl-locked .sgl-bg{ position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:#080809 url("assets/images/signal/feed-portrait-clean.jpg?v=1") center top / cover no-repeat; }
+#screen-mood.sgl-locked .sgl-bg::after{ content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(8,8,9,0) 0%, rgba(8,8,9,0) 52%, rgba(8,8,9,.55) 70%, #080809 88%); }
+#screen-mood.sgl-locked .sgl-title{ position:absolute; z-index:1; left:0; right:0; margin:0;
+  top:calc(env(safe-area-inset-top, 0px) + 22px); text-align:center;
+  font-family:Georgia, "Times New Roman", serif; font-size:16px; font-weight:400; line-height:1.2;
+  letter-spacing:.48em; padding-left:.48em; color:#D8C3A0; text-shadow:none; pointer-events:none; }
+#screen-mood.sgl-locked .sgl-btn{ position:absolute; z-index:2; left:24px; right:24px;
+  bottom:var(--sgl-bottom, calc(env(safe-area-inset-bottom, 0px) + 112px));
+  min-height:56px; margin:0; padding:0 24px; box-sizing:border-box; border-radius:999px;
+  background:#0B0B0C; border:1px solid #BFA477; color:#E0CBA7;
+  font-family:Georgia, "Times New Roman", serif; font-size:24px; font-weight:400; line-height:1; letter-spacing:.08em;
+  box-shadow:none; text-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+  animation:none; transition:none; -webkit-appearance:none; appearance:none; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; }
+#screen-mood.sgl-locked .sgl-btn::before, #screen-mood.sgl-locked .sgl-btn::after{ content:none; }
+#screen-mood.sgl-locked .sgl-btn:focus-visible{ outline:2px solid #D8C3A0; outline-offset:3px; }
+</style>
 </head>
 <body>
 <script>/* B223V：登記所有 new Audio() 實例（只登記，不改行為），供迷你播放列讀播放狀態 */
@@ -6598,34 +6622,21 @@ window.ALBUM_SWITCH = {
       .concat(unlocked && typeof FEED_CHAT !== "undefined" ? FEED_CHAT : []);
     var out = feedChatHTML(items);
     var __ft = document.querySelector('#screen-mood .feed-tabs');
+    var __sm = document.getElementById("screen-mood");
     if (!unlocked) {
-      /* B145：未解鎖畫面極簡化(CÉON 指定)——公開貼文也不顯示,
-         整頁只有「1 張照片＋1 則語音」試看(點不動無聲) + 解鎖卡。
-         公開貼文只給已解鎖會員看;試看內容固定=頻道最開頭那組,不洩漏新訊息。 */
-      var teaser = "";
-      try {
-        /* B144T：試看 = 1 張照片 + 1 則語音(照頻道原本順序,固定不變) */
-        var tItems = [], tPhotos = 0, tVoices = 0;
-        if (typeof FEED_CHAT !== "undefined") {
-          for (var tj = 0; tj < FEED_CHAT.length && (tPhotos < 1 || tVoices < 1); tj++) {
-            var tn = FEED_CHAT[tj];
-            if (tn.photo && tPhotos < 1) { tItems.push(tn); tPhotos++; continue; }
-            if (tn.voice && tVoices < 1) { tItems.push(tn); tVoices++; }
-          }
-        }
-        if (tItems.length) {
-          teaser = '<div class="feed-teaser">' +
-            '<div class="ft-head">SIGNAL · 頻道試看</div>' +
-            feedChatHTML(tItems) +
-            '<div class="ft-hint">&#128274; 解鎖後可以聽語音、看完整頻道</div>' +
-          '</div>';
-        }
-      } catch (e) { teaser = ""; }
+      /* B226T：未解鎖畫面 = 全幅人像 + 頂部 SIGNAL + Unlock（不顯示價格、方案、試看、介紹）。
+         圖片、文字、按鈕三個獨立元素；樣式全部限定在 #screen-mood.sgl-locked。 */
       if (__ft) __ft.classList.add('hidden');
-      $("feed-body").innerHTML = teaser + feedLockCard();   /* B145：拿掉公開貼文 out,只剩試看+解鎖卡 */
-      bindFeedContent();
+      if (__sm) __sm.classList.add("sgl-locked");
+      $("feed-body").innerHTML =
+        '<div class="sgl-bg" aria-hidden="true"></div>' +
+        '<h2 class="sgl-title">SIGNAL</h2>' +
+        '<button type="button" class="sgl-btn">Unlock</button>';
+      bindFeedContent();   /* bindFeedLock() 對這顆 .sgl-btn 綁 gotoOwnUnlock（內容每次整塊重建，不會重複綁定） */
+      sglPlace();
       return;
     }
+    if (__sm) __sm.classList.remove("sgl-locked");
     if (__ft) __ft.classList.remove('hidden');
     $("feed-body").innerHTML = out;
     try { paintSparks(); } catch (e) {}                /* B178T：新訊息閃金 ✨ */
@@ -6731,6 +6742,22 @@ window.ALBUM_SWITCH = {
   }
   /* B73：付費入口統一 —— FEED 只負責「看到鎖」，結帳一律回 OWN 完成。
      未購 → 預選 799 全解鎖方案卡；已購專輯 → 對準補 500 升級鈕。 */
+  /* B226T：Unlock 固定在底部導覽列上方 36px（迷你播放器出現時改放在它上方），跟著螢幕尺寸與安全區重算 */
+  var _sglObs = null;
+  function sglPlace() {
+    var sm = document.getElementById("screen-mood"); if (!sm || !sm.classList.contains("sgl-locked")) return;
+    var H = window.innerHeight || document.documentElement.clientHeight, top = H;
+    var nv = document.getElementById("nav"); if (nv) { var r = nv.getBoundingClientRect(); if (r.height) top = Math.min(top, r.top); }
+    var mp = document.querySelector(".mini-player"); if (mp && !mp.classList.contains("hidden")) { var r2 = mp.getBoundingClientRect(); if (r2.height) top = Math.min(top, r2.top); }
+    if (top >= H) top = H - 96;
+    sm.style.setProperty("--sgl-bottom", Math.round(H - top + 36) + "px");
+    if (!_sglObs && window.MutationObserver) {
+      _sglObs = new MutationObserver(function () { sglPlace(); });
+      _sglObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      window.addEventListener("resize", sglPlace);
+      window.addEventListener("orientationchange", function () { setTimeout(sglPlace, 250); });
+    }
+  }
   function gotoOwnUnlock() {
     hap(8);
     if (!state.unlocked) state.selectedPlan = "deluxe";
@@ -6745,7 +6772,7 @@ window.ALBUM_SWITCH = {
     }, 80);
   }
   function bindFeedLock() {
-    var buy = document.querySelector("#feed-body .fl-buy");
+    var buy = document.querySelector("#feed-body .fl-buy, #feed-body .sgl-btn");
     if (buy) buy.addEventListener("click", gotoOwnUnlock);
     document.querySelectorAll("#feed-body .vl-buy").forEach(function (b) {
       /* B73：影片不再單賣，也不在 FEED 結帳 —— 一律導回 OWN */
@@ -8147,7 +8174,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B225T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B226T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -8297,7 +8324,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b225.js?v=B225T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b225.js?v=B225T4"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });

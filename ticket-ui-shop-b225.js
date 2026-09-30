@@ -1004,7 +1004,8 @@ function coverClockKey() {
       var anyOn = ev.tiers.some(function (t) { return t.onSale && t.left !== 0; });
       if (!anyOn && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
       if (anyOn) { var mp = Math.min.apply(null, ev.tiers.filter(function (t) { return t.onSale && t.left !== 0; }).map(function (t) { return +t.price || 0; }));
-        return '<div class="l">三種票 · NT$' + mp.toLocaleString("en-US") + ' 起</div><button class="tk-chip o" data-act="open-buy" data-ev="' + esc(ev.id) + '">選擇票種 ›</button>'; }
+        return ev.tiers.length === 1 ? '<div class="l">' + esc(ev.tiers[0].name) + ' · NT$' + mp.toLocaleString("en-US") + '</div><button class="tk-chip o" data-act="open-buy" data-ev="' + esc(ev.id) + '">購買 ›</button>'
+          : '<div class="l">' + ev.tiers.length + ' 種票 · NT$' + mp.toLocaleString("en-US") + ' 起</div><button class="tk-chip o" data-act="open-buy" data-ev="' + esc(ev.id) + '">選擇票種 ›</button>'; }
     }
     if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
     if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
@@ -1026,20 +1027,29 @@ function coverClockKey() {
   function walletHTML() {
     var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
     h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div></div>';
-    h += '<div class="tk-seg"><button class="' + (S.tab !== "past" ? "on" : "") + '" data-act="tab" data-tab="up">即將到來</button><button class="' + (S.tab === "past" ? "on" : "") + '" data-act="tab" data-tab="past">過往</button></div>';
+    // B225T：票夾只放「你擁有的」；還沒有票就是空白頁，賣票交給 SHOP
+    var mineEv = upcoming().filter(function (ev) { return ticketsFor(ev.id).length || S.morders.some(function (o) { return o.eventId === ev.id; }); });
+    var hasPast = pastTickets().length > 0;
+    if (!mineEv.length && !hasPast) {
+      if (S.loading) return h + '<div class="tk-empty">載入中…</div>';
+      var sale = upcoming().filter(function (ev) { return ev.onSale !== false; })[0];
+      h += '<div class="tkw-empty"><div class="ic">' + ic("star", "bi") + '</div><b>還沒有票</b><p>買票後，票會自動放進這裡。<br>開場前 ' + QR_LOCK_H + ' 小時，入場 QR 會出現在票上。</p>' +
+        (sale ? '<button class="tkb-cta wide" data-act="open-buy" data-ev="' + esc(sale.id) + '">去購票 <i>→</i></button>' : '') + '</div>';
+      if (!S.session && !unlockCreds()) h += loginCard();
+      return h;
+    }
+    if (!hasPast) S.tab = "up";
+    if (hasPast) h += '<div class="tk-seg"><button class="' + (S.tab !== "past" ? "on" : "") + '" data-act="tab" data-tab="up">即將到來</button><button class="' + (S.tab === "past" ? "on" : "") + '" data-act="tab" data-tab="past">過往</button></div>';
     if (!S.session && !unlockCreds()) h += loginCard();
-    if (S.tab !== "past") h += '<button class="tk-addbtn" data-act="add">＋ 加入票券<span>朋友轉給你的票，掃 QR 或輸代碼</span></button>';
     if (S.tab === "past") {
       var pt = pastTickets();
       if (!pt.length) h += '<div class="tk-empty">還沒有過往的票。<br>入場過的票會變成票根留在這裡。</div>';
       h += pt.map(function (t) { var ev = t.event || {}; return '<button class="tk-pastrow" data-act="open-pass" data-id="' + esc(t.id) + '"><div class="pp"></div><div><b>' + esc(ev.name || t.id) + '</b><span>' + md(ev.startAt) + ' · ' + (t.status === "used" ? "已入場 " + hm(t.usedAt) : (t.status === "refunded" ? "已退票" : (t.status === "void" ? "已作廢" : "已結束"))) + '</span></div><span class="chv">›</span></button>'; }).join("");
       return h;
     }
-    var ups = upcoming();
-    if (S.loading && !ups.length) h += '<div class="tk-empty">載入中…</div>';
-    else if (!ups.length) h += '<div class="tk-empty">目前沒有活動。<br>新活動公布時會出現在這裡。</div>';
+    var ups = mineEv;
+    if (!ups.length) h += '<div class="tk-empty">沒有即將到來的票。</div>';
     h += ups.map(evCard).join("");
-    if (ups.length) h += '<div class="tk-hint2">一場活動一張卡，底部就是你的下一步。</div>';
     return h;
   }
 
@@ -1248,7 +1258,7 @@ function coverClockKey() {
   }
   window.addEventListener("online", function () { if (PPS.timer) ppsSync(); });
   function walletMenu() {
-    sheet('<div class="tk-eyebrow">Wallet</div><h3>票夾</h3><div class="tk-menu" style="margin-top:8px"><button data-sact="refresh">更新票券</button><button data-sact="rules">入場須知</button>' + (ppsOn() ? '<button data-sact="ppstaff">📸 工作人員：拍照掃碼</button>' : '') + '<button data-sact="close">關閉</button></div>');
+    sheet('<div class="tk-eyebrow">Wallet</div><h3>票夾</h3><div class="tk-menu" style="margin-top:8px"><button data-sact="add-open">＋ 加入票券（朋友轉給你的票）</button><button data-sact="refresh">更新票券</button><button data-sact="rules">入場須知</button>' + (ppsOn() ? '<button data-sact="ppstaff">📸 工作人員：拍照掃碼</button>' : '') + '<button data-sact="close">關閉</button></div>');
     if (ppsOn()) loadScan().catch(function () {});
   }
   function sharedItems(ev) { var x = bt(ev); return (x && x.shared) || []; }
@@ -1792,6 +1802,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     ".tkm-sh select.tk-in{appearance:auto}.tkm-sh .tk-in{margin-bottom:8px}" +
     ".tkm-sum{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:12px 0 4px;font-size:14px;color:#b9aea1}.tkm-sum b{color:#f3eee6;font-weight:600;text-align:right}" +
     ".tkm-ok{margin-top:10px}" +
+    "html body .tk-layer[data-layer=wallet]{background:#080808!important}" +
+    ".tkw-empty{margin:22px 0 16px;padding:34px 22px 22px;border:1px solid rgba(229,190,125,.14);border-radius:18px;background:#121011;text-align:center}" +
+    ".tkw-empty .ic{width:56px;height:56px;margin:0 auto 16px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(229,190,125,.08);color:#e5be7d}.tkw-empty .ic .bi{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}" +
+    ".tkw-empty b{display:block;font-size:19px;color:#f3eee6;font-weight:600}.tkw-empty p{margin:8px 0 20px;font-size:14px;line-height:1.7;color:#a39a91}" +
     ".tkm-bdg{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:99px;background:var(--g2,#f1ddb0);color:#1a1409;font-style:normal;font-size:11px;font-weight:700;vertical-align:2px}" +
     ".tkc-ev{margin:2px 0 20px}.tkc-ev b{display:block;font-size:19px;color:#f3eee6;font-weight:600}.tkc-ev span{display:block;margin-top:4px;font-size:13px;color:#b9aea1}" +
     ".tkc-sum{margin:0 0 16px;padding:14px;border:1px solid #ffffff1a;border-radius:16px;background:#121011;font-size:15px}.tkc-sum small{display:block;margin-top:2px;font-size:12px;color:#9c9589}" +
@@ -1889,6 +1903,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
+    if (a === "add-open") { closeSheet(); setTimeout(function () { addSheet(); }, 220); return; }
     if (a === "refresh") { closeSheet(); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); toast("票券已更新"); }); return; }
     if (a === "rules") { rulesSheet(); return; }
     if (a === "buy-terms") { buyTermsSheet(); return; }
