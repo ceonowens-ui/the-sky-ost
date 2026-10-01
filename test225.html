@@ -9704,13 +9704,13 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
 #screen-player.cp-ready:not(.cp-immersive) .np-times{ font-size:14px; margin:12px 0 10px; color:#CBC4D2 !important; }
 #screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 76px minmax(44px,1fr) minmax(44px,1fr); align-items:center; }
 #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:60px; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:74px !important; height:74px !important; border-radius:50% !important; border:1.5px solid rgba(241,236,227,.82) !important; background:rgba(12,11,10,.28) !important; box-sizing:border-box; }   /* 主播放視覺 74px（細線圓，與歌詞模式一致） */
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:74px !important; height:74px !important; max-width:none !important; min-width:74px; flex:none; border-radius:50% !important; border:1.5px solid rgba(241,236,227,.82) !important; background:rgba(12,11,10,.28) !important; box-sizing:border-box; }   /* 主播放視覺 74px（細線圓，與歌詞模式一致） */
 #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:38px !important; height:38px !important; }
 #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-prev svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-next svg{ width:31px !important; height:31px !important; }
 #screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-lyrics svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-queue svg{ width:24px; height:24px; }
 @media (max-height:720px){   /* 矮螢幕 compact：播放鍵 66、控制列與 nav 保留呼吸 */
   #screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 68px minmax(44px,1fr) minmax(44px,1fr); }
-  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:66px !important; height:66px !important; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:66px !important; height:66px !important; min-width:66px; }
   #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:34px !important; height:34px !important; }
   #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:56px; }
   #screen-player.cp-ready:not(.cp-immersive) .np-times{ margin:10px 0 6px; }
