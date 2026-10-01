@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B244T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B245T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9743,6 +9743,22 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   border-radius:0 0 var(--cv-r) var(--cv-r) !important; overflow:hidden;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%);
           mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%); }
+</style>
+<style id="b245-tuned-style">
+/* ===================== B245T：CÉON tuner 第二次設定（iPhone 14 Plus） =====================
+   照片底部 25%、漸層從 80% 開始；nav 88%（高 56.5、文字 12、圖示 19.5、字重 500、左右 39）；
+   音樂島 98%（高 82.5、封面 48、歌名 17.5、副標 13、播放鍵 47）。320–359px：左右 16、nav 文字 13。 */
+#screen-player.cp-ready{ --cv-bottom:25%; --cv-fade:80%; }
+:root{ --dock-nav-h:56.5px; --nav-fs:12px; --nav-ico:19.5px; --dock-w:min(calc(100vw - 78px),480px); --dock-mini-h:82.5px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:15px; line-height:15px; }
+#mini-player .mp-cover{ width:48px; height:48px; }
+#mini-player .mp-open{ height:48px; min-height:48px; }
+#mini-player .mp-title{ font-size:17.5px; line-height:21.5px; }
+#mini-player .mp-marq{ font-size:13px; line-height:17px; height:17px; }
+#mini-player .mp-btn.mp-play{ width:47px; height:47px; min-width:47px; }
+#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
+@media (max-width:359px){ #mini-player .mp-title{ font-size:17px; } }
 </style>
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。
