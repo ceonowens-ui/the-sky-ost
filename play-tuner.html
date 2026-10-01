@@ -68,7 +68,7 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
     <div class="mbar"><b>播放器 Tuner</b><button onclick="appCall('play')">▶ 播放</button><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
     <div class="mtabs" id="mtabs"></div>
     <h1>CHANCE 播放器 Tuner</h1>
-    <p class="note">預設值＝B247T2。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
+    <p class="note">預設值＝B248T。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
     <div class="warn" id="warn">讀不到 App 內容：tuner 必須和 test225.html 放在同一個網站（例如 chance1228.com/play-tuner.html），直接開下載的檔案不能用。</div>
     <div class="row devRow" style="grid-template-columns:96px 1fr"><label>機型</label><select id="dev"></select></div>
     <div class="grp" data-g="app">
@@ -85,7 +85,7 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
     <div id="groups"></div>
     <div class="grp" data-g="out">
     <h2>輸出</h2>
-    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B247T2</button></div>
+    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B248T</button></div>
     <textarea id="out" readonly placeholder="按「複製設定」後這裡會出現設定文字"></textarea>
     </div>
   </aside>
@@ -101,20 +101,20 @@ var DEVICES=[
   {id:'se',name:'iPhone SE（375×667）',w:375,h:667,top:20,bottom:0,island:false},
   {id:'320',name:'窄螢幕測試（320×690）',w:320,h:690,top:20,bottom:0,island:false}
 ];
-/* ---- 可調參數（預設＝B247T2） ---- */
+/* ---- 可調參數（預設＝B248T） ---- */
 var GROUPS=[
  {title:'PLAY 主播放器（只影響封面模式）',items:[
   {k:'lift',label:'整組上移',min:0,max:90,step:1,def:21,u:'px'},
   {k:'gap',label:'歌名↔控制列',min:4,max:48,step:1,def:18,u:'px'},
-  {k:'ttl',label:'歌名字級',min:24,max:46,step:1,def:38,u:'px'},
-  {k:'sub',label:'副標字級',min:12,max:22,step:1,def:16,u:'px'},
+  {k:'ttl',label:'歌名字級',min:24,max:46,step:1,def:36,u:'px'},
+  {k:'sub',label:'副標字級',min:12,max:22,step:1,def:15,u:'px'},
   {k:'tim',label:'時間字級',min:10,max:18,step:1,def:14,u:'px'},
   {k:'pp',label:'主播放大小',min:52,max:92,step:1,def:74,u:'px'},
   {k:'pn',label:'上/下一首',min:20,max:42,step:1,def:31,u:'px'},
   {k:'pstyle',label:'主播放樣式',type:'seg',opts:[['ring','細線圓'],['solid','實心白圓'],['none','無框']],def:'ring'},
-  {k:'tl',label:'時間軸',type:'seg',opts:[['line','細線（現行）'],['pill','玻璃膠囊']],def:'line'},
-  {k:'tlh',label:'膠囊高度',min:40,max:64,step:1,def:50,u:'px'},
-  {k:'tla',label:'膠囊底色',min:4,max:40,step:1,def:12,u:'%'}
+  {k:'tl',label:'時間軸',type:'seg',opts:[['pill','玻璃膠囊（現行）'],['line','細線']],def:'pill'},
+  {k:'tlh',label:'膠囊高度',min:40,max:64,step:1,def:40,u:'px'},
+  {k:'tla',label:'膠囊底色',min:4,max:40,step:1,def:4,u:'%'}
  ]},
  {title:'PLAY 主照片（柔化）',items:[
   {k:'cvb',label:'照片底部位置',min:0,max:30,step:1,def:25,u:'%'},
@@ -124,18 +124,18 @@ var GROUPS=[
  ]},
  {title:'NAV 導覽列（全分頁）',items:[
   {k:'nscale',label:'nav 整體比例',min:60,max:140,step:1,def:100,u:'%'},
-  {k:'navh',label:'nav 高度',min:44,max:92,step:0.5,def:74,u:'px'},
-  {k:'nfs',label:'文字字級',min:10,max:18,step:0.5,def:14,u:'px'},
-  {k:'nico',label:'圖示大小',min:14,max:32,step:0.5,def:25,u:'px'},
-  {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:500,u:''},
-  {k:'side',label:'左右留白',min:6,max:48,step:1,def:15,u:'px'},
-  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:78,u:'%'},
+  {k:'navh',label:'nav 高度',min:44,max:92,step:0.5,def:59,u:'px'},
+  {k:'nfs',label:'文字字級',min:10,max:18,step:0.5,def:11,u:'px'},
+  {k:'nico',label:'圖示大小',min:14,max:32,step:0.5,def:20,u:'px'},
+  {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:400,u:''},
+  {k:'side',label:'左右留白',min:6,max:48,step:1,def:24,u:'px'},
+  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:45,u:'%'},
   {k:'nact',label:'選中放大',min:0,max:3,step:0.5,def:1,u:'px'},
-  {k:'nls',label:'字距',min:0,max:3,step:0.1,def:1.2,u:'px'},
+  {k:'nls',label:'字距',min:0,max:3,step:0.1,def:1.7,u:'px'},
   {k:'nfont',label:'字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線']],def:'serif'},
-  {k:'nrad',label:'外框圓角',min:0,max:40,step:1,def:22,u:'px'},
+  {k:'nrad',label:'外框圓角',min:0,max:40,step:1,def:40,u:'px'},
   {k:'irad',label:'選中底色圓角',min:0,max:32,step:1,def:18,u:'px'},
-  {k:'nopa',label:'島不透明度',min:20,max:100,step:1,def:100,u:'%'},
+  {k:'nopa',label:'島不透明度',min:20,max:100,step:1,def:31,u:'%'},
   {k:'glass',label:'島樣式',type:'seg',opts:[['solid','實心（現行）'],['glass','玻璃剝離']],def:'solid'},
   {k:'galpha',label:'玻璃底色',min:15,max:95,step:1,def:45,u:'%'},
   {k:'gblur',label:'玻璃模糊',min:0,max:40,step:1,def:22,u:'px'},
@@ -144,11 +144,11 @@ var GROUPS=[
  ]},
  {title:'音樂島（mini 播放器）',items:[
   {k:'mscale',label:'島整體比例',min:60,max:140,step:1,def:100,u:'%'},
-  {k:'minih',label:'島高度',min:56,max:100,step:0.5,def:82.5,u:'px'},
-  {k:'cov',label:'封面',min:36,max:64,step:1,def:50,u:'px'},
-  {k:'mt',label:'歌名字級',min:13,max:24,step:0.5,def:18,u:'px'},
-  {k:'ms',label:'副標字級',min:10,max:18,step:0.5,def:14,u:'px'},
-  {k:'mp',label:'播放鍵',min:44,max:64,step:1,def:48,u:'px'},
+  {k:'minih',label:'島高度',min:56,max:100,step:0.5,def:65,u:'px'},
+  {k:'cov',label:'封面',min:30,max:64,step:0.5,def:39.5,u:'px'},
+  {k:'mt',label:'歌名字級',min:13,max:24,step:0.5,def:14,u:'px'},
+  {k:'ms',label:'副標字級',min:10,max:18,step:0.5,def:10,u:'px'},
+  {k:'mp',label:'播放鍵',min:44,max:64,step:1,def:44,u:'px'},
   {k:'mfont',label:'歌名字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線粗體']],def:'serif'},
   {k:'split',label:'島的形式',type:'seg',opts:[['merged','合併（現行）'],['float','分開浮動']],def:'merged'},
   {k:'marq',label:'字幕流動',type:'seg',opts:[['always','一律流動（現行）'],['overflow','超出才動']],def:'always'}
@@ -158,9 +158,9 @@ var GROUPS=[
   {k:'qa',label:'歌手',min:11,max:18,step:0.5,def:15,u:'px'},
   {k:'qnote',label:'插曲註解',min:10,max:17,step:0.5,def:14,u:'px'},
   {k:'qh',label:'分類標題',min:11,max:18,step:0.5,def:14.5,u:'px'},
-  {k:'qtop',label:'頂部目前歌曲',min:15,max:26,step:0.5,def:20,u:'px'},
-  {k:'qimg',label:'封面',min:36,max:64,step:1,def:50,u:'px'},
-  {k:'qrow',label:'每列高度',min:56,max:96,step:1,def:72,u:'px'}
+  {k:'qtop',label:'頂部目前歌曲',min:15,max:26,step:0.5,def:21,u:'px'},
+  {k:'qimg',label:'封面',min:36,max:64,step:1,def:47,u:'px'},
+  {k:'qrow',label:'每列高度',min:56,max:96,step:1,def:75,u:'px'}
  ]},
  {title:'FEED 未解鎖 Unlock',items:[
   {k:'uh',label:'按鈕高度',min:36,max:64,step:1,def:50,u:'px'},
@@ -179,7 +179,7 @@ function V(){   /* 套用整體比例後的實際尺寸（四捨五入到 0.5px�
   return {navh:r(S.navh*n), nfs:r(S.nfs*n), nico:r(S.nico*n), minih:r(S.minih*m), cov:r(S.cov*m), mt:r(S.mt*m), ms:r(S.ms*m), mp:Math.max(44,r(S.mp*m))};
 }
 function solidAlphaCSS(){   /* 實心樣式的透明度：底色 #0D0C0B 改成半透明，並加一點毛玻璃，字才不會糊在照片上 */
-  var a=(S.nopa/100).toFixed(2), bf='blur('+Math.max(8,S.gblur)+'px) saturate(150%)';
+  var a=(S.nopa/100).toFixed(2), bf=S.nopa>=100?'none':'blur('+Math.max(8,S.gblur)+'px) saturate(150%)';   /* App 本身已是 31%：100% 時要明確蓋回實心 */
   return 'body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{background:rgba(13,12,11,'+a+') !important;-webkit-backdrop-filter:'+bf+' !important;backdrop-filter:'+bf+' !important;}';
 }
 function glassCSS(X){   /* TIDE 式玻璃剝離：完全膠囊、半透明毛玻璃、亮邊、明顯陰影、離底更高；音樂島改成獨立浮動 */
@@ -192,6 +192,11 @@ function glassCSS(X){   /* TIDE 式玻璃剝離：完全膠囊、半透明毛玻
    'body.dock-merged #mini-player.mini-player, #mini-player.mini-player{'+glassBg+glassSh+'border-radius:28px !important;bottom:calc(var(--dock-b) + var(--dock-nav-h) + 10px) !important;}',
    'body.dock-collapsed #mini-player.mini-player{transform:translateY(calc(var(--dock-nav-h) + 10px)) !important;}',
    'body.has-mini .screen.active::after{height:calc(var(--dock-mini-h) + 18px) !important;}'].join('\n');
+}
+function lineCSS(){   /* App 已內建玻璃膠囊：選「細線」時要把它蓋回原本的排法 */
+  var P='#screen-player.cp-ready:not(.cp-immersive) ';
+  return [P+'#cp-transport{display:block !important;} '+P+'#cp-transport::before{content:none !important;display:none !important;}',
+   P+'.np-times{display:flex !important;} '+P+'#cm-btn{margin:0 !important;} '+P+'#prog{margin:revert !important;}'].join('\n');
 }
 function pillCSS(){   /* Moonly 式時間軸：時間｜進度條｜時間 放進同一顆玻璃膠囊（只在 PLAY 封面模式；拖曳進度仍是原本的 #prog） */
   var P='#screen-player.cp-ready:not(.cp-immersive) ';
@@ -212,8 +217,8 @@ function css(){
    ':root{--dock-nav-h:'+X.navh+'px;--dock-mini-h:'+X.minih+'px;--nav-fs:'+X.nfs+'px;--nav-ico:'+X.nico+'px;--dock-w:'+sideW+';--dock-mini-reserve:calc(var(--dock-mini-h) + 8px);}',
    '#nav-wrap #nav .navbtn{color:rgba(230,223,210,'+(S.nop/100)+') !important;}',
    '#nav-wrap #nav .navbtn.active .navlbl{font-size:'+(X.nfs+S.nact)+'px !important;}',
-   (S.glass==='glass'?glassCSS(X):(S.nopa<100?solidAlphaCSS():'')),
-   (S.tl==='pill'?pillCSS():''),
+   (S.glass==='glass'?glassCSS(X):solidAlphaCSS()),
+   (S.tl==='pill'?pillCSS():lineCSS()),
    ':root{--dock-r:'+S.nrad+'px;} #nav-wrap #nav-ind{border-radius:'+S.irad+'px !important;} #nav-wrap #nav .navbtn:focus-visible{border-radius:'+Math.max(0,S.irad)+'px;}',
    '#nav-wrap #nav .navbtn .navlbl{letter-spacing:'+S.nls+'px !important;text-indent:'+S.nls+'px !important;'+(S.nfont==='sans'?'font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif !important;':'')+'}',
    '#nav-wrap #nav .navbtn .navlbl{font-weight:'+S.nwt+';height:'+(X.nfs+3)+'px;line-height:'+(X.nfs+3)+'px;}',
@@ -291,7 +296,7 @@ function copyCfg(){
   GROUPS.forEach(function(g){ lines.push('— '+g.title); g.items.forEach(function(it){
     var val=it.type==='seg'?it.opts.filter(function(o){return o[0]===S[it.k];})[0][1]:S[it.k]+it.u;
     var dv=it.type==='seg'?it.opts.filter(function(o){return o[0]===it.def;})[0][1]:it.def+it.u;
-    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B247T2：'+dv+'）':'')); }); });
+    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B248T：'+dv+'）':'')); }); });
   if(S.nscale!==100||S.mscale!==100){ var X=V(); lines.push('— 套用比例後的實際尺寸'); lines.push('  nav：高 '+X.navh+'px、文字 '+X.nfs+'px、圖示 '+X.nico+'px'); lines.push('  音樂島：高 '+X.minih+'px、封面 '+X.cov+'px、歌名 '+X.mt+'px、副標 '+X.ms+'px、播放鍵 '+X.mp+'px'); }
   var t=lines.join('\n'); var ta=document.getElementById('out'); ta.value=t; ta.select();
   if(navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){ document.execCommand('copy'); }); else document.execCommand('copy');

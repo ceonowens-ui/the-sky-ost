@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B247T2</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B248T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9873,6 +9873,44 @@ body.has-rpbar.has-mini #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b)
   background:linear-gradient(180deg, rgba(8,7,11,.88) 0%, rgba(8,7,11,.66) 58%, rgba(8,7,11,0) 100%); opacity:var(--veil, 0); }
 /* cue：原本固定在畫面底部 150px，會壓到第一則訊息 → 改成跟著開場留白，停在第一則訊息正上方（一樣靠 --cue 淡出） */
 #screen-mood.mood-vip .feed-cue{ position:absolute; bottom:auto; top:calc(58vh - 58px); }
+</style>
+<style id="b248-tuned-style">
+/* ===================== B248T：CÉON tuner 設定（iPhone 14 Plus，數值＝手機上看到的實際尺寸，比例已換算） ===================== */
+/* PLAY：歌名 36（窄螢幕等比縮）、副標 15 */
+#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(29px, 8.42vw, 36px) !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:15px !important; }
+/* PLAY 時間軸：玻璃膠囊（時間｜進度條｜時間 同一行；留言數在下方置中；拖曳進度仍是原本 #prog） */
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ display:grid; grid-template-columns:auto 1fr auto; grid-template-areas:"cur bar dur" "cm cm cm" "ctl ctl ctl" "lyr lyr lyr"; column-gap:14px; align-items:center; }
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport::before{ content:""; grid-row:1; grid-column:1 / 4; height:40px; margin:0 -16px; border-radius:999px; pointer-events:none;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.16); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14); }
+#screen-player.cp-ready:not(.cp-immersive) .np-times{ display:contents; }
+#screen-player.cp-ready:not(.cp-immersive) #t-cur{ grid-area:cur; z-index:1; }
+#screen-player.cp-ready:not(.cp-immersive) #t-dur{ grid-area:dur; z-index:1; }
+#screen-player.cp-ready:not(.cp-immersive) #prog{ grid-area:bar; z-index:1; margin:0 !important; }
+#screen-player.cp-ready:not(.cp-immersive) #cm-btn{ grid-area:cm; justify-self:center; margin:12px 0 12px; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-area:ctl; }
+#screen-player.cp-ready:not(.cp-immersive) #cp-lyr-row{ grid-area:lyr; }
+/* nav：高 59、文字 11（選中 12）、圖示 20、字重 400、字距 1.7、左右 24（窄屏 15）、未選中 45%、完全膠囊、不透明度 31%＋毛玻璃 */
+:root{ --dock-nav-h:59px; --nav-fs:11px; --nav-ico:20px; --dock-w:min(calc(100vw - 48px),480px); --dock-mini-h:65px; --dock-r:40px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:11px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.45) !important; }
+#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:400; height:14px; line-height:14px; letter-spacing:1.7px !important; text-indent:1.7px !important; }
+#nav-wrap #nav .navbtn.active .navlbl{ font-weight:600; }
+body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{ background:rgba(13,12,11,.31) !important; -webkit-backdrop-filter:blur(22px) saturate(150%) !important; backdrop-filter:blur(22px) saturate(150%) !important; }
+/* 音樂島：高 65、封面 39.5、歌名 14、副標 10、播放鍵 44（點擊區下限） */
+#mini-player .mp-cover{ width:39.5px; height:39.5px; }
+#mini-player .mp-open{ height:44px; min-height:44px; }
+#mini-player .mp-title{ font-size:14px; line-height:18px; }
+#mini-player .mp-marq{ font-size:10px; line-height:14px; height:14px; }
+#mini-player .mp-btn.mp-play{ width:44px; height:44px; min-width:44px; }
+#mini-player .mp-btn.mp-play svg{ width:20px; height:20px; }
+@media (max-width:359px){ #mini-player .mp-cover{ width:39.5px; height:39.5px; } #mini-player .mp-title{ font-size:14px; } }
+/* 待播清單：頂部目前歌曲 21、封面 47、每列 75 */
+#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font-size:21px; }
+#screen-player #cp-queue .cp-track img{ width:47px; height:47px; }
+#screen-player #cp-queue .cp-track{ min-height:75px; }
 </style>
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。
