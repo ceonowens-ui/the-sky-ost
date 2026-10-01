@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CHANCE 播放器 Tuner</title>
 <style>
 :root{ --bg:#0f0e10; --panel:#18161a; --line:#2b2830; --tx:#ece6dc; --mut:#9a93a0; --gold:#d8c3a0; }
@@ -29,6 +29,29 @@ button:hover{ border-color:var(--gold); }
 button.primary{ background:var(--gold); color:#151210; border-color:var(--gold); font-weight:600; }
 .seg{ display:flex; gap:4px; } .seg button{ flex:1; padding:6px 4px; } .seg button.on{ border-color:var(--gold); color:var(--gold); }
 textarea{ width:100%; height:150px; background:#0b0a0c; color:#cfe; border:1px solid var(--line); border-radius:8px; font:11px/1.4 ui-monospace,Menlo,monospace; padding:8px; }
+/* ===== 手機模式（寬度 ≤700）：App 全螢幕＋上方可收合的調整面板 ===== */
+.mbar{ display:none; }
+body.mobile{ overflow:hidden; }
+body.mobile .stageWrap{ position:fixed; inset:0; display:block; }
+body.mobile .scaler{ transform:none !important; }
+body.mobile .device{ width:100vw !important; height:100vh !important; height:100dvh !important; border-radius:0 !important; box-shadow:none !important; }
+body.mobile .island, body.mobile .statusbar, body.mobile .home, body.mobile .devRow, body.mobile .desktopOnly{ display:none !important; }
+body.mobile .side{ position:fixed; left:0; right:0; top:0; width:auto; z-index:20; max-height:48vh; max-height:48dvh; padding:calc(env(safe-area-inset-top,0px) + 6px) 12px 12px;
+  background:rgba(16,14,18,.94); border:0; border-bottom:1px solid #3a3530; border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:opacity .15s ease; -webkit-overflow-scrolling:touch; }
+body.mobile.bottom .side{ top:auto; bottom:0; border-radius:18px 18px 0 0; border-bottom:0; border-top:1px solid #3a3530; padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px); }
+body.mobile .side.peek{ opacity:.28; }
+body.mobile .side.closed{ max-height:none; overflow:hidden; padding-bottom:6px; }
+body.mobile .side.closed > *:not(.mbar){ display:none !important; }
+body.mobile .mbar{ display:flex; align-items:center; gap:6px; position:sticky; top:-6px; z-index:2; background:inherit; padding:2px 0 8px; }
+body.mobile .mbar b{ color:var(--gold); font-size:13px; flex:1; }
+body.mobile .mbar button{ padding:7px 10px; font-size:12px; }
+body.mobile .mtabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:2px 0 6px; } body.mobile .mtabs button{ padding:7px 2px; font-size:12px; }
+body.mobile .mtabs button.on{ border-color:var(--gold); color:var(--gold); }
+body.mobile .grp{ display:none; } body.mobile .grp.on{ display:block; }
+body.mobile h2{ margin-top:4px; padding-top:0; border-top:0; }
+body.mobile .row{ grid-template-columns:84px 1fr 52px; margin:9px 0; }
+body.mobile .row input[type=range]{ height:28px; }
+body.mobile h1, body.mobile .side > .note{ display:none; }
 .warn{ background:#2a1f12; border:1px solid #5a4322; color:#e8cf9e; border-radius:8px; padding:8px 10px; font-size:12px; margin:8px 0; display:none; }
 </style></head>
 <body>
@@ -41,23 +64,30 @@ textarea{ width:100%; height:150px; background:#0b0a0c; color:#cfe; border:1px s
       <div class="home" id="home"></div>
     </div>
   </div></div>
-  <aside class="side">
+  <aside class="side" id="side">
+    <div class="mbar"><b>播放器 Tuner</b><button onclick="appCall('play')">▶ 播放</button><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
+    <div class="mtabs" id="mtabs"></div>
     <h1>CHANCE 播放器 Tuner</h1>
-    <p class="note">預設值＝B245T。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
+    <p class="note">預設值＝B246T。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
     <div class="warn" id="warn">讀不到 App 內容：tuner 必須和 test225.html 放在同一個網站（例如 chance1228.com/play-tuner.html），直接開下載的檔案不能用。</div>
-    <div class="row" style="grid-template-columns:96px 1fr"><label>機型</label><select id="dev"></select></div>
+    <div class="row devRow" style="grid-template-columns:96px 1fr"><label>機型</label><select id="dev"></select></div>
+    <div class="grp" data-g="app">
     <div class="row" style="grid-template-columns:96px 1fr"><label>App 網址</label><input type="text" id="src" value="test225.html?album=classics&track=1"></div>
     <div class="btns"><button onclick="loadSrc()">載入</button><button onclick="reloadApp()">重新整理</button></div>
     <div class="note" style="margin:2px 0 4px">切換分頁：</div>
     <div class="seg" id="tabs">
       <button data-s="player">PLAY</button><button data-s="mood">FEED</button><button data-s="merch">SHOP</button><button data-s="purchase">OWN</button><button data-s="lucky">LUCKY</button>
     </div>
+    <div class="btns"><button onclick="appCall('queue')">開待播清單</button><button onclick="appCall('cover')">回主播放器</button><button onclick="appCall('album')">切換專輯</button></div>
     <div class="btns"><button class="primary" onclick="appCall('play')">▶ 播放（顯示音樂島）</button><button onclick="appCall('collapse')">收合 nav</button><button onclick="appCall('expand')">展開 nav</button></div>
     <p class="note">音樂島要「開始播放」後才會出現：先按「▶ 播放」，再切到 FEED／SHOP／OWN。</p>
+    </div>
     <div id="groups"></div>
+    <div class="grp" data-g="out">
     <h2>輸出</h2>
-    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B245T</button></div>
+    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B246T</button></div>
     <textarea id="out" readonly placeholder="按「複製設定」後這裡會出現設定文字"></textarea>
+    </div>
   </aside>
 </div>
 <script>
@@ -71,7 +101,7 @@ var DEVICES=[
   {id:'se',name:'iPhone SE（375×667）',w:375,h:667,top:20,bottom:0,island:false},
   {id:'320',name:'窄螢幕測試（320×690）',w:320,h:690,top:20,bottom:0,island:false}
 ];
-/* ---- 可調參數（預設＝B245T） ---- */
+/* ---- 可調參數（預設＝B246T） ---- */
 var GROUPS=[
  {title:'PLAY 主播放器（只影響封面模式）',items:[
   {k:'lift',label:'整組上移',min:0,max:90,step:1,def:21,u:'px'},
@@ -91,23 +121,38 @@ var GROUPS=[
  ]},
  {title:'NAV 導覽列（全分頁）',items:[
   {k:'nscale',label:'nav 整體比例',min:60,max:140,step:1,def:100,u:'%'},
-  {k:'navh',label:'nav 高度',min:44,max:92,step:0.5,def:56.5,u:'px'},
-  {k:'nfs',label:'文字字級',min:10,max:18,step:0.5,def:12,u:'px'},
-  {k:'nico',label:'圖示大小',min:14,max:32,step:0.5,def:19.5,u:'px'},
+  {k:'navh',label:'nav 高度',min:44,max:92,step:0.5,def:74,u:'px'},
+  {k:'nfs',label:'文字字級',min:10,max:18,step:0.5,def:14,u:'px'},
+  {k:'nico',label:'圖示大小',min:14,max:32,step:0.5,def:25,u:'px'},
   {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:500,u:''},
-  {k:'side',label:'左右留白',min:6,max:48,step:1,def:39,u:'px'},
-  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:40,u:'%'}
+  {k:'side',label:'左右留白',min:6,max:48,step:1,def:15,u:'px'},
+  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:78,u:'%'}
  ]},
  {title:'音樂島（mini 播放器）',items:[
   {k:'mscale',label:'島整體比例',min:60,max:140,step:1,def:100,u:'%'},
   {k:'minih',label:'島高度',min:56,max:100,step:0.5,def:82.5,u:'px'},
-  {k:'cov',label:'封面',min:36,max:64,step:1,def:48,u:'px'},
-  {k:'mt',label:'歌名字級',min:13,max:24,step:0.5,def:17.5,u:'px'},
-  {k:'ms',label:'副標字級',min:10,max:18,step:0.5,def:13,u:'px'},
-  {k:'mp',label:'播放鍵',min:44,max:64,step:1,def:47,u:'px'},
+  {k:'cov',label:'封面',min:36,max:64,step:1,def:50,u:'px'},
+  {k:'mt',label:'歌名字級',min:13,max:24,step:0.5,def:18,u:'px'},
+  {k:'ms',label:'副標字級',min:10,max:18,step:0.5,def:14,u:'px'},
+  {k:'mp',label:'播放鍵',min:44,max:64,step:1,def:48,u:'px'},
   {k:'mfont',label:'歌名字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線粗體']],def:'serif'},
   {k:'split',label:'島的形式',type:'seg',opts:[['merged','合併（現行）'],['float','分開浮動']],def:'merged'},
-  {k:'marq',label:'字幕流動',type:'seg',opts:[['always','一律流動（現行）'],['overflow','超出才動']],def:'always'}
+  {k:'marq',label:'字幕流動',type:'seg',opts:[['overflow','超出才動（現行）'],['always','一律流動']],def:'overflow'}
+ ]},
+ {title:'待播清單（按 PLAY 右下 ☰ 開啟）',items:[
+  {k:'qn',label:'曲名',min:14,max:22,step:0.5,def:17.5,u:'px'},
+  {k:'qa',label:'歌手',min:11,max:18,step:0.5,def:15,u:'px'},
+  {k:'qnote',label:'插曲註解',min:10,max:17,step:0.5,def:14,u:'px'},
+  {k:'qh',label:'分類標題',min:11,max:18,step:0.5,def:14.5,u:'px'},
+  {k:'qtop',label:'頂部目前歌曲',min:15,max:26,step:0.5,def:20,u:'px'},
+  {k:'qimg',label:'封面',min:36,max:64,step:1,def:50,u:'px'},
+  {k:'qrow',label:'每列高度',min:56,max:96,step:1,def:72,u:'px'}
+ ]},
+ {title:'FEED 未解鎖 Unlock',items:[
+  {k:'uh',label:'按鈕高度',min:36,max:64,step:1,def:50,u:'px'},
+  {k:'uf',label:'文字字級',min:15,max:28,step:0.5,def:21,u:'px'},
+  {k:'uw',label:'寬度',min:40,max:80,step:1,def:58,u:'vw'},
+  {k:'ug',label:'與 dock 間距',min:16,max:96,step:1,def:40,u:'px'}
  ]}
 ];
 var S={}, DEF={};
@@ -139,6 +184,10 @@ function css(){
    merged?'':'#mini-player.mini-player{bottom:calc(var(--dock-b) + var(--dock-nav-h) + 10px) !important;border-radius:22px !important;border:1px solid rgba(241,236,227,.12) !important;box-shadow:0 14px 34px rgba(0,0,0,.5) !important;} #nav-wrap #nav{border-radius:22px !important;border-top-color:rgba(241,236,227,.10) !important;} body.dock-collapsed #mini-player.mini-player{transform:translateY(calc(var(--dock-nav-h) + 10px)) !important;} body.has-mini .screen.active::after{height:calc(var(--dock-mini-h) + 18px) !important;}',
    '#screen-player.cp-ready{--cp-lift:'+S.lift+'px !important;--cp-gap:'+S.gap+'px !important;--cv-bottom:'+S.cvb+'% !important;--cv-fade:'+S.cvf+'% !important;--cv-r:'+S.cvr+'px !important;--cv-side:'+S.cvs+'px !important;}',
    '#screen-player.cp-ready:not(.cp-immersive) .np-title{font-size:'+S.ttl+'px !important;}',
+   '#screen-player #cp-queue .cp-track-name{font-size:'+S.qn+'px !important;} #screen-player #cp-queue .cp-track-artist{font-size:'+S.qa+'px !important;} #screen-player #cp-queue .cp-track-note{font-size:'+S.qnote+'px !important;}',
+   '#screen-player #cp-queue .cp-queue-heading{font-size:'+S.qh+'px !important;} #screen-player.cp-immersive:not(.cp-lyr) #cp-title{font-size:'+S.qtop+'px !important;}',
+   '#screen-player #cp-queue .cp-track img{width:'+S.qimg+'px !important;height:'+S.qimg+'px !important;} #screen-player #cp-queue .cp-track{min-height:'+S.qrow+'px !important;}',
+   '#screen-mood.sgl-locked{--sg-btn-h:'+S.uh+'px !important;--sg-btn-font:'+S.uf+'px !important;--sg-btn-w:min('+S.uw+'vw,280px) !important;--sgl-gap:'+S.ug+'px !important;}',
    '#screen-player.cp-ready:not(.cp-immersive) .np-sub{font-size:'+S.sub+'px !important;}',
    '#screen-player.cp-ready:not(.cp-immersive) .np-times{font-size:'+S.tim+'px !important;}',
    '#screen-player.cp-ready:not(.cp-immersive) .np-controls{grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) '+(S.pp+2)+'px minmax(44px,1fr) minmax(44px,1fr) !important;}',
@@ -163,8 +212,9 @@ function apply(){
 /* ---- UI ---- */
 function build(){
   var box=document.getElementById('groups');
-  GROUPS.forEach(function(g){
-    var h=document.createElement('h2'); h.textContent=g.title; box.appendChild(h);
+  GROUPS.forEach(function(g,gi){
+    var wrapG=document.createElement('div'); wrapG.className='grp'; wrapG.dataset.g='g'+gi; box.appendChild(wrapG);
+    var h=document.createElement('h2'); h.textContent=g.title; wrapG.appendChild(h);
     g.items.forEach(function(it){
       var row=document.createElement('div'); row.className='row';
       var lab=document.createElement('label'); lab.textContent=it.label; row.appendChild(lab);
@@ -178,16 +228,20 @@ function build(){
       } else {
         var inp=document.createElement('input'); inp.type='range'; inp.min=it.min; inp.max=it.max; inp.step=it.step; inp.value=it.def;
         var v=document.createElement('div'); v.className='v'; v.textContent=it.def+it.u;
+        inp.addEventListener('pointerdown',function(){ if(document.body.classList.contains('mobile')) document.getElementById('side').classList.add('peek'); });
         inp.oninput=function(){ S[it.k]=Number(inp.value); v.textContent=inp.value+it.u; v.classList.toggle('changed',S[it.k]!==it.def); apply(); };
         row.appendChild(inp); row.appendChild(v); it._inp=inp; it._v=v;
       }
-      box.appendChild(row);
+      wrapG.appendChild(row);
     });
   });
   document.querySelectorAll('#tabs button').forEach(function(b){ b.onclick=function(){ var d=doc(); if(!d) return; var n=d.querySelector('.navbtn[data-screen="'+b.dataset.s+'"]'); if(n) n.click(); }; });
 }
 function resetAll(){ each(function(it){ S[it.k]=it.def; if(it._inp){ it._inp.value=it.def; it._v.textContent=it.def+it.u; it._v.classList.remove('changed'); } if(it._seg){ [].forEach.call(it._seg.children,function(x){x.classList.toggle('on',x.dataset.v===it.def);}); } }); apply(); }
 function appCall(a){ try{ var w=f.contentWindow, d=f.contentDocument;
+  if(a==='queue'){ var p0=d.querySelector('.navbtn[data-screen="player"]'); if(p0) p0.click(); var qb=d.getElementById('cp-open-queue'); if(qb) qb.click(); return; }
+  if(a==='cover'){ for(var k=0;k<3;k++){ if(!d.getElementById('screen-player').classList.contains('cp-immersive')) break; var cl=d.getElementById('cp-close'); if(cl) cl.click(); } return; }
+  if(a==='album'){ var u=document.getElementById('src'); u.value=/album=classics/.test(u.value)?u.value.replace('album=classics','album=the-sky'):u.value.replace(/album=[^&]*/,'album=classics'); loadSrc(); return; }
   if(a==='play'){ var pb=d.getElementById('btn-play'); var p=d.querySelector('.navbtn[data-screen="player"]'); if(p) p.click(); if(pb) pb.click(); return; }
   if(w.__dock) w.__dock.set(a==='collapse'); }catch(e){} }
 function copyCfg(){
@@ -195,7 +249,7 @@ function copyCfg(){
   GROUPS.forEach(function(g){ lines.push('— '+g.title); g.items.forEach(function(it){
     var val=it.type==='seg'?it.opts.filter(function(o){return o[0]===S[it.k];})[0][1]:S[it.k]+it.u;
     var dv=it.type==='seg'?it.opts.filter(function(o){return o[0]===it.def;})[0][1]:it.def+it.u;
-    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B245T：'+dv+'）':'')); }); });
+    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B246T：'+dv+'）':'')); }); });
   if(S.nscale!==100||S.mscale!==100){ var X=V(); lines.push('— 套用比例後的實際尺寸'); lines.push('  nav：高 '+X.navh+'px、文字 '+X.nfs+'px、圖示 '+X.nico+'px'); lines.push('  音樂島：高 '+X.minih+'px、封面 '+X.cov+'px、歌名 '+X.mt+'px、副標 '+X.ms+'px、播放鍵 '+X.mp+'px'); }
   var t=lines.join('\n'); var ta=document.getElementById('out'); ta.value=t; ta.select();
   if(navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){ document.execCommand('copy'); }); else document.execCommand('copy');
@@ -215,13 +269,33 @@ function setDevice(id){
   document.getElementById('home').style.display=CUR.bottom?'block':'none';
   fit(); apply();
 }
-function fit(){ var wrap=document.getElementById('stageWrap'); var s=Math.min(1,(wrap.clientHeight-60)/CUR.h,(wrap.clientWidth-60)/CUR.w); document.getElementById('scaler').style.transform='scale('+s+')'; }
+function fit(){ if(document.body.classList.contains('mobile')) return; var wrap=document.getElementById('stageWrap'); var s=Math.min(1,(wrap.clientHeight-60)/CUR.h,(wrap.clientWidth-60)/CUR.w); document.getElementById('scaler').style.transform='scale('+s+')'; }
 function loadSrc(){ f.src=document.getElementById('src').value.trim(); }
 function reloadApp(){ var u=document.getElementById('src').value.trim(); f.src=u+(u.indexOf('?')>=0?'&':'?')+'t='+Date.now(); }
 (function(){ var sel=document.getElementById('dev'); DEVICES.forEach(function(d){ var o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o); }); sel.onchange=function(){ setDevice(sel.value); }; })();
 f.addEventListener('load',function(){ apply(); setTimeout(apply,600); setTimeout(apply,1600); });
 window.addEventListener('resize',fit);
-build(); setDevice(DEVICES[0].id); loadSrc();
+/* ---- 手機模式 ---- */
+var MOBILE=window.matchMedia('(max-width:700px)').matches;
+function safeBottom(){ var t=document.createElement('div'); t.style.cssText='position:fixed;bottom:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px)'; document.body.appendChild(t); var v=parseFloat(getComputedStyle(t).paddingBottom)||0; t.remove(); return v; }
+var TABS=[['g0','PLAY'],['g1','照片'],['g2','NAV'],['g3','島'],['g4','清單'],['g5','Unlock'],['app','分頁'],['out','輸出']];
+function showTab(k){ document.querySelectorAll('.grp').forEach(function(g){ g.classList.toggle('on',g.dataset.g===k); }); document.querySelectorAll('#mtabs button').forEach(function(b){ b.classList.toggle('on',b.dataset.k===k); }); }
+function togglePos(){ var bt=document.body.classList.toggle('bottom'); document.getElementById('mPos').textContent=bt?'移到上方':'移到下方'; }
+function toggleClose(){ var c=document.getElementById('side').classList.toggle('closed'); document.getElementById('mClose').textContent=c?'展開':'收起'; }
+document.addEventListener('pointerup',function(){ document.getElementById('side').classList.remove('peek'); },true);
+document.addEventListener('pointercancel',function(){ document.getElementById('side').classList.remove('peek'); },true);
+build();
+if(MOBILE){
+  document.body.classList.add('mobile');
+  var tb=document.getElementById('mtabs'); TABS.forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]; b.dataset.k=t[0]; b.onclick=function(){ showTab(t[0]); }; tb.appendChild(b); });
+  showTab('g0');
+  CUR={id:'device',name:'本機 '+window.innerWidth+'×'+window.innerHeight,w:window.innerWidth,h:window.innerHeight,top:0,bottom:safeBottom(),island:false};
+  apply();
+} else {
+  document.querySelectorAll('.grp').forEach(function(g){ g.classList.add('on'); });
+  setDevice(DEVICES[0].id);
+}
+loadSrc();
 setInterval(apply,1000);   /* 只在預覽工具裡用：App 重繪後補回覆寫（不影響 App 本身） */
 </script>
 </body></html>

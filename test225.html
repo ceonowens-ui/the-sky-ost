@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B245T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B246T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9602,7 +9602,7 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   var $ = function (id) { return document.getElementById(id); };
   var mp = $("mini-player"), src = $("mp-sub"); if (!mp || !src || !src.parentNode) return;
   var SPEED = 24, HOLD = 1700, GAP = 36;
-  function mode() { return mp.getAttribute("data-marq") === "overflow" ? "overflow" : "always"; }   /* B243T：預設一律流動（CÉON 真機回饋）；data-marq="overflow" 只在超出時動 */
+  function mode() { return mp.getAttribute("data-marq") === "always" ? "always" : "overflow"; }   /* B246T：預設溢出才動；data-marq="always" 可改成一律流動（tuner 可切） */
   var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   var box = document.createElement("span"); box.className = "mp-marq"; box.setAttribute("aria-hidden", "true");
   var track = document.createElement("span"); track.className = "mp-mtrack"; box.appendChild(track);
@@ -9759,6 +9759,46 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
 #mini-player .mp-btn.mp-play{ width:47px; height:47px; min-width:47px; }
 #mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
 @media (max-width:359px){ #mini-player .mp-title{ font-size:17px; } }
+</style>
+<style id="b246-readable-style">
+/* ===================== B246T：真機回饋 — nav／待播清單／Unlock 可讀性 =====================
+   參考 Apple Music 的可讀原則（清楚對比、列表用系統 sans、主標題夠大），保留 CHANCE 黑金與 serif nav 標籤；
+   PLAY 照片構圖沿用 B245（--cv-bottom 25%、--cv-fade 80%）不變。 */
+/* ---- 1. 全站 nav：74 高、label 14／500、icon 25、左右 15、未選中 78% ---- */
+:root{ --dock-nav-h:74px; --nav-fs:14px; --nav-ico:25px; --dock-w:min(calc(100vw - 30px),480px); --dock-mini-h:82.5px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.78) !important; }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:17px; line-height:17px; }
+/* ---- 3. 音樂島：82.5 高、封面 50、歌名 18、副標 14、播放鍵 48 ---- */
+#mini-player .mp-cover{ width:50px; height:50px; }
+#mini-player .mp-open{ height:50px; min-height:50px; }
+#mini-player .mp-title{ font-size:18px; line-height:22px; }
+#mini-player .mp-marq{ font-size:14px; line-height:18px; height:18px; }
+#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
+@media (max-width:359px){ #mini-player .mp-cover{ width:46px; height:46px; } #mini-player .mp-title{ font-size:17px; } }   /* 窄屏優先保留文字寬度 */
+/* ---- 2. 待播清單（#cp-queue；舊 #sheet 已不再使用）：系統 sans、Apple Music 式可讀字級 ---- */
+#screen-player.cp-immersive:not(.cp-lyr){ --cp-q-bottom:calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 16px); }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-transport{ bottom:var(--cp-q-bottom); }   /* nav 在待播清單時隱藏：控制列不再替它留空 */
+#screen-player.cp-immersive:not(.cp-lyr) #cp-panel{ padding-bottom:calc(var(--cp-q-bottom) + var(--cp-dock-height) + 12px); }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-heading{ font:600 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:1.5px; color:#D4CCDC; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-thumb{ width:52px; height:52px; border-radius:8px; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font:600 20px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F4EFF7; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-artist{ font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C9BFD1; margin-top:3px; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-queue-note{ font:400 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C2B8CA; }
+#screen-player #cp-queue .cp-queue-heading{ margin:18px 0 6px; font:600 14.5px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.06em; color:#CFC6D6; }
+#screen-player #cp-queue .cp-track{ min-height:72px; padding:10px 8px; gap:14px; }
+#screen-player #cp-queue .cp-track-select{ gap:14px; min-height:52px; }
+#screen-player #cp-queue .cp-track img{ width:50px; height:50px; border-radius:8px; }
+#screen-player #cp-queue .cp-track-name{ font:600 17.5px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F2EDF5;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+#screen-player #cp-queue .cp-track-artist{ margin-top:3px; font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C3B8CC; }
+#screen-player #cp-queue .cp-track-note{ margin-top:2px; font-size:14px; line-height:1.35; color:#B9AEC4; }
+#screen-player #cp-queue .cp-track-state{ font:500 14px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; max-width:30%; text-align:right; }
+/* ---- 4. FEED 未解鎖 Unlock：由 dock 實際占用高度（CSS 變數）推導位置；nav 收合時不跟著動 ---- */
+#screen-mood.sgl-locked{ --sg-btn-w:min(58vw,280px); --sg-btn-h:50px; --sg-btn-font:21px; --sgl-gap:40px; }
+#screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--sgl-gap)) !important; }
+body.has-mini #screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + var(--sgl-gap) - 4px) !important; }
 </style>
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。
