@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHANCE 播放器 Tuner</title>
+<style>
+:root{ --bg:#0f0e10; --panel:#18161a; --line:#2b2830; --tx:#ece6dc; --mut:#9a93a0; --gold:#d8c3a0; }
+*{ box-sizing:border-box; } html,body{ margin:0; height:100%; background:var(--bg); color:var(--tx); font:13px/1.45 -apple-system,"PingFang TC",sans-serif; }
+.app{ display:flex; height:100%; }
+.stageWrap{ flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+.scaler{ transform-origin:center center; }
+.device{ position:relative; border-radius:56px; background:#000; box-shadow:0 0 0 12px #1c1b1f, 0 0 0 13px #3a3840, 0 30px 80px rgba(0,0,0,.6); overflow:hidden; }
+.device iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; }
+.island{ position:absolute; left:50%; transform:translateX(-50%); background:#000; border-radius:20px; z-index:5; pointer-events:none; }
+.statusbar{ position:absolute; left:0; right:0; display:flex; justify-content:space-between; padding:0 34px; font-weight:600; font-size:15px; color:#fff; z-index:4; pointer-events:none; mix-blend-mode:difference; }
+.home{ position:absolute; left:50%; bottom:8px; width:134px; height:5px; margin-left:-67px; border-radius:3px; background:rgba(255,255,255,.85); z-index:5; pointer-events:none; }
+.side{ width:360px; flex:none; background:var(--panel); border-left:1px solid var(--line); overflow-y:auto; padding:14px 16px 40px; }
+h1{ font-size:15px; margin:0 0 4px; color:var(--gold); letter-spacing:.04em; }
+.note{ color:var(--mut); font-size:12px; margin:0 0 12px; }
+h2{ font-size:12px; letter-spacing:.14em; color:var(--gold); margin:18px 0 6px; padding-top:12px; border-top:1px solid var(--line); }
+.row{ display:grid; grid-template-columns:96px 1fr 50px; align-items:center; gap:8px; margin:6px 0; }
+.row label{ color:#cfc8d2; }
+.row input[type=range]{ width:100%; accent-color:var(--gold); }
+.row .v{ text-align:right; font-variant-numeric:tabular-nums; color:var(--tx); }
+.row .v.changed{ color:var(--gold); }
+select,input[type=text]{ width:100%; background:#0f0e10; color:var(--tx); border:1px solid var(--line); border-radius:8px; padding:7px 8px; font:inherit; }
+.btns{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+button{ background:#232027; color:var(--tx); border:1px solid #37333c; border-radius:9px; padding:7px 10px; font:inherit; cursor:pointer; }
+button:hover{ border-color:var(--gold); }
+button.primary{ background:var(--gold); color:#151210; border-color:var(--gold); font-weight:600; }
+.seg{ display:flex; gap:4px; } .seg button{ flex:1; padding:6px 4px; } .seg button.on{ border-color:var(--gold); color:var(--gold); }
+textarea{ width:100%; height:150px; background:#0b0a0c; color:#cfe; border:1px solid var(--line); border-radius:8px; font:11px/1.4 ui-monospace,Menlo,monospace; padding:8px; }
+.warn{ background:#2a1f12; border:1px solid #5a4322; color:#e8cf9e; border-radius:8px; padding:8px 10px; font-size:12px; margin:8px 0; display:none; }
+</style></head>
+<body>
+<div class="app">
+  <div class="stageWrap" id="stageWrap"><div class="scaler" id="scaler">
+    <div class="device" id="device">
+      <div class="island" id="island"></div>
+      <div class="statusbar" id="statusbar"><span>9:41</span><span>●●● ▮</span></div>
+      <iframe id="f" title="CHANCE App 預覽"></iframe>
+      <div class="home" id="home"></div>
+    </div>
+  </div></div>
+  <aside class="side">
+    <h1>CHANCE 播放器 Tuner</h1>
+    <p class="note">預設值＝B242T。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
+    <div class="warn" id="warn">讀不到 App 內容：tuner 必須和 test225.html 放在同一個網站（例如 chance1228.com/play-tuner.html），直接開下載的檔案不能用。</div>
+    <div class="row" style="grid-template-columns:96px 1fr"><label>機型</label><select id="dev"></select></div>
+    <div class="row" style="grid-template-columns:96px 1fr"><label>App 網址</label><input type="text" id="src" value="test225.html?album=classics&track=1"></div>
+    <div class="btns"><button onclick="loadSrc()">載入</button><button onclick="reloadApp()">重新整理</button></div>
+    <div class="note" style="margin:2px 0 4px">切換分頁：</div>
+    <div class="seg" id="tabs">
+      <button data-s="player">PLAY</button><button data-s="mood">FEED</button><button data-s="merch">SHOP</button><button data-s="purchase">OWN</button><button data-s="lucky">LUCKY</button>
+    </div>
+    <div class="btns"><button onclick="appCall('collapse')">收合 nav（只留音樂島）</button><button onclick="appCall('expand')">展開 nav</button></div>
+    <p class="note">提示：要看音樂島，先在預覽裡按一次播放（瀏覽器規定播放要在 App 內點），再切到 FEED／SHOP。</p>
+    <div id="groups"></div>
+    <h2>輸出</h2>
+    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B242T</button></div>
+    <textarea id="out" readonly placeholder="按「複製設定」後這裡會出現設定文字"></textarea>
+  </aside>
+</div>
+<script>
+/* ---- 機型（safe-area 依 iPhone 實際規格） ---- */
+var DEVICES=[
+  {id:'14plus',name:'iPhone 14 Plus（428×926）',w:428,h:926,top:47,bottom:34,island:false},
+  {id:'14',name:'iPhone 12/13/14（390×844）',w:390,h:844,top:47,bottom:34,island:false},
+  {id:'15',name:'iPhone 15/16（393×852 靈動島）',w:393,h:852,top:59,bottom:34,island:true},
+  {id:'15pm',name:'iPhone 15/16 Plus/Pro Max（430×932）',w:430,h:932,top:59,bottom:34,island:true},
+  {id:'mini',name:'iPhone 12/13 mini（375×812）',w:375,h:812,top:50,bottom:34,island:false},
+  {id:'se',name:'iPhone SE（375×667）',w:375,h:667,top:20,bottom:0,island:false},
+  {id:'320',name:'窄螢幕測試（320×690）',w:320,h:690,top:20,bottom:0,island:false}
+];
+/* ---- 可調參數（預設＝B242T） ---- */
+var GROUPS=[
+ {title:'PLAY 主播放器（只影響封面模式）',items:[
+  {k:'lift',label:'整組上移',min:0,max:90,step:1,def:36,u:'px'},
+  {k:'gap',label:'歌名↔控制列',min:4,max:48,step:1,def:18,u:'px'},
+  {k:'ttl',label:'歌名字級',min:24,max:46,step:1,def:38,u:'px'},
+  {k:'sub',label:'副標字級',min:12,max:22,step:1,def:16,u:'px'},
+  {k:'tim',label:'時間字級',min:10,max:18,step:1,def:14,u:'px'},
+  {k:'pp',label:'主播放大小',min:52,max:92,step:1,def:74,u:'px'},
+  {k:'pn',label:'上/下一首',min:20,max:42,step:1,def:31,u:'px'},
+  {k:'pstyle',label:'主播放樣式',type:'seg',opts:[['ring','細線圓'],['solid','實心白圓'],['none','無框']],def:'ring'}
+ ]},
+ {title:'NAV 導覽列（全分頁）',items:[
+  {k:'navh',label:'nav 高度',min:54,max:92,step:1,def:76,u:'px'},
+  {k:'nfs',label:'文字字級',min:10,max:18,step:0.5,def:14,u:'px'},
+  {k:'nico',label:'圖示大小',min:16,max:32,step:1,def:25,u:'px'},
+  {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:600,u:''},
+  {k:'side',label:'左右留白',min:6,max:32,step:1,def:12,u:'px'},
+  {k:'nop',label:'未選中亮度',min:40,max:100,step:1,def:80,u:'%'}
+ ]},
+ {title:'音樂島（mini 播放器）',items:[
+  {k:'minih',label:'島高度',min:56,max:100,step:1,def:82,u:'px'},
+  {k:'cov',label:'封面',min:36,max:64,step:1,def:52,u:'px'},
+  {k:'mt',label:'歌名字級',min:13,max:24,step:0.5,def:18,u:'px'},
+  {k:'ms',label:'副標字級',min:10,max:18,step:0.5,def:14,u:'px'},
+  {k:'mp',label:'播放鍵',min:40,max:64,step:1,def:48,u:'px'},
+  {k:'mfont',label:'歌名字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線粗體']],def:'serif'},
+  {k:'split',label:'島的形式',type:'seg',opts:[['merged','合併（現行）'],['float','分開浮動']],def:'merged'}
+ ]}
+];
+var S={}, DEF={};
+var f=document.getElementById('f');
+function each(fn){ GROUPS.forEach(function(g){ g.items.forEach(fn); }); }
+each(function(it){ S[it.k]=it.def; DEF[it.k]=it.def; });
+
+function css(){
+  var sideW='min(calc(100vw - '+(S.side*2)+'px),480px)';
+  var pv=S.pstyle==='solid'?'border:0 !important;background:#F1ECE3 !important;color:#141210 !important;':
+         S.pstyle==='none'?'border:0 !important;background:transparent !important;':
+         'border:1.5px solid rgba(241,236,227,.82) !important;background:rgba(12,11,10,.28) !important;';
+  var merged=S.split==='merged';
+  return [
+   ':root{--dock-nav-h:'+S.navh+'px;--dock-mini-h:'+S.minih+'px;--nav-fs:'+S.nfs+'px;--nav-ico:'+S.nico+'px;--dock-w:'+sideW+';--dock-mini-reserve:calc(var(--dock-mini-h) + 8px);}',
+   '#nav-wrap #nav .navbtn{color:rgba(230,223,210,'+(S.nop/100)+') !important;}',
+   '#nav-wrap #nav .navbtn .navlbl{font-weight:'+S.nwt+';height:'+(S.nfs+2)+'px;line-height:'+(S.nfs+2)+'px;}',
+   '#mini-player .mp-cover{width:'+S.cov+'px;height:'+S.cov+'px;}',
+   '#mini-player .mp-open{height:'+Math.max(44,S.cov)+'px;min-height:'+Math.max(44,S.cov)+'px;}',
+   '#mini-player .mp-title{font-size:'+S.mt+'px;line-height:'+(S.mt+4)+'px;'+(S.mfont==='sans'?'font-family:-apple-system,"PingFang TC",sans-serif;font-weight:700;':'')+'}',
+   '#mini-player .mp-marq{font-size:'+S.ms+'px;line-height:'+(S.ms+4)+'px;height:'+(S.ms+4)+'px;}',
+   '#mini-player .mp-btn.mp-play{width:'+S.mp+'px;height:'+S.mp+'px;min-width:'+S.mp+'px;}',
+   '#mini-player .mp-btn.mp-play svg{width:'+Math.round(S.mp*0.46)+'px;height:'+Math.round(S.mp*0.46)+'px;}',
+   merged?'':'#mini-player.mini-player{bottom:calc(var(--dock-b) + var(--dock-nav-h) + 10px) !important;border-radius:22px !important;border:1px solid rgba(241,236,227,.12) !important;box-shadow:0 14px 34px rgba(0,0,0,.5) !important;} #nav-wrap #nav{border-radius:22px !important;border-top-color:rgba(241,236,227,.10) !important;} body.dock-collapsed #mini-player.mini-player{transform:translateY(calc(var(--dock-nav-h) + 10px)) !important;} body.has-mini .screen.active::after{height:calc(var(--dock-mini-h) + 18px) !important;}',
+   '#screen-player.cp-ready{--cp-lift:'+S.lift+'px !important;--cp-gap:'+S.gap+'px !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-title{font-size:'+S.ttl+'px !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-sub{font-size:'+S.sub+'px !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-times{font-size:'+S.tim+'px !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-controls{grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) '+(S.pp+2)+'px minmax(44px,1fr) minmax(44px,1fr) !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{width:'+S.pp+'px !important;height:'+S.pp+'px !important;max-width:none !important;min-width:'+S.pp+'px !important;border-radius:50% !important;'+pv+'}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{width:'+Math.round(S.pp*0.5)+'px !important;height:'+Math.round(S.pp*0.5)+'px !important;}',
+   '#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-prev svg,#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-next svg{width:'+S.pn+'px !important;height:'+S.pn+'px !important;}'
+  ].join('\n');
+}
+function doc(){ try{ return f.contentDocument; }catch(e){ return null; } }
+function apply(){
+  var d=doc(); var w=document.getElementById('warn');
+  if(!d||!d.body){ if(f.src) w.style.display='block'; return; }
+  w.style.display='none';
+  var st=d.getElementById('tuner-override');
+  if(!st){ st=d.createElement('style'); st.id='tuner-override'; d.body.appendChild(st); }
+  else if(st!==d.body.lastElementChild){ d.body.appendChild(st); }
+  var c=css(); if(st.textContent!==c) st.textContent=c;
+  d.documentElement.style.setProperty('--sab',CUR.bottom+'px');
+  try{ f.contentWindow.dispatchEvent(new Event('resize')); }catch(e){}
+}
+/* ---- UI ---- */
+function build(){
+  var box=document.getElementById('groups');
+  GROUPS.forEach(function(g){
+    var h=document.createElement('h2'); h.textContent=g.title; box.appendChild(h);
+    g.items.forEach(function(it){
+      var row=document.createElement('div'); row.className='row';
+      var lab=document.createElement('label'); lab.textContent=it.label; row.appendChild(lab);
+      if(it.type==='seg'){
+        row.style.gridTemplateColumns='96px 1fr';
+        var seg=document.createElement('div'); seg.className='seg';
+        it.opts.forEach(function(o){ var b=document.createElement('button'); b.textContent=o[1]; b.dataset.v=o[0];
+          b.onclick=function(){ S[it.k]=o[0]; [].forEach.call(seg.children,function(x){x.classList.toggle('on',x.dataset.v===o[0]);}); apply(); };
+          if(o[0]===it.def) b.classList.add('on'); seg.appendChild(b); });
+        row.appendChild(seg); it._seg=seg;
+      } else {
+        var inp=document.createElement('input'); inp.type='range'; inp.min=it.min; inp.max=it.max; inp.step=it.step; inp.value=it.def;
+        var v=document.createElement('div'); v.className='v'; v.textContent=it.def+it.u;
+        inp.oninput=function(){ S[it.k]=Number(inp.value); v.textContent=inp.value+it.u; v.classList.toggle('changed',S[it.k]!==it.def); apply(); };
+        row.appendChild(inp); row.appendChild(v); it._inp=inp; it._v=v;
+      }
+      box.appendChild(row);
+    });
+  });
+  document.querySelectorAll('#tabs button').forEach(function(b){ b.onclick=function(){ var d=doc(); if(!d) return; var n=d.querySelector('.navbtn[data-screen="'+b.dataset.s+'"]'); if(n) n.click(); }; });
+}
+function resetAll(){ each(function(it){ S[it.k]=it.def; if(it._inp){ it._inp.value=it.def; it._v.textContent=it.def+it.u; it._v.classList.remove('changed'); } if(it._seg){ [].forEach.call(it._seg.children,function(x){x.classList.toggle('on',x.dataset.v===it.def);}); } }); apply(); }
+function appCall(a){ try{ var w=f.contentWindow; if(w.__dock) w.__dock.set(a==='collapse'); }catch(e){} }
+function copyCfg(){
+  var lines=['【CHANCE 播放器 Tuner 設定】機型：'+CUR.name];
+  GROUPS.forEach(function(g){ lines.push('— '+g.title); g.items.forEach(function(it){
+    var val=it.type==='seg'?it.opts.filter(function(o){return o[0]===S[it.k];})[0][1]:S[it.k]+it.u;
+    var dv=it.type==='seg'?it.opts.filter(function(o){return o[0]===it.def;})[0][1]:it.def+it.u;
+    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B242T：'+dv+'）':'')); }); });
+  var t=lines.join('\n'); var ta=document.getElementById('out'); ta.value=t; ta.select();
+  if(navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){ document.execCommand('copy'); }); else document.execCommand('copy');
+}
+/* ---- 機型與縮放 ---- */
+var CUR=DEVICES[0];
+function setDevice(id){
+  CUR=DEVICES.filter(function(d){return d.id===id;})[0]||DEVICES[0];
+  var dev=document.getElementById('device'); dev.style.width=CUR.w+'px'; dev.style.height=CUR.h+'px';
+  dev.style.borderRadius=(CUR.bottom?56:24)+'px';
+  var isl=document.getElementById('island');
+  if(CUR.bottom===0){ isl.style.display='none'; }
+  else if(CUR.island){ isl.style.display='block'; isl.style.top='11px'; isl.style.width='124px'; isl.style.height='36px'; }
+  else { isl.style.display='block'; isl.style.top='0'; isl.style.width='162px'; isl.style.height='32px'; isl.style.borderRadius='0 0 20px 20px'; }
+  document.getElementById('statusbar').style.top=(CUR.island?18:14)+'px';
+  document.getElementById('statusbar').style.display=CUR.bottom?'flex':'none';
+  document.getElementById('home').style.display=CUR.bottom?'block':'none';
+  fit(); apply();
+}
+function fit(){ var wrap=document.getElementById('stageWrap'); var s=Math.min(1,(wrap.clientHeight-60)/CUR.h,(wrap.clientWidth-60)/CUR.w); document.getElementById('scaler').style.transform='scale('+s+')'; }
+function loadSrc(){ f.src=document.getElementById('src').value.trim(); }
+function reloadApp(){ var u=document.getElementById('src').value.trim(); f.src=u+(u.indexOf('?')>=0?'&':'?')+'t='+Date.now(); }
+(function(){ var sel=document.getElementById('dev'); DEVICES.forEach(function(d){ var o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o); }); sel.onchange=function(){ setDevice(sel.value); }; })();
+f.addEventListener('load',function(){ apply(); setTimeout(apply,600); setTimeout(apply,1600); });
+window.addEventListener('resize',fit);
+build(); setDevice(DEVICES[0].id); loadSrc();
+setInterval(apply,1000);   /* 只在預覽工具裡用：App 重繪後補回覆寫（不影響 App 本身） */
+</script>
+</body></html>
