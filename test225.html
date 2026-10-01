@@ -2234,6 +2234,347 @@ body { background: #08060C !important; }
   #screen-player #cp-lyrics .cp-line[data-time]{ transition:none; }
 }
 </style>
+<style id="own-unlocked-style">
+/* B233T：OWN「專輯已解鎖」極簡黑金收藏頁。只作用在 #screen-purchase.own-unlocked；未購買畫面與其他分頁不受影響。 */
+#screen-purchase.own-unlocked{ background:#080809; }
+#screen-purchase.own-unlocked .own-b-hero{ aspect-ratio:auto; height:310px; max-height:310px; }
+#screen-purchase.own-unlocked .own-b-photo{ object-position:62% 30%; }
+#screen-purchase.own-unlocked .own-b-shade{
+  background:linear-gradient(180deg,rgba(8,8,9,.55) 0%,rgba(8,8,9,0) 22%,rgba(8,8,9,0) 56%,rgba(8,8,9,.82) 86%,#080809 100%),
+             linear-gradient(90deg,rgba(8,8,9,.5) 0%,rgba(8,8,9,0) 44%); }
+#screen-purchase.own-unlocked .own-b-top{ padding-top:calc(22px + env(safe-area-inset-top)); grid-template-columns:44px 1fr 44px; align-items:start; }
+#screen-purchase.own-unlocked .own-b-back{ height:16px; }
+#screen-purchase.own-unlocked .own-b-toptitle{ font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:16px; line-height:1; letter-spacing:.45em; padding-left:.45em; color:#D8C3A0; }
+#screen-purchase.own-unlocked .own-b-mast{ left:22px; top:calc(76px + env(safe-area-inset-top)); }
+#screen-purchase.own-unlocked .own-b-artist{ font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:11px; letter-spacing:.4em; color:#D8C3A0; }
+#screen-purchase.own-unlocked .own-b-work{ font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:35px; line-height:1; letter-spacing:-.025em; color:#D8C3A0; margin-top:12px; }
+/* Hero 下方文字 */
+#screen-purchase.own-unlocked .page-titles{ margin-top:0; padding:12px 24px 0 !important; }
+#screen-purchase.own-unlocked .page-title-en{ font-family:Georgia,"Times New Roman",serif !important; font-weight:400; font-size:11px !important; line-height:1.3; letter-spacing:.24em !important; text-transform:uppercase; color:#C5B38F !important; }
+#screen-purchase.own-unlocked .page-title-tc{ font-family:"Songti TC","Noto Serif TC",var(--font-serif-tc),serif !important; font-weight:400 !important; font-size:25px !important; line-height:1.45 !important; letter-spacing:.025em !important; color:#F1ECE3 !important; margin-top:16px !important; }
+#screen-purchase.own-unlocked .page-titles .page-note{ font-family:-apple-system,"PingFang TC",sans-serif; font-weight:400; font-size:14px !important; line-height:1.6 !important; color:#AAA194 !important; margin-top:8px !important; letter-spacing:0; }
+#screen-purchase.own-unlocked #unlock-done-view{ margin-top:25px !important; }
+/* 收藏狀態：無底色文字列 */
+#screen-purchase.own-unlocked .pass-card.own-u{ margin:0 24px; padding:0; background:none; border:0; border-radius:0; box-shadow:none; overflow:visible; }
+#screen-purchase.own-unlocked .pass-card.own-u::before, #screen-purchase.own-unlocked .pass-card.own-u::after{ display:none; }
+#screen-purchase.own-unlocked .pass-count{ display:flex; align-items:center; justify-content:space-between; padding:23px 0 20px; border-top:1px solid #29251F; border-bottom:1px solid #29251F;
+  font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:11px; line-height:1.6; letter-spacing:.16em; color:#D8C3A0; }
+#screen-purchase.own-unlocked .pass-count .pc-num{ font-family:Georgia,"Times New Roman",serif; font-style:normal; font-weight:400; font-size:36px; line-height:1; letter-spacing:0; color:#F1ECE3; margin:0; }
+#screen-purchase.own-unlocked .pass-next{ justify-content:center; gap:0; margin:16px 0 23px; padding:0; border:0; background:none;
+  font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:11px; line-height:1.6; letter-spacing:.12em; color:#A59A87; text-align:center; }
+#screen-purchase.own-unlocked .pass-next .pn-star{ display:none; }
+/* 播放按鈕：實心香檳金 */
+#screen-purchase.own-unlocked .pass-cta{ margin-top:0; }
+#screen-purchase.own-unlocked .pass-play{ width:100%; height:48px; padding:0 16px; border-radius:999px; border:0; background:#DFCBA8; color:#171410; box-shadow:none;
+  font-family:-apple-system,"PingFang TC",sans-serif; font-weight:400; font-size:16px; line-height:1.2; letter-spacing:.06em; gap:10px; word-spacing:2px; }
+#screen-purchase.own-unlocked .pass-play:active{ background:#CBB58F; transform:none; }
+/* SIGNAL 升級：文字列 */
+#screen-purchase.own-unlocked .pass-unlock:not(.hidden){ display:flex; align-items:center; justify-content:space-between; width:100%; min-height:62px; margin-top:23px; padding:0; border:0; border-top:1px solid #29251F; border-bottom:1px solid #29251F; border-radius:0; background:none; box-shadow:none; text-align:left; }
+#screen-purchase.own-unlocked .pass-unlock:active{ transform:none; background:none; }
+#screen-purchase.own-unlocked .pass-unlock .ou-l{ font-family:-apple-system,"PingFang TC",sans-serif; font-weight:400; font-size:13px; line-height:1.5; color:#F1ECE3; }
+#screen-purchase.own-unlocked .pass-unlock .ou-r{ display:inline-flex; align-items:center; gap:7px; font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:12px; color:#D8C3A0; }
+/* 兌換碼入口 */
+#screen-purchase.own-unlocked .fl-redeem:not(.hidden){ display:block; width:100%; margin:10px 0 0; padding:10px 0; font-family:-apple-system,"PingFang TC",sans-serif; font-weight:400; font-size:12px; line-height:1.5; color:#AAA194; text-align:center; }
+#screen-purchase.own-unlocked .fl-redeem:not(.hidden) span, #screen-purchase.own-unlocked .fl-redeem:not(.hidden){ text-decoration:underline; text-underline-offset:4px; text-decoration-color:#4A4338; }
+#screen-purchase.own-unlocked .legal-foot{ margin:26px 24px 0; padding:14px 0 calc(150px + env(safe-area-inset-bottom)); border-top:1px solid #29251F; }
+#screen-purchase.own-unlocked .legal-foot .lf-links button{ color:#7E7566; }
+#screen-purchase.own-unlocked .legal-foot .lf-info{ color:#5E5749; }
+@media (max-width:359px){
+  #screen-purchase.own-unlocked .page-titles{ padding:12px 20px 0 !important; }
+  #screen-purchase.own-unlocked .page-title-tc{ font-size:23px !important; }
+  #screen-purchase.own-unlocked .pass-card.own-u{ margin:0 20px; }
+  #screen-purchase.own-unlocked .legal-foot{ margin-left:20px; margin-right:20px; }
+  #screen-purchase.own-unlocked .own-b-work{ font-size:31px; }
+}
+</style>
+<style id="cm-comments-style">
+/* B234T：歌曲時間軸留言（TimedCommentOverlay / CommentTimelineMarkers / CommentButton / CommentSheet / CommentComposer / LockedCommentState）
+   顏色：近黑 #0B0A0C、暖棕 #221F1B、香檳金 var(--cp-gold,#DDC9A4)、暖灰 #A59A87。 */
+#screen-player #cm-markers{ position:absolute; inset:0; pointer-events:none; }
+#screen-player .cm-mk{ position:absolute; top:50%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px; border-radius:50%; background:#8A7F6E; opacity:.7; pointer-events:auto; cursor:pointer;
+  transition:transform .25s ease, background .25s ease, opacity .25s ease; }
+#screen-player .cm-mk::before{ content:""; position:absolute; left:-9px; top:-11px; width:25px; height:29px; }   /* 手指觸控範圍 */
+#screen-player .cm-mk.near{ background:var(--cp-gold,#DDC9A4); opacity:1; transform:scale(1.35); }
+#screen-player .cm-mk.sel{ background:var(--cp-gold,#DDC9A4); opacity:1; transform:scale(1.55); box-shadow:0 0 0 4px rgba(221,201,164,.18); }
+#screen-player .cm-mk.artist{ background:#B8A070; }
+#screen-player #cm-overlay{ position:absolute; left:var(--cp-side,24px); right:var(--cp-side,24px); z-index:11; pointer-events:none; opacity:0; transform:translateY(6px);
+  transition:opacity .45s ease, transform .45s ease; }
+#screen-player #cm-overlay.in{ opacity:1; transform:none; pointer-events:auto; }
+#screen-player .cm-ov{ display:flex; align-items:flex-start; gap:10px; padding:11px 13px 11px 12px; border-radius:14px; background:rgba(11,10,12,.88); border:1px solid rgba(221,201,164,.32);
+  box-shadow:0 10px 30px rgba(0,0,0,.45); -webkit-backdrop-filter:none; backdrop-filter:none; }
+#screen-player .cm-ov .cm-av{ flex:none; margin-top:1px; }
+#screen-player .cm-ov .cm-ov-main{ flex:1; min-width:0; }
+#screen-player .cm-ov .cm-ov-name{ font:500 12px/1.3 -apple-system,"PingFang TC",sans-serif; color:#CFC6B8; display:flex; align-items:center; gap:8px; }
+#screen-player .cm-ov .cm-ov-name .cm-t{ font-family:Georgia,"Times New Roman",serif; font-size:11px; color:#8F8778; }
+#screen-player .cm-ov.artist .cm-ov-name{ color:var(--cp-gold,#DDC9A4); }
+#screen-player .cm-ov .cm-ov-body{ margin-top:3px; font:400 15px/1.5 -apple-system,"PingFang TC",sans-serif; color:#F1ECE3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#screen-player .cm-ov .cm-ov-like{ flex:none; margin-top:2px; font-size:14px; color:#8F8778; }
+.cm-av{ width:26px; height:26px; border-radius:50%; background:#221F1B; color:#D8C3A0; box-shadow:inset 0 0 0 1px rgba(216,195,160,.22); font:500 11px/26px -apple-system,"PingFang TC",sans-serif; text-align:center; overflow:hidden; flex:none; }
+.cm-av img{ width:100%; height:100%; object-fit:cover; display:block; }
+.cm-av.artist{ background:#3A3122; box-shadow:0 0 0 1px rgba(221,201,164,.55); }
+#screen-player #cm-btn{ appearance:none; -webkit-appearance:none; border:1px solid rgba(216,195,160,.18); background:#14120F; color:#E6DECF; border-radius:999px; padding:3px 11px;
+  font:500 12px/1.4 -apple-system,"PingFang TC",sans-serif; display:inline-flex; align-items:center; gap:5px; cursor:pointer; margin:-4px 0; }
+#screen-player #cm-btn svg{ width:13px; height:13px; }
+#screen-player #cm-btn b{ font-weight:500; font-variant-numeric:tabular-nums; }
+/* Bottom Sheet */
+#cm-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9000; opacity:0; transition:opacity .28s ease; }
+#cm-backdrop.in{ opacity:1; }
+#cm-sheet{ position:fixed; left:0; right:0; bottom:0; z-index:9001; height:80vh; max-height:calc(100% - 40px); display:flex; flex-direction:column; background:#0B0A0C; color:#F1ECE3;
+  border-radius:22px 22px 0 0; box-shadow:0 -12px 40px rgba(0,0,0,.6); transform:translateY(100%); transition:transform .32s cubic-bezier(.2,.8,.2,1); font-family:-apple-system,"PingFang TC",sans-serif; }
+#cm-sheet.in{ transform:none; }
+#cm-sheet .cm-grab{ width:36px; height:4px; border-radius:2px; background:#2E2A25; margin:10px auto 0; flex:none; }
+#cm-sheet .cm-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 20px 12px; flex:none; }
+#cm-sheet .cm-head b{ font-size:17px; font-weight:600; }
+#cm-sheet .cm-head span{ color:#8F8778; font-size:13px; margin-left:8px; font-weight:400; }
+#cm-sheet .cm-x{ appearance:none; -webkit-appearance:none; background:none; border:0; color:#B5AC9E; width:36px; height:36px; margin-right:-8px; display:grid; place-items:center; cursor:pointer; }
+#cm-sheet .cm-list{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding-bottom:12px; }
+#cm-sheet .cm-artist{ margin:2px 16px 8px; padding:13px 14px; border-radius:14px; background:rgba(221,201,164,.07); border:1px solid rgba(221,201,164,.32); }
+#cm-sheet .cm-artist .cm-row-top{ display:flex; align-items:center; gap:8px; }
+#cm-sheet .cm-artist .cm-name{ color:var(--cp-gold,#DDC9A4); font-weight:600; font-size:13.5px; }
+#cm-sheet .cm-tag{ font:600 9.5px/1 Georgia,"Times New Roman",serif; letter-spacing:.14em; color:#B8A070; border:1px solid rgba(184,160,112,.5); border-radius:4px; padding:3px 5px 2px; }
+#cm-sheet .cm-pin{ margin-left:auto; font-size:11px; color:#A59A87; }
+#cm-sheet .cm-artist .cm-body{ margin-top:8px; font-size:15.5px; line-height:1.55; color:#F2ECDC; }
+#cm-sheet .cm-row{ padding:16px 20px; border-top:1px solid #1E1B18; }
+#cm-sheet .cm-row:first-child{ border-top:0; }
+#cm-sheet .cm-row-top{ display:flex; align-items:center; gap:9px; }
+#cm-sheet .cm-name{ font-size:13.5px; color:#D9D2C6; }
+#cm-sheet .cm-ts{ margin-left:auto; appearance:none; -webkit-appearance:none; border:0; cursor:pointer; background:rgba(221,201,164,.1); color:var(--cp-gold,#DDC9A4); border-radius:999px; padding:4px 10px;
+  font:500 12px/1.2 Georgia,"Times New Roman",serif; font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; gap:5px; }
+#cm-sheet .cm-ts svg{ width:9px; height:9px; }
+#cm-sheet .cm-ts:active{ background:rgba(221,201,164,.22); }
+#cm-sheet .cm-body{ margin-top:7px; font-size:15.5px; line-height:1.55; color:#F1ECE3; word-break:break-word; white-space:pre-wrap; }
+#cm-sheet .cm-meta{ margin-top:8px; display:flex; align-items:center; gap:16px; font-size:12px; color:#8F8778; }
+#cm-sheet .cm-like{ appearance:none; -webkit-appearance:none; border:0; background:none; padding:0; color:#8F8778; font:400 12px/1.2 -apple-system,"PingFang TC",sans-serif; display:inline-flex; align-items:center; gap:5px; cursor:pointer; }
+#cm-sheet .cm-like svg{ width:14px; height:14px; }
+#cm-sheet .cm-like.on{ color:var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-empty{ padding:48px 24px; text-align:center; color:#8F8778; font-size:14px; line-height:1.7; }
+#cm-sheet .cm-empty b{ display:block; color:#CFC6B8; font-weight:500; font-size:15px; margin-bottom:4px; }
+/* Composer */
+#cm-sheet .cm-comp{ flex:none; border-top:1px solid #1E1B18; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); background:#0B0A0C; }
+#cm-sheet .cm-chip{ display:inline-flex; align-items:center; gap:6px; margin-bottom:8px; padding:4px 10px; border-radius:999px; border:1px solid rgba(221,201,164,.4); color:var(--cp-gold,#DDC9A4);
+  font:500 12px/1.3 Georgia,"Times New Roman",serif; }
+#cm-sheet .cm-chip button{ appearance:none; -webkit-appearance:none; border:0; background:none; color:#8F8778; font-size:13px; padding:0 0 0 4px; cursor:pointer; }
+#cm-sheet .cm-chip.off{ border-style:dashed; color:#A59A87; cursor:pointer; }
+#cm-sheet .cm-in{ display:flex; align-items:flex-end; gap:10px; }
+#cm-sheet .cm-field{ flex:1; min-width:0; }
+#cm-sheet textarea.cm-ta{ display:block; width:100%; min-height:42px; max-height:42px; resize:none; border:0; border-radius:21px; padding:11px 16px; background:#17150F; color:#F1ECE3; box-shadow:inset 0 0 0 1px #2A2620;
+  font:400 15px/1.35 -apple-system,"PingFang TC",sans-serif; outline:none; -webkit-appearance:none; }
+#cm-sheet textarea.cm-ta::placeholder{ color:#8F8778; }
+#cm-sheet .cm-send{ appearance:none; -webkit-appearance:none; border:0; width:42px; height:42px; border-radius:50%; background:var(--cp-gold,#DDC9A4); color:#171410; display:grid; place-items:center; cursor:pointer; flex:none; }
+#cm-sheet .cm-send:disabled{ background:#2A2622; color:#6F675B; }
+#cm-sheet .cm-send svg{ width:18px; height:18px; }
+/* 展開（狀態 C） */
+#cm-sheet.compose .cm-list{ display:none; }
+#cm-sheet.compose .cm-head b{ font-size:16px; }
+#cm-sheet .cm-ctx{ display:none; margin:2px 16px 12px; gap:12px; align-items:center; }
+#cm-sheet.compose .cm-ctx{ display:flex; }
+#cm-sheet .cm-ctx img{ width:58px; height:58px; border-radius:9px; object-fit:cover; background:#1E1B18; flex:none; }
+#cm-sheet .cm-ctx .cm-ctx-line{ font-size:15px; line-height:1.4; color:#F1ECE3; }
+#cm-sheet .cm-ctx .cm-ctx-t{ margin-top:3px; font:400 12px/1.3 Georgia,"Times New Roman",serif; color:#8F8778; }
+#cm-sheet.compose .cm-comp{ flex:1; border-top:0; display:flex; flex-direction:column; }
+#cm-sheet.compose textarea.cm-ta{ flex:0 0 auto; height:150px; max-height:220px; min-height:120px; border-radius:14px; padding:13px 14px; border:1px solid #2E2A24; background:#12100D; }
+#cm-sheet.compose .cm-comp{ flex:0 0 auto; }
+#cm-sheet.compose .cm-in{ flex:1; align-items:flex-end; }
+#cm-sheet.compose .cm-field{ display:flex; flex-direction:column; align-self:stretch; }
+#cm-sheet .cm-tools{ display:none; align-items:center; gap:14px; margin-top:10px; }
+#cm-sheet.compose .cm-tools{ display:flex; }
+#cm-sheet .cm-tools .cm-cnt{ font:400 11px/1 Georgia,"Times New Roman",serif; color:#6F675B; margin-left:auto; margin-right:2px; font-variant-numeric:tabular-nums; }
+#cm-sheet .cm-tools .cm-fut{ width:34px; height:34px; display:grid; place-items:center; color:#4A443C; border-radius:8px; }
+#cm-sheet .cm-tools .cm-fut svg{ width:18px; height:18px; }
+#cm-sheet .cm-nick{ display:none; margin-bottom:8px; }
+#cm-sheet .cm-nick.show{ display:block; }
+#cm-sheet .cm-nick label{ display:block; font-size:12px; color:#A59A87; margin-bottom:6px; }
+#cm-sheet .cm-nick input{ width:100%; border:1px solid #2E2A24; border-radius:10px; padding:9px 12px; background:#12100D; color:#F1ECE3; font:400 15px/1.3 -apple-system,"PingFang TC",sans-serif; outline:none; }
+/* 未解鎖（狀態 D） */
+#cm-sheet .cm-lock{ flex:1; display:flex; flex-direction:column; align-items:center; padding:20px 24px 0; text-align:center; overflow:hidden; }
+#cm-sheet .cm-lock .cm-lock-ic{ color:var(--cp-gold,#DDC9A4); margin-top:6px; }
+#cm-sheet .cm-lock .cm-lock-ic svg{ width:30px; height:30px; }
+#cm-sheet .cm-lock h3{ margin:12px 0 0; font:600 18px/1.3 "Songti TC","Noto Serif TC",var(--font-serif-tc),serif; color:var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-lock p{ margin:6px 0 0; font-size:13px; color:#A59A87; }
+#cm-sheet .cm-prev{ width:100%; margin-top:22px; text-align:left; -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent 100%); mask-image:linear-gradient(180deg,#000 55%,transparent 100%); }
+#cm-sheet .cm-prev .cm-prow{ display:flex; align-items:flex-start; gap:10px; padding:10px 6px; opacity:.55; }
+#cm-sheet .cm-prev .cm-av{ filter:blur(1.5px); }
+#cm-sheet .cm-prev .cm-pt{ font:400 12px/1.4 Georgia,"Times New Roman",serif; color:#8A7F6E; }
+#cm-sheet .cm-prev .cm-pb{ font-size:14.5px; line-height:1.5; color:#CFC6B8; filter:blur(1.2px); }
+#cm-sheet .cm-cta{ flex:none; margin:14px 20px calc(16px + env(safe-area-inset-bottom)); appearance:none; -webkit-appearance:none; border:0; border-radius:999px; height:50px; width:calc(100% - 40px);
+  background:linear-gradient(90deg,#7E3FA8 0%,#B97AA0 55%,#F0DCA8 100%); color:#fff; font:500 15px/1 -apple-system,"PingFang TC",sans-serif; letter-spacing:.04em; cursor:pointer; }
+#cm-sheet .cm-cta:active{ filter:brightness(.92); }
+@media (prefers-reduced-motion: reduce){ #cm-sheet, #cm-backdrop, #screen-player #cm-overlay, #screen-player .cm-mk{ transition:none; } }
+#cm-sheet .cm-head b .cm-gold{ color:var(--cp-gold,#DDC9A4); font-family:Georgia,"Times New Roman",serif; font-weight:500; margin-left:4px; }
+#cm-sheet .cm-ctx-bar{ position:relative; height:2px; margin-top:9px; background:#2A2620; border-radius:1px; width:100%; }
+#cm-sheet .cm-ctx-bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--cp-gold,#DDC9A4); border-radius:1px; }
+#cm-sheet .cm-ctx-bar b{ position:absolute; top:50%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px; border-radius:50%; background:var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-ctx > div:last-child{ flex:1; min-width:0; }
+#cm-sheet.compose .cm-field{ position:relative; }
+#cm-sheet.compose .cm-tools .cm-cnt{ position:absolute; right:12px; top:calc(150px - 22px); margin:0; }
+#cm-sheet.compose .cm-chip{ display:none; }
+#cm-sheet .cm-unbind2{ appearance:none; -webkit-appearance:none; border:0; background:none; color:#8F8778; font:400 12px/1 -apple-system,"PingFang TC",sans-serif; padding:6px 0 0; cursor:pointer; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#3A352E; }
+
+/* ================= R1（B237T）：floating note ＋ editorial list ================
+   只改呈現：不動 handler、資料、條件判斷。覆寫寫在區塊尾端，拿掉這段即回到 B236T。 */
+/* A｜Floating note：去框、去底色卡、去陰影；只留一條金色細線 accent ＋ 極淡左側暗化保證字可讀 */
+#screen-player .cm-ov{ position:relative; gap:0; padding:3px 0 3px 14px; border:0; border-radius:0; box-shadow:none;
+  background:linear-gradient(90deg,rgba(8,8,9,.34) 0%,rgba(8,8,9,.16) 55%,rgba(8,8,9,0) 90%); }
+#screen-player .cm-ov::before{ content:""; position:absolute; left:0; top:5px; bottom:5px; width:1px;
+  background:linear-gradient(180deg,rgba(221,201,164,0),rgba(221,201,164,.62) 30%,rgba(221,201,164,.62) 70%,rgba(221,201,164,0)); }
+#screen-player .cm-ov .cm-av{ display:none; }
+#screen-player .cm-ov .cm-ov-name{ font-size:11px; font-weight:400; color:#958C7E; letter-spacing:.03em; gap:7px; }
+#screen-player .cm-ov .cm-ov-name .cm-t{ color:#766E61; }
+#screen-player .cm-ov .cm-ov-body{ margin-top:2px; font-size:16px; line-height:1.5; color:#F3EEE5; text-shadow:0 1px 10px rgba(0,0,0,.7); }
+#screen-player .cm-ov .cm-ov-like{ margin:2px 0 0 12px; font-size:11px; color:#766E61; }
+#screen-player .cm-ov.artist .cm-ov-name{ color:var(--cp-gold,#DDC9A4); }
+/* A｜Markers：視覺 3px／目前 5px；改用寬高而非 scale，點擊命中區維持 25×29px（同 B236T） */
+#screen-player .cm-mk{ width:3px; height:3px; margin:-1.5px 0 0 -1.5px; opacity:.72; transform:none!important; box-shadow:none;
+  transition:width .25s ease, height .25s ease, margin .25s ease, background .25s ease, opacity .25s ease; }
+#screen-player .cm-mk::before{ left:-11px; top:-13px; width:25px; height:29px; }
+#screen-player .cm-mk.near, #screen-player .cm-mk.sel{ width:5px; height:5px; margin:-2.5px 0 0 -2.5px; opacity:1; }
+#screen-player .cm-mk.near::before, #screen-player .cm-mk.sel::before{ left:-10px; top:-12px; }
+#screen-player .cm-mk.sel{ box-shadow:0 0 0 3px rgba(221,201,164,.14); }
+/* B｜Sheet 融合：暖黑半透明、上緣柔和漸變、無外框無陰影；模糊只作用在 backdrop（後面的 player），正文不模糊 */
+#cm-backdrop{ background:rgba(6,5,5,.46); -webkit-backdrop-filter:blur(6px) saturate(.85); backdrop-filter:blur(6px) saturate(.85); }
+#cm-sheet{ box-shadow:none; background:linear-gradient(180deg,rgba(12,11,10,.8) 0,rgba(12,11,10,.95) 64px,#0C0B0A 150px); }
+#cm-sheet .cm-grab{ background:#3A352E; }
+/* B｜Artist note：無卡片；金色姓名＋小字 ARTIST＋低調置頂；正文襯線；以留白與一條 24px 金色短線和粉絲留言分開 */
+#cm-sheet .cm-artist{ position:relative; margin:0; padding:6px 20px 30px; background:none; border:0; border-radius:0; }
+#cm-sheet .cm-artist::after{ content:""; position:absolute; left:50px; bottom:12px; width:24px; height:1px; background:rgba(221,201,164,.45); }
+#cm-sheet .cm-artist .cm-name{ font-size:14px; font-weight:600; letter-spacing:.02em; }
+#cm-sheet .cm-tag{ border:0; padding:0; border-radius:0; font:500 9px/1 Georgia,"Times New Roman",serif; letter-spacing:.22em; color:#9C8660; }
+#cm-sheet .cm-pin{ font-size:11px; color:#766E61; letter-spacing:.04em; }
+#cm-sheet .cm-artist .cm-body{ font-family:"Songti TC","Noto Serif TC",Georgia,var(--font-serif-tc),serif; font-size:16px; line-height:1.7; color:#EFE7D6; }
+/* B｜一般留言：去分隔線、去時間 pill；靠 22px 垂直間隔；正文對齊姓名欄 */
+#cm-sheet .cm-row{ padding:11px 20px; border-top:0; }
+#cm-sheet .cm-row-top{ gap:8px; }
+#cm-sheet .cm-av{ width:22px; height:22px; line-height:22px; font-size:10px; box-shadow:none; background:#1E1B17; }
+#cm-sheet .cm-av.artist{ box-shadow:none; background:#2E271B; }
+#cm-sheet .cm-name{ font-size:13px; color:#A79E90; }
+#cm-sheet .cm-body{ margin-top:4px; padding-left:30px; font-size:15.5px; line-height:1.6; }
+#cm-sheet .cm-meta{ margin-top:5px; padding-left:30px; font-size:11.5px; }
+#cm-sheet .cm-ts{ min-height:0; padding:8px 0 8px 12px; margin:-8px 0 -8px auto; background:none; border-radius:4px; font-size:12px; color:#C9B58F; }   /* 點擊範圍 ≥ 30px 高，但不撐高名字列 */
+#cm-sheet .cm-ts:active{ background:none; opacity:.6; }
+#cm-sheet .cm-like{ min-height:0; padding:6px 10px 6px 0; margin:-6px 0; }   /* 同上：點擊範圍保留、不佔高度 */
+#cm-sheet .cm-list{ padding-top:2px; }
+/* B｜Composer 上緣：分隔線改為漸層淡出（chip／輸入框本體留到 Round 2） */
+#cm-sheet .cm-comp{ border-top:0; background:linear-gradient(180deg,rgba(12,11,10,0) 0,#0C0B0A 14px); }
+/* 焦點：pill 拿掉後，鍵盤焦點改用清楚的金色外框 */
+#cm-sheet .cm-ts:focus-visible, #cm-sheet .cm-like:focus-visible, #cm-sheet .cm-x:focus-visible, #cm-sheet .cm-send:focus-visible, #cm-sheet .cm-cta:focus-visible,
+#screen-player #cm-overlay:focus-visible{ outline:1.5px solid var(--cp-gold,#DDC9A4); outline-offset:3px; }
+@media (prefers-reduced-motion: reduce){ #screen-player .cm-mk{ transition:none; } }
+/* A｜note 出現時，歌詞區底部淡出加長，note 後面不會疊到模糊歌詞（純 CSS :has，不改 JS） */
+#screen-player.cp-lyr:has(#cm-overlay.in) #cp-lyrics{
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 calc(30% + 76px),transparent calc(30% + 112px));
+          mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 calc(30% + 76px),transparent calc(30% + 112px)); }   /* 目前句固定在 30%：其下 76px 內（含兩行長句）保持清楚 */
+
+/* ================= R2（B238T）：compact composer／Artist meta／D preview-first／focus =================
+   接在 R1 之後；拿掉這段＋R2 markup 即回 B237T。 */
+/* Composer（B 列表底部）：時間 chip 改純文字；輸入框只留底線與留白 */
+#cm-sheet .cm-comp{ padding:6px 20px calc(14px + env(safe-area-inset-bottom)); }
+#cm-sheet .cm-chip{ border:0; background:none; border-radius:0; padding:0; margin:0 0 4px; gap:4px; font:400 12px/1.5 -apple-system,"PingFang TC",sans-serif; color:#8F8778; }
+#cm-sheet .cm-chip #cm-chip-t{ font-family:Georgia,"Times New Roman",serif; color:var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-chip button{ padding:6px 8px; margin:-6px 0 -6px 2px; font-size:14px; line-height:1; color:#8F8778; border-radius:4px; }
+#cm-sheet .cm-chip.off{ border:0; color:#A59A87; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#3A352E; }
+#cm-sheet .cm-in{ gap:14px; align-items:flex-end; }
+#cm-sheet textarea.cm-ta{ min-height:40px; max-height:40px; padding:10px 2px 9px; border:0; border-bottom:1px solid #2A2620; border-radius:0; background:transparent; box-shadow:none;
+  transition:background .2s ease, border-color .2s ease; }
+#cm-sheet textarea.cm-ta::placeholder{ color:#7C7466; }
+#cm-sheet textarea.cm-ta:focus{ outline:none; background:rgba(221,201,164,.035); border-bottom-color:rgba(221,201,164,.55); }
+#cm-sheet textarea.cm-ta:focus-visible{ outline:none; }   /* R3：textarea 焦點由金色底線表示（點擊／鍵盤都清楚，不出框） */
+#cm-sheet .cm-send{ width:36px; height:36px; margin-bottom:2px; }
+#cm-sheet .cm-send svg{ width:16px; height:16px; }
+/* C 展開：拿掉大框 textarea，像作品筆記 */
+#cm-sheet.compose .cm-comp{ padding-top:14px; }
+#cm-sheet.compose textarea.cm-ta{ flex:0 0 auto; height:auto; min-height:112px; max-height:200px; padding:12px 2px; border:0; border-bottom:1px solid #2A2620; border-radius:0; background:transparent; }
+#cm-sheet.compose textarea.cm-ta:focus{ background:transparent; border-bottom-color:rgba(221,201,164,.85); box-shadow:0 1px 0 0 rgba(221,201,164,.85); }   /* R3：無填色，只留 2px 金色底線 */
+#cm-sheet.compose .cm-tools{ margin-top:10px; }
+#cm-sheet.compose .cm-tools .cm-cnt{ position:static; margin:0 0 0 auto; }
+#cm-sheet .cm-ctx{ margin:4px 20px 6px; }
+/* Artist：拿掉短金線；愛心收進姓名列 */
+#cm-sheet .cm-artist::after{ display:none; }
+#cm-sheet .cm-artist{ padding:6px 20px 24px; }
+#cm-sheet .cm-art-meta{ margin-left:auto; display:inline-flex; align-items:center; gap:12px; flex:none; }
+#cm-sheet .cm-art-meta .cm-pin{ margin-left:0; }
+#cm-sheet .cm-art-meta .cm-ts{ margin:-8px 0; padding-left:0; }
+#cm-sheet .cm-art-meta .cm-like{ margin:-6px 0; padding:6px 0 6px 4px; }
+@media (max-width:359px){ #cm-sheet .cm-artist .cm-row-top{ flex-wrap:wrap; row-gap:2px; } #cm-sheet .cm-art-meta{ gap:10px; } }
+/* D：preview-first，Sheet 高度跟內容走（最高 80vh），CTA 改實心香檳金、降低商業感 */
+#cm-sheet.locked{ height:auto; max-height:80vh; }
+#cm-sheet .cm-lock{ flex:none; display:block; padding:2px 20px 0; text-align:left; overflow:visible; }
+#cm-sheet .cm-prev{ width:auto; margin:0; -webkit-mask-image:none; mask-image:none; }
+#cm-sheet .cm-prev .cm-prow{ display:flex; align-items:flex-start; gap:10px; padding:9px 0; opacity:1; }
+#cm-sheet .cm-prev .cm-prow:nth-child(2){ opacity:.58; }
+#cm-sheet .cm-prev .cm-prow:nth-child(3){ opacity:.3; }
+#cm-sheet .cm-prev .cm-av{ filter:none; margin-top:1px; }
+#cm-sheet .cm-prev .cm-pt{ font:400 11.5px/1.4 Georgia,"Times New Roman",serif; color:#C9B58F; }
+#cm-sheet .cm-prev .cm-pn{ margin-left:8px; font:400 12px/1.4 -apple-system,"PingFang TC",sans-serif; color:#8F8778; }
+#cm-sheet .cm-prev .cm-pb{ filter:none; margin-top:2px; font-size:15px; line-height:1.55; color:#E6DFD3; }
+#cm-sheet .cm-lock-note{ display:flex; align-items:flex-start; gap:10px; margin:18px 0 0; }
+#cm-sheet .cm-lock .cm-lock-ic{ margin:1px 0 0; color:var(--cp-gold,#DDC9A4); flex:none; }
+#cm-sheet .cm-lock .cm-lock-ic svg{ width:15px; height:15px; display:block; }
+#cm-sheet .cm-lock h3{ margin:0; font:500 14px/1.45 -apple-system,"PingFang TC",sans-serif; color:#E6DFD3; }
+#cm-sheet .cm-lock p{ margin:1px 0 0; font-size:12px; line-height:1.5; color:#8F8778; }
+#cm-sheet .cm-cta{ margin:20px 20px calc(16px + env(safe-area-inset-bottom)); height:46px; background:var(--cp-gold,#DDC9A4); color:#171410; font:500 15px/1 -apple-system,"PingFang TC",sans-serif; letter-spacing:.04em; }
+#cm-sheet .cm-cta:active{ filter:none; background:#CBB58F; }
+/* R3 焦點框：預設交給原生 :focus-visible；只有「剛用手指／滑鼠操作」（body.ptr-nav）時隱藏程式移焦造成的框，任何按鍵即恢復 */
+body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-sheet button:focus-visible{ outline:none; }
+</style>
+<style id="lyr-hero-style">
+/* B235T：歌詞頁黑金版（示意圖 A）。全部鎖在 #screen-player.cp-lyr；封面模式、待播清單不受影響。 */
+#screen-player.cp-lyr { --lyr-gold:#DDC9A4; --lyr-ink:#F1ECE3; --lyr-warm:#A59A87;
+  --lyr-img-size:100% auto; --lyr-img-x:50%; --lyr-img-y:calc(35vh - 106.6vw); }   /* 人像同螢幕寬、臉約在 35% 高度 */
+#screen-player.cp-lyr #cp-panel { background:#080809; }
+#screen-player.cp-lyr #cp-panel::before { filter:none; opacity:1;
+  background:
+    linear-gradient(180deg, rgba(8,8,9,.66) 0%, rgba(8,8,9,.12) 13%, rgba(8,8,9,0) 28%, rgba(8,8,9,.22) 40%, rgba(8,8,9,.72) 50%, rgba(8,8,9,.92) 58%, #080809 66%),
+    var(--lyr-hero) var(--lyr-img-x) var(--lyr-img-y) / var(--lyr-img-size) no-repeat, #080809; }
+/* 頂部 */
+#screen-player.cp-lyr #cp-heading { display:none; }
+#screen-player #cp-toptitle { display:none; }
+#screen-player.cp-lyr #cp-toptitle { display:block; flex:1; min-width:0; text-align:center; padding:0 6px; }
+#screen-player.cp-lyr #cp-toptitle .tt-t { font:600 15px/1.3 -apple-system,"PingFang TC",system-ui,sans-serif; color:var(--lyr-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#screen-player.cp-lyr #cp-toptitle .tt-a { font:400 12px/1.4 -apple-system,"PingFang TC",system-ui,sans-serif; color:var(--lyr-warm); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#screen-player #cp-top-right { width:44px; display:flex; justify-content:flex-end; }
+#screen-player.cp-lyr #cp-close, #screen-player.cp-lyr #cp-top-right .cp-icon { color:var(--lyr-ink); }
+#screen-player.cp-lyr .cp-panel-head { display:none; }
+/* 原文／EN：小字切換，不搶畫面 */
+#screen-player.cp-lyr #cp-lyric-note { display:none; }
+#screen-player.cp-lyr #cp-lyrics-tools { justify-content:flex-end; min-height:30px; margin-top:4px; }
+#screen-player.cp-lyr .cp-language { border:0; padding:0; gap:2px; }
+#screen-player.cp-lyr .cp-language button { min-width:40px; min-height:30px; padding:0 8px; border-radius:999px; font:500 11px/1 Georgia,"Times New Roman",serif; letter-spacing:.08em; color:var(--lyr-warm); background:none; }
+#screen-player.cp-lyr .cp-language button[aria-pressed=true] { color:#171410; background:var(--lyr-gold); }
+/* 歌詞：襯線、壓在人像下半部 */
+#screen-player.cp-lyr #cp-lyrics { margin-top:clamp(120px,29vh,280px); padding:34px 0 45%;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 calc(100% - 64px),transparent);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 44px,#000 calc(100% - 64px),transparent); }
+#screen-player.cp-lyr .cp-line { font:500 clamp(21px,5.9vw,25px)/1.5 Georgia,"Songti TC","Noto Serif TC",var(--font-serif-tc),serif; letter-spacing:.02em; margin:0 0 14px; }
+#screen-player.cp-lyr #cp-lyrics .cp-line[data-time].current { color:#F6F1E7; }
+#screen-player.cp-lyr .cp-credits { font:12px/1.8 Georgia,"PingFang TC",serif; color:#8F8778; border-top-color:#29251F; }
+/* 進度條＋時間 */
+#screen-player.cp-lyr #prog { background:rgba(241,236,227,.16)!important; }
+#screen-player.cp-lyr #prog-fill { background:var(--lyr-gold)!important; }
+#screen-player.cp-lyr #prog-dot { background:var(--lyr-gold)!important; width:11px!important; height:11px!important; }
+#screen-player.cp-lyr .np-times { font:12px/1.4 Georgia,"Times New Roman",serif!important; color:var(--lyr-warm)!important; letter-spacing:.04em; }
+/* 控制列：◯ 大播放鍵 */
+#screen-player.cp-lyr .np-controls > button { color:var(--lyr-ink)!important; }
+#screen-player.cp-lyr .np-controls #btn-play { width:66px!important; height:66px!important; min-height:66px; border-radius:50%!important; border:1.5px solid rgba(241,236,227,.85)!important; background:transparent!important; box-shadow:none!important; padding:0!important; }
+#screen-player.cp-lyr .np-controls #btn-play svg { width:28px!important; height:28px!important; }
+#screen-player.cp-lyr #cp-open-lyrics { color:var(--lyr-gold)!important; background:none!important; }
+#screen-player.cp-lyr .np-controls > button { background:none!important; box-shadow:none!important; }
+#screen-player.cp-lyr .np-controls #btn-play { background:transparent!important; }
+/* R3：cp-lyr 不再全面關閉焦點框，改由 body.ptr-nav 規則處理 */
+#screen-player.cp-ready.cp-lyr button:focus-visible { outline:2px solid var(--lyr-gold); outline-offset:3px; }
+#screen-player.cp-lyr .np-controls #btn-loop svg, #screen-player.cp-lyr .np-controls #cp-open-lyrics svg { width:22px; height:22px; }
+#screen-player.cp-lyr .np-controls #btn-loop.on { color:var(--lyr-gold)!important; }
+/* 下排：💬 N ｜ ♡ ｜ 待播清單 */
+#screen-player #cp-lyr-row { display:none; }
+#screen-player.cp-lyr #cp-lyr-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin:6px 0 2px; }
+#screen-player.cp-lyr #cp-lyr-row .r-left { justify-self:start; }
+#screen-player.cp-lyr #cp-lyr-row .r-right { justify-self:end; }
+#screen-player.cp-lyr #cp-lyr-row #cm-btn { margin:0; padding:9px 14px; border-radius:14px; background:#16131B; border:1px solid rgba(241,236,227,.1); color:var(--lyr-ink); font-size:13px; gap:7px; }
+#screen-player.cp-lyr #cp-lyr-row #cm-btn svg { width:16px; height:16px; }
+#screen-player.cp-lyr #cp-lyr-row #btn-heart, #screen-player.cp-lyr #cp-lyr-row #cp-open-queue { width:44px; height:44px; min-height:44px; display:grid; place-items:center; color:var(--lyr-ink); background:none; border:0; }
+#screen-player.cp-lyr #cp-lyr-row #btn-heart svg, #screen-player.cp-lyr #cp-lyr-row #cp-open-queue svg { width:22px; height:22px; }
+@media (max-width:359px){ #screen-player.cp-lyr .cp-line { font-size:20px; } #screen-player.cp-lyr #cp-lyrics { margin-top:clamp(100px,22vh,200px); } }
+@media (max-height:700px){ #screen-player.cp-lyr #cp-lyrics { margin-top:clamp(70px,16vh,150px); } }
+</style>
 </head>
 <body>
 <script>/* B223V：登記所有 new Audio() 實例（只登記，不改行為），供迷你播放列讀播放狀態 */
@@ -2359,15 +2700,8 @@ body { background: #08060C !important; }
 
     <!-- 已擁有 -->
     <div id="unlock-done-view" class="hidden">
-      <div class="pass-card">
-        <div class="pass-art">
-          <span class="pring r1"></span><span class="pring r2"></span><span class="pring r3"></span>
-          <div class="pass-vinyl"></div>
-          <img class="pass-cover" id="pass-cover" alt="">
-          <span class="pass-spark s1"></span>
-          <span class="pass-spark s2"></span>
-        </div>
-        <div class="pass-track" id="pass-track"></div>
+      <!-- B233T：極簡黑金收藏頁（無底色；id 全部沿用，JS 綁定與資料來源不動） -->
+      <div class="pass-card own-u">
         <div class="pass-count" id="pass-count"></div>
         <div class="pass-next" id="pass-next"></div>
         <div class="pass-cta">
@@ -5395,6 +5729,9 @@ window.ALBUM_SWITCH = {
         : '<span class="pn-star">✦</span> NEXT TRACK · COMING SOON <span class="pn-star">✦</span>';
     }
     $("btn-upgrade").textContent = "解鎖 SIGNAL 頻道・補 NT$" + (P.upgradePrice || 500);
+    /* B233T：已解鎖收藏頁用左右排版（金額同一來源，不硬寫） */
+    $("btn-upgrade").innerHTML = '<span class="ou-l">解鎖 SIGNAL 頻道</span><span class="ou-r">補 NT$' + (P.upgradePrice || 500) +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span>';
   }
 
   /* ---------- 周邊（聽片會票 + 手鍊）---------- */
@@ -5730,6 +6067,7 @@ window.ALBUM_SWITCH = {
     if (CFG.navShowAll && ALL_FREE) {
       $("unlock-form-view").classList.add("hidden");
       $("unlock-done-view").classList.add("hidden");
+      $("screen-purchase").classList.remove("own-unlocked");
       $("purchase-title-en").textContent = "All Free";
       $("purchase-title-tc").textContent = "全部免費";
       $("purchase-note").textContent = "這張專輯不用購買，直接聽";
@@ -5746,6 +6084,7 @@ window.ALBUM_SWITCH = {
     }
     $("unlock-form-view").classList.toggle("hidden", state.unlocked);
     $("unlock-done-view").classList.toggle("hidden", !state.unlocked);
+    $("screen-purchase").classList.toggle("own-unlocked", !!state.unlocked);   /* B233T：已解鎖專用狀態 class */
     if (!state.unlocked) return;
     var fp = feedPassInfo();
     var full = (purchasedProduct() === "deluxe") || !!fp.full;
@@ -7711,6 +8050,7 @@ window.ALBUM_SWITCH = {
       document.body.classList.toggle("cp-immersive",mode!=="cover" && screen.classList.contains("active"));
       fold.inert=mode!=="cover";
       var target=mode==="cover"?actions:$("cp-panel-actions"); target.appendChild(heart); target.appendChild(more);
+      screen.classList.toggle("cp-lyr",mode==="lyrics"); if(typeof lyrHeroMode==="function")lyrHeroMode(mode);   /* B235T：黑金歌詞頁 */
       $("cp-heading").textContent=mode==="queue"?"待播清單":"歌詞";
       $("cp-close").setAttribute("aria-label",mode==="queue"&&queueFrom==="lyrics"?"返回歌詞":"回到主播放器");
       $("cp-lyrics").hidden=mode!=="lyrics"; $("cp-lyrics-tools").hidden=mode!=="lyrics";
@@ -7870,6 +8210,226 @@ window.ALBUM_SWITCH = {
     var q=new URLSearchParams(location.search), shared=q.get("track"), selected=-1;
     if(shared!==null&&/^\d+$/.test(shared))selected=TRACKS.findIndex(function(t){return t.n===Number(shared);});
     if(shared!==null){if(selected>=0){state.cur=selected;state.dur=0;rememberedTime=0;renderNowPlaying();renderTrackLists();renderProgress(0);message("已開啟分享歌曲 · "+TRACKS[state.cur].title);}else message("找不到分享的歌曲，已顯示目前專輯。");}
+    /* ================================================================
+     * B235T：歌詞頁黑金版（照示意圖 A）—— 只在歌詞模式 #screen-player.cp-lyr
+     * 頂部：⌄ ｜ 歌名／歌手置中 ｜ ⋯；背景：全幅黑白人像（12 首共用，CFG.lyricsHero 可換）
+     * 控制列：[歌詞] ⏮ ◯▶ ⏭ [單曲重複]；下排：💬 N ｜ ♡ ｜ 待播清單
+     * 離開歌詞模式時，愛心／⋯／單曲重複／待播清單／💬 全部搬回原位。
+     * ================================================================ */
+    var lyrTop=panel.querySelector(".cp-panel-top"), lyrTT=document.createElement("div"); lyrTT.id="cp-toptitle"; lyrTT.innerHTML='<div class="tt-t"></div><div class="tt-a"></div>';
+    lyrTop.insertBefore(lyrTT,$("cp-heading").nextSibling);
+    var lyrSlot=document.createElement("div"); lyrSlot.id="cp-top-right"; lyrTop.replaceChild(lyrSlot,lyrTop.lastElementChild);
+    var lyrRow=document.createElement("div"); lyrRow.id="cp-lyr-row"; lyrRow.innerHTML='<div class="r-left"></div><div class="r-mid"></div><div class="r-right"></div>'; dock.appendChild(lyrRow);
+    document.addEventListener("pointerdown",function(){document.body.classList.add("ptr-nav");},true);
+    document.addEventListener("keydown",function(){document.body.classList.remove("ptr-nav");},true);   /* R3：剛用指標操作時才隱藏程式移焦的框；任何按鍵交回原生 :focus-visible */
+    function lyrTopSync(){ lyrTT.querySelector(".tt-t").textContent=$("cp-title").textContent; lyrTT.querySelector(".tt-a").textContent=$("cp-artist").textContent; }
+    new MutationObserver(lyrTopSync).observe($("cp-title"),{childList:true,characterData:true,subtree:true});
+    new MutationObserver(lyrTopSync).observe($("cp-artist"),{childList:true,characterData:true,subtree:true});
+    screen.style.setProperty("--lyr-hero",'url("'+((CFG.lyricsHero)||"assets/images/lyrics/lyrics-hero.webp")+'")');
+    function lyrHeroMode(m){
+      var loop=$("btn-loop"), cm=$("cm-btn");
+      if(m==="lyrics"){ lyrSlot.appendChild(more); lyrRow.querySelector(".r-mid").appendChild(heart); lyrRow.querySelector(".r-right").appendChild(queueButton); if(loop)controls.appendChild(loop); if(cm)lyrRow.querySelector(".r-left").appendChild(cm); lyrTopSync(); }
+      else { if(loop)$("cp-repeat-slot").appendChild(loop); controls.appendChild(queueButton); if(cm){var tm=screen.querySelector(".np-times"); tm.insertBefore(cm,$("t-dur"));} }
+    }
+
+    /* ================================================================
+     * B234T：歌曲時間軸留言（Timed Comments）—— 只加不改
+     * 元件：CommentButton／CommentTimelineMarkers／TimedCommentOverlay／CommentSheet（ArtistComment＋CommentRow）／CommentComposer／LockedCommentState
+     * 沿用：seek()、audio.currentTime、state.unlocked（專輯擁有＝能留言）、unlockInfo().email/code（身份）、fanNick()/NICK_KEY（暱稱）、go("purchase")
+     * 資料模型：{id,trackId,userId,userName,avatar,body,timestampSeconds,createdAt,likes,replyCount,isArtist,isPinned}
+     * ================================================================ */
+    (function CommentsFeature(){
+      var API=(CFG.api&&CFG.api.workerBaseUrl)||"", MAX=300, NEAR=2, GROUP=2, SHOW_MS=4500;
+      var cache={}, data={key:"",count:0,items:[]}, shown={}, ovTimer=null, ovUntil=0, sheetOpen=false, composing=false, boundT=null, sending=false, lastFetch={};
+      function ico(n){var d={chat:'<path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 3v-3H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>',play:'<path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/>',heart:'<path d="M12 20s-7-4.4-9-8.6C1.4 8 3 5 6.2 5c1.9 0 3.1 1.1 3.7 2 .6-.9 1.8-2 3.7-2C17 5 18.6 8 17 11.4 15 15.6 12 20 12 20Z"/>',send:'<path d="M12 19V5m-6 6 6-6 6 6"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',img:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m21 16-5-5-8 8"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'};
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d[n]+'</svg>';}
+      function albumId(){return window.ALBUM_SWITCH?window.ALBUM_SWITCH.active:CFG.albumId;}
+      function track(){return TRACKS[state.cur];}
+      function key(){return albumId()+":"+track().n;}
+      function me(){var u=unlockInfo()||{};return {email:String(u.email||"").trim().toLowerCase(),code:String(u.code||"").trim().toUpperCase()};}
+      function canComment(){return !!state.unlocked&&!!me().email&&!!me().code;}   /* 沿用既有 ownership */
+      function dur(){var d=audio.duration;return (isFinite(d)&&d>0)?d:(state.dur||0);}
+      function ini(name){var s=String(name||"").trim();return s?Array.from(s)[0].toUpperCase():"?";}
+      function av(it){return '<span class="cm-av'+(it.isArtist?' artist':'')+'">'+(it.isArtist&&it.avatar?'<img src="'+esc(it.avatar)+'" alt="">':esc(ini(it.userName)))+'</span>';}
+      function lyricAt(t){ if(!lyricTimes||!lyricNodes.length)return ""; var k=-1; for(var i=0;i<lyricTimes.length;i++){if(lyricTimes[i]<=t)k=i;else break;} return k>=0&&lyricNodes[k]?lyricNodes[k].textContent.trim():""; }
+
+      /* ---------- 資料 ---------- */
+      function load(force){
+        var k=key(), now=Date.now();
+        if(!API)return Promise.resolve();
+        if(!force&&cache[k]&&lastFetch[k]&&now-lastFetch[k]<30000){apply(k,cache[k]);return Promise.resolve();}
+        var m=me(), url=API+"/comments/list?album="+encodeURIComponent(albumId())+"&track="+encodeURIComponent(track().n)+(m.email&&state.unlocked?"&email="+encodeURIComponent(m.email):"");
+        return fetch(url).then(function(r){return r.json();}).then(function(j){ if(!j||!j.ok)return; lastFetch[k]=Date.now(); cache[k]={count:j.count,items:j.items||[]}; if(k===key())apply(k,cache[k]); }).catch(function(){});
+      }
+      function apply(k,d){ if(data.key!==k){shown={};} data={key:k,count:d.count,items:d.items}; renderButton(); renderMarkers(); if(sheetOpen)renderSheet(); }
+      function resetForTrack(){ var k=key(); if(data.key===k)return; data={key:k,count:(cache[k]||{}).count||0,items:(cache[k]||{}).items||[]}; shown={}; hideOverlay(true); renderButton(); renderMarkers(); if(sheetOpen)renderSheet(); load(false); }
+
+      /* ---------- CommentButton（時間列中間「💬 23」） ---------- */
+      var btn=document.createElement("button"); btn.type="button"; btn.id="cm-btn"; btn.setAttribute("aria-haspopup","dialog"); btn.setAttribute("aria-label","看留言");
+      var times=screen.querySelector(".np-times"); times.insertBefore(btn,$("t-dur"));
+      function renderButton(){ btn.innerHTML=ico("chat")+"<b>"+(data.count||0)+"</b>"; }
+      btn.addEventListener("click",function(){hap(6);openSheet();});
+
+      /* ---------- CommentTimelineMarkers（±2 秒同一顆） ---------- */
+      var mk=document.createElement("div"); mk.id="cm-markers"; prog.appendChild(mk);
+      var groups=[];
+      function buildGroups(){
+        var ts=data.items.filter(function(i){return i.timestampSeconds!=null;}).slice().sort(function(a,b){return a.timestampSeconds-b.timestampSeconds;});
+        groups=[]; ts.forEach(function(it){ var g=groups[groups.length-1]; if(g&&it.timestampSeconds-g.t0<=GROUP){g.items.push(it);g.t=(g.t*(g.items.length-1)+it.timestampSeconds)/g.items.length;} else groups.push({t0:it.timestampSeconds,t:it.timestampSeconds,items:[it]}); });
+      }
+      function renderMarkers(){
+        buildGroups(); var d=dur(); mk.innerHTML="";
+        if(!d){return;}
+        groups.forEach(function(g,gi){ var e=document.createElement("span"); e.className="cm-mk"+(g.items.some(function(i){return i.isArtist;})?" artist":""); e.style.left=Math.max(0,Math.min(100,g.t/d*100))+"%"; e.setAttribute("data-g",gi);
+          e.setAttribute("role","button"); e.setAttribute("aria-label",fmt(g.t)+" 有 "+g.items.length+" 則留言"); mk.appendChild(e); });
+      }
+      function stop(e){e.stopPropagation();}
+      ["pointerdown","mousedown","touchstart"].forEach(function(ev){ mk.addEventListener(ev,function(e){ if(e.target.closest(".cm-mk"))e.stopPropagation(); },{passive:ev==="touchstart"}); });
+      mk.addEventListener("click",function(e){ var m=e.target.closest(".cm-mk"); if(!m)return; e.stopPropagation(); e.preventDefault(); hap(5);
+        var g=groups[Number(m.getAttribute("data-g"))]; if(!g)return;
+        mk.querySelectorAll(".cm-mk.sel").forEach(function(x){x.classList.remove("sel");}); m.classList.add("sel");
+        if(g.items.length>1){ openSheet(g.items[0].id); } else showOverlay(g.items[0],5500);
+      });
+      function markNear(){ var cur=audio.currentTime||0; var nodes=mk.children; for(var i=0;i<nodes.length;i++){var g=groups[i]; if(!g)continue; nodes[i].classList.toggle("near",Math.abs(g.t-cur)<=NEAR);} }
+
+      /* ---------- TimedCommentOverlay（一次只出一則，3–5 秒淡出） ---------- */
+      var ov=document.createElement("div"); ov.id="cm-overlay"; ov.setAttribute("role","status"); ov.setAttribute("aria-live","polite"); screen.appendChild(ov);
+      function placeOverlay(){
+        var sr=screen.getBoundingClientRect(), top=dock.getBoundingClientRect().top;
+        if(mode==="cover"){ var card=screen.querySelector(".np-card"); if(card&&card.getBoundingClientRect().height)top=Math.min(top,card.getBoundingClientRect().top); }
+        ov.style.bottom=Math.max(0,sr.bottom-top+12)+"px";
+      }
+      function showOverlay(it,ms){
+        placeOverlay();
+        ov.innerHTML='<div class="cm-ov'+(it.isArtist?' artist':'')+'">'+av(it)+'<div class="cm-ov-main"><div class="cm-ov-name">'+esc(it.userName)+(it.timestampSeconds!=null?'<span class="cm-t">'+fmt(it.timestampSeconds)+'</span>':'')+'</div><div class="cm-ov-body">'+esc(it.body)+'</div></div>'+(it.likes?'<span class="cm-ov-like">♡ '+it.likes+'</span>':'')+'</div>';
+        ov.classList.add("in"); ovUntil=Date.now()+(ms||SHOW_MS); clearTimeout(ovTimer); ovTimer=setTimeout(function(){hideOverlay(false);},ms||SHOW_MS);
+      }
+      function hideOverlay(now){ clearTimeout(ovTimer); ov.classList.remove("in"); ovUntil=0; if(now)ov.innerHTML=""; mk.querySelectorAll(".cm-mk.sel").forEach(function(x){x.classList.remove("sel");}); }
+      ov.addEventListener("click",function(){openSheet();});
+      function tick(){
+        if(data.key!==key()){resetForTrack();}
+        markNear();
+        if(sheetOpen&&!composing&&boundT==null&&!unbound){ var ct=$("cm-chip-t"); if(ct)ct.textContent=fmt(Math.floor(audio.currentTime||0)); }   /* 未輸入前 chip 跟著播放時間 */
+        if(!data.items.length||sheetOpen||audio.paused||Date.now()<ovUntil)return;
+        var cur=audio.currentTime||0;
+        for(var i=0;i<data.items.length;i++){ var it=data.items[i]; if(it.timestampSeconds==null||shown[it.id])continue;
+          if(cur>=it.timestampSeconds&&cur<it.timestampSeconds+1){ shown[it.id]=1; showOverlay(it,SHOW_MS); return; } }
+      }
+      audio.addEventListener("timeupdate",tick);
+      audio.addEventListener("seeked",function(){ var cur=audio.currentTime||0; data.items.forEach(function(it){ if(it.timestampSeconds!=null&&it.timestampSeconds>cur-1)delete shown[it.id]; }); hideOverlay(true); });
+      ["loadedmetadata","durationchange","emptied"].forEach(function(ev){audio.addEventListener(ev,function(){renderMarkers();});});
+      window.addEventListener("resize",function(){renderMarkers();if(ov.classList.contains("in"))placeOverlay();});
+
+      /* ---------- CommentSheet ---------- */
+      var bd=document.createElement("div"); bd.id="cm-backdrop"; bd.hidden=true;
+      var sh=document.createElement("div"); sh.id="cm-sheet"; sh.hidden=true; sh.setAttribute("role","dialog"); sh.setAttribute("aria-modal","true"); sh.setAttribute("aria-label","留言");
+      document.body.appendChild(bd); document.body.appendChild(sh);
+      function tsChip(t){return t==null?"":'<button type="button" class="cm-ts" data-seek="'+t+'" aria-label="跳到 '+fmt(t)+'">'+fmt(t)+ico("play")+'</button>';}
+      function rowHTML(it){
+        var like='<button type="button" class="cm-like'+(it.liked?' on':'')+'" data-like="'+esc(it.id)+'" aria-label="愛心">'+ico("heart")+'<span>'+(it.likes||0)+'</span></button>';
+        if(it.isArtist) return '<div class="cm-artist" data-id="'+esc(it.id)+'"><div class="cm-row-top">'+av(it)+'<span class="cm-name">'+esc(it.userName)+'</span><span class="cm-tag">ARTIST</span><span class="cm-art-meta">'+(it.isPinned?'<span class="cm-pin">置頂</span>':'')+(it.timestampSeconds!=null?tsChip(it.timestampSeconds):'')+like+'</span></div><div class="cm-body">'+esc(it.body)+'</div></div>';   /* R2：愛心收進姓名列（data-like 不變） */
+        return '<div class="cm-row" data-id="'+esc(it.id)+'"><div class="cm-row-top">'+av(it)+'<span class="cm-name">'+esc(it.userName)+'</span>'+tsChip(it.timestampSeconds)+'</div><div class="cm-body">'+esc(it.body)+'</div><div class="cm-meta">'+like+(it.replyCount?'<span>回覆 '+it.replyCount+'</span>':'')+'</div></div>';
+      }
+      function renderSheet(focusId){
+        var t=track(), can=canComment();
+        var cmPrevF=sh.contains(document.activeElement)?document.activeElement:null, cmPrevSel=cmPrevF?(cmPrevF.id?"#"+cmPrevF.id:(cmPrevF.classList.contains("cm-x")?".cm-x":null)):null;   /* R2：重畫前記住焦點 */
+        var head='<div class="cm-grab"></div><div class="cm-head"><div><b>'+(composing?'留在'+(boundT==null?' 整首歌':'<span class="cm-gold">'+fmt(boundT)+'</span>'):'留言 · '+(data.count||0))+'</b><span>'+esc(t.title)+'</span></div><button type="button" class="cm-x" aria-label="關閉">'+ico("x")+'</button></div>';
+        var html=head;
+        if(!can){
+          var prev=data.items.filter(function(i){return !i.isArtist;}).slice(0,3);
+          /* R2：preview-first —— 既有公開留言摘錄在上（首則可讀、後續漸淡；不是權限保護），再小鎖＋原提示，最後原 CTA */
+          html+='<div class="cm-lock">';
+          if(prev.length){ html+='<div class="cm-prev">'+prev.map(function(i){var ch=Array.from(i.body);return '<div class="cm-prow">'+av(i)+'<div><div class="cm-pt">'+(i.timestampSeconds!=null?fmt(i.timestampSeconds):'整首')+'<span class="cm-pn">'+esc(i.userName)+'</span></div><div class="cm-pb">'+esc(ch.slice(0,14).join(""))+(ch.length>14?'……':'')+'</div></div></div>';}).join("")+'</div>'; }
+          html+='<div class="cm-lock-note"><span class="cm-lock-ic">'+ico("lock")+'</span><div><h3>收藏專輯後可以留言</h3><p>'+(data.count?'看看大家在這首歌留下了什麼':'留言會出現在歌曲的時間軸上，讓成晞看見')+'</p></div></div>';
+          html+='</div><button type="button" class="cm-cta" id="cm-cta">收藏專輯 · 解鎖留言 →</button>';
+          sh.innerHTML=html; sh.classList.remove("compose"); sh.classList.add("locked");
+          $("cm-cta").addEventListener("click",function(){hap(8);closeSheet();go("purchase");});
+        } else {
+          var ctxLine=boundT==null?"":lyricAt(boundT);
+          html+='<div class="cm-ctx"><img src="'+esc(t.artwork||CFG.coverImage||"")+'" alt=""><div><div class="cm-ctx-line">'+(ctxLine?esc(ctxLine):esc(t.title))+'</div><div class="cm-ctx-t">'+(boundT==null?'整首歌 · 不綁時間':fmt(boundT))+'</div>'+(boundT!=null&&dur()?'<div class="cm-ctx-bar"><i style="width:'+Math.min(100,boundT/dur()*100).toFixed(2)+'%"></i><b style="left:'+Math.min(100,boundT/dur()*100).toFixed(2)+'%"></b></div>':'')+(boundT!=null?'<button type="button" class="cm-unbind2" id="cm-unbind2">改成整首歌留言</button>':'')+'</div></div>';
+          html+='<div class="cm-list">'+(data.items.length?data.items.map(rowHTML).join(""):'<div class="cm-empty"><b>還沒有人留言</b>播到有感覺的那一刻，留下一句話</div>')+'</div>';
+          html+='<div class="cm-comp"><div class="cm-nick" id="cm-nick"><label for="cm-nick-in">先取個暱稱，之後留言都用它（最多 12 字）</label><input id="cm-nick-in" type="text" maxlength="12" placeholder="你的名字或暱稱" autocomplete="off"></div>'+
+            '<div class="cm-chip'+(unbound?' off':'')+'" id="cm-chip">'+(unbound?'綁定現在的時間點':'留在 <span id="cm-chip-t">'+fmt(boundT==null?Math.floor(audio.currentTime||0):boundT)+'</span><button type="button" id="cm-unbind" aria-label="不綁時間">×</button>')+'</div>'+
+            '<div class="cm-in"><div class="cm-field"><textarea class="cm-ta" id="cm-ta" rows="1" maxlength="'+MAX+'" placeholder="寫下你在這一刻想到的事…" enterkeyhint="send"></textarea><div class="cm-tools"><span class="cm-fut" title="圖片（尚未開放）" aria-disabled="true">'+ico("img")+'</span><span class="cm-fut" title="語音（尚未開放）" aria-disabled="true">'+ico("mic")+'</span><span class="cm-cnt" id="cm-cnt">0 / '+MAX+'</span></div></div><button type="button" class="cm-send" id="cm-send" aria-label="送出" disabled>'+ico("send")+'</button></div></div>';
+          sh.innerHTML=html; sh.classList.toggle("compose",composing); sh.classList.remove("locked");
+          var ta=$("cm-ta"), send=$("cm-send"), cnt=$("cm-cnt");
+          ta.addEventListener("focus",function(){ if(!composing){ if(boundT==null&&!unbound)boundT=Math.floor(audio.currentTime||0); composing=true; renderSheet(); setTimeout(function(){var x=$("cm-ta");if(x){x.focus();}},30); } });
+          ta.addEventListener("input",function(){ cnt.textContent=Array.from(ta.value).length+" / "+MAX; send.disabled=!ta.value.trim(); });
+          ta.addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey&&!composing){e.preventDefault();post();} });
+          send.addEventListener("click",post);
+          var chip=$("cm-chip"); if(unbound){ chip.addEventListener("click",function(){ unbound=false; boundT=Math.floor(audio.currentTime||0); renderSheet(); focusTa(); }); }
+          else { $("cm-unbind").addEventListener("click",function(e){ e.stopPropagation(); unbound=true; boundT=null; renderSheet(); focusTa(); }); }
+          var ub2=$("cm-unbind2"); if(ub2)ub2.addEventListener("click",function(e){ e.stopPropagation(); unbound=true; boundT=null; renderSheet(); focusTa(); });
+          if(composing&&unbound){ var cp2=sh.querySelector(".cm-ctx-t"); if(cp2){ var rb=document.createElement("button"); rb.type="button"; rb.className="cm-unbind2"; rb.textContent="改回綁定現在的時間"; rb.addEventListener("click",function(e){e.stopPropagation(); unbound=false; boundT=Math.floor(audio.currentTime||0); renderSheet(); focusTa();}); cp2.parentNode.appendChild(rb); } }
+          if(composing){ ta.value=draft; cnt.textContent=Array.from(draft).length+" / "+MAX; send.disabled=!draft.trim(); }
+          ta.addEventListener("input",function(){draft=ta.value;});
+        }
+        sh.querySelector(".cm-x").addEventListener("click",function(){ if(composing){composing=false;renderSheet();} else closeSheet(); });
+        if(focusId){ var el=sh.querySelector('[data-id="'+focusId+'"]'); if(el){ var list=sh.querySelector(".cm-list"); if(list)list.scrollTop=Math.max(0,el.offsetTop-80); } }
+        if(cmPrevSel==="#cm-ta"&&!composing)cmPrevSel=".cm-x";   /* 離開 composer 時不把焦點還給輸入框（否則會立刻又展開） */
+        if(cmPrevF&&!sh.contains(document.activeElement)){ var cmNf=(cmPrevSel&&sh.querySelector(cmPrevSel))||sh.querySelector(".cm-x"); if(cmNf){ try{cmNf.focus({preventScroll:true});}catch(_){} } }   /* R2：重畫後焦點留在 Sheet 內 */
+      }
+      var unbound=false, draft="";
+      function focusTa(){ var x=$("cm-ta"); if(x){ x.focus(); } }
+      sh.addEventListener("click",function(e){
+        var s=e.target.closest("[data-seek]"); if(s){ hap(5); seek(Number(s.getAttribute("data-seek")),true); return; }
+        var l=e.target.closest("[data-like]"); if(l){ like(l.getAttribute("data-like"),l); return; }
+      });
+      /* R2：modal focus —— 開啟時背景 inert（鍵盤進不去），關閉時只還原自己設的那些、焦點回到開啟前的元素 */
+      var cmBgInert=[], cmLastFocus=null;
+      function cmLockBg(){ cmBgInert=[]; Array.prototype.forEach.call(document.body.children,function(el){ if(el===bd||el===sh||el.tagName==="SCRIPT"||el.tagName==="STYLE"||el.inert)return; el.inert=true; cmBgInert.push(el); }); }
+      function cmUnlockBg(){ cmBgInert.forEach(function(el){ el.inert=false; }); cmBgInert=[]; }
+      function openSheet(focusId){
+        if(sheetOpen){renderSheet(focusId);return;}
+        cmLastFocus=document.activeElement;
+        sheetOpen=true; composing=false; unbound=false; boundT=null; hideOverlay(true);
+        bd.hidden=false; sh.hidden=false; renderSheet(focusId); document.body.classList.add("cm-open");
+        cmLockBg(); var fx=sh.querySelector(".cm-x"); if(fx){ try{fx.focus({preventScroll:true});}catch(_){} }
+        requestAnimationFrame(function(){bd.classList.add("in");sh.classList.add("in");});
+        load(true);
+      }
+      function closeSheet(){
+        if(!sheetOpen)return; sheetOpen=false; composing=false; draft="";
+        bd.classList.remove("in"); sh.classList.remove("in"); document.body.classList.remove("cm-open");
+        setTimeout(function(){ if(!sheetOpen){bd.hidden=true;sh.hidden=true;sh.style.height="";sh.style.bottom="";} },340);
+        cmUnlockBg();
+        var back=(cmLastFocus&&cmLastFocus!==document.body&&document.contains(cmLastFocus)&&cmLastFocus.getClientRects().length)?cmLastFocus:btn; cmLastFocus=null;
+        try{back.focus({preventScroll:true});}catch(_){}
+      }
+      bd.addEventListener("click",closeSheet);
+      document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&sheetOpen)closeSheet(); });
+      /* iOS 鍵盤：用 visualViewport 把 sheet 縮到可見區、composer 不被鍵盤蓋住 */
+      function vvFit(){ if(!sheetOpen||!window.visualViewport)return; var vv=window.visualViewport, kb=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);
+        sh.style.bottom=kb+"px"; sh.style.height=(kb>80?Math.round(vv.height*0.92):Math.round(window.innerHeight*0.8))+"px"; }
+      if(window.visualViewport){ window.visualViewport.addEventListener("resize",vvFit); window.visualViewport.addEventListener("scroll",vvFit); }
+
+      /* ---------- 送出／愛心 ---------- */
+      function post(){
+        if(sending)return; var ta=$("cm-ta"); if(!ta)return; var text=(ta.value||"").trim(); if(!text)return;
+        if(!canComment()){renderSheet();return;}
+        var nick=fanNick();
+        if(!nick){ var box=$("cm-nick"), inp=$("cm-nick-in"); box.classList.add("show"); var v=(inp.value||"").trim().slice(0,12); if(!v){inp.focus();return;} try{localStorage.setItem(NICK_KEY,v);}catch(_){} nick=v; }
+        var m=me(), t=boundT; sending=true; $("cm-send").disabled=true;
+        fetch(API+"/comments/post",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:m.email,code:m.code,album:albumId(),track:track().n,body:text,timestampSeconds:t,userName:nick})})
+          .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+          .then(function(x){ sending=false;
+            if(x.j&&x.j.ok){ var k=key(); var it=x.j.item; data.items.push(it); data.count=x.j.count||data.count+1; cache[k]=data; lastFetch[k]=Date.now();
+              /* 重新排序：藝人置頂→時間 */ data.items.sort(function(a,b){return (Number(b.isPinned)-Number(a.isPinned))||(Number(b.isArtist)-Number(a.isArtist))||((a.timestampSeconds==null)-(b.timestampSeconds==null))||((a.timestampSeconds||0)-(b.timestampSeconds||0))||(a.createdAt-b.createdAt);});
+              draft=""; composing=false; unbound=false; boundT=null; hap(12); renderButton(); renderMarkers(); renderSheet(it.id); toast(t==null?"留言已送出":"已留在 "+fmt(t)); }
+            else { var msg=x.s===429?"這首歌一小時內最多留 5 則，晚點再來":x.s===403?"留言功能暫時無法使用":x.s===401?"請重新輸入兌換碼後再留言":"送出失敗，請再試一次"; toast(msg); $("cm-send").disabled=false; }
+          }).catch(function(){ sending=false; toast("連線失敗 · 再試一次"); var s=$("cm-send"); if(s)s.disabled=false; });
+      }
+      function like(id,el){
+        if(!canComment()){toast("收藏專輯後可以按愛心");return;}
+        var it=data.items.filter(function(i){return i.id===id;})[0]; if(!it)return; hap(4);
+        it.liked=!it.liked; it.likes=Math.max(0,(it.likes||0)+(it.liked?1:-1)); el.classList.toggle("on",it.liked); el.querySelector("span").textContent=it.likes;
+        var m=me(); fetch(API+"/comments/like",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:m.email,code:m.code,album:albumId(),track:track().n,id:id})})
+          .then(function(r){return r.json();}).then(function(j){ if(j&&j.ok&&j.item){it.likes=j.item.likes;it.liked=j.item.liked;el.classList.toggle("on",it.liked);el.querySelector("span").textContent=it.likes;} }).catch(function(){});
+      }
+      renderButton(); resetForTrack();
+      window.__cm={open:openSheet,close:closeSheet,reload:function(){return load(true);},state:function(){return {key:data.key,count:data.count,items:data.items,groups:groups,open:sheetOpen,composing:composing,boundT:boundT};}};
+    })();
+
     setMode("cover",false);refresh();layout();
   }
 
@@ -8215,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B232T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B239T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
