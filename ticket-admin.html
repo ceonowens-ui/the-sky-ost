@@ -53,7 +53,7 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
     <h3>場次</h3>
     <select id="event" onchange="pickEvent()"></select>
     <button class="btn primary" id="btnQuick" onclick="quickTest()">⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）</button>
-    <button class="btn" id="btnBday" onclick="makeBirthday()">🎂 建立／更新 12/27 生日會（三票種・照海報・先不開賣）</button>
+    <button class="btn" id="btnBday" onclick="makeBirthdayPPT()">🎂 套用 PPT 版 12/27（全場 980・生日周邊・先不開賣）</button>
     <div class="stat"><div><b id="sCap">–</b><span>可售</span></div><div><b id="sSold">–</b><span>已售</span></div><div><b id="sUsed">–</b><span>已入場</span></div><div><b id="sLeft">–</b><span>剩餘</span></div></div>
     <details class="row" id="evDetails"><summary>編輯／新增場次</summary>
       <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
@@ -79,6 +79,16 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">票列表</h3><div><button class="btn sm" onclick="refresh()">重新整理</button><button class="btn sm" onclick="exportCsv()">匯出 CSV</button></div></div>
     <div class="row"><input id="filter" placeholder="搜 email 或票號" oninput="renderList()" /></div>
     <div style="overflow-x:auto"><table><thead><tr><th>票號</th><th>持有人</th><th>狀態</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
+  </div>
+
+  <div class="card" id="merchCard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">生日限定周邊</h3><div><button class="btn sm" onclick="loadMerch()">重新整理</button><button class="btn sm" onclick="exportMerchCsv()">匯出 CSV</button></div></div>
+    <div id="mStats" class="sub" style="margin:8px 0"></div>
+    <div class="grid2"><div class="row"><span class="label">周邊開賣</span><select id="m_sale"><option value="false">否</option><option value="true">是</option></select></div>
+    <div class="row"><span class="label">預購截止（台北）</span><input id="m_cut" type="datetime-local" /></div></div>
+    <button class="btn" onclick="saveMerch()">儲存周邊設定</button><div class="msg" id="mMsg"></div>
+    <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>時間</th><th>Email</th><th>品項</th><th>方式</th><th>金額</th><th></th></tr></thead><tbody id="mBody"></tbody></table></div>
+    <div class="tiny">「匯出 CSV」含海外收件地址，寄件用；檔案請勿外流。寄出後按「寄出」填中華郵政追蹤號碼，系統會自動寄信通知粉絲。</div>
   </div>
 
   <div class="note"><b>順序</b>：先「編輯／新增場次」建 12/27 和 2/13 → 發一張測試票給自己的 email → 手機 app 或這裡「看 QR」→ 用 scan.html 掃。</div>
@@ -108,7 +118,7 @@ async function connect() {
     if (!j.ok) throw new Error(j.error === "forbidden" ? "鑰匙不對" : j.error);
     localStorage.setItem("chance-admin-key", key());
     events = j.events; $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次</span>';
-    ["evCard", "issueCard", "listCard"].forEach((id) => $(id).style.display = "block");
+    ["evCard", "issueCard", "listCard", "merchCard"].forEach((id) => $(id).style.display = "block");
     const sel = $("event"); sel.innerHTML = events.length ? '<option value="">— 選場次 —</option>' : '<option value="">（還沒有場次 → 按下面金色按鈕建立）</option>';
     $("btnQuick").style.display = events.find((e) => e.id === "meet-test") ? "none" : "block";
     if (!events.length) $("evDetails").open = true;
@@ -121,7 +131,7 @@ function toLocalInput(iso) { if (!iso) return ""; const d = new Date(iso); if (i
 function fromLocalInput(v) { return v ? v + ":00+08:00" : null; }
 async function pickEvent() {
   cur = events.find((e) => e.id === $("event").value) || null; localStorage.setItem("chance-admin-event", cur ? cur.id : "");
-  fillForm(cur); await refresh();
+  fillForm(cur); await refresh(); loadMerch();
 }
 function fillForm(e) {
   $("f_id").value = e ? e.id : ""; $("f_id").disabled = !!e; $("f_code").value = e ? (e.code || "") : ""; $("f_name").value = e ? (e.name || "") : ""; $("f_start").value = e ? toLocalInput(e.startAt) : "";
@@ -144,6 +154,64 @@ async function quickTest() {
   await connect(); $("event").value = "meet-test"; await pickEvent();
   $("i_email").focus(); $("issueMsg").innerHTML = '<span class="ok">測試場建好了 → 填 email 按「發票」</span>';
 }
+
+/* ===== B225：PPT 版 12/27＋生日限定周邊 ===== */
+const MERCH_PPT = { onSale: false, cutoff: "2026-11-15T23:59:59+08:00", perPerson: 1, shipOn: true, items: {
+  b: { name: "THE SKY 生日限定水晶手鍊", short: "手鍊", price: 2280, cap: 60, perk: "CHANCE 親手幫你戴上", img: "shop-assets/merch-b225/bracelet.jpg" },
+  h: { name: "THE SKY 31st 生日限定帽T", short: "帽T", price: 3280, cap: 60, perk: "CHANCE 當場在帽T 上簽名", img: "shop-assets/merch-b225/hoodie.jpg" },
+  s: { name: "生日雙件組（手鍊＋帽T）", short: "雙件組", price: 4280, cap: 30, perk: "一對一 60 秒＋戴手鍊＋簽帽T・互動照片免費送", img: "shop-assets/merch-b225/set.jpg" } } };
+async function makeBirthdayPPT() {
+  if (!confirm("套用 PPT 版：12/27 改成全場單一票價 980（181 席、編號 001–181），PhotoPass 關閉，生日周邊設定好但「先不開賣」。\n\n目前已售出的票不受影響。確定？")) return;
+  const b = $("btnBday"); b.disabled = true; b.textContent = "套用中…";
+  const ev = { id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: "2026-12-27T13:00:00+08:00", venue: "微風影城 A 廳", onSale: false, photoPrice: 0, photoOnSale: false,
+    tiers: [{ key: "ga", name: "入場票", price: 980, cap: 181, numFrom: 1, numTo: 181, onSale: true,
+      perks: ["完整生日活動入場・發餐", "第一支 MV 首播・嘉賓演出", "生日牆全體合照・全場大合照", "散場擊掌送客", "現場抽獎資格（5 位：手鍊／帽T）"] }] };
+  const j = await api("/ticket/admin/event", { event: ev });
+  let m = { ok: false, error: "skip" };
+  if (j.ok) m = await api("/ticket/admin/merch", { eventId: ev.id, merch: MERCH_PPT });
+  b.disabled = false; b.textContent = "🎂 套用 PPT 版 12/27（全場 980・生日周邊・先不開賣）";
+  if (!j.ok) { $("connMsg").innerHTML = '<span class="err">場次套用失敗：' + (j.error || "") + "</span>"; return; }
+  if (!m.ok) { $("connMsg").innerHTML = '<span class="err">場次已改成 980，但周邊設定失敗：' + (m.error === "not_found" ? "Worker 還沒更新到 v4（先用合併器部署）" : (m.error || "")) + "</span>"; }
+  else $("connMsg").innerHTML = '<span class="ok">已套用 PPT 版：全場 980、周邊已設定（都還沒開賣）。要開賣：上面「開賣中」設「是」＋下面「周邊開賣」設「是」。</span>';
+  await connect(); $("event").value = ev.id; await pickEvent();
+}
+let mOrders = [], mCfg = null;
+const MLBL = { b: "手鍊", h: "帽T", s: "雙件組", bh: "手鍊＋帽T" };
+async function loadMerch() {
+  if (!cur) { $("mStats").textContent = ""; $("mBody").innerHTML = ""; return; }
+  const j = await api("/ticket/admin/merch/orders?eventId=" + encodeURIComponent(cur.id));
+  if (!j.ok) { $("mStats").innerHTML = j.error === "not_found" ? '<span class="err">Worker 還沒更新到 v4</span>' : '<span class="err">' + (j.error || "讀取失敗") + "</span>"; return; }
+  mOrders = j.orders || []; mCfg = j.merch;
+  if (!mCfg) { $("mStats").textContent = "這場還沒設定周邊（12/27 按上面「套用 PPT 版」）"; $("mBody").innerHTML = ""; return; }
+  const I = mCfg.items || {};
+  $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => MLBL[k] + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
+    "　·　海外 " + mOrders.filter((o) => o.mode === "ship").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
+  $("m_sale").value = mCfg.onSale === true ? "true" : "false"; $("m_cut").value = toLocalInput(mCfg.cutoff);
+  $("mBody").innerHTML = mOrders.map((o, i) => "<tr><td>" + fmt(o.paidAt) + "</td><td>" + o.email + "</td><td>" + (MLBL[o.code] || o.code) + "</td><td>" +
+    (o.mode === "ship" ? "寄 " + ((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場") + "</td><td>" + o.amount + "</td><td>" +
+    (o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? o.shipped.tracking : "")) + "</td></tr>").join("");
+}
+async function saveMerch() {
+  if (!cur) return;
+  const j = await api("/ticket/admin/merch", { eventId: cur.id, merch: { onSale: $("m_sale").value === "true", cutoff: fromLocalInput($("m_cut").value) } });
+  $("mMsg").innerHTML = j.ok ? '<span class="ok">已儲存</span>' : '<span class="err">' + (j.error || "失敗") + "</span>";
+  loadMerch();
+}
+async function shipOrder(i) {
+  const o = mOrders[i]; if (!o) return;
+  const t = prompt("輸入 " + o.email + " 的中華郵政追蹤號碼（寄出後粉絲會收到通知信）"); if (!t) return;
+  const j = await api("/ticket/admin/merch/ship", { email: o.email, eventId: o.eventId, tradeNo: o.tradeNo, tracking: t.trim() });
+  alert(j.ok ? "已記錄" + (j.emailed ? "，通知信已寄出" : "（通知信沒寄成功）") : "失敗：" + (j.error || ""));
+  loadMerch();
+}
+function exportMerchCsv() {
+  const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const rows = [["付款時間", "Email", "稱呼", "品項", "方式", "商品", "運費", "合計", "收件人", "電話", "國家", "郵遞區號", "地址", "城市", "州省", "追蹤號碼", "綠界交易號"]];
+  for (const o of mOrders) { const s = o.ship || {}; rows.push([fmt(o.paidAt), o.email, o.name, MLBL[o.code] || o.code, o.mode === "ship" ? "海外寄送" : "現場領取", o.mprice, o.fee, o.amount, s.name, s.phone, s.country, s.postal, s.addr, s.city, s.state, o.shipped ? o.shipped.tracking : "", o.tradeNo]); }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + rows.map((r) => r.map(q).join(",")).join("\n")], { type: "text/csv" }));
+  a.download = "merch-" + (cur ? cur.id : "") + ".csv"; a.click();
+}
+
 async function makeBirthday() {
   const b = $("btnBday"); b.disabled = true; b.textContent = "建立中…";
   const ev = {
