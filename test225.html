@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B239T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B240T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9089,16 +9089,11 @@ window.ALBUM_SWITCH = {
 .mini-player .mp-btn.mp-play{ background:#F3EDE3; color:#111; }
 .mini-player .mp-btn:active{ transform:scale(.92); }
 .mini-player .mp-btn:focus-visible,.mini-player .mp-open:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
-body.has-mini .screen.active::after{ content:""; display:block; height:76px; }
-/* SHOP：捲過場次卡後，底部出現 sticky 購票列（DICE 模式） */
-.shop-sticky{ position:fixed; left:14px; right:14px; z-index:44; height:56px; display:flex; align-items:center; gap:12px; padding:0 8px 0 16px;
-  background:linear-gradient(90deg,#7460A6 0%,#A28BB0 48%,#D9BE91 100%); border-radius:999px; color:#17121D; box-shadow:0 12px 28px -14px rgba(217,190,145,.6); border:0; cursor:pointer; text-align:left; }
-.shop-sticky.hidden{ display:none !important; }
-.shop-sticky .ss-t{ flex:1; min-width:0; font-family:var(--font-serif-tc); font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.shop-sticky .ss-c{ flex:none; font-size:14px; font-weight:700; letter-spacing:.06em; padding:0 10px; }
+body.has-mini .screen.active::after{ content:""; display:block; height:var(--dock-mini-reserve,64px); }   /* B240T：固定預留 mini 高度，不隨 nav 收合改變（避免 scrollTop 跳動） */
+/* B240T：底部永久 sticky 購票列已移除（改為頂部一次性提示 #tk-hint，見 B240T 模組） */
 </style>
 <script>
-/* B223V 升級模組：迷你播放列、上滑開曲目表、SHOP sticky 購票列。全部透過原本的按鈕觸發，不改播放／付款／票務邏輯。 */
+/* B223V 升級模組：迷你播放列、上滑開曲目表。（B240T：SHOP sticky 購票列與 navTop 定位已移除，dock 位置交給 CSS 變數） */
 (function () {
   function $(id) { return document.getElementById(id); }
   var nav = $("nav"), audio = null;
@@ -9106,7 +9101,6 @@ body.has-mini .screen.active::after{ content:""; display:block; height:76px; }
   function pickAudio() { var L = window.__AUD || []; for (var i = L.length - 1; i >= 0; i--) if (isPlayerAudio(L[i])) return L[i]; return audio; }
   function bindAudio(a) { if (!a || a.__mp) return; a.__mp = true; ["play", "pause", "ended", "loadedmetadata", "durationchange"].forEach(function (ev) { a.addEventListener(ev, function () { if (ev === "play" && (a.duration > 5 || isNaN(a.duration))) { audio = a; started = true; } if (a === audio) syncMini(); }); }); }
   (window.__AUD || []).forEach(bindAudio); document.addEventListener("aud:new", function (e) { bindAudio(e.detail); });
-  function navTop() { try { var r = nav.getBoundingClientRect(); return r.height ? r.top : window.innerHeight - 90; } catch (_) { return window.innerHeight - 90; } }
   function onScreen(id) { var s = $("screen-" + id); return !!(s && s.classList.contains("active")); }
 
   /* ---- 迷你播放列 ---- */
@@ -9131,7 +9125,6 @@ body.has-mini .screen.active::after{ content:""; display:block; height:76px; }
     $("mp-title").textContent = ($("np-title") || {}).textContent || "";
     $("mp-sub").textContent = ($("np-sub") || {}).textContent || "";
     $("mp-play").innerHTML = audio.paused ? I.play : I.pause;
-    mp.style.bottom = Math.max(8, window.innerHeight - navTop() + 8) + "px";
   }
   setInterval(function () { var a = pickAudio(); if (a && a !== audio) { audio = a; started = true; syncMini(); } }, 800);
   window.addEventListener("resize", syncMini);
@@ -9140,9 +9133,9 @@ body.has-mini .screen.active::after{ content:""; display:block; height:76px; }
   $("mp-next").addEventListener("click", function () { var b = $("btn-next"); if (b) b.click(); });
   $("mp-open").addEventListener("click", function () { var b = document.querySelector('.navbtn[data-screen="player"]'); if (b) b.click(); });
 
-  /* ---- 分頁切換時同步（迷你播放列＋SHOP sticky） ---- */
+  /* ---- 分頁切換時同步迷你播放列 ---- */
   [].slice.call(document.querySelectorAll("section.screen")).forEach(function (sec) {
-    new MutationObserver(function () { syncMini(); syncSticky(); }).observe(sec, { attributes: true, attributeFilter: ["class"] });
+    new MutationObserver(function () { syncMini(); }).observe(sec, { attributes: true, attributeFilter: ["class"] });
   });
 
   /* ---- PLAY 頁上滑＝開曲目列表（沿用原本的 btn-open-sheet） ---- */
@@ -9157,28 +9150,7 @@ body.has-mini .screen.active::after{ content:""; display:block; height:76px; }
     }, { passive: true });
   }
 
-  /* ---- SHOP sticky 購票列：場次卡捲出畫面後才出現，點了＝點場次卡 ---- */
-  var ss = document.createElement("button"); ss.type = "button"; ss.id = "shop-sticky"; ss.className = "shop-sticky hidden";
-  ss.innerHTML = '<span class="ss-t" id="ss-t"></span><span class="ss-c" id="ss-c"></span>';
-  document.body.appendChild(ss);
-  var shop = $("screen-merch");
-  function ticketBlock() { var bs = shop ? shop.querySelectorAll(".sv3-block") : []; for (var i = 0; i < bs.length; i++) { var tx = bs[i].innerText || ""; if (/尚未公布|尚未公佈/.test(tx)) return null; if (/票|生日會|聽片會|見面會/.test(tx)) return bs[i]; } return null; }
-  function syncSticky() {
-    var blk = onScreen("merch") ? ticketBlock() : null, show = false;
-    if (blk) { var r = blk.getBoundingClientRect(); show = r.top < 0 || r.bottom > navTop() - 8; }   /* 場次卡沒完整在畫面內（含被 Nav 島擋住）就出現 */
-    if (show) { var lays = document.querySelectorAll(".tk-layer"); for (var i = 0; i < lays.length; i++) { if (lays[i].getBoundingClientRect().height > 0) { show = false; break; } } }   /* 票券層打開時收起 */
-    if (show) {
-      var tx = blk.innerText || "", first = tx.split(String.fromCharCode(10)).map(function (s) { return s.trim(); }).filter(Boolean)[0] || "";
-      var m = tx.match(/NT[$][ ]?([0-9,]+)/);
-      $("ss-t").textContent = first.slice(0, 22);
-      $("ss-c").textContent = /我的票/.test(tx) ? "我的票 ›" : (m ? "NT$" + m[1] + " 起 · 購票 ›" : "購票 ›");
-      ss.style.bottom = Math.max(8, window.innerHeight - navTop() + 8 + (document.body.classList.contains("has-mini") ? 68 : 0)) + "px";
-    }
-    ss.classList.toggle("hidden", !show);
-  }
-  if (shop) shop.addEventListener("scroll", syncSticky, { passive: true });
-  setInterval(function () { if (onScreen("merch")) syncSticky(); }, 700);
-  ss.addEventListener("click", function () { var blk = ticketBlock(); if (blk) { blk.click(); } });
+  /* B240T：SHOP sticky 購票列（含 700ms 輪詢、scroll 監聽、innerText 猜價格）已整段移除 */
 })();
 </script>
 
@@ -9270,5 +9242,322 @@ body.cp-menu-open #nav-wrap { visibility:hidden; pointer-events:none; }
 @media(prefers-reduced-motion:reduce) { #screen-player.cp-ready *, #screen-player.cp-ready *::before { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
 
 </style>
+<style id="b240-dock-style">
+/* ===================== B240T：合併音樂島（mini-player＋nav 同一個黑金 dock）＋頂部一次性購票提示 =====================
+   集中變數：dock 寬、nav 高、mini 高、底部安全距離。所有位置由 CSS 決定，JS 只切 body class（不每幀量位置）。 */
+:root{ --dock-w:min(calc(100vw - 20px),440px); --dock-nav-h:62px; --dock-mini-h:56px;
+  --dock-b:max(8px, calc(var(--sab, env(safe-area-inset-bottom)) + 8px));
+  --dock-bg:#0D0C0B; --dock-line:rgba(241,236,227,.10); --dock-gold:#D8C3A0; --dock-ease:cubic-bezier(.2,.8,.2,1);
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); }
+/* ---- nav：寬度跟螢幕走（不再溢出 320/390），實色黑底、單一細框 ---- */
+#nav-wrap{ bottom:var(--dock-b) !important; transition:transform .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
+#nav-wrap #nav{ width:var(--dock-w); height:var(--dock-nav-h); box-sizing:border-box; padding:4px 6px !important; justify-content:space-between; transform:none !important;
+  background:var(--dock-bg) !important; border:1px solid var(--dock-line) !important; border-radius:22px !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.5) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  transition:border-radius .24s var(--dock-ease); }
+#nav-wrap #nav::before{ display:none !important; }
+#nav-wrap #nav .navbtn{ flex:1 1 0; min-width:0; width:auto !important; min-height:44px; height:100%; padding:0 !important; margin:0 !important; }
+#nav-wrap #nav .navbtn .navlbl{ letter-spacing:1.2px !important; }
+#nav-wrap #nav-ind{ top:4px !important; left:6px !important; height:calc(100% - 8px) !important; width:calc((100% - 12px) / var(--nav-n,5)) !important;
+  background:rgba(216,195,160,.11) !important; box-shadow:none !important; border-radius:16px !important; }
+#nav-wrap #nav .navbtn.active{ color:var(--dock-gold) !important; }
+#nav-wrap #nav .navbtn:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-3px; border-radius:16px; }
+@media (max-width:359px){ #nav-wrap #nav .navbtn .navlbl{ letter-spacing:.6px !important; } }
+/* ---- mini-player：與 nav 同寬同底色，貼在 nav 正上方；上一首／下一首移到完整播放器（handler 不動） ---- */
+#mini-player.mini-player{ left:0; right:0; margin:0 auto; width:var(--dock-w); box-sizing:border-box; height:var(--dock-mini-h);
+  bottom:calc(var(--dock-b) + var(--dock-nav-h)) !important; z-index:69; padding:6px 6px 6px 8px; gap:2px;
+  background:var(--dock-bg); border:1px solid var(--dock-line); border-radius:22px; box-shadow:0 14px 34px rgba(0,0,0,.5);
+  transition:transform .24s var(--dock-ease), border-radius .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
+#mini-player #mp-prev, #mini-player #mp-next{ display:none; }
+#mini-player .mp-cover{ width:40px; height:40px; border-radius:9px; }
+#mini-player .mp-btn{ width:44px; height:44px; min-width:44px; flex:none; margin:0; }
+#mini-player .mp-btn.mp-play{ position:relative; background:transparent; color:#F1ECE3; border:0; }
+#mini-player .mp-btn.mp-play::before{ content:""; position:absolute; inset:2px; border-radius:50%; border:1px solid rgba(241,236,227,.55); pointer-events:none; }   /* 視覺 40px 細圈，點擊區 44px */
+#mini-player .mp-open{ min-height:44px; height:44px; }
+#mini-player .mp-tog{ color:#B5AC9E; }
+#mini-player .mp-tog svg{ transition:transform .24s var(--dock-ease); }
+#mini-player .mp-tog.up svg{ transform:rotate(180deg); }
+/* 合併：mini 在上、nav 在下，同一個外框（中間一條極淡分隔） */
+body.dock-merged #mini-player.mini-player{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:rgba(241,236,227,.06); box-shadow:none; }
+body.dock-merged #nav-wrap #nav{ border-top-left-radius:0 !important; border-top-right-radius:0 !important; border-top-color:transparent !important; }
+/* 收合：nav 往下收、inert；mini 平順下移到 safe-area＋8px，恢復完整圓角 */
+body.dock-collapsed #nav-wrap{ transform:translateY(calc(100% + var(--dock-b) + 16px)); opacity:0; pointer-events:none; }
+body.dock-collapsed #mini-player.mini-player{ transform:translateY(var(--dock-nav-h)); }
+/* 覆蓋層（票券層、留言 sheet、選單、條款、曲目表、email）與鍵盤開啟時：整個 dock 讓開 */
+body.dock-off #nav-wrap, body.dock-off #mini-player{ visibility:hidden !important; pointer-events:none !important; }
+/* ---- 頂部一次性購票提示 ---- */
+.tk-hint{ position:fixed; z-index:80; left:0; right:0; margin:0 auto; top:calc(env(safe-area-inset-top, 0px) + 10px); width:min(calc(100vw - 24px),420px); box-sizing:border-box;
+  min-height:44px; max-height:52px; display:flex; align-items:center; gap:2px; padding:0 4px 0 6px; border-radius:14px;
+  background:#141016; border:1px solid rgba(216,195,160,.22); box-shadow:0 10px 26px rgba(0,0,0,.45); color:#EDE6DA;
+  opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s var(--dock-ease); font-family:-apple-system,"PingFang TC",sans-serif; }
+.tk-hint.in{ opacity:1; transform:none; }
+.tk-hint[hidden]{ display:none; }
+.tk-hint .tkh-go{ flex:1; min-width:0; min-height:44px; display:flex; align-items:center; gap:7px; padding:0 8px; background:none; border:0; color:inherit; font:inherit; font-size:13.5px; text-align:left; cursor:pointer; border-radius:10px; }
+.tk-hint .tkh-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tk-hint .tkh-sep{ color:#6F675B; flex:none; }
+.tk-hint .tkh-price{ flex:none; color:var(--dock-gold); font-family:Georgia,"Times New Roman",serif; white-space:nowrap; }
+.tk-hint .tkh-cta{ flex:none; margin-left:auto; padding-left:8px; color:var(--dock-gold); white-space:nowrap; }
+.tk-hint .tkh-x{ flex:none; width:44px; height:44px; display:grid; place-items:center; background:none; border:0; color:#8F8778; font-size:18px; line-height:1; cursor:pointer; border-radius:10px; }
+.tk-hint button:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-2px; }
+body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant #mini-player.mini-player{ transition:none !important; }
+@media (prefers-reduced-motion: reduce){ #nav-wrap, #nav-wrap #nav, #mini-player.mini-player, #mini-player .mp-tog svg, .tk-hint{ transition:none !important; } }
+</style>
+<script id="b240-dock">
+/* ===================== B240T：Dock 狀態機＋購票一次性提示（第二輪） =====================
+   集中一份 dock 狀態（collapsed／off／immersive），只切 body class；scroll 在 rAF 合批、只讀 scrollTop；
+   不動 audio、播放、seek、收藏、ownership、留言、票務／付款流程；沒有 polling。 */
+(function DockUX() {
+  var $ = function (id) { return document.getElementById(id); };
+  var body = document.body, wrap = $("nav-wrap"), nav = $("nav"), mp = $("mini-player");
+  if (!wrap || !nav || !mp) return;
+  var st = { collapsed: false, off: false, imm: false };
+  var acc = 0, dir = 0, lastY = 0, activeSc = null, raf = 0;
+  var lastInput = 0, inDir = 0, tEnd = 0, tDir = 0, horiz = false, tx = 0, ty = 0;
+  var DOWN = 28, UP = 14, TOP = 24, INPUT_MS = 350, FLING_MS = 1100;
+  var screens = [].slice.call(document.querySelectorAll("section.screen"));
+  var navBtns = function () { return [].filter.call(nav.querySelectorAll(".navbtn"), function (b) { return !b.classList.contains("hidden"); }); };
+  nav.style.setProperty("--nav-n", navBtns().length || 5);
+
+  /* ---- 收合／開啟導覽按鈕（44px） ---- */
+  var tg = document.createElement("button"); tg.type = "button"; tg.id = "dock-toggle"; tg.className = "mp-btn mp-tog";
+  tg.setAttribute("aria-controls", "nav"); tg.setAttribute("aria-expanded", "true"); tg.setAttribute("aria-label", "收合導覽");
+  tg.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  mp.appendChild(tg);
+  tg.addEventListener("click", function () { setCollapsed(!st.collapsed); });
+
+  function hasMini() { return body.classList.contains("has-mini"); }
+  function canCollapse() { return hasMini() && !st.imm; }   /* 沒有歌曲時不收 nav */
+  function resetGesture() { acc = 0; dir = 0; lastInput = 0; inDir = 0; tEnd = 0; horiz = false; lastY = activeSc ? activeSc.scrollTop : 0; }
+  function setCollapsed(c) {
+    if (c && !canCollapse()) c = false;
+    if (c === st.collapsed) return;
+    if (c && nav.contains(document.activeElement)) { try { tg.focus({ preventScroll: true }); } catch (_) {} }
+    st.collapsed = c; acc = 0; render();
+  }
+  function render() {
+    var m = hasMini();
+    body.classList.toggle("dock-collapsed", st.collapsed);
+    body.classList.toggle("dock-merged", m && !st.collapsed);
+    body.classList.toggle("dock-off", st.off);
+    var navHidden = st.collapsed || st.off || st.imm;   /* 歌詞／待播清單（cp-immersive）時 nav 本來就隱藏：一併 inert */
+    wrap.inert = navHidden;
+    if (navHidden) wrap.setAttribute("aria-hidden", "true"); else wrap.removeAttribute("aria-hidden");
+    mp.inert = st.off;
+    tg.setAttribute("aria-expanded", String(!st.collapsed));
+    tg.setAttribute("aria-label", st.collapsed ? "開啟導覽" : "收合導覽");
+    tg.classList.toggle("up", st.collapsed);
+  }
+
+  /* ---- 可信輸入：只算「目前分頁本身」的捲動手勢；忽略 nav／mini／slider／編輯欄位／已 preventDefault 的鍵 ---- */
+  function inScope(t) {
+    if (!activeSc || !t || !t.closest) return false;
+    if (!activeSc.contains(t) && t !== activeSc) return false;
+    return !t.closest("#mini-player,#nav-wrap,.prog,[role=slider],input,textarea,select,[contenteditable],[contenteditable=true]");
+  }
+  function editable(t) { return !!(t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))); }
+  document.addEventListener("wheel", function (e) {
+    if (e.defaultPrevented || !inScope(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+    lastInput = performance.now(); inDir = e.deltaY > 0 ? 1 : -1;
+  }, { passive: true });
+  document.addEventListener("touchstart", function (e) { var t = e.touches[0]; tx = t.clientX; ty = t.clientY; horiz = false; tEnd = 0; }, { passive: true });
+  document.addEventListener("touchmove", function (e) {
+    if (!inScope(e.target)) return;
+    var t = e.touches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+    if (Math.abs(dx) > Math.abs(dy) + 4) { horiz = true; return; }
+    if (Math.abs(dy) < 2) return;
+    horiz = false; lastInput = performance.now(); inDir = dy < 0 ? 1 : -1; tDir = inDir;   /* 手指往上＝內容往下 */
+  }, { passive: true });
+  document.addEventListener("touchend", function () { if (!horiz && lastInput) tEnd = performance.now(); }, { passive: true });   /* 慣性：放手後同方向的 scroll 仍算 */
+  document.addEventListener("touchcancel", function () { tEnd = 0; }, { passive: true });
+  window.addEventListener("keydown", function (e) {   /* 冒泡最後才看：已被 preventDefault（例如元件自己處理 Space/箭頭）就不算 */
+    if (e.defaultPrevented || editable(e.target) || (e.target && e.target.closest && e.target.closest("#mini-player,#nav-wrap,[role=slider]"))) return;
+    var k = e.key;
+    if (/^(PageDown|ArrowDown|End| |Spacebar)$/.test(k) && !e.shiftKey) { lastInput = performance.now(); inDir = 1; }
+    else if (/^(PageUp|ArrowUp|Home)$/.test(k) || (k === " " && e.shiftKey)) { lastInput = performance.now(); inDir = -1; }
+  });
+  document.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse" && activeSc && e.target === activeSc) { lastInput = performance.now(); inDir = 0; } }, true);   /* 桌機拖捲軸 */
+
+  /* ---- 捲動狀態機（rAF 合批；只讀 scrollTop/scrollHeight/clientHeight） ---- */
+  function onScroll(e) { if (e.currentTarget !== activeSc || raf) return; raf = requestAnimationFrame(step); }
+  function trusted(d) {
+    var now = performance.now();
+    if (horiz) return false;
+    if (now - lastInput < INPUT_MS && (inDir === 0 || inDir === d)) return true;
+    return !!(tEnd && now - tEnd < FLING_MS && tDir === d);   /* 放手後的慣性捲動 */
+  }
+  function step() {
+    raf = 0; var sc = activeSc; if (!sc) return;
+    var max = Math.max(0, sc.scrollHeight - sc.clientHeight), y = Math.min(Math.max(sc.scrollTop, 0), max);   /* 夾住 iOS 彈性 overscroll */
+    var dy = y - lastY; lastY = y;
+    if (st.off) { acc = 0; dir = 0; return; }   /* 覆蓋層／鍵盤期間：背景捲動、焦點捲動都不改 dock（只更新基準） */
+    if (y <= TOP) { acc = 0; dir = 0; setCollapsed(false); return; }
+    if (!dy) return;
+    var d = dy > 0 ? 1 : -1;
+    if (!trusted(d)) { acc = 0; dir = 0; return; }   /* 程式捲動／resize／visualViewport：不累積 */
+    if (d !== dir) { dir = d; acc = 0; }
+    acc += Math.abs(dy);
+    if (d > 0 && acc >= DOWN) { acc = 0; if (!st.collapsed) setCollapsed(true); }
+    else if (d < 0 && acc >= UP) { acc = 0; if (st.collapsed) setCollapsed(false); }
+  }
+  screens.forEach(function (sc) { sc.addEventListener("scroll", onScroll, { passive: true }); });
+  function syncActive() {
+    var a = null; screens.forEach(function (sc) { if (sc.classList.contains("active")) a = sc; });
+    if (a !== activeSc) {   /* 切頁：重設基準與輸入、瞬間展開（讓播放器等量 nav 的程式拿到最終位置） */
+      activeSc = a; resetGesture(); st.collapsed = false;
+      body.classList.add("dock-instant"); render();
+      requestAnimationFrame(function () { requestAnimationFrame(function () { body.classList.remove("dock-instant"); }); });
+    }
+  }
+  screens.forEach(function (sc) { new MutationObserver(syncActive).observe(sc, { attributes: true, attributeFilter: ["class"] }); });
+
+  /* ---- 覆蓋層／鍵盤：dock 讓開；期間保存 collapsed，關閉後還原 ---- */
+  var kb = false, tkSheet = null;
+  function overlayOpen() {
+    var c = body.classList;
+    if (c.contains("tk-open") || c.contains("cm-open") || c.contains("cp-menu-open") || kb) return true;
+    if (tkSheet && tkSheet.classList.contains("show")) return true;   /* 票務模組的帳號／說明 sheet（.tk-sheet.show，不會設 tk-open） */
+    var ids = ["email-modal", "terms-sheet", "sheet"];
+    for (var i = 0; i < ids.length; i++) { var el = $(ids[i]); if (el && !el.classList.contains("hidden")) return true; }
+    return false;
+  }
+  var lastMini = hasMini();
+  function syncOverlay() {
+    var off = overlayOpen(), m = hasMini(), imm = body.classList.contains("cp-immersive"), changed = false;
+    if (m !== lastMini) { lastMini = m; if (!m) st.collapsed = false; changed = true; }
+    if (imm !== st.imm) { st.imm = imm; changed = true; }
+    if (off !== st.off) { st.off = off; resetGesture(); changed = true; document.dispatchEvent(new CustomEvent("dock:overlay", { detail: { off: off } })); }
+    if (changed) render();
+  }
+  var bodyBusy = 0;
+  new MutationObserver(function () { if (!bodyBusy) { bodyBusy = 1; requestAnimationFrame(function () { bodyBusy = 0; syncOverlay(); }); } })
+    .observe(body, { attributes: true, attributeFilter: ["class"] });
+  ["email-modal", "terms-sheet", "sheet"].forEach(function (id) { var el = $(id); if (el) new MutationObserver(syncOverlay).observe(el, { attributes: true, attributeFilter: [ "class" ] }); });
+  function attachTkSheet() {   /* .tk-sheet 第一次打開時才被建立：出現後才掛觀察 */
+    if (tkSheet) return; var s = document.querySelector("body > .tk-sheet"); if (!s) return;
+    tkSheet = s; new MutationObserver(syncOverlay).observe(s, { attributes: true, attributeFilter: ["class"] }); syncOverlay();
+  }
+  var childObs = new MutationObserver(function () { attachTkSheet(); if (tkSheet) childObs.disconnect(); });
+  childObs.observe(body, { childList: true }); attachTkSheet();
+  if (window.visualViewport) {
+    var vvT = 0;
+    var vv = function () { cancelAnimationFrame(vvT); vvT = requestAnimationFrame(function () {
+      var ae = document.activeElement, typing = editable(ae);
+      var k = typing && (window.innerHeight - window.visualViewport.height) > 140;
+      if (k !== kb) { kb = k; syncOverlay(); } else resetGesture(); }); };   /* visualViewport 變化本身不算手勢 */
+    window.visualViewport.addEventListener("resize", vv);
+    document.addEventListener("focusout", function () { setTimeout(vv, 60); }, true);
+  }
+
+  /* ---- 無障礙：目前分頁 aria-current；nav-ind 隨 dock 寬調整；resize 重設手勢 ---- */
+  function markCurrent() { navBtns().forEach(function (b) { if (b.classList.contains("active")) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); }); }
+  new MutationObserver(markCurrent).observe(nav, { subtree: true, attributes: true, attributeFilter: ["class"] });
+  function placeInd() { var bs = navBtns(), a = nav.querySelector(".navbtn.active"), ind = $("nav-ind"); if (a && bs.length && ind) ind.style.transform = "translateX(" + (a.offsetLeft - bs[0].offsetLeft) + "px)"; }
+  var rzT = 0;
+  window.addEventListener("resize", function () { resetGesture(); cancelAnimationFrame(rzT); rzT = requestAnimationFrame(placeInd); });
+  requestAnimationFrame(placeInd);
+
+  markCurrent(); syncActive(); syncOverlay(); render();
+  window.__dock = { state: function () { return { collapsed: st.collapsed, off: st.off, imm: st.imm, acc: acc, active: activeSc && activeSc.id }; }, set: setCollapsed };
+})();
+
+(function TicketHint() {
+  /* 「當次」可信的向下捲（使用者輸入 350ms 內＋scrollTop 實際增加）讓活動購票區完整捲出上緣時，頂部出現一次。
+     資料只讀活動卡結構化元素：data-ev、h2.sv3-block-h、.sv3-go.on、.sv3-block-m .num、data-act="open-now"。 */
+  var $ = function (id) { return document.getElementById(id); };
+  var shop = $("screen-merch"); if (!shop) return;
+  var KEY = "cx-tkhint:", mem = {}, MS = 5000, TRUST_MS = 350, WINDOW_MS = 450;
+  function seen(id) { try { return sessionStorage.getItem(KEY + id) === "1"; } catch (_) { return !!mem[id]; } }
+  function markSeen(id) { mem[id] = 1; try { sessionStorage.setItem(KEY + id, "1"); } catch (_) {} }
+  var el = null, timer = 0, left = MS, t0 = 0, paused = false, shown = false, io = null, target = null;
+  var F = { hover: false, focus: false, press: false, away: false };   /* 四個暫停來源分開記，全部解除才繼續 */
+  var downIntent = 0, lastTop = 0, lastDown = 0, tx = 0, ty = 0, horiz = false, above = false;   /* above：IO 回報的「卡片完整在上方」 */
+  function blk() { return shop.querySelector("#sv3-tickets .sv3-block"); }
+  function blocked() {
+    var c = document.body.classList;
+    return c.contains("tk-open") || c.contains("cm-open") || c.contains("cp-menu-open") || c.contains("dock-off") || !shop.classList.contains("active");
+  }
+  function anyHold() { return F.hover || F.focus || F.press || F.away; }
+  function pause() { if (!shown || paused) return; paused = true; clearTimeout(timer); left = Math.max(0, left - (performance.now() - t0)); }
+  function resume() { if (!shown || !paused || anyHold()) return; paused = false; t0 = performance.now(); timer = setTimeout(function () { hide(); }, Math.max(1200, left)); }
+  function upd() { if (anyHold()) pause(); else resume(); }
+  function build() {
+    if (el) return el;
+    el = document.createElement("div"); el.id = "tk-hint"; el.className = "tk-hint"; el.hidden = true; el.setAttribute("role", "status");
+    el.innerHTML = '<button type="button" class="tkh-go"><span class="tkh-name"></span><span class="tkh-sep" aria-hidden="true">·</span><span class="tkh-price"></span><span class="tkh-cta">查看 →</span></button>' +
+      '<button type="button" class="tkh-x" aria-label="關閉購票提示">×</button>';
+    document.body.appendChild(el);
+    el.querySelector(".tkh-go").addEventListener("click", function () { var b = blk(); hide(); if (b && !b.disabled) b.click(); });   /* 沿用原購票按鈕的流程 */
+    el.querySelector(".tkh-x").addEventListener("click", function () { hide(); });
+    var hoverable = window.matchMedia ? window.matchMedia("(hover: hover)").matches : true;
+    el.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse" && hoverable) { F.hover = true; upd(); } });
+    el.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { F.hover = false; upd(); } });
+    el.addEventListener("pointerdown", function () { F.press = true; upd(); });
+    el.addEventListener("focusin", function () { F.focus = true; upd(); });
+    el.addEventListener("focusout", function (e) { if (!el.contains(e.relatedTarget)) { F.focus = false; upd(); } });
+    return el;
+  }
+  /* 按壓的解除掛在 document：手指滑出提示再放開、或系統取消，都會解除 */
+  var release = function () { if (F.press) { F.press = false; upd(); } };
+  document.addEventListener("pointerup", release, true); document.addEventListener("pointercancel", release, true);
+  window.addEventListener("blur", function () { if (F.press || F.hover) { F.press = false; F.hover = false; upd(); } });   /* 視窗失焦後不會收到 up/leave */
+  document.addEventListener("visibilitychange", function () { F.away = document.hidden; if (!document.hidden) F.press = false; upd(); });
+  function hide() {
+    if (!el || !shown) return; shown = false; paused = false; clearTimeout(timer);
+    F.hover = F.focus = F.press = false;
+    var hadFocus = el.contains(document.activeElement);
+    el.classList.remove("in"); el.hidden = true;
+    if (hadFocus) { if (!shop.hasAttribute("tabindex")) shop.setAttribute("tabindex", "-1"); try { shop.focus({ preventScroll: true }); } catch (_) {} }   /* 焦點不落在已隱藏元素 */
+  }
+  function maybeShow() {
+    if (shown || blocked()) return;
+    if (performance.now() - lastDown > WINDOW_MS) return;   /* 只認「當次」可信的向下捲；很久以前滑過不算永久許可 */
+    var b = blk(); if (!b) return;
+    var id = b.getAttribute("data-ev"); if (!id || seen(id)) return;
+    var name = (b.querySelector(".sv3-block-h") || {}).textContent || "";
+    var go = b.querySelector(".sv3-go"), on = !!(go && go.classList.contains("on")), mine = b.getAttribute("data-act") === "open-now";
+    var price = (b.querySelector(".sv3-block-m .num") || {}).textContent || "";
+    if (b.disabled || !name || /載入中|尚未公布/.test(name)) return;   /* 售罄／未載入：不提示、不猜金額 */
+    var label;
+    if (mine) label = "我的票";
+    else if (on && price) label = price.trim() + " 起";
+    else return;   /* 未開賣：依現有狀態不提示 */
+    build();
+    el.querySelector(".tkh-name").textContent = name.trim();
+    el.querySelector(".tkh-price").textContent = label;
+    markSeen(id); shown = true; paused = false; left = MS; F.hover = F.focus = F.press = false; F.away = document.hidden;
+    el.hidden = false; requestAnimationFrame(function () { el.classList.add("in"); });
+    t0 = performance.now(); timer = setTimeout(function () { hide(); }, MS); if (F.away) pause();
+  }
+  /* 可信向下意圖：滾輪向下、手指垂直往上推、捲動鍵向下（排除編輯欄位、已 preventDefault、橫向 touch） */
+  var editable = function (t) { return !!(t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))); };
+  shop.addEventListener("wheel", function (e) { if (!e.defaultPrevented && e.deltaY > 0 && Math.abs(e.deltaY) >= Math.abs(e.deltaX)) downIntent = performance.now(); }, { passive: true });
+  shop.addEventListener("touchstart", function (e) { var t = e.touches[0]; tx = t.clientX; ty = t.clientY; horiz = false; }, { passive: true });
+  shop.addEventListener("touchmove", function (e) { var t = e.touches[0], dx = t.clientX - tx, dy = t.clientY - ty;
+    if (Math.abs(dx) > Math.abs(dy) + 4) { horiz = true; return; } if (!horiz && dy < -2) downIntent = performance.now(); }, { passive: true });
+  window.addEventListener("keydown", function (e) {
+    if (e.defaultPrevented || editable(e.target) || !shop.classList.contains("active")) return;
+    if (/^(PageDown|ArrowDown|End| |Spacebar)$/.test(e.key) && !e.shiftKey) downIntent = performance.now();
+  });
+  shop.addEventListener("scroll", function () {
+    var y = shop.scrollTop;
+    if (y > lastTop && performance.now() - downIntent < TRUST_MS) { lastDown = performance.now(); if (above) maybeShow(); }   /* 當次：真的往下捲；卡片若已在上方（例如先前被程式捲走）就在這次真實下滑時判斷 */
+    lastTop = y;
+  }, { passive: true });
+  /* IntersectionObserver：只負責「活動購票區完整離開、且在上方」的可見狀態 */
+  if ("IntersectionObserver" in window) {
+    io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { above = !e.isIntersecting && !!e.rootBounds && e.boundingClientRect.bottom <= e.rootBounds.top + 1; if (above) maybeShow(); });
+    }, { root: shop, threshold: 0 });
+  }
+  function watch() { var b = blk(); if (!io || b === target) return; if (target) io.unobserve(target); target = b; above = false; if (b) io.observe(b); }
+  var mo = new MutationObserver(function () { if (!mo._p) { mo._p = 1; requestAnimationFrame(function () { mo._p = 0; watch(); }); } });
+  mo.observe(shop, { childList: true, subtree: true });
+  new MutationObserver(function () { if (shop.classList.contains("active")) { lastTop = shop.scrollTop; lastDown = 0; downIntent = 0; watch(); } else hide(); }).observe(shop, { attributes: true, attributeFilter: ["class"] });
+  document.addEventListener("dock:overlay", function (e) { if (e.detail && e.detail.off) hide(); });
+  new MutationObserver(function () { var c = document.body.classList; if (c.contains("tk-open") || c.contains("cm-open") || c.contains("cp-menu-open")) hide(); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  watch();
+  window.__tkhint = { state: function () { return { shown: shown, paused: paused, flags: { hover: F.hover, focus: F.focus, press: F.press, away: F.away }, sinceDown: lastDown ? Math.round(performance.now() - lastDown) : null }; } };
+})();
+</script>
 </body>
 </html>
