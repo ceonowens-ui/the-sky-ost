@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B241T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B242T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9659,6 +9659,95 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   readText();
   window.__marq = { state: function () { return { text: text, running: !!anim && anim.playState === "running", anim: anim ? anim.playState : null, w: lastW, s: lastS, dup: track.childNodes.length > 1, hover: hover, focus: focus, t: anim ? Math.round(anim.currentTime) : null,
     x: (function () { var m = getComputedStyle(track).transform; return m === "none" ? 0 : +(m.split(",")[4] || 0); })() }; } };
+})();
+</script>
+<style id="b242-readable-style">
+/* ===================== B242T：可讀性優先（真機回饋：nav／mini 字太小）＋ PLAY 封面模式整組上移 =====================
+   全部用真實尺寸變數（不用 transform:scale）；保留 B241 的置中結構與字幕流動。 */
+:root{ --dock-w:min(calc(100vw - 24px),480px); --dock-nav-h:76px; --dock-mini-h:82px; --dock-r:22px; --dock-pad:6px;
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.1px; --nav-fs:14px; --nav-ico:25px; }
+@media (max-width:359px){ :root{ --nav-fs:13px; --nav-ls:.8px; --nav-ico:24px; } }
+/* ---- nav：label 14px、icon 25px；未選中也有清楚對比（不再 opacity .62 乘暗色） ---- */
+#nav-wrap #nav .navbtn{ gap:4px; color:rgba(230,223,210,.80) !important; }
+#nav-wrap #nav .navbtn .navico{ width:calc(var(--nav-ico) + 1px); height:calc(var(--nav-ico) + 1px); }
+#nav-wrap #nav .navbtn .navico svg{ width:var(--nav-ico); height:var(--nav-ico); stroke-width:1.8; }
+#nav-wrap #nav .navbtn .navlbl{ opacity:1 !important; height:16px; line-height:16px; font-size:var(--nav-fs) !important; font-weight:600;
+  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#nav-wrap #nav-ind{ background:rgba(216,195,160,.12) !important; border-color:rgba(216,195,160,.20); }
+/* ---- 合併 mini：等比例放大（82 高、封面 52、歌名 18、副標 14、播放鍵 48） ---- */
+#mini-player.mini-player{ padding:15px 8px 15px 15px; gap:6px; }
+#mini-player .mp-open{ gap:13px; height:52px; min-height:52px; }
+#mini-player .mp-cover{ width:52px; height:52px; border-radius:10px; }
+#mini-player .mp-txt{ gap:4px; }
+#mini-player .mp-title{ font-size:18px; line-height:22px; font-weight:600; color:#F5EFE5; }
+#mini-player .mp-marq{ height:18px; font-size:14px; line-height:18px; color:#C4BBAD; letter-spacing:.02em; }
+#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
+#mini-player .mp-btn.mp-play::before{ inset:0; border-color:rgba(241,236,227,.62); }
+#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
+#mini-player .mp-tog svg{ width:24px; height:24px; }
+@media (max-width:359px){   /* 320：歌名區太窄 → 封面 50、間距收窄、歌名 17（按鈕仍 48／44） */
+  #mini-player.mini-player{ padding:15px 6px 15px 12px; gap:4px; }
+  #mini-player .mp-open{ gap:10px; }
+  #mini-player .mp-cover{ width:50px; height:50px; }
+  #mini-player .mp-title{ font-size:17px; }
+}
+/* ---- PLAY 封面模式：字級放大＋整組往上（只作用在 cover，不碰歌詞／待播清單） ---- */
+#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 36px); --cp-gap:18px; }
+@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 36px); } }
+@media (max-height:720px){ #screen-player.cp-ready{ --cp-gap:12px; } }
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift)); }
+#screen-player.cp-ready:not(.cp-immersive) .np-card{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift) + var(--cp-dock-height) + var(--cp-gap)); }
+#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(30px, 9.2vw, 38px) !important; line-height:1.2; padding-bottom:2px; }   /* overflow:hidden（原設定）：行高留足避免裁到下伸部 */
+#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:16px !important; line-height:1.45; margin-top:8px; color:#CFC8D4 !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-label{ font-size:12px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-times{ font-size:14px; margin:12px 0 10px; color:#CBC4D2 !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 76px minmax(44px,1fr) minmax(44px,1fr); align-items:center; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:60px; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:74px !important; height:74px !important; border-radius:50% !important; border:1.5px solid rgba(241,236,227,.82) !important; background:rgba(12,11,10,.28) !important; box-sizing:border-box; }   /* 主播放視覺 74px（細線圓，與歌詞模式一致） */
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:38px !important; height:38px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-prev svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-next svg{ width:31px !important; height:31px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-lyrics svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-queue svg{ width:24px; height:24px; }
+@media (max-height:720px){   /* 矮螢幕 compact：播放鍵 66、控制列與 nav 保留呼吸 */
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 68px minmax(44px,1fr) minmax(44px,1fr); }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:66px !important; height:66px !important; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:34px !important; height:34px !important; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:56px; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-times{ margin:10px 0 6px; }
+}
+</style>
+<script id="b242-shop-prewarm">
+/* B242T：SHOP 首屏圖片預熱。
+   根因：SHOP 的 <img> 由 ticket-ui-shop-b225.js 渲染，那支 214KB 的 JS 只在「點 SHOP」或「window.load 後 2.5 秒」才載，
+   圖片網址要等它渲染完才出現 → 冷網路下切到 SHOP 時照片才開始下載。
+   做法：PLAY 首屏穩定（load＋封面圖完成）後的 idle，用與 SHOP <img> 完全相同的相對網址預載＋解碼首屏 2 張主圖，
+   並保留 Image 物件引用（留在記憶體快取，SHOP 重建 <img> 時直接命中）。省流量／2G 跳過；不碰音訊、封面、影片、票務 JS。 */
+(function ShopPrewarm() {
+  var URLS = ["shop-assets/portrait.jpg", "shop-assets/merch-cards.jpg"];   /* 與 ticket-ui-shop 的 A.portrait／A.merch 相同字串 */
+  var keep = [], started = false;
+  function skip() {
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    return !!(c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || "")));
+  }
+  function warm(urgent) {   /* urgent＝使用者已點 SHOP：高優先，不排在其他請求後面；idle 預熱維持低優先 */
+    if (started) return; started = true;
+    if (skip()) { window.__shopPrewarm = { skipped: true, urls: [] }; return; }
+    URLS.forEach(function (u) {
+      var im = new Image(); im.decoding = "async"; try { im.fetchPriority = urgent === true ? "high" : "low"; } catch (_) {}
+      im.src = u; keep.push(im);
+      if (im.decode) im.decode().catch(function () {});
+    });
+    window.__shopPrewarm = { skipped: false, urls: URLS.slice(), keep: keep };
+  }
+  function whenIdle() { if (window.requestIdleCallback) requestIdleCallback(function () { warm(false); }, { timeout: 2500 }); else setTimeout(function () { warm(false); }, 600); }
+  function afterCover() {
+    var cov = document.getElementById("cover-img");
+    if (!cov || cov.complete) { whenIdle(); return; }
+    var go = function () { cov.removeEventListener("load", go); cov.removeEventListener("error", go); whenIdle(); };
+    cov.addEventListener("load", go); cov.addEventListener("error", go);
+  }
+  document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) warm(true); }, true);   /* 使用者先點了 SHOP：立刻開始（不等 idle） */
+  if (document.readyState === "complete") afterCover(); else window.addEventListener("load", afterCover);
 })();
 </script>
 </body>
