@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B242T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B244T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9602,6 +9602,7 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   var $ = function (id) { return document.getElementById(id); };
   var mp = $("mini-player"), src = $("mp-sub"); if (!mp || !src || !src.parentNode) return;
   var SPEED = 24, HOLD = 1700, GAP = 36;
+  function mode() { return mp.getAttribute("data-marq") === "overflow" ? "overflow" : "always"; }   /* B243T：預設一律流動（CÉON 真機回饋）；data-marq="overflow" 只在超出時動 */
   var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   var box = document.createElement("span"); box.className = "mp-marq"; box.setAttribute("aria-hidden", "true");
   var track = document.createElement("span"); track.className = "mp-mtrack"; box.appendChild(track);
@@ -9627,10 +9628,12 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
     var s = seg.offsetWidth;
     if (!force && w === lastW && s === lastS) { sync(); return; } /* 相同字幕、相同寬度：不重新起跑 */
     lastW = w; lastS = s; stop();
-    if (reduce.matches || s <= w + 1) return;                   /* 短字／減少動態：完全靜止 */
-    var g = document.createElement("span"); g.className = "mp-mgap"; track.appendChild(g);
+    var always = mode() === "always";
+    if (reduce.matches || !s || (!always && s <= w + 1)) return; /* 減少動態／沒字幕／（超出模式下的）短字：完全靜止 */
+    var gap = always ? Math.max(GAP, w - s + 24) : GAP;          /* 一律流動時，短字的複本排在框外，不會同時看到兩份 */
+    var g = document.createElement("span"); g.className = "mp-mgap"; g.style.width = gap + "px"; track.appendChild(g);
     var dup = seg.cloneNode(true); track.appendChild(dup);       /* 整個 .mp-marq 已 aria-hidden：讀屏器只讀 #mp-sub 原文 */
-    var d = s + GAP, run = d / SPEED * 1000, total = run + HOLD;
+    var d = s + gap, run = d / SPEED * 1000, total = run + HOLD;
     anim = track.animate([{ transform: "translateX(0)" }, { transform: "translateX(0)", offset: HOLD / total }, { transform: "translateX(" + (-d) + "px)" }],
       { duration: total, iterations: Infinity, easing: "linear" });
     box.classList.add("run"); sync();
@@ -9648,6 +9651,7 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   else window.addEventListener("resize", function () { measure(false); });
   new MutationObserver(function () { if (box.clientWidth && box.clientWidth !== lastW) measure(false); else sync(); }).observe(mp, { attributes: true, attributeFilter: ["class"] });
   new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  new MutationObserver(function () { measure(true); }).observe(mp, { attributes: true, attributeFilter: ["data-marq"] });
   document.addEventListener("visibilitychange", sync);
   if (reduce.addEventListener) reduce.addEventListener("change", function () { measure(true); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(false); });
@@ -9715,6 +9719,30 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:56px; }
   #screen-player.cp-ready:not(.cp-immersive) .np-times{ margin:10px 0 6px; }
 }
+</style>
+<style id="b243-tuned-style">
+/* ===================== B243T：CÉON 用 tuner 定的數值（iPhone 14 Plus） =====================
+   PLAY 上移 21／nav 64、文字 13.5、圖示 22、左右 32、未選中 40%／音樂島 84、封面 50、副標 13.5。
+   320–359px 寬：左右留白自動縮成 16px（避免 LUCKY 被裁）。 */
+:root{ --dock-nav-h:64px; --nav-fs:13.5px; --nav-ico:22px; --dock-w:min(calc(100vw - 64px),480px); --dock-mini-h:84px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.40) !important; }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#mini-player .mp-cover{ width:50px; height:50px; }
+#mini-player .mp-open{ height:50px; min-height:50px; }
+#mini-player .mp-marq{ font-size:13.5px; }
+#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 21px); }
+@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 21px); } }
+</style>
+<style id="b244-cover-soft-style">
+/* ===================== B244T：PLAY 主照片柔化（只作用在封面模式） =====================
+   根因：原本的 .cover-card::before 黑色漸層與影片同 z-index、排在影片之前 → 被影片蓋住，照片底部變成一條硬線。
+   改用 mask-image 讓整張照片（含影片）往下淡出到透明；底部圓角；變數供 tuner 調整。 */
+#screen-player.cp-ready{ --cv-bottom:12%; --cv-fade:55%; --cv-r:28px; --cv-side:0px; }
+#screen-player.cp-ready:not(.cp-immersive) .cover-card{ bottom:var(--cv-bottom) !important; left:var(--cv-side) !important; right:var(--cv-side) !important;
+  border-radius:0 0 var(--cv-r) var(--cv-r) !important; overflow:hidden;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%); }
 </style>
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。
