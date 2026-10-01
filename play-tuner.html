@@ -135,6 +135,7 @@ var GROUPS=[
   {k:'nfont',label:'字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線']],def:'serif'},
   {k:'nrad',label:'外框圓角',min:0,max:40,step:1,def:22,u:'px'},
   {k:'irad',label:'選中底色圓角',min:0,max:32,step:1,def:18,u:'px'},
+  {k:'nopa',label:'島不透明度',min:20,max:100,step:1,def:100,u:'%'},
   {k:'glass',label:'島樣式',type:'seg',opts:[['solid','實心（現行）'],['glass','玻璃剝離']],def:'solid'},
   {k:'galpha',label:'玻璃底色',min:15,max:95,step:1,def:45,u:'%'},
   {k:'gblur',label:'玻璃模糊',min:0,max:40,step:1,def:22,u:'px'},
@@ -177,6 +178,10 @@ function V(){   /* 套用整體比例後的實際尺寸（四捨五入到 0.5px�
   var n=S.nscale/100, m=S.mscale/100, r=function(x){ return Math.round(x*2)/2; };
   return {navh:r(S.navh*n), nfs:r(S.nfs*n), nico:r(S.nico*n), minih:r(S.minih*m), cov:r(S.cov*m), mt:r(S.mt*m), ms:r(S.ms*m), mp:Math.max(44,r(S.mp*m))};
 }
+function solidAlphaCSS(){   /* 實心樣式的透明度：底色 #0D0C0B 改成半透明，並加一點毛玻璃，字才不會糊在照片上 */
+  var a=(S.nopa/100).toFixed(2), bf='blur('+Math.max(8,S.gblur)+'px) saturate(150%)';
+  return 'body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{background:rgba(13,12,11,'+a+') !important;-webkit-backdrop-filter:'+bf+' !important;backdrop-filter:'+bf+' !important;}';
+}
 function glassCSS(X){   /* TIDE 式玻璃剝離：完全膠囊、半透明毛玻璃、亮邊、明顯陰影、離底更高；音樂島改成獨立浮動 */
   var a=S.galpha/100, sh=S.gshadow/100, bf='blur('+S.gblur+'px) saturate(160%)';
   var glassBg='background:rgba(22,20,26,'+a+') !important;-webkit-backdrop-filter:'+bf+' !important;backdrop-filter:'+bf+' !important;border:1px solid rgba(255,255,255,.14) !important;';
@@ -207,7 +212,7 @@ function css(){
    ':root{--dock-nav-h:'+X.navh+'px;--dock-mini-h:'+X.minih+'px;--nav-fs:'+X.nfs+'px;--nav-ico:'+X.nico+'px;--dock-w:'+sideW+';--dock-mini-reserve:calc(var(--dock-mini-h) + 8px);}',
    '#nav-wrap #nav .navbtn{color:rgba(230,223,210,'+(S.nop/100)+') !important;}',
    '#nav-wrap #nav .navbtn.active .navlbl{font-size:'+(X.nfs+S.nact)+'px !important;}',
-   (S.glass==='glass'?glassCSS(X):''),
+   (S.glass==='glass'?glassCSS(X):(S.nopa<100?solidAlphaCSS():'')),
    (S.tl==='pill'?pillCSS():''),
    ':root{--dock-r:'+S.nrad+'px;} #nav-wrap #nav-ind{border-radius:'+S.irad+'px !important;} #nav-wrap #nav .navbtn:focus-visible{border-radius:'+Math.max(0,S.irad)+'px;}',
    '#nav-wrap #nav .navbtn .navlbl{letter-spacing:'+S.nls+'px !important;text-indent:'+S.nls+'px !important;'+(S.nfont==='sans'?'font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif !important;':'')+'}',
