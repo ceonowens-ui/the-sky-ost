@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B246T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B247T2</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9602,7 +9602,7 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   var $ = function (id) { return document.getElementById(id); };
   var mp = $("mini-player"), src = $("mp-sub"); if (!mp || !src || !src.parentNode) return;
   var SPEED = 24, HOLD = 1700, GAP = 36;
-  function mode() { return mp.getAttribute("data-marq") === "always" ? "always" : "overflow"; }   /* B246T：預設溢出才動；data-marq="always" 可改成一律流動（tuner 可切） */
+  function mode() { return mp.getAttribute("data-marq") === "overflow" ? "overflow" : "always"; }   /* B247T：還原 B243 使用者選擇——預設一律流動；data-marq="overflow" 只在超出時動 */
   var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   var box = document.createElement("span"); box.className = "mp-marq"; box.setAttribute("aria-hidden", "true");
   var track = document.createElement("span"); track.className = "mp-mtrack"; box.appendChild(track);
@@ -9799,6 +9799,80 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
 #screen-mood.sgl-locked{ --sg-btn-w:min(58vw,280px); --sg-btn-h:50px; --sg-btn-font:21px; --sgl-gap:40px; }
 #screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--sgl-gap)) !important; }
 body.has-mini #screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + var(--sgl-gap) - 4px) !important; }
+</style>
+<style id="b247-ux-style">
+/* ===================== B247T：全站 UI/UX 自檢後的精修 =====================
+   參考 Apple Music（選中 glyph＋label 同一顆 pill、旁邊 tab 不位移）與 Weverse artist feed（作者／時間→正文→媒體）的層級原則；
+   不換品牌字：專輯歌名、品牌大標、nav 標籤維持 serif；資訊性的小字改成可讀的系統 sans。價格字型不動。 */
+/* ---- 1. nav 選中：label 14→15（窄屏 13→14）、600、亮金；label 盒高固定 17px，五等寬不位移、dock 不變高 ---- */
+#nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease; }
+#nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease, transform .12s ease; }
+#nav-wrap #nav .navbtn.active .navlbl{ font-size:calc(var(--nav-fs) + 1px) !important; font-weight:600; }   /* B241 用 !important 鎖住 nav 字級，這裡同樣需要 */
+#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
+#nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:scale(.94); }   /* 按壓只做視覺微縮，不影響排版 */
+@media (prefers-reduced-motion:reduce){
+  #nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:none; }
+  #nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:none; }
+}
+/* ---- 2. FEED 已解鎖：少框線、資訊可讀（作者／時間 → 正文 → 媒體） ---- */
+#screen-mood:not(.sgl-locked) .chat-bubble{ border-color:transparent; background:rgba(12,10,16,.46); box-shadow:0 6px 22px rgba(0,0,0,.30); }
+#screen-mood:not(.sgl-locked) .chat-photo{ border-color:transparent; }
+#screen-mood:not(.sgl-locked) .chat-voice{ border-color:transparent; background:rgba(126,63,168,.26); }
+#screen-mood:not(.sgl-locked) .chat-voice .v-time{ font:500 13px/1 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; font-variant-numeric:tabular-nums; letter-spacing:0; color:rgba(255,255,255,.82); }
+#screen-mood:not(.sgl-locked) .chat-day{ font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.08em; color:rgba(232,214,180,.74) !important; }
+#screen-mood:not(.sgl-locked) .feedhead-days{ font-size:13px; line-height:1.3; color:rgba(214,203,226,.86); }
+#screen-mood:not(.sgl-locked) .feed-cue span{ font-size:13px; color:rgba(255,255,255,.74); }
+#screen-mood .chat-video .cv-exp{ z-index:3; }   /* 擴大的點擊區要在影片播放層之上 */
+#screen-mood .chat-video .cv-exp::after{ content:""; position:absolute; inset:-7px; }   /* 視覺 32px；點擊區＝內框 30＋7×2＝44px（方形，最外緣也點得到） */
+/* ---- 3. 五頁資訊字級統一（只動資訊文字；品牌裝飾字、價格不動） ---- */
+#screen-merch .sv3-block-h{ text-wrap:balance; }          /* 「CHANCE 生日會」不再只剩「會」一個字換行 */
+#screen-merch .sv3-block-m{ font-size:14px; }
+#screen-merch .sv3-sub{ font-size:14px; }
+/* R2：R1 的 #screen-purchase .xxx 權重低於原本 #screen-purchase.own-unlocked .xxx，沒生效 → 用同一條選擇器鏈覆寫 */
+#screen-purchase.own-unlocked .pass-count{ font-size:13px; }                       /* caption：TRACKS UNLOCKED（pc-num 36 不動） */
+#screen-purchase.own-unlocked .pass-next{ font-size:13px; color:#BEB29D; }          /* caption：NEXT TRACK · 日期 */
+#screen-purchase.own-unlocked .pass-unlock .ou-l{ font-size:14px; }                /* 資訊：解鎖 SIGNAL 頻道（價格 .ou-r 不動） */
+#screen-lucky .lkc-left{ font-size:14px; }
+</style>
+<style id="b247t2-style">
+/* ===================== B247T2：第二輪精修 ===================== */
+/* ---- 2. nav 按壓：舊 .navbtn:active scale(.92) ＋ 子層 .94 會疊成 ≈.865 → 父層歸零，只留子層 .94；tabPop 改輕柔，減少動態完全停止 ---- */
+#nav-wrap #nav .navbtn:active{ transform:none !important; }
+#nav-wrap #nav .navbtn.pop .navico{ animation:navPopSoft .2s ease-out; }
+@keyframes navPopSoft{ 0%{ transform:scale(.95); } 100%{ transform:scale(1); } }
+@media (prefers-reduced-motion:reduce){ #nav-wrap #nav .navbtn.pop .navico{ animation:none !important; } #nav-wrap #nav-ind{ transition:none !important; } }   /* 選中底色原本有 .46s 位移轉場，B240 的 reduce 沒選到它 */
+/* ---- 3. FEED 真實功能：反應列／時間／自己的訊息／回覆欄 ---- */
+#screen-mood .rx-row{ column-gap:4px; row-gap:12px; }                                   /* 換行時上下點擊區不重疊 */
+#screen-mood.mood-vip .chat-meta .rx-chip, #screen-mood.mood-vip .chat-meta .rx-add{ position:relative; height:32px; min-width:40px; justify-content:center; padding:0 10px;
+  border-color:transparent; background:rgba(14,10,22,.52); font-size:15px; }
+#screen-mood.mood-vip .chat-meta .rx-chip b{ font-size:14px; }
+#screen-mood.mood-vip .chat-meta .rx-chip.on{ background:rgba(183,140,255,.30); box-shadow:inset 0 0 0 1px rgba(183,140,255,.7); color:#F3E6C4; }   /* 選中仍可辨識 */
+#screen-mood.mood-vip .chat-meta .rx-add{ color:rgba(255,255,255,.62); font-size:16px; }
+#screen-mood .chat-meta .rx-chip:active, #screen-mood .chat-meta .rx-add:active{ transform:none; opacity:.85; }   /* 舊 :active scale(.92) 會讓 44 點擊區一起縮 → 改用透明度做按壓回饋 */
+#screen-mood .chat-meta .rx-chip::after, #screen-mood .chat-meta .rx-add::after{ content:""; position:absolute; left:-2px; right:-2px; top:-6px; bottom:-6px; }   /* 視覺 32、點擊 44；左右只延伸 2px＝間距 4 的一半，不重疊 */
+#screen-mood.mood-vip .chat-meta .chat-time, #screen-mood .chat-meta .chat-time{ font-size:13px; letter-spacing:.2px; }
+#screen-mood .mine-lock{ font-size:13px; }
+#screen-mood .my-bubble{ border-color:rgba(169,140,255,.28); }
+#screen-mood .myv-dur{ font-size:13px; font-variant-numeric:tabular-nums; }
+#screen-mood .myv-play{ position:relative; }
+#screen-mood .myv-play::after{ content:""; position:absolute; inset:-6px; }               /* 視覺 32、點擊 44 */
+/* 回覆欄：輸入 16px（避免 iOS 自動放大）、mic／send 44、提示次要 14 */
+.rpbar .rp-inp{ font-size:16px; }
+.rpbar .rp-mic, .rpbar .rp-send{ width:44px; height:44px; }
+.rpbar .rp-lockicon{ font-size:13px; }
+.rpbar .rp-note-sub{ font-size:14px; line-height:1.2; }
+.rpbar .rp-pill{ background:rgba(16,14,20,.92); border-color:rgba(255,255,255,.12); }      /* 毛玻璃在第 9077 行被強制關掉，原本 .16 透明底會讓後面訊息透出來 → 改成近乎不透明 */
+.rpbar .rp-note{ background:linear-gradient(135deg,rgba(40,28,64,.94),rgba(22,16,36,.95)); }
+/* 回覆欄位置：原本 dockReplyBar 只貼 nav 上緣，合併音樂島出現時會疊住它 → 依 dock 實際占用高度擺放（nav 收合時不跟著跳） */
+.rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + 8px) !important; }
+body.has-mini .rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 8px) !important; }
+body.has-rpbar #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + 92px); }
+body.has-rpbar.has-mini #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 92px); }
+/* ---- 4. 標題列：往下滑時內容會從浮動標題底下經過 → 加一層隨 --veil 出現的暗色漸層；人像開場（頂端）不加暗 ---- */
+#screen-mood.mood-vip .feed-tabs::before{ content:""; position:absolute; z-index:-1; left:0; right:0; top:calc(-1 * env(safe-area-inset-top, 0px)); bottom:-30px; pointer-events:none;
+  background:linear-gradient(180deg, rgba(8,7,11,.88) 0%, rgba(8,7,11,.66) 58%, rgba(8,7,11,0) 100%); opacity:var(--veil, 0); }
+/* cue：原本固定在畫面底部 150px，會壓到第一則訊息 → 改成跟著開場留白，停在第一則訊息正上方（一樣靠 --cue 淡出） */
+#screen-mood.mood-vip .feed-cue{ position:absolute; bottom:auto; top:calc(58vh - 58px); }
 </style>
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。

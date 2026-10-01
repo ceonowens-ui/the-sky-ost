@@ -68,7 +68,7 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
     <div class="mbar"><b>播放器 Tuner</b><button onclick="appCall('play')">▶ 播放</button><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
     <div class="mtabs" id="mtabs"></div>
     <h1>CHANCE 播放器 Tuner</h1>
-    <p class="note">預設值＝B246T。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
+    <p class="note">預設值＝B247T2。拖滑桿即時預覽（只改這個預覽，不會改到線上）。調好按「複製設定」貼給 Claude。</p>
     <div class="warn" id="warn">讀不到 App 內容：tuner 必須和 test225.html 放在同一個網站（例如 chance1228.com/play-tuner.html），直接開下載的檔案不能用。</div>
     <div class="row devRow" style="grid-template-columns:96px 1fr"><label>機型</label><select id="dev"></select></div>
     <div class="grp" data-g="app">
@@ -85,7 +85,7 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
     <div id="groups"></div>
     <div class="grp" data-g="out">
     <h2>輸出</h2>
-    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B246T</button></div>
+    <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設為 B247T2</button></div>
     <textarea id="out" readonly placeholder="按「複製設定」後這裡會出現設定文字"></textarea>
     </div>
   </aside>
@@ -101,7 +101,7 @@ var DEVICES=[
   {id:'se',name:'iPhone SE（375×667）',w:375,h:667,top:20,bottom:0,island:false},
   {id:'320',name:'窄螢幕測試（320×690）',w:320,h:690,top:20,bottom:0,island:false}
 ];
-/* ---- 可調參數（預設＝B246T） ---- */
+/* ---- 可調參數（預設＝B247T2） ---- */
 var GROUPS=[
  {title:'PLAY 主播放器（只影響封面模式）',items:[
   {k:'lift',label:'整組上移',min:0,max:90,step:1,def:21,u:'px'},
@@ -126,7 +126,8 @@ var GROUPS=[
   {k:'nico',label:'圖示大小',min:14,max:32,step:0.5,def:25,u:'px'},
   {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:500,u:''},
   {k:'side',label:'左右留白',min:6,max:48,step:1,def:15,u:'px'},
-  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:78,u:'%'}
+  {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:78,u:'%'},
+  {k:'nact',label:'選中放大',min:0,max:3,step:0.5,def:1,u:'px'}
  ]},
  {title:'音樂島（mini 播放器）',items:[
   {k:'mscale',label:'島整體比例',min:60,max:140,step:1,def:100,u:'%'},
@@ -137,7 +138,7 @@ var GROUPS=[
   {k:'mp',label:'播放鍵',min:44,max:64,step:1,def:48,u:'px'},
   {k:'mfont',label:'歌名字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線粗體']],def:'serif'},
   {k:'split',label:'島的形式',type:'seg',opts:[['merged','合併（現行）'],['float','分開浮動']],def:'merged'},
-  {k:'marq',label:'字幕流動',type:'seg',opts:[['overflow','超出才動（現行）'],['always','一律流動']],def:'overflow'}
+  {k:'marq',label:'字幕流動',type:'seg',opts:[['always','一律流動（現行）'],['overflow','超出才動']],def:'always'}
  ]},
  {title:'待播清單（按 PLAY 右下 ☰ 開啟）',items:[
   {k:'qn',label:'曲名',min:14,max:22,step:0.5,def:17.5,u:'px'},
@@ -174,6 +175,7 @@ function css(){
   return [
    ':root{--dock-nav-h:'+X.navh+'px;--dock-mini-h:'+X.minih+'px;--nav-fs:'+X.nfs+'px;--nav-ico:'+X.nico+'px;--dock-w:'+sideW+';--dock-mini-reserve:calc(var(--dock-mini-h) + 8px);}',
    '#nav-wrap #nav .navbtn{color:rgba(230,223,210,'+(S.nop/100)+') !important;}',
+   '#nav-wrap #nav .navbtn.active .navlbl{font-size:'+(X.nfs+S.nact)+'px !important;}',
    '#nav-wrap #nav .navbtn .navlbl{font-weight:'+S.nwt+';height:'+(X.nfs+3)+'px;line-height:'+(X.nfs+3)+'px;}',
    '#mini-player .mp-cover{width:'+X.cov+'px;height:'+X.cov+'px;}',
    '#mini-player .mp-open{height:'+Math.max(44,X.cov)+'px;min-height:'+Math.max(44,X.cov)+'px;}',
@@ -249,7 +251,7 @@ function copyCfg(){
   GROUPS.forEach(function(g){ lines.push('— '+g.title); g.items.forEach(function(it){
     var val=it.type==='seg'?it.opts.filter(function(o){return o[0]===S[it.k];})[0][1]:S[it.k]+it.u;
     var dv=it.type==='seg'?it.opts.filter(function(o){return o[0]===it.def;})[0][1]:it.def+it.u;
-    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B246T：'+dv+'）':'')); }); });
+    lines.push('  '+it.label+'：'+val+(S[it.k]!==it.def?'（B247T2：'+dv+'）':'')); }); });
   if(S.nscale!==100||S.mscale!==100){ var X=V(); lines.push('— 套用比例後的實際尺寸'); lines.push('  nav：高 '+X.navh+'px、文字 '+X.nfs+'px、圖示 '+X.nico+'px'); lines.push('  音樂島：高 '+X.minih+'px、封面 '+X.cov+'px、歌名 '+X.mt+'px、副標 '+X.ms+'px、播放鍵 '+X.mp+'px'); }
   var t=lines.join('\n'); var ta=document.getElementById('out'); ta.value=t; ta.select();
   if(navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){ document.execCommand('copy'); }); else document.execCommand('copy');
