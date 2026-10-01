@@ -111,7 +111,10 @@ var GROUPS=[
   {k:'tim',label:'時間字級',min:10,max:18,step:1,def:14,u:'px'},
   {k:'pp',label:'主播放大小',min:52,max:92,step:1,def:74,u:'px'},
   {k:'pn',label:'上/下一首',min:20,max:42,step:1,def:31,u:'px'},
-  {k:'pstyle',label:'主播放樣式',type:'seg',opts:[['ring','細線圓'],['solid','實心白圓'],['none','無框']],def:'ring'}
+  {k:'pstyle',label:'主播放樣式',type:'seg',opts:[['ring','細線圓'],['solid','實心白圓'],['none','無框']],def:'ring'},
+  {k:'tl',label:'時間軸',type:'seg',opts:[['line','細線（現行）'],['pill','玻璃膠囊']],def:'line'},
+  {k:'tlh',label:'膠囊高度',min:40,max:64,step:1,def:50,u:'px'},
+  {k:'tla',label:'膠囊底色',min:4,max:40,step:1,def:12,u:'%'}
  ]},
  {title:'PLAY 主照片（柔化）',items:[
   {k:'cvb',label:'照片底部位置',min:0,max:30,step:1,def:25,u:'%'},
@@ -127,7 +130,16 @@ var GROUPS=[
   {k:'nwt',label:'文字粗細',min:400,max:700,step:100,def:500,u:''},
   {k:'side',label:'左右留白',min:6,max:48,step:1,def:15,u:'px'},
   {k:'nop',label:'未選中亮度',min:20,max:100,step:1,def:78,u:'%'},
-  {k:'nact',label:'選中放大',min:0,max:3,step:0.5,def:1,u:'px'}
+  {k:'nact',label:'選中放大',min:0,max:3,step:0.5,def:1,u:'px'},
+  {k:'nls',label:'字距',min:0,max:3,step:0.1,def:1.2,u:'px'},
+  {k:'nfont',label:'字型',type:'seg',opts:[['serif','襯線（現行）'],['sans','無襯線']],def:'serif'},
+  {k:'nrad',label:'外框圓角',min:0,max:40,step:1,def:22,u:'px'},
+  {k:'irad',label:'選中底色圓角',min:0,max:32,step:1,def:18,u:'px'},
+  {k:'glass',label:'島樣式',type:'seg',opts:[['solid','實心（現行）'],['glass','玻璃剝離']],def:'solid'},
+  {k:'galpha',label:'玻璃底色',min:15,max:95,step:1,def:45,u:'%'},
+  {k:'gblur',label:'玻璃模糊',min:0,max:40,step:1,def:22,u:'px'},
+  {k:'gshadow',label:'浮起陰影',min:0,max:100,step:1,def:60,u:'%'},
+  {k:'glift',label:'離底距離',min:0,max:32,step:1,def:10,u:'px'}
  ]},
  {title:'音樂島（mini 播放器）',items:[
   {k:'mscale',label:'島整體比例',min:60,max:140,step:1,def:100,u:'%'},
@@ -165,6 +177,25 @@ function V(){   /* 套用整體比例後的實際尺寸（四捨五入到 0.5px�
   var n=S.nscale/100, m=S.mscale/100, r=function(x){ return Math.round(x*2)/2; };
   return {navh:r(S.navh*n), nfs:r(S.nfs*n), nico:r(S.nico*n), minih:r(S.minih*m), cov:r(S.cov*m), mt:r(S.mt*m), ms:r(S.ms*m), mp:Math.max(44,r(S.mp*m))};
 }
+function glassCSS(X){   /* TIDE 式玻璃剝離：完全膠囊、半透明毛玻璃、亮邊、明顯陰影、離底更高；音樂島改成獨立浮動 */
+  var a=S.galpha/100, sh=S.gshadow/100, bf='blur('+S.gblur+'px) saturate(160%)';
+  var glassBg='background:rgba(22,20,26,'+a+') !important;-webkit-backdrop-filter:'+bf+' !important;backdrop-filter:'+bf+' !important;border:1px solid rgba(255,255,255,.14) !important;';
+  var glassSh='box-shadow:0 18px 40px rgba(0,0,0,'+(0.75*sh).toFixed(2)+'),0 3px 10px rgba(0,0,0,'+(0.45*sh).toFixed(2)+'),inset 0 1px 0 rgba(255,255,255,.16) !important;';
+  return [':root{--dock-b:calc(max(8px, calc(var(--sab, env(safe-area-inset-bottom)) + 8px)) + '+S.glift+'px);}',
+   'body.dock-merged #nav-wrap #nav, #nav-wrap #nav{'+glassBg+glassSh+'border-radius:999px !important;}',
+   '#nav-wrap #nav-ind{background:rgba(255,255,255,.12) !important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16) !important;border-radius:999px !important;}',
+   'body.dock-merged #mini-player.mini-player, #mini-player.mini-player{'+glassBg+glassSh+'border-radius:28px !important;bottom:calc(var(--dock-b) + var(--dock-nav-h) + 10px) !important;}',
+   'body.dock-collapsed #mini-player.mini-player{transform:translateY(calc(var(--dock-nav-h) + 10px)) !important;}',
+   'body.has-mini .screen.active::after{height:calc(var(--dock-mini-h) + 18px) !important;}'].join('\n');
+}
+function pillCSS(){   /* Moonly 式時間軸：時間｜進度條｜時間 放進同一顆玻璃膠囊（只在 PLAY 封面模式；拖曳進度仍是原本的 #prog） */
+  var P='#screen-player.cp-ready:not(.cp-immersive) ';
+  return [P+'#cp-transport{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"cur bar dur" "cm cm cm" "ctl ctl ctl" "lyr lyr lyr";column-gap:14px;align-items:center;}',
+   P+'#cp-transport::before{content:"";grid-row:1;grid-column:1 / 4;height:'+S.tlh+'px;margin:0 -16px;border-radius:999px;pointer-events:none;background:rgba(255,255,255,'+(S.tla/100)+');border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(18px) saturate(150%);backdrop-filter:blur(18px) saturate(150%);box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14);}',
+   P+'.np-times{display:contents;}',
+   P+'#t-cur{grid-area:cur;z-index:1;} '+P+'#t-dur{grid-area:dur;z-index:1;} '+P+'#prog{grid-area:bar;z-index:1;margin:0 !important;}',
+   P+'#cm-btn{grid-area:cm;justify-self:center;margin:12px 0 12px;} '+P+'.np-controls{grid-area:ctl;} '+P+'#cp-lyr-row{grid-area:lyr;}'].join('\n');
+}
 function css(){
   var X=V();
   var sideW='min(calc(100vw - '+(S.side*2)+'px),480px)';
@@ -176,6 +207,10 @@ function css(){
    ':root{--dock-nav-h:'+X.navh+'px;--dock-mini-h:'+X.minih+'px;--nav-fs:'+X.nfs+'px;--nav-ico:'+X.nico+'px;--dock-w:'+sideW+';--dock-mini-reserve:calc(var(--dock-mini-h) + 8px);}',
    '#nav-wrap #nav .navbtn{color:rgba(230,223,210,'+(S.nop/100)+') !important;}',
    '#nav-wrap #nav .navbtn.active .navlbl{font-size:'+(X.nfs+S.nact)+'px !important;}',
+   (S.glass==='glass'?glassCSS(X):''),
+   (S.tl==='pill'?pillCSS():''),
+   ':root{--dock-r:'+S.nrad+'px;} #nav-wrap #nav-ind{border-radius:'+S.irad+'px !important;} #nav-wrap #nav .navbtn:focus-visible{border-radius:'+Math.max(0,S.irad)+'px;}',
+   '#nav-wrap #nav .navbtn .navlbl{letter-spacing:'+S.nls+'px !important;text-indent:'+S.nls+'px !important;'+(S.nfont==='sans'?'font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif !important;':'')+'}',
    '#nav-wrap #nav .navbtn .navlbl{font-weight:'+S.nwt+';height:'+(X.nfs+3)+'px;line-height:'+(X.nfs+3)+'px;}',
    '#mini-player .mp-cover{width:'+X.cov+'px;height:'+X.cov+'px;}',
    '#mini-player .mp-open{height:'+Math.max(44,X.cov)+'px;min-height:'+Math.max(44,X.cov)+'px;}',
