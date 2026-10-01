@@ -8775,7 +8775,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B240T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B241T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9557,6 +9557,108 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   new MutationObserver(function () { var c = document.body.classList; if (c.contains("tk-open") || c.contains("cm-open") || c.contains("cp-menu-open")) hide(); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
   watch();
   window.__tkhint = { state: function () { return { shown: shown, paused: paused, flags: { hover: F.hover, focus: F.focus, press: F.press, away: F.away }, sinceDown: lastDown ? Math.round(performance.now() - lastDown) : null }; } };
+})();
+</script>
+<style id="b241-dock-style">
+/* ===================== B241T：nav 置中＋classic 比例＋mini 字幕流動（接在 B240T dock 樣式之後覆寫） =====================
+   根因：.navbtn 是 flex column + align-items:center（只有水平置中），B240T 改成 padding:0; height:100% 後缺 justify-content:center，
+   圖示＋文字整組貼在按鈕上緣（實測比按鈕中心高 9px）；label 沒定行高，Bodoni 預設行高讓整組再偏上。 */
+:root{ --dock-w:min(calc(100vw - 30px),420px); --dock-nav-h:58px; --dock-mini-h:64px; --dock-r:20px; --dock-pad:5px;
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.4px; }
+/* ---- nav：五等分、整組正中、選中底色同中心 ---- */
+#nav-wrap #nav{ padding:var(--dock-pad) !important; border-radius:var(--dock-r) !important; }
+#nav-wrap #nav .navbtn{ display:flex !important; flex-direction:column; justify-content:center; align-items:center; gap:3px;
+  height:100%; min-height:44px; padding:0 !important; line-height:1; }
+#nav-wrap #nav .navbtn .navico{ flex:none; width:20px; height:20px; display:grid; place-items:center; }
+#nav-wrap #nav .navbtn .navico svg{ display:block; width:17px; height:17px; }
+#nav-wrap #nav .navbtn .navlbl{ display:block; flex:none; height:12px; line-height:12px; font-size:10.5px !important;
+  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); white-space:nowrap; }   /* text-indent 抵銷字尾字距，字形真正置中 */
+#nav-wrap #nav .navbtn.active .navico{ filter:none; }   /* 拿掉選中發光（不增加陰影） */
+#nav-wrap #nav-ind{ top:var(--dock-pad) !important; left:var(--dock-pad) !important; height:calc(100% - var(--dock-pad) * 2) !important;
+  width:calc((100% - var(--dock-pad) * 2) / var(--nav-n,5)) !important; box-sizing:border-box;
+  border-radius:calc(var(--dock-r) - var(--dock-pad)) !important; background:rgba(216,195,160,.08) !important; border:1px solid rgba(216,195,160,.14); box-shadow:none !important; }
+#nav-wrap #nav .navbtn:focus-visible{ border-radius:calc(var(--dock-r) - var(--dock-pad)); }
+@media (max-width:359px){ :root{ --nav-ls:.8px; } }
+/* ---- mini：略高於 nav；封面 42、歌名 14.5、副標 11.5、播放／收合 44 ---- */
+#mini-player.mini-player{ padding:10px 6px 10px 11px; gap:4px; border-radius:var(--dock-r); }
+#mini-player .mp-open{ gap:11px; height:44px; min-height:44px; }
+#mini-player .mp-cover{ width:42px; height:42px; border-radius:8px; }
+#mini-player .mp-txt{ flex:1; min-width:0; gap:3px; }   /* 撐滿歌名區（B240T 只用了內容寬，字幕過早截斷） */
+#mini-player .mp-title{ font-size:14.5px; line-height:18px; }
+/* 原 #mp-sub 保留給 syncMini 寫字與讀屏器；視覺改由 .mp-marq 顯示（aria-hidden） */
+#mini-player .mp-sub.mp-sub-sr{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
+#mini-player .mp-marq{ position:relative; display:block; overflow:hidden; white-space:nowrap; height:15px; font-size:11.5px; line-height:15px; color:#A8A196; letter-spacing:.04em; }
+#mini-player .mp-mtrack{ display:inline-flex; will-change:transform; }
+#mini-player .mp-mseg{ flex:none; }
+#mini-player .mp-mgap{ flex:none; width:36px; }
+#mini-player .mp-marq:not(.run) .mp-mtrack{ display:block; overflow:hidden; text-overflow:ellipsis; }   /* 短字／reduced-motion：靜止 */
+#mini-player .mp-marq.run{ -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); }   /* 只淡右緣；靜止／短字不套遮罩 */
+</style>
+<script id="b241-marquee">
+/* B241T：mini 副標超出可用寬度才緩慢流動（停 1.7s → 24px/s 線性向左 → 無縫接回）。
+   不改 syncMini：它照舊寫 #mp-sub.textContent；這裡用 MutationObserver 讀文字、只在「文字或寬度真的變了」才重算。
+   沒有 polling；動畫是 track 的 transform（Web Animations）；外層固定寬度容器不位移。 */
+(function MiniMarquee() {
+  var $ = function (id) { return document.getElementById(id); };
+  var mp = $("mini-player"), src = $("mp-sub"); if (!mp || !src || !src.parentNode) return;
+  var SPEED = 24, HOLD = 1700, GAP = 36;
+  var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+  var box = document.createElement("span"); box.className = "mp-marq"; box.setAttribute("aria-hidden", "true");
+  var track = document.createElement("span"); track.className = "mp-mtrack"; box.appendChild(track);
+  var seg = document.createElement("span"); seg.className = "mp-mseg"; track.appendChild(seg);
+  src.parentNode.insertBefore(box, src.nextSibling); src.classList.add("mp-sub-sr");
+  src.setAttribute("aria-hidden", "true");   /* 字幕已併入按鈕名稱（updLabel）：這份原文只當資料來源，避免讀屏重複 */
+  var text = null, anim = null, lastW = -1, lastS = -1, hover = false, focus = false;
+  var titleEl = $("mp-title"), openEl = $("mp-open");
+  function updLabel() {   /* 讀 syncMini 已寫好的歌名與字幕；內容沒變就不碰 aria-label（不用 aria-live，不會重複播報） */
+    if (!openEl) return;
+    var t = ((titleEl && titleEl.textContent) || "").trim(), sub = (src.textContent || "").trim();
+    var label = "回到播放器" + (t ? "：" + t + (sub ? "，" + sub : "") : "");
+    if (openEl.getAttribute("aria-label") !== label) openEl.setAttribute("aria-label", label);
+  }
+  function clearDup() { while (track.childNodes.length > 1) track.removeChild(track.lastChild); }
+  function stop() { if (anim) { anim.cancel(); anim = null; } box.classList.remove("run"); clearDup(); }
+  function canRun() {
+    return !mp.classList.contains("hidden") && !document.body.classList.contains("dock-off") && !document.hidden && !hover && !focus;
+  }
+  function sync() { if (!anim) return; if (canRun()) { if (anim.playState !== "running") anim.play(); } else if (anim.playState === "running") anim.pause(); }
+  function measure(force) {
+    var w = box.clientWidth; if (!w) { sync(); return; }        /* mini 隱藏中：只暫停，不重建（顯示後續跑） */
+    var s = seg.offsetWidth;
+    if (!force && w === lastW && s === lastS) { sync(); return; } /* 相同字幕、相同寬度：不重新起跑 */
+    lastW = w; lastS = s; stop();
+    if (reduce.matches || s <= w + 1) return;                   /* 短字／減少動態：完全靜止 */
+    var g = document.createElement("span"); g.className = "mp-mgap"; track.appendChild(g);
+    var dup = seg.cloneNode(true); track.appendChild(dup);       /* 整個 .mp-marq 已 aria-hidden：讀屏器只讀 #mp-sub 原文 */
+    var d = s + GAP, run = d / SPEED * 1000, total = run + HOLD;
+    anim = track.animate([{ transform: "translateX(0)" }, { transform: "translateX(0)", offset: HOLD / total }, { transform: "translateX(" + (-d) + "px)" }],
+      { duration: total, iterations: Infinity, easing: "linear" });
+    box.classList.add("run"); sync();
+  }
+  function readText() {
+    var t = src.textContent || "";
+    updLabel();
+    if (t === text) return;                                     /* syncMini 重寫相同字幕：什麼都不做（隱藏／顯示也保留原動畫續跑） */
+    stop(); lastW = -1; lastS = -1;                             /* 字幕真的變了：先取消舊動畫、清舊複本、讓寬度快取失效（等寬新字幕也會重建） */
+    text = t; seg.textContent = t; measure(true);               /* 隱藏中 w=0 → 不建動畫；顯示時由 class／ResizeObserver 觸發重新量測 */
+  }
+  new MutationObserver(readText).observe(src, { childList: true, characterData: true, subtree: true });
+  if (titleEl) new MutationObserver(updLabel).observe(titleEl, { childList: true, characterData: true, subtree: true });
+  if (window.ResizeObserver) new ResizeObserver(function () { measure(false); }).observe(box);
+  else window.addEventListener("resize", function () { measure(false); });
+  new MutationObserver(function () { if (box.clientWidth && box.clientWidth !== lastW) measure(false); else sync(); }).observe(mp, { attributes: true, attributeFilter: ["class"] });
+  new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  document.addEventListener("visibilitychange", sync);
+  if (reduce.addEventListener) reduce.addEventListener("change", function () { measure(true); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { measure(false); });
+  var openBtn = $("mp-open") || mp;
+  openBtn.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") { hover = true; sync(); } });
+  openBtn.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { hover = false; sync(); } });
+  mp.addEventListener("focusin", function () { focus = true; sync(); });
+  mp.addEventListener("focusout", function (e) { if (!mp.contains(e.relatedTarget)) { focus = false; sync(); } });
+  readText();
+  window.__marq = { state: function () { return { text: text, running: !!anim && anim.playState === "running", anim: anim ? anim.playState : null, w: lastW, s: lastS, dup: track.childNodes.length > 1, hover: hover, focus: focus, t: anim ? Math.round(anim.currentTime) : null,
+    x: (function () { var m = getComputedStyle(track).transform; return m === "none" ? 0 : +(m.split(",")[4] || 0); })() }; } };
 })();
 </script>
 </body>
