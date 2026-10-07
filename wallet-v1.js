@@ -65,7 +65,7 @@
     if (!panel) return;
     var s = saved(), own = latest && latest.ownership;
     panel.innerHTML = '<div class="wv-kicker">OPEN · DIGITAL OWNERSHIP</div><h2>你的錢包專輯</h2>' +
-      (own ? '<div class="wv-status">OWNED · 已解鎖</div><p>' + esc(own.current_owner) + '</p><p class="wv-meta">THE SKY · ' + esc(own.ownership_id.slice(0, 8)) + ' · v' + own.version + '</p><button type="button" data-wv="open">OPEN ALBUM</button><button type="button" data-wv="wallet">加入／更新 Apple Wallet</button><button type="button" data-wv="transfer">轉讓專輯</button>' + (own.transfer_pending ? '<button type="button" data-wv="cancel">取消待接受轉讓</button>' : '') + '<details><summary>所有權紀錄</summary>' + own.history.map(function (h) { return '<p class="wv-meta">' + esc(new Date(h.at).toLocaleString()) + ' · ' + esc(h.type) + '</p>'; }).join('') + '</details>' : '<div class="wv-status">LOCKED · 尚未連結</div><p>首次領取使用購買信箱與兌換碼。之後從 Wallet 開啟，自動解鎖。</p><button type="button" data-wv="claim">首次領取</button><button type="button" data-wv="recover">換手機／恢復</button>' + (s ? '<button type="button" data-wv="open">重新確認權限</button>' : '')) +
+      (own ? '<div class="wv-status">OWNED · 已解鎖</div><p>' + esc(own.current_owner) + '</p><p class="wv-meta">THE SKY · ' + esc(own.ownership_id.slice(0, 8)) + ' · v' + own.version + '</p><button type="button" data-wv="open">OPEN ALBUM</button><button type="button" data-wv="wallet">' + (latest.pass && latest.pass.status === 'ready_existing' ? '加入現有 Apple Wallet 卡' : '加入／更新 Apple Wallet') + '</button><button type="button" data-wv="transfer">轉讓專輯</button>' + (own.transfer_pending ? '<button type="button" data-wv="cancel">取消待接受轉讓</button>' : '') + '<details><summary>所有權紀錄</summary>' + own.history.map(function (h) { return '<p class="wv-meta">' + esc(new Date(h.at).toLocaleString()) + ' · ' + esc(h.type) + '</p>'; }).join('') + '</details>' : '<div class="wv-status">LOCKED · 尚未連結</div><p>首次領取使用購買信箱與兌換碼。之後從 Wallet 開啟，自動解鎖。</p><button type="button" data-wv="claim">首次領取</button><button type="button" data-wv="recover">換手機／恢復</button>' + (s ? '<button type="button" data-wv="open">重新確認權限</button>' : '')) +
       '<p id="wv-note" role="status"></p><p class="wv-meta">分享卡片不會轉移所有權。轉讓需由收件人接受。</p><button type="button" class="wv-demo-link" data-wv="demo">試跑 A → B 轉讓</button>';
   }
   function claimForm() {
@@ -85,7 +85,7 @@
       if (action === 'share') { var url = document.getElementById('wv-invite-url').value; if (navigator.share) await navigator.share({ title: 'THE SKY 專輯轉讓邀請', url: url }); else { await navigator.clipboard.writeText(url); document.getElementById('wv-modal-note').textContent = '邀請連結已複製。'; } return; }
       if (action === 'wallet') {
         var d = await signed('pass/retry', { credential: saved().credential }); apply(d, false);
-        if (d.pass && d.pass.status === 'ready' && d.pass.downloadUrl) location.href = d.pass.downloadUrl;
+        if (d.pass && ['ready', 'ready_existing'].includes(d.pass.status) && d.pass.downloadUrl) location.href = d.pass.downloadUrl;
         else note((d.pass && d.pass.message) || '卡片正在準備，請稍後再試。', true);
         return;
       }
