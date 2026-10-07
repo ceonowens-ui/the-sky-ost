@@ -8,8 +8,7 @@
     "ADMIN_EMAIL": "heartbeats0693@gmail.com",
     "RESEND_FROM": "THE SKY <noreply@ceon0693.uk>",
     "WALLET_ORIGINS": "https://chance1228.com",
-    "WALLET_TEMPLATE_ID": "ed97f16a-8578-4f44-b9b3-20e2443c316b",
-    "WALLET_EXISTING_PASSES": "{\"6s31pv8kzkpu32vtd76ac5fda28c5b3\": {\"identifier\": \"9e88b0d9-4e72-43ac-b8a6-c0d3aee354d4\", \"serial\": \"ajz53ej-4b83n6ac5fda28bcbd\", \"templateId\": \"ed97f16a-8578-4f44-b9b3-20e2443c316b\", \"edition\": \"0002\", \"ownerEmails\": [\"anthonywen0693@gmail.com\", \"heartbeats0693@gmail.com\"]}}"
+    "WALLET_TEMPLATE_ID": "ed97f16a-8578-4f44-b9b3-20e2443c316b"
   },
   "kv_namespaces": [
     {
@@ -46,5 +45,6 @@
       ]
     }
   ],
-  "send_metrics": false
+  "send_metrics": false,
+  "keep_vars": true
 }
