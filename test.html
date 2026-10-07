@@ -2177,6 +2177,8 @@ body { background: #08060C !important; }
 #screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
 #screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
+<link rel="stylesheet" href="wallet-v1.css?v=B249W1">
+<meta name="referrer" content="no-referrer">
 </head>
 <body>
 <div id="stage">
@@ -5708,6 +5710,9 @@ window.ALBUM_SWITCH = {
     }).then(function (r) { return r.json(); }).then(function (data) {
       if (!data.ok) { toast(data.message || "兌換碼或 email 不正確"); return; }
       var pid = String(data.productId || "");
+      if (window.WalletV1 && (pid === "the-sky-album" || pid === "full-unlock" || (!pid && ["299","599"].indexOf(String(data.product)) >= 0))) {
+        window.WalletV1.claim(email, code).catch(function (e) { toast(e.message); }); return;
+      }
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         unlockNow({ email: email, code: code, product: "full-unlock" });
@@ -7518,6 +7523,26 @@ window.ALBUM_SWITCH = {
   renderUnlockView();
   renderMerch();
   renderMoodWall();
+
+  /* Wallet V1: signed short-lived sessions; ownership is checked at the Worker. */
+  window.__walletBridge = {
+    legacy: function () { return unlockInfo(); },
+    own: function () { go("purchase"); },
+    apply: function (d, navigate) {
+      lsSet(LS.unlock, { unlocked: true, email: d.email, code: d.session, product: d.product, productId: d.productId, wallet: true, expiresAt: d.expires_at });
+      if (d.productId === "full-unlock") lsSet(LS.feedpass, { unlocked: true, email: d.email, code: d.session, full: true, wallet: true });
+      state.unlocked = true; renderUnlockView(); renderTrackLists(true); renderNowPlaying();
+      if (navigate) { go("player"); openSheet(); }
+    },
+    clear: function () {
+      if (!unlockInfo().wallet) return;
+      lsSet(LS.unlock, {}); if (feedPassInfo().wallet) lsSet(LS.feedpass, {});
+      state.unlocked = false; audio.pause(); audio.src = "";
+      renderUnlockView(); renderTrackLists(true); renderNowPlaying();
+    }
+  };
+  audio.addEventListener("error", function () { if (unlockInfo().wallet && window.WalletV1) window.WalletV1.refresh(false); });
+
   window.__renderFeed = renderMoodWall;   /* B28：讓 content.json 載入後能即時重繪 FEED */
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) loadLiveFeed(true);
@@ -7850,7 +7875,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B222T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B249W1</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -8123,5 +8148,6 @@ window.ALBUM_SWITCH = {
 #nav-ind { background:linear-gradient(180deg,rgba(216,195,160,.20),rgba(216,195,160,.08)) !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.35) !important; }
 </style>
+<script src="wallet-v1.js?v=B249W1" defer></script>
 </body>
 </html>
