@@ -776,7 +776,7 @@ var SHOP_TEXT = {
     var CFG = window.ALBUM_CONFIG || {}, M = CFG.merch || {}, owned = jget(C.merchKey), un = jget(C.unlockKeys[0]), fp = jget(C.unlockKeys[1]);
     var wc = window.WalletV1 ? window.WalletV1.collection() : {verified:false,status:"unverified"}, wo=wc.ownership;
     var list = [
-      { key: "album", idx: -1, name: CFG.albumTitle || "THE SKY", type: "digital", label: "數位專輯", desc: "EDITION " + (wo && wo.edition || "—") + " · " + ({active:"有效持有",transferred:"已轉出",unverified:"待驗證",locked:"尚未領取"}[wc.status] || "待驗證"), img: CFG.coverPoster || CFG.coverImage || "", owned: wc.verified && wc.status === "active", since: null, benefits: ["完整專輯線上收聽", "每日抽卡・小卡收藏"], go: "player" },
+      { key: "album", idx: -1, name: "THE SKY", type: "digital", label: "數位專輯", desc: "EDITION " + (wo && wo.edition || "—") + " · " + ({active:"有效持有",transferred:"已轉出",unverified:"待驗證",locked:"尚未領取"}[wc.status] || "待驗證"), img: "assets/images/sky/cover-poster.jpg?v=0831", owned: wc.verified && wc.status === "active", since: null, benefits: ["完整專輯線上收聽", "每日抽卡・小卡收藏"], go: "player" },
       { key: "signal", idx: -1, name: "SIGNAL", type: "digital", label: "數位特典", desc: "Chance 私訊頻道", img: "assets/images/avatar.jpg", owned: !!(fp.unlocked || fp.full), since: fp.ts || null, benefits: ["Chance 的私訊頻道", "獨家影片・語音"], go: "mood" },
     ];
     (M.items || []).forEach(function (it, idx) {
