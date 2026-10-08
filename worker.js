@@ -1,7 +1,4 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-
-// vendor/fflate.js
+// outputs/wallet-v1/vendor/fflate.js
 var u8 = Uint8Array;
 var u16 = Uint16Array;
 var i32 = Int32Array;
@@ -77,7 +74,7 @@ var fdeb = new u8([
   0
 ]);
 var clim = new u8([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]);
-var freb = /* @__PURE__ */ __name(function(eb, start) {
+var freb = function(eb, start) {
   var b = new u16(31);
   for (var i2 = 0; i2 < 31; ++i2) {
     b[i2] = start += 1 << eb[i2 - 1];
@@ -89,7 +86,7 @@ var freb = /* @__PURE__ */ __name(function(eb, start) {
     }
   }
   return { b, r };
-}, "freb");
+};
 var _a = freb(fleb, 2);
 var fl = _a.b;
 var revfl = _a.r;
@@ -106,7 +103,7 @@ for (i = 0; i < 32768; ++i) {
 }
 var x;
 var i;
-var hMap = /* @__PURE__ */ __name((function(cd, mb, r) {
+var hMap = (function(cd, mb, r) {
   var s = cd.length;
   var i2 = 0;
   var l = new u16(mb);
@@ -141,7 +138,7 @@ var hMap = /* @__PURE__ */ __name((function(cd, mb, r) {
     }
   }
   return co;
-}), "hMap");
+});
 var flt = new u8(288);
 for (i = 0; i < 144; ++i)
   flt[i] = 8;
@@ -161,32 +158,32 @@ for (i = 0; i < 32; ++i)
 var i;
 var flrm = /* @__PURE__ */ hMap(flt, 9, 1);
 var fdrm = /* @__PURE__ */ hMap(fdt, 5, 1);
-var max = /* @__PURE__ */ __name(function(a) {
+var max = function(a) {
   var m = a[0];
   for (var i2 = 1; i2 < a.length; ++i2) {
     if (a[i2] > m)
       m = a[i2];
   }
   return m;
-}, "max");
-var bits = /* @__PURE__ */ __name(function(d, p, m) {
+};
+var bits = function(d, p, m) {
   var o = p / 8 | 0;
   return (d[o] | d[o + 1] << 8) >> (p & 7) & m;
-}, "bits");
-var bits16 = /* @__PURE__ */ __name(function(d, p) {
+};
+var bits16 = function(d, p) {
   var o = p / 8 | 0;
   return (d[o] | d[o + 1] << 8 | d[o + 2] << 16) >> (p & 7);
-}, "bits16");
-var shft = /* @__PURE__ */ __name(function(p) {
+};
+var shft = function(p) {
   return (p + 7) / 8 | 0;
-}, "shft");
-var slc = /* @__PURE__ */ __name(function(v, s, e) {
+};
+var slc = function(v, s, e) {
   if (s == null || s < 0)
     s = 0;
   if (e == null || e > v.length)
     e = v.length;
   return new u8(v.subarray(s, e));
-}, "slc");
+};
 var ec = [
   "unexpected EOF",
   "invalid block type",
@@ -204,7 +201,7 @@ var ec = [
   "invalid zip data"
   // determined by unknown compression method
 ];
-var err = /* @__PURE__ */ __name(function(ind, msg, nt) {
+var err = function(ind, msg, nt) {
   var e = new Error(msg || ec[ind]);
   e.code = ind;
   if (Error.captureStackTrace)
@@ -212,8 +209,8 @@ var err = /* @__PURE__ */ __name(function(ind, msg, nt) {
   if (!nt)
     throw e;
   return e;
-}, "err");
-var inflt = /* @__PURE__ */ __name(function(dat, st, buf, dict) {
+};
+var inflt = function(dat, st, buf, dict) {
   var sl = dat.length, dl = dict ? dict.length : 0;
   if (!sl || st.f && !st.l)
     return buf || new u8(0);
@@ -222,14 +219,14 @@ var inflt = /* @__PURE__ */ __name(function(dat, st, buf, dict) {
   var noSt = st.i;
   if (noBuf)
     buf = new u8(sl * 3);
-  var cbuf = /* @__PURE__ */ __name(function(l2) {
+  var cbuf = function(l2) {
     var bl = buf.length;
     if (l2 > bl) {
       var nbuf = new u8(Math.max(bl * 2, l2));
       nbuf.set(buf);
       buf = nbuf;
     }
-  }, "cbuf");
+  };
   var final = st.f || 0, pos = st.p || 0, bt = st.b || 0, lm = st.l, dm = st.d, lbt = st.m, dbt = st.n;
   var tbts = sl * 8;
   do {
@@ -353,21 +350,20 @@ var inflt = /* @__PURE__ */ __name(function(dat, st, buf, dict) {
       final = 1, st.m = lbt, st.d = dm, st.n = dbt;
   } while (!final);
   return bt != buf.length && noBuf ? slc(buf, 0, bt) : buf.subarray(0, bt);
-}, "inflt");
+};
 var et = /* @__PURE__ */ new u8(0);
-var b2 = /* @__PURE__ */ __name(function(d, b) {
+var b2 = function(d, b) {
   return d[b] | d[b + 1] << 8;
-}, "b2");
-var b4 = /* @__PURE__ */ __name(function(d, b) {
+};
+var b4 = function(d, b) {
   return (d[b] | d[b + 1] << 8 | d[b + 2] << 16 | d[b + 3] << 24) >>> 0;
-}, "b4");
-var b8 = /* @__PURE__ */ __name(function(d, b) {
+};
+var b8 = function(d, b) {
   return b4(d, b) + b4(d, b + 4) * 4294967296;
-}, "b8");
+};
 function inflateSync(data, opts) {
   return inflt(data, { i: 2 }, opts && opts.out, opts && opts.dictionary);
 }
-__name(inflateSync, "inflateSync");
 var td = typeof TextDecoder != "undefined" && /* @__PURE__ */ new TextDecoder();
 var tds = 0;
 try {
@@ -375,7 +371,7 @@ try {
   tds = 1;
 } catch (e) {
 }
-var dutf8 = /* @__PURE__ */ __name(function(d) {
+var dutf8 = function(d) {
   for (var r = "", i2 = 0; ; ) {
     var c = d[i2++];
     var eb = (c > 127) + (c > 223) + (c > 239);
@@ -390,7 +386,7 @@ var dutf8 = /* @__PURE__ */ __name(function(d) {
     else
       r += String.fromCharCode((c & 15) << 12 | (d[i2++] & 63) << 6 | d[i2++] & 63);
   }
-}, "dutf8");
+};
 function strFromU8(dat, latin1) {
   if (latin1) {
     var r = "";
@@ -406,20 +402,19 @@ function strFromU8(dat, latin1) {
     return s;
   }
 }
-__name(strFromU8, "strFromU8");
-var slzh = /* @__PURE__ */ __name(function(d, b) {
+var slzh = function(d, b) {
   return b + 30 + b2(d, b + 26) + b2(d, b + 28);
-}, "slzh");
-var zh = /* @__PURE__ */ __name(function(d, b, z) {
+};
+var zh = function(d, b, z) {
   var fnl = b2(d, b + 28), fn = strFromU8(d.subarray(b + 46, b + 46 + fnl), !(b2(d, b + 8) & 2048)), es = b + 46 + fnl, bs = b4(d, b + 20);
   var _a2 = z && bs == 4294967295 ? z64e(d, es) : [bs, b4(d, b + 24), b4(d, b + 42)], sc = _a2[0], su = _a2[1], off = _a2[2];
   return [b2(d, b + 10), sc, su, fn, es + b2(d, b + 30) + b2(d, b + 32), off];
-}, "zh");
-var z64e = /* @__PURE__ */ __name(function(d, b) {
+};
+var z64e = function(d, b) {
   for (; b2(d, b) != 1; b += 4 + b2(d, b + 2))
     ;
   return [b8(d, b + 12), b8(d, b + 4), b8(d, b + 20)];
-}, "z64e");
+};
 function unzipSync(data, opts) {
   var files = {};
   var e = data.length - 22;
@@ -461,43 +456,40 @@ function unzipSync(data, opts) {
   }
   return files;
 }
-__name(unzipSync, "unzipSync");
 
-// wallet-core.js
+// outputs/wallet-v1/wallet-core.js
 var enc = new TextEncoder();
 var SESSION_MS = 5 * 60 * 1e3;
 var TRANSFER_MS = 10 * 60 * 1e3;
 var ALBUM = "the-sky";
-var hex = /* @__PURE__ */ __name((b) => [...new Uint8Array(b)].map((x2) => x2.toString(16).padStart(2, "0")).join("").toUpperCase(), "hex");
-var unhex = /* @__PURE__ */ __name((s) => {
+var hex = (b) => [...new Uint8Array(b)].map((x2) => x2.toString(16).padStart(2, "0")).join("").toUpperCase();
+var unhex = (s) => {
   if (!/^(?:[a-f0-9]{2})+$/i.test(s)) throw new Error("invalid_encoding");
   return Uint8Array.from(s.match(/../g), (x2) => parseInt(x2, 16));
-}, "unhex");
-var digest = /* @__PURE__ */ __name(async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s))), "digest");
-var random = /* @__PURE__ */ __name(() => hex(crypto.getRandomValues(new Uint8Array(24))), "random");
-var emailOf = /* @__PURE__ */ __name((s) => String(s || "").trim().toLowerCase(), "emailOf");
-var validEmail = /* @__PURE__ */ __name((s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 254, "validEmail");
-var fault = /* @__PURE__ */ __name((code, status = 403) => {
+};
+var digest = async (s) => hex(await crypto.subtle.digest("SHA-256", enc.encode(s)));
+var random = () => hex(crypto.getRandomValues(new Uint8Array(24)));
+var emailOf = (s) => String(s || "").trim().toLowerCase();
+var validEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 254;
+var fault = (code, status = 403) => {
   const e = new Error(code);
   e.status = status;
   throw e;
-}, "fault");
-var equal = /* @__PURE__ */ __name((a, b) => {
+};
+var equal = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
   let n = 0;
   for (let i2 = 0; i2 < a.length; i2++) n |= a.charCodeAt(i2) ^ b.charCodeAt(i2);
   return n === 0;
-}, "equal");
+};
 async function key(env) {
   if (!env.TICKET_SECRET) fault("wallet_not_configured", 503);
   return crypto.subtle.importKey("raw", enc.encode("wallet-v1:" + env.TICKET_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 }
-__name(key, "key");
 async function seal(env, payload, prefix) {
   const body = hex(enc.encode(JSON.stringify(payload)));
   return prefix + "." + body + "." + hex(await crypto.subtle.sign("HMAC", await key(env), enc.encode(prefix + "." + body)));
 }
-__name(seal, "seal");
 async function unseal(env, token, prefix) {
   const p = String(token || "").split(".");
   if (p.length !== 3 || p[0] !== prefix || p[1].length > 6e3 || p[2].length !== 64) fault("invalid_token");
@@ -511,13 +503,11 @@ async function unseal(env, token, prefix) {
   if (!ok || !data || !Number.isFinite(data.exp) || data.exp <= Date.now()) fault("expired_token", 401);
   return data;
 }
-__name(unseal, "unseal");
 function pubOnly(jwk) {
   if (!jwk || jwk.kty !== "EC" || jwk.crv !== "P-256" || !/^[A-Za-z0-9_-]{43}$/.test(jwk.x || "") || !/^[A-Za-z0-9_-]{43}$/.test(jwk.y || "") || jwk.d) fault("invalid_device");
   return { kty: "EC", crv: "P-256", x: jwk.x, y: jwk.y, ext: true };
 }
-__name(pubOnly, "pubOnly");
-var deviceId = /* @__PURE__ */ __name((jwk) => digest(JSON.stringify(pubOnly(jwk))), "deviceId");
+var deviceId = (jwk) => digest(JSON.stringify(pubOnly(jwk)));
 async function verifyProof(env, body, purpose, publicKey) {
   const c = await unseal(env, body.challenge, "C1");
   if (c.purpose !== purpose || c.exp - Date.now() > 12e4) fault("invalid_challenge");
@@ -529,8 +519,7 @@ async function verifyProof(env, body, purpose, publicKey) {
   }
   return c;
 }
-__name(verifyProof, "verifyProof");
-var stub = /* @__PURE__ */ __name((env) => env.WALLET_OWNERSHIP.get(env.WALLET_OWNERSHIP.idFromName("wallet-v1")), "stub");
+var stub = (env) => env.WALLET_OWNERSHIP.get(env.WALLET_OWNERSHIP.idFromName("wallet-v1"));
 async function call(env, action, body) {
   if (!env.WALLET_OWNERSHIP) fault("wallet_not_configured", 503);
   const r = await stub(env).fetch("https://wallet.internal/" + action, { method: "POST", body: JSON.stringify(body) });
@@ -538,12 +527,10 @@ async function call(env, action, body) {
   if (!r.ok) fault(d.error || "wallet_error", r.status);
   return d;
 }
-__name(call, "call");
 async function walletLegacyAllowed(env, code) {
   if (!env.WALLET_OWNERSHIP) return true;
   return (await call(env, "legacy", { hash: await digest(String(code).trim().toUpperCase()) })).allowed;
 }
-__name(walletLegacyAllowed, "walletLegacyAllowed");
 async function walletAuthenticate(env, email, code) {
   try {
     const s = await unseal(env, code, "W1");
@@ -554,13 +541,12 @@ async function walletAuthenticate(env, email, code) {
     return null;
   }
 }
-__name(walletAuthenticate, "walletAuthenticate");
-var cors = /* @__PURE__ */ __name((req, env) => {
+var cors = (req, env) => {
   const allowed = (env.WALLET_ORIGINS || "https://chance1228.com").split(",").map((x2) => x2.trim());
   const origin = req.headers.get("Origin");
   return { "Access-Control-Allow-Origin": allowed.includes(origin) ? origin : allowed[0], "Access-Control-Allow-Methods": "GET,POST,OPTIONS", "Access-Control-Allow-Headers": "Content-Type", Vary: "Origin", "Cache-Control": "no-store", "Content-Type": "application/json;charset=utf-8" };
-}, "cors");
-var response = /* @__PURE__ */ __name((req, env, data, status = 200) => new Response(JSON.stringify(data), { status, headers: cors(req, env) }), "response");
+};
+var response = (req, env, data, status = 200) => new Response(JSON.stringify(data), { status, headers: cors(req, env) });
 async function walletRouter(req, url, env, helpers = {}) {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors(req, env) });
   const origin = req.headers.get("Origin");
@@ -588,6 +574,12 @@ async function walletRouter(req, url, env, helpers = {}) {
     }
     if (path === "resolve") {
       const d2 = await call(env, "resolve", { mHash: await digest(String(body.m || "")) });
+      if (d2.state === "first_claim") {
+        const map = JSON.parse(env.WALLET_EXISTING_PASSES || "{}");
+        const pass = map[String(body.m || "")];
+        if (!pass) fault("invalid_wallet_link", 404);
+        d2.edition = pass.edition || null;
+      }
       return response(req, env, d2);
     }
     if (path === "transfer/peek") {
@@ -646,19 +638,18 @@ async function walletRouter(req, url, env, helpers = {}) {
     return response(req, env, { ok: false, error: e.message || "wallet_error" }, e.status || 500);
   }
 }
-__name(walletRouter, "walletRouter");
 async function syncPasses(env, ownershipId, version) {
   if (!env.PASSCREATOR_API_KEY) return call(env, "pass-existing", { ownershipId, version });
   const data = await call(env, "pass-job", { ownershipId });
   if (data.busy) return { status: "pending_retry", message: "\u5361\u7247\u6B63\u5728\u66F4\u65B0\uFF0C\u8ACB\u7A0D\u5F8C\u91CD\u8A66" };
   let current = data.currentPass;
   try {
-    const api = /* @__PURE__ */ __name(async (path, method, body) => {
+    const api = async (path, method, body) => {
       const r = await fetch("https://app.passcreator.com/api/v3/pass" + path, { method, headers: { Authorization: env.PASSCREATOR_API_KEY, "Content-Type": "application/json" }, ...body ? { body: JSON.stringify({ data: body }) } : {}, signal: AbortSignal.timeout(15e3) });
       const d = await r.json();
       if (!r.ok || d.success === false) throw new Error("passcreator_" + r.status);
       return d;
-    }, "api");
+    };
     const fields = { walletOwner: data.ownerName, walletStatus: "OWNED", walletEdition: data.edition, openAlbumUrl: data.url, barcodeValue: data.url };
     for (const old of data.oldPasses) if (old.identifier && !old.synced) {
       await api("/" + encodeURIComponent(old.identifier) + "?async=false", "PATCH", { walletStatus: "TRANSFERRED", openAlbumUrl: data.oldUrl, barcodeValue: data.oldUrl });
@@ -691,7 +682,7 @@ async function syncPasses(env, ownershipId, version) {
       if (!pass.ok) throw new Error("pass_download_failed");
       const zipped = new Uint8Array(await pass.arrayBuffer());
       if (zipped.length > 8 * 1024 * 1024) throw new Error("pass_too_large");
-      const entries = unzipSync(zipped, { filter: /* @__PURE__ */ __name((entry) => entry.name === "pass.json" && entry.originalSize < 256e3, "filter") });
+      const entries = unzipSync(zipped, { filter: (entry) => entry.name === "pass.json" && entry.originalSize < 256e3 });
       const json2 = JSON.parse(new TextDecoder().decode(entries["pass.json"]));
       current.serial = json2.serialNumber;
       current.passTypeIdentifier = json2.passTypeIdentifier;
@@ -703,15 +694,10 @@ async function syncPasses(env, ownershipId, version) {
     return { status: "pending_retry", message: "\u6240\u6709\u6B0A\u5DF2\u5B8C\u6210\uFF0CWallet \u5361\u7247\u66F4\u65B0\u5F85\u91CD\u8A66", error: e.message };
   }
 }
-__name(syncPasses, "syncPasses");
 function ownershipView(r) {
-  return { ownership_id: r.id, album_id: r.album, current_owner: r.owner, status: r.status, version: r.version, wallet_serial: r.currentPass?.serial || null, wallet_identifier: r.currentPass?.identifier || null, history: r.history, transfer_pending: !!r.transfer && r.transfer.exp > Date.now() };
+  return { ownership_id: r.id, album_id: r.album, edition: r.edition || null, current_owner: r.owner, status: r.status, version: r.version, wallet_serial: r.currentPass?.serial || null, wallet_identifier: r.currentPass?.identifier || null, history: r.history, transfer_pending: !!r.transfer && r.transfer.exp > Date.now() };
 }
-__name(ownershipView, "ownershipView");
 var WalletOwnership = class {
-  static {
-    __name(this, "WalletOwnership");
-  }
   constructor(ctx, env) {
     this.ctx = ctx;
     this.env = env;
@@ -1002,7 +988,7 @@ var WalletOwnership = class {
   }
 };
 
-// worker.js
+// outputs/wallet-v1/worker.js
 var DEMO_CODES = {};
 var PROTECTED_FILES = /* @__PURE__ */ new Set([
   "sky/01.mp3",
@@ -1041,14 +1027,12 @@ function corsHeaders(request, env) {
     "Vary": "Origin"
   };
 }
-__name(corsHeaders, "corsHeaders");
 function json(data, status, request, env) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(request, env) }
   });
 }
-__name(json, "json");
 function genCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const bytes = new Uint8Array(8);
@@ -1057,7 +1041,6 @@ function genCode() {
   for (let i2 = 0; i2 < 8; i2++) s += chars[bytes[i2] % chars.length];
   return `SKY1-${s.slice(0, 4)}-${s.slice(4, 8)}`;
 }
-__name(genCode, "genCode");
 async function verifyStripeSignature(body, sigHeader, secret) {
   if (!sigHeader) return false;
   const parts = {};
@@ -1082,7 +1065,6 @@ async function verifyStripeSignature(body, sigHeader, secret) {
   for (let i2 = 0; i2 < expectedHex.length; i2++) diff |= expectedHex.charCodeAt(i2) ^ parts.v1.charCodeAt(i2);
   return diff === 0;
 }
-__name(verifyStripeSignature, "verifyStripeSignature");
 async function sendRedeemEmail(env, email, code, product) {
   const productName = product === "599" ? "THE SKY \u5178\u85CF\u7248\uFF08+WAV\uFF09" : "THE SKY \u6578\u4F4D\u5C08\u8F2F";
   const html = `
@@ -1106,7 +1088,6 @@ async function sendRedeemEmail(env, email, code, product) {
   });
   if (!res.ok) console.log("Resend send failed", res.status, await res.text());
 }
-__name(sendRedeemEmail, "sendRedeemEmail");
 async function handleStripeWebhook(request, env) {
   const body = await request.text();
   const sig = request.headers.get("stripe-signature");
@@ -1131,7 +1112,6 @@ async function handleStripeWebhook(request, env) {
   }
   return new Response("ok", { status: 200 });
 }
-__name(handleStripeWebhook, "handleStripeWebhook");
 async function handleVerify(request, env) {
   let body;
   try {
@@ -1160,13 +1140,11 @@ async function handleVerify(request, env) {
   }
   return json({ ok: true, product: data.product, productId: data.productId || null }, 200, request, env);
 }
-__name(handleVerify, "handleVerify");
 function canUnlockAlbum(data) {
   if (!data) return false;
   if (data.unlockType) return data.unlockType === "digital";
   return data.product === "299" || data.product === "599";
 }
-__name(canUnlockAlbum, "canUnlockAlbum");
 async function authenticate(env, email, code) {
   if (!email || !code) return null;
   if (String(code).startsWith("W1.")) return walletAuthenticate(env, email, code);
@@ -1182,7 +1160,6 @@ async function authenticate(env, email, code) {
   if (canUnlockAlbum(data) && !await walletLegacyAllowed(env, code)) return null;
   return data;
 }
-__name(authenticate, "authenticate");
 async function handleTrack(request, env, url) {
   const file = url.searchParams.get("file") || "";
   const email = (url.searchParams.get("email") || "").trim().toLowerCase();
@@ -1227,7 +1204,6 @@ async function handleTrack(request, env, url) {
   if (!headers.get("content-type")) headers.set("content-type", file.endsWith(".wav") ? "audio/wav" : file.endsWith(".mp4") ? "video/mp4" : "audio/mpeg");
   return new Response(obj.body, { headers });
 }
-__name(handleTrack, "handleTrack");
 async function handleDownload(request, env, url) {
   const file = url.searchParams.get("file") || "";
   const email = (url.searchParams.get("email") || "").trim().toLowerCase();
@@ -1250,7 +1226,6 @@ async function handleDownload(request, env, url) {
   headers.set("cache-control", "private, max-age=0, must-revalidate");
   return new Response(obj.body, { headers });
 }
-__name(handleDownload, "handleDownload");
 async function handleInterest(request, env) {
   let body;
   try {
@@ -1268,7 +1243,6 @@ async function handleInterest(request, env) {
   }
   return json({ ok: true, already: !!existed }, 200, request, env);
 }
-__name(handleInterest, "handleInterest");
 async function handleInterestCount(request, env, url) {
   const adminKey = env.ADMIN_KEY || "";
   if (!adminKey || (url.searchParams.get("key") || "") !== adminKey) {
@@ -1284,7 +1258,6 @@ async function handleInterestCount(request, env, url) {
   } while (cursor);
   return json({ ok: true, event, count, emails }, 200, request, env);
 }
-__name(handleInterestCount, "handleInterestCount");
 var ECPAY_PLAYER_URL = "https://chance1228.com/";
 function ecpayConfig(env) {
   const prod = (env.ECPAY_ENV || "stage").toLowerCase() === "prod";
@@ -1295,27 +1268,22 @@ function ecpayConfig(env) {
     hashIV: env.ECPAY_HASH_IV || ""
   };
 }
-__name(ecpayConfig, "ecpayConfig");
 function ecpayUrlEncode(s) {
   return encodeURIComponent(s).replace(/%20/g, "+").replace(/~/g, "%7E").replace(/'/g, "%27").toLowerCase();
 }
-__name(ecpayUrlEncode, "ecpayUrlEncode");
 async function ecpayCheckMac(params, hashKey, hashIV) {
   const keys = Object.keys(params).filter((k) => k !== "CheckMacValue").sort((a, b) => a.toLowerCase() < b.toLowerCase() ? -1 : 1);
   const raw = "HashKey=" + hashKey + "&" + keys.map((k) => k + "=" + params[k]).join("&") + "&HashIV=" + hashIV;
   const digest2 = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ecpayUrlEncode(raw)));
   return [...new Uint8Array(digest2)].map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
-__name(ecpayCheckMac, "ecpayCheckMac");
 function escapeHtmlAttr(s) {
   return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-__name(escapeHtmlAttr, "escapeHtmlAttr");
 function isValidEmail(email) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(email || "").trim());
 }
-__name(isValidEmail, "isValidEmail");
-var orderKey = /* @__PURE__ */ __name((tno) => "order:" + tno, "orderKey");
+var orderKey = (tno) => "order:" + tno;
 async function sendProductEmail(env, email, code, P, amount) {
   const isDigital = P.unlockType === "digital";
   const isTicket = P.unlockType === "ticket";
@@ -1352,7 +1320,6 @@ async function sendProductEmail(env, email, code, P, amount) {
   }
   return true;
 }
-__name(sendProductEmail, "sendProductEmail");
 async function handleEcpayCreate(request, env, url) {
   let productKey = "", email = "", buyerName = "", backPath = "";
   if (request.method === "GET") {
@@ -1404,7 +1371,7 @@ async function handleEcpayCreate(request, env, url) {
     return json({ ok: false, message: "ECPay \u5C1A\u672A\u8A2D\u5B9A\uFF08\u74B0\u5883\u8B8A\u6578\uFF09" }, 500, request, env);
   }
   const now = new Date(Date.now() + 8 * 3600 * 1e3);
-  const p2 = /* @__PURE__ */ __name((n) => String(n).padStart(2, "0"), "p2");
+  const p2 = (n) => String(n).padStart(2, "0");
   const tradeDate = now.getUTCFullYear() + "/" + p2(now.getUTCMonth() + 1) + "/" + p2(now.getUTCDate()) + " " + p2(now.getUTCHours()) + ":" + p2(now.getUTCMinutes()) + ":" + p2(now.getUTCSeconds());
   const rand = crypto.getRandomValues(new Uint8Array(3));
   const tradeNo = ("SKY" + Date.now().toString(36) + Array.from(rand).map((b) => (b % 36).toString(36)).join("")).toUpperCase().slice(0, 20);
@@ -1445,10 +1412,9 @@ async function handleEcpayCreate(request, env, url) {
   };
   params.CheckMacValue = await ecpayCheckMac(params, cfg.hashKey, cfg.hashIV);
   const inputs = Object.entries(params).map(([k, v]) => '<input type="hidden" name="' + k + '" value="' + escapeHtmlAttr(v) + '">').join("");
-  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>\u524D\u5F80\u7DA0\u754C\u4ED8\u6B3E</title></head><body style="background:#07111F;color:#DDEBFF;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh"><form method="post" action="' + cfg.action + '">' + inputs + "</form><p>\u6B63\u5728\u524D\u5F80\u7DA0\u754C\u5B89\u5168\u4ED8\u6B3E\u9801\u2026</p><script>document.forms[0].submit()<\/script></body></html>";
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>\u524D\u5F80\u7DA0\u754C\u4ED8\u6B3E</title></head><body style="background:#07111F;color:#DDEBFF;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh"><form method="post" action="' + cfg.action + '">' + inputs + "</form><p>\u6B63\u5728\u524D\u5F80\u7DA0\u754C\u5B89\u5168\u4ED8\u6B3E\u9801\u2026</p><script>document.forms[0].submit()</script></body></html>";
   return new Response(html, { headers: { "content-type": "text/html; charset=utf-8", ...corsHeaders(request, env) } });
 }
-__name(handleEcpayCreate, "handleEcpayCreate");
 async function handleEcpayNotify(request, env) {
   const bodyText = await request.text();
   const params = {};
@@ -1527,7 +1493,6 @@ async function handleEcpayNotify(request, env) {
   }
   return new Response("1|OK", { headers: { "content-type": "text/plain" } });
 }
-__name(handleEcpayNotify, "handleEcpayNotify");
 async function handleCardsSave(request, env) {
   let body;
   try {
@@ -1552,9 +1517,9 @@ async function handleCardsSave(request, env) {
     if (!mergedOwned[k]) mergedOwned[k] = owned[k];
   }
   const rec = { owned: mergedOwned, ts: Date.now() };
-  const clampT = /* @__PURE__ */ __name(function(v) {
+  const clampT = function(v) {
     return Math.max(0, Math.min(9, Math.floor(v)));
-  }, "clampT");
+  };
   const inGday = Number.isFinite(body.gday) ? Math.floor(body.gday) : null;
   const pvGday = Number.isFinite(prev.gday) ? prev.gday : null;
   if (inGday != null && Number.isFinite(body.tk) && (pvGday == null || inGday >= pvGday)) {
@@ -1575,7 +1540,6 @@ async function handleCardsSave(request, env) {
   await env.CODES.put("sync:" + email, payload);
   return json({ ok: true }, 200, request, env);
 }
-__name(handleCardsSave, "handleCardsSave");
 async function handleCardsLoad(request, env, url) {
   const email = (url.searchParams.get("e") || "").trim().toLowerCase();
   const code = (url.searchParams.get("c") || "").trim().toUpperCase();
@@ -1584,13 +1548,11 @@ async function handleCardsLoad(request, env, url) {
   const rec = await env.CODES.get("sync:" + email);
   return json({ ok: true, data: rec ? JSON.parse(rec) : null }, 200, request, env);
 }
-__name(handleCardsLoad, "handleCardsLoad");
 async function handleNow(request, env) {
   const d = new Date(Date.now() + 8 * 3600 * 1e3);
   const day = d.getUTCFullYear() * 372 + d.getUTCMonth() * 31 + d.getUTCDate();
   return json({ ok: true, day, ts: Date.now() }, 200, request, env);
 }
-__name(handleNow, "handleNow");
 var worker_default = {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -1617,11 +1579,9 @@ var worker_default = {
 function FEED_KV(env) {
   return env.CODES;
 }
-__name(FEED_KV, "FEED_KV");
 function FEED_R2(env) {
   return env.AUDIO;
 }
-__name(FEED_R2, "FEED_R2");
 async function feedHasSignal(email, code, env) {
   try {
     const data = await authenticate(env, email, code);
@@ -1632,17 +1592,16 @@ async function feedHasSignal(email, code, env) {
     return false;
   }
 }
-__name(feedHasSignal, "feedHasSignal");
 var FEED_CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type,X-Feed-Key",
   "Access-Control-Max-Age": "86400"
 };
-var fj = /* @__PURE__ */ __name((obj, status) => new Response(JSON.stringify(obj), {
+var fj = (obj, status) => new Response(JSON.stringify(obj), {
   status: status || 200,
   headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...FEED_CORS }
-}), "fj");
+});
 function feedRole(request, env) {
   const key2 = request.headers.get("X-Feed-Key") || "";
   if (!key2) return null;
@@ -1650,27 +1609,22 @@ function feedRole(request, env) {
   if (env.STAFF_KEY && key2 === env.STAFF_KEY) return "artist";
   return null;
 }
-__name(feedRole, "feedRole");
 var FEED_IDX = "feed:index";
-var feedKey = /* @__PURE__ */ __name((id) => "feed:post:" + id, "feedKey");
+var feedKey = (id) => "feed:post:" + id;
 async function feedIndex(env) {
   return await FEED_KV(env).get(FEED_IDX, "json") || [];
 }
-__name(feedIndex, "feedIndex");
 async function feedSaveIndex(env, ids) {
   await FEED_KV(env).put(FEED_IDX, JSON.stringify(ids));
 }
-__name(feedSaveIndex, "feedSaveIndex");
 async function feedSettings(env) {
   return Object.assign({ requireReview: false }, await FEED_KV(env).get("feed:settings", "json") || {});
 }
-__name(feedSettings, "feedSettings");
 async function feedLog(env, entry) {
   const log = await FEED_KV(env).get("feed:log", "json") || [];
   log.unshift(Object.assign({ at: Date.now() }, entry));
   await FEED_KV(env).put("feed:log", JSON.stringify(log.slice(0, 200)));
 }
-__name(feedLog, "feedLog");
 async function feedGetAll(env) {
   const ids = await feedIndex(env);
   const out = [];
@@ -1680,7 +1634,6 @@ async function feedGetAll(env) {
   }
   return out;
 }
-__name(feedGetAll, "feedGetAll");
 var _fgaCache = null;
 var _fgaAt = 0;
 async function feedGetAllCached(env) {
@@ -1691,7 +1644,6 @@ async function feedGetAllCached(env) {
   _fgaAt = now;
   return v;
 }
-__name(feedGetAllCached, "feedGetAllCached");
 async function feedRouter(request, url, env) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: FEED_CORS });
   const path = url.pathname.replace(/^\/feed/, "");
@@ -1997,7 +1949,6 @@ async function feedRouter(request, url, env) {
   }
   return fj({ ok: false, error: "not found" }, 404);
 }
-__name(feedRouter, "feedRouter");
 var TK = {
   OTP_TTL: 300,
   // 驗證碼 5 分鐘
@@ -2031,14 +1982,12 @@ function tkCors(request, env) {
     "Vary": "Origin"
   };
 }
-__name(tkCors, "tkCors");
 function tkJson(data, status, request, env) {
   return new Response(JSON.stringify(data), {
     status: status || 200,
     headers: { "Content-Type": "application/json; charset=utf-8", ...tkCors(request, env) }
   });
 }
-__name(tkJson, "tkJson");
 function tkRand(n) {
   const b = new Uint8Array(n);
   crypto.getRandomValues(b);
@@ -2046,25 +1995,20 @@ function tkRand(n) {
   for (let i2 = 0; i2 < n; i2++) s += TK.ALPHA[b[i2] % TK.ALPHA.length];
   return s;
 }
-__name(tkRand, "tkRand");
 function tkEmail(e) {
   return String(e || "").trim().toLowerCase();
 }
-__name(tkEmail, "tkEmail");
 function tkValidEmail(e) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 }
-__name(tkValidEmail, "tkValidEmail");
 function tkMask(e) {
   const [u, d] = String(e || "").split("@");
   if (!d) return "\u2014";
   return (u.length <= 2 ? u[0] + "*" : u.slice(0, 2) + "***") + "@" + d;
 }
-__name(tkMask, "tkMask");
 function tkNow() {
   return Date.now();
 }
-__name(tkNow, "tkNow");
 async function tkBody(request) {
   try {
     return JSON.parse(await request.text() || "{}");
@@ -2072,55 +2016,47 @@ async function tkBody(request) {
     return {};
   }
 }
-__name(tkBody, "tkBody");
 function tkSecret(env) {
   return env.TICKET_SECRET || env.ADMIN_KEY || "dev-secret";
 }
-__name(tkSecret, "tkSecret");
 async function tkSign(env, id, ver) {
   const key2 = await crypto.subtle.importKey("raw", new TextEncoder().encode(tkSecret(env)), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign("HMAC", key2, new TextEncoder().encode(id + "." + ver));
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 20);
 }
-__name(tkSign, "tkSign");
 async function tkQr(env, t) {
   return "CT1." + t.id + "." + t.ver + "." + await tkSign(env, t.id, t.ver);
 }
-__name(tkQr, "tkQr");
 function tkParseQr(s) {
   const m = /^CT1\.([A-Z0-9-]+)\.(\d+)\.([0-9a-f]{20})$/.exec(String(s || "").trim());
   return m ? { id: m[1], ver: Number(m[2]), sig: m[3] } : null;
 }
-__name(tkParseQr, "tkParseQr");
 var tkK = {
-  ev: /* @__PURE__ */ __name((id) => "tk:ev:" + id, "ev"),
-  t: /* @__PURE__ */ __name((id) => "tk:t:" + id, "t"),
-  own: /* @__PURE__ */ __name((email, id) => "tk:o:" + email + ":" + id, "own"),
-  tr: /* @__PURE__ */ __name((tok) => "tk:tr:" + tok, "tr"),
-  trc: /* @__PURE__ */ __name((code) => "tk:trc:" + code, "trc"),
+  ev: (id) => "tk:ev:" + id,
+  t: (id) => "tk:t:" + id,
+  own: (email, id) => "tk:o:" + email + ":" + id,
+  tr: (tok) => "tk:tr:" + tok,
+  trc: (code) => "tk:trc:" + code,
   // 6 碼 → 轉讓 token
-  trx: /* @__PURE__ */ __name((email) => "tk:trx:" + email, "trx"),
+  trx: (email) => "tk:trx:" + email,
   // 代碼輸錯次數
-  pp: /* @__PURE__ */ __name((eventId, email) => "tk:pp:" + email + ":" + eventId, "pp"),
+  pp: (eventId, email) => "tk:pp:" + email + ":" + eventId,
   // PhotoPass 已購（依 email 列）
-  lim: /* @__PURE__ */ __name((email, eventId, tier) => "tk:lim:" + email + ":" + eventId + ":" + (tier || "_"), "lim"),
+  lim: (email, eventId, tier) => "tk:lim:" + email + ":" + eventId + ":" + (tier || "_"),
   // 每人每票種限購
-  otp: /* @__PURE__ */ __name((email) => "tk:otp:" + email, "otp"),
-  otpr: /* @__PURE__ */ __name((email) => "tk:otpr:" + email, "otpr"),
-  sess: /* @__PURE__ */ __name((tok) => "tk:s:" + tok, "sess")
+  otp: (email) => "tk:otp:" + email,
+  otpr: (email) => "tk:otpr:" + email,
+  sess: (tok) => "tk:s:" + tok
 };
 async function tkGetEvent(env, id) {
   return id ? await env.CODES.get(tkK.ev(id), "json") : null;
 }
-__name(tkGetEvent, "tkGetEvent");
 async function tkGetTicket(env, id) {
   return id ? await env.CODES.get(tkK.t(id), "json") : null;
 }
-__name(tkGetTicket, "tkGetTicket");
 async function tkPutTicket(env, t) {
   await env.CODES.put(tkK.t(t.id), JSON.stringify(t), { metadata: { e: t.eventId, s: t.status, v: t.ver, o: t.owner, tr: t.tier || null, sn: t.seatNo || null } });
 }
-__name(tkPutTicket, "tkPutTicket");
 async function tkListEvents(env) {
   const out = [];
   let cursor;
@@ -2134,7 +2070,6 @@ async function tkListEvents(env) {
   } while (cursor);
   return out.sort((a, b) => String(a.startAt || "").localeCompare(String(b.startAt || "")));
 }
-__name(tkListEvents, "tkListEvents");
 async function tkListTicketMeta(env, eventId) {
   const out = [];
   let cursor;
@@ -2148,34 +2083,28 @@ async function tkListTicketMeta(env, eventId) {
   } while (cursor);
   return out;
 }
-__name(tkListTicketMeta, "tkListTicketMeta");
 async function tkSession(env, tok) {
   return tok ? await env.CODES.get(tkK.sess(tok), "json") : null;
 }
-__name(tkSession, "tkSession");
 async function tkNewSession(env, email) {
   const tok = tkRand(24);
   await env.CODES.put(tkK.sess(tok), JSON.stringify({ email, at: tkNow() }), { expirationTtl: TK.SESS_TTL });
   return tok;
 }
-__name(tkNewSession, "tkNewSession");
 function tkEventWindow(ev) {
   const start = ev && ev.startAt ? Date.parse(ev.startAt) : NaN;
   if (isNaN(start)) return { start: null, open: null, close: null };
   return { start, open: start - TK.WIN_BEFORE_H * 36e5, close: start + TK.WIN_AFTER_H * 36e5 };
 }
-__name(tkEventWindow, "tkEventWindow");
 function tkTiers(e) {
   return Array.isArray(e.tiers) && e.tiers.length ? e.tiers : null;
 }
-__name(tkTiers, "tkTiers");
 function tkTierOf(e, key2) {
   var ts = tkTiers(e);
   return ts ? ts.filter(function(t) {
     return t.key === key2;
   })[0] || null : null;
 }
-__name(tkTierOf, "tkTierOf");
 function tkTierPublic(e, t) {
   var sold = Number(t.sold || 0), cap = Number(t.cap || 0);
   return {
@@ -2192,7 +2121,6 @@ function tkTierPublic(e, t) {
     onSale: e.onSale !== false && t.onSale !== false && Number(t.price || 0) > 0 && (!cap || sold < cap)
   };
 }
-__name(tkTierPublic, "tkTierPublic");
 function tkPublicEvent(e) {
   var ts = tkTiers(e), tp = ts ? ts.map(function(t) {
     return tkTierPublic(e, t);
@@ -2230,11 +2158,9 @@ function tkPublicEvent(e) {
     ppKey: "pp-" + e.id
   };
 }
-__name(tkPublicEvent, "tkPublicEvent");
 function tkSeat(n) {
   return n == null ? null : ("00" + n).slice(-3);
 }
-__name(tkSeat, "tkSeat");
 function tkPublicTicket(ev, t, qr) {
   var tier = ev && t.tier ? tkTierOf(ev, t.tier) : null;
   return {
@@ -2255,7 +2181,6 @@ function tkPublicTicket(ev, t, qr) {
     qr: qr || null
   };
 }
-__name(tkPublicTicket, "tkPublicTicket");
 async function tkMail(env, to, subject, html) {
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -2270,7 +2195,6 @@ async function tkMail(env, to, subject, html) {
     return false;
   }
 }
-__name(tkMail, "tkMail");
 function tkMailWrap(title, body) {
   return `<div style="font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;padding:28px;color:#f6f1e7;background:#0b0b0b;border-radius:16px">
     <div style="font:22px Georgia,serif;letter-spacing:.18em;color:#d8bc80;margin-bottom:14px">CHANCE</div>
@@ -2278,7 +2202,6 @@ function tkMailWrap(title, body) {
     <div style="font-size:14px;line-height:1.7;color:#cfc7b8">${body}</div>
   </div>`;
 }
-__name(tkMailWrap, "tkMailWrap");
 function tkFmtDate(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return iso || "";
@@ -2286,7 +2209,6 @@ function tkFmtDate(iso) {
   const w = "\u65E5\u4E00\u4E8C\u4E09\u56DB\u4E94\u516D"[t.getUTCDay()];
   return `${t.getUTCFullYear()}/${t.getUTCMonth() + 1}/${t.getUTCDate()}\uFF08${w}\uFF09${String(t.getUTCHours()).padStart(2, "0")}:${String(t.getUTCMinutes()).padStart(2, "0")}`;
 }
-__name(tkFmtDate, "tkFmtDate");
 async function tkIssue(env, { eventId, email, qty, orderRef, note, force, tier }) {
   const ev = await tkGetEvent(env, eventId);
   if (!ev) return { ok: false, error: "no_event" };
@@ -2361,7 +2283,6 @@ async function tkIssue(env, { eventId, email, qty, orderRef, note, force, tier }
   ));
   return { ok: true, tickets, emailed, left: T ? T.cap ? T.cap - T.sold : null : ev.capacity ? ev.capacity - ev.sold : null };
 }
-__name(tkIssue, "tkIssue");
 async function tkProduct(env, productKey, email) {
   {
     const _m225 = await tkMerchProduct(env, productKey, email);
@@ -2414,7 +2335,6 @@ async function tkProduct(env, productKey, email) {
   if (email && await env.CODES.get(tkK.pp(ev.id, tkEmail(email)))) return { ok: false, status: 409, message: "\u4F60\u5DF2\u7D93\u8CB7\u904E\u9019\u5834\u7684 PhotoPass \u4E86" };
   return { ok: true, product: { productId: productKey, name: "\u300A" + ev.name + "\u300BPhotoPass \u5408\u7167\u5305", price: Number(ev.photoPrice), unlockType: "pp", itemName: ev.name + " PhotoPass#" + Number(ev.photoPrice) }, extra: { eventId: ev.id } };
 }
-__name(tkProduct, "tkProduct");
 async function tkOnPaid(env, o, tradeNo, params) {
   if (o && (o.addon || o.merchOnly)) return await tkMerchOnPaid(env, o, tradeNo, params);
   o.status = "paid";
@@ -2448,12 +2368,11 @@ async function tkOnPaid(env, o, tradeNo, params) {
   }
   return o;
 }
-__name(tkOnPaid, "tkOnPaid");
 async function ticketRouter(request, url, env) {
   if (request.method === "OPTIONS") return new Response(null, { headers: tkCors(request, env) });
   const p = url.pathname, q = url.searchParams;
   const body = request.method === "POST" ? await tkBody(request) : {};
-  const J = /* @__PURE__ */ __name((d, s) => tkJson(d, s, request, env), "J");
+  const J = (d, s) => tkJson(d, s, request, env);
   const isAdmin = (body.adminKey || q.get("adminKey")) && (body.adminKey || q.get("adminKey")) === env.ADMIN_KEY;
   const sk = body.staffKey || q.get("staffKey");
   const isStaff = isAdmin || !!sk && sk === (env.SCAN_KEY || env.STAFF_KEY);
@@ -2623,7 +2542,7 @@ async function ticketRouter(request, url, env) {
       tickets: meta.map((m) => ({ id: m.id, v: m.v, s: m.s, o: tkMask(m.o) }))
     });
   }
-  const doCheckin = /* @__PURE__ */ __name(async (qrStr, at) => {
+  const doCheckin = async (qrStr, at) => {
     const pq = tkParseQr(qrStr);
     if (!pq) return { ok: false, reason: "bad_format" };
     const t = await tkGetTicket(env, pq.id);
@@ -2643,7 +2562,7 @@ async function ticketRouter(request, url, env) {
     (t.history = t.history || []).push({ at: t.usedAt, type: "checkin" });
     await tkPutTicket(env, t);
     return { ok: true, ...info, usedAt: t.usedAt };
-  }, "doCheckin");
+  };
   if (p === "/ticket/checkin" && request.method === "POST") {
     if (!body.qr && body.ticketId) {
       const t = await tkGetTicket(env, String(body.ticketId).trim().toUpperCase());
@@ -2792,7 +2711,7 @@ async function ticketRouter(request, url, env) {
     await tkPutTicket(env, t);
     return J({ ok: true });
   }
-  const ppsKeyOf = /* @__PURE__ */ __name((eventId, at, cid) => "tk:pps:" + eventId + ":" + String(Math.max(0, Math.floor(at))).padStart(13, "0") + ":" + cid, "ppsKeyOf");
+  const ppsKeyOf = (eventId, at, cid) => "tk:pps:" + eventId + ":" + String(Math.max(0, Math.floor(at))).padStart(13, "0") + ":" + cid;
   if (p === "/ticket/pp/scan" && request.method === "POST") {
     if (!isStaff) return J({ ok: false, error: "forbidden" }, 403);
     const items = Array.isArray(body.items) ? body.items.slice(0, 50) : [];
@@ -2844,7 +2763,6 @@ async function ticketRouter(request, url, env) {
   }
   return J({ ok: false, error: "not_found" }, 404);
 }
-__name(ticketRouter, "ticketRouter");
 var TKM = {
   VER: "m1",
   CODES: ["b", "h", "s", "bh"],
@@ -2899,32 +2817,28 @@ var TKM = {
   ]
 };
 var tkmK = {
-  order: /* @__PURE__ */ __name((email, eventId, tno) => "tk:mo:" + email + ":" + eventId + ":" + tno, "order"),
-  lim: /* @__PURE__ */ __name((email, eventId, item) => "tk:ml:" + email + ":" + eventId + ":" + item, "lim"),
-  draft: /* @__PURE__ */ __name((id) => "tk:mxd:" + id, "draft")
+  order: (email, eventId, tno) => "tk:mo:" + email + ":" + eventId + ":" + tno,
+  lim: (email, eventId, item) => "tk:ml:" + email + ":" + eventId + ":" + item,
+  draft: (id) => "tk:mxd:" + id
 };
 function tkmCfg(ev) {
   return ev && ev.merch && ev.merch.items ? ev.merch : null;
 }
-__name(tkmCfg, "tkmCfg");
 function tkmOpen(m) {
   if (!m || m.onSale !== true) return false;
   const c = m.cutoff ? Date.parse(m.cutoff) : NaN;
   return isNaN(c) || tkNow() <= c;
 }
-__name(tkmOpen, "tkmOpen");
 function tkmLeft(it) {
   const cap = Number(it && it.cap || 0), sold = Number(it && it.sold || 0);
   return cap ? Math.max(0, cap - sold) : 9999;
 }
-__name(tkmLeft, "tkmLeft");
 function tkmCountry(code) {
   const c = String(code || "").toUpperCase();
   return TKM.COUNTRIES.filter(function(x2) {
     return x2[0] === c;
   })[0] || null;
 }
-__name(tkmCountry, "tkmCountry");
 function tkmResolve(m, code) {
   if (TKM.CODES.indexOf(code) < 0 || !m || !m.items) return null;
   const I = m.items;
@@ -2944,7 +2858,6 @@ function tkmResolve(m, code) {
   }
   return { code, items, price, label: code === "s" ? I.s && I.s.short || "\u96D9\u4EF6\u7D44" : names.join("\uFF0B") };
 }
-__name(tkmResolve, "tkmResolve");
 async function tkmCheck(env, ev, code, email) {
   const m = tkmCfg(ev);
   if (!m) return { ok: false, status: 409, message: "\u9019\u5834\u6D3B\u52D5\u6C92\u6709\u5468\u908A" };
@@ -2959,7 +2872,6 @@ async function tkmCheck(env, ev, code, email) {
   }
   return { ok: true, m, r };
 }
-__name(tkmCheck, "tkmCheck");
 async function tkmHasTicket(env, email, eventId) {
   let cursor;
   do {
@@ -2972,11 +2884,10 @@ async function tkmHasTicket(env, email, eventId) {
   } while (cursor);
   return false;
 }
-__name(tkmHasTicket, "tkmHasTicket");
 function tkmShipClean(s) {
-  const f = /* @__PURE__ */ __name(function(v, n) {
+  const f = function(v, n) {
     return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, " ").trim().slice(0, n);
-  }, "f");
+  };
   s = s || {};
   return {
     country: f(s.country, 2).toUpperCase(),
@@ -2988,7 +2899,6 @@ function tkmShipClean(s) {
     state: f(s.state, 60)
   };
 }
-__name(tkmShipClean, "tkmShipClean");
 function tkmPublic(ev) {
   const m = tkmCfg(ev);
   if (!m) return null;
@@ -3017,7 +2927,6 @@ function tkmPublic(ev) {
     shipOn: m.shipOn !== false
   };
 }
-__name(tkmPublic, "tkmPublic");
 async function tkMerchProduct(env, productKey, email) {
   let mm;
   if (mm = /^(meet-[a-z0-9-]+?)-(vvip|vip|ga)-x-(b|h|s|bh)$/.exec(productKey)) {
@@ -3057,7 +2966,6 @@ async function tkMerchProduct(env, productKey, email) {
   }
   return null;
 }
-__name(tkMerchProduct, "tkMerchProduct");
 async function tkMerchOnPaid(env, o, tradeNo, params) {
   o.status = "paid";
   o.paymentStatus = "paid";
@@ -3109,7 +3017,6 @@ async function tkMerchOnPaid(env, o, tradeNo, params) {
   o.emailSent = o.merchOnly ? mailed : !!(o.ticket && o.ticket.ok && o.ticket.emailed);
   return o;
 }
-__name(tkMerchOnPaid, "tkMerchOnPaid");
 function tkmLines(ev, rec) {
   const I = ev && ev.merch && ev.merch.items || {};
   if (rec.code === "s") return [(I.s && I.s.name || "\u96D9\u4EF6\u7D44") + " \xD71"];
@@ -3117,13 +3024,12 @@ function tkmLines(ev, rec) {
     return (I[k] && I[k].name || k) + " \xD71";
   });
 }
-__name(tkmLines, "tkmLines");
 function tkmMailBody(ev, rec) {
-  const esc = /* @__PURE__ */ __name(function(s) {
+  const esc = function(s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function(c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
-  }, "esc");
+  };
   let h = "<p><b>" + esc(ev && ev.name || "") + "</b>\u3000\u751F\u65E5\u9650\u5B9A\u5468\u908A\uFF08\u9810\u8CFC\uFF09</p><p>" + tkmLines(ev, rec).map(esc).join("<br>") + "</p>";
   h += "<p>\u5546\u54C1 NT$" + rec.mprice + (rec.fee ? "\u3000\u904B\u8CBB NT$" + rec.fee : "") + "\u3000\u5408\u8A08 NT$" + rec.amount + "</p>";
   if (rec.mode === "ship") {
@@ -3137,12 +3043,11 @@ function tkmMailBody(ev, rec) {
   h += '<p>\u6253\u958B <a href="' + TK.APP_URL + '" style="color:#d8bc80">CHANCE app</a> \u2192 SHOP \u2192 \u7968\u593E\uFF0C\u7528\u9019\u500B email\uFF08' + esc(rec.email) + "\uFF09\u767B\u5165\u5C31\u770B\u5F97\u5230\u8A02\u55AE\u3002</p>";
   return h;
 }
-__name(tkmMailBody, "tkmMailBody");
 async function tkMerchRouter(request, url, env) {
   if (request.method === "OPTIONS") return new Response(null, { headers: tkCors(request, env) });
   const p = url.pathname, q = url.searchParams;
   const body = request.method === "POST" ? await tkBody(request) : {};
-  const J = /* @__PURE__ */ __name((d, s) => tkJson(d, s, request, env), "J");
+  const J = (d, s) => tkJson(d, s, request, env);
   const ak = body.adminKey || q.get("adminKey");
   const isAdmin = !!ak && !!env.ADMIN_KEY && ak === env.ADMIN_KEY;
   if (p === "/ticket/merch" && request.method === "GET") {
@@ -3261,32 +3166,27 @@ async function tkMerchRouter(request, url, env) {
   }
   return J({ ok: false, error: "not_found" }, 404);
 }
-__name(tkMerchRouter, "tkMerchRouter");
 var CM = { VER: "cm1", MAX_BODY: 300, MAX_NAME: 12, MAX_ITEMS: 800, RATE_PER_HOUR: 5, ARTIST_NAME: "\u6210\u665E Chance", ARTIST_AVATAR: "assets/images/avatar.jpg" };
 var cmK = {
-  doc: /* @__PURE__ */ __name((album, track) => "cm:" + album + ":" + track, "doc"),
-  rl: /* @__PURE__ */ __name((uid, album, track) => "cm:rl:" + uid + ":" + album + ":" + track, "rl"),
-  ban: /* @__PURE__ */ __name(() => "cm:ban", "ban")
+  doc: (album, track) => "cm:" + album + ":" + track,
+  rl: (uid, album, track) => "cm:rl:" + uid + ":" + album + ":" + track,
+  ban: () => "cm:ban"
 };
 function cmSafeId(s, n) {
   return String(s || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, n || 40);
 }
-__name(cmSafeId, "cmSafeId");
 async function cmHash(email) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("cm|" + String(email || "").trim().toLowerCase()));
   return Array.from(new Uint8Array(buf)).slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-__name(cmHash, "cmHash");
 function cmNewId() {
   const b = new Uint8Array(6);
   crypto.getRandomValues(b);
   return Date.now().toString(36) + Array.from(b).map((x2) => x2.toString(16).padStart(2, "0")).join("");
 }
-__name(cmNewId, "cmNewId");
 function cmClean(s, max2) {
   return String(s || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").replace(/\s+\n/g, "\n").trim().slice(0, max2);
 }
-__name(cmClean, "cmClean");
 async function cmLoad(env, album, track) {
   try {
     const raw = await env.CODES.get(cmK.doc(album, track));
@@ -3298,7 +3198,6 @@ async function cmLoad(env, album, track) {
   }
   return { items: [] };
 }
-__name(cmLoad, "cmLoad");
 async function cmSave(env, album, track, doc) {
   if (doc.items.length > CM.MAX_ITEMS) {
     const pinned = doc.items.filter((x2) => x2.isPinned || x2.isArtist), rest = doc.items.filter((x2) => !(x2.isPinned || x2.isArtist));
@@ -3306,7 +3205,6 @@ async function cmSave(env, album, track, doc) {
   }
   await env.CODES.put(cmK.doc(album, track), JSON.stringify(doc));
 }
-__name(cmSave, "cmSave");
 function cmPublic(it, uid) {
   return {
     id: it.id,
@@ -3324,11 +3222,9 @@ function cmPublic(it, uid) {
     mine: !!(uid && it.userId === uid)
   };
 }
-__name(cmPublic, "cmPublic");
 function cmSort(items) {
   return items.slice().sort((a, b) => Number(b.isPinned) - Number(a.isPinned) || Number(b.isArtist) - Number(a.isArtist) || (a.timestampSeconds == null) - (b.timestampSeconds == null) || (a.timestampSeconds || 0) - (b.timestampSeconds || 0) || a.createdAt - b.createdAt);
 }
-__name(cmSort, "cmSort");
 async function cmRouter(request, url, env) {
   if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders(request, env) });
   const q = url.searchParams;
@@ -3471,9 +3367,7 @@ async function cmRouter(request, url, env) {
   }
   return json({ ok: false, message: "not found" }, 404, request, env);
 }
-__name(cmRouter, "cmRouter");
 export {
   WalletOwnership,
   worker_default as default
 };
-//# sourceMappingURL=worker.js.map
