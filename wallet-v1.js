@@ -29,7 +29,7 @@
     var proof = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, pair.privateKey, enc.encode(c.challenge + '\n' + JSON.stringify(payload)));
     return post(path, { challenge: c.challenge, proof: hex(proof), payload: payload });
   }
-  function strip() { var u = new URL(location.href); ['m', 'wallet_transfer', 'wallet_status'].forEach(function (k) { u.searchParams.delete(k); }); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+  function strip() { var u = new URL(location.href); ['m', 'wallet_transfer', 'wallet_status'].forEach(function (k) { u.searchParams.delete(k); }); history.replaceState(null, '', u.href); }
   function lock(message) {
     clearTimeout(refreshTimer); clearTimeout(expiryTimer); latest = null; localStorage.removeItem(STORAGE);
     if (window.__walletBridge) window.__walletBridge.clear();
