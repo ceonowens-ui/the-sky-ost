@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
+<head><script>/* Existing Wallet links remain valid. */(function(){var q=new URLSearchParams(location.search);if(q.has('m')||q.has('wallet_transfer')||q.has('wallet_status')){var u=new URL('/album/the-sky.html',location.origin);['m','wallet_transfer','wallet_status'].forEach(function(k){if(q.has(k))u.searchParams.set(k,q.get(k));});location.replace(u.href);}})();</script>
 <meta charset="utf-8">
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -2575,7 +2575,7 @@ body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-shee
 @media (max-width:359px){ #screen-player.cp-lyr .cp-line { font-size:20px; } #screen-player.cp-lyr #cp-lyrics { margin-top:clamp(100px,22vh,200px); } }
 @media (max-height:700px){ #screen-player.cp-lyr #cp-lyrics { margin-top:clamp(70px,16vh,150px); } }
 </style>
-<link rel="stylesheet" href="wallet-v1.css?v=B251W1">
+<link rel="stylesheet" href="wallet-v1.css?v=B252W1">
 <meta name="referrer" content="no-referrer">
 </head>
 <body>
@@ -4778,6 +4778,7 @@ window.ALBUM_SWITCH = {
   var seeking = false, saveT = 0, durFixing = false, resumeAt = 0;
   var lyricsCache = {};
 
+  if (lsGet(LS.unlock, {}).wallet) { lsSet(LS.unlock, {}); if (lsGet(LS.feedpass, {}).wallet) lsSet(LS.feedpass, {}); state.unlocked = false; }
   function unlockInfo() { return lsGet(LS.unlock, {}); }
   /* 分級正規化：只有真正的 599/deluxe 才算典藏版，其餘一律 basic。
    * （對後端回傳做防呆 —— 見 PITFALLS #2） */
@@ -8799,7 +8800,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B251W1</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B252W1</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -8949,7 +8950,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b225.js?v=B225T4"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b252.js?v=B252W1"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
@@ -9970,6 +9971,6 @@ body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{ backg
   if (document.readyState === "complete") afterCover(); else window.addEventListener("load", afterCover);
 })();
 </script>
-<script src="wallet-v1.js?v=B251W1" defer></script>
+<script src="wallet-v1.js?v=B252W1" defer></script>
 </body>
 </html>
