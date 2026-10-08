@@ -29,6 +29,8 @@ self.addEventListener("fetch", function (e) {
   if (/\.(mp3|wav|m4a|mp4)$/i.test(url.pathname)) return;           // 音檔不經過 SW（iOS Range 串流）
   if (url.pathname.endsWith("/content.json")) return;           // 內容檔永遠即時抓
 
+  if (url.searchParams.has("m") || url.searchParams.has("wallet_transfer") || url.searchParams.has("code") || url.searchParams.has("recovery")) return;
+
   if (req.mode === "navigate") {
     /* 頁面：網路優先，失敗用快取（基本離線） */
     e.respondWith(
