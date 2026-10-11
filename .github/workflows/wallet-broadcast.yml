@@ -1,0 +1,57 @@
+name: Wallet 卡片廣播
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "要推播給所有 PREMIUM 持卡人的訊息（300 字內）"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  broadcast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 寫入最新消息並通知 Apple
+        env:
+          MSG: ${{ inputs.message }}
+          ADMIN_TOKEN: ${{ secrets.WALLET_ADMIN_TOKEN }}
+          PASS_CERT: ${{ secrets.PASS_CERT }}
+          PASS_KEY: ${{ secrets.PASS_KEY }}
+          BASE: https://the-sky-wallet.anthonywen0693.workers.dev/premium/admin
+          TOPIC: pass.com.chance1228.the-sky
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$PASS_CERT" | sed 's/\\n/\n/g' > cert.pem
+          printf '%s\n' "$PASS_KEY"  | sed 's/\\n/\n/g' > key.pem
+          python3 - <<'PY'
+          import json, os, subprocess, urllib.request
+          base, admin = os.environ["BASE"], os.environ["ADMIN_TOKEN"]
+          def call(path, data=None):
+              req = urllib.request.Request(base + path, method="POST" if data is not None else "GET",
+                                           headers={"Authorization": "Bearer " + admin, "Content-Type": "application/json"},
+                                           data=None if data is None else json.dumps(data).encode())
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+          print("1. 寫入最新消息：", call("/message", {"text": os.environ["MSG"]}).get("ok"))
+          tokens = call("/tokens").get("tokens", [])
+          print("2. 已登記的裝置數：", len(tokens))
+          ok = fail = 0
+          for t in tokens:
+              print("::add-mask::" + t)
+              code = subprocess.run(["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "--http2",
+                                     "--cert", "cert.pem", "--key", "key.pem",
+                                     "-H", "apns-topic: " + os.environ["TOPIC"],
+                                     "-d", "{}", "https://api.push.apple.com/3/device/" + t],
+                                    capture_output=True, text=True).stdout.strip()
+              if code == "200": ok += 1
+              else:
+                  fail += 1
+                  print("   一台裝置回應", code)
+          print(f"3. Apple 推播：成功 {ok}，失敗 {fail}")
+          if tokens and ok == 0: raise SystemExit("全部失敗，請檢查 PASS_CERT / PASS_KEY")
+          PY
+          rm -f cert.pem key.pem
