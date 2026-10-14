@@ -309,6 +309,8 @@ function showVideo(blob, ext){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("video"); a.preload="metadata"; a.src=url;
   a.onloadedmetadata = function(){
+    var mbps = blob.size * 8 / (a.duration || 0) / 1e6;   /* B249：畫質太高粉絲 4G 會卡 → 只提醒，不擋 */
+    if (isFinite(mbps) && mbps > 10) toast("這支影片約 " + Math.round(mbps) + " Mbps，粉絲用 4G 可能要等一下。下次可把 iPhone 錄影改成 1080p 30fps");
     var s = Math.round(a.duration||0);
     if (isFinite(s) && s>0){
       S.att.dur = (s<600?"0":"") + Math.floor(s/60) + ":" + (s%60<10?"0":"") + (s%60);
@@ -342,14 +344,94 @@ $("f-voice").onchange = function(){
   showAudio(f, ext);
 };
 
+/* ---------- B249：影片「快速開播」整理 ----------
+ * iPhone 原檔把影片的目錄（moov）放在檔案最後面，粉絲點播放時，手機要先跑到檔尾讀目錄才能開始播。
+ * 上傳前在這支手機上把 moov 搬到最前面：只搬位置、改索引數字，不重新壓縮，畫質與檔案大小不變。
+ * 任何一步看不懂（不是 MP4/MOV、壓縮目錄、檔案太特殊）就原檔照傳，絕不卡住發文。 */
+function fsBytes(blob, a, b){ return blob.slice(a, b).arrayBuffer().then(function(x){ return new Uint8Array(x); }); }
+function fsType(u, p){ return String.fromCharCode(u[p], u[p+1], u[p+2], u[p+3]); }
+async function fsTopAtoms(file){
+  var atoms = [], off = 0, size = file.size;
+  while (off < size){
+    if (off + 8 > size || atoms.length > 200) throw new Error("not mp4");
+    var h = await fsBytes(file, off, Math.min(off + 16, size)), dv = new DataView(h.buffer);
+    var sz = dv.getUint32(0), hdr = 8, type = fsType(h, 4);
+    if (sz === 1){ if (h.length < 16) throw new Error("bad atom"); sz = dv.getUint32(8) * 4294967296 + dv.getUint32(12); hdr = 16; }
+    else if (sz === 0) sz = size - off;
+    if (sz < hdr || off + sz > size || !/^[\x20-\x7e]{4}$/.test(type)) throw new Error("bad atom");
+    atoms.push({ type: type, off: off, size: sz });
+    off += sz;
+  }
+  return atoms;
+}
+function fsPatchOffsets(moov, map){
+  var dv = new DataView(moov.buffer, moov.byteOffset, moov.byteLength), touched = 0;
+  var GO = { moov: 1, trak: 1, mdia: 1, minf: 1, stbl: 1, edts: 1 };
+  function walk(a, b){
+    var p = a;
+    while (p + 8 <= b){
+      var sz = dv.getUint32(p), hdr = 8, type = fsType(moov, p + 4);
+      if (sz === 1){ sz = dv.getUint32(p + 8) * 4294967296 + dv.getUint32(p + 12); hdr = 16; }
+      else if (sz === 0) sz = b - p;
+      if (sz < hdr || p + sz > b) throw new Error("bad moov");
+      if (type === "cmov") throw new Error("compressed moov");
+      if (type === "stco"){
+        var n = dv.getUint32(p + hdr + 4);
+        if (p + hdr + 8 + n * 4 > p + sz) throw new Error("bad stco");
+        for (var i = 0; i < n; i++){ var q = p + hdr + 8 + i * 4, v = map(dv.getUint32(q)); if (v > 0xFFFFFFFF) throw new Error("need co64"); dv.setUint32(q, v); }
+        touched++;
+      } else if (type === "co64"){
+        var m = dv.getUint32(p + hdr + 4);
+        if (p + hdr + 8 + m * 8 > p + sz) throw new Error("bad co64");
+        for (var j = 0; j < m; j++){ var r = p + hdr + 8 + j * 8, old = dv.getUint32(r) * 4294967296 + dv.getUint32(r + 4), nv = map(old);
+          dv.setUint32(r, Math.floor(nv / 4294967296)); dv.setUint32(r + 4, nv % 4294967296); }
+        touched++;
+      } else if (GO[type]) walk(p + hdr, p + sz);
+      p += sz;
+    }
+  }
+  var top = dv.getUint32(0) === 1 ? 16 : 8;
+  walk(top, moov.length);
+  if (!touched) throw new Error("no chunk table");
+}
+async function fastStart(file){
+  var atoms = await fsTopAtoms(file);
+  var moovs = atoms.filter(function(a){ return a.type === "moov"; });
+  var mdatI = atoms.findIndex(function(a){ return a.type === "mdat"; });
+  if (moovs.length !== 1 || mdatI < 0) return { blob: file, changed: false, why: "no moov/mdat" };
+  var moovA = moovs[0], moovI = atoms.indexOf(moovA);
+  if (moovI < mdatI) return { blob: file, changed: false, why: "already fast" };
+  if (moovA.size > 48 * 1024 * 1024) return { blob: file, changed: false, why: "moov too big" };
+  var moov = await fsBytes(file, moovA.off, moovA.off + moovA.size);
+  var order = [];
+  atoms.forEach(function(a, i){ if (i < mdatI && a !== moovA) order.push(a); });
+  order.push(moovA);
+  atoms.forEach(function(a, i){ if (i >= mdatI && a !== moovA) order.push(a); });
+  var pos = 0; order.forEach(function(a){ a.newOff = pos; pos += a.size; });
+  fsPatchOffsets(moov, function(old){
+    for (var k = 0; k < atoms.length; k++){ var a = atoms[k];
+      if (a !== moovA && old >= a.off && old < a.off + a.size) return old - a.off + a.newOff; }
+    throw new Error("offset outside file");
+  });
+  var parts = order.map(function(a){ return a === moovA ? moov : file.slice(a.off, a.off + a.size); });
+  var out = new Blob(parts, { type: file.type || "video/quicktime" });
+  if (out.size !== file.size) throw new Error("size changed");
+  return { blob: out, changed: true };
+}
+
 $("btn-video").onclick = function(){ $("f-video").click(); };
-$("f-video").onchange = function(){
+$("f-video").onchange = async function(){
   var f = this.files[0]; this.value = "";
   if (!f) return;
   if (f.size > 80*1024*1024) return toast("這支影片太大了（超過 80MB）。剪短或壓一下再傳，建議用 Wi-Fi。");
   var ext = (f.name.split(".").pop()||"mp4").toLowerCase();
   if (["mp4","mov","m4v","webm"].indexOf(ext) < 0) ext = "mp4";
-  showVideo(f, ext);
+  var blob = f;
+  if (ext !== "webm"){
+    try { var r = await fastStart(f); blob = r.blob; S.fastStart = r.changed ? "moved" : (r.why || "kept"); }
+    catch(e){ blob = f; S.fastStart = "fallback:" + (e && e.message || e); }   /* 看不懂就原檔照傳 */
+  }
+  showVideo(blob, ext);
 };
 
 /* ---------- 錄音 ---------- */
