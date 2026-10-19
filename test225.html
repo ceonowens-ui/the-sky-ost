@@ -6230,6 +6230,9 @@ window.ALBUM_SWITCH = {
     if (!/^[A-Za-z0-9]{16,64}$/.test(m)) return;
     try { var p0 = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); var same = p0 && p0.m === m; sessionStorage.setItem("sky:pendM", JSON.stringify({ m: m, n: (same ? (p0.n || 0) : 0) + 1, t: (same && p0.t) || Date.now() })); } catch (e) {}
     try { var u = new URL(location.href); u.searchParams.delete("m"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}
+    /* B260T：這個瀏覽器已經是完整解鎖（專輯＋SIGNAL）→ 直接進 App，不再去後台登記（卡片是「一次開通」，之後點卡片不該再算一次） */
+    try { var u0 = lsGet(LS.unlock, null), f0 = lsGet(LS.feedpass, null);
+      if (state.unlocked && u0 && u0.unlocked && f0 && f0.full) { sessionStorage.removeItem("sky:pendM"); return; } } catch (e) {}
     var dev = "";
     try {
       dev = localStorage.getItem("sky:device") || "";
@@ -6244,6 +6247,7 @@ window.ALBUM_SWITCH = {
         if (!d || !d.ok) {
           try { sessionStorage.removeItem("sky:pendM"); } catch (e) {}
           if (d && d.reason === "device_limit") toast("這張卡的裝置數已滿 · 請到 OWN 用 email＋兌換碼登入");
+          else if (d && d.reason === "not_found") toast("這張卡的連結已失效 · 請到 OWN 用 email＋兌換碼登入");
           return;
         }
         var cur = lsGet(LS.unlock, null);
@@ -9079,7 +9083,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B259T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B260T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9233,7 +9237,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B259T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B260T"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
