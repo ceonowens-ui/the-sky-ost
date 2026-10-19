@@ -6522,6 +6522,10 @@ window.ALBUM_SWITCH = {
     if (A2.standalone) a2st({ done: true, homeAt: Date.now() });
     t3OwnEntry();
     /* B261T：主畫面 App 第一次打開：沒解鎖就用配對 cookie 換鑰匙；已解鎖就只把 cookie 清掉，並（只一次）顯示「已準備好」 */
+    /* B261T 測試鉤子：?t261cookie=1 → 寫一個假 token cookie（不打後台）；主畫面 App 打開時若看得到 cookie 就提示「cookie 有帶過來」。只為驗證 iOS 加入主畫面會不會複製 cookie。 */
+    try { var tq = T261 && /[?&]t261cookie=1/.test(location.search);
+      if (T261 && A2.standalone) { var tc = pairCookieGet(); if (tc === "TESTCOOKIE0000000000000000") { pairCookieClear(); setTimeout(function () { toast("✓ 測試：cookie 有跟著進主畫面 App"); }, 600); } else if (tq) { setTimeout(function () { toast("✗ 測試：主畫面 App 沒看到 cookie"); }, 600); } }
+      else if (tq) { pairCookieSet("TESTCOOKIE0000000000000000"); toast("測試 cookie 已寫入 · 現在去加入主畫面，再從主畫面打開"); } } catch (e) {}
     try { pairRedeemBoot(); } catch (e) {}
     if (A2.standalone && state.unlocked && !a2st().t3home) { a2st({ t3home: Date.now() }); setTimeout(function () { t3Open("home"); }, 1800); }
     setTimeout(function () { a2Maybe("visit"); }, 4500);
