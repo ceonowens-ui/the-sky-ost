@@ -6166,6 +6166,7 @@ window.ALBUM_SWITCH = {
     hap([12, 30, 12, 30, 40]);
     toast("解鎖成功 · " + TOTAL + " 首全部屬於你了 ♡");
     try { cloudLoad(); cloudSave(); } catch (e) {}   /* B130T：解鎖後立刻拉雲端小卡＋把本機的推上去 */
+    try { sessionStorage.removeItem("sky:pendM"); sessionStorage.removeItem("sky:pendK"); } catch (e) {}   /* B258T */
     try { a2hsAfterUnlock(); } catch (e) {}   /* B257T：解鎖後引導加到主畫面 */
   }
 
@@ -6223,7 +6224,10 @@ window.ALBUM_SWITCH = {
   (function walletEntryUnlock() {
     var m = "";
     try { m = new URLSearchParams(location.search).get("m") || ""; } catch (e) {}
+    /* B258T：?m= 先記在這個分頁（sessionStorage），頁面被重新整理也能接著解鎖；成功或確定失敗就清掉（最多 3 次、2 分鐘內） */
+    if (!m) { try { var pm = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); if (pm && pm.m && (pm.n || 0) < 3 && Date.now() - (pm.t || 0) < 12e4) m = pm.m; } catch (e) {} }
     if (!/^[A-Za-z0-9]{16,64}$/.test(m)) return;
+    try { var p0 = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); var same = p0 && p0.m === m; sessionStorage.setItem("sky:pendM", JSON.stringify({ m: m, n: (same ? (p0.n || 0) : 0) + 1, t: (same && p0.t) || Date.now() })); } catch (e) {}
     try { var u = new URL(location.href); u.searchParams.delete("m"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}
     var dev = "";
     try {
@@ -6237,11 +6241,12 @@ window.ALBUM_SWITCH = {
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok) {
-          if (d && d.reason === "device_limit") toast("這張卡已在其他裝置使用 · 請到 OWN 用 email＋兌換碼登入");
+          try { sessionStorage.removeItem("sky:pendM"); } catch (e) {}
+          if (d && d.reason === "device_limit") toast("這張卡的裝置數已滿 · 請到 OWN 用 email＋兌換碼登入");
           return;
         }
         var cur = lsGet(LS.unlock, null);
-        if (state.unlocked && cur && String(cur.code || "").toUpperCase() === String(d.code || "").toUpperCase()) return;
+        if (state.unlocked && cur && String(cur.code || "").toUpperCase() === String(d.code || "").toUpperCase()) { try { sessionStorage.removeItem("sky:pendM"); } catch (e) {} return; }
         redeemAny(d.email, d.code);
       })
       .catch(function () {});
@@ -6391,18 +6396,21 @@ window.ALBUM_SWITCH = {
   }
   (function a2Boot() {
     var h = location.hash || "";
-    var km = h.match(/[#&]k=([A-Za-z0-9_-]{8,800})/), hop = /[#&]x=1(?:&|$)/.test(h);
-    if (km) {
-      a2ClearCarry();   /* 不論吃不吃，都先從網址拿掉 */
-      if (A2.standalone || hop) {
-        var c = a2Dec(km[1]);
-        if (c && c.e && c.c) {
-          var cur = a2Cred();
-          if (!(state.unlocked && cur && cur.c.toUpperCase() === String(c.c).toUpperCase())) {
-            a2st({ carriedAt: Date.now(), carriedFrom: A2.standalone ? "home" : "hop" });
-            redeemAny(c.e, c.c);
-          }
-        }
+    var km = h.match(/[#&]k=([A-Za-z0-9_-]{8,800})/), hop = /[#&]x=1(?:&|$)/.test(h), kv = km ? km[1] : "";
+    if (km) a2ClearCarry();   /* 不論吃不吃，都先從網址拿掉 */
+    /* B258T：要吃的 #k 先記在這個分頁，頁面被重新整理也能接著解鎖（成功由 unlockNow 清掉；最多 3 次、2 分鐘內） */
+    if (kv && (A2.standalone || hop)) {
+      try { var q0 = JSON.parse(sessionStorage.getItem("sky:pendK") || "null"); var sm = q0 && q0.k === kv; sessionStorage.setItem("sky:pendK", JSON.stringify({ k: kv, n: (sm ? (q0.n || 0) : 0) + 1, t: (sm && q0.t) || Date.now() })); } catch (e) {}
+    } else if (!kv) {
+      try { var q = JSON.parse(sessionStorage.getItem("sky:pendK") || "null");
+        if (q && q.k && (q.n || 0) < 3 && Date.now() - (q.t || 0) < 12e4) { kv = q.k; hop = true; sessionStorage.setItem("sky:pendK", JSON.stringify({ k: q.k, n: (q.n || 0) + 1, t: q.t })); } } catch (e) {}
+    }
+    if (kv && (A2.standalone || hop)) {
+      var c = a2Dec(kv);
+      if (c && c.e && c.c) {
+        var cur = a2Cred();
+        if (state.unlocked && cur && cur.c.toUpperCase() === String(c.c).toUpperCase()) { try { sessionStorage.removeItem("sky:pendK"); } catch (e) {} }
+        else { a2st({ carriedAt: Date.now(), carriedFrom: A2.standalone ? "home" : "hop" }); redeemAny(c.e, c.c); }
       }
     }
     try { if (/[?&]openExternalBrowser=1/.test(location.search)) { var u = new URL(location.href); u.searchParams.delete("openExternalBrowser"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } } catch (e) {}
@@ -9064,7 +9072,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B257T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B258T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9169,7 +9177,11 @@ window.ALBUM_SWITCH = {
     if (sb) sb.style.top = "calc(" + (b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
   }
   var refreshed = false;
+  /* B258T：第一次安裝（原本沒有 controller）時 clients.claim 也會觸發 controllerchange →
+     以前會自動重新整理一次，把錢包卡／主畫面的自動解鎖打斷。現在只有「本來就有舊版、換成新版」才重新整理。 */
+  var hadCtl = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (!hadCtl) { hadCtl = true; return; }
     if (refreshed) return; refreshed = true; location.reload();
   });
   /* ===== B122：圖片載入失敗自動重試 =====================================
@@ -9214,7 +9226,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B257T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B258T"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
