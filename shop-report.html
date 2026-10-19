@@ -66,7 +66,7 @@ th{font-size:12px;color:var(--dim);font-weight:500}
     <div class="grid">
       <div class="cell"><div class="k">訂單</div><div class="v" id="orders">0<small>筆</small></div></div>
       <div class="cell"><div class="k">營收（含運費）</div><div class="v" id="amount">NT$0</div></div>
-      <div class="cell"><div class="k">台灣／海外</div><div class="v" id="area">0 / 0<small>包</small></div></div>
+      <div class="cell"><div class="k">台灣／海外／現場領</div><div class="v" id="area">0 / 0 / 0<small>包</small></div></div>
       <div class="cell"><div class="k">待出貨</div><div class="v" id="toship">0<small>筆</small></div></div>
     </div>
     <div class="cell"><div class="k">商品金額／運費</div><div class="v" id="split" style="font-size:17px">NT$0 ／ NT$0</div></div>
@@ -94,7 +94,7 @@ th{font-size:12px;color:var(--dim);font-weight:500}
       $("packs").textContent = Number(s.packs).toLocaleString("en-US");
       $("orders").innerHTML = s.orders + "<small>筆</small>";
       $("amount").textContent = nt(s.amount);
-      $("area").innerHTML = s.tw + " / " + s.overseas + "<small>包</small>";
+      $("area").innerHTML = s.tw + " / " + s.overseas + " / " + (s.pickup || 0) + "<small>包</small>";
       $("toship").innerHTML = s.toShip + "<small>筆</small>";
       $("split").textContent = nt(s.goods) + " ／ " + nt(s.shipping);
       $("sale").textContent = it.onSale ? "販售中" : "未開賣"; $("sale").className = "status" + (it.onSale ? "" : " off");
