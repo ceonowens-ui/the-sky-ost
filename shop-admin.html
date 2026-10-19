@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0B0A09">
+<title>CHANCE 周邊後台</title>
+<!-- B251：加「票券提前排隊名單」 -->
+<style>
+:root{--bg:#0B0A09;--card:#141210;--line:rgba(214,182,111,.2);--gold:#D6B66F;--gold2:#F0DCA8;--ink:#F3EEEA;--soft:#BDB5A6;--dim:#857e71;--red:#F2A38F;--green:#9FD3A8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom))}
+.eyebrow{font-size:11px;letter-spacing:.28em;color:var(--gold);margin:0 0 6px}
+h1{font-family:"Noto Serif TC",Georgia,serif;font-weight:500;font-size:24px;margin:0 0 16px}
+h2{font-size:13px;letter-spacing:.18em;color:var(--gold);font-weight:500;margin:22px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 10px}
+input,select{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:#1a1815;color:var(--ink);font-size:16px;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:rgba(214,182,111,.7)}
+button{min-height:44px;border-radius:999px;border:0;font-size:14px;font-weight:600;cursor:pointer;padding:0 18px}
+button[disabled]{opacity:.45}
+.primary{background:linear-gradient(90deg,#B8964F,#D6B66F 52%,#F0DCA8);color:#17130B}
+.ghost{background:none;border:1px solid var(--line);color:var(--gold2)}
+.danger{background:none;border:1px solid rgba(242,163,143,.5);color:var(--red)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row > input{flex:1;min-width:140px}
+.msg{font-size:13px;min-height:18px;margin:8px 0 0;color:var(--red)}
+.msg.ok{color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.stat .k{font-size:11.5px;color:var(--soft)}
+.stat .v{font-size:19px;font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+@media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--gold2)}
+.pill.off{color:var(--dim)}
+.pill.ship{border-color:rgba(159,211,168,.5);color:var(--green)}
+.o .top{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--soft)}
+.o .main{font-size:16px;font-weight:600;margin:6px 0 2px}
+.o .addr{font-size:14.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.o .meta{font-size:12.5px;color:var(--dim);margin-top:4px;word-break:break-all}
+.o .ship{margin-top:10px}
+.tabs{display:flex;gap:8px;margin:0 0 10px}
+.tabs button{min-height:36px;font-size:13px}
+.tabs button.on{background:rgba(214,182,111,.14);border:1px solid rgba(214,182,111,.6);color:var(--gold2)}
+.hide{display:none}
+.empty{color:var(--dim);font-size:14px;padding:12px 2px}
+.qt{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.qt th,.qt td{padding:9px 6px;border-bottom:1px solid rgba(214,182,111,.12);text-align:left;word-break:break-all}
+.qt th{font-size:12px;color:var(--dim);font-weight:500}.qt td.n{color:var(--gold2);width:56px}.qt td.t{color:var(--soft);font-size:12.5px;width:96px;white-space:nowrap}
+.qhd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.qhd b{font-size:16px}.qhd .big{font-size:22px;color:var(--gold2);font-weight:600;margin-left:6px}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">CHANCE · SHOP ADMIN</p>
+  <h1>周邊後台</h1>
+
+  <section id="lock" class="card">
+    <div class="row"><input id="key" type="password" autocomplete="current-password" placeholder="後台密碼（ADMIN_KEY）" aria-label="後台密碼"><button class="primary" id="go">連線</button></div>
+    <p class="msg" id="lmsg" role="alert"></p>
+  </section>
+
+  <section id="app" class="hide">
+    <h2 style="margin-top:0">票券提前排隊</h2>
+    <div class="card">
+      <div class="qhd"><div><span id="qname">排隊名單</span><span class="big" id="qtotal">0</span> 人</div><div class="row"><select id="qev" aria-label="選擇活動" style="width:auto;min-width:160px"></select><button class="ghost" id="qcsv">匯出 CSV</button></div></div>
+      <div id="qlist" style="margin-top:10px"></div>
+    </div>
+    <h2>卡包</h2>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><div><b id="iname">CHANCE 官方卡包 Vol.1</b> <span id="ipill" class="pill off">未開賣</span></div><button id="toggle" class="primary">開賣</button></div>
+      <div class="row" style="margin-top:10px"><input id="cap" type="number" min="0" inputmode="numeric" placeholder="限量包數（0＝不限量）" aria-label="限量包數"><button class="ghost" id="saveCap">儲存限量</button></div>
+      <p class="msg" id="imsg" role="status"></p>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">訂單</div><div class="v" id="sOrders">0</div></div>
+      <div class="stat"><div class="k">包數</div><div class="v" id="sPacks">0</div></div>
+      <div class="stat"><div class="k">營收</div><div class="v" id="sAmount">0</div></div>
+      <div class="stat"><div class="k">待出貨</div><div class="v" id="sToShip">0</div></div>
+    </div>
+    <h2>訂單</h2>
+    <div class="tabs"><button class="ghost on" data-f="todo">待出貨</button><button class="ghost" data-f="all">全部</button><button class="ghost" id="csv">匯出 CSV</button><button class="ghost" id="reload">重新整理</button></div>
+    <div id="list"></div>
+  </section>
+</main>
+<script>
+(function () {
+  var API = "https://the-sky-shop.anthonywen0693.workers.dev", ITEM = "cardpack-v1", LSK = "chance-shop-admin-key";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var nt = function (n) { return "NT$" + Number(n || 0).toLocaleString("en-US"); };
+  var S = { key: "", orders: [], f: "todo", item: null };
+  function lsGet(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }
+  function lsSet(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} }
+  function api(path, body) {
+    return fetch(API + path, body ? { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8", "X-Key": S.key }, body: JSON.stringify(body) } : { headers: { "X-Key": S.key }, cache: "no-store" }).then(function (r) { return r.json(); });
+  }
+  function when(iso) { var d = new Date(iso); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  function renderItem() {
+    var it = S.item || {}; var on = !!it.onSale;
+    $("ipill").textContent = on ? "販售中" : "未開賣"; $("ipill").className = "pill" + (on ? "" : " off");
+    $("toggle").textContent = on ? "停售" : "開賣"; $("toggle").className = on ? "danger" : "primary";
+    $("cap").value = it.cap ? it.cap : "";
+  }
+  function render() {
+    var list = S.orders.filter(function (o) { return S.f === "all" || !o.shipped; });
+    $("list").innerHTML = list.length ? list.map(function (o) {
+      var s = o.ship || {};
+      return '<div class="card o"><div class="top"><span>' + esc(when(o.paidAt)) + "・" + esc(o.tradeNo) + '</span>' + (o.shipped ? '<span class="pill ship">已寄出</span>' : '<span class="pill">待出貨</span>') + "</div>" +
+        '<div class="main">' + esc(s.name) + "　卡包 ×" + esc(o.qty) + "　" + nt(o.amount) + (o.fee ? "（含運 " + nt(o.fee) + "）" : "") + "</div>" +
+        '<div class="addr">' + esc(s.phone) + "\n" + esc((s.postal ? s.postal + " " : "") + s.addr) + "（" + esc(o.countryName || s.country) + "）</div>" +
+        '<div class="meta">' + esc(o.email) + "</div>" +
+        (o.shipped ? '<div class="meta">寄出：' + esc(o.shipped.carrier || "") + " " + esc(o.shipped.tracking) + "・" + esc(when(o.shipped.at)) + "</div>"
+          : '<div class="ship row"><select data-car="' + esc(o.tradeNo) + '" aria-label="物流"><option>' + (o.zone === "tw" ? "中華郵政" : "中華郵政國際 e 小包") + "</option><option>黑貓宅急便</option><option>新竹物流</option><option>7-11 交貨便</option><option>其他</option></select>" +
+            '<input data-trk="' + esc(o.tradeNo) + '" placeholder="追蹤號碼" aria-label="追蹤號碼"><button class="primary" data-ship="' + esc(o.tradeNo) + '">寄出並通知</button></div>') +
+        '<p class="msg" data-m="' + esc(o.tradeNo) + '"></p></div>';
+    }).join("") : '<div class="empty">' + (S.f === "todo" ? "沒有待出貨的訂單" : "還沒有訂單") + "</div>";
+  }
+  /* ---- 票券提前排隊名單 ---- */
+  var MAIN_API = "https://the-sky-ost-api.anthonywen0693.workers.dev";
+  S.queue = []; S.qev = ""; S.evNames = {};
+  function qWhen(iso) { if (!iso) return ""; var d = new Date(iso); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  function qRender() {
+    var evs = []; S.queue.forEach(function (x) { if (evs.indexOf(x.event) < 0) evs.push(x.event); });
+    if (!S.qev || evs.indexOf(S.qev) < 0) S.qev = evs[0] || "";
+    $("qev").innerHTML = evs.length ? evs.map(function (e) { var n = S.queue.filter(function (x) { return x.event === e; }).length; return '<option value="' + esc(e) + '"' + (e === S.qev ? " selected" : "") + ">" + esc(S.evNames[e] || e) + "（" + n + "）</option>"; }).join("") : '<option value="">（還沒有人排隊）</option>';
+    var rows = S.queue.filter(function (x) { return x.event === S.qev; });
+    $("qname").textContent = S.qev ? (S.evNames[S.qev] || S.qev) : "排隊名單";
+    $("qtotal").textContent = rows.length;
+    $("qlist").innerHTML = rows.length ? '<table class="qt"><thead><tr><th>號碼</th><th>Email</th><th>排隊時間</th></tr></thead><tbody>' + rows.map(function (x) { return '<tr><td class="n">' + ("00" + x.no).slice(-3) + '</td><td>' + esc(x.email) + '</td><td class="t">' + esc(qWhen(x.at)) + '</td></tr>'; }).join("") + "</tbody></table>" : '<div class="empty">還沒有人排隊</div>';
+  }
+  function qLoad() {
+    fetch(MAIN_API + "/ticket/events", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { ((j && j.events) || []).forEach(function (e) { S.evNames[e.id] = e.name || e.id; }); qRender(); }).catch(function () {});
+    return api("/admin/queue").then(function (j) { if (j && j.ok) { S.queue = j.queue || []; qRender(); } else $("qlist").innerHTML = '<div class="empty">排隊名單讀不到（後端可能還沒更新到 S2）</div>'; }).catch(function () {});
+  }
+  $("qev").onchange = function () { S.qev = this.value; qRender(); };
+  $("qcsv").onclick = function () {
+    var rows = [["活動", "號碼", "Email", "排隊時間"]];
+    S.queue.filter(function (x) { return x.event === S.qev; }).forEach(function (x) { rows.push([S.evNames[x.event] || x.event, x.no, x.email, x.at]); });
+    var csv = "\ufeff" + rows.map(function (r) { return r.map(function (v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); }).join("\n");
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "chance-queue-" + (S.qev || "all") + ".csv"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  function load() {
+    qLoad();
+    return Promise.all([api("/admin/orders"), api("/admin/items")]).then(function (r) {
+      if (!r[0] || !r[0].ok) { lsSet(LSK, ""); $("app").classList.add("hide"); $("lock").classList.remove("hide"); $("lmsg").textContent = r[0] && r[0].error === "forbidden" ? "密碼不對" : "連不上，請稍後再試"; return; }
+      lsSet(LSK, S.key); $("lock").classList.add("hide"); $("app").classList.remove("hide");
+      S.orders = r[0].orders || []; S.item = (r[1].items || []).filter(function (x) { return x.key === ITEM; })[0] || null;
+      var s = r[0].sum; $("sOrders").textContent = s.orders; $("sPacks").textContent = s.packs; $("sAmount").textContent = nt(s.amount); $("sToShip").textContent = s.toShip;
+      renderItem(); render();
+    }).catch(function () { $("lmsg").textContent = "連不上，請稍後再試"; });
+  }
+  $("go").onclick = function () { S.key = $("key").value.trim(); if (S.key) load(); };
+  $("key").addEventListener("keydown", function (e) { if (e.key === "Enter") $("go").click(); });
+  $("toggle").onclick = function () {
+    var on = !(S.item && S.item.onSale), b = this; b.disabled = true;
+    api("/admin/item", { item: ITEM, onSale: on }).then(function (j) { b.disabled = false; if (j && j.ok) { S.item = j.item; renderItem(); $("imsg").className = "msg ok"; $("imsg").textContent = on ? "已開賣：App 上的卡包可以買了" : "已停售：App 上的卡包顯示即將開賣"; } else { $("imsg").className = "msg"; $("imsg").textContent = "失敗：" + ((j && j.error) || ""); } });
+  };
+  $("saveCap").onclick = function () {
+    var n = Math.max(0, Math.floor(Number($("cap").value) || 0));
+    api("/admin/item", { item: ITEM, cap: n }).then(function (j) { if (j && j.ok) { S.item = j.item; renderItem(); $("imsg").className = "msg ok"; $("imsg").textContent = n ? "限量 " + n + " 包（已賣 " + j.item.sold + "）" : "已改成不限量"; } });
+  };
+  document.querySelector(".tabs").addEventListener("click", function (e) {
+    var f = e.target.getAttribute("data-f"); if (!f) return;
+    S.f = f; Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-f]"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === f); }); render();
+  });
+  $("reload").onclick = load;
+  $("list").addEventListener("click", function (e) {
+    var t = e.target.getAttribute("data-ship"); if (!t) return;
+    var trk = document.querySelector('[data-trk="' + t + '"]').value.trim(), car = document.querySelector('[data-car="' + t + '"]').value, m = document.querySelector('[data-m="' + t + '"]');
+    if (!trk) { m.textContent = "請填追蹤號碼"; return; }
+    e.target.disabled = true; e.target.textContent = "處理中…";
+    api("/admin/ship", { tradeNo: t, tracking: trk, carrier: car }).then(function (j) { if (j && j.ok) load(); else { e.target.disabled = false; e.target.textContent = "寄出並通知"; m.textContent = "失敗：" + ((j && j.error) || ""); } });
+  });
+  $("csv").onclick = function () {
+    var rows = [["付款時間", "訂單編號", "收件人", "手機", "郵遞區號", "地址", "國家", "數量", "金額", "運費", "Email", "物流", "追蹤號碼"]];
+    S.orders.forEach(function (o) { var s = o.ship || {}; rows.push([o.paidAt, o.tradeNo, s.name, s.phone, s.postal, s.addr, o.countryName || s.country, o.qty, o.amount, o.fee, o.email, o.shipped ? o.shipped.carrier : "", o.shipped ? o.shipped.tracking : ""]); });
+    var csv = "﻿" + rows.map(function (r) { return r.map(function (v) { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); }).join("\n");
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "chance-cardpack-orders.csv"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  var saved = lsGet(LSK); if (saved) { S.key = saved; load(); }
+})();
+</script>
+</body>
+</html>
