@@ -2602,6 +2602,7 @@ body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-shee
 #a2hs .a2-arrow svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 #a2hs .a2-arrow.br{right:16px;bottom:calc(8px + env(safe-area-inset-bottom));animation:a2d 1.1s ease-in-out infinite}
 #a2hs .a2-arrow.bc{left:50%;margin-left:-23px;bottom:calc(8px + env(safe-area-inset-bottom));animation:a2d 1.1s ease-in-out infinite}
+#a2hs .a2-arrow.bl{left:calc(27% - 23px);bottom:calc(8px + env(safe-area-inset-bottom));animation:a2d 1.1s ease-in-out infinite}
 #a2hs .a2-arrow.tr{right:12px;top:calc(6px + env(safe-area-inset-top));animation:a2t 1.1s ease-in-out infinite}
 @keyframes a2d{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 @keyframes a2t{0%,100%{transform:rotate(180deg) translateY(0)}50%{transform:rotate(180deg) translateY(8px)}}
@@ -6267,7 +6268,7 @@ window.ALBUM_SWITCH = {
     var crios = /CriOS/.test(ua), other = /FxiOS|EdgiOS|OPiOS|OPT\//.test(ua);
     var sv = +((ua.match(/Version\/(\d+)/) || [])[1] || 0);
     return { iOS: iOS, android: android, inapp: inapp, standalone: standalone, crios: iOS && crios, other: iOS && other,
-             ios26: iOS && !crios && !other && sv >= 26, mobile: iOS || android };
+             ios26: iOS && !crios && !other && sv === 26, ios27: iOS && !crios && !other && sv >= 27, mobile: iOS || android };
   })();
   var A2K = NS + ":a2hs";
   function a2st(p) { var s = lsGet(A2K, {}) || {}; if (p) { for (var k in p) s[k] = p[k]; lsSet(A2K, s); } return s; }
@@ -6297,6 +6298,8 @@ window.ALBUM_SWITCH = {
     plus: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>',
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     compass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>',
+    menu: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h10M5 17h7"/></svg>',
+    more: '<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></svg>',
     arrow: '<svg viewBox="0 0 24 24"><path d="M12 3v16M5.5 12.5L12 19l6.5-6.5"/></svg>'
   };
   function a2Plan() {
@@ -6318,6 +6321,10 @@ window.ALBUM_SWITCH = {
       steps: [[I.share, "點網址列右邊的分享鍵"], [I.plus, "往下滑，點「加入主畫面」"], [I.check, "點右上角「加入」"]], go: "我加好了", later: "下次再說" };
     if (A2.other) return { kind: "other", arrow: "", title: t, sub: sub, note: "找不到的話，用 Safari 打開這一頁最穩。",
       steps: [[I.share, "點瀏覽器的分享鍵"], [I.plus, "點「加入主畫面」"], [I.check, "點「加入」"]], go: "我加好了", later: "下次再說" };
+    /* B259T：iOS 27 Safari（模擬器實測）：網址列左邊「≡」→ 分享 → 「⌄」顯示更多 → 加入主畫面 → 網頁 App 開關 → 加入 */
+    if (A2.ios27) return { kind: "ios27", arrow: "bl", title: t, sub: sub,
+      note: "看不到「≡」的話，點網址列旁的「⋯」或分享鍵，一樣找「分享」。",
+      steps: [[I.menu, "點網址列左邊的「≡」，再點「分享」"], [I.more, "點「⌄」顯示更多，再點「加入主畫面」"], [I.check, "「網頁 App」開關保持打開，點右上角「加入」"]], go: "我加好了", later: "下次再說" };
     if (A2.ios26) return { kind: "ios26", arrow: "br", title: t, sub: sub,
       note: "如果網址列在上面，「⋯」或分享鍵就在畫面上方。",
       steps: [[I.dots, "點網址列旁邊的「⋯」，再點「分享」"], [I.plus, "往下滑，點「加入主畫面」"], [I.check, "「網頁 App」開關保持打開，點右上角「加入」"]], go: "我加好了", later: "下次再說" };
@@ -6338,7 +6345,7 @@ window.ALBUM_SWITCH = {
     if (cred) a2SetCarry(P.kind === "inapp");
     var icon = ($("apple-touch-icon") && $("apple-touch-icon").getAttribute("href")) || "assets/images/icon-180.png";
     var w = document.createElement("div");
-    w.id = "a2hs"; w.className = "a2-" + P.kind + (P.arrow === "br" || P.arrow === "bc" ? " a2-up" : "");
+    w.id = "a2hs"; w.className = "a2-" + P.kind + (P.arrow === "br" || P.arrow === "bc" || P.arrow === "bl" ? " a2-up" : "");
     w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "a2hs-t");
     w.innerHTML = '<div class="a2-bg"></div><div class="a2-card">' +
       '<div class="a2-app"><img src="' + icon + '" alt=""><div><b>THE SKY</b><small>CHANCE · chance1228.com</small></div></div>' +
@@ -9072,7 +9079,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B258T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B259T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9226,7 +9233,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B258T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B259T"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
