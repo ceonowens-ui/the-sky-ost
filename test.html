@@ -6328,7 +6328,8 @@ window.ALBUM_SWITCH = {
   function pairRedeemBoot() {
     /* 只在主畫面 App（standalone）第一次啟動、而且還沒解鎖時才用 */
     if (!A2.standalone || state.unlocked) { if (A2.standalone) pairCookieClear(); return; }
-    var tok = pairCookieGet(); if (!tok) return;
+    var tok = pairCookieGet();
+    if (!tok) { a2st({ pairMiss: Date.now() }); setTimeout(function () { toast("主畫面 App 沒收到配對 · 到 OWN 輸入一次 email＋兌換碼就好"); }, 900); return; }   /* B262T：沒拿到 cookie 也要講 */
     a2st({ pairTry: (a2st().pairTry || 0) + 1 });
     fetch(PAIR_BASE + "/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: tok }), cache: "no-store" })
       .then(function (r) { return r.json(); }).then(function (d) {
@@ -6338,6 +6339,17 @@ window.ALBUM_SWITCH = {
       }).catch(function () { toast("連線失敗 · 到 OWN 用 email＋兌換碼輸入一次就好"); });
   }
   function a2SetCarry(hop) { /* B261T：不再帶 #k */ }
+  /* B262T：配對 cookie 提早準備。CÉON 10/20 實測：按「放到主畫面」後一兩秒才寫 cookie，接著馬上加主畫面，主畫面 App 沒拿到（後台有發 token、沒有人來換）。
+     改成 Safari 只要已解鎖就先準備好 cookie，每 8 分鐘、回到前景時自動更新（token 10 分鐘有效），加主畫面時一定有一顆新鮮的。 */
+  function pairEnsure(force) {
+    if (A2.standalone || !A2.mobile || A2.inapp || !state.unlocked || !a2Cred()) return;
+    var s = a2st();
+    if (!force && pairCookieGet() && s.pairAt && Date.now() - s.pairAt < 48e4) return;
+    pairNew(function () {});
+  }
+  setTimeout(function () { pairEnsure(false); }, 1500);
+  setInterval(function () { if (document.visibilityState === "visible") pairEnsure(false); }, 48e4);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") pairEnsure(false); });
   /* B261T：三個任務面板（購買／解鎖後）：1 放到主畫面 → 2 點 THE SKY 開始聽 → 3 收藏專輯卡（可稍後）。
      完成狀態不靠前端猜：1 永遠不自動打勾；2 只在主畫面 App 裡且伺服器驗證成功才打勾；3 不讀 Wallet、不自動打勾。 */
   var T3_PASS = T261 ? PAIR_BASE + "/testpass" : "https://the-sky-wallet.anthonywen0693.workers.dev/premium";
@@ -6488,7 +6500,7 @@ window.ALBUM_SWITCH = {
     if (A2.inapp) { a2Open(reason); return; }   /* App 內建瀏覽器：先教切到 Safari */
     t3Open(reason);
   }
-  function a2hsAfterUnlock() { setTimeout(function () { if (A2.standalone) { pairCookieClear(); if (!a2st().t3home) { a2st({ t3home: Date.now() }); t3Open("home"); } return; } a2Maybe("unlock"); }, 2600); }
+  function a2hsAfterUnlock() { try { pairEnsure(true); } catch (e) {} setTimeout(function () { if (A2.standalone) { pairCookieClear(); if (!a2st().t3home) { a2st({ t3home: Date.now() }); t3Open("home"); } return; } a2Maybe("unlock"); }, 2600); }
   function a2OwnEntry() {
     if (A2.standalone || !A2.mobile || $("a2-own")) return;
     var box = document.querySelector("#unlock-done-view .pass-cta"); if (!box) return;
@@ -9184,7 +9196,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B261T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B262T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9339,7 +9351,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B261T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B262T"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
