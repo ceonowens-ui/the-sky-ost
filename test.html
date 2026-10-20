@@ -2808,6 +2808,17 @@ html.sky-opening::after{content:"正在開啟你的專輯" !important;font-size:
 #a2mini .a2-pv{position:absolute;top:-24px;right:0;left:auto}
 @media (prefers-reduced-motion:reduce){#a2mini{animation:none}}
 #a2tut .tu-sub .tu-diff,#a2tut .tu-sub .tu-prev{flex:none;white-space:nowrap;text-align:center}
+/* ===== B269T：網頁上方「選單打開後」提示條 ===== */
+#a2guide{position:fixed;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top));z-index:115002;max-width:440px;margin:0 auto;background:rgba(20,16,12,.97);border:1px solid rgba(217,184,126,.75);border-radius:16px;padding:10px 52px 10px 16px;box-shadow:0 10px 28px rgba(0,0,0,.55);font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;color:#F6F1E8}
+#a2guide.low{top:auto;bottom:calc(8px + env(safe-area-inset-bottom))}
+body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
+#a2guide p{margin:0}
+#a2guide .g0{font-size:13px;letter-spacing:.06em;color:#D9B87E}
+#a2guide .g1{font-size:19px;line-height:1.45;font-weight:700;color:#fff}
+#a2guide .g2{margin-top:2px;font-size:15px;line-height:1.45;color:#D9C9A8}
+#a2guide .g-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;color:#F6F1E8;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#a2guide .g-x svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+#a2guide .g-x:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -6865,7 +6876,7 @@ window.ALBUM_SWITCH = {
     var S = A2SHOT, b = A2BTN[kind], up = pos === "top";
     var first;
     if (b) first = { t: b.fixedBottom ? "點下方中間的分享鍵" : ("點" + b.side + (up ? "上" : "下") + "角的 " + b.glyph),
-                     s: kind === "android" ? "打開瀏覽器選單" : (b.glyph === "分享鍵" ? "方框加向上箭頭" : "打開 Safari 選單"),
+                     s: kind === "android" ? "打開瀏覽器選單" : (b.glyph === "分享鍵" ? "方框加向上箭頭" : "再點「分享」"),   /* B269T：第一張就講到「分享」，選單蓋住卡片也沒關係（上方另有一條提示） */
                      arrow: { x: b.x, up: b.fixedBottom ? false : up } };
     else first = { t: "點瀏覽器的分享鍵", s: "通常在網址列旁邊" };
     var home = { t: "回主畫面，點 THE SKY", s: "會直接打開你的專輯", shots: kind === "menu" ? [S.s6] : null, last: true };
@@ -6905,6 +6916,7 @@ window.ALBUM_SWITCH = {
   function a2PathClose() { var p = $("a2path"); if (p && p.parentNode) p.parentNode.removeChild(p); }
   function a2TutClose(how) {
     var w = $("a2tut"), m = $("a2mini");
+    a2GuideClose();
     if (!w && !m) return;
     if (w) w.parentNode.removeChild(w);
     if (m) m.parentNode.removeChild(m);
@@ -6913,11 +6925,37 @@ window.ALBUM_SWITCH = {
     A264.tut = null;
     a2st({ tutClosed: Date.now(), tutHow: how });
   }
+  /* B269T：網頁上方固定一條「選單打開後」的提示。實測 iOS 27：≡ 選單只蓋住下方約 60%、分享面板半開時蓋住下方約 45%，上方這條都還看得到；
+     分享面板全展開會蓋住整個畫面——那時「加入主畫面」就在系統清單上，網頁不假裝能蓋住或偵測。 */
+  var A2GUIDE = {
+    menu: ["選單打開後", "點「分享」→「加入主畫面」", "沒看到就點「檢視較多」"],
+    dots: ["選單打開後", "點「分享」→「加入主畫面」", "沒看到就往下滑"],
+    iosOld: ["點分享鍵後", "往下找「加入主畫面」", "沒看到就往下滑"],
+    crios: ["點分享鍵後", "往下找「加入主畫面」", "沒看到就往下滑"],
+    android: ["選單打開後", "找「加到主畫面」", "或「安裝應用程式」"],
+    other: ["點分享鍵後", "往下找「加入主畫面」", "沒看到就往下滑"]
+  };
+  function a2GuideClose() { var g = $("a2guide"); if (g && g.parentNode) g.parentNode.removeChild(g); }
+  function a2GuideShow(kind, pos, onX) {
+    a2GuideClose();
+    var t = A2GUIDE[kind] || A2GUIDE.other;
+    var g = document.createElement("div");
+    g.id = "a2guide"; g.className = pos === "top" && kind !== "iosOld" ? "low" : "";
+    g.setAttribute("role", "note"); g.setAttribute("aria-label", "加入主畫面提示");
+    g.innerHTML = '<p class="g0">' + t[0] + '</p><p class="g1">' + t[1] + '</p><p class="g2">' + t[2] + '</p><button type="button" class="g-x" aria-label="結束教學">' + A2X + '</button>';
+    document.body.appendChild(g);
+    g.querySelector(".g-x").addEventListener("click", onX);
+  }
+  /* B269T：開教學前先收起 App 內的曲目／歌詞面板與留言面板（CÉON IMG_1798：UP NEXT 還開著） */
+  function a2TutClearOverlays() {
+    try { closeSheet(); } catch (e) {}
+    try { var cb = $("cm-backdrop"); if (cb && !cb.hidden) cb.click(); } catch (e) {}
+  }
   function a2TutOpen(reason, opt) {
     opt = opt || {};
     if (A2.inapp && !opt.preview) { a2Open(reason); return; }
     if ($("a2tut") || $("a2mini")) return;
-    a2TipClose(); a2PathClose();
+    a2TipClose(); a2PathClose(); a2TutClearOverlays();
     if (!opt.preview) { try { pairEnsure(true); } catch (e) {} }   /* 加主畫面前，確保有一顆新鮮的配對 cookie（預覽不做） */
     var s0 = a2st();
     var kind = opt.kind || s0.tutKindPick || a2TutKind();
@@ -6925,7 +6963,7 @@ window.ALBUM_SWITCH = {
     var T = A264.tut = { kind: kind, pos: pos, i: 0, steps: [], preview: !!opt.preview, picking: false };
     if (!opt.preview) a2st({ tutAt: Date.now(), tutFrom: reason, tutN: (s0.tutN || 0) + 1, tutKind: kind, tutPosNow: pos });
     function save(p) { if (!T.preview) a2st(p); }
-    function setKind(k, p) { T.kind = k; T.pos = p; T.steps = a2TutSteps(k, p); T.i = 0; T.picking = false; }
+    function setKind(k, p) { T.kind = k; T.pos = p; T.steps = a2TutSteps(k, p); T.i = 0; T.picking = false; a2GuideShow(k, p, function () { closeAll("x"); }); }
     setKind(kind, pos); T.i = Math.max(0, Math.min(opt.step || 0, T.steps.length - 1));
     /* ---- 大卡片（暗背景） ---- */
     function showCard() {
@@ -7286,6 +7324,7 @@ window.ALBUM_SWITCH = {
     if (!T261) return false;
     var m = (location.search.match(/[?&]t267=([a-z0-9]+)/) || [])[1]; if (!m) return false;
     A267.preview = true;
+    try { document.body.classList.add("a2pv-on"); var u = new URL(location.href); u.searchParams.delete("t267"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}   /* B269T：預覽參數不留在網址列，加入主畫面時就是乾淨的 test.html */
     setTimeout(function () { if (m === "hub") { a2PvBar(""); var l = $("a2pvbar").querySelector(".pv-list"); l.hidden = false; } else a2PvShow(m); }, 900);
     return true;
   }
@@ -10023,7 +10062,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B268T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B269T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
