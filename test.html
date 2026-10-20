@@ -2825,6 +2825,38 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 #a2guide .g-pv{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:999px;background:#5a3b1c;color:#F6E7C8;font-size:12px;font-weight:600;letter-spacing:0}
 #a2guide.cmp .g0,#a2guide.cmp .g2{display:none}
 #a2guide.cmp #a2mini{margin-top:6px}
+/* ===== B271T：OWN「已購買？開啟專輯」入口＋全頁兌換子頁（金色＝「前往結帳」實際使用的漸層與字色） ===== */
+#screen-purchase .own-rd-note{margin:28px 20px 10px;text-align:center;font-size:15px;line-height:1.5;color:#B9AE9F;letter-spacing:.04em}
+#screen-purchase #own-rd-open{position:relative;display:block;box-sizing:border-box;width:calc(100% - 40px);margin:0 20px;min-height:56px;padding:14px 52px;border-radius:999px;border:0;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%);color:#17130B;font-family:var(--font-serif-tc),"PingFang TC",serif;font-size:18px;font-weight:600;letter-spacing:.08em;line-height:1.4;
+  box-shadow:0 12px 28px -16px rgba(217,190,145,.6);cursor:pointer}
+#screen-purchase #own-rd-open::after{content:"→";position:absolute;right:22px;top:50%;transform:translateY(-50%);font-size:18px;font-family:-apple-system,system-ui,sans-serif}
+#screen-purchase #own-rd-open:focus-visible{outline:2px solid #D8C3A0;outline-offset:3px}
+#unlock-form-view > #own-rd-form{display:none !important}
+.a2m.a2pg{display:block;padding:0;background:#000;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:115010;animation:a2pgIn .28s cubic-bezier(.2,.9,.3,1)}
+.a2m.a2pg.out{animation:a2pgOut .24s ease forwards;pointer-events:none}
+@keyframes a2pgIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes a2pgOut{from{transform:none}to{transform:translateX(100%)}}
+.a2pg .pg-top{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:calc(4px + env(safe-area-inset-top)) 6px 4px;background:#000;border-bottom:1px solid rgba(217,184,126,.18)}
+.a2pg .pg-back{justify-self:start;display:inline-flex;align-items:center;gap:2px;min-height:44px;min-width:44px;padding:0 10px 0 4px;border:0;background:none;color:var(--g);font:600 17px -apple-system,"PingFang TC",sans-serif;cursor:pointer}
+.a2pg .pg-back svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.a2pg .pg-back:focus-visible{outline:2px solid #FFC83D;outline-offset:2px;border-radius:10px}
+.a2pg .pg-brand{font-family:'Noto Serif TC',"Songti TC",serif;font-size:15px;font-weight:600;letter-spacing:.32em;color:#fff;padding-left:.32em}
+.a2pg .pg-body{box-sizing:border-box;max-width:480px;margin:0 auto;padding:28px 22px calc(32px + env(safe-area-inset-bottom))}
+.a2pg .m-card{max-width:none;margin:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;text-align:left;animation:none}
+.a2pg .a2-pv{position:static;display:inline-block;margin:0 0 10px}
+.a2pg .m-t{margin:0 0 8px;font-size:31px;text-align:left}
+.a2pg .pg-sub{margin:0;font-size:18px;line-height:1.6;color:#EDE6DA;text-align:left;text-wrap:pretty}
+.a2pg .m-f{margin-top:10px}
+.a2pg .m-f label{margin:22px 0 8px;font-size:17px}
+#a2unlock.a2pg .m-f input{height:58px;padding:0 16px;font-size:18px !important;border:1.5px solid rgba(217,184,126,.55);border-radius:14px;background:#0B0A08}
+.a2pg .m-err{text-align:left}
+.a2pg .m-b{margin-top:26px}
+.a2pg .m-b button{min-height:56px;font-size:18px}
+.a2pg .m-b button.pri{background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%);color:#17130B}
+.a2pg[data-state="wait"] .m-card,.a2pg[data-state="net"] .m-card{text-align:center;padding-top:48px}
+.a2pg[data-state="wait"] .m-t,.a2pg[data-state="net"] .m-t{text-align:center}
+@media (prefers-reduced-motion:reduce){.a2m.a2pg,.a2m.a2pg.out{animation:none}}
 </style>
 </head>
 <body>
@@ -2938,7 +2970,9 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
         <button class="btn-primary" id="btn-checkout"></button>
       </div>
 
-      <button type="button" class="redeem-divider own-rd-toggle" id="own-rd-toggle" aria-expanded="false" aria-controls="own-rd-form"><span>已經購買了？</span><i class="own-rd-ic" aria-hidden="true"></i></button>
+      <!-- B271T：原「已經購買了？」細字摺疊列 → 完整金色入口；點了從右滑入全頁兌換子頁（原 inline 表單保留在 DOM 但不顯示，其他程式仍讀得到） -->
+      <p class="own-rd-note">已有兌換碼，不用再次購買</p>
+      <button type="button" class="own-rd-open" id="own-rd-open"><span>已購買？開啟專輯</span></button>
       <div class="form-block" id="own-rd-form">
         <div class="page-note" style="margin-top:0;padding:0 4px 14px">兌換碼會寄到信箱，用「購買時的 email」解鎖</div>
         <label class="form-label" for="in-email">EMAIL</label>
@@ -5664,6 +5698,8 @@ window.ALBUM_SWITCH = {
 "你的方案：全解鎖 · 專輯＋SIGNAL 私訊頻道＋全部獨家影片（含未來更新）": "Your plan: All Access · album + SIGNAL channel + every exclusive video (future updates included)",
 "你的方案：數位專輯 · 完整曲目＋每日抽卡完整卡池": "Your plan: Digital Album · full track list + full daily-draw card pool",
 "已經購買了？": "Already purchased?",
+"已購買？開啟專輯": "Purchased? Open your album",
+"已有兌換碼，不用再次購買": "Have a code? No need to buy again",
 "輸入兌換碼解鎖": "Enter your code to unlock",
 "輸入序號解鎖完整版": "Enter code to unlock the full version",
 "購買前，先留下 Email": "Before checkout, leave your email",
@@ -7100,20 +7136,43 @@ window.ALBUM_SWITCH = {
   function a2UnlockEl() { return $("a2unlock"); }
   function a2UnlockClose(silent) {
     var w = a2UnlockEl(); if (!w) return;
-    w.parentNode.removeChild(w);
+    var pg = w.classList.contains("a2pg");
     try { if (window.visualViewport) { visualViewport.removeEventListener("resize", A267.vv); visualViewport.removeEventListener("scroll", A267.vv); } } catch (e) {}
     if (A267.rel) { var r = A267.rel; A267.rel = null; if (!silent) r(); }
+    if (!pg) { w.parentNode.removeChild(w); return; }
+    /* B271T：OWN 全頁兌換子頁——收掉時把自己加的那一筆瀏覽紀錄退掉（成對），往右滑出 */
+    A267.pgLeft = true;
+    w.id = "a2unlock-out";
+    if (!A267.popping && history.state && history.state.a2pg) { A267.skipPop = true; try { history.back(); } catch (e) { A267.skipPop = false; } }
+    if (a2Reduce()) { w.parentNode.removeChild(w); return; }
+    w.classList.add("out");
+    setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 260);
   }
+  /* 瀏覽器／手勢返回：只關掉兌換子頁，不離開網站 */
+  window.addEventListener("popstate", function () {
+    if (A267.skipPop) { A267.skipPop = false; return; }
+    var w = a2UnlockEl();
+    if (w && w.classList.contains("a2pg")) { A267.popping = true; a2UnlockClose(); A267.popping = false; }
+  });
   function a2UnlockOpen(opt) {
     opt = opt || {};
     var w = a2UnlockEl();
     if (!w) {
       w = document.createElement("div");
-      w.id = "a2unlock"; w.className = "a2m"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "a2u-t");
-      w.innerHTML = '<div class="m-dim"></div><div class="m-card"></div>';
+      w.id = "a2unlock"; w.className = opt.page ? "a2m a2pg" : "a2m"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "a2u-t");
+      w.innerHTML = opt.page
+        ? '<div class="pg-top"><button type="button" class="pg-back" data-u="close"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>返回</button><b class="pg-brand">THE SKY</b><span></span></div><div class="pg-body"><div class="m-card"></div></div>'
+        : '<div class="m-dim"></div><div class="m-card"></div>';
       document.body.appendChild(w);
-      A267.rel = a2Trap(w, function () { a2UnlockClose(); }, a2FocusBack);
-      w.querySelector(".m-dim").addEventListener("click", function () { if (!A267.busy) a2UnlockClose(); });
+      A267.rel = a2Trap(w, function () { a2UnlockClose(); }, opt.page ? function () { return $("own-rd-open"); } : a2FocusBack);
+      if (opt.page) {
+        /* B271T：從 OWN「已購買？開啟專輯」進來的全頁兌換子頁（同一頁內，不開新分頁）；只多一筆瀏覽紀錄，關掉時成對退掉 */
+        A267.pgLeft = false;
+        try { history.pushState(Object.assign({}, history.state || {}, { a2pg: 1 }), ""); } catch (e) {}
+        w.addEventListener("input", function (e) {   /* 本次畫面記憶：返回再進來還在（只在記憶體，不寫入儲存） */
+          if (e.target.id === "a2u-e") A267.vals.e = e.target.value; else if (e.target.id === "a2u-c") A267.vals.c = e.target.value;
+        });
+      } else w.querySelector(".m-dim").addEventListener("click", function () { if (!A267.busy) a2UnlockClose(); });
       w.addEventListener("click", a2UnlockClick);
       w.addEventListener("submit", function (e) { e.preventDefault(); a2UnlockGo(); });
       /* 鍵盤彈出：只用看得到的高度排版，欄位捲到中間 */
@@ -7131,7 +7190,8 @@ window.ALBUM_SWITCH = {
     var w = a2UnlockEl(); if (!w) return;
     var card = w.querySelector(".m-card"), pv = w.classList.contains("pv");
     var badge = pv ? '<span class="a2-pv">預覽 · 不會解鎖、不送出</span>' : '';
-    var x = '<button type="button" class="m-x" data-u="close" aria-label="關閉">' + A2X + '</button>';
+    var pg = w.classList.contains("a2pg");
+    var x = pg ? '' : '<button type="button" class="m-x" data-u="close" aria-label="關閉">' + A2X + '</button>';
     w.setAttribute("data-state", state);
     if (state === "wait") {
       card.innerHTML = badge + x + '<span class="m-spin" aria-hidden="true"></span><h3 id="a2u-t" class="m-t">正在確認你的專輯</h3><p class="m-s" aria-live="polite">' + (opt.slow ? "比平常久一點，請再等一下" : "請稍候") + '</p>';
@@ -7141,15 +7201,15 @@ window.ALBUM_SWITCH = {
     if (state === "net") {
       card.innerHTML = badge + x + '<span class="m-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 9.5a14 14 0 0 1 19 0M5.5 12.8a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle class="f" cx="12" cy="19.2" r="1.3"/><circle class="xbg" cx="18.6" cy="18.6" r="4.4"/><path class="xx" d="M16.9 16.9l3.4 3.4M20.3 16.9l-3.4 3.4"/></svg></span>' +
         '<h3 id="a2u-t" class="m-t">暫時連不上</h3><p class="m-s">你的專輯不會因此消失。</p>' +
-        '<div class="m-b"><button type="button" class="pri" data-u="retry">重新連線</button><button type="button" data-u="form">用兌換碼開啟</button><button type="button" class="m-link" data-u="close">稍後再試</button></div>';
+        '<div class="m-b"><button type="button" class="pri" data-u="retry">重新連線</button><button type="button" data-u="form">' + (pg ? "回到輸入" : "用兌換碼開啟") + '</button><button type="button" class="m-link" data-u="close">稍後再試</button></div>';
       try { card.setAttribute("tabindex", "-1"); card.focus({ preventScroll: true }); } catch (e) {}
       return;
     }
     var bad = state === "bad";
-    card.innerHTML = badge + x + '<h3 id="a2u-t" class="m-t">開啟你的專輯</h3>' +
+    card.innerHTML = badge + x + '<h3 id="a2u-t" class="m-t">開啟你的專輯</h3>' + (pg ? '<p class="m-s pg-sub">輸入購買時的 Email 與信中的兌換碼。</p>' : '') +
       '<form class="m-f" novalidate><label for="a2u-e">購買時的 Email</label><input id="a2u-e" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com"' + (bad ? ' aria-invalid="true" aria-describedby="a2u-err"' : '') + '>' +
       '<label for="a2u-c">兌換碼</label><input id="a2u-c" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="SKY1-XXXX-XXXX"' + (bad ? ' aria-invalid="true" aria-describedby="a2u-err"' : '') + '>' +
-      '<p class="m-err" id="a2u-err" role="alert"' + (bad || opt.empty ? '' : ' hidden') + '>' + (bad ? '<b>⚠ Email 或兌換碼不符</b><span>請確認購買信中的資料</span>' : (opt.empty ? '<b>⚠ 請填 email 和兌換碼</b>' : '')) + '</p>' +
+      '<p class="m-err" id="a2u-err" role="alert"' + (bad || opt.empty || opt.fmt ? '' : ' hidden') + '>' + (bad ? '<b>⚠ Email 或兌換碼不符</b><span>請確認購買信中的資料</span>' : (opt.empty ? '<b>⚠ 請填 email 和兌換碼</b>' : (opt.fmt ? '<b>⚠ Email 格式不對</b><span>例：you@example.com</span>' : ''))) + '</p>' +
       '<div class="m-b"><button type="submit" class="pri">' + (bad ? "再試一次" : "解鎖專輯") + '</button>' +
       (bad ? '<button type="button" data-u="help">聯絡客服</button>' : '<button type="button" class="m-link" data-u="help">找不到兌換碼？</button>') + '</div>' +
       '<div class="m-help" hidden><p>兌換碼寄到你付款時填的 email。找不到請看垃圾郵件／促銷分頁；仍然沒有，請寫信到客服：</p><p><a href="mailto:' + A2MAIL + '">' + A2MAIL + '</a></p></div></form>';
@@ -7170,6 +7230,7 @@ window.ALBUM_SWITCH = {
     var e = (w.querySelector("#a2u-e").value || "").trim(), c = (w.querySelector("#a2u-c").value || "").trim().toUpperCase();
     A267.vals = { e: e, c: c };
     if (!e || !c) { a2UnlockPaint("form", { empty: true }); return; }
+    if (w.classList.contains("a2pg") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { a2UnlockPaint("form", { fmt: true }); return; }   /* B271T：全頁表單才多檢查 email 格式 */
     a2UnlockSubmit(e, c);
   }
   /* 送出：照舊交給 redeemAny（主後端 /verify）。這裡只加逾時（12 秒）與「連不上 vs 不符」的分辨 */
@@ -7183,6 +7244,7 @@ window.ALBUM_SWITCH = {
     A267.busy = true;
     a2UnlockPaint("wait");
     var my = (A267.run = (A267.run || 0) + 1);
+    A267.pgRun = (a2UnlockEl() && a2UnlockEl().classList.contains("a2pg")) ? my : 0;
     var slowT = setTimeout(function () { if (A267.run === my && A267.busy) a2UnlockPaint("wait", { slow: true }); }, 6000);
     var pre = null;
     var demo = (CFG.unlock && CFG.unlock.demoCodes) || {};
@@ -7199,12 +7261,20 @@ window.ALBUM_SWITCH = {
       if (A267.run !== my) return;
       A267.busy = false;
       if (ok) { a2st({ unlockVia: from || "modal" }); if (a2UnlockEl()) a2UnlockClose(true); return; }   /* 成功畫面由 unlockNow → a2OkOpen 接手 */
-      if (!a2UnlockEl()) a2UnlockOpen({ state: "form", focus: false });
+      if (!a2UnlockEl()) { if (A267.pgLeft && A267.pgRun === my) return; a2UnlockOpen({ state: "form", focus: false }); }   /* B271T：使用者已從全頁子頁返回，就不再跳出來 */
       if (why === "bad") { a2UnlockPaint("bad"); return; }
       if (why === "empty") { a2UnlockPaint("form", { empty: true }); return; }
       a2UnlockPaint("net");   /* 連不上／逾時／伺服器錯誤／設定問題：都不說碼錯 */
     });
   }
+  /* B271T：OWN「已購買？開啟專輯」→ 從右滑入的全頁兌換子頁（其他入口仍用原本的視窗） */
+  function a2OwnRedeemPage(opt) {
+    opt = opt || {};
+    if (a2UnlockEl()) return;
+    a2TipClose();
+    a2UnlockOpen({ state: opt.state || "form", page: true, preview: opt.preview, vals: opt.vals || A267.vals });
+  }
+  try { $("own-rd-open").addEventListener("click", function () { try { hap(8); } catch (e) {} a2OwnRedeemPage(); }); } catch (e) {}
   /* 各處「輸入兌換碼／用兌換碼開啟」都開這個視窗（不再跳去 OWN 分頁） */
   function a2GoRedeem(vals) {
     a2TipClose();
@@ -7294,7 +7364,7 @@ window.ALBUM_SWITCH = {
      純視覺：不呼叫 redeemAny／unlockNow、不打任何 API、不寫解鎖資料；每個畫面上都有「預覽 · 不會解鎖」標籤。 */
   var A2PV = [
     ["s01", "解鎖 01 首次輸入"], ["s02", "解鎖 02 驗證中"], ["s03", "解鎖 03 專輯已解鎖"], ["s04", "解鎖 04 資料不符"], ["s05", "解鎖 05 暫時連不上"],
-    ["s06", "主畫面 App 06 正在開啟"], ["s06f", "主畫面 App 連不上"],
+    ["s07", "OWN 全頁兌換表單"], ["s07e", "OWN 全頁：資料不符"], ["s06", "主畫面 App 06 正在開啟"], ["s06f", "主畫面 App 連不上"],
     ["t1", "教學 1 點左下角 ≡＋開始操作"], ["tmini", "教學：收起後只剩「看下一步」"], ["t2", "教學 2 在選單中點分享"], ["t3", "教學 3 點加入主畫面"], ["t4", "教學 4 回主畫面點 THE SKY"],
     ["ttop", "教學：網址列在上面"], ["t26", "教學：右邊是 ⋯"], ["told", "教學：舊版 iOS（分享鍵）"], ["tpick", "教學：我的畫面不一樣"]
   ];
@@ -7313,6 +7383,8 @@ window.ALBUM_SWITCH = {
     else if (k === "s03") a2OkOpen(P);
     else if (k === "s04") a2UnlockOpen({ state: "bad", preview: true, vals: { e: "you@example.com", c: "SKY1-XXXX-XXXX" } });
     else if (k === "s05") a2UnlockOpen({ state: "net", preview: true });
+    else if (k === "s07") a2OwnRedeemPage({ preview: true, vals: { e: "", c: "" } });
+    else if (k === "s07e") a2OwnRedeemPage({ preview: true, state: "bad", vals: { e: "you@example.com", c: "SKY1-XXXX-XXXX" } });
     else if (k === "s06") a2OpenShow(P);
     else if (k === "s06f") { a2OpenShow(P); a2OpenState("fail", P); }
     else if (/^t[1-4]$/.test(k)) a2TutOpen("pv", { preview: true, kind: "menu", pos: "bottom", step: +k.slice(1) - 1 });
@@ -10082,7 +10154,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B270T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B271T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
