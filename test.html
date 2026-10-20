@@ -6858,6 +6858,9 @@ window.ALBUM_SWITCH = {
     try { if (/[?&]openExternalBrowser=1/.test(location.search)) { var u = new URL(location.href); u.searchParams.delete("openExternalBrowser"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } } catch (e) {}
     if (A2.standalone) a2st({ done: true, homeAt: Date.now() });
     a2OwnEntry264();   /* B264T：OWN 固定入口（取代三件事） */
+    /* B264T 測試鉤子（只在 test.html）：?t264=tut 教學／pay 付款回站提示／ok 解鎖小卡／tip 小提示 —— 只看畫面，不解鎖、不打後台 */
+    try { var q264 = T261 && (location.search.match(/[?&]t264=(tut|pay|ok|tip)\b/) || [])[1];
+      if (q264) setTimeout(function () { if (q264 === "tut") a2TutOpen("demo"); else if (q264 === "pay") { lsSet(PAYK, { k: (CFG.payment || {}).productKey, t: Date.now() - 6e4, n: 0 }); payMarkCheck(); } else if (q264 === "ok") a2OkOpen(); else a2Tip("home"); }, 1200); } catch (e) {}
     /* B261T：主畫面 App 第一次打開：沒解鎖就用配對 cookie 換鑰匙；已解鎖就只把 cookie 清掉，並（只一次）顯示「已準備好」 */
     /* B261T 測試鉤子：?t261cookie=1 → 寫一個假 token cookie（不打後台）；主畫面 App 打開時若看得到 cookie 就提示「cookie 有帶過來」。只為驗證 iOS 加入主畫面會不會複製 cookie。 */
     try { var tq = T261 && /[?&]t261cookie=1/.test(location.search);
