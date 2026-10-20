@@ -6450,6 +6450,8 @@ window.ALBUM_SWITCH = {
   function a2Open(reason) {
     if ($("a2hs")) return;
     var P = a2Plan(), cred = a2Cred();
+    if (reason === "unlock" && P.kind !== "inapp") { P.title = "已為你開啟 · 接著放到主畫面"; }   /* B263T */
+    if (P.kind !== "inapp") { try { pairEnsure(false); } catch (e) {} }   /* B263T：教學打開時確保配對 cookie 在 */
     a2st({ shown: Date.now(), last: reason });
     if (cred) a2SetCarry(P.kind === "inapp");
     var icon = ($("apple-touch-icon") && $("apple-touch-icon").getAttribute("href")) || "assets/images/icon-180.png";
@@ -6490,15 +6492,18 @@ window.ALBUM_SWITCH = {
   function a2Maybe(reason) {
     if (A2.standalone || !A2.mobile || $("a2hs")) return;
     var s = a2st();
-    if (s.done && !A2.inapp) return;
+    /* B263T：CÉON 10/20：Safari 解鎖後要直接跳「加到主畫面」教學（不是三件事面板）。
+       解鎖當下一定跳；平常打開（visit）正式版維持 3 天提醒、最多 3 次、按過「我加好了」就不再跳；test.html 每次都跳，方便重複測。 */
     if (reason === "visit") {
       if (!state.unlocked) return;
-      if ((s.no || 0) + (s.t3no || 0) >= 3) return;
-      if ((s.shown || s.t3shown) && Date.now() - Math.max(s.shown || 0, s.t3shown || 0) < 3 * 864e5) return;
       if (document.querySelector("#__nickWrap, #__lb")) return;
+      if (!T261) {
+        if (s.done && !A2.inapp) return;
+        if ((s.no || 0) + (s.t3no || 0) >= 3) return;
+        if ((s.shown || s.t3shown) && Date.now() - Math.max(s.shown || 0, s.t3shown || 0) < 3 * 864e5) return;
+      }
     }
-    if (A2.inapp) { a2Open(reason); return; }   /* App 內建瀏覽器：先教切到 Safari */
-    t3Open(reason);
+    a2Open(reason);   /* Safari／Chrome／Android：直接教加主畫面；App 內建瀏覽器：先教切到 Safari */
   }
   function a2hsAfterUnlock() { try { pairEnsure(true); } catch (e) {} setTimeout(function () { if (A2.standalone) { pairCookieClear(); if (!a2st().t3home) { a2st({ t3home: Date.now() }); t3Open("home"); } return; } a2Maybe("unlock"); }, 2600); }
   function a2OwnEntry() {
@@ -6540,7 +6545,7 @@ window.ALBUM_SWITCH = {
       else if (tq) { pairCookieSet("TESTCOOKIE0000000000000000"); toast("測試 cookie 已寫入 · 現在去加入主畫面，再從主畫面打開"); } } catch (e) {}
     try { pairRedeemBoot(); } catch (e) {}
     if (A2.standalone && state.unlocked && !a2st().t3home) { a2st({ t3home: Date.now() }); setTimeout(function () { t3Open("home"); }, 1800); }
-    setTimeout(function () { a2Maybe("visit"); }, 4500);
+    setTimeout(function () { a2Maybe("visit"); }, T261 ? 2500 : 4500);
   })();
 
   /* ---------- 動態牆（SIGNAL feed · 只有 Chance 發文）----------
@@ -9196,7 +9201,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B262T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B263T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -9351,7 +9356,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B262T"; document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-b255.js?v=B263T"; document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
