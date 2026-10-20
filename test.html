@@ -2816,9 +2816,15 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 #a2guide .g0{font-size:13px;letter-spacing:.06em;color:#D9B87E}
 #a2guide .g1{font-size:19px;line-height:1.45;font-weight:700;color:#fff}
 #a2guide .g2{margin-top:2px;font-size:15px;line-height:1.45;color:#D9C9A8}
-#a2guide .g-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;color:#F6F1E8;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#a2guide .g-x{position:absolute;right:4px;top:4px;width:44px;height:44px;border:0;background:none;color:#F6F1E8;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #a2guide .g-x svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 #a2guide .g-x:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
+/* ===== B270T：收起狀態＝一條（短提示＋看下一步＋x），不再另外放右下小入口 ===== */
+#a2guide #a2mini{position:static;display:flex;margin-top:8px;animation:none;z-index:auto}
+#a2guide #a2mini .mi-next{min-height:44px;padding:0 18px;font-size:16px;box-shadow:none}
+#a2guide .g-pv{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:999px;background:#5a3b1c;color:#F6E7C8;font-size:12px;font-weight:600;letter-spacing:0}
+#a2guide.cmp .g0,#a2guide.cmp .g2{display:none}
+#a2guide.cmp #a2mini{margin-top:6px}
 </style>
 </head>
 <body>
@@ -6936,14 +6942,29 @@ window.ALBUM_SWITCH = {
     other: ["點分享鍵後", "往下找「加入主畫面」", "沒看到就往下滑"]
   };
   function a2GuideClose() { var g = $("a2guide"); if (g && g.parentNode) g.parentNode.removeChild(g); }
-  function a2GuideShow(kind, pos, onX) {
+  /* B270T：收起狀態只有這一條：短提示＋「看下一步」＋x 放在同一條裡（原本右下另一顆「看下一步」在窄螢幕／放大字體會壓到播放鍵） */
+  function a2GuideShow(kind, pos, onX, onNext, preview) {
     a2GuideClose();
     var t = A2GUIDE[kind] || A2GUIDE.other;
     var g = document.createElement("div");
     g.id = "a2guide"; g.className = pos === "top" && kind !== "iosOld" ? "low" : "";
-    g.setAttribute("role", "note"); g.setAttribute("aria-label", "加入主畫面提示");
-    g.innerHTML = '<p class="g0">' + t[0] + '</p><p class="g1">' + t[1] + '</p><p class="g2">' + t[2] + '</p><button type="button" class="g-x" aria-label="結束教學">' + A2X + '</button>';
+    g.setAttribute("role", "region"); g.setAttribute("aria-label", "加入主畫面教學（已收起）");
+    g.innerHTML = '<p class="g0">' + (preview ? '<b class="g-pv">預覽</b>' : '') + t[0] + '</p><p class="g1">' + t[1] + '</p><p class="g2">' + t[2] + '</p>' +
+      (onNext ? '<div id="a2mini" tabindex="-1"><button type="button" class="mi-next">看下一步 <span aria-hidden="true">›</span></button></div>' : '') +
+      '<button type="button" class="g-x" aria-label="結束教學">' + A2X + '</button>';
     document.body.appendChild(g);
+    if (onNext) g.querySelector(".mi-next").addEventListener("click", onNext);
+    /* B270T：放在下方時（網址列在上面），停在 App 分頁列上方，不擋 OWN／LUCKY；
+       窄螢幕／放大字體時若壓到播放鍵：先改精簡版（只留一句＋看下一步），還壓到就移到上方 */
+    try {
+      var hitPlay = function () { var b = g.getBoundingClientRect();   /* 播放鍵與進度條都不能被壓到 */
+        return ["btn-play", "prog"].some(function (id) { var el = document.getElementById(id), a = el && el.offsetParent !== null && el.getBoundingClientRect();
+          return !!(a && a.height && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom); }); };
+      if (g.classList.contains("low")) { var nv = document.getElementById("nav-wrap") || document.getElementById("nav"), nr = nv && nv.getBoundingClientRect();
+        if (nr && nr.height && nr.top > window.innerHeight * 0.5) g.style.bottom = Math.round(window.innerHeight - nr.top + 10) + "px"; }
+      if (hitPlay()) g.classList.add("cmp");
+      if (hitPlay() && g.classList.contains("low")) { g.classList.remove("low"); g.style.bottom = ""; }
+    } catch (e) {}
     g.querySelector(".g-x").addEventListener("click", onX);
   }
   /* B269T：開教學前先收起 App 內的曲目／歌詞面板與留言面板（CÉON IMG_1798：UP NEXT 還開著） */
@@ -6963,11 +6984,14 @@ window.ALBUM_SWITCH = {
     var T = A264.tut = { kind: kind, pos: pos, i: 0, steps: [], preview: !!opt.preview, picking: false };
     if (!opt.preview) a2st({ tutAt: Date.now(), tutFrom: reason, tutN: (s0.tutN || 0) + 1, tutKind: kind, tutPosNow: pos });
     function save(p) { if (!T.preview) a2st(p); }
-    function setKind(k, p) { T.kind = k; T.pos = p; T.steps = a2TutSteps(k, p); T.i = 0; T.picking = false; a2GuideShow(k, p, function () { closeAll("x"); }); }
+    /* B270T（CÉON IMG_1800）：任何時刻只有一份指示——看大卡時不顯示上方提示條；收起後才顯示「上方短提示＋看下一步」 */
+    function setKind(k, p) { T.kind = k; T.pos = p; T.steps = a2TutSteps(k, p); T.i = 0; T.picking = false; }
+    function busy() { return Date.now() - (T.flip || 0) < 350; }   /* 防連點：剛切換的 0.35 秒內忽略第二下（只擋重複點擊，不猜系統選單進度） */
     setKind(kind, pos); T.i = Math.max(0, Math.min(opt.step || 0, T.steps.length - 1));
     /* ---- 大卡片（暗背景） ---- */
     function showCard() {
-      var m = $("a2mini"); if (m) m.parentNode.removeChild(m);
+      T.flip = Date.now();
+      a2GuideClose();   /* 連同裡面的「看下一步」一起移除 */   /* B270T：展開大卡＝上方短提示立即移除（不在 DOM，輔助技術也讀不到） */
       var w = $("a2tut");
       if (!w) {
         w = document.createElement("div");
@@ -6977,7 +7001,7 @@ window.ALBUM_SWITCH = {
           '<button type="button" class="tu-x" aria-label="關閉教學">' + A2X + '</button><div class="tu-body"></div></div><svg class="tu-arrow" aria-hidden="true"></svg>';
         document.body.appendChild(w);
         A264.tutRelease = a2Trap(w, function () { closeAll("esc"); }, a2FocusBack);
-        w.querySelector(".tu-dim").addEventListener("click", function () { collapse(); });   /* 點暗處＝收起（不是結束） */
+        w.querySelector(".tu-dim").addEventListener("click", function () { if (!busy()) collapse(); });   /* 點暗處＝收起（不是結束） */
         w.querySelector(".tu-card").addEventListener("click", onCard);
         A264.tutResize = drawArrow; window.addEventListener("resize", drawArrow);
       }
@@ -7030,23 +7054,18 @@ window.ALBUM_SWITCH = {
     }
     /* ---- 收起：大卡片與遮罩移除，只留小入口「看下一步」＋ x ---- */
     function collapse() {
+      T.flip = Date.now();
       var w = $("a2tut");
       if (w) w.parentNode.removeChild(w);
       try { window.removeEventListener("resize", drawArrow); } catch (e) {}
       if (A264.tutRelease) { var r = A264.tutRelease; A264.tutRelease = null; r(true); }
       save({ tutCollapsedAt: Date.now(), tutCollapsedStep: T.i + 1 });
       if (T.i >= T.steps.length - 1) { closeAll("done"); return; }
-      var m = document.createElement("div");
-      m.id = "a2mini"; m.className = (T.pos === "top" && T.kind !== "iosOld") ? "up" : "";
-      m.setAttribute("role", "region"); m.setAttribute("aria-label", "加入主畫面教學（已收起）"); m.tabIndex = -1;
-      m.innerHTML = (T.preview ? '<span class="a2-pv">預覽</span>' : '') + '<button type="button" class="mi-next">看下一步 <span aria-hidden="true">›</span></button><button type="button" class="mi-x" aria-label="結束教學">' + A2X + '</button>';
-      document.body.appendChild(m);
-      /* 放在 App 底部分頁列上方，不擋 OWN／LUCKY；網址列在上面時放右上 */
-      try { if (!m.classList.contains("up")) { var nv = document.getElementById("nav-wrap") || document.getElementById("nav"), nr = nv && nv.getBoundingClientRect();
-        if (nr && nr.height && nr.top > window.innerHeight * 0.5) m.style.bottom = Math.round(window.innerHeight - nr.top + 10) + "px"; } } catch (e) {}
-      m.querySelector(".mi-next").addEventListener("click", function () { if (T.i < T.steps.length - 1) T.i++; save({ tutNextAt: Date.now() }); showCard(); });
-      m.querySelector(".mi-x").addEventListener("click", function () { closeAll("x"); });
-      try { m.focus({ preventScroll: true }); } catch (e) {}
+      a2GuideShow(T.kind, T.pos, function () { closeAll("x"); }, function () {   /* B270T：大卡移除後才出現這一條（短提示＋看下一步） */
+        if (busy() || !$("a2mini")) return;
+        if (T.i < T.steps.length - 1) T.i++; save({ tutNextAt: Date.now() }); showCard();
+      }, T.preview);
+      try { var m = $("a2mini"); if (m) m.focus({ preventScroll: true }); } catch (e) {}
     }
     function closeAll(how) {
       if (how !== "done") a2Skip(true);
@@ -7056,6 +7075,7 @@ window.ALBUM_SWITCH = {
       var b = e.target.closest("button"); if (!b) return;
       if (b.classList.contains("tu-x")) { closeAll("x"); return; }
       if (b.classList.contains("tu-go")) {
+        if (busy()) return;
         if (T.steps[T.i].last) { save({ tutorialViewed: Date.now(), tutorialKind: T.kind }); closeAll("done"); if (!T.preview) toast("加入後，回主畫面點 THE SKY；若沒接上可輸入原兌換碼恢復", 4200); return; }   /* 看完≠已加入主畫面 */
         collapse(); return;
       }
@@ -10062,7 +10082,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B269T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B270T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
