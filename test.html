@@ -2844,7 +2844,7 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 .a2pg .pg-brand{font-family:'Noto Serif TC',"Songti TC",serif;font-size:15px;font-weight:600;letter-spacing:.32em;color:#fff;padding-left:.32em}
 /* B274T：標題到「找不到兌換碼？」整組在導覽列以下的可見區置中；放不下（鍵盤、矮螢幕、錯誤／客服說明展開）就靠上並可捲動。不寫死位移 */
 .a2pg .pg-body{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;width:100%;max-width:480px;margin:0 auto;padding:28px 22px calc(28px + env(safe-area-inset-bottom))}
-.a2pg.kb .pg-body{justify-content:flex-start}
+.a2pg.kb .pg-body{justify-content:flex-start;padding-bottom:calc(150px + env(safe-area-inset-bottom))}   /* B275T：鍵盤開著時底部留出被工具列／網址膠囊蓋住的高度，才捲得到按鈕 */
 .a2pg .m-card{max-width:none;margin:0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;text-align:left;animation:none}
 .a2pg .a2-pv{position:static;display:inline-block;margin:0 0 10px}
 .a2pg .m-t{margin:0 0 8px;font-size:31px;text-align:left}
@@ -7187,7 +7187,15 @@ window.ALBUM_SWITCH = {
         /* B274T：全頁兌換子頁——鍵盤打開（看得到的高度明顯變矮）時改靠上，關掉鍵盤再回到置中 */
         w.classList.toggle("kb", window.innerHeight - v.height > 120); } catch (e) {} };
       try { if (window.visualViewport) { visualViewport.addEventListener("resize", A267.vv); visualViewport.addEventListener("scroll", A267.vv); A267.vv(); } } catch (e) {}
-      w.addEventListener("focusin", function (e) { if (e.target.tagName === "INPUT") setTimeout(function () { try { e.target.scrollIntoView({ block: "center" }); } catch (x) {} }, 280); });
+      w.addEventListener("focusin", function (e) { if (e.target.tagName === "INPUT") setTimeout(function () { try {
+        if (!w.classList.contains("a2pg")) { e.target.scrollIntoView({ block: "center" }); return; }
+        /* B275T：全頁子頁——鍵盤上方還有一條輸入工具列＋Safari 網址膠囊會蓋住頁面底部（模擬器實測約 110px），
+           把「解鎖專輯」捲到它們上方；但不把正在輸入的欄位推到頂部導覽列底下 */
+        var R = 120, btn = w.querySelector(".m-b"), top = w.querySelector(".pg-top"); if (!btn) return;
+        var wr = w.getBoundingClientRect(), over = btn.getBoundingClientRect().bottom - (wr.top + w.clientHeight - R);
+        var room = e.target.getBoundingClientRect().top - (top ? top.getBoundingClientRect().bottom : wr.top) - 12;
+        var d = Math.min(over, room); if (d > 0) w.scrollTop += d;
+      } catch (x) {} }, 320); });
     }
     w.classList.toggle("pv", !!(opt.preview || A267.preview));
     if (opt.vals) A267.vals = { e: opt.vals.e || "", c: opt.vals.c || "" };
@@ -10163,7 +10171,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B274T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B275T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
