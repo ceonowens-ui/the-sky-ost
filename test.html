@@ -2784,6 +2784,8 @@ html.sky-opening::after{content:"正在開啟你的專輯" !important;font-size:
 @keyframes a2spin{to{transform:rotate(360deg)}}
 @media (max-width:350px){#a2tut .tu-t{font-size:26px}#a2tut .tu-s{font-size:18px}.a2m .m-t{font-size:26px}#a2tut .tu-diff{font-size:13px}}
 @media (prefers-reduced-motion:reduce){#a2tut .tu-card,.a2m .m-card{animation:none}.a2m .m-spin,#a2open .op-sp{animation-duration:2.4s}}
+#a2tut .tu-card .a2-pv{position:static;display:inline-block;margin:0 0 8px}
+#a2tut .tu-card:focus,.a2m .m-card:focus,#a2open .op-card:focus{outline:none}
 </style>
 </head>
 <body>
@@ -6736,7 +6738,8 @@ window.ALBUM_SWITCH = {
     w.querySelector(".ok-go").addEventListener("click", function () { close("play"); });
     w.querySelector(".m-x").addEventListener("click", function () { close("x"); });
     w.querySelector(".ok-bg").addEventListener("click", function () { close("x"); });
-    setTimeout(function () { try { (hb || w.querySelector(".ok-go")).focus(); } catch (e) {} }, 50);
+    var okc = w.querySelector(".m-card"); okc.setAttribute("tabindex", "-1");
+    setTimeout(function () { try { okc.focus({ preventScroll: true }); } catch (e) {} }, 50);
   }
 
   /* ---------- 2. 小提示條（非彈窗，不擋播放） ---------- */
@@ -6973,7 +6976,7 @@ window.ALBUM_SWITCH = {
       if (b.classList.contains("tu-x")) { a2Skip(true); a2TutClose("x"); return; }
       if (b.classList.contains("tu-later")) { a2Skip(true); a2TutClose("later"); return; }
       if (b.classList.contains("tu-prev")) { if (i > 0) { i--; paint(); focusNext(); } return; }
-      if (b.classList.contains("tu-diff")) { picking = true; paint(); setTimeout(function () { try { body.querySelector("button[data-pos]").focus(); } catch (x) {} }, 30); return; }
+      if (b.classList.contains("tu-diff")) { picking = true; paint(); focusNext(); return; }
       if (b.classList.contains("tu-next")) {
         if (i < n - 1) { i++; paint(); focusNext(); return; }
         if (!opt.preview) a2st({ tutorialViewed: Date.now(), tutorialKind: kind });   /* 看完教學≠已加入主畫面 */
@@ -6985,8 +6988,9 @@ window.ALBUM_SWITCH = {
       if (b.hasAttribute("data-k")) { var k = b.getAttribute("data-k"); if (!opt.preview) a2st({ tutKindPick: k, tutPos: pos }); setKind(k, pos, 0); focusNext(); return; }
     });
     w.querySelector(".tu-dim").addEventListener("click", function () { a2Skip(true); a2TutClose("bg"); });
-    function focusNext() { setTimeout(function () { try { body.querySelector(".tu-next").focus({ preventScroll: true }); } catch (x) {} }, 30); }
-    if (picking) { pos = pos || "bottom"; paint(); setTimeout(function () { try { body.querySelector("button[data-pos]").focus(); } catch (x) {} }, 60); }
+    card.setAttribute("tabindex", "-1");
+    function focusNext() { setTimeout(function () { try { card.focus({ preventScroll: true }); } catch (x) {} }, 30); }   /* 焦點放卡片本身：讀屏會唸標題、手機上不出現按鈕外框；Tab 從第一顆按鈕開始 */
+    if (picking) { pos = pos || "bottom"; paint(); focusNext(); }
     else { setKind(kind, pos, opt.step || 0); focusNext(); }
   }
 
@@ -7035,14 +7039,14 @@ window.ALBUM_SWITCH = {
     w.setAttribute("data-state", state);
     if (state === "wait") {
       card.innerHTML = badge + x + '<span class="m-spin" aria-hidden="true"></span><h3 id="a2u-t" class="m-t">正在確認你的專輯</h3><p class="m-s" aria-live="polite">' + (opt.slow ? "比平常久一點，請再等一下" : "請稍候") + '</p>';
-      try { card.querySelector(".m-x").focus({ preventScroll: true }); } catch (e) {}
+      try { card.setAttribute("tabindex", "-1"); card.focus({ preventScroll: true }); } catch (e) {}
       return;
     }
     if (state === "net") {
       card.innerHTML = badge + x + '<span class="m-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 9.5a14 14 0 0 1 19 0M5.5 12.8a9.5 9.5 0 0 1 13 0M8.6 16a5 5 0 0 1 6.8 0"/><circle class="f" cx="12" cy="19.2" r="1.3"/><circle class="xbg" cx="18.6" cy="18.6" r="4.4"/><path class="xx" d="M16.9 16.9l3.4 3.4M20.3 16.9l-3.4 3.4"/></svg></span>' +
         '<h3 id="a2u-t" class="m-t">暫時連不上</h3><p class="m-s">你的專輯不會因此消失。</p>' +
         '<div class="m-b"><button type="button" class="pri" data-u="retry">重新連線</button><button type="button" data-u="form">用兌換碼開啟</button><button type="button" class="m-link" data-u="close">稍後再試</button></div>';
-      try { card.querySelector("[data-u=retry]").focus({ preventScroll: true }); } catch (e) {}
+      try { card.setAttribute("tabindex", "-1"); card.focus({ preventScroll: true }); } catch (e) {}
       return;
     }
     var bad = state === "bad";
@@ -7153,7 +7157,7 @@ window.ALBUM_SWITCH = {
     o.setAttribute("role", "alertdialog");
     card.querySelector(".op-ct").textContent = kind === "slow" ? "連線比平常久" : "暫時連不上";
     card.querySelector(".op-cs").textContent = kind === "slow" ? "還在等伺服器回應。你的專輯不會因此消失。" : "你的專輯不會因此消失。";
-    try { card.querySelector("[data-o=retry]").focus({ preventScroll: true }); } catch (e) {}
+    try { card.setAttribute("tabindex", "-1"); card.focus({ preventScroll: true }); } catch (e) {}
   }
   function a2OpenDone() {
     clearTimeout(A264.openSlow);
