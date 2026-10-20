@@ -2856,6 +2856,8 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 .a2pg .m-b button.pri{background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%);color:#17130B}
 .a2pg[data-state="wait"] .m-card,.a2pg[data-state="net"] .m-card{text-align:center;padding-top:48px}
 .a2pg[data-state="wait"] .m-t,.a2pg[data-state="net"] .m-t{text-align:center}
+/* B272T：鍵盤打開時子頁只用看得到的高度，下面那截也要是黑的（B271T 模擬器實測會透出 OWN 的按鈕） */
+.a2pg .pg-bg{position:fixed;left:0;right:0;top:-50vh;height:250vh;background:#000;z-index:-1;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.a2m.a2pg,.a2m.a2pg.out{animation:none}}
 </style>
 </head>
@@ -7161,7 +7163,7 @@ window.ALBUM_SWITCH = {
       w = document.createElement("div");
       w.id = "a2unlock"; w.className = opt.page ? "a2m a2pg" : "a2m"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "a2u-t");
       w.innerHTML = opt.page
-        ? '<div class="pg-top"><button type="button" class="pg-back" data-u="close"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>返回</button><b class="pg-brand">THE SKY</b><span></span></div><div class="pg-body"><div class="m-card"></div></div>'
+        ? '<div class="pg-bg" aria-hidden="true"></div><div class="pg-top"><button type="button" class="pg-back" data-u="close"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>返回</button><b class="pg-brand">THE SKY</b><span></span></div><div class="pg-body"><div class="m-card"></div></div>'
         : '<div class="m-dim"></div><div class="m-card"></div>';
       document.body.appendChild(w);
       A267.rel = a2Trap(w, function () { a2UnlockClose(); }, opt.page ? function () { return $("own-rd-open"); } : a2FocusBack);
@@ -10154,7 +10156,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B271T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B272T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
