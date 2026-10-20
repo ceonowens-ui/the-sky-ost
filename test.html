@@ -7568,16 +7568,23 @@ window.ALBUM_SWITCH = {
     w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); a2CkGo(); });
     /* 鍵盤：沿用 B274T／B275T 兌換子頁的做法（只用看得到的高度、鍵盤開著靠上、按鈕捲到工具列上方） */
     A276.vv = function () { try { var v = window.visualViewport; w.style.height = v.height + "px"; w.style.top = v.offsetTop + "px";
-      w.classList.toggle("kb", window.innerHeight - v.height > 120); } catch (e) {} };
+      var kb = window.innerHeight - v.height > 120, was = w.classList.contains("kb");
+      w.classList.toggle("kb", kb);
+      /* B276T：鍵盤是在聚焦之後才升起來——高度變矮那一刻再捲一次，讓「前往付款」留在鍵盤工具列上方 */
+      if (kb && document.activeElement && document.activeElement.id === "ck-e") { clearTimeout(A276.kbT); A276.kbT = setTimeout(a2CkEnsure, was ? 60 : 120); }
+    } catch (e) {} };
     try { if (window.visualViewport) { visualViewport.addEventListener("resize", A276.vv); visualViewport.addEventListener("scroll", A276.vv); A276.vv(); } } catch (e) {}
-    w.addEventListener("focusin", function (e) { if (e.target.id === "ck-e") setTimeout(function () { try {
-      var R = 120, btn = w.querySelector(".ck-go"), top = w.querySelector(".pg-top");
-      var wr = w.getBoundingClientRect(), over = btn.getBoundingClientRect().bottom - (wr.top + w.clientHeight - R);
-      var room = e.target.getBoundingClientRect().top - (top ? top.getBoundingClientRect().bottom : wr.top) - 12;
-      var d = Math.min(over, room); if (d > 0) w.scrollTop += d;
-    } catch (x) {} }, 320); });
+    w.addEventListener("focusin", function (e) { if (e.target.id === "ck-e") setTimeout(a2CkEnsure, 320); });
     return w;
   }
+  /* 鍵盤開著：把按鈕捲到底部工具列／網址膠囊（約 120px）上方，但 Email 欄不推到頂部導覽列底下 */
+  function a2CkEnsure() { try {
+    var w = a2CkEl(), inp = $("ck-e"); if (!w || !inp || document.activeElement !== inp) return;
+    var R = 120, btn = w.querySelector(".ck-go"), top = w.querySelector(".pg-top");
+    var wr = w.getBoundingClientRect(), over = btn.getBoundingClientRect().bottom - (wr.top + w.clientHeight - R);
+    var room = inp.getBoundingClientRect().top - (top ? top.getBoundingClientRect().bottom : wr.top) - 12;
+    var d = Math.min(over, room); if (d > 0) w.scrollTop += d;
+  } catch (x) {} }
   function a2CkClose() {
     var w = a2CkEl(); if (!w) return;
     try { if (window.visualViewport) { visualViewport.removeEventListener("resize", A276.vv); visualViewport.removeEventListener("scroll", A276.vv); } } catch (e) {}
@@ -10307,7 +10314,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B276T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B277T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
