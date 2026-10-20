@@ -2861,6 +2861,41 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 /* B272T／B273T：鍵盤打開時子頁只用看得到的高度，下面那截（鍵盤後面）也要是黑的——黑底是 body 底下獨立一層，在 OWN 之上、子頁之下 */
 #a2pg-cover{position:fixed;left:0;right:0;top:-50vh;height:250vh;background:#000;z-index:115005;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.a2m.a2pg,.a2m.a2pg.out{animation:none}}
+/* B276T：專輯結帳全頁（黑金示意圖）——外殼沿用兌換子頁（.a2m.a2pg、#a2pg-cover、鍵盤 kb），只加這頁自己的排版 */
+#a2ck{--g:#D9B87E;--ink:#F3EEE6;--mut:#A9A196;--ln:#C9B58C;font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink)}
+#a2ck .pg-top{border-bottom-color:rgba(255,255,255,.1)}
+#a2ck .pg-back{color:#E6DCCB}
+#a2ck .pg-brand{font-size:13px;font-weight:500;letter-spacing:.42em;padding-left:.42em;color:#E9E2D6}
+#a2ck .ck-body{padding:28px 24px calc(28px + env(safe-area-inset-bottom));margin:0 auto}
+#a2ck .ck-t{margin:0 0 22px;font-family:'Noto Serif TC',"Songti TC",serif;font-size:27px;line-height:1.3;font-weight:600;letter-spacing:.04em;color:#fff;text-wrap:balance}
+#a2ck .ck-sum{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 0 16px;margin:0 0 26px;border-bottom:1px solid rgba(255,255,255,.12)}
+#a2ck .ck-pn,#a2ck .ck-pr{font-size:19.5px;line-height:1.35;font-weight:600;color:#EDE6DA}
+#a2ck .ck-pn{min-width:0;font-family:'Noto Serif TC',"Songti TC",serif;letter-spacing:.04em}
+#a2ck .ck-pr{flex:none;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+#a2ck .ck-lbl{display:block;margin:0 0 10px;font-size:17.5px;font-weight:600;color:#EDE6DA}
+#a2ck #ck-e{display:block;width:100%;box-sizing:border-box;height:56px;margin:0;padding:0 16px;border-radius:12px;border:1px solid #3A3936;background:#161616;color:#fff;font:18px -apple-system,"PingFang TC",sans-serif !important;font-size:18px !important;-webkit-appearance:none;appearance:none}
+#a2ck #ck-e::placeholder{color:#77726B}
+#a2ck #ck-e:focus{outline:none;border-color:#C9B58C;box-shadow:0 0 0 3px rgba(201,181,140,.22)}
+#a2ck #ck-e[aria-invalid="true"]{border-color:#E8A23A}
+#a2ck .ck-err{margin:8px 0 0;font-size:15.5px;line-height:1.5;font-weight:600;color:#F2B24C}
+#a2ck .ck-err[hidden]{display:none}
+#a2ck .ck-help{margin:8px 0 0;font-size:15.5px;line-height:1.55;color:var(--mut)}
+#a2ck .ck-consent{margin-top:26px}
+#a2ck .ck-cb{display:flex;align-items:flex-start;gap:12px;min-height:44px;font-size:15.5px;line-height:1.6;color:#E3DCD0;cursor:pointer}
+#a2ck #ck-c{flex:none;width:22px;height:22px;margin:1px 0 0;border-radius:6px;border:1.5px solid rgba(255,255,255,.5);background:transparent center/14px 14px no-repeat;-webkit-appearance:none;appearance:none;cursor:pointer}
+#a2ck #ck-c:checked{background-color:#D8C193;border-color:#D8C193;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317130B' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")}
+#a2ck #ck-c:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
+#a2ck .ck-ln{display:inline;padding:0;margin:0;border:0;background:none;font:inherit;color:var(--ln);text-decoration:underline;text-decoration-color:rgba(201,181,140,.6);text-underline-offset:3px;cursor:pointer}
+#a2ck .ck-ln:focus-visible{outline:2px solid #FFC83D;outline-offset:2px;border-radius:4px}
+#a2ck .ck-note{margin:8px 0 0 34px;font-size:14px;line-height:1.6;color:#9C958B}
+#a2ck #ck-err-c{margin-left:34px}
+#a2ck .ck-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:55px;margin:28px 0 0;padding:0 20px;border:0;border-radius:14px;background:#D8C193;color:#17130B;font:600 18px -apple-system,"PingFang TC",sans-serif;letter-spacing:.06em;cursor:pointer}
+#a2ck .ck-go:active{background:#CDB585}
+#a2ck .ck-go:disabled{opacity:.7;cursor:default}
+#a2ck .ck-go:focus-visible{outline:2px solid #FFC83D;outline-offset:3px}
+#a2ck .ck-hint{margin:12px 0 0;text-align:center;font-size:15px;line-height:1.5;color:var(--mut)}
+#a2ck .a2-pv{align-self:flex-start}
+body.a2ck-on #terms-sheet{z-index:115030}
 </style>
 </head>
 <body>
@@ -5986,12 +6021,9 @@ window.ALBUM_SWITCH = {
       var pk = full ? P.productKeyFull : P.productKey;
       var price = full ? P.deluxePrice : P.basicPrice;
       var pre = ($("in-email").value || "").trim().toLowerCase();
-      askEmail({
-        title: (full ? "全解鎖 " : "擁有 ") + (CFG.albumTitle || "專輯"),
-        desc: (P.currency || "NT$") + price + "　兌換碼會寄到這個信箱，用它解鎖。",
-        needConsent: true,
-        presetEmail: EMAIL_RE.test(pre) ? pre : ""
-      }, function (email) { goEcpay(pk, email); });
+      /* B276T：原本的小 Email 視窗 → 從右滑入的結帳全頁；方案名稱與金額照使用者選的帶入，送出後同樣 goEcpay(pk, email) */
+      a2CkOpen({ pk: pk, name: full ? P.deluxeName : P.basicName, price: price, cur: P.currency || "NT$",
+        pre: EMAIL_RE.test(pre) ? pre : "" });
       return;
     }
     var link = state.selectedPlan === "deluxe" ? P.stripeLinkDeluxe : P.stripeLinkBasic;
@@ -7483,6 +7515,110 @@ window.ALBUM_SWITCH = {
   }
   window.addEventListener("pageshow", function (e) { if (e.persisted) setTimeout(payMarkCheck, 600); });   /* 從綠界按「上一頁」回來（bfcache） */
 
+  /* ---------- B276T：專輯結帳全頁（取代「前往結帳」原本的小 Email 視窗） ----------
+     只換這一頁的畫面與文案；送出後照舊呼叫 goEcpay（→ payMarkSet → /ecpay/create → 綠界），訂單、寄信、兌換都沒動。
+     升級全解鎖、開賣提醒等其他入口仍用原本的 askEmail 小視窗。
+     不自動聚焦（打開時不跳鍵盤）；勾選框每次打開都是空的；本次輸入只留在記憶體。 */
+  var A276 = { o: null, e: null, rel: null, skip: false, popping: false, busy: false };
+  function a2CkEl() { return $("a2ck"); }
+  function a2CkSaved() {
+    try { return (A276.o && A276.o.pre) || unlockInfo().email || lsGet(NS + ":lastemail", "") || ""; } catch (e) { return ""; }
+  }
+  function a2CkErr(which, msg) {
+    var el = $(which === "e" ? "ck-err-e" : "ck-err-c"); if (!el) return;
+    el.textContent = msg || ""; el.hidden = !msg;
+    if (which === "e") { var i = $("ck-e"); if (i) { if (msg) i.setAttribute("aria-invalid", "true"); else i.removeAttribute("aria-invalid"); } }
+  }
+  function a2CkOpen(o) {
+    if (a2CkEl()) return a2CkEl();
+    A276.o = o || {}; A276.busy = false;
+    var cur = esc(A276.o.cur || "NT$"), title = esc(CFG.albumTitle || "THE SKY");
+    var w = document.createElement("div");
+    w.id = "a2ck"; w.className = "a2m a2pg"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "ck-t");
+    w.innerHTML =
+      '<div class="pg-top"><button type="button" class="pg-back" data-ck="back"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg>返回</button><b class="pg-brand">' + title + '</b><span></span></div>' +
+      '<form class="pg-body ck-body" novalidate>' +
+        (A276.o.preview ? '<span class="a2-pv">預覽 · 不會前往付款</span>' : '') +
+        '<h2 class="ck-t" id="ck-t">即將擁有 ' + title + '</h2>' +
+        '<div class="ck-sum"><span class="ck-pn">' + esc(A276.o.name || "") + '</span><span class="ck-pr">' + cur + esc(String(A276.o.price == null ? "" : A276.o.price)) + '</span></div>' +
+        '<label class="ck-lbl" for="ck-e">你的 Email</label>' +
+        '<input id="ck-e" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com" aria-describedby="ck-err-e ck-help">' +
+        '<p class="ck-err" id="ck-err-e" role="alert" hidden></p>' +
+        '<p class="ck-help" id="ck-help">付款後，兌換碼會寄到這裡。</p>' +
+        '<div class="ck-consent">' +
+          '<label class="ck-cb"><input type="checkbox" id="ck-c" aria-describedby="ck-n1 ck-err-c"><span>我同意 <button type="button" class="ck-ln" data-open-terms="terms">購買須知</button> 與 <button type="button" class="ck-ln" data-open-terms="privacy">隱私權政策</button></span></label>' +
+          '<p class="ck-note" id="ck-n1">勾選即表示你也同意：數位內容一經解鎖即完成提供，不適用七日猶豫期，恕不退費。</p>' +
+          '<p class="ck-note">你的信箱僅用於核發與驗證兌換碼、訂單與客服聯繫。本服務使用境外雲端服務（Cloudflare、Resend、綠界），資料將傳輸至境外處理。</p>' +
+          '<p class="ck-err" id="ck-err-c" role="alert" hidden></p>' +
+        '</div>' +
+        '<button type="submit" class="ck-go">前往付款 <span aria-hidden="true">→</span></button>' +
+        '<p class="ck-hint">下一步選擇付款方式</p>' +
+      '</form>';
+    if (!$("a2pg-cover")) { var cv = document.createElement("div"); cv.id = "a2pg-cover"; cv.setAttribute("aria-hidden", "true"); document.body.appendChild(cv); }
+    document.body.appendChild(w);
+    document.body.classList.add("a2ck-on");
+    $("ck-e").value = A276.e != null ? A276.e : a2CkSaved();
+    A276.rel = a2Trap(w, function () { var ts = $("terms-sheet"); if (ts && !ts.classList.contains("hidden")) ts.classList.add("hidden"); else a2CkClose(); }, function () { return $("btn-checkout"); });
+    try { history.pushState(Object.assign({}, history.state || {}, { a2ck: 1 }), ""); } catch (e) {}
+    w.addEventListener("click", function (e) { if (e.target.closest("[data-ck=back]")) a2CkClose(); });
+    w.addEventListener("input", function (e) {
+      if (e.target.id === "ck-e") { A276.e = e.target.value; if (!$("ck-err-e").hidden && EMAIL_RE.test(e.target.value.trim())) a2CkErr("e", ""); }
+    });
+    w.addEventListener("change", function (e) { if (e.target.id === "ck-c" && e.target.checked) a2CkErr("c", ""); });
+    w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); a2CkGo(); });
+    /* 鍵盤：沿用 B274T／B275T 兌換子頁的做法（只用看得到的高度、鍵盤開著靠上、按鈕捲到工具列上方） */
+    A276.vv = function () { try { var v = window.visualViewport; w.style.height = v.height + "px"; w.style.top = v.offsetTop + "px";
+      w.classList.toggle("kb", window.innerHeight - v.height > 120); } catch (e) {} };
+    try { if (window.visualViewport) { visualViewport.addEventListener("resize", A276.vv); visualViewport.addEventListener("scroll", A276.vv); A276.vv(); } } catch (e) {}
+    w.addEventListener("focusin", function (e) { if (e.target.id === "ck-e") setTimeout(function () { try {
+      var R = 120, btn = w.querySelector(".ck-go"), top = w.querySelector(".pg-top");
+      var wr = w.getBoundingClientRect(), over = btn.getBoundingClientRect().bottom - (wr.top + w.clientHeight - R);
+      var room = e.target.getBoundingClientRect().top - (top ? top.getBoundingClientRect().bottom : wr.top) - 12;
+      var d = Math.min(over, room); if (d > 0) w.scrollTop += d;
+    } catch (x) {} }, 320); });
+    return w;
+  }
+  function a2CkClose() {
+    var w = a2CkEl(); if (!w) return;
+    try { if (window.visualViewport) { visualViewport.removeEventListener("resize", A276.vv); visualViewport.removeEventListener("scroll", A276.vv); } } catch (e) {}
+    if (A276.rel) { var r = A276.rel; A276.rel = null; r(); }
+    w.id = "a2ck-out"; A276.busy = false;
+    document.body.classList.remove("a2ck-on");
+    var cv = $("a2pg-cover"); if (cv && cv.parentNode && !a2UnlockEl()) cv.parentNode.removeChild(cv);
+    if (!A276.popping && history.state && history.state.a2ck) { A276.skip = true; try { history.back(); } catch (e) { A276.skip = false; } }
+    if (a2Reduce()) { w.parentNode.removeChild(w); return; }
+    w.classList.add("out");
+    setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 260);
+  }
+  /* 瀏覽器／手勢返回：條款開著先關條款（留在結帳頁），否則只關結帳頁 */
+  window.addEventListener("popstate", function () {
+    if (A276.skip) { A276.skip = false; return; }
+    if (!a2CkEl()) return;
+    var ts = $("terms-sheet");
+    if (ts && !ts.classList.contains("hidden")) { ts.classList.add("hidden"); try { history.pushState(Object.assign({}, history.state || {}, { a2ck: 1 }), ""); } catch (e) {} return; }
+    A276.popping = true; a2CkClose(); A276.popping = false;
+  });
+  function a2CkGo() {
+    if (A276.busy || !a2CkEl()) return;
+    var v = ($("ck-e").value || "").trim().toLowerCase(), ok = true;
+    if (!v) { a2CkErr("e", "請輸入 Email"); ok = false; }
+    else if (!EMAIL_RE.test(v)) { a2CkErr("e", "Email 格式不太對，再確認一下"); ok = false; }
+    else a2CkErr("e", "");
+    if (!$("ck-c").checked) { a2CkErr("c", "請先勾選同意《購買須知》與《隱私權政策》，才能前往付款"); ok = false; }
+    else a2CkErr("c", "");
+    if (!ok) { var first = !$("ck-err-e").hidden ? $("ck-e") : $("ck-c"); try { first.scrollIntoView({ block: "center", behavior: a2Reduce() ? "auto" : "smooth" }); } catch (e) {} return; }
+    if (A276.o.preview) { toast("預覽 · 不會前往付款"); return; }
+    lsSet(NS + ":lastemail", v);   /* 與原本 askEmail 相同：記住，下次不用再打 */
+    A276.busy = true;
+    var b = a2CkEl().querySelector(".ck-go"); b.disabled = true; b.innerHTML = "前往付款中…";
+    goEcpay(A276.o.pk, v);   /* 原本的付款流程（含 payMarkSet、POST /ecpay/create、失敗退回 GET） */
+  }
+  /* 從綠界按「上一頁」回來（bfcache）：結帳頁還在 → 按鈕恢復可按，Email 不清掉 */
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    var w = a2CkEl(); if (!w) return;
+    A276.busy = false; var b = w.querySelector(".ck-go"); if (b) { b.disabled = false; b.innerHTML = '前往付款 <span aria-hidden="true">→</span>'; }
+  });
   (function a2Boot() {
     var h = location.hash || "";
     var km = h.match(/[#&]k=([A-Za-z0-9_-]{8,800})/), hop = /[#&]x=1(?:&|$)/.test(h), kv = km ? km[1] : "";
@@ -10171,7 +10307,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B275T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B276T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
