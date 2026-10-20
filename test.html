@@ -7003,6 +7003,9 @@ window.ALBUM_SWITCH = {
       m.setAttribute("role", "region"); m.setAttribute("aria-label", "加入主畫面教學（已收起）"); m.tabIndex = -1;
       m.innerHTML = (T.preview ? '<span class="a2-pv">預覽</span>' : '') + '<button type="button" class="mi-next">看下一步 <span aria-hidden="true">›</span></button><button type="button" class="mi-x" aria-label="結束教學">' + A2X + '</button>';
       document.body.appendChild(m);
+      /* 放在 App 底部分頁列上方，不擋 OWN／LUCKY；網址列在上面時放右上 */
+      try { if (!m.classList.contains("up")) { var nv = document.getElementById("nav-wrap") || document.getElementById("nav"), nr = nv && nv.getBoundingClientRect();
+        if (nr && nr.height && nr.top > window.innerHeight * 0.5) m.style.bottom = Math.round(window.innerHeight - nr.top + 10) + "px"; } } catch (e) {}
       m.querySelector(".mi-next").addEventListener("click", function () { if (T.i < T.steps.length - 1) T.i++; save({ tutNextAt: Date.now() }); showCard(); });
       m.querySelector(".mi-x").addEventListener("click", function () { closeAll("x"); });
       try { m.focus({ preventScroll: true }); } catch (e) {}
