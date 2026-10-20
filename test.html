@@ -2,6 +2,50 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
+<script>/* B266T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
+   只在：主畫面 App（standalone）＋有配對 cookie＋這個 App 還沒有本機解鎖紀錄 時啟動。
+   本機紀錄只用來決定要不要先顯示「正在開啟」，不是授權；真正解鎖仍由主後端 /verify 的結果決定（主程式 redeemAny）。 */
+(function () {
+  try {
+    if (!/\/test\.html$/i.test(location.pathname)) return;
+    var sa = navigator.standalone === true;
+    try { sa = sa || matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches; } catch (e) {}
+    if (!sa) return;
+    var m = document.cookie.match(/(?:^|; )sky_pair_t=([A-Za-z0-9_-]{20,64})/); if (!m) return;
+    var u = null; try { u = JSON.parse(localStorage.getItem("album-the-sky:t261:unlock") || "null"); } catch (e) {}
+    if (u && u.unlocked) return;
+    var PB = "https://the-sky-wallet.anthonywen0693.workers.dev/premium/pair", VF = "https://the-sky-ost-api.anthonywen0693.workers.dev/verify";
+    function tf(url, body, ct, ms) {
+      var ac = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ac) ac.abort(); }, ms || 10000);
+      return fetch(url, { method: "POST", headers: { "content-type": ct }, body: JSON.stringify(body), cache: "no-store", signal: ac ? ac.signal : undefined })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { clearTimeout(tm); return j; }, function (e) { clearTimeout(tm); var x = new Error("net"); x.net = true; throw x; });
+    }
+    var W = window.__skyPair = { tok: m[1], t0: Date.now(), PB: PB, VF: VF, log: [] };
+    W.ver = function () {
+      W.stage = "verify"; W.log.push(["verify", Date.now() - W.t0]);
+      return tf(VF, { email: W.cred.email, code: W.cred.code }, "text/plain;charset=UTF-8").then(function (v) { W.log.push(["verified", Date.now() - W.t0]); return { cred: W.cred, v: v }; });
+    };
+    W.go = function () {
+      W.stage = "redeem"; W.log.push(["redeem", Date.now() - W.t0]);
+      return tf(PB + "/redeem", { token: W.tok }, "application/json").then(function (j) {
+        W.log.push(["redeemed", Date.now() - W.t0]);
+        if (!j || !j.ok || !j.email || !j.code) { var e = new Error("pair"); e.reason = (j && j.reason) || "expired"; throw e; }
+        W.cred = { email: String(j.email), code: String(j.code) };
+        return W.ver();
+      });
+    };
+    W.p = W.go(); W.p.catch(function () {});
+    document.documentElement.classList.add("sky-opening");
+    setTimeout(function () { if (!document.getElementById("a2open")) document.documentElement.classList.remove("sky-opening"); }, 15000);   /* 保險：主程式沒接手就不要一直蓋著 */
+  } catch (e) {}
+})();
+</script>
+<style id="sky-opening-css">
+html.sky-opening body{visibility:hidden}
+html.sky-opening{background:#0B0A08}
+html.sky-opening::after{content:"正在開啟你的專輯";position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0B0A08;color:#DFCBA8;font:500 16px/1.5 -apple-system,"PingFang TC",sans-serif;letter-spacing:.08em;visibility:visible;z-index:2147483647}
+</style>
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="assets/images/icon-32.png">
@@ -2692,6 +2736,31 @@ body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-shee
 #a2tut .tu-q{margin:4px 2px 12px;font-size:18px;font-weight:600;color:#F6F1E8;text-align:center}
 #a2tut.pick .tu-t{font-size:13px;font-weight:400;color:#8E877B;min-height:0;margin-top:10px}
 #a2tut .tu-pick b{display:block;font-weight:600;color:#DFCBA8}
+#a2tut .tu-do{flex:0 0 auto;padding:0 14px;font-size:13.5px!important}
+#a2path{position:fixed;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top));z-index:114500;max-width:440px;margin:0 auto;background:rgba(20,18,15,.97);border:1px solid #6E604A;border-radius:16px;padding:10px 84px 10px 14px;box-shadow:0 12px 30px rgba(0,0,0,.55);font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;color:#F1ECE3}
+#a2path p{margin:0}
+#a2path .pa-k{font-size:11.5px;letter-spacing:.1em;color:#D8C3A0}
+#a2path .pa-c{margin-top:3px;font-size:16px;line-height:1.5;font-weight:600}
+#a2path .pa-c b{white-space:nowrap;color:#F6F1E8}
+#a2path .pa-c i{font-style:normal;color:#8E877B;margin:0 6px}
+#a2path .pa-s{margin-top:2px;font-size:12px;color:#AAA194}
+#a2path .pa-b{position:absolute;right:6px;top:6px;display:flex;gap:2px}
+#a2path .pa-b button{min-width:36px;height:36px;padding:0 8px;border:0;border-radius:10px;background:none;color:#DFCBA8;font:500 13px -apple-system,"PingFang TC",sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#a2path .pa-b button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+#a2path button:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
+#a2open{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:#0B0A08;padding:24px max(20px,env(safe-area-inset-left)) 24px max(20px,env(safe-area-inset-right));font-family:-apple-system,"PingFang TC","Noto Sans TC",sans-serif;color:#F1ECE3;text-align:center}
+#a2open .op-in{max-width:320px;display:flex;flex-direction:column;align-items:center;gap:12px}
+#a2open img{width:72px;height:72px;border-radius:16px;box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+#a2open .op-t{margin:4px 0 0;font-size:17px;font-weight:600;letter-spacing:.06em;color:#DFCBA8}
+#a2open .op-s{margin:0;font-size:13.5px;line-height:1.65;color:#AAA194}
+#a2open .op-s[hidden],#a2open .op-b[hidden],#a2open .op-sp[hidden]{display:none}
+#a2open .op-sp{width:22px;height:22px;border-radius:50%;border:2px solid #3A3328;border-top-color:#DFCBA8;animation:a2spin .9s linear infinite}
+@keyframes a2spin{to{transform:rotate(360deg)}}
+#a2open .op-b{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:6px}
+#a2open .op-b button{min-height:46px;border-radius:999px;border:1px solid #3A3328;background:#221E18;color:#DFCBA8;font:500 15px -apple-system,"PingFang TC",sans-serif;cursor:pointer}
+#a2open .op-b button.pri{background:#DFCBA8;border-color:#DFCBA8;color:#171410}
+#a2open button:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#a2open .op-sp{animation:none;border-top-color:#3A3328}}
 @media (prefers-reduced-motion:reduce){#a2ok .ok-card,#a2tip,#a2tut .tu-ring{animation:none}}
 @media (max-width:340px){#a2tut .tu-play{flex-basis:78px}#a2tut .tu-t{font-size:16px}}
 @media (max-height:640px){#a2tut .tu-t{margin-top:8px;min-height:0}}
@@ -6246,7 +6315,7 @@ window.ALBUM_SWITCH = {
     lsSet(LS.unlock, Object.assign({ unlocked: true, email: em }, data));
     state.unlocked = true;
     go("player");
-    openSheet();
+    if (!(A2.standalone && A264.pairing)) openSheet();   /* B266T：主畫面 App 接上 → 直接播放器 */
     renderTrackLists(true);
     renderNowPlaying();
     unlockBurstFx();
@@ -6266,9 +6335,10 @@ window.ALBUM_SWITCH = {
   /* B74：解鎖入口統一在 OWN（購買分頁）。
      這支能處理全部五種兌換碼：the-sky-album / full-unlock / upgrade-799 / feed-pass / video-*。
      未購者用上方表單，已購專輯者用 Pass 卡下方的「已購買？輸入兌換碼」，兩邊都走這裡。 */
-  function redeemAny(email, code) {
+  function redeemAny(email, code, pre, cb) {   /* B266T：pre＝主畫面 App 在 <head> 已送出的同一個主後端 /verify 回應；cb(ok, why) 給「正在開啟」接手 */
+    var done = function (ok, why) { if (cb) { var f = cb; cb = null; try { f(ok, why); } catch (e) {} } };
     email = (email || "").trim(); code = (code || "").trim().toUpperCase();
-    if (!email || !code) { toast("請輸入 email 和兌換碼"); return; }
+    if (!email || !code) { toast("請輸入 email 和兌換碼"); done(false, "bad"); return; }
 
 
     /* ⚠️ DEMO 模式：config 的 demoCodes 是「純前端」捷徑，方便展示。
@@ -6278,31 +6348,32 @@ window.ALBUM_SWITCH = {
     var demo = (CFG.unlock && CFG.unlock.demoCodes) || {};
     if (demo[code]) {
       unlockNow({ email: email, code: code, product: demo[code] });
-      return;
+      done(true); return;
     }
 
-    if (!CFG.api || !CFG.api.workerBaseUrl) { toast("後端尚未設定 · 可先用 demo 兌換碼體驗"); return; }
-    fetch(CFG.api.workerBaseUrl + "/verify", {
+    if (!CFG.api || !CFG.api.workerBaseUrl) { toast("後端尚未設定 · 可先用 demo 兌換碼體驗"); done(false, "cfg"); return; }
+    (pre || fetch(CFG.api.workerBaseUrl + "/verify", {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=UTF-8" },  // 避免 CORS preflight
       body: JSON.stringify({ email: email, code: code }),
-    }).then(function (r) { return r.json(); }).then(function (data) {
-      if (!data.ok) { toast(data.message || "兌換碼或 email 不正確"); return; }
+    }).then(function (r) { return r.json(); })).then(function (data) {
+      if (!data || !data.ok) { toast((data && data.message) || "兌換碼或 email 不正確"); done(false, "bad"); return; }
       var pid = String(data.productId || "");
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         unlockNow({ email: email, code: code, product: "full-unlock" });
-        loadLiveFeed(true); renderMoodWall(); cloudLoad(); return;
+        loadLiveFeed(true); renderMoodWall(); cloudLoad(); done(true); return;
       }
       if (pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         hap([12, 30, 12, 30, 40]);
         toast("升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡");
-        renderUnlockView(); loadLiveFeed(true); renderMoodWall(); return;
+        renderUnlockView(); loadLiveFeed(true); renderMoodWall(); done(true); return;
       }
-      if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); return; }
+      if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); done(true); return; }
       unlockNow({ email: email, code: code, product: data.product || "299" });
-    }).catch(function () { toast("連線失敗 · 後端未回應"); });
+      done(true);
+    }).catch(function () { toast("連線失敗 · 後端未回應"); done(false, "net"); });
   }
 
   /* B180：錢包卡入場鑰匙（網址 ?m=）→ 自動解鎖。
@@ -6398,7 +6469,9 @@ window.ALBUM_SWITCH = {
   }
   function pairRedeemBoot() {
     /* 只在主畫面 App（standalone）第一次啟動、而且還沒解鎖時才用 */
-    if (!A2.standalone || state.unlocked) { if (A2.standalone) pairCookieClear(); return; }
+    if (!A2.standalone || state.unlocked) { if (A2.standalone) pairCookieClear(); try { a2OpenDone(); } catch (e) {} return; }
+    /* B266T：<head> 已經先送出 redeem→/verify（window.__skyPair）→ 這裡只接手結果，不重送、不固定等待 */
+    if (window.__skyPair && window.__skyPair.p) { a2st({ pairTry: (a2st().pairTry || 0) + 1, pairEarly: 1 }); a2OpenRun(window.__skyPair.p); return; }
     var tok = pairCookieGet();
     if (!tok) { a2st({ pairMiss: Date.now() }); setTimeout(function () { a2Tip("nopair"); }, 900); return; }   /* B264T：小提示，可直接去輸入 */   /* B262T：沒拿到 cookie 也要講 */
     a2st({ pairTry: (a2st().pairTry || 0) + 1 });
@@ -6607,7 +6680,7 @@ window.ALBUM_SWITCH = {
   window.addEventListener("appinstalled", function () { A264.bip = null; a2st({ done: true, doneAt: Date.now(), via: "appinstalled" }); a2TipClose(); });
   function a2Reduce() { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
   function a2Skip(v) { try { if (v) sessionStorage.setItem(NS + ":a2skip", "1"); return sessionStorage.getItem(NS + ":a2skip") === "1"; } catch (e) { return false; } }
-  function a2Busy() { return !!($("a2hs") || $("a2tut") || $("a2ok") || document.querySelector("#__nickWrap, #__lb")); }
+  function a2Busy() { return !!($("a2hs") || $("a2tut") || $("a2ok") || $("a2open") || document.querySelector("#__nickWrap, #__lb")); }
   var A2X = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
   /* ---------- 1. 解鎖成功小卡 ---------- */
@@ -6771,13 +6844,42 @@ window.ALBUM_SWITCH = {
     if (A264.tutRelease) { var r = A264.tutRelease; A264.tutRelease = null; r(); }
     a2st({ tutClosed: Date.now(), tutHow: how });
   }
-  function a2TutOpen(reason) {
+  /* B266T：教學改成「手動一步一步」——沒有自動輪播、沒有計時器，只有使用者按「下一步」才換頁。
+     Safari 的 ≡ 選單／分享選單／加入視窗是系統畫面：網頁蓋不上去、也看不到使用者點了什麼，所以不假裝偵測完成。
+     做法：網頁看得到的時候一步一圖一句；任何一步都可以按「收起，照著做」→ 畫面頂端留一條「照這個順序點」的短路徑，
+     系統選單只蓋住下半部時，這條還看得到（≡ 選單、分享選單半開時）；全螢幕的系統畫面裡，要點的字就在畫面上。 */
+  var A2PATH = {
+    ios27: ["≡", "分享", "檢視較多", "加入主畫面", "加入"],
+    ios26: ["⋯", "分享", "加入主畫面", "加入"],
+    iosOld: ["分享鍵", "加入主畫面", "加入"],
+    crios: ["分享鍵", "加入主畫面", "加入"],
+    android: ["⋮", "加到主畫面／安裝", "新增"],
+    other: ["分享", "加入主畫面", "加入"]
+  };
+  function a2PathClose() { var p = $("a2path"); if (p && p.parentNode) p.parentNode.removeChild(p); }
+  function a2PathShow(kind, step) {
+    a2PathClose(); a2TipClose();
+    var path = A2PATH[kind] || A2PATH.other;
+    var p = document.createElement("div");
+    p.id = "a2path"; p.setAttribute("role", "region"); p.setAttribute("aria-label", "加入主畫面的順序");
+    p.innerHTML = '<p class="pa-k">照這個順序點</p><p class="pa-c">' + path.map(function (t) { return "<b>" + t + "</b>"; }).join('<i aria-hidden="true">›</i>') + '</p>' +
+      '<p class="pa-s">加好後，回主畫面點 THE SKY</p>' +
+      '<div class="pa-b"><button type="button" data-p="img">看圖</button><button type="button" data-p="x" aria-label="關閉順序提示">' + A2X + '</button></div>';
+    document.body.appendChild(p);
+    a2st({ pathAt: Date.now(), pathKind: kind });
+    p.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-p]"); if (!b) return;
+      if (b.getAttribute("data-p") === "img") { a2PathClose(); a2TutOpen("path", { kind: kind, step: step || 0 }); return; }
+      a2PathClose();
+    });
+  }
+  function a2TutOpen(reason, opt) {
     if (A2.inapp) { a2Open(reason); return; }
     if ($("a2tut")) return;
-    a2TipClose();
+    a2TipClose(); a2PathClose();
     try { pairEnsure(true); } catch (e) {}   /* 加主畫面前，確保有一顆新鮮的配對 cookie */
-    var kind = a2TutKind(), canPick = A2.iOS && !A2.crios && !A2.other;
-    var st = [], n = 0, i = 0, playing = false;
+    var kind = (opt && opt.kind) || a2TutKind(), canPick = A2.iOS && !A2.crios && !A2.other;
+    var st = [], n = 0, i = 0;
     a2st({ tutAt: Date.now(), tutFrom: reason, tutN: (a2st().tutN || 0) + 1, tutKind: kind });
     var w = document.createElement("div");
     w.id = "a2tut"; w.className = a2Reduce() ? "rm" : "";
@@ -6789,20 +6891,19 @@ window.ALBUM_SWITCH = {
       '<p class="tu-t" aria-live="polite"></p>' +
       (canPick ? '<button type="button" class="tu-diff">我的畫面不一樣</button>' : '') +
       '<div class="tu-nav"><button type="button" class="tu-prev" aria-label="上一步">‹</button>' +
-      '<button type="button" class="tu-play"></button>' +
+      '<button type="button" class="tu-do">收起，照著做</button>' +
       '<button type="button" class="tu-next">下一步</button></div>' +
       '<button type="button" class="tu-later">稍後再說</button></div>';
     document.body.appendChild(w);
     A264.tutRelease = a2Trap(w, function () { a2Skip(true); a2TutClose("esc"); }, a2FocusBack);
     var stage = w.querySelector(".tu-stage"), nav = w.querySelector(".tu-nav"), diff = w.querySelector(".tu-diff");
-    function setKind(k) {
+    function setKind(k, at) {
       kind = k; w.classList.toggle("real", k === "ios27"); w.classList.toggle("ico", k !== "ios27" && k !== "pick"); w.classList.toggle("pick", k === "pick");
-      if (k !== "pick") { st = a2TutSteps(k); n = st.length; i = 0; playing = !a2Reduce(); a2st({ tutKind: k });
+      if (k !== "pick") { st = a2TutSteps(k); n = st.length; i = Math.max(0, Math.min(at || 0, n - 1)); a2st({ tutKind: k });
         w.querySelector(".tu-dots").innerHTML = st.map(function () { return "<i></i>"; }).join(""); }
       paint();
     }
     function paint() {
-      clearTimeout(A264.timer);
       if (kind === "pick") {
         w.querySelector(".tu-n").textContent = "先選畫面";
         w.querySelector(".tu-dots").innerHTML = "";
@@ -6814,7 +6915,7 @@ window.ALBUM_SWITCH = {
         nav.hidden = true; if (diff) diff.hidden = true;
         return;
       }
-      nav.hidden = false; if (diff) { diff.hidden = false; diff.textContent = "我的畫面不一樣"; }
+      nav.hidden = false; if (diff) diff.hidden = false;
       var s = st[i], last = i === n - 1;
       w.querySelector(".tu-n").textContent = (i + 1) + " / " + n;
       [].forEach.call(w.querySelectorAll(".tu-dots i"), function (d, k) { d.className = k === i ? "on" : (k < i ? "past" : ""); });
@@ -6830,34 +6931,29 @@ window.ALBUM_SWITCH = {
       var nx = w.querySelector(".tu-next");
       nx.textContent = last ? "知道了" : "下一步";
       nx.classList.toggle("fin", last);
-      var pb = w.querySelector(".tu-play");
-      if (last) { pb.textContent = "↺ 重看"; pb.setAttribute("aria-label", "從頭重看"); }
-      else { pb.textContent = playing ? "❚❚ 暫停" : "▶ 播放"; pb.setAttribute("aria-label", playing ? "暫停自動播放" : "自動播放"); }
-      if (playing && !last) A264.timer = setTimeout(function () { if ($("a2tut") === w) { i++; paint(); } }, 3400);
       a2st({ tutStep: i + 1 });
     }
-    w.querySelector(".tu-prev").addEventListener("click", function () { if (i > 0) { playing = false; i--; paint(); } });
+    w.querySelector(".tu-prev").addEventListener("click", function () { if (i > 0) { i--; paint(); } });
     w.querySelector(".tu-next").addEventListener("click", function () {
-      if (i < n - 1) { playing = false; i++; paint(); return; }
-      /* B265T：看完教學≠已加入主畫面。只記 tutorialViewed，不記 done，回訪提醒照常 */
+      if (i < n - 1) { i++; paint(); return; }
+      /* 看完教學≠已加入主畫面：只記 tutorialViewed；收起後頂端留順序提示，邊看邊做 */
       a2st({ tutorialViewed: Date.now(), tutorialKind: kind });
-      a2TutClose("viewed");
+      var k = kind; a2TutClose("viewed"); a2PathShow(k, 0);
       toast("加入後，回主畫面點 THE SKY；若沒接上可輸入原兌換碼恢復", 4200);
     });
-    w.querySelector(".tu-play").addEventListener("click", function () {
-      if (i === n - 1) { i = 0; playing = !a2Reduce(); paint(); return; }
-      playing = !playing; paint();
+    w.querySelector(".tu-do").addEventListener("click", function () {
+      a2st({ tutDoAt: Date.now(), tutDoStep: i + 1 });
+      var k = kind, at = i; a2TutClose("do"); a2PathShow(k, at);
     });
     stage.addEventListener("click", function (e) {
       var pk = e.target.closest("button[data-k]");
-      if (pk) { setKind(pk.getAttribute("data-k")); a2st({ tutPicked: pk.getAttribute("data-k") }); setTimeout(function () { try { w.querySelector(".tu-next").focus(); } catch (x) {} }, 30); return; }
-      if (kind !== "pick" && i < n - 1) { playing = false; i++; paint(); }
+      if (pk) { setKind(pk.getAttribute("data-k"), 0); a2st({ tutPicked: pk.getAttribute("data-k") }); setTimeout(function () { try { w.querySelector(".tu-next").focus(); } catch (x) {} }, 30); }
     });
     if (diff) diff.addEventListener("click", function () { a2st({ tutDiff: Date.now() }); setKind("pick"); setTimeout(function () { try { stage.querySelector("button[data-k]").focus(); } catch (x) {} }, 30); });
     w.querySelector(".tu-x").addEventListener("click", function () { a2Skip(true); a2TutClose("x"); });
     w.querySelector(".tu-later").addEventListener("click", function () { a2Skip(true); a2TutClose("later"); });
     w.querySelector(".tu-bg").addEventListener("click", function () { a2Skip(true); a2TutClose("bg"); });
-    setKind(kind);
+    setKind(kind, opt && opt.step);
     setTimeout(function () { try { (kind === "pick" ? stage.querySelector("button[data-k]") : w.querySelector(".tu-next")).focus(); } catch (e) {} }, 60);
   }
 
@@ -6878,6 +6974,78 @@ window.ALBUM_SWITCH = {
         if (el) { el.scrollIntoView({ block: "center" }); el.focus({ preventScroll: true }); }
       } catch (x) {}
     }, 380);
+  }
+
+  /* ---------- B266T：主畫面 App 第一次打開的「正在開啟你的專輯」 ----------
+     <head> 裡的小程式（window.__skyPair）在整頁還在下載時就先打 /premium/pair/redeem，拿到 email＋碼後立刻打主後端 /verify。
+     這裡只接手結果：照常走 redeemAny（伺服器驗證結果決定解鎖；不看 localStorage 當授權）。
+     驗證前蓋一層「正在開啟你的專輯」，不閃出未解鎖畫面；8 秒還沒好 → 給「重試／用兌換碼開啟／先關掉」；失敗或離線同樣可重試或用原碼恢復，不用重買。 */
+  function a2OpenEl() { return $("a2open"); }
+  function a2OpenShow() {
+    var o = a2OpenEl();
+    if (!o) {
+      o = document.createElement("div");
+      o.id = "a2open"; o.setAttribute("role", "status"); o.setAttribute("aria-live", "polite");
+      var icon = ($("apple-touch-icon") && $("apple-touch-icon").getAttribute("href")) || "assets/images/icon-180.png";
+      o.innerHTML = '<div class="op-in"><img src="' + icon + '" alt=""><p class="op-t">正在開啟你的專輯</p><span class="op-sp" aria-hidden="true"></span>' +
+        '<p class="op-s" hidden></p><div class="op-b" hidden>' +
+        '<button type="button" class="pri" data-o="retry">重試</button><button type="button" data-o="code">用兌換碼開啟</button><button type="button" data-o="close">先關掉</button></div></div>';
+      document.body.appendChild(o);
+      o.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-o]"); if (!b) return;
+        var a = b.getAttribute("data-o");
+        if (a === "retry") { a2OpenRetry(); return; }
+        if (a === "code") { a2st({ openCode: Date.now() }); a2OpenDone(); a2GoRedeem(); return; }
+        a2st({ openClose: Date.now() }); a2OpenDone();
+      });
+    }
+    document.documentElement.classList.remove("sky-opening");
+    return o;
+  }
+  function a2OpenState(kind) {
+    var o = a2OpenEl() || a2OpenShow();
+    var t = o.querySelector(".op-t"), s = o.querySelector(".op-s"), b = o.querySelector(".op-b"), sp = o.querySelector(".op-sp");
+    if (kind === "wait") { t.textContent = "正在開啟你的專輯"; s.hidden = true; b.hidden = true; sp.hidden = false; return; }
+    sp.hidden = kind !== "slow";
+    t.textContent = kind === "slow" ? "連線比平常久" : "暫時連不上";
+    s.textContent = kind === "slow" ? "還在等伺服器回應。可以再試一次，或直接輸入原本的 email＋兌換碼（不用重買）。"
+                                    : "請確認網路後再試一次，或輸入原本的 email＋兌換碼（不用重買）。";
+    s.hidden = false; b.hidden = false;
+    try { b.querySelector("button").focus({ preventScroll: true }); } catch (e) {}
+  }
+  function a2OpenDone() {
+    clearTimeout(A264.openSlow);
+    document.documentElement.classList.remove("sky-opening");
+    var o = a2OpenEl(); if (o && o.parentNode) o.parentNode.removeChild(o);
+  }
+  function a2OpenRun(p) {
+    var W = window.__skyPair, my = (A264.openRun = (A264.openRun || 0) + 1);
+    clearTimeout(A264.openSlow);
+    a2OpenState("wait");
+    A264.openSlow = setTimeout(function () { if (A264.openRun === my && a2OpenEl()) a2OpenState("slow"); }, 8000);
+    p.then(function (res) {
+      if (A264.openRun !== my) return;
+      a2st({ carriedAt: Date.now(), carriedFrom: "pair" });
+      A264.pairing = true;
+      redeemAny(res.cred.email, res.cred.code, Promise.resolve(res.v), function (ok, why) {
+        A264.pairing = false;
+        if (A264.openRun !== my) return;
+        clearTimeout(A264.openSlow);
+        if (ok) { pairCookieClear(); a2st({ openOkAt: Date.now(), openMs: Date.now() - ((W && W.t0) || Date.now()) }); a2OpenDone(); return; }
+        if (why === "net") { a2OpenState("fail"); return; }
+        pairCookieClear(); a2OpenDone(); a2Tip("nopair");   /* 伺服器說碼不對：不解鎖，給原碼恢復入口 */
+      });
+    }).catch(function (e) {
+      if (A264.openRun !== my) return;
+      clearTimeout(A264.openSlow);
+      if (e && e.reason) { pairCookieClear(); a2OpenDone(); a2Tip("nopair"); return; }   /* token 過期／已用過 */
+      a2OpenState("fail");
+    });
+  }
+  function a2OpenRetry() {
+    var W = window.__skyPair; if (!W) { a2OpenDone(); a2GoRedeem(); return; }
+    a2st({ openRetry: (a2st().openRetry || 0) + 1 });
+    a2OpenRun(W.cred ? W.ver() : W.go());   /* 已換到 email＋碼 → 只重做 /verify；否則重做 redeem（token 10 分鐘內有效、60 秒內重試冪等） */
   }
 
   /* ---------- 5. OWN 固定入口（主畫面教學＋次要的錢包卡） ---------- */
@@ -9613,7 +9781,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B265T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B266T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
