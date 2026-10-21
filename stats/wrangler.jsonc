@@ -1,0 +1,8 @@
+{
+  // the-sky-stats（獨立統計 Worker）。只給這個 Worker 用；repo 根目錄的 wrangler.json 是主 Worker 的，禁改。
+  "name": "the-sky-stats",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "d1_databases": [{ "binding": "DB", "database_name": "the-sky-stats", "database_id": "952c6812-59b3-452e-91d8-4b7401cbcf59" }]
+  // Secret：REPORT_KEY（wrangler secret put REPORT_KEY，或在 Dashboard → Settings → Variables 加）
+}

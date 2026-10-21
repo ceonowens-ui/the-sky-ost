@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>THE SKY 使用統計</title>
+<style>
+:root{--bg:#0B0709;--card:#15100f;--line:#2a221c;--gold:#E9C46A;--text:#f3ede4;--muted:#a79d8f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;padding:16px 16px calc(40px + env(safe-area-inset-bottom))}
+h1{font:600 20px/1.3 inherit;letter-spacing:2px;color:var(--gold);margin:8px 0 2px}h1 small{display:block;font:400 12px/1.4 inherit;letter-spacing:1px;color:var(--muted)}
+h2{font:600 13px/1.4 inherit;letter-spacing:2px;color:var(--gold);margin:26px 0 8px;text-transform:uppercase}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+input,select,button{font:inherit;font-size:16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:10px 12px;min-height:44px}
+button{background:var(--gold);color:#1a1208;font-weight:600;border:0;padding:10px 18px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.card b{display:block;font-size:26px;line-height:1.2;color:var(--gold)}.card span{font-size:12px;color:var(--muted);letter-spacing:1px}
+.bars{display:flex;flex-direction:column;gap:6px}.bar{display:grid;grid-template-columns:64px 1fr 72px;gap:8px;align-items:center;font-size:14px}
+.bar i{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,#8a6a2b,var(--gold));min-width:2px}.bar em{font-style:normal;color:var(--muted);text-align:right;font-size:12px}
+.bar.lbl{grid-template-columns:minmax(80px,1fr) 2fr 72px}.bar.lbl .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted);font-weight:500;font-size:12px;letter-spacing:1px}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:13px;line-height:1.6}#err{color:#e8a8a8;margin:10px 0}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<h1>THE SKY · 使用統計<small id="meta">匿名統計 · 台北時間 · 只在 test.html 收集</small></h1>
+<div class="row">
+  <input id="key" type="password" placeholder="REPORT_KEY" autocomplete="off" style="flex:1;min-width:160px">
+  <select id="days"><option value="7">最近 7 天</option><option value="30" selected>最近 30 天</option><option value="90">最近 90 天</option></select>
+  <button id="go">查看</button>
+</div>
+<div id="err" hidden></div>
+<div id="out" hidden>
+  <div class="cards" id="cards"></div>
+  <h2>每天有多少人用</h2><div class="bars" id="byDay"></div>
+  <h2>一天中什麼時段（台北）</h2><div class="bars" id="byHour"></div>
+  <h2>星期幾</h2><div class="bars" id="byWeekday"></div>
+  <h2>在哪個分頁停留</h2><div class="bars" id="tabs"></div>
+  <h2>歌曲</h2><table id="tracks"><thead><tr><th>歌</th><th class="num">播放</th><th class="num">人</th><th class="num">平均聽（秒）</th><th class="num">聽完率</th></tr></thead><tbody></tbody></table>
+  <p class="note" id="preview"></p>
+  <h2>地區（Cloudflare 依連線判斷，到城市為止）</h2><table id="geo"><thead><tr><th>國家</th><th>城市</th><th class="num">人</th></tr></thead><tbody></tbody></table>
+  <h2>裝置</h2><div class="bars" id="devices"></div>
+  <p class="note">「人」＝不同的匿名裝置代號（同一個人換瀏覽器會算兩個）。停留秒數只算畫面看得到的時候。歌曲「播放」＝從頭按播放的次數；暫停後續播不重複算。沒有收 email、兌換碼、IP、GPS。</p>
+</div>
+<script>
+(function(){
+  var API="https://the-sky-stats.anthonywen0693.workers.dev/report", $=function(id){return document.getElementById(id);};
+  try{ $("key").value=localStorage.getItem("sky:stats:key")||""; }catch(e){}
+  if(location.hash.length>1){ $("key").value=decodeURIComponent(location.hash.slice(1)); }
+  var WD=["日","一","二","三","四","五","六"], TAB={PLAY:"PLAY 播放器",SIGNAL:"SIGNAL 私訊",SHOP:"SHOP 周邊票券",OWN:"OWN 解鎖",LUCKY:"LUCKY 抽卡",GALLERY:"GALLERY"};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function mins(s){s=Number(s)||0;return s>=3600?(s/3600).toFixed(1)+" 小時":s>=60?Math.round(s/60)+" 分":Math.round(s)+" 秒";}
+  function bars(id,rows,label,val,fmt,cls){ var max=Math.max.apply(null,rows.map(function(r){return Number(val(r))||0;}).concat([1])); $(id).innerHTML=rows.map(function(r){var v=Number(val(r))||0;return '<div class="bar '+(cls||'')+'"><span class="n">'+esc(label(r))+'</span><i style="width:'+(v/max*100).toFixed(1)+'%"></i><em>'+esc(fmt?fmt(v,r):v)+'</em></div>';}).join("")||'<p class="note">還沒有資料</p>'; }
+  async function load(){
+    var key=$("key").value.trim(), days=$("days").value; if(!key){ $("err").hidden=false; $("err").textContent="請輸入 REPORT_KEY"; return; }
+    try{ localStorage.setItem("sky:stats:key",key); }catch(e){}
+    $("err").hidden=true; $("go").disabled=true; $("go").textContent="讀取中…";
+    try{
+      var r=await fetch(API+"?days="+days+"&key="+encodeURIComponent(key),{cache:"no-store"}); var j=await r.json();
+      if(!j.ok){ throw new Error(r.status===401?"REPORT_KEY 不對":(j.message||j.reason||"讀取失敗")); }
+      render(j);
+    }catch(e){ $("err").hidden=false; $("err").textContent=String(e.message||e); $("out").hidden=true; }
+    $("go").disabled=false; $("go").textContent="查看";
+  }
+  function render(j){
+    $("out").hidden=false; var t=j.totals||{}, s=j.sessions||{};
+    $("meta").textContent="匿名統計 · 台北時間 · 最近 "+j.days+" 天 · 更新 "+new Date(j.generatedAt).toLocaleString("zh-TW",{hour12:false});
+    var opens=(j.byDay||[]).reduce(function(a,b){return a+(Number(b.opens)||0);},0);
+    $("cards").innerHTML=[["人數",t.users||0],["打開次數",opens],["平均每次用",mins(s.avg_secs||0)],["國家數",t.countries||0]].map(function(c){return '<div class="card"><b>'+esc(c[1])+'</b><span>'+esc(c[0])+'</span></div>';}).join("");
+    bars("byDay",j.byDay||[],function(r){return r.day.slice(5);},function(r){return r.users;},function(v,r){return v+" 人 · "+mins(r.secs);});
+    var hours=[];for(var h=0;h<24;h++){var f=(j.byHour||[]).find(function(x){return Number(x.hour)===h;});hours.push({hour:h,v:f?f.user_days:0});}
+    bars("byHour",hours,function(r){return String(r.hour).padStart(2,"0")+":00";},function(r){return r.v;},function(v){return v+" 人次";});
+    var wds=[];for(var w=0;w<7;w++){var g=(j.byWeekday||[]).find(function(x){return Number(x.wd)===w;});wds.push({wd:w,v:g?g.user_days:0});}
+    bars("byWeekday",wds,function(r){return "週"+WD[r.wd];},function(r){return r.v;},function(v){return v+" 人次";});
+    var tot=(j.tabs||[]).reduce(function(a,b){return a+(Number(b.secs)||0);},0)||1;
+    bars("tabs",j.tabs||[],function(r){return TAB[r.name]||r.name;},function(r){return r.secs;},function(v,r){return Math.round(v/tot*100)+"% · "+mins(v);},"lbl");
+    $("tracks").querySelector("tbody").innerHTML=(j.tracks||[]).map(function(r){var plays=Number(r.plays)||0,c=Number(r.completes)||0;return "<tr><td>"+esc(r.title||(r.album+" #"+r.track))+"</td><td class='num'>"+plays+"</td><td class='num'>"+(r.listeners||0)+"</td><td class='num'>"+(plays?Math.round(r.secs/plays):0)+"</td><td class='num'>"+(plays?Math.round(c/plays*100)+"%":"–")+"</td></tr>";}).join("")||"<tr><td colspan='5' class='note'>還沒有資料</td></tr>";
+    var p=j.preview||{}; $("preview").textContent="30 秒試聽：按播放 "+(p.plays||0)+" 次、"+(p.listeners||0)+" 人、聽完 "+(p.completes||0)+" 次"+(p.plays?"（"+Math.round((p.completes||0)/p.plays*100)+"%）":"")+"。";
+    $("geo").querySelector("tbody").innerHTML=(j.geo||[]).map(function(r){return "<tr><td>"+esc(r.country||"?")+"</td><td>"+esc(r.city||"")+"</td><td class='num'>"+(r.users||0)+"</td></tr>";}).join("")||"<tr><td colspan='3' class='note'>還沒有資料</td></tr>";
+    bars("devices",j.devices||[],function(r){return ({ios:"iPhone",android:"Android",desktop:"電腦",mobile:"手機"})[r.dev]||r.dev;},function(r){return r.users;},function(v,r){return v+" 人"+(Number(r.pwa)?"（主畫面 App）":"");},"lbl");
+  }
+  $("go").addEventListener("click",load); $("key").addEventListener("keydown",function(e){if(e.key==="Enter")load();});
+  if($("key").value) load();
+})();
+</script>
+</body>
+</html>
