@@ -1,7 +1,6 @@
 /* B285T · swipe track browser, existing player and entitlement engine. */
 /* B287T · TRACKS 頁可調參數（test.html?tune=1 的 TUNER 會改這些變數；定稿後把數值寫回這裡） */
-:root{--tk-top:12px;--tk-peek:17%;--tk-gap:16px;--tk-cover-radius:8px;--tk-side-scale:.91;--tk-side-opacity:.5;--tk-meta-top:12px;--tk-title-font:30px;--tk-artist-font:12px;--tk-status-font:14px;--tk-transport-top:0px;--tk-times-top:12px;--tk-times-bottom:18px;--tk-utils-mt:16px;--tk-list-mt:20px;--tk-row-h:64px;--tk-row-font:19px}
-@media(max-height:700px){:root{--tk-peek:25%;--tk-title-font:26px;--tk-utils-mt:8px}}
+:root{--tk-top:10px;--tk-peek:5.5%;--tk-gap:21px;--tk-cover-radius:30px;--tk-side-scale:.97;--tk-side-opacity:.95;--tk-meta-top:3px;--tk-title-font:31px;--tk-artist-font:13.5px;--tk-status-font:14px;--tk-transport-top:29px;--tk-times-top:23px;--tk-times-bottom:37px;--tk-utils-mt:23px;--tk-transport-bottom:22px;--tk-list-mt:5px;--tk-list-pt:20px;--tk-row-h:46px;--tk-row-font:14px}   /* B289T：CÉON 10/22 01:38 用 TUNER 調的數值 */
 #screen-player #cm-write,#screen-player #btn-heart{display:none!important}
 #screen-player .cp-caption{display:block;font:500 11px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.3px;margin-top:5px}
 #screen-player #cp-share-quick,#screen-player #cp-open-lyrics,#screen-player #cp-open-queue,#screen-player #cm-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;height:auto;gap:0;color:#d7d0c5}
@@ -25,7 +24,7 @@
 #cp-browse-title{font:400 var(--tk-title-font)/1.2 Georgia,'Times New Roman',serif;margin:4px 0 8px;color:#f2eee7}
 #cp-browse-artist{font:400 var(--tk-artist-font)/1.4 -apple-system,sans-serif;letter-spacing:3px;color:#bdb6ae;margin:0}
 #cp-browse-status{font:400 var(--tk-status-font)/1.5 -apple-system,sans-serif;color:#d9c595;min-height:21px;margin:9px 0 0}
-#screen-player.cp-swipe #cp-transport{position:relative;left:auto;right:auto;bottom:auto;width:auto;margin:var(--tk-transport-top) 24px 22px;display:block;z-index:1}
+#screen-player.cp-swipe #cp-transport{position:relative;left:auto;right:auto;bottom:auto;width:auto;margin:var(--tk-transport-top) 24px var(--tk-transport-bottom);display:block;z-index:1}
 #screen-player.cp-swipe #cp-transport::before{display:none}
 #screen-player.cp-swipe .np-times{display:flex;justify-content:space-between;margin:var(--tk-times-top) 0 var(--tk-times-bottom)}
 #screen-player.cp-swipe .np-controls{grid-template-columns:1fr 1fr 68px 1fr 1fr!important;align-items:center}
@@ -37,7 +36,7 @@
 #screen-player.cp-swipe.cp-browsing #btn-play svg{visibility:hidden}
 #screen-player.cp-swipe.cp-browsing #btn-play::after{content:'▶';position:absolute;font:24px/1 sans-serif;color:#e9e0cc}
 #screen-player.cp-swipe #btn-play{display:flex;align-items:center;justify-content:center}
-#screen-player .cp-tracklist-title{margin:var(--tk-list-mt) 24px 5px;padding-top:20px;border-top:1px solid #ffffff18;color:#bcb4a6;font:500 12px/1.5 -apple-system,sans-serif;letter-spacing:2px}
+#screen-player .cp-tracklist-title{margin:var(--tk-list-mt) 24px 5px;padding-top:var(--tk-list-pt);border-top:1px solid #ffffff18;color:#bcb4a6;font:500 12px/1.5 -apple-system,sans-serif;letter-spacing:2px}
 #screen-player #cp-tracklist{margin:0 24px}
 #screen-player #cp-queue #cp-tracklist .cp-track{min-height:var(--tk-row-h);padding:0;border-radius:0;background:none;border-bottom:1px solid #ffffff12}
 #screen-player #cp-queue #cp-tracklist .cp-track-select{display:flex;align-items:center;gap:14px;min-height:var(--tk-row-h);padding:8px 0;width:100%;text-align:left}
