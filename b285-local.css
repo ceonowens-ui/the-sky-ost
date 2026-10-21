@@ -53,3 +53,6 @@
 #cp-browse-status #cp-browse-unlock{display:inline-block;background:none;border:1px solid #bda26e;border-radius:20px;padding:8px 16px;color:#f5dcaa;font:600 16px/1.45 -apple-system,'PingFang TC',sans-serif;min-height:44px;cursor:pointer}
 #cp-browse-status #cp-browse-unlock+span{display:block;font-size:14px;margin-top:6px;color:#e4dacc}
 #cp-browse-status:has(#cp-browse-unlock){margin-bottom:8px}
+/* B291T · 曲目清單上移與控制區下距各自獨立（不讓負 margin 互相吃掉） */
+#screen-player.cp-swipe #cp-queue{display:flex;flex-direction:column}
+#screen-player.cp-swipe #cp-queue>*{flex:none}
