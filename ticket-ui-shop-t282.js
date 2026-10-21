@@ -1,5 +1,3 @@
-ticket-ui-shop-t282.js · sha256 7a936e81ace60a41 · 317067 bytes
-
 /* B282T：還沒開賣時不公布票種詳情與票價（拿掉「查看票券詳情」、詳情視窗也不開）；開賣後自動恢復。 */
 /* B281T（只給 test.html 用的測試檔，b255／t280 原檔不動）：CHANCE 生日會票券頁改成 LA 版（照 10/21 示意圖）；樣式與字型／紙張素材在 ticket-la-t281.css（只有本檔載入）。
    購票、排隊、詳情、我的票都沿用原本功能；日期、時間、場地、價格、販售狀態都讀 /ticket/events。 */
@@ -2494,4 +2492,3 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
 })();
-
