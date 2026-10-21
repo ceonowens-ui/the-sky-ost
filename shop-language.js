@@ -1,7 +1,8 @@
 /* B283T: automatic shopping language. Display only; never translate input values or request payloads. */
 (function(){
  'use strict';
- const preferred=(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
+ const forced=(function(){try{return (new URLSearchParams(location.search).get('lang')||'').toLowerCase();}catch(e){return '';}})();   /* B293T：測試用 ?lang=en／?lang=zh 可強制語言（正式判斷仍是瀏覽器語言） */
+ const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=!/^zh(?:-|$)/i.test(preferred);
  const D={
  '你的收藏':'Your collection','票券與周邊，各自收好。':'Tickets and merch, all in one place.',
