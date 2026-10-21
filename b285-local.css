@@ -1,4 +1,7 @@
 /* B285T · swipe track browser, existing player and entitlement engine. */
+/* B287T · TRACKS 頁可調參數（test.html?tune=1 的 TUNER 會改這些變數；定稿後把數值寫回這裡） */
+:root{--tk-top:12px;--tk-peek:17%;--tk-gap:16px;--tk-cover-radius:8px;--tk-side-scale:.91;--tk-side-opacity:.5;--tk-meta-top:12px;--tk-title-font:30px;--tk-artist-font:12px;--tk-status-font:14px;--tk-transport-top:0px;--tk-times-top:12px;--tk-times-bottom:18px;--tk-utils-mt:16px;--tk-list-mt:20px;--tk-row-h:64px;--tk-row-font:19px}
+@media(max-height:700px){:root{--tk-peek:25%;--tk-title-font:26px;--tk-utils-mt:8px}}
 #screen-player #cm-write,#screen-player #btn-heart{display:none!important}
 #screen-player .cp-caption{display:block;font:500 11px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.3px;margin-top:5px}
 #screen-player #cp-share-quick,#screen-player #cp-open-lyrics,#screen-player #cp-open-queue,#screen-player #cm-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;height:auto;gap:0;color:#d7d0c5}
@@ -7,26 +10,26 @@
 #screen-player.cp-ready:not(.cp-immersive) #cp-transport{grid-template-areas:'cur bar dur' 'cm cm cm' 'ctl ctl ctl' 'lyr lyr lyr'}
 #screen-player.cp-ready:not(.cp-immersive) #cp-transport::before{grid-row:1}
 #screen-player #cp-utilities:empty{display:none}
-#screen-player.cp-swipe #cp-panel{background:#101011;padding:12px 0 0!important;overflow:hidden}
+#screen-player.cp-swipe #cp-panel{background:#101011;padding:var(--tk-top) 0 0!important;overflow:hidden}
 #screen-player.cp-swipe #cp-panel::before{opacity:.045}
 #screen-player.cp-swipe .cp-panel-top{padding:0 20px 6px}
 #screen-player.cp-swipe #cp-heading{font:500 13px/1.5 -apple-system,sans-serif;letter-spacing:4px}
 #screen-player.cp-swipe .cp-panel-head,#screen-player.cp-swipe #cp-queue-tools{display:none!important}
 #screen-player.cp-swipe #cp-queue{padding:0 0 max(26px,env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;overscroll-behavior:contain}
-#cp-carousel{display:flex;position:relative;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:12px 17%;gap:16px;overscroll-behavior-x:contain;touch-action:pan-x pan-y}
+#cp-carousel{display:flex;position:relative;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;padding:12px var(--tk-peek);gap:var(--tk-gap);overscroll-behavior-x:contain;touch-action:pan-x pan-y}
 #cp-carousel::-webkit-scrollbar{display:none}
-#cp-carousel .cp-cover-slide{flex:0 0 100%;width:100%;border:0;background:#191919;padding:0;scroll-snap-align:center;border-radius:8px;overflow:hidden;opacity:.5;transform:scale(.91);transition:opacity .2s,transform .2s;aspect-ratio:1;cursor:pointer}
+#cp-carousel .cp-cover-slide{flex:0 0 100%;width:100%;border:0;background:#191919;padding:0;scroll-snap-align:center;border-radius:var(--tk-cover-radius);overflow:hidden;opacity:var(--tk-side-opacity);transform:scale(var(--tk-side-scale));transition:opacity .2s,transform .2s;aspect-ratio:1;cursor:pointer}
 #cp-carousel .cp-cover-slide[aria-pressed=true]{opacity:1;transform:scale(1)}
 #cp-carousel img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
-#cp-browse-meta{text-align:center;padding:12px 24px 0}
-#cp-browse-title{font:400 clamp(25px,7vw,34px)/1.2 Georgia,'Times New Roman',serif;margin:4px 0 8px;color:#f2eee7}
-#cp-browse-artist{font:400 12px/1.4 -apple-system,sans-serif;letter-spacing:3px;color:#bdb6ae;margin:0}
-#cp-browse-status{font:400 14px/1.5 -apple-system,sans-serif;color:#d9c595;min-height:21px;margin:9px 0 0}
-#screen-player.cp-swipe #cp-transport{position:relative;left:auto;right:auto;bottom:auto;width:auto;margin:0 24px 22px;display:block;z-index:1}
+#cp-browse-meta{text-align:center;padding:var(--tk-meta-top) 24px 0}
+#cp-browse-title{font:400 var(--tk-title-font)/1.2 Georgia,'Times New Roman',serif;margin:4px 0 8px;color:#f2eee7}
+#cp-browse-artist{font:400 var(--tk-artist-font)/1.4 -apple-system,sans-serif;letter-spacing:3px;color:#bdb6ae;margin:0}
+#cp-browse-status{font:400 var(--tk-status-font)/1.5 -apple-system,sans-serif;color:#d9c595;min-height:21px;margin:9px 0 0}
+#screen-player.cp-swipe #cp-transport{position:relative;left:auto;right:auto;bottom:auto;width:auto;margin:var(--tk-transport-top) 24px 22px;display:block;z-index:1}
 #screen-player.cp-swipe #cp-transport::before{display:none}
-#screen-player.cp-swipe .np-times{display:flex;justify-content:space-between;margin:12px 0 18px}
+#screen-player.cp-swipe .np-times{display:flex;justify-content:space-between;margin:var(--tk-times-top) 0 var(--tk-times-bottom)}
 #screen-player.cp-swipe .np-controls{grid-template-columns:1fr 1fr 68px 1fr 1fr!important;align-items:center}
-#screen-player.cp-swipe #cp-utilities{display:flex;justify-content:space-evenly;align-items:center;margin-top:16px}
+#screen-player.cp-swipe #cp-utilities{display:flex;justify-content:space-evenly;align-items:center;margin-top:var(--tk-utils-mt)}
 #screen-player.cp-swipe #cp-utilities button{min-width:64px;background:none;border:0;padding:4px 10px;color:#c9c4bc}
 #screen-player.cp-swipe #cp-utilities svg{width:23px;height:23px}
 #screen-player.cp-swipe #cp-utilities #cp-open-queue{color:#dfc78e}
@@ -34,18 +37,17 @@
 #screen-player.cp-swipe.cp-browsing #btn-play svg{visibility:hidden}
 #screen-player.cp-swipe.cp-browsing #btn-play::after{content:'▶';position:absolute;font:24px/1 sans-serif;color:#e9e0cc}
 #screen-player.cp-swipe #btn-play{display:flex;align-items:center;justify-content:center}
-#screen-player .cp-tracklist-title{margin:20px 24px 5px;padding-top:20px;border-top:1px solid #ffffff18;color:#bcb4a6;font:500 12px/1.5 -apple-system,sans-serif;letter-spacing:2px}
+#screen-player .cp-tracklist-title{margin:var(--tk-list-mt) 24px 5px;padding-top:20px;border-top:1px solid #ffffff18;color:#bcb4a6;font:500 12px/1.5 -apple-system,sans-serif;letter-spacing:2px}
 #screen-player #cp-tracklist{margin:0 24px}
-#screen-player #cp-queue #cp-tracklist .cp-track{min-height:64px;padding:0;border-radius:0;background:none;border-bottom:1px solid #ffffff12}
-#screen-player #cp-queue #cp-tracklist .cp-track-select{display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 0;width:100%;text-align:left}
+#screen-player #cp-queue #cp-tracklist .cp-track{min-height:var(--tk-row-h);padding:0;border-radius:0;background:none;border-bottom:1px solid #ffffff12}
+#screen-player #cp-queue #cp-tracklist .cp-track-select{display:flex;align-items:center;gap:14px;min-height:var(--tk-row-h);padding:8px 0;width:100%;text-align:left}
 #screen-player #cp-tracklist .cp-track-num{color:#aaa49a;font-size:13px;min-width:22px}
-#screen-player #cp-queue #cp-tracklist .cp-track-name{font:400 19px/1.4 Georgia,serif;flex:1;color:#e9e5dd}
+#screen-player #cp-queue #cp-tracklist .cp-track-name{font:400 var(--tk-row-font)/1.4 Georgia,serif;flex:1;color:#e9e5dd}
 #screen-player #cp-tracklist .current .cp-track-name,#screen-player #cp-tracklist .current .cp-track-num,#screen-player #cp-tracklist .cp-track-state{color:#e5c98a}
 #screen-player #cp-tracklist .cp-track-state{margin-left:auto;font-size:18px}
 #screen-player.cp-lyr #cp-lyr-row .r-mid{display:flex}
 #screen-player.cp-lyr #cp-lyr-row #cm-btn{padding:4px 8px}
 @media(min-width:600px){#screen-player.cp-swipe #cp-carousel{padding-left:calc(50% - 160px);padding-right:calc(50% - 160px)}#cp-carousel .cp-cover-slide{flex-basis:320px}}
-@media(max-height:700px){#screen-player.cp-swipe #cp-carousel{padding-left:25%;padding-right:25%}#cp-browse-title{font-size:26px}#screen-player.cp-swipe #cp-utilities{margin-top:8px}}
 @media(prefers-reduced-motion:reduce){#cp-carousel .cp-cover-slide{transition:none}}
 #screen-player.cp-swipe .np-controls #btn-play{border:1px solid #ddc99f!important;border-radius:50%!important;background:transparent!important}
 /* B286T · TRACKS 頁試聽結束的解鎖入口（與主頁同款） */

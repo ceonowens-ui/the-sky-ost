@@ -10258,8 +10258,9 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 <script id="__inapp_tuner">
-(function () {
+(function tuneInit() {
   if (!/[?&]tune=1/.test(location.search)) return;
+  if (document.readyState !== "complete") { window.addEventListener("load", tuneInit); return; }   /* B287T：等 b285-local.css 載好再讀 --tk-* 初始值 */
   var SPEC = [
     ["版面", [
       ["--pv-cover-top",     "封面上距",   -300, 120, 1,   "px"],
@@ -10288,6 +10289,25 @@ window.ALBUM_SWITCH = {
       ["--pv-track-font",    "NEXT 曲名",  10,   30,  1,   "px"],
       ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
+    ]],
+    ["TRACKS 頁（B287T）", [
+      ["--tk-top",           "頁面上距",   0,    60,  1,   "px"],
+      ["--tk-peek",          "兩側露出",   4,    35,  0.5, "%"],
+      ["--tk-gap",           "封面間距",   0,    48,  1,   "px"],
+      ["--tk-cover-radius",  "封面圓角",   0,    40,  1,   "px"],
+      ["--tk-side-scale",    "側封面縮放", 0.6,  1,   0.01,""],
+      ["--tk-side-opacity",  "側封面透明", 0,    1,   0.05,""],
+      ["--tk-meta-top",      "歌名上距",   0,    60,  1,   "px"],
+      ["--tk-title-font",    "歌名字級",   18,   44,  1,   "px"],
+      ["--tk-artist-font",   "歌手字級",   8,    20,  0.5, "px"],
+      ["--tk-status-font",   "狀態列字級", 10,   20,  0.5, "px"],
+      ["--tk-transport-top", "進度條上距", -40,  60,  1,   "px"],
+      ["--tk-times-top",     "時間上距",   0,    40,  1,   "px"],
+      ["--tk-times-bottom",  "時間下距",   0,    60,  1,   "px"],
+      ["--tk-utils-mt",      "LYRICS 列上距",-10, 60,  1,   "px"],
+      ["--tk-list-mt",       "曲目清單上距",0,   80,  1,   "px"],
+      ["--tk-row-h",         "清單列高",   44,   96,  1,   "px"],
+      ["--tk-row-font",      "清單字級",   14,   28,  1,   "px"]
     ]],
     ["分頁島", [
       ["--pv-nav-bottom",    "nav 下距",   -20,  120, 1,   "px"],
@@ -10368,7 +10388,7 @@ window.ALBUM_SWITCH = {
   document.getElementById("__tpCopy").addEventListener("click", function () {
     var t = block(), ta = document.getElementById("__tpOut");
     ta.value = t;
-    try { navigator.clipboard && navigator.clipboard.writeText(t); } catch (e) {}
+    try { navigator.clipboard && navigator.clipboard.writeText(t).catch(function(){}); } catch (e) {}
     ta.focus(); ta.setSelectionRange(0, t.length);
   });
   document.getElementById("__tpReset").addEventListener("click", function () {
@@ -10555,7 +10575,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B286T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B287T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11809,7 +11829,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css">
+<link rel="stylesheet" href="b285-local.css?v=B287T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>
