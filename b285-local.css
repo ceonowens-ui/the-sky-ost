@@ -1,6 +1,6 @@
 /* B285T · swipe track browser, existing player and entitlement engine. */
 /* B287T · TRACKS 頁可調參數（test.html?tune=1 的 TUNER 會改這些變數；定稿後把數值寫回這裡） */
-:root{--tk-top:10px;--tk-peek:5.5%;--tk-gap:21px;--tk-cover-radius:30px;--tk-side-scale:.97;--tk-side-opacity:.95;--tk-meta-top:3px;--tk-title-font:31px;--tk-artist-font:13.5px;--tk-status-font:14px;--tk-transport-top:29px;--tk-times-top:23px;--tk-times-bottom:37px;--tk-utils-mt:23px;--tk-transport-bottom:22px;--tk-list-mt:5px;--tk-list-pt:20px;--tk-row-h:46px;--tk-row-font:14px}   /* B289T：CÉON 10/22 01:38 用 TUNER 調的數值 */
+:root{--tk-top:2px;--tk-peek:11.5%;--tk-gap:25px;--tk-cover-radius:40px;--tk-side-scale:.89;--tk-side-opacity:.6;--tk-meta-top:0px;--tk-title-font:31px;--tk-artist-font:14.5px;--tk-status-font:13px;--tk-transport-top:32px;--tk-times-top:6px;--tk-times-bottom:37px;--tk-utils-mt:28px;--tk-transport-bottom:-47px;--tk-list-mt:4px;--tk-list-pt:20px;--tk-row-h:50px;--tk-row-font:23px}   /* B290T：CÉON 10/22 01:47 用 TUNER 調的數值 */
 #screen-player #cm-write,#screen-player #btn-heart{display:none!important}
 #screen-player .cp-caption{display:block;font:500 11px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:1.3px;margin-top:5px}
 #screen-player #cp-share-quick,#screen-player #cp-open-lyrics,#screen-player #cp-open-queue,#screen-player #cm-btn{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;height:auto;gap:0;color:#d7d0c5}
