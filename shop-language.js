@@ -3,7 +3,7 @@
  'use strict';
  const forced=(function(){try{return (new URLSearchParams(location.search).get('lang')||'').toLowerCase();}catch(e){return '';}})();   /* B293T：測試用 ?lang=en／?lang=zh 可強制語言（正式判斷仍是瀏覽器語言） */
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
- const en=!/^zh(?:-|$)/i.test(preferred);
+ const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
  '你的收藏':'Your collection','票券與周邊，各自收好。':'Tickets and merch, all in one place.',
  '收藏不只是擁有，而是與你的時間並肩。':'More than ownership. A moment shared with you.',

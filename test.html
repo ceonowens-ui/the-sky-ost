@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<script src="shop-language.js?v=B293T"></script>
+<script>/* B294T：全 App 語言＝瀏覽器第一語言（zh→中文，其他→英文）；?lang=en|zh 測試用 */
+(function(){var q="";try{q=(new URLSearchParams(location.search).get("lang")||"").toLowerCase();}catch(e){}
+var p=q||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
+window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
+<script src="app-i18n-en.js?v=B294T"></script>
+<script src="shop-language.js?v=B294T"></script>
 <script src="stats-track.js?v=S1"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css">
 <meta charset="utf-8">
@@ -5538,7 +5543,8 @@ window.ALBUM_SWITCH = {
    * 「詞/曲/製作人/混音…」開始的製作名單自動縮小放到最下面。 */
   var CREDIT_RE = /^\s*(詞|曲|詞曲|作詞|作曲|製作人|編曲|和聲|錄音|混音|母帶|Producer|PRODUCER|Arrang|Mixing|Mix\b|Mastering|Recording|Vocal|吉他|貝斯|Guitar|Bass|Film|Director|Editor|HARMONY|ARRANGEMENT)/;
   /* B27：只有 中文 / English 兩段（拿掉「雙語」）。舊的 both 一律當中文。 */
-  var lyricLang = (function(){ try { var v = localStorage.getItem(NS + ":lylang"); return v === "en" ? "en" : "zh"; } catch(e){ return "zh"; } })();
+  /* B294T：語言改成自動依瀏覽器第一語言（zh 開頭＝中文，其他＝英文）；?lang=en／?lang=zh 只給測試用。中/EN 鈕拿掉，不再讀舊的 :lylang 設定。 */
+  var lyricLang = window.SKY_LANG || "zh";
   function lyLabTxt(){ return lyricLang === "en" ? "EN" : "中"; }
   function updateLyLab(){ var el = document.getElementById("lylang-lab"); if (el) el.textContent = lyLabTxt(); }
   var CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff]/;
@@ -5920,6 +5926,8 @@ window.ALBUM_SWITCH = {
     [/^擁有 (\d+) 首$/, "Own $1 tracks"],
     [/^免費試聽 (.+)$/, "Free preview: $1"]
   ];
+  if (window.SKY_I18N_EN) for (var _k in window.SKY_I18N_EN) I18N[_k] = window.SKY_I18N_EN[_k];   /* B294T：補翻字典（app-i18n-en.js） */
+  if (window.SKY_I18N_EN_RULES) I18N_RULES = window.SKY_I18N_EN_RULES.concat(I18N_RULES);
   function i18nMap(s){
     if (I18N[s]) return I18N[s];
     for (var i = 0; i < I18N_RULES.length; i++){
@@ -5944,8 +5952,9 @@ window.ALBUM_SWITCH = {
       } else if (node._zh != null){ node.nodeValue = node._zh; node._zh = null; }
       return;
     }
+    if (node.nodeType === 1 && node.tagName === "TEXTAREA" && toEn){ var ph = node.getAttribute("placeholder"), pm = ph && i18nMap(ph.trim()); if (pm){ if (!node._zha) node._zha = {}; node._zha.placeholder = ph; node.setAttribute("placeholder", pm); } }   /* B294T：留言框的提示字也翻 */
     if (node.nodeType !== 1 || I18N_SKIPTAG[node.tagName] || i18nSkipEl(node)) return;
-    var attrs = ["placeholder", "title"];
+    var attrs = ["placeholder", "title", "aria-label", "alt"];
     if (toEn){
       for (var a = 0; a < attrs.length; a++){
         var v = node.getAttribute && node.getAttribute(attrs[a]);
@@ -5964,10 +5973,11 @@ window.ALBUM_SWITCH = {
         for (var i = 0; i < muts.length; i++){
           var m = muts[i];
           if (m.type === "characterData") i18nWalk(m.target, true);
+          if (m.type === "attributes" && m.target.getAttribute){ var av = m.target.getAttribute(m.attributeName); var am = av && i18nMap(av.trim()); if (am && am !== av) m.target.setAttribute(m.attributeName, am); }   /* B294T：按鈕的 aria-label／title 之後才改的也要翻 */
           if (m.addedNodes) for (var j = 0; j < m.addedNodes.length; j++) i18nWalk(m.addedNodes[j], true);
         }
       });
-      i18nMO.observe(document.body, { subtree:true, childList:true, characterData:true });
+      i18nMO.observe(document.body, { subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:["aria-label","title","placeholder"] });
     }
   }
 
@@ -10091,7 +10101,7 @@ window.ALBUM_SWITCH = {
         if(oldTa&&sheetOpen&&sheetKey===key())draft=oldTa.value;
         var selStart=oldTa?oldTa.selectionStart:0, selEnd=oldTa?oldTa.selectionEnd:0;
         var cmPrevF=sh.contains(document.activeElement)?document.activeElement:null, cmPrevSel=cmPrevF?(cmPrevF.id?"#"+cmPrevF.id:(cmPrevF.classList.contains("cm-x")?".cm-x":null)):null;   /* R2：重畫前記住焦點 */
-        var head='<div class="cm-grab"></div><div class="cm-head"><div><b>'+(composing?(boundT==null?'歌曲留言':'在 <span class="cm-gold">'+fmt(boundT)+'</span> 留言'):'歌曲留言 · '+(data.count||0))+'</b><span>'+esc(t.title)+'</span></div><button type="button" class="cm-x" aria-label="關閉">'+ico("x")+'</button></div>';
+        var head='<div class="cm-grab"></div><div class="cm-head"><div><b>'+(composing?(boundT==null?'歌曲留言':(window.SKY_LANG==="en"?'Note at <span class="cm-gold">'+fmt(boundT)+'</span>':'在 <span class="cm-gold">'+fmt(boundT)+'</span> 留言')):'歌曲留言 · '+(data.count||0))+'</b><span>'+esc(t.title)+'</span></div><button type="button" class="cm-x" aria-label="關閉">'+ico("x")+'</button></div>';
         var html=head;
         if(!can){
           var prev=data.items.filter(function(i){return !i.isArtist;}).slice(0,3);
@@ -10578,7 +10588,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B293T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B294T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11832,7 +11842,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B291T">
+<link rel="stylesheet" href="b285-local.css?v=B294T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

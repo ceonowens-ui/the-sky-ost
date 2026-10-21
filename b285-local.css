@@ -56,3 +56,6 @@
 /* B291T · 曲目清單上移與控制區下距各自獨立（不讓負 margin 互相吃掉） */
 #screen-player.cp-swipe #cp-queue{display:flex;flex-direction:column}
 #screen-player.cp-swipe #cp-queue>*{flex:none}
+
+/* B294T · 語言改自動判斷，拿掉 中/EN 切換鈕 */
+#btn-lyrics{display:none!important}
