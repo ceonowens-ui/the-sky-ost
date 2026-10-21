@@ -1,0 +1,28 @@
+/* B284T: timeline actions stay in the transport flow; no floating coach marks. */
+#screen-player #cm-write{display:block;width:100%;min-height:44px;padding:10px 12px;margin:0 0 8px;border:1px solid rgba(221,201,164,.48);border-radius:14px;background:rgba(29,24,17,.9);color:#F0DCA8;font:500 16px/1.45 -apple-system,'PingFang TC',sans-serif;text-align:center;cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport{grid-template-areas:'write write write' 'cur bar dur' 'cm cm cm' 'ctl ctl ctl' 'lyr lyr lyr'}
+#screen-player.cp-ready:not(.cp-immersive) #cm-write{grid-area:write;margin:0 0 10px}
+#screen-player.cp-ready:not(.cp-immersive) #cm-btn{margin:3px 0;min-height:44px}
+#screen-player #cm-btn,#screen-player.cp-lyr #cp-lyr-row #cm-btn{font:500 16px/1.35 -apple-system,'PingFang TC',sans-serif;min-height:44px;padding:8px 10px;border:0;background:transparent;color:#DDC9A4;white-space:normal;text-align:left;gap:6px}
+#screen-player #cm-btn svg{width:18px;height:18px;flex:none}
+#screen-player #cm-btn::after{display:none}
+#screen-player.cp-lyr #cp-lyr-row .r-left{min-width:0;flex:1}
+#screen-player.cp-lyr #cp-lyr-row #cm-btn{max-width:100%;padding:6px 0}
+#screen-player.cp-lyr #cm-write{margin-bottom:14px}
+#screen-player #cm-write:focus-visible,#screen-player #cm-btn:focus-visible{outline:2px solid #F0DCA8;outline-offset:3px}
+#cm-sheet{overflow-y:auto;overscroll-behavior:contain}
+#cm-sheet .cm-head b,#cm-sheet.compose .cm-head b{font-size:21px;line-height:1.4}
+#cm-sheet .cm-head>div>span{display:block;margin:3px 0 0;font-size:16px;line-height:1.4}
+#cm-sheet .cm-head .cm-gold{font-size:inherit;color:#F0DCA8;margin:0}
+#cm-sheet textarea.cm-ta{font-size:17px;line-height:1.5;min-height:48px}
+#cm-sheet .cm-send{width:auto;min-width:100px;min-height:48px;height:auto;padding:12px 16px;border-radius:999px;font:600 16px/1.3 -apple-system,'PingFang TC',sans-serif;white-space:nowrap}
+#cm-sheet .cm-x{width:44px;height:44px;flex:none}
+#cm-sheet .cm-empty,#cm-sheet .cm-empty b,#cm-sheet .cm-nick label,#cm-sheet .cm-nick input,#cm-sheet .cm-lock-note p{font-size:16px;line-height:1.5}
+#cm-sheet .cm-comp{flex-shrink:0}
+#cm-sheet .cm-unbind2{min-height:44px;font-size:16px}
+#cm-post-error{font-size:16px;line-height:1.5;color:#F1D3AB;margin:12px 0 0}
+#screen-merch .sv3-bg-img{aspect-ratio:2/3;background:#171513}
+@media(max-width:359px){#cm-sheet .cm-in{flex-direction:column;align-items:stretch}#cm-sheet .cm-send{align-self:flex-end}#screen-player #cm-write{padding:8px;font-size:16px}#screen-player.cp-lyr #cp-lyr-row #cm-btn{gap:4px;padding:6px 0}}
+@media(max-height:670px){#screen-player #cm-write{margin-bottom:4px}#cm-sheet.compose textarea.cm-ta{min-height:80px}}
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport::before{grid-row:2}
+#screen-player #cm-write{position:relative;z-index:1}
