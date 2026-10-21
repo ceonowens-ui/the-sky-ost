@@ -2896,6 +2896,21 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 #a2ck .ck-hint{margin:12px 0 0;text-align:center;font-size:15px;line-height:1.5;color:var(--mut)}
 #a2ck .a2-pv{align-self:flex-start}
 body.a2ck-on #terms-sheet{z-index:115030}
+/* B278T：付款狀態框（逾時／無法前往／預覽）＋頂部提示條字放大到 16px、按鈕 44px */
+#a2ck .ck-st{margin:24px 0 0;padding:14px 16px;border-radius:12px;border:1px solid #4A3F2C;background:#14110C}
+#a2ck .ck-st[hidden]{display:none}
+#a2ck .ck-st p{margin:0 0 4px;font-size:16px;line-height:1.55;color:#E6DFD3}
+#a2ck .ck-st .ck-st-t{font-size:17px;font-weight:600;color:#F2C86B}
+#a2ck .ck-st-b{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+#a2ck .ck-st-b button{min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #5A4E3A;background:transparent;color:#EDE6DA;font:600 16px -apple-system,"PingFang TC",sans-serif;cursor:pointer}
+#a2ck .ck-st-b button.pri{background:#D8C193;border-color:#D8C193;color:#17130B}
+#a2ck .ck-st-b button:focus-visible{outline:2px solid #FFC83D;outline-offset:2px}
+#a2tip .tip-t{font-size:16px;line-height:1.55;color:#F6F1E8}
+#a2tip .tip-b button{min-height:44px;padding:0 16px;font-size:16px}
+#a2tip .tip-more p{font-size:15px;color:#C9C0B2}
+#a2tip .tip-mail{font-size:14px}
+#a2tip .tip-x{width:44px;height:44px;right:0;top:0}
+#a2ck .ck-st:not([hidden])+.ck-go{margin-top:14px}
 </style>
 </head>
 <body>
@@ -6023,7 +6038,7 @@ window.ALBUM_SWITCH = {
       var pre = ($("in-email").value || "").trim().toLowerCase();
       /* B276T：原本的小 Email 視窗 → 從右滑入的結帳全頁；方案名稱與金額照使用者選的帶入，送出後同樣 goEcpay(pk, email) */
       a2CkOpen({ pk: pk, name: full ? P.deluxeName : P.basicName, price: price, cur: P.currency || "NT$",
-        pre: EMAIL_RE.test(pre) ? pre : "" });
+        pre: EMAIL_RE.test(pre) ? pre : "", preview: document.body.classList.contains("a2pv-on") });   /* B278T：?t267 預覽中打開＝預覽，不送出 */
       return;
     }
     var link = state.selectedPlan === "deluxe" ? P.stripeLinkDeluxe : P.stripeLinkBasic;
@@ -6275,9 +6290,9 @@ window.ALBUM_SWITCH = {
 
   /* 綠界結帳：導向 Worker 的 /ecpay/create（需要 email 才能寄兌換碼／出貨通知）。
      綠界沒有可直接貼的付款連結，一定要經 Worker 組參數 + CheckMacValue。 */
-  function goEcpay(productKey, email, name) {
+  function goEcpay(productKey, email, name, ctl) {   /* B278T：ctl＝只有新結帳頁會傳（付款嘗試編號＋逾時）；其他入口不傳，行為與原本完全相同 */
     var base = (CFG.api && CFG.api.workerBaseUrl) || "";
-    if (!base) { toast("後端尚未設定"); return; }
+    if (!base) { if (ctl) { ctl.fail("http", "後端尚未設定，暫時無法前往付款。"); return; } toast("後端尚未設定"); return; }   /* B278T：新結帳頁走頁面上的錯誤，不留在「前往付款中…」 */
     try { payMarkSet(productKey); } catch (e) {}   /* B264T：只記「曾前往付款」（不代表付款成功／已寄信） */
     var endpoint = base.replace(/\/$/, "") + "/ecpay/create";
 
@@ -6292,6 +6307,41 @@ window.ALBUM_SWITCH = {
       window.location.href = endpoint + "?productKey=" + encodeURIComponent(productKey) +
         "&email=" + encodeURIComponent(email) +
         (name ? "&name=" + encodeURIComponent(name) : "");
+    }
+    /* B278T：新結帳頁的受控請求——後端可能已建立待付款訂單，所以任何失敗都不自動重送、不走備用 GET；
+       只有這次嘗試還有效（頁面開著、沒逾時、沒返回）才會送出綠界表單；15 秒內拿不到完整回應就中止並交給畫面處理 */
+    if (ctl) {
+      var ac = window.AbortController ? new AbortController() : null, over = false;
+      var tmo = setTimeout(function () { over = true; try { if (ac) ac.abort(); } catch (e) {} ctl.fail("timeout"); }, ctl.ms || 15000);
+      var dead = function () { return over || !ctl.live(); };
+      try {
+        fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({ productKey: productKey, email: email, name: name || "" }),
+          signal: ac ? ac.signal : undefined
+        }).then(function (r) {
+          if (dead()) throw { gone: 1 };
+          if (r.status >= 400 && r.status < 500) return r.json().catch(function () { return null; }).then(function (j) { throw { http: 1, msg: j && j.message }; });
+          if (!r.ok) throw { net: 1 };
+          return r.text();
+        }).then(function (html) {
+          if (dead()) throw { gone: 1 };
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          var form = doc.querySelector("form");
+          if (!form) throw { net: 1 };
+          clearTimeout(tmo);
+          var f = document.importNode(form, true);
+          f.style.display = "none";
+          document.body.appendChild(f);
+          f.submit();
+        }).catch(function (er) {
+          clearTimeout(tmo);
+          if (dead() || (er && er.gone)) return;               /* 已返回／已逾時／已作廢（含 AbortError）：什麼都不做 */
+          ctl.fail(er && er.http ? "http" : "net", er && er.msg);
+        });
+      } catch (e) { clearTimeout(tmo); if (!dead()) ctl.fail("net"); }
+      return;
     }
     try {
       fetch(endpoint, {
@@ -6453,7 +6503,7 @@ window.ALBUM_SWITCH = {
     renderNowPlaying();
     unlockBurstFx();
     hap([12, 30, 12, 30, 40]);
-    if (A2.standalone) { var c264 = a2st(); toast(c264.carriedFrom === "pair" && Date.now() - (c264.carriedAt || 0) < 6e4 ? "已接上你的收藏 · 點 ▶ 開始聽" : "解鎖成功 · " + TOTAL + " 首全部屬於你了 ♡"); }   /* B264T：Safari／瀏覽器改成「解鎖成功」小卡（主按鈕：開始聆聽） */
+    if (A2.standalone) { var c264 = a2st(); if (!(c264.carriedFrom && Date.now() - (c264.carriedAt || 0) < 6e4)) setTimeout(function () { try { a2OkOpen(); } catch (e) {} }, 0); }   /* B278T：主畫面 App——自動接上（配對／#k）直接在播放器、不提示；手動兌換或錢包卡用同一張「專輯已解鎖」卡（App 內只有「▶ 開始聆聽」），不再出底部小字。Safari 照舊由 a2hsAfterUnlock 開卡 */
     try { cloudLoad(); cloudSave(); } catch (e) {}   /* B130T：解鎖後立刻拉雲端小卡＋把本機的推上去 */
     try { sessionStorage.removeItem("sky:pendM"); sessionStorage.removeItem("sky:pendK"); } catch (e) {}   /* B258T */
     try { a2hsAfterUnlock(); } catch (e) {}   /* B257T：解鎖後引導加到主畫面 */
@@ -6501,7 +6551,7 @@ window.ALBUM_SWITCH = {
       if (pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         hap([12, 30, 12, 30, 40]);
-        toast("升級成功 · SIGNAL 頻道與全部影片已解鎖 ♡");
+        a2OkOpen({ simple: true, t: "升級成功", s: "SIGNAL 頻道與全部影片已解鎖。" });   /* B278T：原本只有底部小字 */
         renderUnlockView(); loadLiveFeed(true); renderMoodWall(); done(true); return;
       }
       if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); done(true); return; }
@@ -6513,12 +6563,23 @@ window.ALBUM_SWITCH = {
   /* B180：錢包卡入場鑰匙（網址 ?m=）→ 自動解鎖。
      鑰匙只在 the-sky-wallet 換回這張卡的 email＋兌換碼，之後走原本的 redeemAny（後端 /verify 照常驗證）。
      每張卡最多 2 台裝置；沒帶 ?m= 的一般粉絲完全不受影響。 */
-  (function walletEntryUnlock() {
-    var m = "";
-    try { m = new URLSearchParams(location.search).get("m") || ""; } catch (e) {}
+  /* B278T：改成具名函式，暫時連不上時可「重新連線」用同一把鑰匙再跑一次（鑰匙由重試帶入，網址上的 m 早已拿掉）。
+     上限沿用原本：同一把鑰匙最多 3 次、2 分鐘內；超過或確定失效 → 改成「用兌換碼開啟」，不留沒反應的「重新連線」 */
+  var A278W = { m: "", n: 0, t: 0 };
+  function walletEntryUnlock(mRetry) {
+    var m = mRetry || "";
+    if (!m) try { m = new URLSearchParams(location.search).get("m") || ""; } catch (e) {}
     /* B258T：?m= 先記在這個分頁（sessionStorage），頁面被重新整理也能接著解鎖；成功或確定失敗就清掉（最多 3 次、2 分鐘內） */
     if (!m) { try { var pm = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); if (pm && pm.m && (pm.n || 0) < 3 && Date.now() - (pm.t || 0) < 12e4) m = pm.m; } catch (e) {} }
     if (!/^[A-Za-z0-9]{16,64}$/.test(m)) return;
+    if (A278W.m !== m) A278W = { m: m, n: 0, t: Date.now() };
+    A278W.n++;
+    var wGone = function () { try { sessionStorage.removeItem("sky:pendM"); } catch (e) {} a2Tip("card"); };   /* 確定失效／用完重試次數 */
+    var wTemp = function () {   /* 暫時錯誤：保留重試來源；還有次數才給「重新連線」 */
+      var n = A278W.n, t = A278W.t;
+      try { var pq = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); if (pq && pq.m === m) { n = Math.max(n, pq.n || 0); t = Math.min(t, pq.t || t); } } catch (e) {}
+      if (n < 3 && Date.now() - t < 12e4) a2Tip("offline", { retry: function () { walletEntryUnlock(m); } }); else wGone();
+    };
     try { var p0 = JSON.parse(sessionStorage.getItem("sky:pendM") || "null"); var same = p0 && p0.m === m; sessionStorage.setItem("sky:pendM", JSON.stringify({ m: m, n: (same ? (p0.n || 0) : 0) + 1, t: (same && p0.t) || Date.now() })); } catch (e) {}
     try { var u = new URL(location.href); u.searchParams.delete("m"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) {}
     /* B260T：這個瀏覽器已經是完整解鎖（專輯＋SIGNAL）→ 直接進 App，不再去後台登記（卡片是「一次開通」，之後點卡片不該再算一次） */
@@ -6536,17 +6597,21 @@ window.ALBUM_SWITCH = {
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.ok) {
-          try { sessionStorage.removeItem("sky:pendM"); } catch (e) {}
-          if (d && d.reason === "device_limit") toast("這張卡的裝置數已滿 · 請到 OWN 用 email＋兌換碼登入");
-          else if (d && d.reason === "not_found") toast("這張卡的連結已失效 · 請到 OWN 用 email＋兌換碼登入");
+          /* B278T：只有確定失效（找不到／裝置滿）才清掉鑰匙並改「用兌換碼開啟」；其他錯誤＝暫時，保留鑰匙可重新連線（原本兩者都是底部小字） */
+          if (d && (d.reason === "device_limit" || d.reason === "not_found")) wGone(); else wTemp();
           return;
         }
         var cur = lsGet(LS.unlock, null);
         if (state.unlocked && cur && String(cur.code || "").toUpperCase() === String(d.code || "").toUpperCase()) { try { sessionStorage.removeItem("sky:pendM"); } catch (e) {} return; }
-        redeemAny(d.email, d.code);
+        var go2 = function () { redeemAny(d.email, d.code, null, function (ok, why) {   /* B278T：失敗不再是底部小字 */
+          if (ok) return;
+          if (why === "bad") a2Tip("card"); else a2Tip("offline", { retry: go2 });   /* 碼真的不對 → 用兌換碼開啟；連不上 → 重新連線（同一組憑證） */
+        }); };
+        go2();
       })
-      .catch(function () {});
-  })();
+      .catch(function () { wTemp(); });   /* B278T：連不上錢包後台 → 重新連線（原本沒有任何提示）；次數用完改用兌換碼開啟 */
+  }
+  walletEntryUnlock();
 
   /* B257T：加到主畫面引導（解鎖成功後自動跳一次＋OWN 常駐入口＋已解鎖舊用戶偶爾提醒）
      iPhone 的主畫面 App 和 Safari 資料分開 → 打開引導時，把這台的 email＋兌換碼放進網址 #k=（hash 只在本機，不送伺服器），
@@ -6611,10 +6676,12 @@ window.ALBUM_SWITCH = {
     a2st({ pairTry: (a2st().pairTry || 0) + 1 });
     fetch(PAIR_BASE + "/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: tok }), cache: "no-store" })
       .then(function (r) { return r.json(); }).then(function (d) {
-        if (d && d.ok && d.email && d.code) { a2st({ carriedAt: Date.now(), carriedFrom: "pair" }); pairCookieClear(); redeemAny(d.email, d.code); return; }
+        if (d && d.ok && d.email && d.code) { a2st({ carriedAt: Date.now(), carriedFrom: "pair" }); pairCookieClear();
+          var rp = function () { redeemAny(d.email, d.code, null, function (ok, why) { if (!ok) a2Tip(why === "bad" ? "nopair" : "offline", why === "bad" ? null : { retry: rp }); }); };   /* B278T：已拿到合法憑證 → 連不上時「重新連線」，碼真的不對才請他輸入 */
+          rp(); return; }
         pairCookieClear();
         a2Tip("nopair");
-      }).catch(function () { a2Tip("offline"); });
+      }).catch(function () { a2Tip("offline", { retry: pairRedeemBoot }); });   /* B278T：配對 token 還在 → 重新連線 */
   }
   function a2SetCarry(hop) { /* B261T：不再帶 #k */ }
   /* B262T：配對 cookie 提早準備。CÉON 10/20 實測：按「放到主畫面」後一兩秒才寫 cookie，接著馬上加主畫面，主畫面 App 沒拿到（後台有發 token、沒有人來換）。
@@ -6822,16 +6889,16 @@ window.ALBUM_SWITCH = {
     opt = opt || {};
     if ($("a2ok")) return;
     try { a2UnlockClose(true); } catch (e) {}
-    var canHome = A2.mobile && !A2.standalone, inapp = !!A2.inapp;
+    var canHome = A2.mobile && !A2.standalone && !opt.simple, inapp = !!A2.inapp;   /* B278T：opt.simple＝升級／頻道／影片解鎖用的同一張成功卡，只有一顆「完成」 */
     var w = document.createElement("div");
     w.id = "a2ok"; w.className = "a2m"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); w.setAttribute("aria-labelledby", "a2ok-t");
     w.innerHTML = '<div class="m-dim ok-bg"></div><div class="m-card">' + (opt.preview ? '<span class="a2-pv">預覽 · 不會解鎖</span>' : '') +
       '<button type="button" class="m-x" aria-label="關閉">' + A2X + '</button>' +
       '<span class="m-check" aria-hidden="true">' + A2I.check + '</span>' +
-      '<h3 id="a2ok-t" class="m-t">專輯已解鎖</h3>' +
-      '<p class="m-s">' + (canHome ? (inapp ? "用 Safari 打開，就能把 THE SKY 放到主畫面。" : "把 THE SKY 放到主畫面，<br>下次點圖示就能聽。") : "現在就可以聽了。") + '</p>' +
+      '<h3 id="a2ok-t" class="m-t">' + esc(opt.t || "專輯已解鎖") + '</h3>' +
+      '<p class="m-s">' + (opt.simple ? esc(opt.s || "") : (canHome ? (inapp ? "用 Safari 打開，就能把 THE SKY 放到主畫面。" : "把 THE SKY 放到主畫面，<br>下次點圖示就能聽。") : "現在就可以聽了。")) + '</p>' +
       '<div class="m-b">' + (canHome ? '<button type="button" class="pri ok-home">帶我加入主畫面</button>' : '') +
-      '<button type="button" class="' + (canHome ? "" : "pri ") + 'ok-go">' + (canHome ? "先聽音樂" : "▶ 開始聆聽") + '</button></div></div>';
+      '<button type="button" class="' + (canHome ? "" : "pri ") + 'ok-go">' + (opt.simple ? "完成" : (canHome ? "先聽音樂" : "▶ 開始聆聽")) + '</button></div></div>';
     document.body.appendChild(w);
     var done = false;
     var rel = a2Trap(w, function () { close("x"); }, function () { return $("btn-play"); });
@@ -6846,7 +6913,7 @@ window.ALBUM_SWITCH = {
     }
     var hb = w.querySelector(".ok-home");
     if (hb) hb.addEventListener("click", function () { close("home"); });
-    w.querySelector(".ok-go").addEventListener("click", function () { close("play"); });
+    w.querySelector(".ok-go").addEventListener("click", function () { close(opt.simple ? "x" : "play"); });
     w.querySelector(".m-x").addEventListener("click", function () { close("x"); });
     w.querySelector(".ok-bg").addEventListener("click", function () { close("x"); });
     var okc = w.querySelector(".m-card"); okc.setAttribute("tabindex", "-1");
@@ -6855,9 +6922,11 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 2. 小提示條（非彈窗，不擋播放） ---------- */
   function a2TipClose() { var t = $("a2tip"); if (t && t.parentNode) t.parentNode.removeChild(t); }
-  function a2Tip(kind) {
+  function a2Tip(kind, opt) {
+    opt = opt || {};
     a2TipClose();
     if (a2Busy()) return false;
+    if ((kind === "nopair" || kind === "offline" || kind === "card") && state.unlocked) return false;   /* B278T：已經解鎖了就不再提示「輸入兌換碼」（配對檢查晚 0.9 秒才跑，會蓋到剛解鎖的畫面） */
     var t = document.createElement("div");
     t.id = "a2tip"; t.className = "tip-" + kind; t.setAttribute("role", "status");
     var txt = "", btns = "";
@@ -6876,7 +6945,13 @@ window.ALBUM_SWITCH = {
       btns = '<button type="button" class="pri" data-t="redeem">輸入兌換碼</button><button type="button" data-t="payhelp">還沒收到／付款未完成</button>';
     } else if (kind === "nopair") {
       txt = "已經買過？在這裡輸入一次 email＋兌換碼就能接上，不用重買。";
-      btns = '<button type="button" class="pri" data-t="redeem">輸入兌換碼</button><button type="button" data-t="later">稍後</button>';
+      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
+    } else if (kind === "card") {   /* B278T：錢包卡連結沒辦法自動開啟（原本是底部小字） */
+      txt = "這張卡沒辦法自動開啟。輸入一次 email＋兌換碼就能開啟，不用重買。";
+      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
+    } else if (kind === "offline" && opt.retry) {   /* B278T：手上有還能用的憑證（卡片鑰匙／配對 token／已換到的 email＋碼）→ 主要動作是重新連線，不叫他重打碼 */
+      txt = "暫時連不上。你的專輯不會因此消失，確認網路後再試一次。";
+      btns = '<button type="button" class="pri" data-t="retry">重新連線</button><button type="button" data-t="later">稍後</button>';
     } else if (kind === "offline") {
       txt = "現在連不上網路。連上之後重新打開，或輸入一次 email＋兌換碼，不用重買。";
       btns = '<button type="button" class="pri" data-t="redeem">輸入兌換碼</button><button type="button" data-t="later">稍後</button>';
@@ -6892,6 +6967,7 @@ window.ALBUM_SWITCH = {
       if (a === "install") { var ev = A264.bip; a2TipClose(); if (!ev) { a2TutOpen("tip"); return; }
         try { ev.prompt(); ev.userChoice.then(function (c) { A264.bip = null; if (c && c.outcome === "accepted") { a2st({ done: true, doneAt: Date.now(), via: "bip" }); toast("安裝好之後，從主畫面點 THE SKY"); } }); } catch (x) { a2TutOpen("tip"); } return; }
       if (a === "redeem") { a2TipClose(); a2GoRedeem(); return; }
+      if (a === "retry") { a2TipClose(); try { if (opt.retry) opt.retry(); } catch (x) {} return; }
       if (a === "payhelp") {
         var m = t.querySelector(".tip-more");
         m.innerHTML = '<p><b>若尚未完成付款</b>：請先確認付款紀錄，避免重複購買。</p>' +
@@ -6974,6 +7050,7 @@ window.ALBUM_SWITCH = {
     var prev = document.activeElement;
     function key(e) {
       if (!document.body.contains(w)) { document.removeEventListener("keydown", key, true); return; }
+      if (w.a2Paused) return;   /* B278T：上面另開一層（條款）時，這層暫停，焦點交給上面那層 */
       if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); onEsc(); return; }
       if (e.key !== "Tab") return;
       var f = [].filter.call(w.querySelectorAll("button,[href],input,[tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.offsetParent !== null; });
@@ -7148,7 +7225,7 @@ window.ALBUM_SWITCH = {
       if (b.classList.contains("tu-x")) { closeAll("x"); return; }
       if (b.classList.contains("tu-go")) {
         if (busy()) return;
-        if (T.steps[T.i].last) { save({ tutorialViewed: Date.now(), tutorialKind: T.kind }); closeAll("done"); if (!T.preview) toast("加入後，回主畫面點 THE SKY；若沒接上可輸入原兌換碼恢復", 4200); return; }   /* 看完≠已加入主畫面 */
+        if (T.steps[T.i].last) { save({ tutorialViewed: Date.now(), tutorialKind: T.kind }); closeAll("done"); return; }   /* 看完≠已加入主畫面。B278T：拿掉結束時的底部小字長句（最後一張卡已寫「回主畫面點 THE SKY」；主畫面 App 沒接上時有提示條） */
         collapse(); return;
       }
       if (b.classList.contains("tu-prev")) { if (T.i > 0) { T.i--; paint(); } return; }
@@ -7551,6 +7628,7 @@ window.ALBUM_SWITCH = {
           '<p class="ck-note">你的信箱僅用於核發與驗證兌換碼、訂單與客服聯繫。本服務使用境外雲端服務（Cloudflare、Resend、綠界），資料將傳輸至境外處理。</p>' +
           '<p class="ck-err" id="ck-err-c" role="alert" hidden></p>' +
         '</div>' +
+        '<div class="ck-st" id="ck-st" role="status" aria-live="polite" hidden></div>' +
         '<button type="submit" class="ck-go">前往付款 <span aria-hidden="true">→</span></button>' +
         '<p class="ck-hint">下一步選擇付款方式</p>' +
       '</form>';
@@ -7560,7 +7638,19 @@ window.ALBUM_SWITCH = {
     $("ck-e").value = A276.e != null ? A276.e : a2CkSaved();
     A276.rel = a2Trap(w, function () { var ts = $("terms-sheet"); if (ts && !ts.classList.contains("hidden")) ts.classList.add("hidden"); else a2CkClose(); }, function () { return $("btn-checkout"); });
     try { history.pushState(Object.assign({}, history.state || {}, { a2ck: 1 }), ""); } catch (e) {}
-    w.addEventListener("click", function (e) { if (e.target.closest("[data-ck=back]")) a2CkClose(); });
+    w.addEventListener("click", function (e) {
+      if (e.target.closest("[data-ck=back]")) { a2CkClose(); return; }
+    });
+    /* B278T：條款打開時暫停結帳頁的焦點限制，焦點移進條款並留在裡面；關掉後回到剛剛點的連結 */
+    var ts = $("terms-sheet");
+    if (ts && window.MutationObserver) {
+      A276.mo = new MutationObserver(function () {
+        var open = !ts.classList.contains("hidden");
+        if (open && !A276.trel && a2CkEl()) a2CkTermsIn(ts, w);
+        else if (!open && A276.trel) a2CkTermsOut(w);
+      });
+      A276.mo.observe(ts, { attributes: true, attributeFilter: ["class"] });
+    }
     w.addEventListener("input", function (e) {
       if (e.target.id === "ck-e") { A276.e = e.target.value; if (!$("ck-err-e").hidden && EMAIL_RE.test(e.target.value.trim())) a2CkErr("e", ""); }
     });
@@ -7585,8 +7675,49 @@ window.ALBUM_SWITCH = {
     var room = inp.getBoundingClientRect().top - (top ? top.getBoundingClientRect().bottom : wr.top) - 12;
     var d = Math.min(over, room); if (d > 0) w.scrollTop += d;
   } catch (x) {} }
+  function a2CkTermsIn(ts, w) {
+    w.a2Paused = true;
+    A276.trel = a2Trap(ts, function () { ts.classList.add("hidden"); }, null);
+    var f = ts.querySelector(".tm-tab.active") || $("tm-close");
+    try { if (f) f.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function a2CkTermsOut(w) {
+    var r = A276.trel; A276.trel = null; if (r) r(true);
+    w.a2Paused = false;
+    var o = A276.tFrom; A276.tFrom = null;
+    try { if (o && w.contains(o)) o.focus({ preventScroll: true }); } catch (e) {}
+  }
+  /* 點條款連結的那一刻記住是哪一顆（window 捕獲階段，比開條款的全域處理更早） */
+  window.addEventListener("click", function (e) {
+    var l = e.target && e.target.closest && e.target.closest("#a2ck [data-open-terms]"); if (l) A276.tFrom = l;
+  }, true);
+  /* 付款失敗／逾時：留在這頁說清楚，不自動重送 */
+  function a2CkBtnReset(label) {   /* B278T：重試就用原本這顆主按鈕（只換文案），畫面上永遠只有一個主要動作 */
+    var w = a2CkEl(); if (!w) return;
+    var b = w.querySelector(".ck-go"); if (b) { b.disabled = false; b.innerHTML = label ? esc(label) : '前往付款 <span aria-hidden="true">→</span>'; }
+  }
+  function a2CkStatus(html) {
+    var s = $("ck-st"); if (!s) return;
+    s.innerHTML = html || ""; s.hidden = !html;
+    if (html) { try { s.scrollIntoView({ block: "nearest", behavior: a2Reduce() ? "auto" : "smooth" }); } catch (e) {} }
+  }
+  function a2CkFail(kind, msg) {
+    A276.busy = false; A276.att = (A276.att || 0) + 1;   /* 這次的請求作廢：晚到的回應不會再 submit */
+    if (kind === "http") {   /* 後端明確拒絕（例如停售、售完）：照後端訊息說，不重送；狀態框只有文字，返回用頂部那顆 */
+      a2CkBtnReset();
+      a2CkStatus('<p class="ck-st-t">暫時無法前往付款</p><p>' + esc(msg || "請稍後再試。") + '</p>');
+      return;
+    }
+    /* 斷線／逾時／5xx／回應不完整：狀態未知（後端可能已建立待付款訂單）→ 不保證沒扣款、不自動重送；
+       原本的主按鈕改成「重新開啟付款頁」，按了照樣先檢查 Email 與同意 */
+    a2CkBtnReset("重新開啟付款頁");
+    a2CkStatus('<p class="ck-st-t">付款頁未能開啟</p><p>請確認網路後再試。若已完成付款，請查看信箱，避免再次付款。</p>');
+  }
   function a2CkClose() {
     var w = a2CkEl(); if (!w) return;
+    A276.att = (A276.att || 0) + 1;   /* B278T：關掉結帳頁＝這次付款嘗試作廢（晚到的成功、失敗、備用 GET 都不再動作） */
+    if (A276.mo) { try { A276.mo.disconnect(); } catch (e) {} A276.mo = null; }
+    if (A276.trel) { var tr = A276.trel; A276.trel = null; tr(true); }
     try { if (window.visualViewport) { visualViewport.removeEventListener("resize", A276.vv); visualViewport.removeEventListener("scroll", A276.vv); } } catch (e) {}
     if (A276.rel) { var r = A276.rel; A276.rel = null; r(); }
     w.id = "a2ck-out"; A276.busy = false;
@@ -7614,17 +7745,25 @@ window.ALBUM_SWITCH = {
     if (!$("ck-c").checked) { a2CkErr("c", "請先勾選同意《購買須知》與《隱私權政策》，才能前往付款"); ok = false; }
     else a2CkErr("c", "");
     if (!ok) { var first = !$("ck-err-e").hidden ? $("ck-e") : $("ck-c"); try { first.scrollIntoView({ block: "center", behavior: a2Reduce() ? "auto" : "smooth" }); } catch (e) {} return; }
-    if (A276.o.preview) { toast("預覽 · 不會前往付款"); return; }
+    if (A276.o.preview) { a2CkStatus('<p class="ck-st-t">預覽</p><p>不會前往付款，也不會建立訂單。</p>'); return; }
+    a2CkStatus("");
     lsSet(NS + ":lastemail", v);   /* 與原本 askEmail 相同：記住，下次不用再打 */
     A276.busy = true;
     var b = a2CkEl().querySelector(".ck-go"); b.disabled = true; b.innerHTML = "前往付款中…";
-    goEcpay(A276.o.pk, v);   /* 原本的付款流程（含 payMarkSet、POST /ecpay/create、失敗退回 GET） */
+    /* B278T：每次送出一個編號。只有編號還有效（結帳頁還開著、沒逾時、沒按返回）時，回應才會送出綠界表單；
+       15 秒內沒拿到完整回應＝逾時：中止請求、不走備用 GET、不自動重送，由使用者決定「再試一次」或「返回」 */
+    var att = (A276.att = (A276.att || 0) + 1);
+    goEcpay(A276.o.pk, v, "", {
+      ms: 15000,
+      live: function () { return A276.att === att && !!a2CkEl(); },
+      fail: function (k, msg) { if (A276.att === att && a2CkEl()) a2CkFail(k, msg); }
+    });
   }
   /* 從綠界按「上一頁」回來（bfcache）：結帳頁還在 → 按鈕恢復可按，Email 不清掉 */
   window.addEventListener("pageshow", function (e) {
     if (!e.persisted) return;
     var w = a2CkEl(); if (!w) return;
-    A276.busy = false; var b = w.querySelector(".ck-go"); if (b) { b.disabled = false; b.innerHTML = '前往付款 <span aria-hidden="true">→</span>'; }
+    A276.att = (A276.att || 0) + 1; A276.busy = false; a2CkBtnReset();
   });
   (function a2Boot() {
     var h = location.hash || "";
@@ -7642,7 +7781,7 @@ window.ALBUM_SWITCH = {
       if (c && c.e && c.c) {
         var cur = a2Cred();
         if (state.unlocked && cur && cur.c.toUpperCase() === String(c.c).toUpperCase()) { try { sessionStorage.removeItem("sky:pendK"); } catch (e) {} }
-        else { a2st({ carriedAt: Date.now(), carriedFrom: A2.standalone ? "home" : "hop" }); redeemAny(c.e, c.c); }
+        else { a2st({ carriedAt: Date.now(), carriedFrom: A2.standalone ? "home" : "hop" }); var rk = function () { redeemAny(c.e, c.c, null, function (ok, why) { if (!ok) a2Tip(why === "bad" ? "nopair" : "offline", why === "bad" ? null : { retry: rk }); }); }; rk(); }   /* B278T */
       }
     }
     try { if (/[?&]openExternalBrowser=1/.test(location.search)) { var u = new URL(location.href); u.searchParams.delete("openExternalBrowser"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } } catch (e) {}
@@ -8617,17 +8756,17 @@ window.ALBUM_SWITCH = {
           state.unlocked = true;
           renderTrackLists(true); renderNowPlaying();
         }
-        hap([12, 30, 12, 30, 40]); toast("全解鎖成功 · 全部內容屬於你了 ♡");
+        hap([12, 30, 12, 30, 40]); a2OkOpen({ simple: true, t: "全解鎖成功", s: "專輯、SIGNAL 頻道與全部影片都已解鎖。" });   /* B278T */
         loadLiveFeed(true); renderMoodWall(); try { cloudLoad(); cloudSave(); } catch(e){} return;
       }
       if (pid === "feed-pass") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
-        hap([12, 30, 12, 30, 40]); toast("頻道解鎖成功 · 歡迎進來 ♡");
+        hap([12, 30, 12, 30, 40]); a2OkOpen({ simple: true, t: "頻道已解鎖", s: "歡迎進來 SIGNAL。" });   /* B278T */
         loadLiveFeed(true); renderMoodWall(); return;
       }
       if (/^video-/.test(pid)) {
         var v = vidsOwned(); v[pid] = { email: email, code: code }; lsSet(LS.vids, v);
-        hap([12, 30, 40]); toast("影片解鎖成功 ♡");
+        hap([12, 30, 40]); a2OkOpen({ simple: true, t: "影片已解鎖", s: "可以在 SIGNAL 觀看。" });   /* B278T */
         renderMoodWall(); return;
       }
       if (pid === "the-sky-album" || String(d.product) === "299" || String(d.product) === "599") {
@@ -10314,7 +10453,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B277T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B278T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
