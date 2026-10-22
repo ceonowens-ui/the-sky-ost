@@ -121,3 +121,9 @@
 /* B306T · CÉON 16:48 TUNER 定稿：分頁島（更高、更大字與圖示、微透明、往下 10px）＋TRACKS 兩側封面不透明 */
 :root{--nav-up:-10px;--dock-nav-h:79px;--nav-side:30px;--dock-r:40px;--nav-ico:28.5px;--nav-fs:14px;--pv-nav-opacity:.88;--tk-side-opacity:1}
 @media (max-width:359px){:root{--nav-side:10px;--nav-fs:11.5px;--nav-ico:24px}}   /* 320 寬放不下 14px 的五個分頁名稱 */
+/* B307T · 驗收修正：兩個小於 44px 的按鈕加大點擊範圍（外觀不變） */
+#terms-sheet .tm-x{min-width:44px;min-height:44px;display:grid;place-items:center;padding:0}
+#screen-purchase.own-unlocked .own-b-back::before{content:"";position:absolute;left:-6px;right:-6px;top:-14px;bottom:-14px}
+/* B307T · 矮螢幕（iPhone SE／5s 類，高 ≤620）TRACKS 封面縮小一點，播放鍵不會掉到折線下（CÉON 調的 --tk-peek 11.5% 其他螢幕不變） */
+@media (max-height:620px){:root{--tk-peek:18%}}
+.nickcard button{min-height:44px}

@@ -410,6 +410,7 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
   -webkit-tap-highlight-color:transparent;cursor:pointer;
   transform:translateY(-18px);opacity:0;transition:transform .42s cubic-bezier(.2,.9,.25,1.2),opacity .3s ease}
 .sigbar.in{transform:translateY(0);opacity:1}
+.sigbar.sigbar-wait{display:none}
 .sigbar::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;   /* 邊框上的金色反光點 */
   background:radial-gradient(30% 80% at 40% 0%,rgba(255,248,230,1),rgba(255,246,224,0) 74%),radial-gradient(26% 80% at 60% 100%,rgba(255,236,190,.95),rgba(255,232,180,0) 74%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
@@ -6083,7 +6084,7 @@ window.ALBUM_SWITCH = {
       void activeBtn.offsetWidth; activeBtn.classList.add("pop");
     }
     if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
-    if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(askNick, 900); } catch (e) {} }   /* B154T：問暱稱 */
+    if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(function () { if (state.screen === "mood") askNick(); }, 900); } catch (e) {} }   /* B154T：問暱稱；B307T：0.9 秒內已離開 FEED 就不跳（原本會跟到別的分頁） */
     /* B168T：回覆框先不上線 —— 要開放時把這行還原即可
     try { buildReplyBar(); } catch (e) {} */
     try { var _rp = document.getElementById("__rpBar"); if (_rp) _rp.remove(); document.body.classList.remove("has-rpbar"); } catch (e) {}
@@ -6604,6 +6605,8 @@ window.ALBUM_SWITCH = {
     try { if (window.__cm && window.__cm.close) window.__cm.close(); } catch (e) {}
     renderTrackLists(true);
     renderNowPlaying();
+    /* B307T：解鎖那一刻 30 秒試聽正在播 → 直接接到完整版、從同一個位置繼續（原本會播完 30 秒停在 0:30，要再按一次播放） */
+    try { if (audio.__skyPreview && state.playing) { var atT = songTime(); playTrack(state.cur, atT); } } catch (e) {}
     unlockBurstFx();
     hap([12, 30, 12, 30, 40]);
     if (A2.standalone) { var c264 = a2st(); if (!(c264.carriedFrom && Date.now() - (c264.carriedAt || 0) < 6e4)) setTimeout(function () { try { a2OkOpen(); } catch (e) {} }, 0); }   /* B278T：主畫面 App——自動接上（配對／#k）直接在播放器、不提示；手動兌換或錢包卡用同一張「專輯已解鎖」卡（App 內只有「▶ 開始聆聽」），不再出底部小字。Safari 照舊由 a2hsAfterUnlock 開卡 */
@@ -7025,14 +7028,15 @@ window.ALBUM_SWITCH = {
   }
 
   /* ---------- 2. 小提示條（非彈窗，不擋播放） ---------- */
-  function a2TipClose() { var t = $("a2tip"); if (t && t.parentNode) t.parentNode.removeChild(t); }
+  function a2TipClose() { var t = $("a2tip"); if (t && t.parentNode) t.parentNode.removeChild(t); var sb = document.getElementById("__sigBar"); if (sb) sb.classList.remove("sigbar-wait"); }   /* B307T：提示關了，被藏起來的 SIGNAL 條再出現 */
   function a2Tip(kind, opt) {
     opt = opt || {};
     a2TipClose();
     if (a2Busy()) return false;
     if ((kind === "nopair" || kind === "offline" || kind === "card") && state.unlocked) return false;   /* B278T：已經解鎖了就不再提示「輸入兌換碼」（配對檢查晚 0.9 秒才跑，會蓋到剛解鎖的畫面） */
     var t = document.createElement("div");
-    t.id = "a2tip"; t.className = "tip-" + kind; t.setAttribute("role", "status");
+    t.id = "a2tip";
+    if (kind === "home") { var sbw = document.getElementById("__sigBar"); if (sbw) sbw.classList.add("sigbar-wait"); }   /* B307T：提示在上面時先把 SIGNAL 條藏起來，一次只有一個 */ t.className = "tip-" + kind; t.setAttribute("role", "status");
     var txt = "", btns = "";
     if (kind === "home") {
       if (A2.inapp) {
@@ -8553,6 +8557,7 @@ window.ALBUM_SWITCH = {
     if (document.getElementById("__nickWrap")) return;
     if (fanNick()) return;
     try { if (localStorage.getItem(NICKASK_KEY)) return; } catch (e) {}
+    try { a2TipClose(); } catch (e) {}   /* B307T：暱稱卡是正式對話框，先收掉上面的「放到主畫面」提示，一次只有一個 */
     var w = document.createElement("div");
     w.id = "__nickWrap"; w.className = "nickwrap";
     var card = document.createElement("div"); card.className = "nickcard";
@@ -8752,7 +8757,7 @@ window.ALBUM_SWITCH = {
     requestAnimationFrame(function () { b.classList.add("in"); });
   }
   /* B302T：成功卡／兌換視窗／教學等彈窗還開著時先不跳，關掉後再等 1.2 秒 */
-  function sigBarBusy() { return !!document.querySelector("#a2ok, .a2m, .a2pg"); }
+  function sigBarBusy() { return !!document.querySelector("#a2ok, .a2m, .a2pg, #a2tip, #__nickWrap"); }   /* B307T：加主畫面提示／暱稱卡開著時也先等（原本會疊在一起） */
   function sigBarWhenFree(fn) {
     var waited = false;
     (function tick() { if (sigBarBusy()) { waited = true; setTimeout(tick, 500); return; } setTimeout(fn, waited ? 1200 : 0); })();
@@ -10721,7 +10726,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B306T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B307T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -10781,9 +10786,12 @@ window.ALBUM_SWITCH = {
   function checkColdVersion() {
     try { if (sessionStorage.getItem("restartTip-dismissed")) return; } catch (e) {}
     var mine = myBuild(); if (!mine) return;
-    /* 抓伺服器最新 index 的印章（繞過快取） */
-    fetch("index.html?vchk=" + Date.now(), { cache: "no-store" })
-      .then(function (r) { return r.text(); })
+    /* 抓伺服器最新 index 的印章（繞過快取）。
+       B307T：印章在檔尾，只抓最後 32KB（Range），不再每次開 App 都下載整份 index（約 440KB）；伺服器不支援 Range 就會回整份，照舊可用 */
+    var vq = "index.html?vchk=" + Date.now();
+    fetch(vq, { cache: "no-store", headers: { Range: "bytes=-32768" } })
+      .then(function (r) { return r.text().then(function (t) { return { t: t, partial: r.status === 206 }; }); })
+      .then(function (x) { if (x.partial && !/id="__build"/.test(x.t)) return fetch(vq, { cache: "no-store" }).then(function (r) { return r.text(); }); return x.t; })   /* 尾段找不到印章才抓整份 */
       .then(function (html) {
         var m = html.match(/id="__build"[^>]*>B(\d+)/);
         if (!m) return;
@@ -11975,7 +11983,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B306T">
+<link rel="stylesheet" href="b285-local.css?v=B307T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>
