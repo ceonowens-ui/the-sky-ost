@@ -416,6 +416,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .sigbar-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .sigbar-eyebrow{font:600 10.5px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:1.7px;color:#B78CFF}
 .sigbar-main{font:600 15.5px/1.25 -apple-system,'PingFang TC',sans-serif;color:#F7EBCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sigbar-2l .sigbar-main{font-size:14.5px}
+.sigbar-sub{font:400 13px/1.3 -apple-system,'PingFang TC',sans-serif;color:rgba(247,235,203,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sigbar-chev{flex:none;font:400 22px/1 -apple-system,sans-serif;color:rgba(247,235,203,.75);transform:translateY(-1px)}
 .sigbar:active{transform:translateY(0) scale(.985)}
 .updbar{z-index:100001;background:linear-gradient(135deg,rgba(217,178,106,.40),rgba(140,98,40,.52));border-color:rgba(255,236,190,.38)}
@@ -5954,6 +5956,8 @@ window.ALBUM_SWITCH = {
 "其餘曲目需解鎖完整專輯": "Unlock the album for the rest",
 "需解鎖完整專輯才能下載": "Unlock the album to download",
 "擁有這張專輯": "Own This Album",
+"CHANCE 傳了新訊息給你": "New message from CHANCE",
+"升級就能讀": "Upgrade to read",
 "下載為典藏版限定": "Downloads are deluxe-only",
 "歌詞語言：中文": "介面語言：中文"
 };
@@ -6604,6 +6608,7 @@ window.ALBUM_SWITCH = {
     try { cloudLoad(); cloudSave(); } catch (e) {}   /* B130T：解鎖後立刻拉雲端小卡＋把本機的推上去 */
     try { sessionStorage.removeItem("sky:pendM"); sessionStorage.removeItem("sky:pendK"); } catch (e) {}   /* B258T */
     try { a2hsAfterUnlock(); } catch (e) {}   /* B257T：解鎖後引導加到主畫面 */
+    try { setTimeout(sigUpsellAfterUnlock, 800); } catch (e) {}   /* B302T：299 方案沒有私訊頻道 → 成功卡關掉後提示升級 */
   }
 
   $("btn-redeem").addEventListener("click", function () {
@@ -8677,6 +8682,7 @@ window.ALBUM_SWITCH = {
   }
   function feedNewsCheck() {
     if (PLAYER_ONLY) return;                          /* player-only 專輯沒有 FEED 頁 */
+    if (sigBarBusy()) { if (!feedNewsCheck.__w) { feedNewsCheck.__w = 1; sigBarWhenFree(function () { feedNewsCheck.__w = 0; feedNewsCheck(); }); } return; }   /* B302T：不跟成功卡疊在一起 */
     if (!feedUnlockedQ()) return;                     /* 只通知有購買的人 */
     if (state.screen === "mood") { feedNewsSeen(); return; }   /* 正在看＝已讀 */
     var fp = feedFingerprint();
@@ -8722,19 +8728,36 @@ window.ALBUM_SWITCH = {
       else if (latest.type === "video") snip = "傳了一支影片給你";
     }
     if (!snip) snip = "你在嗎？";
+    sigBarShow(snip, topOff, function () { hap(10); go("mood"); });
+  }
+  /* B302T：SIGNAL 提示條改兩行——第一行固定「CHANCE 傳了新訊息給你」（剛買的人才知道是誰、是什麼），第二行才是他說的話。
+     299 方案（沒有私訊頻道）解鎖後也跳一次，第二行「升級就能讀」→ OWN。 */
+  function sigBarShow(sub, topOff, onTap) {
+    if (document.getElementById("__sigBar")) return;
     var b = document.createElement("button");
-    b.id = "__sigBar"; b.className = "sigbar";
-    b.setAttribute("aria-label", "私訊頻道有新訊息：" + snip);
+    b.id = "__sigBar"; b.className = "sigbar sigbar-2l";
+    b.setAttribute("aria-label", "CHANCE 傳了新訊息給你：" + sub);
     var ava = document.createElement("img"); ava.src = "assets/images/avatar.jpg"; ava.alt = ""; ava.className = "sigbar-ava";
-    var txt = document.createElement("span"); txt.className = "sigbar-txt sigbar-solo";
-    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = snip;   /* B153T：只顯示他寫的字，不放小標 */
-    txt.appendChild(mn);
+    var txt = document.createElement("span"); txt.className = "sigbar-txt";
+    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = "CHANCE 傳了新訊息給你";
+    var sb = document.createElement("span"); sb.className = "sigbar-sub"; sb.textContent = sub;
+    txt.appendChild(mn); txt.appendChild(sb);
     var ch = document.createElement("span"); ch.className = "sigbar-chev"; ch.setAttribute("aria-hidden", "true"); ch.textContent = "›";
     b.appendChild(ava); b.appendChild(txt); b.appendChild(ch);
-    b.style.top = "calc(" + topOff + "px + env(safe-area-inset-top) + 10px)";
-    b.addEventListener("click", function () { hap(10); go("mood"); });
+    b.style.top = "calc(" + (topOff || 0) + "px + env(safe-area-inset-top) + 10px)";
+    b.addEventListener("click", function () { onTap(); });
     document.body.appendChild(b);
     requestAnimationFrame(function () { b.classList.add("in"); });
+  }
+  /* B302T：成功卡／兌換視窗／教學等彈窗還開著時先不跳，關掉後再等 1.2 秒 */
+  function sigBarBusy() { return !!document.querySelector("#a2ok, .a2m, .a2pg"); }
+  function sigBarWhenFree(fn) {
+    var waited = false;
+    (function tick() { if (sigBarBusy()) { waited = true; setTimeout(tick, 500); return; } setTimeout(fn, waited ? 1200 : 0); })();
+  }
+  function sigUpsellAfterUnlock() {
+    if (PLAYER_ONLY || feedUnlockedQ() || !state.unlocked) return;
+    sigBarWhenFree(function () { if (feedUnlockedQ() || !state.unlocked) return; sigBarShow("升級就能讀", 0, function () { hap(10); var x = document.getElementById("__sigBar"); if (x && x.parentNode) x.parentNode.removeChild(x); go("purchase"); }); });
   }
   setTimeout(feedNewsCheck, 3000);
   setTimeout(loadReactions, 2500);                   /* B154T：載入表情反應計數 */                    /* 開場資料載齊後查一次 */
@@ -10690,7 +10713,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B301T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B302T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
