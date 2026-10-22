@@ -5168,17 +5168,19 @@ window.ALBUM_SWITCH = {
       if (!show) { if (c) c.hidden = true; return; }
       if (!c) {
         c = document.createElement("div"); c.className = "sky-cta"; c.setAttribute("role", "group");
-        c.innerHTML = '<button type="button" class="sky-cta-go">解鎖完整專輯 →</button><button type="button" class="sky-cta-again">再聽一次</button>';
+        c.innerHTML = '<button type="button" class="sky-cta-go">解鎖完整專輯 →</button>';   /* B296T：拿掉「再聽一次」（按播放鍵就能再聽） */
         c.querySelector(".sky-cta-go").addEventListener("click", function (e) { e.stopPropagation(); go("purchase"); });
-        c.querySelector(".sky-cta-again").addEventListener("click", function (e) { e.stopPropagation(); togglePlay(); });
         h.appendChild(c);
       }
       if (host === "cp-queue") { var rail = $("cp-carousel"); if (rail) { c.style.top = rail.offsetTop + "px"; c.style.height = rail.offsetHeight + "px"; } }
       c.hidden = false;
-      if (host === "cover-card") {   /* 只放在封面「露出來」的那一塊：不蓋到下面的歌名、副標、播放鍵 */
-        var nh = document.querySelector(".np-card .np-head"), cr = h.getBoundingClientRect();
-        var limit = nh ? nh.getBoundingClientRect().top : cr.bottom;
-        c.style.bottom = Math.max(0, cr.bottom - limit + 10) + "px";
+      if (host === "cover-card") {   /* B296T：按鈕放在畫面正中間；只有會蓋到下面歌名時才往上讓 */
+        var nh = document.querySelector(".np-card .np-head"), cr = h.getBoundingClientRect(), go2 = c.querySelector(".sky-cta-go");
+        var bh = go2.offsetHeight || 66, pad = 48;
+        var limit = (nh ? nh.getBoundingClientRect().top : cr.bottom) - cr.top - 14;   /* 歌名上緣（相對封面） */
+        var want = window.innerHeight / 2 - cr.top - bh / 2;                            /* 畫面正中間 */
+        var top = Math.max(44, Math.min(want, limit - bh));
+        c.style.top = (top - pad) + "px"; c.style.bottom = "auto"; c.style.height = (bh + pad * 2) + "px";
       }
     });
   }
@@ -10628,7 +10630,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B295T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B296T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11882,7 +11884,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B295T">
+<link rel="stylesheet" href="b285-local.css?v=B296T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>
