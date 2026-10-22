@@ -5217,6 +5217,8 @@ window.ALBUM_SWITCH = {
     $("btn-play").setAttribute("aria-label",active?(state.playing?"暫停試聽":skyPreviewEnded?"再聽一次":"點一下試聽 30 秒"):(state.playing?"暫停":"播放"));
     if(active&&!state.dur){state.dur=30;renderProgress(0);}
   }
+  /* B297T 測試鉤子（只在 test.html，轉正時拿掉）：test.html?cta=1 → 不用聽完 30 秒，直接顯示試聽結束的按鈕看外觀 */
+  if (/[?&]cta=1(&|$)/.test(location.search)) setTimeout(function () { if (skyPreview(TRACKS[state.cur])) { skyPreviewEnded = true; skyPreviewUI(); } }, 1500);
   /* ---------- Audio 引擎 ---------- */
   var audio = new Audio();
   audio.preload = "none";
