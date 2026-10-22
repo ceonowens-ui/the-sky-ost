@@ -111,3 +111,10 @@
 /* B301T · 歌詞頁下排 COMMENTS｜SHARE｜TRACKS 整排往下移（播放鍵那排不動）；底部至少留 16px，不被網址列／Home 橫條蓋到 */
 :root{--lyr-row-shift:22px}
 #screen-player.cp-lyr #cp-lyr-row{transform:translateY(max(0px,min(var(--lyr-row-shift),calc(var(--cp-dock-bottom,28px) - 18px))))}
+
+/* B305T · 分頁島可調：上下位置／高度／寬度（左右留白）。原本 TUNER 的 nav 下距／微移／大小被後來的 dock 樣式蓋掉、拉了不會動 → 改接真正在用的 --dock-*。
+   預設值＝現在線上的樣子（高 59、左右各 24、圓角 40、貼底 8px），不改外觀。 */
+:root{--nav-up:0px;--nav-side:24px;
+  --dock-w:min(calc(100vw - var(--nav-side) * 2),480px);
+  --dock-b:max(2px,calc(var(--sab, env(safe-area-inset-bottom)) + 8px + var(--nav-up)))}
+@media (max-width:359px){:root{--nav-side:15px}}

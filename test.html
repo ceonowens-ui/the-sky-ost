@@ -10397,6 +10397,15 @@ window.ALBUM_SWITCH = {
   if (!/[?&]tune=1/.test(location.search)) return;
   if (document.readyState !== "complete") { window.addEventListener("load", tuneInit); return; }   /* B287T：等 b285-local.css 載好再讀 --tk-* 初始值 */
   var SPEC = [
+    ["分頁島（調這組）", [
+      ["--nav-up",           "上下位置（+往上）", -30, 80, 1,  "px"],
+      ["--dock-nav-h",       "島的高度",   44,   90,  0.5, "px"],
+      ["--nav-side",         "左右留白（越大越窄）", 0, 90, 1, "px"],
+      ["--dock-r",           "圓角",       0,    45,  1,   "px"],
+      ["--nav-ico",          "圖示大小",   14,   32,  0.5, "px"],
+      ["--nav-fs",           "字級",       8,    18,  0.5, "px"],
+      ["--pv-nav-opacity",   "透明",       0,    1,   0.01,""]
+    ]],
     ["歌詞頁（B301T）", [
       ["--lyr-row-shift",   "下排三鍵下移", 0,  60,  1,   "px"],
     ]],
@@ -10449,13 +10458,6 @@ window.ALBUM_SWITCH = {
       ["--pv-track-label-font","NEXT 標籤", 7,   20,  1,   "px"],
       ["--pv-next-shift",    "NEXT 位移",  -40,  40,  1,   "px"]
     ]],
-    ["分頁島", [
-      ["--pv-nav-bottom",    "nav 下距",   -20,  120, 1,   "px"],
-      ["--pv-nav-shift-y",   "nav 微移",   -120, 60,  1,   "px"],
-      ["--pv-nav-scale",     "nav 大小",   0.6,  1.5, 0.01,""],
-      ["--pv-nav-opacity",   "nav 透明",   0,    1,   0.01,""],
-      ["--pv-nav-font",      "nav 字級",   6,    22,  1,   "px"]
-    ]]
   ];
   var R = document.documentElement, cs = getComputedStyle(R), state = {};
   function num(k){ var v=(cs.getPropertyValue(k)||"").trim(); return parseFloat(v)||0; }
@@ -10715,7 +10717,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B304T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B305T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11969,7 +11971,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B301T">
+<link rel="stylesheet" href="b285-local.css?v=B305T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>
