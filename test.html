@@ -9825,8 +9825,12 @@ window.ALBUM_SWITCH = {
     screen.classList.add("cp-ready"); document.body.classList.add("cp-player-visible");
     var prog=$("prog"); prog.tabIndex=0; prog.setAttribute("role","slider"); prog.setAttribute("aria-label","播放進度"); prog.setAttribute("aria-valuemin","0");
 
+    /* B306T：歌詞頁／TRACKS 看不到分頁島 → 播放列位置固定照原本分頁島（高 59、貼底 8px）算，不跟著 TUNER 調的分頁島大小變動 */
+    var navProbe=document.createElement("div"); navProbe.id="cp-nav-probe"; navProbe.setAttribute("aria-hidden","true");
+    navProbe.style.cssText="position:absolute;left:0;right:0;height:59px;bottom:max(8px, calc(var(--sab, env(safe-area-inset-bottom)) + 8px));visibility:hidden;pointer-events:none";
+    try { $("nav-wrap").parentNode.appendChild(navProbe); } catch (e) {}
     function layout() {
-      var sr=stage.getBoundingClientRect(), nav=($("nav")||$("nav-wrap")).getBoundingClientRect(); // 用 Nav 實際可見位置（含 --pv-nav-scale 放大）
+      var sr=stage.getBoundingClientRect(), nav=(mode!=="cover"&&navProbe.parentNode?navProbe:($("nav")||$("nav-wrap"))).getBoundingClientRect(); // 主畫面用 Nav 實際可見位置
       var bottom=nav.height && !document.body.classList.contains("no-nav") ? Math.max(18,sr.bottom-nav.top+10):28;
       screen.style.setProperty("--cp-dock-bottom",bottom+"px");
       screen.style.setProperty("--cp-dock-height",dock.offsetHeight+"px");
@@ -10717,7 +10721,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B305T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B306T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11971,7 +11975,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B305T">
+<link rel="stylesheet" href="b285-local.css?v=B306T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

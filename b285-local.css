@@ -118,3 +118,6 @@
   --dock-w:min(calc(100vw - var(--nav-side) * 2),480px);
   --dock-b:max(2px,calc(var(--sab, env(safe-area-inset-bottom)) + 8px + var(--nav-up)))}
 @media (max-width:359px){:root{--nav-side:15px}}
+/* B306T · CÉON 16:48 TUNER 定稿：分頁島（更高、更大字與圖示、微透明、往下 10px）＋TRACKS 兩側封面不透明 */
+:root{--nav-up:-10px;--dock-nav-h:79px;--nav-side:30px;--dock-r:40px;--nav-ico:28.5px;--nav-fs:14px;--pv-nav-opacity:.88;--tk-side-opacity:1}
+@media (max-width:359px){:root{--nav-side:10px;--nav-fs:11.5px;--nav-ico:24px}}   /* 320 寬放不下 14px 的五個分頁名稱 */
