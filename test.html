@@ -1519,6 +1519,12 @@ body { background: #08060C !important; }
 #screen-mood.mood-vip .typing-lbl{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
 #screen-mood.mood-vip .mine-lock{ text-shadow:0 1px 5px rgba(0,0,0,.7); }
 .chat-day{ color:rgba(217,178,106,.55) !important; }
+/* B308T：最新私訊載入中 */
+.chat-loading{ display:flex; align-items:center; justify-content:center; gap:10px; min-height:44px; margin:10px 0 6px; font-size:14px; color:rgba(255,255,255,.78); text-shadow:0 1px 6px rgba(0,0,0,.8); }
+.chat-loading i{ width:14px; height:14px; border-radius:50%; border:2px solid rgba(217,178,106,.3); border-top-color:#D9B26A; animation:chatLoadSpin .8s linear infinite; flex:none; }
+.chat-loading button{ min-height:44px; padding:0 16px; border-radius:22px; border:1px solid rgba(217,178,106,.55); background:rgba(20,16,10,.5); color:#F0DCA8; font:inherit; }
+@keyframes chatLoadSpin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){ .chat-loading i{ animation:none; } }
 .chat-day{ text-align:center; font-family:var(--font-label); font-size:10px; letter-spacing:3px;
   color:rgba(255,255,255,.35); margin:18px 0 6px; }
 .chat-line{ display:flex; justify-content:flex-start; align-items:flex-end; gap:8px; padding:3px 14px; }
@@ -5961,6 +5967,10 @@ window.ALBUM_SWITCH = {
 "擁有這張專輯": "Own This Album",
 "CHANCE 傳了新訊息給你": "New message from CHANCE",
 "升級就能讀": "Upgrade to read",
+"正在載入最新訊息…": "Loading the latest messages…",
+"訊息載入較慢，仍在等待…": "Taking longer than usual, still loading…",
+"最新訊息暫時載入不了": "Couldn't load the latest messages",
+"重試": "Retry",
 "下載為典藏版限定": "Downloads are deluxe-only",
 "歌詞語言：中文": "介面語言：中文"
 };
@@ -7920,6 +7930,17 @@ window.ALBUM_SWITCH = {
   var feedLiveLoading = false;
   var feedLiveLoadedAt = 0; var feedLiveKey = "";
   var feedLiveRequest = 0;
+  /* B308T：記住上次載到的私訊，下次打開立刻顯示最新的，不等後台（後台冷啟動實測第一次約 11 秒） */
+  var FEED_CACHE_KEY = NS + ":feedlive-cache";
+  var feedLiveEver = false, feedLiveSlow = false, feedLiveFailed = false, feedLiveSlowT = 0;
+  (function () {
+    try {
+      var fp0 = lsGet(LS.feedpass, {}), c0 = lsGet(FEED_CACHE_KEY, null);
+      if (fp0 && fp0.unlocked && fp0.email && c0 && c0.e === fp0.email && Array.isArray(c0.posts) && c0.posts.length) {
+        FEED_LIVE_POSTS = c0.posts; feedLiveKey = JSON.stringify(c0.posts); feedLiveEver = true;
+      }
+    } catch (e) {}
+  })();
   var feedCat = "all";
   var FEED_MATCH = { all: function () { return true; },
     voice: function (p) { return p.type === "voice"; },
@@ -7980,8 +8001,12 @@ window.ALBUM_SWITCH = {
     if (fp.unlocked && fp.email && fp.code) {
       q = "?e=" + encodeURIComponent(fp.email) + "&c=" + encodeURIComponent(fp.code);
     }
+    if (feedLiveLoading && q === loadLiveFeed.q) return;   /* B308T：同一組帳號的請求還在路上，不重發（開 App 預抓＋驗證完又強制抓，會重複） */
+    loadLiveFeed.q = q;
     var requestNo = ++feedLiveRequest;
-    feedLiveLoading = true;
+    feedLiveLoading = true; feedLiveFailed = false;
+    clearTimeout(feedLiveSlowT);
+    feedLiveSlowT = setTimeout(function () { if (feedLiveLoading && requestNo === feedLiveRequest) { feedLiveSlow = true; paintFeedLoading(); } }, 10000);   /* B308T：超過 10 秒只換提示字，背景繼續等 */
     fetch(CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) {
@@ -7992,6 +8017,9 @@ window.ALBUM_SWITCH = {
         feedLiveKey = liveKey;
         FEED_LIVE_POSTS = d.posts;
         feedLiveLoadedAt = Date.now();
+        var _wasEver = feedLiveEver; feedLiveEver = true; feedLiveSlow = false;
+        if (fp.unlocked && fp.email && q) lsSet(FEED_CACHE_KEY, { e: fp.email, posts: d.posts, at: Date.now() });   /* B308T */
+        if (!_wasEver && !liveChanged) renderMoodWall();   /* 第一次載到但內容剛好跟空的一樣：也要拿掉「載入中」 */
         if (liveChanged) {
           /* B161T：正在讀舊訊息時不強制重繪；改浮標讓使用者自己跳 */
           var body = document.getElementById("feed-body") || document.getElementById("mood-wall");
@@ -8005,9 +8033,24 @@ window.ALBUM_SWITCH = {
           else renderMoodWall();
         }
       })
-      .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ })
-      .then(function () { if (requestNo === feedLiveRequest) feedLiveLoading = false; });
+      .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ if (requestNo === feedLiveRequest) { feedLiveFailed = true; paintFeedLoading(); } })
+      .then(function () { if (requestNo === feedLiveRequest) { feedLiveLoading = false; feedLiveSlow = false; clearTimeout(feedLiveSlowT); } });
   }
+  /* B308T：還沒載到過最新私訊（也沒有記住的）→ 最上面一行狀態，不讓 8/20 內建舊訊息排第一 */
+  function feedLoadingHTML() {
+    if (feedLiveEver) return "";
+    if (feedLiveFailed) return '<div class="chat-loading err" id="__feedLoad"><span>最新訊息暫時載入不了</span><button type="button" id="__feedRetry">重試</button></div>';
+    return '<div class="chat-loading" id="__feedLoad"><i></i><span>' + (feedLiveSlow ? "訊息載入較慢，仍在等待…" : "正在載入最新訊息…") + '</span></div>';
+  }
+  function paintFeedLoading() {
+    var el = document.getElementById("__feedLoad"); if (!el) return;
+    var tmp = document.createElement("div"); tmp.innerHTML = feedLoadingHTML();
+    var nw = tmp.firstChild; if (nw) el.parentNode.replaceChild(nw, el); else el.parentNode.removeChild(el);
+    bindFeedRetry();
+  }
+  function bindFeedRetry() { var b = document.getElementById("__feedRetry"); if (b) b.onclick = function () { feedLiveFailed = false; paintFeedLoading(); loadLiveFeed(true); }; }
+  /* B308T：已解鎖的人一打開 App 就先在背景抓，不等點進 FEED */
+  setTimeout(function () { try { if (feedUnlockedQ()) loadLiveFeed(true); } catch (e) {} }, 0);
 
   function liveMediaURL(p) {
     var q = "key=" + encodeURIComponent(p.media || "");
@@ -8051,7 +8094,7 @@ window.ALBUM_SWITCH = {
     var out = [], lastDay = "", lineDone = false;
     groups.forEach(function (g) {
       /* B154T：新的在上，跨過已讀線就插一條「以下是新訊息」 */
-      if (!lineDone && seenTs > 0 && g.ts <= seenTs) { out.push({ newline: 1 }); lineDone = true; lastDay = ""; }
+      if (!lineDone && seenTs > 0 && g.ts <= seenTs) { if (out.length) { out.push({ newline: 1 }); lastDay = ""; } lineDone = true; }   /* B308T：沒有未讀就不畫這條線 */
       var isFresh = seenTs > 0 && g.ts > seenTs && !g.mine;   /* B178T：沒看過的訊息 → 閃一次金光 */
       if (g.day !== lastDay) { out.push({ day: g.day }); lastDay = g.day; }
       else if (out.length) out.push({ gap: 1 });
@@ -8817,9 +8860,9 @@ window.ALBUM_SWITCH = {
     }
     if (__sm) __sm.classList.remove("sgl-locked");
     if (__ft) __ft.classList.remove('hidden');
-    $("feed-body").innerHTML = out;
+    $("feed-body").innerHTML = feedLoadingHTML() + out;
     try { paintSparks(); } catch (e) {}                /* B178T：新訊息閃金 ✨ */
-    bindFeedContent();
+    bindFeedContent(); bindFeedRetry();
   }
   /* ── B25：SIGNAL 頻道付費牆（買斷）＋影片單購 ──────────────
    * localStorage：LS.feedpass = {unlocked,email,code}
@@ -10726,7 +10769,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B307T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B308T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
