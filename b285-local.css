@@ -103,3 +103,7 @@
 #screen-player #cp-more{visibility:hidden!important;pointer-events:none!important}   /* TRACKS／歌詞頁：留同寬空白，播放鍵與歌名維持置中 */
 #screen-player #cp-menu-actions{display:none!important}   /* 「歌曲選項」清單不再出現；這個小視窗只在複製失敗時顯示網址讓人長按複製 */
 #screen-player.cp-ready:not(.cp-immersive) .np-head .np-actions{min-width:92px;justify-content:flex-end}   /* PLAY：保留原本 SHARE＋⋯ 的寬度，歌名、副標換行位置不變 */
+
+/* B299T · TRACKS／歌詞頁往下拉回主畫面：拉的時候露出後面的主畫面（越拉越亮），頁面上緣變圓角 */
+#screen-player.cp-immersive.cp-pulling .player-fold{visibility:visible;opacity:calc(.35 + .65 * var(--cp-pull,0))}
+#screen-player.cp-pulling #cp-panel{overflow:hidden;box-shadow:0 -14px 40px rgba(0,0,0,.55);will-change:transform}
