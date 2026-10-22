@@ -5155,7 +5155,7 @@ window.ALBUM_SWITCH = {
   // B283T: preview is an independent public clip, never a grant of ownership.
   /* B295T：THE SKY 三首都有獨立的 30 秒試聽短檔（不是把完整歌播到 30 秒停）。start＝這段在原曲裡的起點（秒），歌詞同步用。 */
   var SKY_PREVIEW = window.SKY_PREVIEW = {
-    1: { src: "assets/preview/im-sorry-30s.m4a", start: 0 },
+    1: { src: "assets/preview/im-sorry-30s.m4a", start: 31.4 },   /* B304T：跟原曲 Final mix 比對，這段試聽是從 0:31.4 開始（原本誤標 0 → 試聽時歌詞卡在開頭不動） */
     2: { src: "assets/preview/the-sky-30s.m4a", start: 74.8 },
     3: { src: "assets/preview/dont-wanna-wake-up-30s.m4a", start: 84.6 }
   };
@@ -10715,7 +10715,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B303T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B304T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
