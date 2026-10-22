@@ -7,7 +7,7 @@ var p=q||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B294T"></script>
 <script src="shop-language.js?v=B294T"></script>
-<script src="stats-track.js?v=S1"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
+<script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css">
 <meta charset="utf-8">
 <script>/* B266T／B267T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
@@ -5149,17 +5149,48 @@ window.ALBUM_SWITCH = {
   }
 
   // B283T: preview is an independent public clip, never a grant of ownership.
-  function skyPreview(t) { return !!t && CFG.albumId === "the-sky" && t.n === 1 && isLocked(t); }
+  /* B295T：THE SKY 三首都有獨立的 30 秒試聽短檔（不是把完整歌播到 30 秒停）。start＝這段在原曲裡的起點（秒），歌詞同步用。 */
+  var SKY_PREVIEW = window.SKY_PREVIEW = {
+    1: { src: "assets/preview/im-sorry-30s.m4a", start: 0 },
+    2: { src: "assets/preview/the-sky-30s.m4a", start: 74.8 },
+    3: { src: "assets/preview/dont-wanna-wake-up-30s.m4a", start: 84.6 }
+  };
+  function skyPreview(t) { return !!t && CFG.albumId === "the-sky" && !!SKY_PREVIEW[t.n] && isLocked(t); }
+  function songTime() { return (audio.currentTime || 0) + (audio.__skyPreview ? (audio.__previewStart || 0) : 0); }   /* B295T：試聽時換算回原曲時間 */
   function skyPlayable(t) { return !isLocked(t) || skyPreview(t); }
   var skyPreviewEnded = false;
+  /* B295T：試聽結束 → 主頁封面正中間、TRACKS 頁目前封面正中間出現大按鈕「解鎖完整專輯 →」＋「再聽一次」。
+     只有按鈕可以點，其他地方照常可以滑（主頁換專輯、TRACKS 換歌）；按播放或換歌就收起。 */
+  function skyCta(show) {
+    ["cover-card", "cp-queue"].forEach(function (host) {
+      var h = $(host); if (!h) return;
+      var c = h.querySelector(":scope > .sky-cta");
+      if (!show) { if (c) c.hidden = true; return; }
+      if (!c) {
+        c = document.createElement("div"); c.className = "sky-cta"; c.setAttribute("role", "group");
+        c.innerHTML = '<button type="button" class="sky-cta-go">解鎖完整專輯 →</button><button type="button" class="sky-cta-again">再聽一次</button>';
+        c.querySelector(".sky-cta-go").addEventListener("click", function (e) { e.stopPropagation(); go("purchase"); });
+        c.querySelector(".sky-cta-again").addEventListener("click", function (e) { e.stopPropagation(); togglePlay(); });
+        h.appendChild(c);
+      }
+      if (host === "cp-queue") { var rail = $("cp-carousel"); if (rail) { c.style.top = rail.offsetTop + "px"; c.style.height = rail.offsetHeight + "px"; } }
+      c.hidden = false;
+      if (host === "cover-card") {   /* 只放在封面「露出來」的那一塊：不蓋到下面的歌名、副標、播放鍵 */
+        var nh = document.querySelector(".np-card .np-head"), cr = h.getBoundingClientRect();
+        var limit = nh ? nh.getBoundingClientRect().top : cr.bottom;
+        c.style.bottom = Math.max(0, cr.bottom - limit + 10) + "px";
+      }
+    });
+  }
   function skyPreviewUI() {
     var t=TRACKS[state.cur], active=skyPreview(t), el=$("sky-preview-state");
+    skyCta(active&&skyPreviewEnded);
     if(!el){
       el=document.createElement("div");el.id="sky-preview-state";el.setAttribute("aria-live","polite");
       $("np-sub").insertAdjacentElement("afterend",el);
       el.addEventListener("click",function(e){if(e.target.closest("button"))go("purchase");});
     }
-    el.hidden=!active||!skyPreviewEnded;
+    el.hidden=true;   /* B295T：試聽結束改成畫面正中間的大按鈕（skyCta），標題下的小按鈕不再顯示 */
     var text=skyPreviewEnded ? '<button type="button">解鎖完整專輯 →</button><span>按播放鍵，再聽一次</span>' : (state.playing ? '<span>正在試聽 · 30 秒</span>' : '<span>試聽 30 秒 · 點一下播放</span>');
     if(el.innerHTML!==text)el.innerHTML=text;
     $("btn-play").setAttribute("aria-label",active?(state.playing?"暫停試聽":skyPreviewEnded?"再聽一次":"點一下試聽 30 秒"):(state.playing?"暫停":"播放"));
@@ -5174,7 +5205,7 @@ window.ALBUM_SWITCH = {
     var d = audio.duration;
     if (isFinite(d) && d > 0) state.dur = d;
     renderProgress(audio.currentTime);
-    try { updateSyncedLyrics(audio.currentTime); } catch (e) {}
+    try { updateSyncedLyrics(songTime()); } catch (e) {}
     if (Date.now() - saveT > 4000) { saveT = Date.now(); lsSet(LS.pos, { cur: state.cur, time: audio.currentTime }); }
   });
   /* 串流檔常回報 duration:Infinity → 逼瀏覽器解析真實長度 */
@@ -5220,7 +5251,7 @@ window.ALBUM_SWITCH = {
     state.playing = false; renderPlayState();
     var t = TRACKS[state.cur];
     if (!t) return;
-    if (t.free || audio.__skyPreview) { toast("音樂載入失敗 · 請檢查網路後再按播放"); return; }
+    if (t.free || audio.__skyPreview) { toast("音樂載入失敗 · 請檢查網路後再按播放"); return; }   /* B295T：三首試聽共用 */
     if (navigator.onLine === false) { toast("目前沒有網路 · 連上後再試"); return; }
     fetch(srcFor(t), { headers: { Range: "bytes=0-1" } })
       .then(function (r) {
@@ -5257,8 +5288,8 @@ window.ALBUM_SWITCH = {
     durFixing = false; resumeAt = 0;
     state.cur = i; state.dur = 0;
     pendingRestore = { index: i, time: skyPreview(t) ? 0 : Number(resumeTime) || 0 };
-    skyPreviewEnded=false; audio.__skyPreview=skyPreview(t);
-    audio.src = audio.__skyPreview ? "assets/preview/im-sorry-30s.m4a" : srcFor(t);
+    skyPreviewEnded=false; audio.__skyPreview=skyPreview(t); audio.__previewStart = audio.__skyPreview ? (SKY_PREVIEW[t.n].start || 0) : 0;
+    audio.src = audio.__skyPreview ? SKY_PREVIEW[t.n].src : srcFor(t);
     skyPreviewUI();
     requestPlayback(); // Preserve synchronous user-gesture playback on iOS.
     renderNowPlaying(); renderTrackLists(); renderProgress(0);
@@ -9810,13 +9841,13 @@ window.ALBUM_SWITCH = {
         body.innerHTML='<div id="cp-carousel" tabindex="0" role="group" aria-label="左右滑動瀏覽歌曲"></div><div id="cp-browse-meta"><h3 id="cp-browse-title"></h3><p id="cp-browse-artist"></p><p id="cp-browse-status" aria-live="polite"></p></div><div id="cp-swipe-dock"></div><h3 class="cp-tracklist-title">THE SKY · TRACKLIST</h3><div id="cp-tracklist"></div>';
         var rail=$("cp-carousel");
         rail.innerHTML=TRACKS.map(function(t,i){return '<button type="button" class="cp-cover-slide" data-browse="'+i+'" aria-label="瀏覽 '+esc(t.title)+'"><img src="'+esc(t.artwork||CFG.coverImage)+'" alt="" draggable="false"><span class="cp-sr">'+esc(t.title)+'</span></button>';}).join('');
-        rail.addEventListener('scroll',function(){if(carouselMoving)return;clearTimeout(carouselTimer);carouselTimer=setTimeout(function(){var center=rail.getBoundingClientRect().left+rail.clientWidth/2, best=0,dist=Infinity;Array.prototype.forEach.call(rail.children,function(n,i){var r=n.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-center);if(d<dist){dist=d;best=i;}});browseIndex=best;paintBrowse();},100);},{passive:true});
-        rail.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();selectBrowse(Math.max(0,Math.min(TOTAL-1,browseIndex+(e.key==='ArrowRight'?1:-1))),true);}});
+        rail.addEventListener('scroll',function(){if(carouselMoving)return;clearTimeout(carouselTimer);carouselTimer=setTimeout(function(){var center=rail.getBoundingClientRect().left+rail.clientWidth/2, best=0,dist=Infinity;Array.prototype.forEach.call(rail.children,function(n,i){var r=n.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-center);if(d<dist){dist=d;best=i;}});browseIndex=best;paintBrowse();commitBrowse(best);},160);},{passive:true});   /* B295T：滑停下來就換成那首歌 */
+        rail.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();var ni=Math.max(0,Math.min(TOTAL-1,browseIndex+(e.key==='ArrowRight'?1:-1)));selectBrowse(ni,true);commitBrowse(ni);}});
         queueBuilt=true;
       }
       var signature=state.cur+":"+state.unlocked+":"+purchasedProduct();
       if(signature!==lastQueueKey){lastQueueKey=signature;
-        $('cp-tracklist').innerHTML=TRACKS.map(function(t,i){var current=i===state.cur,locked=!skyPlayable(t);return '<div class="cp-track'+(current?' current':'')+'"><button type="button" class="cp-track-select" data-cp-track="'+i+'"'+(current?' aria-current="true"':'')+' aria-label="'+esc((locked?'解鎖：':'播放：')+t.title)+'"><span class="cp-track-num">'+String(i+1).padStart(2,'0')+'</span><span class="cp-track-name">'+esc(t.title)+'</span><span class="cp-track-state" aria-hidden="true">'+(current?'●':locked?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>':'')+'</span></button>'+(!locked&&state.unlocked&&purchasedProduct()==='deluxe'&&!t.free?'<button type="button" class="cp-icon" data-cp-download="'+i+'" aria-label="下載 '+esc(t.title)+'">↓</button>':'')+'</div>';}).join('');
+        $('cp-tracklist').innerHTML=TRACKS.map(function(t,i){var current=i===state.cur,locked=!skyPlayable(t);return '<div class="cp-track'+(current?' current':'')+'"><button type="button" class="cp-track-select" data-cp-track="'+i+'"'+(current?' aria-current="true"':'')+' aria-label="'+esc((locked?'解鎖：':'播放：')+t.title)+'"><span class="cp-track-num">'+String(i+1).padStart(2,'0')+'</span><span class="cp-track-name">'+esc(t.title)+'</span><span class="cp-track-state" aria-hidden="true">'+(current?'●':skyPreview(t)?'<em class="cp-30s">30s</em>':locked?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>':'')+'</span></button>'+(!locked&&state.unlocked&&purchasedProduct()==='deluxe'&&!t.free?'<button type="button" class="cp-icon" data-cp-download="'+i+'" aria-label="下載 '+esc(t.title)+'">↓</button>':'')+'</div>';}).join('');
       }
       body.querySelector(".cp-tracklist-title").textContent=(CFG.albumTitleEn||CFG.albumTitle||"THE SKY")+" · TRACKLIST";
       paintBrowse();
@@ -9824,20 +9855,27 @@ window.ALBUM_SWITCH = {
     function paintBrowse(){
       var t=TRACKS[browseIndex];if(!t||!queueBuilt)return;
       $('cp-browse-title').textContent=t.title;$('cp-browse-artist').textContent=t.artist||CFG.artistName||'CHANCE';
-      var bst=$('cp-browse-status'), bhtml=browseIndex===state.cur
-        ? (audio.__skyPreview&&skyPreviewEnded ? '<button type="button" id="cp-browse-unlock">解鎖完整專輯 →</button><span>按播放鍵，再聽一次</span>' : '')   /* B286T：試聽結束在曲目頁也看得到解鎖入口 */
-        : (!skyPlayable(t) ? '需解鎖完整專輯 · 點播放前往' : ('播放器：'+TRACKS[state.cur].title+' · 點播放切換'));
-      if(bst.innerHTML!==bhtml)bst.innerHTML=bhtml;
+      var bst=$('cp-browse-status'); if(bst.textContent)bst.textContent='';   /* B295T：拿掉「播放器：… · 點播放切換」那行（滑動就直接換歌） */
       Array.prototype.forEach.call($('cp-carousel').children,function(n,i){n.setAttribute('aria-pressed',String(i===browseIndex));});
       shareQuick.setAttribute('aria-label','分享 '+t.title);
-      screen.classList.toggle('cp-browsing',mode==='queue'&&browseIndex!==state.cur);
-      if(mode==='queue'&&browseIndex!==state.cur)$('btn-play').setAttribute('aria-label','播放 '+t.title);
+
     }
     function selectBrowse(i,smooth){browseIndex=i;paintBrowse();var rail=$('cp-carousel'),n=rail&&rail.children[i];if(!n)return;carouselMoving=true;rail.scrollTo({left:n.offsetLeft-(rail.clientWidth-n.offsetWidth)/2,behavior:smooth&&!reduced?'smooth':'auto'});clearTimeout(carouselTimer);carouselTimer=setTimeout(function(){carouselMoving=false;},smooth?400:0);}
     function syncQueueState(){if(mode==='queue')paintBrowse();}
+    /* B295T：滑動／點側邊封面／鍵盤左右 → 直接換歌。原本在播就接著播新的那首；原本暫停就只換歌，等按播放。
+       快速連滑只在停下來時換一次，中間經過的不載入。 */
+    function commitBrowse(i){
+      if(mode!=='queue'||i===state.cur||!TRACKS[i])return;
+      var wasPlaying=!audio.paused&&!audio.ended&&!!audio.src;
+      if(wasPlaying&&skyPlayable(TRACKS[i])){playTrack(i);hap(6);return;}
+      playbackRequest++; try{audio.pause();}catch(_){} audio.removeAttribute("src"); try{audio.load();}catch(_){}
+      audio.__skyPreview=false; skyPreviewEnded=false; pendingRestore=null;
+      state.cur=i; state.dur=0; state.playing=false; pos.cur=-1;
+      renderPlayState(); renderNowPlaying(); renderTrackLists(); renderProgress(0); updateMediaSession(); hap(6);
+      try{lsSet(LS.pos,{cur:i,time:0});}catch(_){}
+    }
     $('cp-queue').addEventListener('click',function(e){
-      if(e.target.closest('#cp-browse-unlock')){go("purchase");return;}   /* B286T */
-      var cover=e.target.closest('[data-browse]');if(cover){selectBrowse(Number(cover.dataset.browse),true);return;}
+      var cover=e.target.closest('[data-browse]');if(cover){var ci=Number(cover.dataset.browse);selectBrowse(ci,true);commitBrowse(ci);return;}
       var dl=e.target.closest('[data-cp-download]');if(dl){downloadTrack(Number(dl.dataset.cpDownload));return;}
       var row=e.target.closest('[data-cp-track]');if(!row)return;var i=Number(row.dataset.cpTrack);
       selectBrowse(i,true);if(i===state.cur&&skyPlayable(TRACKS[i])){if(audio.paused)togglePlay();}else playTrack(i);refresh();
@@ -9848,7 +9886,7 @@ window.ALBUM_SWITCH = {
     function caption(b,text){if(!b.querySelector('.cp-caption'))b.insertAdjacentHTML('beforeend','<span class="cp-caption">'+text+'</span>');}
     caption(lyricsButton,'LYRICS');caption(queueButton,'TRACKS');
     function arrangeControls(){
-      var cm=$('cm-btn');screen.classList.toggle('cp-browsing',false);
+      var cm=$('cm-btn');
       if(mode==='queue'){
         $('cp-swipe-dock').appendChild(dock);controls.insertBefore(shareQuick,$('btn-prev'));controls.appendChild(more);
         utilities.appendChild(lyricsButton);if(cm)utilities.appendChild(cm);utilities.appendChild(queueButton);
@@ -9895,7 +9933,7 @@ window.ALBUM_SWITCH = {
     }
     function syncLine(force) {
       if(!lyricTimes||mode!=="lyrics")return;
-      var time=audio.src?audio.currentTime:0,k=-1;
+      var time=audio.src?songTime():0,k=-1;
       for(var j=0;j<lyricTimes.length;j++){if(lyricTimes[j]<=time)k=j;else break;}
       if(k===activeLine&&!force)return;activeLine=k;
       lyricNodes.forEach(function(n,i){n.classList.toggle("current",i===k);n.classList.toggle("past",i<k);if(i===k)n.setAttribute("aria-current","true");else n.removeAttribute("aria-current");
@@ -9912,7 +9950,9 @@ window.ALBUM_SWITCH = {
     follow.addEventListener("click",function(){clearTimeout(refollowTimer);following=true;follow.hidden=true;$("cp-lyrics").classList.remove("cp-free");syncLine(true);focus($("cp-lyrics"));});
     var pendingSeek=null;
     function seek(seconds, start) {
-      var t=TRACKS[state.cur]; if(isLocked(t)){playTrack(state.cur);return;}
+      var t=TRACKS[state.cur];
+      if(skyPreview(t)){ var ps=SKY_PREVIEW[t.n].start||0, rel=seconds-ps; if(rel<0||rel>29.5){message("試聽只有這 30 秒 · 解鎖完整專輯可以聽全部");return;} seconds=rel; if(!audio.__skyPreview){pendingSeek={index:state.cur,time:rel};playTrack(state.cur);return;} }   /* B295T：試聽時點歌詞只跳在這 30 秒內 */
+      else if(isLocked(t)){playTrack(state.cur);return;}
       if(!audio.src||audio.error){pendingSeek={index:state.cur,time:seconds};playTrack(state.cur);}else{
         var dur=audio.duration;
         try {audio.currentTime=Math.max(0,Math.min(seconds,isFinite(dur)?dur:seconds));}catch(_){return;}
@@ -10043,7 +10083,7 @@ window.ALBUM_SWITCH = {
       }
       function renderMarkers(){
         buildGroups(); var d=dur(); mk.innerHTML="";
-        if(!d){return;}
+        if(!d||audio.__skyPreview){return;}   /* B295T：試聽是 30 秒片段，留言時間點對不上，先不畫 */
         groups.forEach(function(g,gi){ var e=document.createElement("span"); e.className="cm-mk"+(g.items.some(function(i){return i.isArtist;})?" artist":""); e.style.left=Math.max(0,Math.min(100,g.t/d*100))+"%"; e.setAttribute("data-g",gi);
           e.setAttribute("role","button"); e.setAttribute("aria-label",fmt(g.t)+" 有 "+g.items.length+" 則留言"); mk.appendChild(e); });
       }
@@ -10075,7 +10115,7 @@ window.ALBUM_SWITCH = {
         if(data.key!==key()){resetForTrack();}
         markNear();
         if(sheetOpen&&!composing&&boundT==null&&!unbound){ var ct=$("cm-chip-t"); if(ct)ct.textContent=fmt(Math.floor(audio.currentTime||0)); }   /* 未輸入前 chip 跟著播放時間 */
-        if(!data.items.length||sheetOpen||audio.paused||Date.now()<ovUntil)return;
+        if(!data.items.length||sheetOpen||audio.paused||audio.__skyPreview||Date.now()<ovUntil)return;
         var cur=audio.currentTime||0;
         for(var i=0;i<data.items.length;i++){ var it=data.items[i]; if(it.timestampSeconds==null||shown[it.id])continue;
           if(cur>=it.timestampSeconds&&cur<it.timestampSeconds+1){ shown[it.id]=1; showOverlay(it,SHOW_MS); return; } }
@@ -10588,7 +10628,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B294T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B295T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11842,7 +11882,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B294T">
+<link rel="stylesheet" href="b285-local.css?v=B295T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

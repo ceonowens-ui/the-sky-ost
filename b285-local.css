@@ -33,8 +33,6 @@
 #screen-player.cp-swipe #cp-utilities svg{width:23px;height:23px}
 #screen-player.cp-swipe #cp-utilities #cp-open-queue{color:#dfc78e}
 #screen-player.cp-swipe #cp-lyr-row{display:none!important}
-#screen-player.cp-swipe.cp-browsing #btn-play svg{visibility:hidden}
-#screen-player.cp-swipe.cp-browsing #btn-play::after{content:'▶';position:absolute;font:24px/1 sans-serif;color:#e9e0cc}
 #screen-player.cp-swipe #btn-play{display:flex;align-items:center;justify-content:center}
 #screen-player .cp-tracklist-title{margin:var(--tk-list-mt) 24px 5px;padding-top:var(--tk-list-pt);border-top:1px solid #ffffff18;color:#bcb4a6;font:500 12px/1.5 -apple-system,sans-serif;letter-spacing:2px}
 #screen-player #cp-tracklist{margin:0 24px}
@@ -59,3 +57,22 @@
 
 /* B294T · 語言改自動判斷，拿掉 中/EN 切換鈕 */
 #btn-lyrics{display:none!important}
+
+/* B295T · 滑動直接換歌（拿掉狀態列）＋試聽結束的大按鈕置中 */
+#cp-browse-status{display:none!important}
+#screen-player.cp-swipe #cp-queue{position:relative}
+#cover-card{position:relative}
+.sky-cta{position:absolute;left:0;right:0;top:0;bottom:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(8,6,6,.62),rgba(8,6,6,.28) 70%,rgba(8,6,6,0));animation:skyCtaIn .35s ease both}
+.sky-cta[hidden]{display:none!important}
+#cover-card>.sky-cta{top:calc(env(safe-area-inset-top,0px) + 44px);gap:6px}
+.sky-cta button{pointer-events:auto;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.sky-cta .sky-cta-go{min-height:60px;max-width:calc(100% - 48px);padding:16px 32px;border:0;border-radius:999px;-webkit-appearance:none;appearance:none;
+  background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%);color:#17130B;font:600 20px/1.35 var(--font-serif-tc),"PingFang TC",serif;letter-spacing:.06em;
+  box-shadow:0 14px 34px -14px rgba(0,0,0,.8),0 0 0 1px rgba(240,220,168,.35)}
+.sky-cta .sky-cta-again{min-height:44px;padding:8px 18px;border:0;background:none;color:#F3EBDD;font:500 16px/1.4 -apple-system,"PingFang TC",sans-serif;text-decoration:underline;text-underline-offset:4px;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.sky-cta button:focus-visible{outline:2px solid #F0DCA8;outline-offset:3px}
+@keyframes skyCtaIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.sky-cta{animation:none}}
+@media(max-width:359px){.sky-cta .sky-cta-go{font-size:18px;padding:14px 22px}}
+#screen-player #cp-tracklist .cp-track-state .cp-30s{font:600 12px/1 -apple-system,sans-serif;letter-spacing:.06em;color:#d9c595;border:1px solid rgba(217,197,149,.55);border-radius:999px;padding:4px 8px;font-style:normal}

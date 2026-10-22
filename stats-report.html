@@ -38,6 +38,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 6px;b
   <h2>在哪個分頁停留</h2><div class="bars" id="tabs"></div>
   <h2>歌曲</h2><table id="tracks"><thead><tr><th>歌</th><th class="num">播放</th><th class="num">人</th><th class="num">平均聽（秒）</th><th class="num">聽完率</th></tr></thead><tbody></tbody></table>
   <p class="note" id="preview"></p>
+  <h2>30 秒試聽（還沒買的人）</h2><table id="pvt"><thead><tr><th>歌</th><th class="num">試聽</th><th class="num">人</th><th class="num">聽完率</th></tr></thead><tbody></tbody></table>
   <h2>地區（Cloudflare 依連線判斷，到城市為止）</h2><table id="geo"><thead><tr><th>國家</th><th>城市</th><th class="num">人</th></tr></thead><tbody></tbody></table>
   <h2>裝置</h2><div class="bars" id="devices"></div>
   <p class="note">「人」＝不同的匿名裝置代號（同一個人換瀏覽器會算兩個）。停留秒數只算畫面看得到的時候。歌曲「播放」＝從頭按播放的次數；暫停後續播不重複算。沒有收 email、兌換碼、IP、GPS。</p>
@@ -76,6 +77,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px 6px;b
     bars("tabs",j.tabs||[],function(r){return TAB[r.name]||r.name;},function(r){return r.secs;},function(v,r){return Math.round(v/tot*100)+"% · "+mins(v);},"lbl");
     $("tracks").querySelector("tbody").innerHTML=(j.tracks||[]).map(function(r){var plays=Number(r.plays)||0,c=Number(r.completes)||0;return "<tr><td>"+esc(r.title||(r.album+" #"+r.track))+"</td><td class='num'>"+plays+"</td><td class='num'>"+(r.listeners||0)+"</td><td class='num'>"+(plays?Math.round(r.secs/plays):0)+"</td><td class='num'>"+(plays?Math.round(c/plays*100)+"%":"–")+"</td></tr>";}).join("")||"<tr><td colspan='5' class='note'>還沒有資料</td></tr>";
     var p=j.preview||{}; $("preview").textContent="30 秒試聽：按播放 "+(p.plays||0)+" 次、"+(p.listeners||0)+" 人、聽完 "+(p.completes||0)+" 次"+(p.plays?"（"+Math.round((p.completes||0)/p.plays*100)+"%）":"")+"。";
+    $("pvt").querySelector("tbody").innerHTML=(j.previewTracks||[]).map(function(r){var p=Number(r.plays)||0;return "<tr><td>"+esc(String(r.title||("#"+r.track)).replace(/ \(30s\)$/,""))+"</td><td class='num'>"+p+"</td><td class='num'>"+(r.listeners||0)+"</td><td class='num'>"+(p?Math.round((Number(r.completes)||0)/p*100)+"%":"–")+"</td></tr>";}).join("")||"<tr><td colspan='4' class='note'>還沒有資料</td></tr>";
     $("geo").querySelector("tbody").innerHTML=(j.geo||[]).map(function(r){return "<tr><td>"+esc(r.country||"?")+"</td><td>"+esc(r.city||"")+"</td><td class='num'>"+(r.users||0)+"</td></tr>";}).join("")||"<tr><td colspan='3' class='note'>還沒有資料</td></tr>";
     bars("devices",j.devices||[],function(r){return ({ios:"iPhone",android:"Android",desktop:"電腦",mobile:"手機"})[r.dev]||r.dev;},function(r){return r.users;},function(v,r){return v+" 人"+(Number(r.pwa)?"（主畫面 App）":"");},"lbl");
   }

@@ -56,6 +56,8 @@
   function trackOf(src) {
     var cfg = window.ALBUM_CONFIG || {}, tracks = cfg.tracks || [];
     var s = ""; try { s = decodeURIComponent(src || ""); } catch (e) { s = src || ""; }
+    var PV = window.SKY_PREVIEW || {};   /* B295T：三首試聽各自記 */
+    for (var pn in PV) { if (PV[pn] && PV[pn].src && s.indexOf(PV[pn].src) >= 0) { var pt = null; for (var q = 0; q < tracks.length; q++) if (String(tracks[q].n) === String(pn)) pt = tracks[q]; return { t: "preview", album: cfg.albumId || "the-sky", track: Number(pn), name: (pt ? pt.title : "#" + pn) + " (30s)" }; } }
     if (/im-sorry-30s/.test(s)) return { t: "preview", album: cfg.albumId || "the-sky", track: 1, name: "I'm Sorry (30s)" };
     for (var i = 0; i < tracks.length; i++) {
       var tr = tracks[i], pp = tr.protectedPath, ap = tr.audioPath;

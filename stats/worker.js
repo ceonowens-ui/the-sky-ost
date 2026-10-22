@@ -1,4 +1,4 @@
-/* the-sky-stats · 獨立的匿名使用統計 Worker（S1，2026-10-22）
+/* the-sky-stats · 獨立的匿名使用統計 Worker（S2，2026-10-22：試聽分三首）
  * 只收：分頁停留秒數、歌曲播放次數／秒數／是否聽完、30 秒試聽、每次使用時間、國家／城市（Cloudflare 判斷）、裝置種類。
  * 不收 email、兌換碼、IP、GPS。和 the-sky-ost-api／金流／解鎖完全無關。
  * 綁定：D1 `DB`（the-sky-stats）；Secret `REPORT_KEY`（看報表用）。
@@ -59,6 +59,7 @@ async function report(req, env) {
   r.tabs = await q("SELECT name, SUM(secs) AS secs, COUNT(*) AS visits, COUNT(DISTINCT sid) AS users FROM events WHERE kind='tab' AND ts>=? GROUP BY name ORDER BY secs DESC", [since]);
   r.tracks = await q("SELECT album, track, MAX(name) AS title, SUM(n) AS plays, SUM(secs) AS secs, SUM(done) AS completes, COUNT(DISTINCT sid) AS listeners FROM events WHERE kind='play' AND ts>=? GROUP BY album, track ORDER BY plays DESC", [since]);
   r.preview = (await q("SELECT SUM(n) AS plays, SUM(secs) AS secs, SUM(done) AS completes, COUNT(DISTINCT sid) AS listeners FROM events WHERE kind='preview' AND ts>=?", [since]))[0];
+  r.previewTracks = await q("SELECT track, MAX(name) AS title, SUM(n) AS plays, SUM(secs) AS secs, SUM(done) AS completes, COUNT(DISTINCT sid) AS listeners FROM events WHERE kind='preview' AND ts>=? GROUP BY track ORDER BY plays DESC", [since]);   /* S2：三首試聽各自 */
   r.signal = await q("SELECT name, SUM(secs) AS secs, COUNT(*) AS views, COUNT(DISTINCT sid) AS users FROM events WHERE kind='signal' AND ts>=? GROUP BY name ORDER BY secs DESC LIMIT 50", [since]);
   r.geo = await q("SELECT country, city, COUNT(DISTINCT sid) AS users, COUNT(*) AS events FROM events WHERE ts>=? GROUP BY country, city ORDER BY users DESC LIMIT 60", [since]);
   r.devices = await q("SELECT dev, pwa, COUNT(DISTINCT sid) AS users FROM events WHERE ts>=? GROUP BY dev, pwa ORDER BY users DESC", [since]);
@@ -75,7 +76,7 @@ export default {
     try {
       if (u.pathname === "/ev" && req.method === "POST") return await ingest(req, env);
       if (u.pathname === "/report" && req.method === "GET") return await report(req, env);
-      if (u.pathname === "/health") return json({ ok: true, v: "S1", db: !!env.DB, key: !!env.REPORT_KEY });
+      if (u.pathname === "/health") return json({ ok: true, v: "S2", db: !!env.DB, key: !!env.REPORT_KEY });
       return json({ ok: false, reason: "not_found" }, 404);
     } catch (e) {
       return json({ ok: false, reason: "error", message: String(e && e.message || e).slice(0, 200) }, 500, cors(req));
