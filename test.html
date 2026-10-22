@@ -5166,23 +5166,42 @@ window.ALBUM_SWITCH = {
       var h = $(host); if (!h) return;
       var c = h.querySelector(":scope > .sky-cta");
       if (!show) { if (c) c.hidden = true; return; }
+      var fresh = !c || c.hidden;   /* B297T：剛出現的那一次才亮一下 */
       if (!c) {
         c = document.createElement("div"); c.className = "sky-cta"; c.setAttribute("role", "group");
-        c.innerHTML = '<button type="button" class="sky-cta-go">解鎖完整專輯 →</button>';   /* B296T：拿掉「再聽一次」（按播放鍵就能再聽） */
+        /* B297T：金色實心 → 玻璃膠囊「鎖頭 | 擁有這張專輯 →」（英文介面：Own This Album，見 I18N） */
+        var gid = "skyLockG-" + host;
+        c.innerHTML = '<button type="button" class="sky-cta-go">' +
+          '<svg class="sky-cta-lock" viewBox="0 0 20 26" aria-hidden="true" focusable="false"><defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7E6BC"/><stop offset="1" stop-color="#C7A260"/></linearGradient></defs>' +
+          '<path d="M5.2 11.2V7.6a4.8 4.8 0 0 1 9.6 0v3.6" fill="none" stroke="url(#' + gid + ')" stroke-width="2.4" stroke-linecap="round"/>' +
+          '<rect x="1" y="10.4" width="18" height="14.6" rx="3.4" fill="url(#' + gid + ')"/>' +
+          '<path d="M10 15.1a1.9 1.9 0 0 0-1.05 3.48V21h2.1v-2.42A1.9 1.9 0 0 0 10 15.1z" fill="#3B2D19"/></svg>' +
+          '<i class="sky-cta-div" aria-hidden="true"></i><span class="sky-cta-txt">' + (window.SKY_LANG === "en" ? "Own This Album" : "擁有這張專輯") + '</span>' +
+          '<svg class="sky-cta-arr" viewBox="0 0 20 12" aria-hidden="true" focusable="false"><path d="M1 6h17.2M13.2 1.4 18.2 6l-5 4.6" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
         c.querySelector(".sky-cta-go").addEventListener("click", function (e) { e.stopPropagation(); go("purchase"); });
         h.appendChild(c);
       }
       if (host === "cp-queue") { var rail = $("cp-carousel"); if (rail) { c.style.top = rail.offsetTop + "px"; c.style.height = rail.offsetHeight + "px"; } }
       c.hidden = false;
+      if (host === "cp-queue" && rail) { var card = rail.querySelector('[aria-pressed="true"]') || rail.children[0]; if (card && card.offsetWidth) c.querySelector(".sky-cta-go").style.maxWidth = Math.max(240, card.offsetWidth - 20) + "px"; }   /* B297T：TRACKS 頁不超出封面 */
+      if (fresh) { var gb = c.querySelector(".sky-cta-go"); gb.classList.add("is-flash"); clearTimeout(gb.__ft); gb.__ft = setTimeout(function () { gb.classList.remove("is-flash"); }, 1000); }   /* B297T：試聽結束時玻璃亮 1 秒就恢復，不持續動畫 */
+      skyCtaFit(c);
       if (host === "cover-card") {   /* B296T：按鈕放在畫面正中間；只有會蓋到下面歌名時才往上讓 */
         var nh = document.querySelector(".np-card .np-head"), cr = h.getBoundingClientRect(), go2 = c.querySelector(".sky-cta-go");
         var bh = go2.offsetHeight || 66, pad = 48;
-        var limit = (nh ? nh.getBoundingClientRect().top : cr.bottom) - cr.top - 14;   /* 歌名上緣（相對封面） */
+        var limit = (nh ? nh.getBoundingClientRect().top : cr.bottom) - cr.top - 18;   /* 歌名上緣（相對封面）；B297T 間距 14→18，照設計圖 */
         var want = window.innerHeight / 2 - cr.top - bh / 2;                            /* 畫面正中間 */
         var top = Math.max(44, Math.min(want, limit - bh));
         c.style.top = (top - pad) + "px"; c.style.bottom = "auto"; c.style.height = (bh + pad * 2) + "px";
       }
     });
+  }
+  /* B297T：小螢幕或字型較寬時，字自動縮小（最小 16px），不會被膠囊裁掉 */
+  function skyCtaFit(c) {
+    var tx = c && c.querySelector(".sky-cta-txt"); if (!tx || !tx.clientWidth) return;
+    tx.style.fontSize = "";
+    for (var fz = parseFloat(getComputedStyle(tx).fontSize) || 20, k = 0; tx.scrollWidth > tx.clientWidth + 1 && fz > 16 && k < 8; k++) { fz -= 1; tx.style.fontSize = fz + "px"; }
+    if (!skyCtaFit.__fonts && document.fonts && document.fonts.ready) { skyCtaFit.__fonts = 1; document.fonts.ready.then(function () { document.querySelectorAll(".sky-cta:not([hidden])").forEach(skyCtaFit); }); }
   }
   function skyPreviewUI() {
     var t=TRACKS[state.cur], active=skyPreview(t), el=$("sky-preview-state");
@@ -5931,6 +5950,7 @@ window.ALBUM_SWITCH = {
 "需解鎖完整專輯才能播放": "Unlock the album to play this",
 "其餘曲目需解鎖完整專輯": "Unlock the album for the rest",
 "需解鎖完整專輯才能下載": "Unlock the album to download",
+"擁有這張專輯": "Own This Album",
 "下載為典藏版限定": "Downloads are deluxe-only",
 "歌詞語言：中文": "介面語言：中文"
 };
@@ -10630,7 +10650,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B296T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B297T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11884,7 +11904,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B296T">
+<link rel="stylesheet" href="b285-local.css?v=B297T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

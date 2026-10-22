@@ -63,16 +63,37 @@
 #screen-player.cp-swipe #cp-queue{position:relative}
 #cover-card{position:relative}
 .sky-cta{position:absolute;left:0;right:0;top:0;bottom:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;
-  background:radial-gradient(closest-side,rgba(8,6,6,.62),rgba(8,6,6,.28) 70%,rgba(8,6,6,0));animation:skyCtaIn .35s ease both}
+  background:none}   /* B297T：拿掉壓暗封面的黑色光暈；淡入動畫移到按鈕本身（容器上的動畫會讓玻璃模糊失效） */
 .sky-cta[hidden]{display:none!important}
 #cover-card>.sky-cta{top:0;gap:0}
 .sky-cta button{pointer-events:auto;-webkit-tap-highlight-color:transparent;cursor:pointer}
-.sky-cta .sky-cta-go{min-height:66px;max-width:calc(100% - 40px);padding:18px 35px;border:0;border-radius:999px;-webkit-appearance:none;appearance:none;
-  background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%);color:#17130B;font:600 22px/1.35 var(--font-serif-tc),"PingFang TC",serif;letter-spacing:.06em;
-  box-shadow:0 14px 34px -14px rgba(0,0,0,.8),0 0 0 1px rgba(240,220,168,.35)}
-.sky-cta .sky-cta-again{min-height:44px;padding:8px 18px;border:0;background:none;color:#F3EBDD;font:500 16px/1.4 -apple-system,"PingFang TC",sans-serif;text-decoration:underline;text-underline-offset:4px;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+/* B297T · 玻璃膠囊「鎖頭 | Own This Album →」：半透明深灰玻璃＋20px 模糊＋香檳金細框與微光（取代金色實心） */
+.sky-cta .sky-cta-go{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+  width:min(78vw,360px);max-width:calc(100vw - 32px);height:66px;min-height:66px;padding:0 22px 0 26px;margin:0;
+  border:1px solid rgba(238,212,160,.58);border-radius:999px;-webkit-appearance:none;appearance:none;
+  color:#F7EFE3;font:400 clamp(20px,5.8vw,23px)/1 var(--font-serif-tc),"Noto Serif TC","Songti TC",serif;letter-spacing:.02em;text-shadow:0 1px 8px rgba(0,0,0,.35);
+  background:radial-gradient(130% 110% at 50% -28%,rgba(255,255,255,.17),rgba(255,255,255,.04) 52%,rgba(255,255,255,0) 64%),linear-gradient(180deg,rgba(255,255,255,0) 52%,rgba(255,228,176,.08) 100%),rgba(30,25,22,.26);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);backdrop-filter:blur(20px) saturate(140%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(245,215,160,.22),inset 0 0 22px rgba(240,205,140,.10),
+    0 0 18px rgba(233,196,106,.20),0 14px 32px -14px rgba(0,0,0,.75);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),background-color .22s ease,box-shadow .22s ease,border-color .22s ease;animation:skyCtaIn .35s ease}
+.sky-cta .sky-cta-go::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;   /* 邊框上的金色反光點（上緣偏左、下緣正中） */
+  background:radial-gradient(34% 80% at 43% 0%,rgba(255,248,230,1),rgba(255,246,224,0) 74%),radial-gradient(28% 80% at 57% 100%,rgba(255,236,190,1),rgba(255,232,180,0) 74%),
+    radial-gradient(14% 60% at 0% 50%,rgba(255,232,180,.45),rgba(255,232,180,0) 72%),radial-gradient(14% 60% at 100% 50%,rgba(255,232,180,.35),rgba(255,232,180,0) 72%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.sky-cta .sky-cta-go::after{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;   /* 上緣、下緣的兩道小光（設計圖的反光點） */
+  background:radial-gradient(closest-side,rgba(255,246,222,.95),rgba(255,228,168,.42) 46%,rgba(255,228,168,0)) 57% 100%/34% 5px no-repeat,radial-gradient(closest-side,rgba(255,251,240,.85),rgba(255,251,240,0)) 43% 0/30% 4px no-repeat}
+.sky-cta .sky-cta-lock{flex:none;width:20px;height:26px;filter:drop-shadow(0 0 6px rgba(240,205,140,.35))}
+.sky-cta .sky-cta-div{flex:none;display:block;width:1px;height:58%;margin:0 16px 0 18px;background:linear-gradient(180deg,rgba(240,214,160,0),rgba(240,214,160,.62) 50%,rgba(240,214,160,0))}
+.sky-cta .sky-cta-txt{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;padding:2px 0}
+.sky-cta .sky-cta-arr{flex:none;width:19px;height:12px;margin-left:10px;color:#F7EFE3}
+.sky-cta .sky-cta-go:active{transform:scale(.98);background-color:rgba(255,238,210,.14);border-color:rgba(248,228,184,.82);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(245,215,160,.3),inset 0 0 26px rgba(240,205,140,.18),0 0 24px rgba(233,196,106,.32),0 12px 28px -14px rgba(0,0,0,.75)}
+.sky-cta .sky-cta-go.is-flash{background-color:rgba(255,238,210,.16);border-color:rgba(250,232,190,.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(245,215,160,.34),inset 0 0 28px rgba(240,205,140,.2),0 0 28px rgba(233,196,106,.42),0 14px 32px -14px rgba(0,0,0,.75)}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){.sky-cta .sky-cta-go{background-color:rgba(26,21,18,.8)}}   /* 不支援模糊時改成較深的半透明底，字一樣看得清楚 */
 .sky-cta button:focus-visible{outline:2px solid #F0DCA8;outline-offset:3px}
 @keyframes skyCtaIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.sky-cta{animation:none}}
-@media(max-width:359px){.sky-cta .sky-cta-go{font-size:20px;padding:15px 24px}}
+@media(prefers-reduced-motion:reduce){.sky-cta .sky-cta-go{animation:none;transition:none}}
+@media(max-width:359px){.sky-cta .sky-cta-go{width:calc(100vw - 32px);padding:0 16px 0 20px;font-size:19px}.sky-cta .sky-cta-div{margin:0 12px 0 14px}.sky-cta .sky-cta-arr{margin-left:8px}}
 #screen-player #cp-tracklist .cp-track-state .cp-30s{font:600 12px/1 -apple-system,sans-serif;letter-spacing:.06em;color:#d9c595;border:1px solid rgba(217,197,149,.55);border-radius:999px;padding:4px 8px;font-style:normal}
