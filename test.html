@@ -9780,6 +9780,7 @@ window.ALBUM_SWITCH = {
     var actions=screen.querySelector(".np-head .np-actions"), heart=$("btn-heart"), lang=$("btn-lyrics");
     actions.appendChild(heart); heart.hidden=true; heart.setAttribute("aria-label","收藏這一刻");
     var more=button("cp-more","更多歌曲選項","more"); more.setAttribute("aria-haspopup","dialog"); more.setAttribute("aria-expanded","false"); actions.appendChild(more);
+    more.disabled=true; more.tabIndex=-1; more.setAttribute("aria-hidden","true");   /* B298T：拿掉「⋯」（只留 SHARE）；元素留著當 TRACKS／歌詞頁的同寬空白，不能點、讀屏也略過 */
     var lyricsButton=button("cp-open-lyrics","顯示歌詞","lyrics"), queueButton=button("cp-open-queue","顯示待播清單","queue");
     var shareQuick=button("cp-share-quick","分享歌曲","share"); shareQuick.innerHTML+='<span class="cp-caption">SHARE</span>'; actions.appendChild(shareQuick);
     var controls=screen.querySelector(".np-controls"); controls.insertBefore(lyricsButton,controls.firstChild); controls.appendChild(queueButton);
@@ -9787,7 +9788,7 @@ window.ALBUM_SWITCH = {
     ["btn-prev","btn-next","btn-play"].forEach(function(id){$(id).type="button"; $(id).setAttribute("aria-label",$(id).title);});
     var follow=button("cp-follow","回到目前歌詞","lyrics","cp-text-button"); follow.textContent="回到目前歌詞"; follow.hidden=true; screen.appendChild(follow);
     var menuWrap=document.createElement("div"); menuWrap.id="cp-menu-wrap"; menuWrap.hidden=true;
-    menuWrap.innerHTML='<div id="cp-menu" role="dialog" aria-modal="true" aria-labelledby="cp-menu-title"><div class="cp-menu-head"><h2 id="cp-menu-title">歌曲選項</h2><button class="cp-icon" id="cp-menu-close" type="button" aria-label="關閉歌曲選項">'+svg("close")+'</button></div><div id="cp-menu-actions"></div><label class="cp-sr" for="cp-share-url">歌曲分享網址</label><input id="cp-share-url" readonly hidden aria-label="歌曲分享網址"><p id="cp-share-help" class="cp-empty" hidden>長按網址即可複製。</p></div>';
+    menuWrap.innerHTML='<div id="cp-menu" role="dialog" aria-modal="true" aria-labelledby="cp-menu-title"><div class="cp-menu-head"><h2 id="cp-menu-title">分享歌曲</h2><button class="cp-icon" id="cp-menu-close" type="button" aria-label="關閉">'+svg("close")+'</button></div><div id="cp-menu-actions"></div><label class="cp-sr" for="cp-share-url">歌曲分享網址</label><input id="cp-share-url" readonly hidden aria-label="歌曲分享網址"><p id="cp-share-help" class="cp-empty" hidden>長按網址即可複製。</p></div>';
     screen.appendChild(menuWrap);
     [["cp-share","分享歌曲","share"],["cp-copy","複製歌曲連結","copy"],["cp-credits","歌曲製作資訊","credits"]].forEach(function(a){var b=button(a[0],a[1],a[2],"cp-menu-action"); b.innerHTML += '<span>'+a[1]+'</span>'; $("cp-menu-actions").appendChild(b);});
     lang.className="cp-menu-action"; lang.title="介面語言 中 / EN"; lang.setAttribute("aria-label","切換 App 介面語言"); lang.innerHTML=svg("language")+'<span>介面語言 中 / EN</span>'; $("cp-menu-actions").appendChild(lang);
@@ -9804,7 +9805,7 @@ window.ALBUM_SWITCH = {
     if (window.ResizeObserver) { var resize=new ResizeObserver(layout); resize.observe(stage); resize.observe(dock); resize.observe($("nav-wrap")); }
     window.addEventListener("resize",layout); if(window.visualViewport) window.visualViewport.addEventListener("resize",layout);
 
-    function returnFocus() { focus(mode==="lyrics"?lyricsButton:mode==="queue"?queueButton:more); }
+    function returnFocus() { focus(shareQuick.offsetParent?shareQuick:(mode==="lyrics"?lyricsButton:mode==="queue"?queueButton:shareQuick)); }   /* B298T：小視窗只會從 SHARE 打開，關掉回到 SHARE */
     function closeMenu() {
       if(!menuOpen) return; menuOpen=false; menuWrap.hidden=true; more.setAttribute("aria-expanded","false");
       document.body.classList.remove("cp-menu-open"); fold.inert=mode!=="cover"; panel.inert=false; dock.inert=false; returnFocus();
@@ -10653,7 +10654,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B297T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B298T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11907,7 +11908,7 @@ body, #stage{ background:#080809 !important; }
 })();
 </script>
 <link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B297T">
+<link rel="stylesheet" href="b285-local.css?v=B298T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

@@ -97,3 +97,9 @@
 @media(prefers-reduced-motion:reduce){.sky-cta .sky-cta-go{animation:none;transition:none}}
 @media(max-width:359px){.sky-cta .sky-cta-go{width:calc(100vw - 32px);padding:0 16px 0 20px;font-size:19px}.sky-cta .sky-cta-div{margin:0 12px 0 14px}.sky-cta .sky-cta-arr{margin-left:8px}}
 #screen-player #cp-tracklist .cp-track-state .cp-30s{font:600 12px/1 -apple-system,sans-serif;letter-spacing:.06em;color:#d9c595;border:1px solid rgba(217,197,149,.55);border-radius:999px;padding:4px 8px;font-style:normal}
+
+/* B298T · 拿掉「⋯」，只留 SHARE 一個分享入口 */
+#screen-player .np-head .np-actions > #cp-more{display:none!important}   /* PLAY：SHARE 靠右補上原本 ⋯ 的位置 */
+#screen-player #cp-more{visibility:hidden!important;pointer-events:none!important}   /* TRACKS／歌詞頁：留同寬空白，播放鍵與歌名維持置中 */
+#screen-player #cp-menu-actions{display:none!important}   /* 「歌曲選項」清單不再出現；這個小視窗只在複製失敗時顯示網址讓人長按複製 */
+#screen-player.cp-ready:not(.cp-immersive) .np-head .np-actions{min-width:92px;justify-content:flex-end}   /* PLAY：保留原本 SHARE＋⋯ 的寬度，歌名、副標換行位置不變 */
