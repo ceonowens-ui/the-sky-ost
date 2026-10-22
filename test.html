@@ -6591,7 +6591,11 @@ window.ALBUM_SWITCH = {
     lsSet(LS.unlock, Object.assign({ unlocked: true, email: em }, data));
     state.unlocked = true;
     go("player");
-    if (!(A2.standalone && A264.pairing)) openSheet();   /* B266T：主畫面 App 接上 → 直接播放器 */
+    /* B300T：解鎖後一律停在 PLAY 主畫面——不再打開舊的 UP NEXT 清單（舊播放器留下的，新版曲目頁是 TRACKS），
+       開著的歌詞頁／TRACKS／分享小視窗／留言面板一起收掉；歌曲維持原本那首、不自動播放 */
+    try { closeSheet(); } catch (e) {}
+    try { if (window.__cpHome) window.__cpHome(); } catch (e) {}
+    try { if (window.__cm && window.__cm.close) window.__cm.close(); } catch (e) {}
     renderTrackLists(true);
     renderNowPlaying();
     unlockBurstFx();
@@ -9845,6 +9849,7 @@ window.ALBUM_SWITCH = {
       layout();
     }
     function closePanel() { var back=mode==="queue"?queueFrom:"cover"; setMode(back,false); focus(back==="lyrics"?queueButton:lyricsButton); }
+    window.__cpHome=function(){ closeMenu(); if(mode!=="cover") setMode("cover",false); };   /* B300T：解鎖成功後回 PLAY 主畫面用 */
     lyricsButton.addEventListener("click",function(){setMode(mode==="lyrics"?"cover":"lyrics",mode!=="lyrics");});
     queueButton.addEventListener("click",function(){if(mode==="queue")closePanel();else setMode("queue",true);});
     $("cp-close").addEventListener("click",closePanel);
@@ -10682,7 +10687,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B299T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B300T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
