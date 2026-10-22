@@ -107,3 +107,7 @@
 /* B299T · TRACKS／歌詞頁往下拉回主畫面：拉的時候露出後面的主畫面（越拉越亮），頁面上緣變圓角 */
 #screen-player.cp-immersive.cp-pulling .player-fold{visibility:visible;opacity:calc(.35 + .65 * var(--cp-pull,0))}
 #screen-player.cp-pulling #cp-panel{overflow:hidden;box-shadow:0 -14px 40px rgba(0,0,0,.55);will-change:transform}
+
+/* B301T · 歌詞頁下排 COMMENTS｜SHARE｜TRACKS 整排往下移（播放鍵那排不動）；底部至少留 16px，不被網址列／Home 橫條蓋到 */
+:root{--lyr-row-shift:22px}
+#screen-player.cp-lyr #cp-lyr-row{transform:translateY(max(0px,min(var(--lyr-row-shift),calc(var(--cp-dock-bottom,28px) - 18px))))}
