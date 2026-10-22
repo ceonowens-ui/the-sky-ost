@@ -5217,8 +5217,9 @@ window.ALBUM_SWITCH = {
     $("btn-play").setAttribute("aria-label",active?(state.playing?"暫停試聽":skyPreviewEnded?"再聽一次":"點一下試聽 30 秒"):(state.playing?"暫停":"播放"));
     if(active&&!state.dur){state.dur=30;renderProgress(0);}
   }
-  /* B297T 測試鉤子（只在 test.html，轉正時拿掉）：test.html?cta=1 → 不用聽完 30 秒，直接顯示試聽結束的按鈕看外觀 */
-  if (/[?&]cta=1(&|$)/.test(location.search)) setTimeout(function () { if (skyPreview(TRACKS[state.cur])) { skyPreviewEnded = true; skyPreviewUI(); } }, 1500);
+  /* B297T 測試鉤子（只在 test.html，轉正時拿掉）：test.html?cta=1 → 不用聽完 30 秒，直接把試聽結束的按鈕畫出來看外觀。
+     只是畫面預覽：已購買的手機也看得到，但不改任何解鎖／購買狀態；按播放或換歌就照常收起。 */
+  if (/[?&]cta=1(&|$)/.test(location.search)) [1500, 4000].forEach(function (ms) { setTimeout(function () { var c = document.querySelector("#cover-card > .sky-cta"); if (!state.playing && (!c || c.hidden)) skyCta(true); }, ms); });
   /* ---------- Audio 引擎 ---------- */
   var audio = new Audio();
   audio.preload = "none";
