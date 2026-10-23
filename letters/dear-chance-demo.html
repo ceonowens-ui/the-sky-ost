@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Dear CHANCE 相遇信箋</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600&display=swap">
+<style>
+/* 版面：單欄手機殼（max 440），黑曜底 + 香檳金 + 銀色軌道；信紙是唯一的暖色面。
+   單一深色世界（刻意不做淺色版），所有顏色明確設定。 */
+:root{
+  --bg:#0E0D12; --surface:#242229; --paper:#EFE5D3; --paper-edge:#E4D6BE;
+  --text:#F0EBE4; --muted:#B7AFA7; --faint:#8E877F; --border:#51473A; --gold:#D4B77E; --gold-hi:#F1D9A0;
+  --silver:#D4D0C9; --ink:#3A332E; --danger:#E7A08F; --ok:#B9D4A8; --info:#A9C2DC;
+  --gold-grad:linear-gradient(110deg,#B99A60,#F1D9A0 52%,#C0A06C);
+  --f-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --f-head:"Noto Serif TC","Songti TC","PingFang TC",serif;
+  --f-ui:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-hand:"Caveat","Snell Roundhand","Segoe Script",cursive;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--text);font-family:var(--f-ui);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;
+  background:radial-gradient(120% 60% at 50% -10%,rgba(212,183,126,.10),transparent 60%),var(--bg);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+button,input,textarea,select{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px;border-radius:8px}
+.app{max-width:440px;margin:0 auto;padding-bottom:48px;position:relative}
+.orbits{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+.orbits svg{width:100%;height:100%}
+.app>*{position:relative;z-index:1}
+
+.demo-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:10px;
+  margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
+  background:rgba(14,13,18,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,183,126,.22)}
+.demo-tag{flex:none;font:700 11px/1 var(--f-ui);letter-spacing:.14em;color:#1b1408;background:var(--gold);padding:5px 8px;border-radius:6px}
+.demo-txt{flex:1;min-width:0;font-size:12px;color:var(--muted);line-height:1.4}
+.demo-txt b{color:var(--text);font-weight:500}
+.demo-open{flex:none;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--border);background:transparent;font-size:13px;color:var(--gold);cursor:pointer}
+
+.top{display:flex;align-items:center;gap:8px;min-height:56px;margin-top:6px}
+.icon-btn{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:14px;border:0;background:transparent;cursor:pointer;color:var(--silver)}
+.icon-btn svg{width:22px;height:22px}
+.top-mid{flex:1;min-width:0;text-align:center;font:600 12px/1 var(--f-ui);letter-spacing:.3em;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:14px;border:1px solid var(--border);background:rgba(36,34,41,.6);font-size:13px;color:var(--text);cursor:pointer}
+.spacer{width:44px;flex:none}
+
+.eyebrow{font:600 12px/1.2 var(--f-ui);letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.en{font-family:var(--f-display);font-style:italic;font-weight:500;letter-spacing:.02em;color:var(--silver)}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;letter-spacing:.04em;text-wrap:balance;margin:0;color:var(--text)}
+h1{font-size:clamp(26px,7.6vw,32px);line-height:1.38;white-space:pre-line}
+h2{font-size:21px;line-height:1.45;white-space:pre-line}
+h3{font-size:17px;line-height:1.5}
+.lead{font-size:17px;line-height:1.8;color:var(--muted);white-space:pre-line;margin:0}
+.small{font-size:13.5px;line-height:1.65;color:var(--muted);margin:0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.screen{display:flex;flex-direction:column;gap:22px;padding-top:6px;animation:in .32s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:16px;border:0;cursor:pointer;font:700 16px/1.25 var(--f-ui);letter-spacing:.05em;text-align:center}
+.btn-gold{background:var(--gold-grad);color:#1D1608;box-shadow:0 10px 26px rgba(212,183,126,.22),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-gold:active{transform:scale(.985)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);font-weight:500}
+.btn-text{background:transparent;color:var(--gold);font-weight:500;min-height:44px}
+.btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none}
+.spin{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid rgba(29,22,8,.3);border-top-color:#1D1608;animation:sp .8s linear infinite;flex:none}
+.spin.lt{border-color:rgba(212,183,126,.3);border-top-color:var(--gold)}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.shop-head{display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.shop-head .t{font-family:var(--f-display);font-weight:600;font-size:clamp(26px,8vw,34px);letter-spacing:.06em;line-height:1.1}
+.pcard{border-radius:22px;overflow:hidden;border:1px solid rgba(212,183,126,.32);background:linear-gradient(170deg,#1D1C23,#111015);box-shadow:0 18px 44px rgba(0,0,0,.5)}
+.pcard-img{position:relative;background:radial-gradient(80% 90% at 50% 40%,#25232B,#121116);display:grid;place-items:center;padding:30px 18px 18px}
+.pcard-img img{width:min(70%,280px);height:auto;aspect-ratio:320/300;object-fit:contain;display:block}
+.badge{position:absolute;top:14px;left:14px;font:600 11px/1 var(--f-ui);letter-spacing:.14em;color:var(--gold-hi);background:rgba(14,13,18,.72);border:1px solid rgba(212,183,126,.5);padding:7px 10px;border-radius:9px}
+.pcard-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px}
+.pcard-name{font-family:var(--f-head);font-size:22px;font-weight:600;letter-spacing:.06em;line-height:1.4}
+.pcard-desc{font-size:15px;color:var(--muted);line-height:1.7}
+.price-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.price{font-family:var(--f-display);font-weight:600;font-size:26px;color:var(--gold-hi);font-variant-numeric:tabular-nums}
+.price-note{font-size:13px;color:var(--muted)}
+.meter{display:flex;flex-direction:column;gap:8px}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:var(--muted)}
+.meter-top b{font-family:var(--f-display);font-size:24px;color:var(--gold-hi);font-weight:600;font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:3px;background:rgba(212,208,201,.12);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold-grad);border-radius:3px}
+
+.hero-art{display:grid;place-items:center;padding:6px 0}
+.hero-art img{width:min(66%,240px);height:auto;aspect-ratio:320/300;object-fit:contain}
+.facts{list-style:none;margin:0;padding:0;border-top:1px solid var(--border)}
+.facts li{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:13px 2px;border-bottom:1px solid rgba(81,71,58,.6);font-size:15px;line-height:1.55}
+.facts li>span{color:var(--muted);flex:none}
+.facts li b{font-weight:500;text-align:right;min-width:0;overflow-wrap:anywhere}
+.num{font-family:var(--f-display);font-size:20px;color:var(--gold-hi);font-weight:600;font-variant-numeric:tabular-nums}
+.ticks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.ticks li{display:flex;gap:10px;font-size:14.5px;line-height:1.6;color:var(--text)}
+.ticks li::before{content:"✦";color:var(--gold);flex:none;font-size:12px;margin-top:3px}
+
+.state{border-radius:16px;padding:14px 16px;font-size:15px;line-height:1.65;border:1px solid rgba(212,183,126,.4);background:rgba(212,183,126,.08);display:flex;flex-direction:column;gap:8px}
+.state b{font-family:var(--f-head);font-size:17px;font-weight:600}
+.state.err{border-color:rgba(231,160,143,.5);background:rgba(231,160,143,.08)}
+.state.info{border-color:rgba(169,194,220,.4);background:rgba(169,194,220,.07)}
+.state .row{display:flex;gap:10px;flex-wrap:wrap}
+.state .row .btn{min-height:44px;font-size:14px;width:auto;flex:1}
+
+.recip{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--silver)}
+.recip .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.paper{position:relative;background:var(--paper);color:var(--ink);border-radius:6px;padding:46px 26px 30px;box-shadow:0 22px 50px rgba(0,0,0,.5),0 0 0 1px var(--paper-edge) inset}
+.paper .corner{position:absolute;width:22px;height:22px;border-color:#AA9066;border-style:solid;border-width:0}
+.paper .c1{top:14px;left:14px;border-top-width:1px;border-left-width:1px}
+.paper .c2{top:14px;right:14px;border-top-width:1px;border-right-width:1px}
+.paper .c3{bottom:14px;left:14px;border-bottom-width:1px;border-left-width:1px}
+.paper .c4{bottom:14px;right:14px;border-bottom-width:1px;border-right-width:1px}
+.paper .mast{position:absolute;top:18px;left:0;right:0;text-align:center;font:500 10.5px/1 var(--f-display);letter-spacing:.42em;color:#6E5F49}
+.salute{font-family:var(--f-hand);font-size:30px;line-height:1.1;color:var(--ink);margin:4px 0 12px}
+.body-ta{display:block;width:100%;min-height:240px;resize:none;border:0;outline:0;background:repeating-linear-gradient(transparent 0 32px,rgba(170,144,102,.28) 32px 33px);
+  font:400 17px/33px var(--f-head);color:var(--ink);padding:0;margin:0;overflow:hidden;caret-color:#8A6A33}
+.body-ta::placeholder{color:#8F8170}
+.close-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:20px}
+.close-l{flex:1;min-width:0}
+.closing{font-family:var(--f-hand);font-size:24px;color:#6B5E50;line-height:1}
+.sig{display:block;width:100%;max-width:220px;min-height:44px;margin-top:4px;border:0;border-bottom:1px solid rgba(170,144,102,.55);background:transparent;font:500 26px/1.4 var(--f-hand),var(--f-head);color:var(--ink);padding:2px 0;outline:0}
+.sig::placeholder{color:#8F8170;font-size:22px}
+.paper-art{flex:none;width:84px;height:auto;aspect-ratio:320/300}
+.meta-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px}
+.count{font-variant-numeric:tabular-nums;color:var(--muted)}
+.count.over{color:var(--danger);font-weight:500}
+.save{color:var(--muted)}.save.ok{color:var(--ok)}.save.err{color:var(--danger)}
+.field-err{font-size:13.5px;color:var(--danger)}
+.p-body{font:400 17px/1.95 var(--f-head);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.p-sig{font:500 28px/1.3 var(--f-hand),var(--f-head);color:var(--ink);margin-top:2px;overflow-wrap:anywhere}
+.p-sig.none{font:400 14px/1.6 var(--f-ui);color:#7A6C5B}
+.p-foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;padding-top:12px;border-top:1px solid rgba(170,144,102,.35);font:italic 500 13px/1.4 var(--f-display);color:#6B5E50}
+.warn{font-size:14.5px;line-height:1.75;color:var(--text);white-space:pre-line;padding:12px 14px;border-left:2px solid var(--gold);background:rgba(212,183,126,.06);border-radius:0 12px 12px 0;margin:0}
+
+/* 封信儀式 */
+.ritual{position:relative;width:min(100%,320px);aspect-ratio:440/380;margin:0 auto}
+.envwrap{position:absolute;inset:0}
+.ritual .lay{position:absolute;left:0;right:0;bottom:0;width:100%;aspect-ratio:440/300}
+.ritual svg{width:100%;height:100%;display:block;overflow:visible}
+.ritual .letter{position:absolute;left:12%;right:12%;bottom:8%;height:58%;background:var(--paper);border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:2;
+  background-image:repeating-linear-gradient(transparent 0 13px,rgba(170,144,102,.35) 13px 14px);background-clip:content-box;padding:22px 18px;transform-origin:50% 100%;transform:translateY(4%) scaleY(.62)}
+.ritual .back{z-index:1}.ritual .front{z-index:3}.ritual .flapL{z-index:4}.ritual .sealL{z-index:5}
+.spark{position:absolute;inset:0;z-index:6;pointer-events:none}
+.spark i{position:absolute;color:var(--gold-hi);font-style:normal;opacity:0;text-shadow:0 0 12px rgba(241,217,160,.8)}
+.flap{transform-box:fill-box;transform-origin:50% 0}
+.seal{transform-box:fill-box;transform-origin:50% 50%}
+.arc{position:absolute;left:0;top:-8%;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0}
+.arc path{stroke-dasharray:420;stroke-dashoffset:420}
+.ritual.play .letter{animation:fold 1.4s cubic-bezier(.5,0,.2,1) both}
+.ritual.play .flapL{animation:flapz 1.4s steps(1,end) both}
+.ritual.play .flap{animation:flap 1.4s cubic-bezier(.4,0,.2,1) both}
+.ritual.play .seal{animation:seal 1.4s cubic-bezier(.3,1.5,.5,1) both}
+.ritual.play .spark i{animation:spark 1.4s ease-out both}
+.ritual.waiting .sealL{animation:glow 2.2s ease-in-out infinite 1.4s}
+@keyframes fold{0%{transform:translateY(-62%) scaleY(1)}22%{transform:translateY(-62%) scaleY(.62)}48%,100%{transform:translateY(4%) scaleY(.62)}}
+@keyframes flapz{0%{z-index:1}50%,100%{z-index:4}}
+@keyframes flap{0%,46%{transform:scaleY(-1)}68%,100%{transform:scaleY(1)}}
+@keyframes seal{0%,64%{transform:scale(0);opacity:0}82%{transform:scale(1.18);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes spark{0%,70%{opacity:0;transform:scale(.4)}82%{opacity:1}100%{opacity:0;transform:scale(1.25)}}
+@keyframes glow{0%,100%{filter:none}50%{filter:drop-shadow(0 0 7px rgba(241,217,160,.95))}}
+.ritual.fly .arc{opacity:1}
+.ritual.fly .arc path{animation:draw 1.2s ease-out forwards}
+.ritual.fly .envwrap{animation:away 1.2s cubic-bezier(.45,0,.25,1) .15s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes away{0%{transform:none;opacity:1}35%{transform:translate(16%,-20%) scale(.72) rotate(-5deg);opacity:1}100%{transform:translate(44%,-72%) scale(.16) rotate(-14deg);opacity:0}}
+.ritual.gone .envwrap{opacity:0}
+.ritual.gone .arc{opacity:.7}.ritual.gone .arc path{stroke-dashoffset:0}
+.ritual .endstar{position:absolute;right:1%;top:-8%;z-index:7;color:var(--gold-hi);font-size:18px;opacity:0;text-shadow:0 0 14px rgba(241,217,160,.9)}
+.ritual.gone .endstar{opacity:1;transition:opacity .4s}
+.rstat{display:flex;align-items:center;justify-content:center;gap:10px;font-size:15.5px;color:var(--text);text-align:center;min-height:28px}
+.status-pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:8px 12px;border-radius:12px;border:1px solid rgba(212,183,126,.45);background:rgba(212,183,126,.1);font-size:14px;line-height:1.4}
+.status-pill em{font-style:normal;font:700 10.5px/1 var(--f-ui);letter-spacing:.12em;color:#1b1408;background:var(--gold);padding:4px 6px;border-radius:5px}
+
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;line-height:1.3;border-radius:8px;padding:4px 8px;border:1px solid rgba(212,183,126,.4);color:var(--gold-hi);white-space:nowrap}
+.tag.read{border-color:rgba(185,212,168,.5);color:var(--ok)}
+.tag.warn{border-color:rgba(231,160,143,.55);color:var(--danger)}
+.tag.info{border-color:rgba(169,194,220,.5);color:var(--info)}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.timeline li{position:relative;padding:0 0 16px 26px;font-size:14.5px;line-height:1.55;color:var(--muted)}
+.timeline li::before{content:"";position:absolute;left:5px;top:6px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg)}
+.timeline li::after{content:"";position:absolute;left:9.5px;top:17px;bottom:0;width:1px;background:var(--border)}
+.timeline li:last-child::after{display:none}
+.timeline li.on{color:var(--text)}.timeline li.on::before{border-color:var(--gold);background:var(--gold)}
+.timeline li small{display:block;font-size:12.5px;color:var(--faint)}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:4px;border-radius:16px;background:rgba(36,34,41,.6);border:1px solid var(--border)}
+.tabs.two{grid-template-columns:1fr 1fr}
+.tab{min-height:44px;border-radius:12px;border:0;background:transparent;color:var(--muted);font-size:15px;cursor:pointer}
+.tab[aria-selected="true"]{background:rgba(212,183,126,.16);color:var(--gold-hi);font-weight:500}
+.tab small{font-variant-numeric:tabular-nums;opacity:.85;margin-left:4px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;padding:14px 16px;border-radius:16px;border:1px solid var(--border);background:rgba(26,25,31,.75);cursor:pointer}
+.item .h{display:flex;justify-content:space-between;align-items:center;gap:8px 10px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.item .s{font-family:var(--f-head);font-size:16px;line-height:1.6;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{padding:26px 18px;text-align:center;border:1px dashed var(--border);border-radius:18px;font-size:15px;line-height:1.75;color:var(--muted);white-space:pre-line}
+
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{border:1px solid var(--border);border-radius:14px;padding:10px 12px;background:rgba(26,25,31,.7);min-width:0}
+.kpi span{display:block;font-size:12.5px;color:var(--muted)}
+.kpi b{font-family:var(--f-display);font-size:26px;font-weight:600;color:var(--gold-hi);font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi.bad b{color:var(--danger)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:540px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid rgba(81,71,58,.6);white-space:nowrap;font-variant-numeric:tabular-nums}
+th{color:var(--muted);font-weight:500;background:rgba(36,34,41,.6)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.fld input{min-height:44px;border-radius:12px;border:1px solid var(--border);background:rgba(14,13,18,.6);padding:0 12px;font-size:16px;color:var(--text);width:100%}
+.toggle{display:flex;align-items:center;gap:10px;min-height:44px;font-size:15px}
+.toggle input{width:22px;height:22px;accent-color:#D4B77E;flex:none}
+.ta{width:100%;min-height:96px;border-radius:12px;border:1px solid var(--border);background:rgba(14,13,18,.6);padding:10px 12px;font-size:16px;line-height:1.6;color:var(--text);resize:vertical}
+.panel{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--border);border-radius:18px}
+.panel.cur{border-color:rgba(212,183,126,.5)}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+.scrim{position:fixed;inset:0;z-index:50;background:rgba(5,5,8,.66);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;background:linear-gradient(180deg,#1E1D24,#141318);border:1px solid var(--border);border-bottom:0;border-radius:24px 24px 0 0;
+  padding:10px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:16px;animation:up .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.grab{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin:2px auto 0}
+.cd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid rgba(212,183,126,.45);background:rgba(212,183,126,.08)}
+.cd b{font-family:var(--f-display);font-size:28px;font-weight:600;color:var(--gold-hi);font-variant-numeric:tabular-nums;line-height:1}
+.snap{border-radius:12px;background:var(--paper);color:var(--ink);padding:12px 14px;font:400 15px/1.7 var(--f-head);max-height:96px;overflow:hidden;position:relative}
+.snap::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(transparent,var(--paper))}
+.sim{display:flex;flex-direction:column;gap:8px}
+.sim label{font-size:13px;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--border);background:transparent;font-size:14px;cursor:pointer;text-align:left}
+.seg button[aria-pressed="true"]{border-color:var(--gold);background:rgba(212,183,126,.14);color:var(--gold-hi)}
+.rules p,.rules li{font-size:15px;line-height:1.75;color:var(--text)}
+.rules ul{margin:0;padding-left:20px}
+.rules .pending{color:var(--danger)}
+
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:min(92vw,400px);padding:12px 16px;border-radius:14px;background:#2A2830;border:1px solid var(--border);font-size:14.5px;line-height:1.5;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:up .25s ease both}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition:none!important}
+}
+</style>
+
+<div class="orbits" aria-hidden="true"><svg viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#D4D0C9" stroke-width=".5" opacity=".22"><ellipse cx="330" cy="120" rx="260" ry="90" transform="rotate(-24 330 120)"/><ellipse cx="60" cy="640" rx="300" ry="80" transform="rotate(-18 60 640)"/></g><circle cx="118" cy="62" r="1.4" fill="#F1D9A0" opacity=".7"/><circle cx="352" cy="560" r="1.2" fill="#F1D9A0" opacity=".6"/></svg></div>
+
+<div class="app" id="app">
+  <div class="demo-bar" role="note">
+    <span class="demo-tag">DEMO</span>
+    <span class="demo-txt" id="demoTxt"></span>
+    <button class="demo-open" id="demoOpen" type="button">測試面板</button>
+  </div>
+  <div class="top" id="top"></div>
+  <main id="view" aria-live="polite"></main>
+</div>
+<div id="layer"></div>
+<div class="sr" id="sr" aria-live="assertive"></div>
+
+<script src="letter-send-animation.js?v=L1"></script>
+<script>
+(function(){
+"use strict";
+/* ═════════ 素材（assets/*.svg 原檔內嵌） ═════════ */
+var SVG_ENCOUNTER='<svg xmlns="http://www.w3.org/2000/svg" width="320" height="300" viewBox="0 0 320 300"><defs><linearGradient id="metal"><stop stop-color="#36353f"/><stop offset=".52" stop-color="#17161c"/><stop offset="1" stop-color="#3a393e"/></linearGradient><linearGradient id="gold"><stop stop-color="#ae8c4e"/><stop offset=".52" stop-color="#efdcab"/><stop offset="1" stop-color="#bc9b61"/></linearGradient></defs><path d="M34 20Q20 20 22 40L20 263Q20 281 40 279L282 280Q300 280 299 259L298 38Q299 18 281 20Z" fill="url(#metal)" stroke="#aa9066" stroke-width="1.3"/><path d="M174 79C164 137 176 142 225 126C185 153 183 165 199 204C169 174 158 183 123 235C143 181 137 170 93 183C137 153 142 143 120 112C151 141 163 128 174 79Z" fill="url(#gold)"/><g fill="none" stroke="#d4d0c9" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="M22 89C51 119 65 129 89 136C107 140 119 150 132 164L151 178C159 184 155 194 147 191L122 177C120 188 112 196 98 202L71 212C61 216 58 208 66 203L91 188L106 174C96 169 91 156 99 151C105 148 109 156 111 166M67 204C58 205 57 198 65 192L89 173M298 89C269 123 252 132 232 143L205 167L183 184C176 189 169 182 175 176L195 154M232 143C213 142 201 150 189 162L164 179C157 184 151 178 157 171L183 147M205 168L207 210C207 219 197 220 195 210L190 188M194 207C192 220 183 219 180 209L176 193M181 209C175 218 167 211 167 202L165 187"/><path d="M51 52L62 52M257 246L269 246"/></g><ellipse cx="160" cy="153" rx="104" ry="59" transform="rotate(-28 160 153)" fill="none" stroke="#d4b77e" stroke-opacity=".35" stroke-width=".7"/><circle cx="252" cy="107" r="2.6" fill="#f4e5c5"/></svg>';
+var SVG_PAPER_ART='<svg viewBox="0 0 320 300" aria-hidden="true"><path d="M34 20Q20 20 22 40L20 263Q20 281 40 279L282 280Q300 280 299 259L298 38Q299 18 281 20Z" fill="#efe5d3" stroke="#aa9066" stroke-width="2.2"/><path d="M174 79C164 137 176 142 225 126C185 153 183 165 199 204C169 174 158 183 123 235C143 181 137 170 93 183C137 153 142 143 120 112C151 141 163 128 174 79Z" fill="#d4b77e"/><g fill="none" stroke="#84745d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 89C51 119 65 129 89 136C107 140 119 150 132 164L151 178C159 184 155 194 147 191L122 177C120 188 112 196 98 202L71 212C61 216 58 208 66 203L91 188L106 174C96 169 91 156 99 151C105 148 109 156 111 166M67 204C58 205 57 198 65 192L89 173M298 89C269 123 252 132 232 143L205 167L183 184C176 189 169 182 175 176L195 154M232 143C213 142 201 150 189 162L164 179C157 184 151 178 157 171L183 147M205 168L207 210C207 219 197 220 195 210L190 188M194 207C192 220 183 219 180 209L176 193M181 209C175 218 167 211 167 202L165 187"/></g></svg>';
+var ENC_URI='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(SVG_ENCOUNTER);
+var IC={back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  mail:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>'};
+
+/* ═════════ 工具 ═════════ */
+var $=function(id){return document.getElementById(id)};
+var MIN=60e3,HR=3600e3,DAY=86400e3,TZ=8*HR,MAX_BODY=1000,MAX_SIG=20;
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var SEG=(typeof Intl!=="undefined"&&Intl.Segmenter)?new Intl.Segmenter("zh-Hant",{granularity:"grapheme"}):null;
+function glen(s){s=String(s||"").replace(/\r?\n/g,"");if(!s)return 0;if(SEG){var n=0,it=SEG.segment(s)[Symbol.iterator]();while(!it.next().done)n++;return n}return Array.from(s).length}
+function summary(s,n){s=String(s||"").replace(/\s+/g," ").trim();var a=SEG?Array.from(SEG.segment(s),function(x){return x.segment}):Array.from(s);return a.length>n?a.slice(0,n).join("")+"…":s}
+function uid(p){return(p||"")+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function pad(n){return("0"+n).slice(-2)}
+function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function readLS(k){try{var s=localStorage.getItem(k);return s?JSON.parse(s):null}catch(e){return null}}
+function writeLS(k,o){try{var s=JSON.stringify(o);localStorage.setItem(k,s);return localStorage.getItem(k)===s}catch(e){return false}}
+function say(t){var s=$("sr");s.textContent="";setTimeout(function(){s.textContent=t},30)}
+var toastT;function toast(t){var L=document.querySelector(".toast");if(L)L.remove();var d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=t;document.body.appendChild(d);clearTimeout(toastT);toastT=setTimeout(function(){d.remove()},3400)}
+function zh(n){var D="零一二三四五六七八九";n=Math.floor(n);if(n<=0||n>=100)return String(n);if(n<10)return D[n];var t=Math.floor(n/10),o=n%10;return(t>1?D[t]:"")+"十"+(o?D[o]:"")}
+/* Asia/Taipei：固定 UTC+8，無日光節約 */
+function tp(ts){var d=new Date(ts+TZ);return{y:d.getUTCFullYear(),m:d.getUTCMonth()+1,d:d.getUTCDate(),h:d.getUTCHours(),mi:d.getUTCMinutes()}}
+function tpTs(y,m,d,h,mi){return Date.UTC(y,m-1,d,h||0,mi||0)-TZ}
+function fmtMD(ts){var p=tp(ts);return p.m+" 月 "+p.d+" 日 "+pad(p.h)+":"+pad(p.mi)}
+function fmtDay(ts){var p=tp(ts);return p.m+" 月 "+p.d+" 日"}
+function fmtFull(ts){var p=tp(ts);return p.y+"."+pad(p.m)+"."+pad(p.d)+" "+pad(p.h)+":"+pad(p.mi)}
+function fmtDate(ts){var p=tp(ts);return p.y+"."+pad(p.m)+"."+pad(p.d)}
+function monthName(pid){var a=String(pid).split("-");return a[0]+" 年 "+(+a[1])+" 月"}
+function mmss(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000);return pad(Math.floor(s/60))+":"+pad(s%60)}
+
+/* ═════════ Demo 設定：時鐘、身分、模擬結果 ═════════ */
+var SIMKEY="dearchance:sim:v2";
+function demoDefaultClock(){var p=tp(Date.now());return tpTs(p.y,p.m,5,12,0)-Date.now()}   /* 預設模擬「本月 5 日中午」= 收信中 */
+var SIM=Object.assign({role:"fan",pay:"ok",deliver:"ok",clock:null,saveFail:false},readLS(SIMKEY)||{});
+if(SIM.clock==null){SIM.clock=demoDefaultClock()}
+function simSave(){writeLS(SIMKEY,SIM)}simSave();
+function now(){return Date.now()+SIM.clock}
+var USER={fan:{id:"fan-me",name:"粉絲（已登入）"},guest:null,chance:{id:"chance",name:"Chance 本人"},team:{id:"team-01",name:"營運團隊"}};
+function me(){return USER[SIM.role]}
+function currentMonthId(){var p=tp(Date.now()+demoDefaultClock());return p.y+"-"+pad(p.m)}
+
+/* ═════════════════════════════════════════════════════════════════
+   模擬後端（介面照正式 Worker 設計；之後換成 Worker + D1/Durable Object）
+   規則全部在這裡判斷，前端只顯示結果：
+   reserve  → 檢查登入／內容／開放時間／名額／每人上限，原子建立短期保留並固定信件內容
+   pay      → 發起付款；同一筆訂單付款進行中不會再發起第二次
+   callback → 依交易編號去重；逾期付款重新核對容量，不能履約就進退款
+   tick     → 只釋放「未付款且到期」的保留；付款狀態未明者先核對、不釋放
+   ═════════════════════════════════════════════════════════════════ */
+var SKEY="dearchance:server:v2";
+function defaultPeriod(y,m){
+  var last=new Date(Date.UTC(y,m,0)).getUTCDate();
+  return{id:y+"-"+pad(m),capacity:20,price:99,perUser:1,holdMin:10,paused:false,
+    openAt:tpTs(y,m,1,0,0),closeAt:tpTs(y,m,10,23,59)+59999,readBy:tpTs(y,m,last,23,59)+59999};
+}
+function seedServer(){var a=currentMonthId().split("-"),per=defaultPeriod(+a[0],+a[1]);var o={periods:{},holds:{},orders:{},letters:{},txns:{},keys:{},queue:[],seq:1,refunds:[]};o.periods[per.id]=per;return o}
+function sLoad(){return readLS(SKEY)||seedServer()}
+function sSave(s){if(!writeLS(SKEY,s))throw"storage"}
+var LIVE_HOLD=["active","verifying","paid"],DEAD_LETTER=["refunded","refund_pending","failed"];
+function isLive(L){return DEAD_LETTER.indexOf(L.status)<0}
+function periodsSorted(s){return Object.keys(s.periods).map(function(k){return s.periods[k]}).sort(function(a,b){return a.openAt-b.openAt})}
+function relevantPeriod(s,t){var ps=periodsSorted(s);for(var i=0;i<ps.length;i++)if(ps[i].closeAt>=t)return ps[i];return ps[ps.length-1]||null}
+function nextPeriod(s,per,t){var ps=periodsSorted(s),b=Math.max(t,per?per.closeAt:0);for(var i=0;i<ps.length;i++)if(ps[i].openAt>b)return ps[i];return null}
+function lettersOf(s,f){return Object.keys(s.letters).map(function(k){return s.letters[k]}).filter(f||function(){return true})}
+function holdsOf(s,f){return Object.keys(s.holds).map(function(k){return s.holds[k]}).filter(f)}
+function sold(s,pid){return lettersOf(s,function(L){return L.periodId===pid&&isLive(L)}).length}
+function liveHolds(s,pid,ex){return holdsOf(s,function(h){return h.periodId===pid&&h.id!==ex&&LIVE_HOLD.indexOf(h.status)>-1}).length}
+function remaining(s,per,ex){return Math.max(0,per.capacity-sold(s,per.id)-liveHolds(s,per.id,ex))}
+function userLetters(s,per,u){return lettersOf(s,function(L){return L.periodId===per.id&&L.userId===u&&isLive(L)})}
+function userHold(s,per,u,ex){return holdsOf(s,function(h){return h.periodId===per.id&&h.userId===u&&h.id!==ex&&LIVE_HOLD.indexOf(h.status)>-1})[0]||null}
+function periodState(s,per,t){
+  if(!per)return"noperiod";if(t<per.openAt)return"notopen";if(t>per.closeAt)return"closed";
+  if(per.paused)return"paused";if(remaining(s,per)<=0)return"full";return"open";
+}
+function tick(s){
+  var t=now();
+  holdsOf(s,function(h){return h.status==="active"&&h.expiresAt<=t}).forEach(function(h){
+    var o=s.orders[h.orderId];
+    if(!o){h.status="expired";return}
+    if(o.status==="confirming"){h.status="verifying";o.events.push({at:t,txt:"保留到期時付款狀態未明，先核對、不釋放名額"})}
+    else{h.status="expired";if(o.status!=="paid")o.status="expired"}
+  });
+  var due=s.queue.filter(function(q){return q.due<=t});s.queue=s.queue.filter(function(q){return q.due>t});
+  due.forEach(function(q){if(q.type==="callback")handleCallback(s,q.txn,q.orderId,q.result);if(q.type==="deliver")deliver(s,s.orders[q.orderId])});
+}
+function handleCallback(s,txn,orderId,result){
+  var o=s.orders[orderId];if(!o)return;
+  var t=now(),h=s.holds[o.holdId],per=s.periods[o.periodId];
+  if(s.txns[txn]){s.txns[txn].dupes=(s.txns[txn].dupes||0)+1;o.events.push({at:t,txt:"收到重複回呼（"+txn+"），已忽略"});return}
+  s.txns[txn]={orderId:orderId,result:result,at:t};
+  o.events.push({at:t,txt:"付款回呼："+({paid:"成功",cancel:"取消",fail:"失敗"}[result])});
+  if(result!=="paid"){
+    if(o.status==="paid")return;
+    o.status=result==="cancel"?"cancelled":"failed";
+    if(h.status==="verifying"||(h.status==="active"&&h.expiresAt<=t))h.status="expired";  /* 核對確定未付款，才釋放 */
+    return;
+  }
+  if(o.status==="paid"){s.refunds.push({orderId:orderId,txn:txn,at:t,reason:"重複付款"});o.events.push({at:t,txt:"偵測到第二筆付款，已進退款處理"});return}
+  o.paidAt=t;o.paidTxn=txn;
+  var holdOK=(h.status==="active"&&h.expiresAt>t)||h.status==="verifying";
+  if(!holdOK){
+    /* 逾期成功付款：重新核對截止、暫停、容量、每人上限 */
+    var can=t<=per.closeAt&&!per.paused&&remaining(s,per,h.id)>0&&userLetters(s,per,o.userId).length<per.perUser&&!userHold(s,per,o.userId,h.id);
+    if(!can){o.status="refund_pending";o.refundReason="付款完成時本期名額已滿或已截止，無法寄出。";s.refunds.push({orderId:orderId,txn:txn,at:t,reason:"逾期付款無法履約"});o.events.push({at:t,txt:"逾期付款無法履約，進入退款處理"});h.status="expired";return}
+    o.events.push({at:t,txt:"逾期付款，重新核對後仍有名額"});
+  }
+  o.status="paid";h.status="paid";o.events.push({at:t,txt:"付款完成，名額轉為正式"});
+  deliver(s,o);
+}
+function deliver(s,o){
+  if(!o||o.letterId||o.status!=="paid")return;
+  var t=now(),h=s.holds[o.holdId];
+  if(o.deliverMode==="failOnce"&&!o.deliverTried){o.deliverTried=true;o.delivery="retrying";o.events.push({at:t,txt:"寄送處理失敗，自動重試（不需重新付款）"});s.queue.push({type:"deliver",orderId:o.id,due:t+3500});return}
+  var id="L"+o.id.slice(2);
+  /* 價格與閱讀期限取自訂單建立當下，之後改設定不會覆蓋 */
+  s.letters[id]={id:id,orderId:o.id,userId:o.userId,periodId:o.periodId,body:h.snap.body,sig:h.snap.sig,price:o.amount,readBy:o.readBy,sentAt:t,status:"delivered",readAt:null,reply:null};
+  o.letterId=id;o.delivery="delivered";h.status="converted";o.events.push({at:t,txt:"信件已送達 Chance 專屬信箱"});
+}
+function call(fn,lat){return wait(lat==null?320:lat).then(function(){var s=sLoad();tick(s);var r=fn(s);sSave(s);return JSON.parse(JSON.stringify(r==null?{}:r))})}
+function orderView(s,o){return{order:o,hold:s.holds[o.holdId],letter:o.letterId?s.letters[o.letterId]:null,period:s.periods[o.periodId]}}
+
+var API={
+  overview:function(u){return call(function(s){
+    var t=now(),per=relevantPeriod(s,t),st=periodState(s,per,t);
+    var r={now:t,period:per,state:st,remaining:per?remaining(s,per):0,sold:per?sold(s,per.id):0,holds:per?liveHolds(s,per.id):0,next:nextPeriod(s,per,t)};
+    if(u&&per){var L=userLetters(s,per,u.id)[0];r.myLetter=L?{id:L.id,orderId:L.orderId}:null;var h=userHold(s,per,u.id);r.myHold=h?{id:h.id,orderId:h.orderId,expiresAt:h.expiresAt,status:h.status,draftId:h.draftId,snap:h.snap,order:s.orders[h.orderId]}:null}
+    return r;
+  },40)},
+  reserve:function(u,draft,key){return call(function(s){
+    var t=now();
+    if(!u)return{err:"login"};
+    if(key&&s.keys[key]){var o0=s.orders[s.keys[key]];var h0=s.holds[o0.holdId];if(LIVE_HOLD.indexOf(h0.status)>-1||o0.letterId)return{ok:true,reused:true,view:orderView(s,o0)}}
+    if(!String(draft.body).trim()||glen(draft.body)>MAX_BODY||glen(draft.sig)>MAX_SIG)return{err:"content"};
+    var per=relevantPeriod(s,t),st=periodState(s,per,t);
+    var mineHold=per&&userHold(s,per,u.id);
+    if(mineHold)return{ok:true,reused:true,view:orderView(s,s.orders[mineHold.orderId])};
+    if(st==="noperiod")return{err:"noperiod"};
+    if(st==="notopen")return{err:"notopen",openAt:per.openAt};
+    if(st==="closed")return{err:"closed"};
+    if(st==="paused")return{err:"paused"};
+    var mine=userLetters(s,per,u.id);if(mine.length>=per.perUser)return{err:"already",letterId:mine[0].id};
+    if(remaining(s,per)<=0)return{err:"full"};
+    var hid=uid("H"),oid="CH"+per.id.replace("-","")+"-"+pad(s.seq++)+Math.random().toString(36).slice(2,5).toUpperCase();
+    s.holds[hid]={id:hid,orderId:oid,periodId:per.id,userId:u.id,draftId:draft.id,snap:{body:draft.body,sig:draft.sig},createdAt:t,expiresAt:t+per.holdMin*MIN,status:"active"};
+    s.orders[oid]={id:oid,holdId:hid,periodId:per.id,userId:u.id,amount:per.price,readBy:per.readBy,status:"awaiting",createdAt:t,attempts:[],events:[{at:t,txt:"名額保留，信件內容已固定"}],deliverMode:"ok"};
+    if(key)s.keys[key]=oid;
+    return{ok:true,view:orderView(s,s.orders[oid])};
+  })},
+  pay:function(u,orderId,mode,deliverMode){return call(function(s){
+    var o=s.orders[orderId];if(!o||!u||o.userId!==u.id)return{err:"notfound"};
+    var h=s.holds[o.holdId],t=now();
+    if(o.status==="paid"||o.status==="confirming"||o.status==="refund_pending"||o.letterId)return{ok:true,view:orderView(s,o)};   /* 不重複發起付款 */
+    if(h.status!=="active"||h.expiresAt<=t)return{err:"expired",view:orderView(s,o)};
+    var txn=uid("TX");o.attempts.push({txn:txn,at:t,mode:mode});o.status="confirming";o.deliverMode=deliverMode;
+    o.events.push({at:t,txt:"前往付款（模擬）"});
+    var res={cancel:"cancel",fail:"fail"}[mode]||"paid";
+    var delay={pending:7000,late:2200,cancel:1100,fail:1100}[mode]||1300;
+    if(mode==="late"){
+      /* 模擬：使用者在金流頁停太久，保留已到期且名額被其他粉絲補滿，之後才付款成功 */
+      h.expiresAt=t-1;h.status="expired";var per=s.periods[o.periodId];
+      while(remaining(s,per,h.id)>0){var oh=uid("H");s.holds[oh]={id:oh,orderId:"X",periodId:per.id,userId:uid("fan-"),status:"active",expiresAt:t+per.holdMin*MIN}}
+    }
+    s.queue.push({type:"callback",txn:txn,orderId:orderId,result:res,due:t+delay});
+    if(mode==="dupe")s.queue.push({type:"callback",txn:txn,orderId:orderId,result:res,due:t+delay+500});
+    return{ok:true,view:orderView(s,o)};
+  })},
+  status:function(orderId){return call(function(s){var o=s.orders[orderId];return o?{view:orderView(s,o)}:{err:"notfound"}},150)},
+  myItems:function(u){return call(function(s){
+    if(!u)return{items:[]};
+    var items=Object.keys(s.orders).map(function(k){return s.orders[k]}).filter(function(o){
+      var h=s.holds[o.holdId];if(o.userId!==u.id)return false;if(o.letterId)return true;
+      if(["refund_pending","refunded","paid","confirming"].indexOf(o.status)>-1)return true;
+      return h&&h.status==="active";
+    }).map(function(o){return orderView(s,o)}).sort(function(a,b){return b.order.createdAt-a.order.createdAt});
+    return{items:items};
+  },60)},
+  inbox:function(u){return call(function(s){
+    if(!u||(u.id!=="chance"&&u.id!=="team-01"))return{err:"forbidden"};
+    var isChance=u.id==="chance";   /* 團隊只拿到後設資料，沒有正文與署名 */
+    var L=lettersOf(s,isLive).sort(function(a,b){return b.sentAt-a.sentAt}).map(function(x){var y=JSON.parse(JSON.stringify(x));if(!isChance){y.body=null;y.sig=null}return y});
+    return{letters:L,isChance:isChance,now:now()};
+  },60)},
+  markRead:function(u,letterId){return call(function(s){
+    if(!u||u.id!=="chance")return{err:"forbidden"};          /* 只有 Chance 本人帳號 */
+    var L=s.letters[letterId];if(!L)return{err:"notfound"};
+    if(!L.readAt){L.readAt=now();L.status="read";L.readByWho="chance"}
+    return{letter:L};
+  })},
+  reply:function(u,letterId,text){return call(function(s){
+    if(!u||u.id!=="chance")return{err:"forbidden"};
+    var L=s.letters[letterId];if(!L||!L.readAt)return{err:"notread"};
+    if(!L.reply){L.reply={text:text,at:now()};L.status="replied"}return{letter:L};
+  })},
+  dashboard:function(u){return call(function(s){
+    if(!u||u.id!=="team-01")return{err:"forbidden"};
+    var t=now();
+    var ps=periodsSorted(s).map(function(p){
+      var live=lettersOf(s,function(L){return L.periodId===p.id&&isLive(L)});
+      var unread=live.filter(function(L){return!L.readAt});
+      return{p:p,sold:live.length,holds:liveHolds(s,p.id),unread:unread.length,read:live.length-unread.length,
+        overdue:unread.filter(function(L){return t>L.readBy}).length,dueSoon:unread.filter(function(L){return t<=L.readBy&&L.readBy-t<3*DAY}).length,
+        rows:live.map(function(L){var o=s.orders[L.orderId]||{id:"（Demo 其他粉絲）"};return{order:o.id,amount:L.price,paid:o.paidAt,sentAt:L.sentAt,readAt:L.readAt,readBy:L.readBy}})};
+    });
+    var refunds=Object.keys(s.orders).map(function(k){return s.orders[k]}).filter(function(o){return o.status==="refund_pending"||o.status==="refunded"});
+    var cur=relevantPeriod(s,t);
+    return{now:t,periods:ps,refunds:refunds,dupRefunds:s.refunds.filter(function(r){return r.reason==="重複付款"}),current:cur&&cur.id};
+  },60)},
+  updatePeriod:function(u,pid,patch){return call(function(s){
+    if(!u||u.id!=="team-01")return{err:"forbidden"};
+    var p=s.periods[pid];if(!p)return{err:"notfound"};
+    var min=sold(s,pid)+liveHolds(s,pid);if(patch.capacity!=null&&patch.capacity<min)return{err:"capacity",min:min};
+    ["capacity","price","perUser","holdMin"].forEach(function(k){if(patch[k]!=null&&!(patch[k]>=1)&&!(k==="capacity"&&patch[k]===0))delete patch[k]});
+    Object.keys(patch).forEach(function(k){p[k]=patch[k]});
+    return{period:p};
+  })},
+  createNext:function(u){return call(function(s){
+    if(!u||u.id!=="team-01")return{err:"forbidden"};
+    var last=periodsSorted(s).slice(-1)[0],a=last.id.split("-"),y=+a[0],m=+a[1]+1;if(m>12){m=1;y++}
+    var p=defaultPeriod(y,m);if(!s.periods[p.id])s.periods[p.id]=p;return{period:s.periods[p.id]};
+  })},
+  refundDone:function(u,orderId){return call(function(s){if(!u||u.id!=="team-01")return{err:"forbidden"};var o=s.orders[orderId];if(o&&o.status==="refund_pending"){o.status="refunded";o.events.push({at:now(),txt:"退款完成"})}return{}})},
+  /* ---- Demo 專用 ---- */
+  _fill:function(left){return call(function(s){var t=now(),per=relevantPeriod(s,t);if(!per)return{};
+    holdsOf(s,function(h){return h.orderId==="X"}).forEach(function(h){delete s.holds[h.id]});
+    lettersOf(s,function(L){return L.orderId==="X"}).forEach(function(L){delete s.letters[L.id]});
+    var need=per.capacity-left-sold(s,per.id)-liveHolds(s,per.id);
+    for(var i=0;i<need;i++){var id="LX"+uid()+i;s.letters[id]={id:id,orderId:"X",userId:"fan-o"+i,periodId:per.id,body:"（其他粉絲的信 · Demo 填充）",sig:"粉絲 "+(i+1),price:per.price,readBy:per.readBy,sentAt:t-(i+1)*HR,status:"delivered",readAt:null,reply:null}}
+    return{remaining:remaining(s,per)}},0)},
+  _grabLast:function(){return call(function(s){var t=now(),per=relevantPeriod(s,t);if(!per||remaining(s,per)<=0)return{ok:false};var hid=uid("H");s.holds[hid]={id:hid,orderId:"X",periodId:per.id,userId:"fan-other",status:"active",expiresAt:t+per.holdMin*MIN};return{ok:true}},0)},
+  _clearOthers:function(){return call(function(s){holdsOf(s,function(h){return h.orderId==="X"}).forEach(function(h){delete s.holds[h.id]});lettersOf(s,function(L){return L.orderId==="X"}).forEach(function(L){delete s.letters[L.id]});return{}},0)},
+  _expireMine:function(u){return call(function(s){holdsOf(s,function(h){return u&&h.userId===u.id&&h.status==="active"}).forEach(function(h){h.expiresAt=now()-1});tick(s);return{}},0)},
+  _redeliverCallbacks:function(u){return call(function(s){var n=0;Object.keys(s.txns).forEach(function(tx){var r=s.txns[tx],o=s.orders[r.orderId];if(o&&u&&o.userId===u.id){handleCallback(s,tx,r.orderId,r.result);n++}});return{done:n}},0)}
+};
+
+/* ═════════ 前端狀態（草稿只存在此裝置） ═════════ */
+var CKEY="dearchance:client:v2";
+var CL=readLS(CKEY)||{drafts:{},route:null,active:null,flown:{}};
+var storageOK=writeLS(CKEY,CL);
+function cSave(){return writeLS(CKEY,CL)}
+function newOrLatestDraft(forceNew){
+  if(!forceNew){var ids=Object.keys(CL.drafts).sort(function(a,b){return CL.drafts[b].updated-CL.drafts[a].updated});if(ids.length)return ids[0]}
+  var id=uid("D");CL.drafts[id]={id:id,body:"",sig:"",created:Date.now(),updated:Date.now()};cSave();return id;
+}
+
+/* ═════════ 路由 ═════════ */
+var stack=[],R=null,timers=[],lastErr=null,reserving=false,RT={seen:{}};
+function clearTimers(){timers.forEach(function(t){clearInterval(t)});timers=[]}
+function setRoute(r){R=r;CL.route=r;cSave()}
+var EMBED=/[?&]embed=1/.test(location.search);
+function closeEmbed(){try{parent.postMessage({dc:"close"},location.origin)}catch(e){}}
+function home(){return SIM.role==="chance"?"inbox":SIM.role==="team"?"admin":(EMBED?"product":"shop")}
+function go(name,param,opts){opts=opts||{};lastErr=null;if(R&&!opts.replace)stack.push(R);setRoute({name:name,param:param||null});render();window.scrollTo(0,0)}
+function back(){if(R&&R.name==="compose"&&!leaveCompose(back))return;lastErr=null;var p=stack.pop();setRoute(p||{name:home()});render();window.scrollTo(0,0)}
+function goHome(){stack=[];setRoute({name:home()});render();window.scrollTo(0,0)}
+
+function demoTxt(){$("demoTxt").innerHTML='模擬付款與寄送，不會收費。<br><b>'+esc(me()?me().name:"粉絲（未登入）")+'</b> · 模擬時間 <b>'+fmtMD(now())+'</b>'}
+function top(){
+  var t=$("top"),isHome=R.name===home();
+  var mid={shop:"Shop",product:"Dear CHANCE",compose:"寫信",preview:"預覽",ritual:"寄出",mailbox:"我的信件",letter:"我的信件",inbox:"Chance 的信箱",cletter:"Chance 的信箱",admin:"收信後台"}[R.name]||"";
+  var fan=SIM.role==="fan"||SIM.role==="guest";
+  t.innerHTML=(isHome?(EMBED?'<button class="icon-btn" id="bk" type="button" aria-label="回到周邊">'+IC.back+'</button>':'<span class="spacer"></span>'):'<button class="icon-btn" id="bk" type="button" aria-label="返回">'+IC.back+'</button>')+'<div class="top-mid">'+esc(mid)+'</div>'+
+    (fan?'<button class="chip" id="mbox" type="button">'+IC.mail+'我的信件</button>':'<span class="spacer"></span>');
+  if(!isHome)$("bk").onclick=back;else if(EMBED)$("bk").onclick=closeEmbed;
+  if($("mbox"))$("mbox").onclick=function(){if(R.name!=="mailbox")go("mailbox","sent")};
+}
+
+/* ═════════ 共用片段 ═════════ */
+function headline(per){return"每月，只收"+zh(per?per.capacity:20)+"封心意。"}
+function promise(per){return"每一封成功寄出的信，Chance 都會在 "+(per?fmtDay(per.readBy):"當月底")+" 前親自讀完。不一定逐一回覆，但你寫下的話，他會認真看見。"}
+function nextLine(ov){return ov.next?'<span>下一期 '+monthName(ov.next.id)+'，於 '+fmtMD(ov.next.openAt)+' 開放。</span>':''}
+function stateBox(ov){
+  var per=ov.period,st=ov.state;
+  if(ov.myLetter)return'<div class="state"><b>你本月的心意，已經寄出。</b><span>每人每月限寄一封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看我的信</button></div></div>';
+  if(ov.myHold)return'<div class="state"><b>你有一個保留中的名額</b><span>保留到 '+fmtMD(ov.myHold.expiresAt)+'。付款會寄出保留當下的內容。</span><div class="row"><button class="btn btn-gold" type="button" data-resume="'+ov.myHold.orderId+'">繼續付款</button></div></div>';
+  if(st==="noperiod")return'<div class="state info"><b>本期尚未開放收信</b><span>草稿可以先寫，會保留在此裝置。</span></div>';
+  if(st==="notopen")return'<div class="state info"><b>本期尚未開放收信</b><span>'+monthName(per.id)+'將於 '+fmtMD(per.openAt)+' 開放。可以先寫草稿，不收費、不占名額。</span></div>';
+  if(st==="closed")return'<div class="state info"><b>本期收信已結束。</b>'+nextLine(ov)+'<span>草稿會保留，但不會自動寄出、不會自動扣款，也不會自動取得下期名額。</span></div>';
+  if(st==="paused")return'<div class="state info"><b>本期暫停收新信</b><span>已寄出的信仍會在期限前讀完。草稿會保留。</span></div>';
+  if(st==="full")return'<div class="state"><b>本月的'+zh(per.capacity)+'封心意，已全部收到。</b>'+(ov.holds?'<span>其中 '+ov.holds+' 個名額仍在別人的付款保留中；若到期未付款，名額會重新開放。</span>':'')+nextLine(ov)+'<span>你的草稿會保留在此裝置。</span></div>';
+  return"";
+}
+function meterHTML(ov){var p=ov.period;if(!p)return"";var used=p.capacity-ov.remaining;
+  return'<div class="meter"><div class="meter-top"><span>'+monthName(p.id)+' · 可用名額</span><span><b>'+ov.remaining+'</b> / '+p.capacity+'</span></div><div class="bar" aria-hidden="true"><i style="width:'+(p.capacity?Math.round(used/p.capacity*100):100)+'%"></i></div>'+(ov.holds?'<span class="small">其中 '+ov.holds+' 個名額正在付款保留中，已從可用名額扣除。</span>':'')+'</div>'}
+function bindState(){
+  document.querySelectorAll("[data-open-order]").forEach(function(b){b.onclick=function(){go("letter",b.dataset.openOrder)}});
+  document.querySelectorAll("[data-resume]").forEach(function(b){b.onclick=function(){API.status(b.dataset.resume).then(function(r){if(r.view)openPay(r.view)})}});
+}
+function rulesSheet(per){
+  sheet('<div class="grab"></div><div class="rules stack"><h2>收信規則</h2>'+
+   '<h3>名額與時間</h3><ul><li>每月開放 '+(per?per.capacity:20)+' 封，每人每月最多成功寄出 '+(per?per.perUser:1)+' 封。</li>'+
+   '<li>每月 1 日 00:00 開放，10 日 23:59 截止，以台灣時間（Asia/Taipei）為準。'+(per?'本期為 '+fmtMD(per.openAt)+' 至 '+fmtMD(per.closeAt)+'。':'')+'</li>'+
+   '<li>額滿或截止，任一條件成立就停止收新信。</li><li>在預覽頁確認付款時，名額會保留 '+(per?per.holdMin:10)+' 分鐘。未付款且到期，名額會釋放給其他人。</li></ul>'+
+   '<h3>購買內容</h3><ul><li>本期一次寄信名額、數位信箋、Chance 本人閱讀確認、寄出紀念副本。</li><li>NT$'+(per?per.price:99)+'／封。數位商品，無實體寄送。</li></ul>'+
+   '<h3>閱讀承諾</h3><ul><li>每一封符合本規則且成功寄出的信，Chance 承諾於當月底（本期 '+(per?fmtMD(per.readBy):"")+'）前親自讀完。</li><li>「已讀完」只由 Chance 本人帳號確認，團隊審核或開啟畫面都不算。</li><li>不保證逐一回覆，購買不能換取回覆優先權。</li><li>截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。</li></ul>'+
+   '<h3>寄出之後</h3><ul><li>付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。</li><li>付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。</li></ul>'+
+   '<h3 class="pending">尚待公布（正式上線前必須補上）</h3><ul><li class="pending">信件內容規則，以及不符規則時的處理方式。</li><li class="pending">退款政策與處理時間。</li><li class="pending">未能於期限內讀完時的延期通知與補償方式。</li></ul>'+
+   '<button class="btn btn-ghost" id="cancel" type="button">關閉</button></div>',function(close){$("cancel").onclick=close});
+}
+function paperHTML(body,sig,ts){
+  return'<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
+   '<div class="salute">Dear Chance,</div><div class="p-body">'+esc(body)+'</div>'+
+   '<div class="close-row"><div class="close-l"><div class="closing">With love,</div>'+(String(sig||"").trim()?'<div class="p-sig">'+esc(sig)+'</div>':'<div class="p-sig none">（未署名）</div>')+'</div><span class="paper-art">'+SVG_PAPER_ART+'</span></div>'+
+   '<div class="p-foot"><span>glad our paths crossed.</span><span>'+fmtDate(ts)+'</span></div></div>';
+}
+
+/* ═════════ 粉絲：Shop / 商品頁 ═════════ */
+var V={};
+V.shop={load:function(){return API.overview(me())},view:function(ov){
+  var per=ov.period,draftN=Object.keys(CL.drafts).filter(function(k){return CL.drafts[k].body||CL.drafts[k].sig}).length;
+  return'<section class="screen">'+
+   '<div class="shop-head"><div class="eyebrow">Merch · 第三件周邊</div><div class="t">THE SKY COLLECTION</div><p class="small">原有的聽片會票與製作寫真不動，這頁只示範新加入的信箋商品卡。</p></div>'+
+   '<article class="pcard"><div class="pcard-img"><span class="badge">'+(per?monthName(per.id)+" · 限量收信":"每月限量收信")+'</span><img src="'+ENC_URI+'" alt="黑金鉤手與金屬星芒插畫"></div>'+
+    '<div class="pcard-body"><div class="pcard-name">'+esc(headline(per))+'</div><div class="pcard-desc">'+esc(promise(per))+'</div>'+meterHTML(ov)+
+    '<div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月限一封</span></div>'+
+    '<button class="btn btn-gold" id="toProduct" type="button">看看這份心意</button></div></article>'+
+   (draftN?'<p class="small" style="text-align:center">你有 '+draftN+' 封草稿保留在此裝置。</p>':'')+'</section>'},
+ wire:function(){$("toProduct").onclick=function(){go("product")}}};
+V.product={load:function(){return API.overview(me())},view:function(ov){
+  var per=ov.period;
+  return'<section class="screen">'+
+   '<div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
+   '<div class="stack"><div class="en">Dear CHANCE · Encounter Stationery</div><h1>'+esc(headline(per))+'</h1><p class="lead">'+esc(promise(per))+'</p></div>'+
+   stateBox(ov)+
+   (per?'<ul class="facts"><li><span>收信月份</span><b>'+monthName(per.id)+'</b></li><li><span>名額</span><b><span class="num">'+ov.remaining+'</span> 可用 / 共 '+per.capacity+' 封</b></li><li><span>開放收信</span><b>'+fmtMD(per.openAt)+'</b></li><li><span>投稿截止</span><b>'+fmtMD(per.closeAt)+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b><span class="num">NT$'+per.price+'</span>／封</b></li></ul>':'')+
+   '<ul class="ticks"><li>每人每月限寄一封。</li><li>購買內容：本期一次寄信名額、數位信箋、本人閱讀確認、寄出紀念副本。</li><li>數位商品，無實體寄送。</li><li>不保證回覆，購買不能換取回覆優先權。</li><li>寫信、存草稿、預覽都不收費，也不占名額。在預覽頁確認付款時才保留名額。</li></ul>'+
+   '<button class="btn btn-text" id="rules" type="button">查看完整收信規則</button>'+
+   (ov.myLetter?'':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?"寫一封信":"先寫草稿")+'</button>')+'</section>'},
+ wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
+
+/* ═════════ 粉絲：寫信 ═════════ */
+var ED=null,saveT=null;
+function saveDraft(){
+  if(!ED)return true;
+  var prev=CL.drafts[ED.id]?JSON.parse(JSON.stringify(CL.drafts[ED.id])):null;
+  var d=CL.drafts[ED.id]||{id:ED.id,created:Date.now()};
+  d.body=ED.body;d.sig=ED.sig;d.updated=Date.now();CL.drafts[ED.id]=d;
+  var ok=!SIM.saveFail&&cSave();
+  if(!ok){if(prev)CL.drafts[ED.id]=prev;else delete CL.drafts[ED.id];ED.saveState="err";paintSave();say("這次變更尚未儲存，請先不要離開。");return false}
+  ED.dirty=false;ED.saveState="ok";ED.savedAt=d.updated;paintSave();return true;
+}
+function scheduleSave(){clearTimeout(saveT);ED.saveState="editing";paintSave();saveT=setTimeout(function(){if(!ED.composing)saveDraft()},800)}
+function hhmm(ts){var d=new Date(ts);return pad(d.getHours())+":"+pad(d.getMinutes())}
+function paintSave(){
+  var el=$("saveState");if(!el)return;
+  if(ED.saveState==="ok"){el.className="save ok";el.textContent="✓ 已儲存 · 僅存於此裝置 "+hhmm(ED.savedAt)}
+  else if(ED.saveState==="editing"){el.className="save";el.textContent="編輯中…"}
+  else if(ED.saveState==="err"){el.className="save err";el.textContent="尚未儲存"}
+  else{el.className="save";el.textContent="草稿僅存於此裝置"}
+  if($("saveErr"))$("saveErr").hidden=ED.saveState!=="err";
+}
+function copyText(t){var ok=function(){toast("已複製正文")};try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}function fb(){var ta=$("body");if(ta){ta.focus();ta.select();toast("已選取正文，請手動複製")}}}
+function leaveCompose(then){
+  if(!ED||!ED.dirty)return true;clearTimeout(saveT);if(saveDraft())return true;
+  sheet('<h2>這次變更尚未儲存，請先不要離開。</h2><p class="small">剛剛的修改還沒存進此裝置。可以重試，或先複製正文。</p><div class="stack"><button class="btn btn-gold" id="lsRetry" type="button">重試儲存</button><button class="btn btn-ghost" id="lsCopy" type="button">複製正文</button><button class="btn btn-ghost" id="cancel" type="button">留在此頁</button><button class="btn btn-text" id="lsGo" type="button">不儲存，仍要離開</button></div>',
+   function(close){$("lsRetry").onclick=function(){if(saveDraft()){close();then()}};$("lsCopy").onclick=function(){copyText(ED.body)};$("cancel").onclick=close;$("lsGo").onclick=function(){ED.dirty=false;close();then()}});
+  return false;
+}
+V.compose={load:function(){return API.overview(me())},view:function(ov){
+  var d=CL.drafts[R.param];if(!d){R.param=newOrLatestDraft(true);setRoute(R);d=CL.drafts[R.param]}
+  if(!ED||ED.id!==d.id)ED={id:d.id,body:d.body,sig:d.sig,dirty:false,composing:false,saveState:"idle",savedAt:null};
+  var hold=ov.myHold&&ov.myHold.draftId===d.id?ov.myHold:null;
+  return'<section class="screen">'+
+   '<div class="stack" style="gap:10px"><h2>慢慢寫，我們不趕。</h2><div class="recip"><span class="dot"></span>收件人 CHANCE · 專屬信箱</div><p class="small">寫草稿不收費，也不占名額。</p></div>'+
+   (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。</span></div>':'')+
+   '<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
+    '<div class="salute" aria-hidden="true">Dear Chance,</div><label class="sr" for="body">信件正文，寫給 CHANCE</label>'+
+    '<textarea class="body-ta" id="body" rows="7" placeholder="從一句最想說的話開始…" autocomplete="off" spellcheck="false"></textarea>'+
+    '<div class="close-row"><div class="close-l"><div class="closing" aria-hidden="true">With love,</div><label class="sr" for="sig">署名，最多 20 字</label><input class="sig" id="sig" type="text" placeholder="你的名字" autocomplete="nickname" enterkeyhint="done"></div><span class="paper-art">'+SVG_PAPER_ART+'</span></div>'+
+   '</div>'+
+   '<div class="meta-row"><span class="count" id="count"></span><span class="save" id="saveState"></span></div>'+
+   '<div class="field-err" id="sigErr" hidden></div>'+
+   '<div class="state err" id="saveErr" hidden role="alert"><b>這次變更尚未儲存，請先不要離開。</b><div class="row"><button class="btn btn-gold" id="retry" type="button">重試儲存</button><button class="btn btn-ghost" id="copy" type="button">複製正文</button></div></div>'+
+   '<button class="btn btn-gold" id="toPreview" type="button">預覽信件</button><p class="small" id="note" style="text-align:center"></p></section>'},
+ wire:function(){
+  var ta=$("body"),sg=$("sig");ta.value=ED.body;sg.value=ED.sig;
+  function grow(){ta.style.height="auto";ta.style.height=Math.max(240,ta.scrollHeight+4)+"px"}
+  function validate(){
+    var n=glen(ED.body),sn=glen(ED.sig),over=n>MAX_BODY,sover=sn>MAX_SIG,empty=!ED.body.trim();
+    var ce=$("count");ce.className="count"+(over?" over":"");ce.textContent=over?("超過 "+(n-MAX_BODY)+" 字 · "+n+" / 1,000"):(n.toLocaleString()+" / 1,000 字");
+    $("sigErr").hidden=!sover;$("sigErr").textContent=sover?"署名最多 20 字，目前 "+sn+" 字。":"";
+    $("toPreview").disabled=empty||over||sover;
+    $("note").textContent=empty?"寫下正文後就能預覽。":"預覽後才會確認名額與付款。";
+  }
+  function onIn(){ED.body=ta.value;ED.sig=sg.value;ED.dirty=true;grow();if(!ED.composing)validate();scheduleSave()}
+  [ta,sg].forEach(function(el){el.addEventListener("input",onIn);el.addEventListener("compositionstart",function(){ED.composing=true});
+    el.addEventListener("compositionend",function(){ED.composing=false;ED.body=ta.value;ED.sig=sg.value;validate();scheduleSave()});
+    el.addEventListener("focus",function(){setTimeout(function(){el.scrollIntoView({block:"center",behavior:"smooth"})},300)})});
+  sg.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();sg.blur()}});
+  $("retry").onclick=function(){if(saveDraft())toast("已儲存在此裝置")};$("copy").onclick=function(){copyText(ED.body)};
+  $("toPreview").onclick=function(){clearTimeout(saveT);ED.body=ta.value;ED.sig=sg.value;if(!ED.body.trim()||glen(ED.body)>MAX_BODY||glen(ED.sig)>MAX_SIG)return;if(ED.dirty&&!saveDraft())return;go("preview",ED.id)};
+  grow();validate();paintSave();
+ }};
+
+/* ═════════ 粉絲：完整預覽 → 確認名額與付款 ═════════ */
+V.preview={load:function(){return API.overview(me())},view:function(ov){
+  var d=CL.drafts[R.param];if(!d)return V.missing.view();
+  var per=ov.period,box=ov.myHold?"":stateBox(ov),blocked=!!box;
+  var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
+  return'<section class="screen"><h2>確認這份心意。</h2>'+paperHTML(d.body,d.sig,now())+
+   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
+   '<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
+   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+box+
+   (holdDiff?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
+   (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'
+     :(blocked?'':'<button class="btn btn-gold" id="confirm" type="button"'+(reserving?' disabled aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>確認名額中':'確認付款並寄出 · NT$'+(per?per.price:99))+'</button><p class="small" style="text-align:center">按下後會先保留名額 '+(per?per.holdMin:10)+' 分鐘，再前往付款。</p>'))+
+   '<button class="btn btn-ghost" id="edit" type="button">返回修改</button><button class="btn btn-text" id="rules" type="button">查看收信規則</button></section>'},
+ wire:function(ov){
+  bindState();var d=CL.drafts[R.param];if(!d)return V.missing.wire();
+  $("edit").onclick=function(){lastErr=null;stack.pop();setRoute({name:"compose",param:d.id});render();window.scrollTo(0,0)};
+  $("rules").onclick=function(){rulesSheet(ov.period)};
+  if($("resume"))$("resume").onclick=function(){API.status(ov.myHold.orderId).then(function(r){if(r.view)openPay(r.view)})};
+  if($("confirm"))$("confirm").onclick=function(){
+    if(reserving)return;reserving=true;lastErr=null;$("confirm").disabled=true;$("confirm").innerHTML='<span class="spin"></span>確認名額中';
+    var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();
+    API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key).then(function(r){
+      reserving=false;
+      if(r.ok){CL.active={orderId:r.view.order.id,draftId:d.id};cSave();render();openPay(r.view);return}
+      d.reserveKey=null;cSave();
+      if(r.err==="login"){render();loginSheet();return}
+      lastErr={full:"本期名額剛剛額滿，你的草稿已保留。",closed:"本期收信已結束。你的草稿已保留。",notopen:"本期尚未開放收信。",already:"你本月的心意，已經寄出。",paused:"本期暫停收新信。你的草稿已保留。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信。"}[r.err]||"暫時無法確認名額，請稍後再試。";
+      render();say(lastErr);
+    },function(){reserving=false;lastErr="暫時無法確認名額，請稍後再試。你的草稿仍在。";render()});
+  };
+ }};
+function loginSheet(){
+  sheet('<div class="grab"></div><h2>登入後才能寄出</h2><p class="small">寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。</p><button class="btn btn-gold" id="lg" type="button">以 Email 登入（Demo）</button><button class="btn btn-ghost" id="cancel" type="button">先不要</button>',
+   function(close){$("lg").onclick=function(){SIM.role="fan";simSave();close();render();toast("已登入（Demo）")};$("cancel").onclick=close});
+}
+
+/* 付款 sheet：保留期限以後端為準，內容已固定 */
+function openPay(view){
+  var o=view.order,h=view.hold,per=view.period,busy=false,msg="",cdT=null,pollT=null,started=0;
+  sheet(function(){
+    var expired=!busy&&h.status!=="active"&&h.status!=="verifying"&&o.status!=="paid";
+    return'<div class="grab"></div><h2>名額已為你保留</h2>'+
+     '<div class="cd"><span class="small" style="color:var(--text)">保留到 '+fmtMD(h.expiresAt)+'<br><span style="color:var(--muted)">時間以伺服器為準</span></span><b id="cd">'+(expired?"00:00":mmss(h.expiresAt-now()))+'</b></div>'+
+     '<span class="small">將寄出的是你剛剛預覽、已固定的內容：</span><div class="snap">'+esc(summary(h.snap.body,120))+'</div>'+
+     '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(o.readBy)+' 前</b></li><li><span>金額</span><b class="num">NT$'+o.amount+'</b></li></ul>'+
+     '<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>'+
+     '<div id="payMsg">'+msg+'</div>'+
+     '<div class="stack"><button class="btn btn-gold" id="pay" type="button"'+(busy||expired?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>'+
+     '<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>'+
+     (expired?'<button class="btn btn-ghost" id="again" type="button">回到預覽，重新確認名額</button>':'')+
+     '<button class="btn btn-ghost" id="cancel" type="button"'+(busy?' disabled':'')+'>先不付款</button></div>';
+  },function(close0,repaint){
+    function close(){clearInterval(cdT);clearInterval(pollT);close0()}
+    function wire(){
+      $("cancel").onclick=function(){if(busy)return;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
+      $("pay").onclick=function(){
+        if(busy)return;busy=true;msg="";repaint();wire();started=Date.now();
+        API.pay(me(),o.id,SIM.pay,SIM.deliver).then(function(r){
+          if(r.err==="expired"){busy=false;o=r.view.order;h=r.view.hold;msg='<div class="state err"><b>保留時間已到，名額已釋放。</b><span>你的草稿仍在。</span></div>';repaint();wire();return}
+          clearInterval(pollT);pollT=setInterval(poll,700);
+        });
+      };
+      if($("again"))$("again").onclick=function(){close();CL.active=null;cSave();render()};
+    }
+    function refresh(){API.status(o.id).then(function(r){if(!r.view)return;o=r.view.order;h=r.view.hold;repaint();wire()})}
+    function poll(){
+      API.status(o.id).then(function(r){
+        if(!r.view||!document.getElementById("pay"))return;o=r.view.order;h=r.view.hold;
+        if(o.status==="paid"||o.status==="refund_pending"||o.letterId||(o.status==="confirming"&&Date.now()-started>2600)){close();go("ritual",o.id);return}
+        if(o.status==="cancelled"||o.status==="failed"){
+          clearInterval(pollT);busy=false;var live=h.status==="active";
+          msg='<div class="state err" role="alert"><b>'+(o.status==="cancelled"?"尚未付款。":"付款沒有完成。")+'</b><span>'+(live?"名額保留到 "+fmtMD(h.expiresAt)+"，可以再試一次。":"保留已到期，名額已釋放。你的草稿仍在。")+'</span></div>';
+          repaint();wire();say(o.status==="cancelled"?"尚未付款":"付款沒有完成");
+        }
+      });
+    }
+    wire();
+    cdT=setInterval(function(){var el=$("cd");if(!el){clearInterval(cdT);return}var left=h.expiresAt-now();el.textContent=mmss(left);if(left<=0&&!busy){clearInterval(cdT);refresh()}},1000);
+  });
+}
+
+/* ═════════ 粉絲：寄出儀式（交易狀態只看後端，動畫不決定結果） ═════════ */
+function reducedMotion(){try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}}
+V.ritual={load:function(){return API.status(R.param)},view:function(r){
+  if(!r.view)return V.missing.view();
+  return'<section class="screen" style="gap:8px"><div id="lsaHost"></div><div id="rbody" class="stack"></div></section>'},
+ wire:function(r){
+  if(!r.view)return V.missing.wire();
+  var oid=R.param,v0=r.view,snap=v0.letter?{body:v0.letter.body,sig:v0.letter.sig}:v0.hold.snap;
+  var seen=!!RT.seen[oid]||!!CL.flown[oid];RT.seen[oid]=1;
+  var terminal=false;
+  /* 交易狀態只看後端（這裡是模擬後端）；動畫播完不代表送達 */
+  function map(v){
+    var o=v.order,L=v.letter;
+    if(L)return{state:"confirmed",readBy:L.readBy,demo:true};
+    if(o.status==="refund_pending"||o.status==="refunded")return{state:"failed",title:"這封信沒有寄出",message:(o.refundReason||"")+"這筆付款"+(o.status==="refunded"?"已退款完成":"已進入退款處理")+"，不會再扣款。你的草稿仍保留在此裝置。",actions:["help"]};
+    if(o.status==="confirming")return{state:"pending",waitText:"正在確認付款結果…請勿重複付款"};
+    if(o.status==="paid")return{state:"pending",waitText:"付款已完成，正在確認收件…",note:"不需要再次付款。"};
+    return{state:"failed",title:({cancelled:"尚未付款。",expired:"保留時間已到，名額已釋放。",awaiting:"還沒有付款。"})[o.status]||"付款沒有完成。",message:"信沒有寄出，你的草稿仍在。",actions:["retry"],retryLabel:"回到預覽"};
+  }
+  function after(){
+    var b=$("rbody");if(!b||b.__done)return;b.__done=1;
+    b.innerHTML='<button class="btn btn-ghost" id="toBox" type="button">收進我的信件</button>';
+    $("toBox").onclick=function(){stack=[{name:home()}];setRoute({name:"mailbox",param:"sent"});render();window.scrollTo(0,0)};
+  }
+  var anim=LetterSendAnimation.create($("lsaHost"),{letter:{body:snap.body,signature:snap.sig},resume:seen,skipToDone:!!CL.flown[oid],
+    onVisualComplete:function(){CL.flown[oid]=1;cSave();after();say("你的信已送達 Chance 的專屬信箱")},
+    onRetry:function(){var did=v0.hold&&v0.hold.draftId;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:"mailbox",param:"sent"});render()},
+    onHelp:function(){toast("Demo：這裡會開客服，帶入訂單編號 "+oid)},
+    onViewLetter:function(){go("letter",oid)}});
+  RT.anim=anim;
+  function update(v){
+    var m=map(v);
+    if(m.state==="confirmed"&&CL.active&&CL.active.orderId===oid){delete CL.drafts[CL.active.draftId];CL.active=null;cSave()}
+    if(m.state==="failed"&&v.order.status!=="refund_pending"&&CL.active&&CL.active.orderId===oid&&v.hold&&v.hold.status!=="active"){CL.active=null;cSave()}
+    if(m.state==="confirmed"||m.state==="failed"){terminal=true;clearInterval(t)}
+    anim.setStatus(m);
+  }
+  anim.setStatus(map(v0));anim.start();
+  var t=setInterval(function(){if(terminal||R.name!=="ritual"||R.param!==oid){clearInterval(t);return}API.status(oid).then(function(x){if(x.view&&R.name==="ritual"&&R.param===oid)update(x.view)})},900);timers.push(t);
+  if(map(v0).state==="confirmed"||map(v0).state==="failed")update(v0);
+ }};
+
+/* ═════════ 粉絲：我的信件 ═════════ */
+function fanStatus(v){
+  var o=v.order,L=v.letter,h=v.hold;
+  if(L){if(L.reply)return["已回覆","read"];if(L.readAt)return["Chance 已讀完","read"];if(L.status==="review")return["收信規則待處理","warn"];return["已送達，等待 Chance 閱讀",""]}
+  if(o.status==="refund_pending")return["退款處理中","warn"];
+  if(o.status==="refunded")return["退款完成","info"];
+  if(o.status==="paid")return["已付款，寄送處理中","info"];
+  if(o.status==="confirming")return["付款結果確認中","info"];
+  if(h&&h.status==="active")return["名額保留中，等待付款","info"];
+  return["失敗","warn"];
+}
+var mtab="sent";
+V.mailbox={load:function(){return API.myItems(me())},view:function(r){
+  if(R.param)mtab=R.param;
+  var items=r.items||[],drafts=Object.keys(CL.drafts).map(function(k){return CL.drafts[k]}).filter(function(d){return d.body||d.sig}).sort(function(a,b){return b.updated-a.updated});
+  var replies=items.filter(function(v){return v.letter&&v.letter.reply});
+  var counts=[items.length,drafts.length,replies.length],keys=["sent","draft","reply"],names=["已寄出","草稿","回信"],list="";
+  if(mtab==="sent")list=!me()?'<div class="empty">登入後可以查看寄出的信與訂單。草稿仍在此裝置。</div>':items.length?items.map(function(v){var s=fanStatus(v),snap=v.letter?v.letter.body:v.hold.snap.body;
+    return'<button class="item" type="button" data-order="'+v.order.id+'"><div class="h"><span>'+monthName(v.order.periodId)+' · '+fmtFull(v.letter?v.letter.sentAt:v.order.createdAt)+'</span><span class="tag '+s[1]+'">'+s[0]+'</span></div><div class="s">'+esc(summary(snap,60))+'</div>'+(v.letter&&!v.letter.readAt?'<div class="small">親自閱讀期限 '+fmtMD(v.letter.readBy)+'</div>':'')+'</button>'}).join(""):'<div class="empty">還沒有寄出的信。</div>';
+  if(mtab==="draft")list=drafts.length?drafts.map(function(d){return'<button class="item" type="button" data-draft="'+d.id+'"><div class="h"><span>草稿 · '+fmtFull(d.updated)+'</span><span class="tag info">僅存於此裝置</span></div><div class="s">'+esc(summary(d.body,60)||"（只有署名）")+'</div></button>'}).join(""):'<div class="empty">沒有草稿。</div>';
+  if(mtab==="reply")list=replies.length?replies.map(function(v){return'<button class="item" type="button" data-order="'+v.order.id+'"><div class="h"><span>Chance 的回覆 · '+fmtFull(v.letter.reply.at)+'</span><span class="tag read">已回覆</span></div><div class="s">'+esc(summary(v.letter.reply.text,60))+'</div></button>'}).join(""):'<div class="empty">尚未收到回信。若有新回信，會出現在這裡。\n寄信不保證獲得回覆。</div>';
+  return'<section class="screen"><h1>收藏那些，\n認真說過的話。</h1><div class="tabs" role="tablist">'+keys.map(function(k,i){return'<button class="tab" role="tab" type="button" data-tab="'+k+'" aria-selected="'+(mtab===k)+'">'+names[i]+'<small>'+counts[i]+'</small></button>'}).join("")+'</div><div class="list" role="tabpanel">'+list+'</div><button class="btn btn-gold" id="again" type="button">再寫一封信</button></section>'},
+ wire:function(){
+  document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){mtab=b.dataset.tab;R.param=mtab;setRoute(R);render()}});
+  document.querySelectorAll("[data-order]").forEach(function(b){b.onclick=function(){go("letter",b.dataset.order)}});
+  document.querySelectorAll("[data-draft]").forEach(function(b){b.onclick=function(){go("compose",b.dataset.draft)}});
+  $("again").onclick=function(){go("compose",newOrLatestDraft(true))};
+ }};
+V.letter={load:function(){return API.status(R.param)},view:function(r){
+  if(!r.view||!me()||r.view.order.userId!==me().id)return V.missing.view();
+  var v=r.view,o=v.order,L=v.letter,s=fanStatus(v),body=L?L.body:v.hold.snap.body,sig=L?L.sig:v.hold.snap.sig;
+  var tl='<ol class="timeline"><li class="on">名額保留、內容固定<small>'+fmtFull(o.createdAt)+'</small></li>'+
+   '<li class="'+(o.paidAt&&o.status!=="refund_pending"&&o.status!=="refunded"?"on":"")+'">付款完成<small>'+(o.paidAt?fmtFull(o.paidAt):"—")+'</small></li>'+
+   '<li class="'+(L?"on":"")+'">已送達 Chance 專屬信箱<small>'+(L?fmtFull(L.sentAt):"—")+'</small></li>'+
+   '<li class="'+(L&&L.readAt?"on":"")+'">Chance 本人確認已讀完<small>'+(L&&L.readAt?fmtFull(L.readAt):(L?"期限 "+fmtMD(L.readBy):"—"))+'</small></li>'+
+   (L&&L.reply?'<li class="on">Chance 回覆了你<small>'+fmtFull(L.reply.at)+'</small></li>':'')+'</ol>';
+  return'<section class="screen"><div class="stack" style="gap:8px"><h2>寄給 CHANCE</h2><span class="tag '+s[1]+'" style="align-self:flex-start">'+s[0]+'</span></div>'+
+   (o.status==="refund_pending"||o.status==="refunded"?'<div class="state err"><b>'+(o.status==="refunded"?"退款完成":"退款處理中")+'</b><span>'+esc(o.refundReason||"")+'</span></div>':'')+
+   (L&&L.reply?'<div class="state"><b>Chance 的回覆</b><span style="white-space:pre-wrap">'+esc(L.reply.text)+'</span></div>':'')+
+   tl+paperHTML(body,sig,L?L.sentAt:o.createdAt)+
+   '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(o.periodId)+'</b></li><li><span>金額（下單時）</span><b>NT$'+o.amount+'</b></li><li><span>閱讀期限（下單時承諾）</span><b>'+fmtMD(o.readBy)+'</b></li></ul></section>'},
+ wire:function(r){if(!r.view||!me()||r.view.order.userId!==me().id)V.missing.wire()}};
+
+/* ═════════ Chance 本人：收信端 ═════════ */
+var itab="unread";
+V.inbox={load:function(){return API.inbox(me())},view:function(r){
+  if(r.err)return'<section class="screen"><div class="empty">只有 Chance 本人或授權團隊可以開啟收信端。</div></section>';
+  if(!r.isChance)return'<section class="screen"><h2>Chance 的信箱</h2><div class="state info"><b>團隊帳號看不到信件正文</b><span>只有 Chance 本人帳號可以開啟信件並按「我已讀完」。團隊請到收信後台查看名額、訂單與閱讀紀錄。</span></div><button class="btn btn-ghost" id="toAdmin" type="button">前往收信後台</button></section>';
+  var Ls=r.letters,t=r.now,byMonth={};Ls.forEach(function(L){(byMonth[L.periodId]=byMonth[L.periodId]||[]).push(L)});
+  var unread=Ls.filter(function(L){return!L.readAt}),soon=unread.filter(function(L){return L.readBy-t<3*DAY});
+  var shown=Ls.filter(function(L){return itab==="unread"?!L.readAt:!!L.readAt});
+  var html=Object.keys(byMonth).sort().reverse().map(function(m){var arr=shown.filter(function(L){return L.periodId===m});if(!arr.length)return"";
+    return'<div class="stack" style="gap:10px"><h3>'+monthName(m)+'<span class="small"> · 共 '+byMonth[m].length+' 封</span></h3><div class="list">'+arr.map(function(L){var over=!L.readAt&&t>L.readBy;
+      return'<button class="item" type="button" data-cl="'+L.id+'"><div class="h"><span>'+esc(L.sig||"（未署名）")+' · '+fmtFull(L.sentAt)+'</span><span class="tag '+(L.readAt?"read":over?"warn":"")+'">'+(L.readAt?"已讀完 "+fmtFull(L.readAt):over?"已逾期":"期限 "+fmtMD(L.readBy))+'</span></div><div class="s">'+esc(summary(L.body,60))+'</div></button>'}).join("")+'</div></div>'}).join("");
+  return'<section class="screen"><h1>給 Chance 的信</h1>'+
+   (soon.length?'<div class="state err"><b>'+soon.length+' 封信的閱讀期限快到了</b><span>最早的期限是 '+fmtMD(Math.min.apply(null,soon.map(function(L){return L.readBy})))+'。</span></div>':'')+
+   '<div class="tabs two" role="tablist"><button class="tab" role="tab" type="button" data-it="unread" aria-selected="'+(itab==="unread")+'">未讀<small>'+unread.length+'</small></button><button class="tab" role="tab" type="button" data-it="read" aria-selected="'+(itab==="read")+'">已讀<small>'+(Ls.length-unread.length)+'</small></button></div>'+
+   (html||'<div class="empty">'+(itab==="unread"?"目前沒有未讀的信。":"還沒有讀完的信。")+'</div>')+'</section>'},
+ wire:function(){
+  if($("toAdmin"))$("toAdmin").onclick=function(){go("admin")};
+  document.querySelectorAll("[data-it]").forEach(function(b){b.onclick=function(){itab=b.dataset.it;render()}});
+  document.querySelectorAll("[data-cl]").forEach(function(b){b.onclick=function(){go("cletter",b.dataset.cl)}});
+ }};
+V.cletter={load:function(){return API.inbox(me())},view:function(r){
+  if(r.err||!r.isChance)return'<section class="screen"><div class="empty">只有 Chance 本人帳號可以開啟信件。</div></section>';
+  var L=r.letters.filter(function(x){return x.id===R.param})[0];if(!L)return V.missing.view();
+  var over=!L.readAt&&r.now>L.readBy;
+  return'<section class="screen"><div class="stack" style="gap:6px"><h2>'+esc(L.sig||"（未署名）")+' 寫給你</h2><p class="small">'+monthName(L.periodId)+' · 寄出 '+fmtFull(L.sentAt)+' · 閱讀期限 '+fmtMD(L.readBy)+'</p></div>'+
+   (over?'<div class="state err"><b>這封信已超過閱讀期限</b><span>逾期紀錄已保留，請與營運團隊確認後續處理。</span></div>':'')+
+   paperHTML(L.body,L.sig,L.sentAt)+
+   (L.readAt?'<div class="state"><b>你已於 '+fmtFull(L.readAt)+' 確認讀完</b><span>這個時間會顯示給寄信的粉絲。</span></div>'
+     :'<button class="btn btn-gold" id="read" type="button">我已讀完</button><p class="small" style="text-align:center">只有你本人按下才算讀完。打開這頁、停留多久都不會自動標記。</p>')+
+   (L.readAt&&!L.reply?'<label class="fld" for="rep">回覆（選填，不是每封都需要）</label><textarea class="ta" id="rep" placeholder="想說的話…"></textarea><button class="btn btn-ghost" id="sendRep" type="button">送出回覆</button>':'')+
+   (L.reply?'<div class="state"><b>你的回覆 · '+fmtFull(L.reply.at)+'</b><span style="white-space:pre-wrap">'+esc(L.reply.text)+'</span></div>':'')+'</section>'},
+ wire:function(){
+  var id=R.param;
+  if($("read"))$("read").onclick=function(){sheet('<div class="grab"></div><h2>確認你已親自讀完這封信？</h2><p class="small">確認後會記錄時間並顯示給寄信的粉絲，無法取消。</p><button class="btn btn-gold" id="ok" type="button">我已讀完</button><button class="btn btn-ghost" id="cancel" type="button">還沒</button>',
+    function(close){$("ok").onclick=function(){$("ok").disabled=true;API.markRead(me(),id).then(function(x){close();if(x.err){toast("只有 Chance 本人帳號可以確認");return}toast("已記錄讀完時間");render()})};$("cancel").onclick=close})};
+  if($("sendRep"))$("sendRep").onclick=function(){var t=$("rep").value.trim();if(!t)return;$("sendRep").disabled=true;API.reply(me(),id,t).then(function(){toast("已送出回覆");render()})};
+ }};
+
+/* ═════════ 營運：收信後台 ═════════ */
+V.admin={load:function(){return API.dashboard(me())},view:function(r){
+  if(r.err)return'<section class="screen"><div class="empty">只有營運團隊帳號可以開啟後台。</div></section>';
+  var t=r.now;
+  var blocks=r.periods.slice().reverse().map(function(x){var p=x.p,cur=p.id===r.current,k=p.id.replace("-","");
+    return'<section class="panel'+(cur?" cur":"")+'"><div class="panel-h"><h3>'+monthName(p.id)+(cur?' · 本期':'')+'</h3><span class="tag '+(p.paused?"warn":"")+'">'+(p.paused?"已暫停收新信":t<p.openAt?"未開放":t>p.closeAt?"已截止":"收信中")+'</span></div>'+
+     '<div class="kpis"><div class="kpi"><span>總名額</span><b>'+p.capacity+'</b></div><div class="kpi"><span>有效保留</span><b>'+x.holds+'</b></div><div class="kpi"><span>成功寄出</span><b>'+x.sold+'</b></div><div class="kpi"><span>待讀</span><b>'+x.unread+'</b></div><div class="kpi"><span>已讀</span><b>'+x.read+'</b></div><div class="kpi'+(x.overdue?" bad":"")+'"><span>逾期未讀</span><b>'+x.overdue+'</b></div></div>'+
+     (x.dueSoon?'<div class="state err"><b>'+x.dueSoon+' 封信 3 天內到期</b><span>Chance 本人的收信端會顯示提醒（Demo 沒有推播或寄信）。</span></div>':'')+
+     (x.overdue?'<div class="state err"><b>'+x.overdue+' 封逾期未讀</b><span>紀錄已保留，不會自動標記已讀或更改期限。延期通知與補償政策尚未確認，屬上線阻擋項目。</span></div>':'')+
+     '<p class="small">投稿 '+fmtMD(p.openAt)+' – '+fmtMD(p.closeAt)+' · 閱讀期限 '+fmtMD(p.readBy)+' · 每人 '+p.perUser+' 封 · 保留 '+p.holdMin+' 分鐘</p>'+
+     '<div class="form"><label class="fld">總名額<input type="number" inputmode="numeric" id="cap'+k+'" value="'+p.capacity+'" min="0"></label><label class="fld">價格 NT$<input type="number" inputmode="numeric" id="price'+k+'" value="'+p.price+'" min="1"></label><label class="fld">每人上限<input type="number" inputmode="numeric" id="per'+k+'" value="'+p.perUser+'" min="1"></label><label class="fld">保留分鐘<input type="number" inputmode="numeric" id="hold'+k+'" value="'+p.holdMin+'" min="1"></label></div>'+
+     '<label class="toggle"><input type="checkbox" id="pause'+k+'"'+(p.paused?" checked":"")+'>暫停收新信（既有信件與閱讀承諾不受影響）</label>'+
+     '<button class="btn btn-ghost" type="button" data-save="'+p.id+'">儲存 '+monthName(p.id)+' 設定</button><p class="small">修改只影響之後的新訂單。已寄出的信保留當時的價格與閱讀期限。</p>'+
+     (x.rows.length?'<div class="tbl-wrap"><table><thead><tr><th>訂單</th><th>金額</th><th>付款</th><th>送達</th><th>本人讀完</th><th>期限</th></tr></thead><tbody>'+x.rows.map(function(w){var od=!w.readAt&&t>w.readBy;return'<tr><td>'+esc(w.order)+'</td><td>'+w.amount+'</td><td>'+(w.paid?fmtFull(w.paid):"—")+'</td><td>'+fmtFull(w.sentAt)+'</td><td>'+(w.readAt?fmtFull(w.readAt):od?'<span style="color:var(--danger)">逾期未讀</span>':"—")+'</td><td>'+fmtMD(w.readBy)+'</td></tr>'}).join("")+'</tbody></table></div>':'<p class="small">本期還沒有信。</p>')+'</section>'}).join("");
+  var ref=(r.refunds.length||r.dupRefunds.length)?'<section class="stack" style="gap:10px"><h3>退款處理</h3>'+r.refunds.map(function(o){return'<div class="state'+(o.status==="refunded"?"":" err")+'"><b>'+esc(o.id)+' · NT$'+o.amount+' · '+(o.status==="refunded"?"退款完成":"退款處理中")+'</b><span>'+esc(o.refundReason||"")+'</span>'+(o.status==="refund_pending"?'<div class="row"><button class="btn btn-ghost" type="button" data-refund="'+o.id+'">標記退款完成</button></div>':'')+'</div>'}).join("")+
+    r.dupRefunds.map(function(d){return'<div class="state err"><b>'+esc(d.orderId)+' · 重複付款</b><span>交易 '+esc(d.txn)+' 需要退款。</span></div>'}).join("")+'</section>':'';
+  return'<section class="screen"><h1>收信後台</h1><p class="small">團隊只看名額、訂單與閱讀紀錄，看不到信件正文。「我已讀完」只能由 Chance 本人帳號按。</p>'+
+   '<div class="state err"><b>正式上線前待確認（阻擋項目）</b><span>內容規則與不符規則的處理、退款政策、逾期未讀的延期通知與補償方式。</span></div>'+
+   blocks+'<button class="btn btn-ghost" id="next" type="button">設定下一期（預設 1 日開放、10 日截止）</button>'+ref+'</section>'},
+ wire:function(){
+  document.querySelectorAll("[data-save]").forEach(function(b){b.onclick=function(){var id=b.dataset.save,k=id.replace("-","");
+    var patch={capacity:+$("cap"+k).value,price:+$("price"+k).value,perUser:+$("per"+k).value,holdMin:+$("hold"+k).value,paused:$("pause"+k).checked};
+    API.updatePeriod(me(),id,patch).then(function(x){if(x.err==="capacity"){toast("名額不能低於已寄出加保留中的 "+x.min+" 封，未儲存");render();return}toast("已儲存 "+monthName(id)+" 設定");render()})}});
+  document.querySelectorAll("[data-refund]").forEach(function(b){b.onclick=function(){API.refundDone(me(),b.dataset.refund).then(function(){render()})}});
+  $("next").onclick=function(){API.createNext(me()).then(function(x){toast("已建立 "+monthName(x.period.id));render()})};
+ }};
+V.missing={view:function(){return'<section class="screen"><div class="empty">找不到這封信，可能已被重設。</div><button class="btn btn-ghost" id="hm" type="button">回到首頁</button></section>'},wire:function(){$("hm").onclick=goHome}};
+
+/* ═════════ Sheet ═════════ */
+function sheet(content,init){
+  var prev=document.activeElement,scrim=document.createElement("div");scrim.className="scrim";
+  var sh=document.createElement("div");sh.className="sheet";sh.setAttribute("role","dialog");sh.setAttribute("aria-modal","true");
+  scrim.appendChild(sh);$("layer").appendChild(scrim);
+  function paint(){sh.innerHTML=typeof content==="function"?content():content}
+  var closed=false;function close(){if(closed)return;closed=true;scrim.remove();document.removeEventListener("keydown",onKey);try{prev&&prev.focus()}catch(e){}}
+  function dismiss(){var c=sh.querySelector("#cancel,#simClose");if(c&&!c.disabled)c.click()}
+  function onKey(e){if(e.key==="Escape")dismiss()}
+  scrim.addEventListener("click",function(e){if(e.target===scrim)dismiss()});document.addEventListener("keydown",onKey);
+  paint();init(close,paint);var f=sh.querySelector("button");if(f)f.focus({preventScroll:true});
+}
+
+/* ═════════ 測試面板 ═════════ */
+$("demoOpen").onclick=function(){
+  function seg(key,label,items){return'<div class="sim"><label>'+label+'</label><div class="seg">'+items.map(function(o){return'<button type="button" data-sim="'+key+'" data-v="'+o[0]+'" aria-pressed="'+(String(SIM[key])===o[0])+'">'+o[1]+'</button>'}).join("")+'</div></div>'}
+  sheet(function(){return'<div class="grab"></div><h2>測試面板</h2><p class="small">資料只存在這支手機的瀏覽器，用來走過每一種狀況。'+(storageOK?'':'<br><b style="color:var(--danger)">此瀏覽器無法寫入本機儲存，資料不會保留。</b>')+'</p>'+
+    seg("role","切換身分",[["fan","粉絲（已登入）"],["guest","粉絲（未登入）"],["chance","Chance 本人"],["team","營運團隊"]])+
+    '<div class="sim"><label>模擬時間（台灣時間，現在 '+fmtMD(now())+'）</label><div class="seg"><button type="button" data-clock="pre">開放前 1 小時</button><button type="button" data-clock="open">本月 5 日中午</button><button type="button" data-clock="edge">截止前 2 分鐘</button><button type="button" data-clock="closed">截止後 1 分鐘</button><button type="button" data-clock="due">閱讀期限前 2 天</button><button type="button" data-clock="late">閱讀期限過後</button></div></div>'+
+    seg("pay","付款結果",[["ok","成功"],["cancel","取消"],["fail","失敗"],["pending","確認中，7 秒後成功"],["late","保留到期後才付款成功（名額已被取走）"],["dupe","成功，但回呼重送兩次"]])+
+    seg("deliver","付款後寄送",[["ok","正常"],["failOnce","第一次處理失敗，自動重試"]])+
+    '<div class="sim"><label>名額</label><div class="seg"><button type="button" id="fill1">其他粉絲寄到只剩 1 封</button><button type="button" id="fill0">其他粉絲寄滿</button><button type="button" id="grab">另一位粉絲搶先保留 1 封</button><button type="button" id="free">清掉其他粉絲</button></div></div>'+
+    '<div class="sim"><label>訂單與草稿</label><div class="seg"><button type="button" id="expire">讓我的保留立刻到期</button><button type="button" id="recb">重送我的付款回呼</button><button type="button" id="tab2">模擬另一分頁修改草稿</button><button type="button" id="savefail" aria-pressed="'+(!!SIM.saveFail)+'">草稿儲存失敗</button><button type="button" id="long">填入 1,000 字測試信</button></div></div>'+
+    '<div class="sim"><label>資料</label><div class="seg"><button type="button" id="reset">全部重設</button></div></div>'+
+    '<button class="btn btn-ghost" id="simClose" type="button">關閉</button>'},
+  function(close,repaint){
+    function after(t){repaint();wire();render();if(t)toast(t)}
+    function wire(){
+      document.querySelectorAll("[data-sim]").forEach(function(b){b.onclick=function(){var k=b.dataset.sim;SIM[k]=b.dataset.v;simSave();if(k==="role"){close();goHome();return}repaint();wire()}});
+      document.querySelectorAll("[data-clock]").forEach(function(b){b.onclick=function(){
+        var s=sLoad(),per=s.periods[currentMonthId()]||relevantPeriod(s,now());
+        var target={pre:per.openAt-HR,open:per.openAt+4*DAY+12*HR,edge:per.closeAt-2*MIN,closed:per.closeAt+MIN,due:per.readBy-2*DAY,late:per.readBy+MIN}[b.dataset.clock];
+        SIM.clock=target-Date.now();simSave();after("時間已調到 "+fmtMD(now()))}});
+      $("fill1").onclick=function(){API._fill(1).then(function(x){after("剩 "+x.remaining+" 封")})};
+      $("fill0").onclick=function(){API._fill(0).then(function(){after("名額已滿")})};
+      $("grab").onclick=function(){API._grabLast().then(function(x){after(x.ok?"另一位粉絲保留了 1 封":"已經沒有名額可搶")})};
+      $("free").onclick=function(){API._clearOthers().then(function(){after("已清掉其他粉絲")})};
+      $("expire").onclick=function(){API._expireMine(me()).then(function(){after("保留已到期")})};
+      $("recb").onclick=function(){API._redeliverCallbacks(me()).then(function(x){after("已重送 "+x.done+" 筆回呼（不會重複扣款）")})};
+      $("tab2").onclick=function(){var id=newOrLatestDraft(false);CL.drafts[id].body+="\n（另一分頁加上的一句）";CL.drafts[id].updated=Date.now();cSave();ED=null;after("草稿已在另一分頁被修改")};
+      $("savefail").onclick=function(){SIM.saveFail=!SIM.saveFail;simSave();repaint();wire()};
+      $("long").onclick=function(){var base="謝謝你的歌，陪我走過那些不知道該怎麼說出口的日子。今天回家的路上，又聽見了它。",s="";while(glen(s)<1000)s+=base;s=Array.from(s).slice(0,1000).join("");var id=newOrLatestDraft(true);CL.drafts[id].body=s;CL.drafts[id].sig="小宇";cSave();ED=null;close();if(SIM.role!=="fan"&&SIM.role!=="guest"){SIM.role="fan";simSave()}stack=[{name:home()}];setRoute({name:"compose",param:id});render()};
+      $("reset").onclick=function(){try{localStorage.removeItem(SKEY);localStorage.removeItem(CKEY)}catch(e){}CL={drafts:{},route:null,active:null,flown:{}};cSave();SIM={role:"fan",pay:"ok",deliver:"ok",clock:demoDefaultClock(),saveFail:false};simSave();ED=null;RT.seen={};close();goHome();toast("已重設")};
+      $("simClose").onclick=close;
+    }
+    wire();
+  });
+};
+
+/* ═════════ render ═════════ */
+var renderSeq=0;
+var ALLOWED={fan:["shop","product","compose","preview","ritual","mailbox","letter"],guest:["shop","product","compose","preview","mailbox"],chance:["inbox","cletter"],team:["admin","inbox"]};
+function render(){
+  clearTimers();if(RT.anim){try{RT.anim.destroy()}catch(e){}RT.anim=null}if(!R)R={name:home()};
+  if(R.name!=="compose"&&ED&&!ED.dirty)ED=null;
+  if(ALLOWED[SIM.role].indexOf(R.name)<0){stack=[];R={name:home()};CL.route=R;cSave()}
+  demoTxt();top();
+  var fn=V[R.name]||V.shop,seq=++renderSeq;
+  fn.load().then(function(data){
+    if(seq!==renderSeq)return;
+    var html=fn.view(data);$("view").innerHTML=html;
+    if(html.indexOf("找不到這封信")>-1)V.missing.wire();else fn.wire(data);
+  },function(e){if(seq!==renderSeq)return;$("view").innerHTML='<section class="screen"><div class="state err"><b>暫時連不上服務</b><span>'+(e==="storage"?"此裝置無法儲存資料。":"請稍後再試。")+'你的草稿仍在。</span></div></section>'});
+}
+window.addEventListener("pagehide",function(){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}});
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}return}
+  if(R&&!document.querySelector(".scrim")&&["ritual","preview","mailbox","product","shop"].indexOf(R.name)>-1)render();   /* 回到前景：重新向後端查狀態 */
+});
+(function boot(){
+  var r=CL.route;
+  if(CL.active&&SIM.role==="fan"){
+    API.status(CL.active.orderId).then(function(x){var o=x.view&&x.view.order;
+      if(o&&(o.letterId||["confirming","paid","refund_pending"].indexOf(o.status)>-1)){stack=[{name:home()}];R={name:"ritual",param:o.id}}
+      else{if(!o||x.view.hold.status!=="active"){CL.active=null;cSave()}R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};if(R.name!==home())stack=[{name:home()}]}
+      render()});
+    return;
+  }
+  if(r&&V[r.name]&&r.name!=="ritual"){R=r;if(r.name!==home())stack=[{name:home()}]}else R={name:home()};
+  render();
+})();
+window.__DC={API:API,USER:USER,sLoad:sLoad,now:now};   /* 測試掛勾（Demo） */
+})();
+</script>
