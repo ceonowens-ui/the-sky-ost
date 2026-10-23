@@ -3331,7 +3331,7 @@ const THE_SKY = {
     comingSoon: true,
     items: [
       {
-        productKey: "ticket-normal", dropAt: "2027-02-05T20:00",
+        productKey: "ticket-normal", dropAt: "2027-02-05T20:00", hidden: true,   /* B180：聽片會取消，隱藏 */
         name: "THE SKY 2027 聽片會 · 一般票",
         desc: "三首未公開的歌，只在 2/20 這天、只在這 205 個人面前第一次響起。",
         price: 1350, originalPrice: 1500,   // 預購 10% off
@@ -5272,7 +5272,7 @@ window.ALBUM_SWITCH = {
     prog += '</div>';
 
     /* ── NEXT DROP（時間讀商品 dropAt，沒有就整張隱藏）── */
-    var nd = nextDropInfo(), dropHtml = "";
+    var nd = null, dropHtml = "";   /* B180：NEXT DROP（2/5 聽片會時程）先隱藏 */
     if (nd) {
       var rk = "drop-" + (nd.item.productKey || "next");
       var set = remindQ(rk);
@@ -5290,12 +5290,13 @@ window.ALBUM_SWITCH = {
       if (merchOwnedQ(it.productKey)) return "owned";
       return String(it.productKey || "").indexOf("ticket") === 0 ? "soon" : "now";
     };
-    var tabs = '<div class="shop-tabs" id="shop-tabs">' +
+    var tabs = "";   /* B180：拿掉「本次 DROP／即將上架／已收藏」 */
+    if (false) tabs = '<div class="shop-tabs" id="shop-tabs">' +
       [["now", "本次 DROP"], ["soon", "即將上架"], ["owned", "已收藏"]].map(function (c) {
         return '<button class="shop-tab' + (cat === c[0] ? " active" : "") + '" data-cat="' + c[0] + '">' + c[1] + '</button>';
       }).join("") + '</div>';
 
-    var shown = items.filter(function (r) { return catOf(r.it) === cat; });
+    var shown = items;   /* B180：不分類，全部未隱藏商品 */
 
     /* ── 商品卡：第一張全寬主打，其餘橫向卡 ── */
     function ctaFor(r) {
@@ -5351,7 +5352,7 @@ window.ALBUM_SWITCH = {
     }
     var cards = shown.length
       ? shown.map(function (r, k) { return k === 0 ? heroCard(r) : rowCard(r); }).join("")
-      : '<div class="shop-empty">' + (cat === "owned" ? "還沒有收藏任何周邊<br>開賣後收藏的商品會出現在這裡" : "這個分類目前沒有商品") + '</div>';
+      : '<div class="shop-empty">目前沒有商品</div>';
 
     $("merch-list").innerHTML = prog + dropHtml + tabs + cards + membersExpHTML();
   }
@@ -5359,7 +5360,7 @@ window.ALBUM_SWITCH = {
   /* ── 會員限定體驗：聽片會「我想去」免費登記（放在商品之後）── */
   function membersExpHTML() {
     var has = ((CFG.merch || {}).items || []).some(function (it) {
-      return String(it.productKey || "").indexOf("ticket") === 0;
+      return !it.hidden && String(it.productKey || "").indexOf("ticket") === 0;   /* B180：票都隱藏就不顯示聽片會區塊 */
     });
     if (!has) return "";
     var done = !!lsGet(NS + ":interest", null);
@@ -7746,7 +7747,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B179</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B180</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
