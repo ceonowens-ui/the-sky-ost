@@ -48,6 +48,10 @@ var SHOP_HOME_FEATURE = { img: "", title: "", line: "" };
 /* ════ B309T：寫給 Chance 的信 ════
    on:false＝隱藏（粉絲看不到，點「購買周邊」直接進卡包，跟現在一樣）。開賣時改 true。
    預覽：test.html?letters=1 才看得到（不記住）。目前是 Demo：模擬付款與寄送，不會收費。 */
+/* ════ B310T：SHOP 首頁「01 生日會票券」區塊顯示開關（只在 test.html）════
+   false＝先藏起來，只留周邊；要恢復改 true。預覽票券：test.html?tickets=1 */
+var SHOP_SHOW_TICKETS = false;
+function ticketsVisible() { return !!SHOP_SHOW_TICKETS || /[?&]tickets=1(&|$)/.test(location.search); }
 var LETTERS_CFG = { on: false, src: "letters/dear-chance-demo.html?embed=1&v=L1", price: 99, quota: 20 };
 function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test(location.search); }
 
@@ -945,14 +949,14 @@ function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
           '<img class="sv3-sig" src="' + esc(A.signature) + '" alt="The Sky">' +
           '<div class="sv3-higher bd">' + T.higher.map(esc).join('<br>') + '</div>' +
         '</section>' +
-        '<section class="sv3-sec" id="sv3-tickets">' +
+        (ticketsVisible() ? '<section class="sv3-sec" id="sv3-tickets">' +
           '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secTickets) + '</span><i class="sv3-sec-line"></i></div>' +
           '<button class="sv3-block" data-act="' + _ctaAct + '" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut && !mine ? ' disabled' : '') + '>' +
             '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2></div><div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div><p class="sv3-block-m sky-event-facts">' + [evDate ? esc(evDate + ' · 台北時間') : '時間待公布', evVenue ? esc(evVenue) : '', evCapacity ? esc(evCapacity) : '', evPrice].filter(Boolean).join('<br>') + '</p>' +
             '<span class="sv3-go' + (_onSale && !mine ? ' on' : '') + '">' + esc(goLabel) + ' <i>→</i></span>' +
           '</button>' +
         '</section>' +
-        '<div class="sv3-divide"></div>' +
+        '<div class="sv3-divide"></div>' : '') +   /* B310T：票券區塊可隱藏 */
         cxHomeHTML() +
       '</div>' +
     '</div>';
@@ -1490,7 +1494,7 @@ function coverClockKey() {
     var i = cxItem(), can = cxCanBuy(i), F = SHOP_HOME_FEATURE || {};
     var sub = esc(F.title || i.short || i.name) + '<br>' + (F.line ? esc(F.line) : (i.soldOut ? '已售完' : can ? '<span class="num">' + cxNT(i.price) + '</span> · 台灣免運' : '敬請期待'));
     return '<section class="sv3-sec" id="sv3-merch">' +
-      '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(SHOP_TEXT.secMerch) + '</span><i class="sv3-sec-line"></i></div>' +
+      '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
       '<button class="sv3-block" data-act="shop-buy">' +
         '<div class="sv3-grid sv3-merch-grid"><div><h2 class="sv3-block-h">' + esc(SHOP_TEXT.merchTitle) + '</h2><p class="sv3-block-m">' + sub + '</p></div><div aria-hidden="true"></div></div>' +
         '<span class="sv3-go' + (can ? ' on' : '') + '">' + (i.soldOut ? '已售完' : can ? esc(SHOP_TEXT.goMerch) : '即將開賣') + ' <i>→</i></span>' +
