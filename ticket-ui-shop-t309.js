@@ -45,6 +45,8 @@ var SHOP_TEXT = {
    img 填圖片路徑就換圖（例 "shop-assets/feature-letters.jpg"）；title／line 填字就換字。
    全部留空＝跟現在一樣（卡包圖、名稱、價格由後台 /shop/items 提供）。 */
 var SHOP_HOME_FEATURE = { img: "", title: "", line: "" };
+/* B312T：信開放時，首頁「購買周邊」主打換成信（圖、介紹、按鈕）；信關掉就自動回到卡包 */
+var SHOP_HOME_LETTERS = { img: "shop-assets/feature-letters.svg", title: "寫給 Chance 的信", desc: "每月只收二十封，月底前他會親自讀完。", line: "NT$99 · 每人每月一封", cta: "寫一封信" };
 /* ════ B309T：寫給 Chance 的信 ════
    on:false＝隱藏（粉絲看不到，點「購買周邊」直接進卡包，跟現在一樣）。開賣時改 true。
    預覽：test.html?letters=1 才看得到（不記住）。目前是 Demo：模擬付款與寄送，不會收費。 */
@@ -1492,6 +1494,19 @@ function coverClockKey() {
   function cxHomeHTML() {
     cxLoad();
     var i = cxItem(), can = cxCanBuy(i), F = SHOP_HOME_FEATURE || {};
+    if (lettersVisible() && SHOP_HOME_LETTERS) {   /* B312T：主打信 */
+      var LF = SHOP_HOME_LETTERS;
+      return '<section class="sv3-sec" id="sv3-merch">' +
+        '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
+        '<button class="sv3-block" data-act="shop-letters">' +
+          '<div class="sv3-grid sv3-merch-grid"><div><h2 class="sv3-block-h">' + esc(SHOP_TEXT.merchTitle) + '</h2>' +
+            '<p class="sv3-block-m"><span class="ltf-t">' + esc(LF.title) + '</span><br>' + esc(LF.desc) + '<br><span class="num">' + esc(LF.line) + '</span></p></div><div aria-hidden="true"></div></div>' +
+          '<span class="sv3-go on">' + esc(LF.cta) + ' <i>→</i></span>' +
+          '<div class="sv3-merch-wrap ltf"><img src="' + esc(LF.img) + '" alt="玫瑰金信封"></div>' +
+        '</button>' +
+        '<button class="ltf-more" data-act="shop-buy">看全部周邊（卡包、信） <i>→</i></button>' +
+      '</section>';
+    }
     var sub = esc(F.title || i.short || i.name) + '<br>' + (F.line ? esc(F.line) : (i.soldOut ? '已售完' : can ? '<span class="num">' + cxNT(i.price) + '</span> · 台灣免運' : '敬請期待'));
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
@@ -1596,15 +1611,15 @@ function coverClockKey() {
     var packLine = i.soldOut ? '已售完' : can ? cxNT(i.price) + ' <small>· 台灣免運</small>' : '<small>敬請期待</small>';
     return '<div class="cx9 cxl">' + cx9Bar("購買周邊") +
       '<h2 class="cxl-h">購買周邊</h2><p class="cxl-s">CHANCE 官方周邊，數量有限。</p>' +
-      '<button type="button" class="cxl-item" data-act="cxl-pack"><span class="cxl-txt"><span class="cxl-nm">' + esc(i.short || i.name) + '</span>' +
-        '<span class="cxl-mt">' + esc(String(i.name || "").replace(i.short || "\u0000", "").trim() || "CHANCE 官方卡包") + '</span>' +
-        '<span class="cxl-pr">' + packLine + '</span><span class="cxl-go">' + (i.soldOut ? '已售完' : can ? '立即購買' : '查看內容') + ' <i>→</i></span></span>' +
-        '<span class="cxl-pic"><img src="' + esc(i.img || CX_FALLBACK.img) + '" alt=""></span></button>' +
       '<button type="button" class="cxl-item cxl-letter" data-act="cxl-letters"><span class="cxl-txt"><span class="cxl-tag">每月限量 · 數位</span>' +
         '<span class="cxl-nm">寫給 Chance 的信</span><span class="cxl-mt">每月只收' + (LETTERS_CFG.quota === 20 ? "二十" : LETTERS_CFG.quota) + '封，月底前親自讀完。</span>' +
         '<span class="cxl-pr">NT$' + LETTERS_CFG.price + ' <small>／封</small></span>' +
         (!LETTERS_CFG.on ? '<span class="cxl-demo"><b>DEMO</b>尚未開放 · 預覽中</span>' : LETTERS_CFG.demo ? '<span class="cxl-demo"><b>DEMO</b>模擬付款 · 不會收費</span>' : '') +
         '<span class="cxl-go">寫一封信 <i>→</i></span></span><span class="cxl-pic cxl-env">' + LT_ENV + '</span></button>' +
+      '<button type="button" class="cxl-item" data-act="cxl-pack"><span class="cxl-txt"><span class="cxl-nm">' + esc(i.short || i.name) + '</span>' +
+        '<span class="cxl-mt">' + esc(String(i.name || "").replace(i.short || "\u0000", "").trim() || "CHANCE 官方卡包") + '</span>' +
+        '<span class="cxl-pr">' + packLine + '</span><span class="cxl-go">' + (i.soldOut ? '已售完' : can ? '立即購買' : '查看內容') + ' <i>→</i></span></span>' +
+        '<span class="cxl-pic"><img src="' + esc(i.img || CX_FALLBACK.img) + '" alt=""></span></button>' +
     '</div>';
   }
   function lettersHTML() {
@@ -1803,6 +1818,11 @@ function coverClockKey() {
     "#cx-shop .cxs-cta{width:100%;min-height:52px;border:0;border-radius:999px;background:linear-gradient(90deg,#B8964F,#D6B66F 52%,#F0DCA8);color:#17130B;font:600 16px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:.06em}#cx-shop .cxs-cta[disabled]{opacity:.45}" +
     "#cx-shop .cxs-done .cxs-body{padding:18px 22px 6px;font-size:14.5px;line-height:1.75;color:#cfc6b4}#cx-shop .cxs-big{font-family:'Noto Serif TC',serif;font-size:24px;color:#F3EEEA;margin:0 0 8px}" +
     "@media (prefers-reduced-motion: reduce){#cx-shop .cxs-sheet,#cx-shop .cxs-back{transition:none}}" + CSS279 + ".tk-layer[data-layer=cxl]{--bg:#0B0A09;--bg-top:#1a1610;padding:0 0 calc(110px + env(safe-area-inset-bottom))}.cxl-h{margin:10px 0 0;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:clamp(26px,8vw,32px);letter-spacing:.04em;color:#F3EEEA}.cxl-s{margin:6px 0 16px;color:#A39B8E;font-size:14px}.cxl-item{display:flex;gap:10px;width:100%;text-align:left;margin:0 0 14px;padding:16px;border-radius:20px;border:1px solid rgba(217,184,126,.28);background:linear-gradient(170deg,#17141a,#0e0c10);color:#F3EEEA;font:inherit;cursor:pointer;min-height:176px;-webkit-tap-highlight-color:transparent}.cxl-item:active{transform:scale(.99)}.cxl-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}.cxl-nm{font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:19px;line-height:1.35}.cxl-mt{font-size:13px;line-height:1.55;color:#A39B8E}.cxl-pr{font-family:\"Noto Serif TC\",serif;font-weight:600;font-size:20px;color:#E8BF7A;margin-top:4px}.cxl-pr small{font:400 13px -apple-system,\"PingFang TC\",sans-serif;color:#CFC7BA}.cxl-go{margin-top:auto;align-self:flex-start;color:#E8BF7A;font-size:15.5px;border-bottom:1px solid #E8BF7A;padding:6px 0 4px;min-height:32px}.cxl-go i{font-style:normal}.cxl-pic{flex:none;width:31%;display:flex;align-items:center;justify-content:center}.cxl-pic img{width:100%;max-width:130px;transform:rotate(6deg)}.cxl-env svg{width:100%;max-width:130px;height:auto}.cxl-letter{border-color:rgba(219,172,184,.45);background:radial-gradient(90% 90% at 85% 50%,rgba(219,172,184,.13),transparent 60%),linear-gradient(170deg,#1b1519,#0e0c10)}.cxl-tag{align-self:flex-start;font-size:11px;letter-spacing:.12em;color:#ebc4cb;border:1px solid rgba(219,172,184,.5);border-radius:8px;padding:3px 7px}.cxl-demo{align-self:flex-start;display:inline-flex;gap:6px;align-items:center;font-size:12px;color:#e9d3d2}.cxl-demo b{font-size:10px;letter-spacing:.12em;color:#2a1d16;background:#f1dba8;padding:2px 5px;border-radius:4px}.tk-layer[data-layer=dcl]{--bg:#0E0D12;--bg-top:#0E0D12;padding:0;overflow:hidden}.dcl{position:absolute;inset:0;padding-top:env(safe-area-inset-top)}.dcl-f{display:block;width:100%;height:100%;border:0;background:#0E0D12}\
+.sv3-merch-wrap.ltf{aspect-ratio:300/260;width:min(172px,44%);top:-30px;right:2px;transform:rotate(-5deg);filter:drop-shadow(0 16px 24px rgba(0,0,0,.55))}\
+.sv3-merch-wrap.ltf img{object-fit:contain;border-radius:0}\
+.ltf-t{color:#F3D9DE;font-weight:600}\
+.ltf-more{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:6px;padding:0;border:0;background:none;color:#CFC7BA;font:inherit;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}\
+.ltf-more i{font-style:normal}\
 body.dcl-open #a2tip,body.dcl-open #__sigBar,body.cxl-open #a2tip,body.cxl-open #__sigBar{visibility:hidden}";
     document.head.appendChild(st); })();
 
@@ -2462,6 +2482,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "mbuy") { e.stopPropagation(); return merchBuy(b.getAttribute("data-key")); }
     if (act === "shop-buy") { e.stopPropagation(); return cxOpen(); }
     if (act === "cxl-pack") { e.stopPropagation(); return cxOpenPack(); }
+    if (act === "shop-letters") { e.stopPropagation(); cxLoad(); openLayer("cxl"); setTimeout(function () { openLayer("dcl"); }, 60); return; }
     if (act === "cxl-letters") { e.stopPropagation(); return openLayer("dcl"); }
     if (act === "cxd-go") { e.stopPropagation(); if (!cxCanBuy(cxItem())) return; return openLayer("cxc"); }
     if (act === "pick-tier") { e.stopPropagation(); return tierSheet(b.getAttribute("data-ev")); } if(act==="buytier"){ e.stopPropagation(); var _ev=b.getAttribute("data-ev"), _tier=b.getAttribute("data-tier"); S.tierEv=_ev; buyConfirm(_ev,"meet",_tier); return; }
