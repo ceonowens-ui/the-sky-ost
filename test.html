@@ -1562,6 +1562,15 @@ body { background: #08060C !important; }
 .sgr-it.k-video.noimg .sgr-vplay{display:none}
 .sgr-top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 12px) 18px 0;pointer-events:none;z-index:2}
 .sgr-top h1{margin:0;font:400 22px/1.2 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.06em;color:#F3EEEA;text-shadow:0 1px 10px rgba(0,0,0,.6);transition:opacity .25s}
+/* B316T：SIGNAL 是獨立頁——在 FEED 裡音樂一律不播、不出現迷你播放器（NAV 島保留）；浮動提示等離開 FEED 再出現；左上角「返回」回到進來前的分頁 */
+body.sky-feed #mini-player.mini-player,body.sky-feed #a2tip,body.sky-feed #a2mini,body.sky-feed #a2guide,body.sky-feed #__sigBar,body.sky-feed #__updBar,body.sky-feed #__restartTip,body.sky-feed #__langBar{display:none!important}
+#feed-back{position:fixed;z-index:60;left:max(6px,env(safe-area-inset-left));top:calc(env(safe-area-inset-top) + 3px);height:44px;min-width:44px;padding:0 12px 0 4px;display:none;align-items:center;gap:1px;border:0;background:none;color:rgba(243,238,234,.78);font:500 14px/1 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.6);cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.sky-feed #feed-back{display:flex}
+#feed-back svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#feed-back:active{opacity:.6}
+#feed-back:focus-visible{outline:2px solid #D8C3A0;outline-offset:2px;border-radius:10px}
+body.sky-feed .sgr-top h1{margin-left:70px}
+body.sgc-open #feed-back{visibility:hidden}
 .sgr-top.dim h1{opacity:.55}
 .sgr-load{pointer-events:auto;margin-top:8px}
 .sgr-load .chat-loading{display:inline-flex;margin:0;padding:6px 12px;border-radius:999px;background:rgba(10,8,12,.6)}
@@ -3839,6 +3848,7 @@ body, #stage{ background:#080809 !important; }
 
   <!-- ================= 動態牆（SIGNAL feed · 只有 Chance 發文）================= -->
   <section id="screen-mood" class="screen screen-sub feedwrap">
+    <button type="button" id="feed-back" aria-label="返回" data-no-translate><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg><span class="fb-t">返回</span></button>
     <div class="feed-tabs">
       <div class="feedhead-cap">
         <img src="assets/images/avatar.jpg" alt="" class="sigbar-ava">
@@ -6853,11 +6863,43 @@ window.ALBUM_SWITCH = {
    * 指示器改用該按鈕的實際位置 offsetLeft，藏 tab 也不會跑版。 */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
   var ORDER = ["player", "mood", "merch", "purchase", "gallery", "lucky"];
+  /* B316T：SIGNAL 獨立頁。進 FEED：專輯音樂暫停（歌與進度保留）、迷你播放器不出現、多一筆瀏覽紀錄（手勢返回＝回上一個分頁）；
+     離開：恢復原本顯示，音樂維持暫停由使用者自己按 */
+  var FEEDX = { from: "player", skip: 0 };
+  function feedImmersive(screen, prev) {
+    var on = screen === "mood", was = document.body.classList.contains("sky-feed");
+    if (on && !was) {
+      FEEDX.from = (prev && prev !== "mood") ? prev : "player";
+      document.body.classList.add("sky-feed");
+      try { audio.pause(); } catch (e) {}
+      try { if (!(history.state && history.state.sgf)) history.pushState(Object.assign({}, history.state || {}, { sgf: 1 }), ""); } catch (e) {}
+    } else if (!on && was) {
+      document.body.classList.remove("sky-feed");
+      if (!FEEDX.popping && history.state && history.state.sgf) {   /* 用分頁島或「返回」離開：把自己加的紀錄退掉（留言面板開著就多退一筆） */
+        var n = history.state.sgc ? 2 : 1; FEEDX.skip = n;
+        try { history.go(-n); } catch (e) { FEEDX.skip = 0; }
+      }
+    }
+  }
+  function feedBack() { go(FEEDX.from || "player"); }
+  (function () {   /* 「返回」放到 body（不受分頁區塊的捲動／變形影響），中英文 */
+    var b = $("feed-back"); if (!b) return;
+    document.body.appendChild(b);
+    var en = window.SKY_LANG === "en"; b.querySelector(".fb-t").textContent = en ? "Back" : "返回"; b.setAttribute("aria-label", en ? "Back" : "返回");
+    b.addEventListener("click", function () { try { hap(8); } catch (e) {} feedBack(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state.screen === "mood" && !document.querySelector(".sgc, #a2ok, #a2unlock, #email-modal:not(.hidden)")) feedBack(); });
+  })();
+  window.addEventListener("popstate", function () {
+    if (FEEDX.skip) { FEEDX.skip--; return; }
+    if (state.screen === "mood" && !(history.state && history.state.sgf)) { FEEDX.popping = true; try { feedBack(); } finally { FEEDX.popping = false; } }
+  });
   function go(screen) {
     /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
        若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
     if (PLAYER_ONLY && screen !== "player") return;
-    if (screen !== "mood") { try { sgrLeave(); } catch (e) {} }   /* B314T：離開 FEED → 頻道語音／影片停、留言面板收 */
+    var prevScreen = state.screen || "player";
+    if (screen !== "mood") { try { sgrLeave(); } catch (e) {} }
+    try { feedImmersive(screen, prevScreen); } catch (e) {}   /* B316T：SIGNAL 獨立頁 */   /* B314T：離開 FEED → 頻道語音／影片停、留言面板收 */
     state.screen = screen;
     closeSheet();
     ORDER.forEach(function (s) {
@@ -9762,7 +9804,7 @@ window.ALBUM_SWITCH = {
       var mp = document.getElementById("mini-player"); if (mp) new MutationObserver(f).observe(mp, { attributes: true, attributeFilter: ["class", "style", "hidden"] }); }
   })();
   window.addEventListener("resize", function () { sgrPlace(); var r = $("sgr"); if (r && SGR.idx >= 0) r.scrollTop = SGR.idx * r.clientHeight; });
-  try { audio.addEventListener("play", sgrPauseAudible); } catch (e) {}   /* 主播放器開始播 → 頻道裡出聲的語音／影片停；靜音自動播放的影片繼續 */
+  try { audio.addEventListener("play", function () { if (state.screen === "mood") { try { audio.pause(); } catch (e) {} return; } sgrPauseAudible(); }); } catch (e) {}   /* B316T：在 FEED 裡音樂一律不播（鎖定畫面／耳機按播放也停回去） */
   /* 修復 2：進背景前記住「目前這支影片正在由系統播放、不是使用者按停的」；回前景仍在 FEED、仍是同一支 → 靜音恢復（不開聲、不重試） */
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
@@ -9808,19 +9850,23 @@ window.ALBUM_SWITCH = {
     if (!SGR || state.screen !== "mood" || document.hidden) return;
     var el = sgrEl(SGR.idx), v = el && el.querySelector("video.sgr-vid");
     if (!v || !v.paused || (SGR.up && SGR.up === sgrCurRid())) return;   /* 使用者自己按停的不自動播 */
-    v.muted = true; v.defaultMuted = true;
-    v = sgrVideoReady(el); sgrPauseAll();   /* 同時只有一支頻道媒體；不停主播放器（靜音影片不搶音樂） */
+    v.muted = !SGR.snd; v.defaultMuted = v.muted;   /* B316T：沿用目前聲音設定（使用者開過聲音就帶聲音） */
+    v = sgrVideoReady(el); sgrPauseAll();   /* 同時只有一支頻道媒體 */
     var current = function () { return state.screen === "mood" && !document.hidden && el === sgrEl(SGR.idx) && el.isConnected; };
-    try { var p = v.play(); if (p && p.then) p.then(function () { if (!current()) v.pause(); }).catch(function () { el.classList.remove("playing"); }); } catch (e) { el.classList.remove("playing"); }
+    var fail = function () { el.classList.remove("playing"); };
+    var ok = function () { if (!current()) v.pause(); };
+    try { var p = v.play(); if (p && p.then) p.then(ok).catch(function () {
+      if (!v.muted && current()) { v.muted = true; try { var p2 = v.play(); if (p2 && p2.then) p2.then(ok).catch(fail); } catch (e) { fail(); } return; }   /* 有聲被擋（iOS 滑動不算點擊）→ 改無聲播一次，點影片可開聲 */
+      fail(); }); } catch (e) { fail(); }
   }
   function sgrVideo(el) {
     var v = sgrVideoReady(el); if (!v) return;
     /* First tap on a silent playing video turns sound on; subsequent taps pause/play. */
-    if (!v.paused && v.muted) { v.muted = false; try { audio.pause(); } catch (e) {} hap(8); return; }   /* 使用者開影片聲音 → 才停音樂（避免疊音） */
+    if (!v.paused && v.muted) { v.muted = false; SGR.snd = true; try { audio.pause(); } catch (e) {} hap(8); return; }   /* 使用者開影片聲音 → 之後的影片沿用有聲 */
     if (v.paused) {
       SGR.up = "";
       sgrPauseAll(); try { audio.pause(); } catch (e) {}
-      v.muted = false;
+      v.muted = false; SGR.snd = true;
       v.play().then(function () { if (state.screen !== "mood" || document.hidden || el !== sgrEl(SGR.idx) || !el.isConnected) v.pause(); }).catch(function () {});
     } else { SGR.up = sgrCurRid(); v.pause(); }
     hap(8);
@@ -11903,7 +11949,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B315T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B316T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12197,7 +12243,7 @@ window.ALBUM_SWITCH = {
   mp.appendChild(tg);
   tg.addEventListener("click", function () { setCollapsed(!st.collapsed); });
 
-  function hasMini() { return body.classList.contains("has-mini"); }
+  function hasMini() { return body.classList.contains("has-mini") && !body.classList.contains("sky-feed"); }   /* B316T：FEED 不出迷你播放器 → 視同沒有，NAV 島不收合、不接縫 */
   function canCollapse() { return hasMini() && !st.imm; }   /* 沒有歌曲時不收 nav */
   function resetGesture() { acc = 0; dir = 0; lastInput = 0; inDir = 0; tEnd = 0; horiz = false; lastY = activeSc ? activeSc.scrollTop : 0; }
   function setCollapsed(c) {
