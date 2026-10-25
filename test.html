@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<script>/* B294T：全 App 語言＝瀏覽器第一語言（zh→中文，其他→英文）；?lang=en|zh 測試用 */
-(function(){var q="";try{q=(new URLSearchParams(location.search).get("lang")||"").toLowerCase();}catch(e){}
-var p=q||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
-window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
+<script>/* B294T：全 App 語言＝瀏覽器第一語言（zh→中文，其他→英文）
+   B313T：使用者手動選過（OWN 或第一次提示）就記住 sky-lang，之後一律照用；網址 ?lang=zh|en 會寫入（從 LINE 跳 Safari、加主畫面時把選擇帶過去） */
+(function(){var q="",pref="";try{q=(new URLSearchParams(location.search).get("lang")||"").toLowerCase();}catch(e){}
+try{pref=localStorage.getItem("sky-lang")||"";}catch(e){}
+if(q==="zh"||q==="en"){pref=q;try{localStorage.setItem("sky-lang",q);}catch(e){}}
+if(pref!=="zh"&&pref!=="en")pref="";
+var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
+window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B294T"></script>
-<script src="shop-language.js?v=B294T"></script>
+<script src="shop-language.js?v=B313T"></script>
 <script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css">
 <meta charset="utf-8">
@@ -1519,6 +1523,19 @@ body { background: #08060C !important; }
 #screen-mood.mood-vip .typing-lbl{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
 #screen-mood.mood-vip .mine-lock{ text-shadow:0 1px 5px rgba(0,0,0,.7); }
 .chat-day{ color:rgba(217,178,106,.55) !important; }
+/* B313T：介面語言 */
+.lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
+.lang-row .lr-t{display:flex;align-items:center;gap:8px;font-size:14px;color:#E9DCC4;letter-spacing:.04em}
+.lang-row .lr-t svg{color:#D9B26A;flex:none}
+.lr-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.lr-seg button{min-height:44px;border:0;border-radius:11px;background:transparent;color:#A39B8E;font-size:15px;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lr-seg button[aria-checked="true"]{background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;font-weight:700}
+.lang-row .lr-n{font-size:12px;line-height:1.5;color:#8f877b}
+#__langBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);transform:translate(-50%,-8px);z-index:99996;opacity:0;transition:opacity .25s,transform .25s;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 24px);padding:4px 4px 4px 14px;border-radius:999px;border:1px solid rgba(217,178,106,.45);background:rgba(18,15,11,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 10px 26px rgba(0,0,0,.45);color:#E9DCC4;font-size:13.5px;white-space:nowrap}
+#__langBar.in{opacity:1;transform:translate(-50%,0)}
+#__langBar .lb-go{min-height:40px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;font:700 14px/1 inherit;font-family:inherit;cursor:pointer}
+#__langBar .lb-x{width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:#A39B8E;font-size:16px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){#__langBar{transition:none}}
 /* B308T：最新私訊載入中 */
 .chat-loading{ display:flex; align-items:center; justify-content:center; gap:10px; min-height:44px; margin:10px 0 6px; font-size:14px; color:rgba(255,255,255,.78); text-shadow:0 1px 6px rgba(0,0,0,.8); }
 .chat-loading i{ width:14px; height:14px; border-radius:50%; border:2px solid rgba(217,178,106,.3); border-top-color:#D9B26A; animation:chatLoadSpin .8s linear infinite; flex:none; }
@@ -3069,6 +3086,13 @@ body.a2ck-on #terms-sheet{z-index:115030}
         </div>
       </div>
     </div>
+
+      <!-- B313T：介面語言（第一次之外，隨時可在這裡換） -->
+      <div class="lang-row" id="lang-row" data-no-translate>
+        <div class="lr-t"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg><span>介面語言 · Language</span></div>
+        <div class="lr-seg" role="radiogroup" aria-label="介面語言 Language"><button type="button" role="radio" data-lang="zh">中文</button><button type="button" role="radio" data-lang="en">English</button></div>
+        <div class="lr-n">歌詞、SIGNAL、留言維持原文 · Lyrics &amp; posts stay original</div>
+      </div>
 
       <div class="legal-foot">
         <div class="lf-links">
@@ -5988,6 +6012,7 @@ window.ALBUM_SWITCH = {
     [/^已解鎖完整 (\d+) 首$/, "All $1 tracks unlocked"],
     [/^(\d+) 首 · 擁有後解鎖完整版，每月更新新歌$/, "$1 tracks · own it to unlock full versions, new songs monthly"],
     [/^曲目列表 · (\d+) 首$/, "Track list · $1 songs"],
+    [/^抽卡 ✦ 剩 1 張券$/, "Draw ✦ 1 ticket left"],   /* B313T：單數 */
     [/^抽卡 ✦ 剩 (\d+) 張券$/, "Draw ✦ $1 tickets left"],
     [/^再抽一張 ✦ 剩 (\d+) 張券$/, "Draw again ✦ $1 left"],
     [/^限量 (\d+) · 剩 (\d+)$/, "Limited $1 · $2 left"],
@@ -6011,9 +6036,47 @@ window.ALBUM_SWITCH = {
   var I18N_SKIPTAG = { SCRIPT:1, STYLE:1, TEXTAREA:1 };
   function i18nSkipEl(el){
     var id = el.id || "";
-    if(el.matches && el.matches("#screen-merch,#tk-overlay,.tk-sheet,.tk-layer,#cx-shop")) return true;
+    if(el.matches && el.matches("#screen-merch,#tk-overlay,.tk-sheet,.tk-layer,#cx-shop,[data-no-translate]")) return true;
     return id === "feed-body" || id === "sheet-lyrics" || id === "lyrics-overlay" || id === "__tunerPanel" || id === "__tpBody";
   }
+  /* ── B313T：介面語言（手動選一次就記住） ── */
+  function skyLangSet(l) {
+    try { localStorage.setItem("sky-lang", l); localStorage.setItem("sky-lang-hint", "1"); } catch (e) {}
+    try { sessionStorage.setItem("sky-lang-back", (state && state.screen) || ""); } catch (e) {}
+    var u = new URL(location.href); u.searchParams.set("lang", l);
+    location.replace(u.toString());           /* 重新載入，整個 App 一次換好，不會半中半英 */
+  }
+  function skyLangUrlKeep() {                 /* 選過的語言留在網址上：加到主畫面時會一起帶過去 */
+    try {
+      var pref = localStorage.getItem("sky-lang"); if (pref !== "zh" && pref !== "en") return;
+      var u = new URL(location.href); if (u.searchParams.get("lang") === pref) return;
+      u.searchParams.set("lang", pref); history.replaceState(history.state, "", u.toString());
+    } catch (e) {}
+  }
+  function skyLangPaintOwn() {
+    var row = document.getElementById("lang-row"); if (!row) return;
+    Array.prototype.forEach.call(row.querySelectorAll("[data-lang]"), function (b) {
+      b.setAttribute("aria-checked", String(b.getAttribute("data-lang") === window.SKY_LANG));
+      b.onclick = function () { var l = b.getAttribute("data-lang"); if (l === window.SKY_LANG) { try { localStorage.setItem("sky-lang", l); } catch (e) {} return; } skyLangSet(l); };
+    });
+  }
+  function skyLangHint() {                    /* 被自動切到英文、又還沒選過的人：PLAY 上方出現一次 */
+    try { if (window.SKY_LANG !== "en" || window.SKY_LANG_SET || localStorage.getItem("sky-lang-hint")) return; } catch (e) { return; }
+    if (document.getElementById("__langBar")) return;
+    if (document.querySelector("#a2tip, #a2ok, .a2m, .a2pg, #__nickWrap") || (state && state.screen !== "player")) { setTimeout(skyLangHint, 1500); return; }
+    var b = document.createElement("div"); b.id = "__langBar"; b.setAttribute("role", "status"); b.setAttribute("data-no-translate", "");
+    b.innerHTML = '<span>Showing in English</span><button type="button" class="lb-go">切換為中文</button><button type="button" class="lb-x" aria-label="Keep English">✕</button>';
+    document.body.appendChild(b); requestAnimationFrame(function () { b.classList.add("in"); });
+    function keep() { try { localStorage.setItem("sky-lang", "en"); localStorage.setItem("sky-lang-hint", "1"); } catch (e) {} b.remove(); audio.removeEventListener("play", keep); }
+    b.querySelector(".lb-go").onclick = function () { skyLangSet("zh"); };
+    b.querySelector(".lb-x").onclick = keep;
+    audio.addEventListener("play", keep);   /* 開始聽歌＝接受英文，之後不再問 */
+  }
+  setTimeout(function () {
+    skyLangUrlKeep(); skyLangPaintOwn();
+    try { var back = sessionStorage.getItem("sky-lang-back"); sessionStorage.removeItem("sky-lang-back"); if (back && back !== "player" && typeof go === "function") { go(back); [300, 1200].forEach(function (ms) { setTimeout(function () { window.dispatchEvent(new Event("resize")); }, ms); }); } } catch (e) {}   /* 等導覽列排版好再對齊選中底色 */
+    setTimeout(skyLangHint, 900);
+  }, 0);
   function i18nWalk(node, toEn){
     if (!node) return;
     if (node.nodeType === 3){
@@ -7041,6 +7104,7 @@ window.ALBUM_SWITCH = {
   function a2TipClose() { var t = $("a2tip"); if (t && t.parentNode) t.parentNode.removeChild(t); var sb = document.getElementById("__sigBar"); if (sb) sb.classList.remove("sigbar-wait"); }   /* B307T：提示關了，被藏起來的 SIGNAL 條再出現 */
   function a2Tip(kind, opt) {
     opt = opt || {};
+    if (document.getElementById("__langBar")) { setTimeout(function () { a2Tip(kind, opt); }, 1500); return false; }   /* B313T：語言提示先，一次只有一個 */
     a2TipClose();
     if (a2Busy()) return false;
     if ((kind === "nopair" || kind === "offline" || kind === "card") && state.unlocked) return false;   /* B278T：已經解鎖了就不再提示「輸入兌換碼」（配對檢查晚 0.9 秒才跑，會蓋到剛解鎖的畫面） */
@@ -8800,7 +8864,7 @@ window.ALBUM_SWITCH = {
     requestAnimationFrame(function () { b.classList.add("in"); });
   }
   /* B302T：成功卡／兌換視窗／教學等彈窗還開著時先不跳，關掉後再等 1.2 秒 */
-  function sigBarBusy() { return !!document.querySelector("#a2ok, .a2m, .a2pg, #a2tip, #__nickWrap"); }   /* B307T：加主畫面提示／暱稱卡開著時也先等（原本會疊在一起） */
+  function sigBarBusy() { return !!document.querySelector("#a2ok, .a2m, .a2pg, #a2tip, #__nickWrap, #__langBar"); }   /* B307T：加主畫面提示／暱稱卡開著時也先等（原本會疊在一起） */
   function sigBarWhenFree(fn) {
     var waited = false;
     (function tick() { if (sigBarBusy()) { waited = true; setTimeout(tick, 500); return; } setTimeout(fn, waited ? 1200 : 0); })();
@@ -10769,7 +10833,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B312T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B313T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

@@ -54,7 +54,13 @@
  '請填寫你的稱呼':'Enter your name.','請填寫收票 email':'Enter the email for your tickets.',
  '連不上伺服器，請稍後再試':'Unable to connect. Please try again later.',
  '連線較慢，請稍後再試':'The connection is slow. Please try again.',
- '購買須知（中文）':'Purchase terms (Chinese)','隱私權政策（中文）':'Privacy policy (Chinese)'
+ '購買須知（中文）':'Purchase terms (Chinese)','隱私權政策（中文）':'Privacy policy (Chinese)',
+ /* B313T：信的周邊（SHOP 首頁＋周邊列表） */
+ '寫給 Chance 的信':'A letter to Chance','寫一封信':'Write a letter','看全部周邊（卡包、信）':'All merch (card pack, letters)',
+ '每月只收二十封，月底前他會親自讀完。':'Only 20 letters a month. He reads every one himself by month’s end.',
+ '每月只收二十封，月底前親自讀完。':'Only 20 letters a month, read by Chance himself by month’s end.',
+ 'NT$99 · 每人每月一封':'NT$99 · One letter per person each month','CHANCE 官方周邊，數量有限。':'Official CHANCE merch. Limited quantities.',
+ '每月限量 · 數位':'Monthly limit · Digital','／封':'/ letter','模擬付款 · 不會收費':'Demo checkout · No charge'
  });
  const rules=[
  [/^(.+) 還沒開賣。留下 email 拿到排隊號碼，$/,(_,n)=>(D[n]||n)+' is not on sale yet. Leave your email to receive a waitlist number. '],
