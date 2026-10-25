@@ -3,7 +3,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Isolated letter UI v1: scoped views only, no App layout changes. */
+.demo-bar{position:relative;padding-top:4px;padding-bottom:4px;min-height:36px}.demo-open{min-height:32px;padding:0 8px;font-size:12px}.demo-txt{font-size:12px}.demo-tag{font-size:10px}
+.top-mid{font-size:14px}.letter-entry{min-height:calc(100svh - 150px);gap:24px;justify-content:center;padding:24px 8px}.letter-entry .hero-art img{width:56%;max-width:220px}.entry-copy{text-align:center}.entry-copy .en{font-family:var(--f-hand);font-size:32px;color:var(--gold);margin-bottom:14px}.entry-copy h1{font-size:32px;line-height:1.55}.entry-copy .lead{font-size:16px;margin-top:16px}.entry-action{margin-top:10px}.entry-action .price-row{justify-content:center;margin-bottom:14px}.entry-action .btn{border-radius:30px}
+.consent{display:flex;gap:12px;align-items:flex-start;font-size:16px;line-height:1.7}.consent input{width:24px;height:24px;flex:none;accent-color:var(--gold)}
+summary{cursor:pointer;min-height:48px;padding:12px 0;color:var(--gold);font-size:16px}.order-details{border-top:1px solid var(--border)}.order-details .timeline{margin-top:16px}.letter-preview .paper{margin-top:12px}
+body[data-route="compose"]{background:var(--paper);color:var(--ink);padding:0;color-scheme:light}body[data-route="compose"]::before{background:var(--paper)}
+body[data-route="compose"] .orbits{display:none}body[data-route="compose"] .app{max-width:640px;padding:0 24px 24px;min-height:100dvh}body[data-route="compose"] .demo-bar{margin:0 -24px;padding-inline:24px;background:var(--paper);border-color:#d4c4a8}body[data-route="compose"] .demo-txt,body[data-route="compose"] .demo-open,body[data-route="compose"] .top-mid,body[data-route="compose"] .icon-btn{color:var(--ink)}
+body[data-route="compose"] .screen{gap:16px;min-height:calc(100svh - 130px)}body[data-route="compose"] .paper{border-radius:0;box-shadow:none;padding:42px 0 12px;flex:1}body[data-route="compose"] .corner{display:none}body[data-route="compose"] .salute{font-size:38px;margin-bottom:24px}body[data-route="compose"] .body-ta{min-height:260px;font-size:18px}body[data-route="compose"] .count,body[data-route="compose"] .save,body[data-route="compose"] .small{color:#716351}body[data-route="compose"] .save.err,body[data-route="compose"] .field-err,body[data-route="compose"] .count.over{color:#992f25}body[data-route="compose"] .btn-gold{background:#302922;color:var(--paper);box-shadow:none;border-radius:28px}body[data-route="compose"] .state{color:var(--ink)}body[data-route="compose"] .state b{color:var(--ink)}
+body[data-route="ritual"] .app{max-width:600px;min-height:100dvh}body[data-route="ritual"] #view>.screen{min-height:calc(100svh - 145px);justify-content:center}body[data-route="ritual"] .lsa{max-width:520px}body[data-route="ritual"] .lsa-wrap{max-height:62svh;aspect-ratio:320/350;width:auto;margin:auto}body[data-route="ritual"] .lsa-note{font-size:16px}body[data-route="ritual"] .lsa-bg{opacity:0}
+@media(max-width:350px){.entry-copy h1{font-size:28px}.letter-entry{padding-inline:0}.facts li{font-size:16px;flex-wrap:wrap}.facts li b{text-align:left}body[data-route="compose"] .app{padding-inline:18px}body[data-route="compose"] .demo-bar{margin-inline:-18px;padding-inline:18px}}
+@media(prefers-reduced-motion:reduce){.screen,.scrim,.sheet{animation:none!important}*{scroll-behavior:auto!important}}
+
+</style>
 <title>Dear CHANCE 相遇信箋</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -298,7 +311,7 @@ function monthName(pid){var a=String(pid).split("-");return a[0]+" 年 "+(+a[1])
 function mmss(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000);return pad(Math.floor(s/60))+":"+pad(s%60)}
 
 /* ═════════ Demo 設定：時鐘、身分、模擬結果 ═════════ */
-var SIMKEY="dearchance:sim:v2";
+var SIMKEY="dearchance:isolated-v1:sim:v2";
 function demoDefaultClock(){var p=tp(Date.now());return tpTs(p.y,p.m,5,12,0)-Date.now()}   /* 預設模擬「本月 5 日中午」= 收信中 */
 var SIM=Object.assign({role:"fan",pay:"ok",deliver:"ok",clock:null,saveFail:false},readLS(SIMKEY)||{});
 if(SIM.clock==null){SIM.clock=demoDefaultClock()}
@@ -316,7 +329,7 @@ function currentMonthId(){var p=tp(Date.now()+demoDefaultClock());return p.y+"-"
    callback → 依交易編號去重；逾期付款重新核對容量，不能履約就進退款
    tick     → 只釋放「未付款且到期」的保留；付款狀態未明者先核對、不釋放
    ═════════════════════════════════════════════════════════════════ */
-var SKEY="dearchance:server:v2";
+var SKEY="dearchance:isolated-v1:server:v2";
 function defaultPeriod(y,m){
   var last=new Date(Date.UTC(y,m,0)).getUTCDate();
   return{id:y+"-"+pad(m),capacity:20,price:99,perUser:1,holdMin:10,paused:false,
@@ -502,7 +515,7 @@ var API={
 };
 
 /* ═════════ 前端狀態（草稿只存在此裝置） ═════════ */
-var CKEY="dearchance:client:v2";
+var CKEY="dearchance:isolated-v1:client:v2";
 var CL=readLS(CKEY)||{drafts:{},route:null,active:null,flown:{}};
 var storageOK=writeLS(CKEY,CL);
 function cSave(){return writeLS(CKEY,CL)}
@@ -517,18 +530,18 @@ function clearTimers(){timers.forEach(function(t){clearInterval(t)});timers=[]}
 function setRoute(r){R=r;CL.route=r;cSave()}
 var EMBED=/[?&]embed=1/.test(location.search);
 function closeEmbed(){try{parent.postMessage({dc:"close"},location.origin)}catch(e){}}
-function home(){return SIM.role==="chance"?"inbox":SIM.role==="team"?"admin":(EMBED?"product":"shop")}
+function home(){return SIM.role==="chance"?"inbox":SIM.role==="team"?"admin":"product"}
 function go(name,param,opts){opts=opts||{};lastErr=null;if(R&&!opts.replace)stack.push(R);setRoute({name:name,param:param||null});render();window.scrollTo(0,0)}
 function back(){if(R&&R.name==="compose"&&!leaveCompose(back))return;lastErr=null;var p=stack.pop();setRoute(p||{name:home()});render();window.scrollTo(0,0)}
 function goHome(){stack=[];setRoute({name:home()});render();window.scrollTo(0,0)}
 
-function demoTxt(){$("demoTxt").innerHTML='模擬付款與寄送，不會收費。<br><b>'+esc(me()?me().name:"粉絲（未登入）")+'</b> · 模擬時間 <b>'+fmtMD(now())+'</b>'}
+function demoTxt(){$("demoTxt").textContent='設計預覽 · 不會收費或寄送'}
 function top(){
   var t=$("top"),isHome=R.name===home();
   var mid={shop:"Shop",product:"Dear CHANCE",compose:"寫信",preview:"預覽",ritual:"寄出",mailbox:"我的信件",letter:"我的信件",inbox:"Chance 的信箱",cletter:"Chance 的信箱",admin:"收信後台"}[R.name]||"";
   var fan=SIM.role==="fan"||SIM.role==="guest";
   t.innerHTML=(isHome?(EMBED?'<button class="icon-btn" id="bk" type="button" aria-label="回到周邊">'+IC.back+'</button>':'<span class="spacer"></span>'):'<button class="icon-btn" id="bk" type="button" aria-label="返回">'+IC.back+'</button>')+'<div class="top-mid">'+esc(mid)+'</div>'+
-    (fan?'<button class="chip" id="mbox" type="button">'+IC.mail+'我的信件</button>':'<span class="spacer"></span>');
+    (fan&&!["compose","ritual","preview"].includes(R.name)?'<button class="chip" id="mbox" type="button">'+IC.mail+'我的信件</button>':'<span class="spacer"></span>');
   if(!isHome)$("bk").onclick=back;else if(EMBED)$("bk").onclick=closeEmbed;
   if($("mbox"))$("mbox").onclick=function(){if(R.name!=="mailbox")go("mailbox","sent")};
 }
@@ -585,15 +598,12 @@ V.shop={load:function(){return API.overview(me())},view:function(ov){
    (draftN?'<p class="small" style="text-align:center">你有 '+draftN+' 封草稿保留在此裝置。</p>':'')+'</section>'},
  wire:function(){$("toProduct").onclick=function(){go("product")}}};
 V.product={load:function(){return API.overview(me())},view:function(ov){
-  var per=ov.period;
-  return'<section class="screen">'+
-   '<div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
-   '<div class="stack"><div class="en">Dear CHANCE · Encounter Stationery</div><h1>'+esc(headline(per))+'</h1><p class="lead">'+esc(promise(per))+'</p></div>'+
-   stateBox(ov)+
-   (per?'<ul class="facts"><li><span>收信月份</span><b>'+monthName(per.id)+'</b></li><li><span>名額</span><b><span class="num">'+ov.remaining+'</span> 可用 / 共 '+per.capacity+' 封</b></li><li><span>開放收信</span><b>'+fmtMD(per.openAt)+'</b></li><li><span>投稿截止</span><b>'+fmtMD(per.closeAt)+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b><span class="num">NT$'+per.price+'</span>／封</b></li></ul>':'')+
-   '<ul class="ticks"><li>每人每月限寄一封。</li><li>購買內容：本期一次寄信名額、數位信箋、本人閱讀確認、寄出紀念副本。</li><li>數位商品，無實體寄送。</li><li>不保證回覆，購買不能換取回覆優先權。</li><li>寫信、存草稿、預覽都不收費，也不占名額。在預覽頁確認付款時才保留名額。</li></ul>'+
-   '<button class="btn btn-text" id="rules" type="button">查看完整收信規則</button>'+
-   (ov.myLetter?'':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?"寫一封信":"先寫草稿")+'</button>')+'</section>'},
+ var per=ov.period;
+ return '<section class="screen letter-entry"><div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
+ '<div class="entry-copy"><div class="en">Dear Chance</div><h1>有些話，<br>只想寫給你。</h1><p class="lead">把想說的話，留在這封信裡。</p></div>'+stateBox(ov)+
+ '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 數位信箋</span></div>'+
+ (ov.myLetter?'':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?'寫一封信':'先寫草稿')+'</button>')+
+ '<button class="btn btn-text" id="rules" type="button">收信說明</button></div></section>'},
  wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
 
 /* ═════════ 粉絲：寫信 ═════════ */
@@ -629,7 +639,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
   if(!ED||ED.id!==d.id)ED={id:d.id,body:d.body,sig:d.sig,dirty:false,composing:false,saveState:"idle",savedAt:null};
   var hold=ov.myHold&&ov.myHold.draftId===d.id?ov.myHold:null;
   return'<section class="screen">'+
-   '<div class="stack" style="gap:10px"><h2>慢慢寫，我們不趕。</h2><div class="recip"><span class="dot"></span>收件人 CHANCE · 專屬信箱</div><p class="small">寫草稿不收費，也不占名額。</p></div>'+
+
    (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。</span></div>':'')+
    '<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
     '<div class="salute" aria-hidden="true">Dear Chance,</div><label class="sr" for="body">信件正文，寫給 CHANCE</label>'+
@@ -639,7 +649,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
    '<div class="meta-row"><span class="count" id="count"></span><span class="save" id="saveState"></span></div>'+
    '<div class="field-err" id="sigErr" hidden></div>'+
    '<div class="state err" id="saveErr" hidden role="alert"><b>這次變更尚未儲存，請先不要離開。</b><div class="row"><button class="btn btn-gold" id="retry" type="button">重試儲存</button><button class="btn btn-ghost" id="copy" type="button">複製正文</button></div></div>'+
-   '<button class="btn btn-gold" id="toPreview" type="button">預覽信件</button><p class="small" id="note" style="text-align:center"></p></section>'},
+   '<button class="btn btn-gold" id="toPreview" type="button">下一步 · 確認信件</button><p class="small" id="note" style="text-align:center"></p></section>'},
  wire:function(){
   var ta=$("body"),sg=$("sig");ta.value=ED.body;sg.value=ED.sig;
   function grow(){ta.style.height="auto";ta.style.height=Math.max(240,ta.scrollHeight+4)+"px"}
@@ -665,11 +675,12 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   var d=CL.drafts[R.param];if(!d)return V.missing.view();
   var per=ov.period,box=ov.myHold?"":stateBox(ov),blocked=!!box;
   var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
-  return'<section class="screen"><h2>確認這份心意。</h2>'+paperHTML(d.body,d.sig,now())+
+  return'<section class="screen"><h2>把心意，寄給 Chance。</h2><details class="letter-preview"><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
    (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
    '<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
    (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+box+
    (holdDiff?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
+   ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label>':'')+
    (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'
      :(blocked?'':'<button class="btn btn-gold" id="confirm" type="button"'+(reserving?' disabled aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>確認名額中':'確認付款並寄出 · NT$'+(per?per.price:99))+'</button><p class="small" style="text-align:center">按下後會先保留名額 '+(per?per.holdMin:10)+' 分鐘，再前往付款。</p>'))+
    '<button class="btn btn-ghost" id="edit" type="button">返回修改</button><button class="btn btn-text" id="rules" type="button">查看收信規則</button></section>'},
@@ -677,9 +688,10 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   bindState();var d=CL.drafts[R.param];if(!d)return V.missing.wire();
   $("edit").onclick=function(){lastErr=null;stack.pop();setRoute({name:"compose",param:d.id});render();window.scrollTo(0,0)};
   $("rules").onclick=function(){rulesSheet(ov.period)};
+  var consent=$("consent"),action=$("confirm")||$("resume");if(consent&&action){action.disabled=true;consent.onchange=function(){action.disabled=!consent.checked||reserving}};
   if($("resume"))$("resume").onclick=function(){API.status(ov.myHold.orderId).then(function(r){if(r.view)openPay(r.view)})};
   if($("confirm"))$("confirm").onclick=function(){
-    if(reserving)return;reserving=true;lastErr=null;$("confirm").disabled=true;$("confirm").innerHTML='<span class="spin"></span>確認名額中';
+    if(reserving||!$("consent")||!$("consent").checked)return;reserving=true;lastErr=null;$("confirm").disabled=true;$("confirm").innerHTML='<span class="spin"></span>確認名額中';
     var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();
     API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key).then(function(r){
       reserving=false;
@@ -760,11 +772,7 @@ V.ritual={load:function(){return API.status(R.param)},view:function(r){
     if(o.status==="paid")return{state:"pending",waitText:"付款已完成，正在確認收件…",note:"不需要再次付款。"};
     return{state:"failed",title:({cancelled:"尚未付款。",expired:"保留時間已到，名額已釋放。",awaiting:"還沒有付款。"})[o.status]||"付款沒有完成。",message:"信沒有寄出，你的草稿仍在。",actions:["retry"],retryLabel:"回到預覽"};
   }
-  function after(){
-    var b=$("rbody");if(!b||b.__done)return;b.__done=1;
-    b.innerHTML='<button class="btn btn-ghost" id="toBox" type="button">收進我的信件</button>';
-    $("toBox").onclick=function(){stack=[{name:home()}];setRoute({name:"mailbox",param:"sent"});render();window.scrollTo(0,0)};
-  }
+  function after(){ /* 單一完成入口：使用動畫模組的「查看信件」。 */ }
   var anim=LetterSendAnimation.create($("lsaHost"),{letter:{body:snap.body,signature:snap.sig},resume:seen,skipToDone:!!CL.flown[oid],
     onVisualComplete:function(){CL.flown[oid]=1;cSave();after();say("你的信已送達 Chance 的專屬信箱")},
     onRetry:function(){var did=v0.hold&&v0.hold.draftId;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:"mailbox",param:"sent"});render()},
@@ -822,8 +830,8 @@ V.letter={load:function(){return API.status(R.param)},view:function(r){
   return'<section class="screen"><div class="stack" style="gap:8px"><h2>寄給 CHANCE</h2><span class="tag '+s[1]+'" style="align-self:flex-start">'+s[0]+'</span></div>'+
    (o.status==="refund_pending"||o.status==="refunded"?'<div class="state err"><b>'+(o.status==="refunded"?"退款完成":"退款處理中")+'</b><span>'+esc(o.refundReason||"")+'</span></div>':'')+
    (L&&L.reply?'<div class="state"><b>Chance 的回覆</b><span style="white-space:pre-wrap">'+esc(L.reply.text)+'</span></div>':'')+
-   tl+paperHTML(body,sig,L?L.sentAt:o.createdAt)+
-   '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(o.periodId)+'</b></li><li><span>金額（下單時）</span><b>NT$'+o.amount+'</b></li><li><span>閱讀期限（下單時承諾）</span><b>'+fmtMD(o.readBy)+'</b></li></ul></section>'},
+   paperHTML(body,sig,L?L.sentAt:o.createdAt)+'<details class="order-details"><summary>寄送進度與訂單</summary>'+tl+
+   '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(o.periodId)+'</b></li><li><span>金額（下單時）</span><b>NT$'+o.amount+'</b></li><li><span>閱讀期限（下單時承諾）</span><b>'+fmtMD(o.readBy)+'</b></li></ul></details></section>'},
  wire:function(r){if(!r.view||!me()||r.view.order.userId!==me().id)V.missing.wire()}};
 
 /* ═════════ Chance 本人：收信端 ═════════ */
@@ -948,7 +956,7 @@ function render(){
   clearTimers();if(RT.anim){try{RT.anim.destroy()}catch(e){}RT.anim=null}if(!R)R={name:home()};
   if(R.name!=="compose"&&ED&&!ED.dirty)ED=null;
   if(ALLOWED[SIM.role].indexOf(R.name)<0){stack=[];R={name:home()};CL.route=R;cSave()}
-  demoTxt();top();
+  document.body.dataset.route=R.name;demoTxt();top();
   var fn=V[R.name]||V.shop,seq=++renderSeq;
   fn.load().then(function(data){
     if(seq!==renderSeq)return;
