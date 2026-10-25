@@ -1523,6 +1523,86 @@ body { background: #08060C !important; }
 #screen-mood.mood-vip .typing-lbl{ color:rgba(255,255,255,.62); text-shadow:0 1px 6px rgba(0,0,0,.75); }
 #screen-mood.mood-vip .mine-lock{ text-shadow:0 1px 5px rgba(0,0,0,.7); }
 .chat-day{ color:rgba(217,178,106,.55) !important; }
+/* B314T：SIGNAL 上下滑（Reels） */
+#screen-mood.sgr-on{overflow:hidden !important;padding:0 !important;background:#060507 !important}
+#screen-mood.sgr-on .feed-tabs,#screen-mood.sgr-on #__feedCue{display:none !important}
+#screen-mood.sgr-on #feed-body{position:absolute;inset:0;padding:0 !important;margin:0}
+.sgr{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sgr::-webkit-scrollbar{display:none}
+.sgr-it{position:relative;height:100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;background:radial-gradient(120% 80% at 50% 25%,#231b26 0%,#0d0a0f 60%,#060507 100%)}
+.sgr-bg{position:absolute;inset:0}
+.sgr-img,.sgr-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.sgr-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 18%,rgba(0,0,0,0) 46%,rgba(0,0,0,.55) 72%,rgba(0,0,0,.86) 100%)}
+.sgr-quote{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);font:400 120px/1 'Bodoni Moda',serif;color:rgba(232,191,122,.18);pointer-events:none}
+.sgr-quote img{width:132px;height:132px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,191,122,.45);box-shadow:0 0 60px rgba(232,191,122,.18)}
+.sgr-it.noimg .sgr-bg{background:radial-gradient(120% 80% at 50% 25%,#2a2030,#0d0a0f 65%)}
+.sgr-cap{position:absolute;left:18px;right:88px;bottom:calc(var(--sgr-nav,96px) + 18px);color:#F3EEEA;text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.sgr-who{display:block;font:500 17px/1.3 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.06em;margin-bottom:6px}
+.sgr-txt{margin:0;font-size:16px;line-height:1.55;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.sgr-meta{margin-top:8px;font-size:13px;color:rgba(243,238,234,.72)}
+.sgr-act{position:absolute;right:8px;bottom:calc(var(--sgr-nav,96px) + 14px);display:flex;flex-direction:column;gap:14px;align-items:center}
+.sgr-b{width:64px;min-height:64px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;padding:4px 0;color:#F3EEEA;font:500 12px/1.2 'Noto Sans TC',-apple-system,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.sgr-b svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 6px rgba(0,0,0,.55))}
+.sgr-b svg .f{fill:currentColor;stroke:none}
+.sgr-like svg,.sgr-sup svg{color:#E8BF7A}
+.sgr-like.on svg{fill:rgba(232,191,122,.9)}
+.sgr-like.pop svg{animation:sgrpop .35s ease}
+@keyframes sgrpop{40%{transform:scale(1.22)}}
+.sgr-b b{font-weight:600;font-size:12px;color:rgba(243,238,234,.85)}
+.sgr-b:focus-visible,.sgc button:focus-visible,.sgc textarea:focus-visible{outline:2px solid #E8BF7A;outline-offset:3px;border-radius:12px}
+.sgr-voice{display:flex;align-items:center;gap:10px;width:min(260px,100%);margin-bottom:12px;padding:6px 14px 6px 6px;border-radius:999px;border:1px solid rgba(232,191,122,.45);background:rgba(16,13,10,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.sgr-vbtn{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;display:grid;place-items:center;cursor:pointer}
+.sgr-vbtn svg{width:20px;height:20px;fill:currentColor}
+.sgr-wave{flex:1;height:3px;border-radius:2px;background:rgba(243,238,234,.25);overflow:hidden}.sgr-wave i{display:block;height:100%;width:0;background:#E8BF7A}
+.sgr-vt{font-size:13px;color:#F3EEEA;font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.sgr-voice.err .sgr-vt{color:#e7a3a3;min-width:0}
+.sgr-vplay{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;border:1px solid rgba(232,191,122,.6);background:rgba(10,8,12,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#F3EEEA;display:grid;place-items:center;cursor:pointer}
+.sgr-vplay svg{width:30px;height:30px;fill:currentColor;margin-left:3px}
+.sgr-it.playing .sgr-vplay{opacity:0;pointer-events:none}
+.sgr-it.k-video.noimg .sgr-vplay{display:none}
+.sgr-top{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 12px) 18px 0;pointer-events:none;z-index:2}
+.sgr-top h1{margin:0;font:400 22px/1.2 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.06em;color:#F3EEEA;text-shadow:0 1px 10px rgba(0,0,0,.6);transition:opacity .25s}
+.sgr-top.dim h1{opacity:.55}
+.sgr-load{pointer-events:auto;margin-top:8px}
+.sgr-load .chat-loading{display:inline-flex;margin:0;padding:6px 12px;border-radius:999px;background:rgba(10,8,12,.6)}
+.sgr-end{display:grid;place-items:center;height:60%;scroll-snap-align:end;background:#060507}
+.sgr-endin{text-align:center;color:#A39B8E;font-size:15px;padding-bottom:var(--sgr-nav,96px)}
+.sgr-endin button{margin-top:12px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(232,191,122,.45);background:none;color:#E8BF7A;font:inherit;cursor:pointer}
+.sgc{position:fixed;inset:0;z-index:100000;--kb:0px}
+.sgc-dim{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s}
+.sgc.in .sgc-dim{opacity:1}
+.sgc-panel{position:absolute;left:0;right:0;bottom:var(--kb);max-height:min(72vh,calc(100% - var(--kb) - 40px));min-height:min(52vh,calc(100% - var(--kb) - 40px));display:flex;flex-direction:column;background:#151217;border-radius:22px 22px 0 0;border-top:1px solid rgba(232,191,122,.2);color:#F3EEEA;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);padding-bottom:env(safe-area-inset-bottom)}
+.sgc.kb .sgc-panel{padding-bottom:0}
+.sgc.in .sgc-panel{transform:none}
+.sgc.out .sgc-panel{transform:translateY(100%)}
+.sgc-grab{width:44px;height:5px;border-radius:3px;background:rgba(243,238,234,.35);margin:10px auto 2px;flex:none}
+.sgc-hd{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 8px 20px;flex:none}
+.sgc-t{margin:0;font:500 17px/1.3 'Noto Sans TC',-apple-system,sans-serif;outline:none}
+.sgc-x{width:44px;height:44px;border:0;background:none;color:#F3EEEA;display:grid;place-items:center;cursor:pointer}
+.sgc-x svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.sgc-list{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 20px;min-height:120px}
+.sgc-empty{text-align:center;padding:36px 0 24px;color:#A39B8E;font-size:15px}
+.sgc-empty .t{color:#F3EEEA;font-size:17px;margin-bottom:6px}.sgc-empty p{margin:0 0 4px}
+.sgc-empty button{margin-top:10px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(232,191,122,.45);background:none;color:#E8BF7A;font:inherit}
+.sgc-spin{display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid rgba(232,191,122,.25);border-top-color:#E8BF7A;animation:sgcs 1s linear infinite;margin-bottom:8px}
+@keyframes sgcs{to{transform:rotate(360deg)}}
+.sgc-ul{list-style:none;margin:0;padding:0 0 8px}
+.sgc-li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.sgc-h{display:flex;align-items:baseline;gap:8px;font-size:13px;color:#A39B8E}.sgc-h b{color:#E9DCC4;font-weight:600;font-size:14px}.sgc-h time{margin-left:auto}
+.sgc-h .me{font-size:11px;padding:1px 6px;border-radius:6px;background:rgba(232,191,122,.16);color:#E8BF7A}
+.sgc-li.artist .sgc-h b{color:#E8BF7A}
+.sgc-li p{margin:4px 0 0;font-size:15px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.sgc-form{display:flex;align-items:flex-end;gap:8px;margin:8px 16px 0;padding:6px 6px 6px 16px;border-radius:24px;background:#221e25;flex:none}
+.sgc-form textarea{flex:1;min-height:36px;max-height:110px;resize:none;border:0;background:none;color:#F3EEEA;font:16px/1.45 'Noto Sans TC',-apple-system,sans-serif;padding:7px 0;outline:none}
+.sgc-form textarea::placeholder{color:#8f877b}
+.sgc-send{width:44px;height:44px;flex:none;border-radius:50%;border:0;background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;display:grid;place-items:center;cursor:pointer}
+.sgc-send[disabled]{background:#34303a;color:#8f877b;cursor:default}
+.sgc-send svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sgc-note{margin:6px 16px 10px;text-align:center;font-size:12.5px;color:#A39B8E}.sgc-note.bad{color:#f0b3a3}
+.sgc .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
+@media (max-width:340px){.sgr-cap{right:76px;left:14px}.sgr-b{width:58px}.sgr-txt{font-size:15px;-webkit-line-clamp:5}}
+@media (prefers-reduced-motion:reduce){.sgr{scroll-behavior:auto}.sgc-panel,.sgc-dim{transition:none}.sgr-like.pop svg{animation:none}}
 /* B313T：介面語言 */
 .lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
 .lang-row .lr-t{display:flex;align-items:center;gap:8px;font-size:14px;color:#E9DCC4;letter-spacing:.04em}
@@ -6140,6 +6220,7 @@ window.ALBUM_SWITCH = {
     /* BUG FIX：player-only 專輯（BEFORE THE SKY）沒有分頁島，
        若被程式導去其他頁會沒有按鈕可以回來 → 直接擋掉 */
     if (PLAYER_ONLY && screen !== "player") return;
+    if (screen !== "mood") { try { sgrLeave(); } catch (e) {} }   /* B314T：離開 FEED → 頻道語音／影片停、留言面板收 */
     state.screen = screen;
     closeSheet();
     ORDER.forEach(function (s) {
@@ -8092,7 +8173,8 @@ window.ALBUM_SWITCH = {
           var _seenTs = 0;
           try { _seenTs = Number(localStorage.getItem(typeof SEENTS_KEY === "string" ? SEENTS_KEY : "album-the-sky:feedseen-ts") || 0) || 0; } catch (e) {}
           var _fresh = _seenTs > 0 && d.posts.some(function (p) { return p && !p.locked && Number(p.ts || 0) > _seenTs; });
-          if (state.screen === "mood" && feedLiveKey && !reading && _fresh) showTyping(renderMoodWall);
+          if (sgrOn()) renderMoodWall();   /* B314T：上下滑版直接更新（停在同一則） */
+          else if (state.screen === "mood" && feedLiveKey && !reading && _fresh) showTyping(renderMoodWall);
           else if (reading) showNewPill();
           else renderMoodWall();
         }
@@ -8196,6 +8278,7 @@ window.ALBUM_SWITCH = {
     Array.prototype.forEach.call(rows, function (el) {
       el.innerHTML = rxRowHTML(el.getAttribute("data-rxrow") || "");
     });
+    try { if (document.getElementById("sgr")) sgrPaintActs(rid); } catch (e) {}   /* B314T */
   }
   function feedChatHTML(items) {
     var out = "";
@@ -8421,7 +8504,7 @@ window.ALBUM_SWITCH = {
   function buildFeedCue() {
     var sm = document.getElementById("screen-mood"); if (!sm) return;
     /* B168T：人像沉浸模式只給已解鎖的會員；未解鎖維持原本頁面 */
-    var vip = false; try { vip = !!feedUnlockedQ(); } catch (e) {}
+    var vip = false; try { vip = !!feedUnlockedQ() && !sgrOn(); } catch (e) {}   /* B314T：上下滑版不用開場人像 */
     sm.classList.toggle("mood-vip", vip);
     sm.classList.remove("head-hide"); _lastY = 0;
     if (!vip) {
@@ -8894,6 +8977,296 @@ window.ALBUM_SWITCH = {
       }).catch(function () {});                          /* 對時失敗就退回手機日期（離線容錯） */
   })();
 
+  /* ════ B314T：SIGNAL 改成上下滑（IG Reels／TikTok 習慣，黑金）════
+     資料：只用既有 /feed/live 回來的貼文（後端已依權限把付費內容鎖掉）＋內建 8/20 訊息；不產生假貼文。
+     喜歡＝既有 /feed/react（heart）；留言＝既有留言系統 /comments/*（album "the-sky-signal"，每則貼文一串，要 email＋碼）；
+     支持＝前往既有 SHOP。?signal=chat 看舊的聊天版。 */
+  var SGR_ALBUM = "the-sky-signal";
+  function sgrOn() { return !/[?&]signal=chat(&|$)/.test(location.search); }
+  function sgrEN() { return window.SKY_LANG === "en"; }
+  function sgrL(zh, en) { return sgrEN() ? en : zh; }
+  var SGR = { items: [], idx: 0, rid: "", built: false, raf: 0, cm: {}, rxAt: 0 };
+  var SGR_ICON = {
+    paw: '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="9" cy="11.5" rx="2.6" ry="3.4"/><ellipse cx="14.2" cy="7.6" rx="2.6" ry="3.4"/><ellipse cx="19.8" cy="7.6" rx="2.6" ry="3.4"/><ellipse cx="25" cy="11.5" rx="2.6" ry="3.4"/><path d="M17 14.6c-3.1 0-6.9 4.4-7.9 7.6-.8 2.6.9 4.7 3.4 4.4 1.7-.2 3-.9 4.5-.9s2.8.7 4.5.9c2.5.3 4.2-1.8 3.4-4.4-1-3.2-4.8-7.6-7.9-7.6z"/></svg>',
+    ghost: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 27V14a9 9 0 0 1 18 0v13l-3-2.4-3 2.4-3-2.4-3 2.4-3-2.4z"/><circle cx="12.6" cy="14.4" r="1.15" class="f"/><circle cx="19.4" cy="14.4" r="1.15" class="f"/><path d="M13.2 19.2c1.7 1.3 3.9 1.3 5.6 0"/></svg>',
+    bag: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 6.5h8l-2.2 4.4h-3.6z"/><path d="M14.2 10.9C8.6 13 5.8 18 6.4 22.4 7 26 10 27.5 16 27.5s9-1.5 9.6-5.1c.6-4.4-2.2-9.4-7.8-11.5"/><path d="M18.4 15.6c-.6-.8-1.5-1.1-2.5-1.1-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.6.8 2.6 2.1-1.2 2-2.6 2c-1.1 0-2-.4-2.6-1.2M16 13.3v1.2m0 7.8v1.3"/></svg>',
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5h3v13H8zM13 5.5h3v13h-3z"/></svg>',
+    x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>'
+  };
+  function sgrDay(ts) { var d = new Date(Number(ts || 0)); var p = function (n) { return n < 10 ? "0" + n : "" + n; }; return d.getFullYear() + "." + p(d.getMonth() + 1) + "." + p(d.getDate()); }
+  /* 內建 8/20 訊息：每段（gap 分開）裡，每個照片／影片／獨立語音開一則；文字跟著下一個媒體，最後的文字跟著最後一則 */
+  function sgrBuiltin() {
+    if (typeof FEED_CHAT === "undefined" || !FEED_CHAT || !FEED_CHAT.length) return [];
+    var out = [], day = "", seg = [], pend = [];
+    function flush() {
+      var cur = null, rs = [];
+      seg.forEach(function (m) {
+        if (m.text) { if (cur && !cur.photo && !cur.video && !cur.voice) cur.text.push(m.text); else pend.push(m.text); return; }
+        if (m.voice && cur && cur.photo && !cur.voice) { cur.voice = m.voice; cur.vid = m.id; return; }
+        cur = { text: pend.splice(0), photo: m.photo || "", video: m.video || "", voice: m.voice || "", vid: m.id || "", key: m.id || (m.photo || "").replace(/^.*\/|\.\w+$/g, "") };
+        rs.push(cur);
+      });
+      if (pend.length) { if (cur) cur.text = cur.text.concat(pend); else rs.push({ text: pend.slice(), key: "t" + out.length }); pend = []; }
+      rs.forEach(function (r) { out.push({ rid: "fc-" + r.key, day: day, text: r.text.join("\n"), photo: r.photo, video: r.video, voice: r.voice, vid: r.vid }); });
+      seg = [];
+    }
+    FEED_CHAT.forEach(function (m) { if (m.day) { flush(); day = m.day; return; } if (m.gap) { flush(); return; } seg.push(m); });
+    flush();
+    return out;
+  }
+  function sgrBuild(live) {
+    var items = live.slice().sort(function (a, b) { return Number(b.ts || 0) - Number(a.ts || 0); }).map(function (p) {
+      var it = { rid: p.id || ("live-" + p.ts), day: sgrDay(p.ts), text: p.text || "", photo: "", video: "", voice: "", vid: p.id || "", dur: p.dur || "" };
+      if (p.media) { var u = liveMediaURL(p); if (p.type === "photo") it.photo = u; else if (p.type === "video") it.video = u; else if (p.type === "voice") it.voice = u; }
+      return it;
+    }).filter(function (it) { return it.text || it.photo || it.video || it.voice; });
+    return items.concat(sgrBuiltin());
+  }
+  function sgrTrack(rid) { return String(rid || "").replace(/^p_/, "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 12); }
+  function sgrLikeN(rid) { return Number((FEED_REACTIONS[rid] || {}).heart) || 0; }
+  function sgrLiked(rid) { return !!myReacts()[rid + "|heart"]; }
+  function sgrActHTML(it) {
+    var n = sgrLikeN(it.rid), on = sgrLiked(it.rid), c = SGR.cm[sgrTrack(it.rid)];
+    var cn = c && c.count ? c.count : 0;
+    return '<button type="button" class="sgr-b sgr-like' + (on ? ' on' : '') + '" data-sgr="like" aria-pressed="' + on + '" aria-label="' + sgrL("喜歡", "Like") + (n ? (sgrEN() ? ", " : "，") + n : "") + '">' + SGR_ICON.paw + '<span>' + sgrL("喜歡", "Like") + '</span>' + (n ? '<b>' + n + '</b>' : '') + '</button>' +
+      '<button type="button" class="sgr-b sgr-cm" data-sgr="comment" aria-haspopup="dialog" aria-label="' + sgrL("留言", "Comments") + (cn ? (sgrEN() ? ", " : "，") + cn : "") + '">' + SGR_ICON.ghost + '<span>' + sgrL("留言", "Comment") + '</span>' + (cn ? '<b>' + cn + '</b>' : '') + '</button>' +
+      '<button type="button" class="sgr-b sgr-sup" data-sgr="support" aria-label="' + sgrL("支持：前往 SHOP", "Support: go to SHOP") + '">' + SGR_ICON.bag + '<span>' + sgrL("支持", "Support") + '</span></button>';
+  }
+  function sgrItemHTML(it, i, n) {
+    var bg = it.photo ? '<img class="sgr-img" data-src="' + esc(it.photo) + '" alt="" decoding="async">'
+      : it.video ? '<video class="sgr-vid" data-src="' + esc(it.video) + '" playsinline webkit-playsinline preload="none"></video><button type="button" class="sgr-vplay" data-sgr="video" aria-label="' + sgrL("播放影片", "Play video") + '">' + SGR_ICON.play + '</button>'
+      : '';
+    var kind = it.photo ? "photo" : it.video ? "video" : it.voice ? "voice" : "text";
+    var voice = it.voice ? '<div class="sgr-voice" data-sgr="voice"><button type="button" class="sgr-vbtn" aria-label="' + sgrL("播放語音", "Play voice message") + '">' + SGR_ICON.play + '</button><span class="sgr-wave"><i></i></span><span class="sgr-vt">' + esc(it.dur || sgrL("語音", "Voice")) + '</span><audio data-src="' + esc(it.voice) + '" preload="none"></audio></div>' : '';
+    var txt = it.text ? applyNick(it.text) : "";
+    return '<section class="sgr-it k-' + kind + '" data-i="' + i + '" data-rid="' + esc(it.rid) + '" aria-roledescription="' + sgrL("訊息", "post") + '" aria-label="' + sgrL("第 " + (i + 1) + " 則，共 " + n + " 則", "Post " + (i + 1) + " of " + n) + '">' +
+      '<div class="sgr-bg">' + bg + '</div><div class="sgr-shade"></div>' +
+      (kind === "text" || kind === "voice" ? '<div class="sgr-quote" aria-hidden="true">' + (kind === "voice" ? '<img src="assets/images/avatar.jpg" alt="">' : '”') + '</div>' : '') +
+      '<div class="sgr-cap">' + voice + '<b class="sgr-who">CHANCE</b>' + (txt ? '<p class="sgr-txt">' + esc(txt) + '</p>' : '') +
+        '<div class="sgr-meta">' + esc(it.day || "") + ' · ' + sgrL("私訊頻道", "Private channel") + '</div></div>' +
+      '<div class="sgr-act">' + sgrActHTML(it) + '</div>' +
+    '</section>';
+  }
+  function sgrRender(live) {
+    var sm = $("screen-mood"), fb = $("feed-body"); if (!sm || !fb) return;
+    var items = sgrBuild(live);
+    var keepRid = SGR.built ? SGR.rid : "";
+    var key = items.map(function (x) { return x.rid + "|" + (x.text || "").length + "|" + (x.photo || x.video || x.voice || ""); }).join(",") + "|" + window.SKY_LANG;
+    sm.classList.add("sgr-on"); sm.classList.remove("mood-vip");
+    if (SGR.built && key === SGR.key && fb.querySelector("#sgr")) { sgrPaintTop(); sgrPlace(); return; }   /* 內容沒變：不重建，不跳位 */
+    SGR.items = items; SGR.key = key;
+    var n = items.length;
+    fb.innerHTML = '<div class="sgr" id="sgr" role="feed" aria-label="SIGNAL" aria-busy="false">' +
+      items.map(function (it, i) { return sgrItemHTML(it, i, n); }).join("") +
+      '<section class="sgr-it sgr-end" data-i="' + n + '"><div class="sgr-endin"><p>' + sgrL("已經是最早的訊息了", "You've reached the first message") + '</p><button type="button" data-sgr="top">' + sgrL("回到最新", "Back to latest") + '</button></div></section>' +
+      '</div>' +
+      '<div class="sgr-top" id="sgr-top" data-no-translate><h1>SIGNAL</h1><div class="sgr-load">' + feedLoadingHTML() + '</div></div>';
+    SGR.built = true;
+    var root = $("sgr");
+    var at = 0; if (keepRid) items.forEach(function (it, i) { if (it.rid === keepRid) at = i; });
+    root.scrollTop = at * (root.clientHeight || window.innerHeight);
+    SGR.idx = -1; sgrOnScroll(true);
+    root.addEventListener("scroll", function () { cancelAnimationFrame(SGR.raf); SGR.raf = requestAnimationFrame(function () { sgrOnScroll(false); }); }, { passive: true });
+    bindFeedRetry(); sgrPlace();
+    if (Date.now() - SGR.rxAt > 60000) { SGR.rxAt = Date.now(); try { loadReactions(); } catch (e) {} }
+  }
+  function sgrPaintTop() { var l = document.querySelector("#sgr-top .sgr-load"); if (l && !l.querySelector("#__feedLoad") && !feedLiveEver) { l.innerHTML = feedLoadingHTML(); bindFeedRetry(); } }
+  function sgrEl(i) { return document.querySelector('#sgr .sgr-it[data-i="' + i + '"]'); }
+  function sgrWarm(i) {   /* 只載入目前這則和下一則的圖片；影片、語音等按了才下載 */
+    var el = sgrEl(i); if (!el) return;
+    var im = el.querySelector("img.sgr-img[data-src]");
+    if (im) { im.onerror = function () { el.classList.add("noimg"); im.remove(); }; im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); }
+  }
+  function sgrOnScroll(force) {
+    var root = $("sgr"); if (!root) return;
+    var h = root.clientHeight || 1, i = Math.round(root.scrollTop / h);
+    if (i === SGR.idx && !force) return;
+    if (SGR.idx >= 0) sgrPauseIn(sgrEl(SGR.idx));
+    SGR.idx = i; var it = SGR.items[i]; SGR.rid = it ? it.rid : SGR.rid;
+    sgrWarm(i); sgrWarm(i + 1);
+    var top = $("sgr-top"); if (top) top.classList.toggle("dim", i > 0);
+  }
+  function sgrPauseIn(el) {
+    if (!el) return;
+    Array.prototype.forEach.call(el.querySelectorAll("audio,video"), function (m) { try { m.pause(); } catch (e) {} });
+  }
+  function sgrPauseAll() { var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("audio,video"), function (m) { try { m.pause(); } catch (e) {} }); }
+  function sgrLeave() { sgrPauseAll(); sgcClose(true); }
+  function sgrPlace() {
+    var sm = $("screen-mood"); if (!sm || !sm.classList.contains("sgr-on")) return;
+    var H = window.innerHeight || 800, top = H, nv = $("nav");
+    if (nv) { var r = nv.getBoundingClientRect(); if (r.height && r.top > H * .5) top = Math.min(top, r.top); }
+    var mp = document.querySelector(".mini-player"); if (mp && !mp.classList.contains("hidden")) { var r2 = mp.getBoundingClientRect(); if (r2.height && r2.top > H * .5) top = Math.min(top, r2.top); }
+    sm.style.setProperty("--sgr-nav", Math.max(72, Math.round(H - top)) + "px");
+  }
+  (function () {   /* 迷你播放列出現／收起時，重算說明文字與按鈕的位置（不被蓋住） */
+    var t = 0, t2 = 0, f = function () { clearTimeout(t); clearTimeout(t2); t = setTimeout(sgrPlace, 60); t2 = setTimeout(sgrPlace, 450); };
+    if (window.MutationObserver) { new MutationObserver(f).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      var mp = document.getElementById("mini-player"); if (mp) new MutationObserver(f).observe(mp, { attributes: true, attributeFilter: ["class", "style", "hidden"] }); }
+  })();
+  window.addEventListener("resize", function () { sgrPlace(); var r = $("sgr"); if (r && SGR.idx >= 0) r.scrollTop = SGR.idx * r.clientHeight; });
+  try { audio.addEventListener("play", sgrPauseAll); } catch (e) {}   /* 主播放器開始播 → 頻道裡的語音／影片停 */
+  document.addEventListener("visibilitychange", function () { if (document.hidden) { var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("video"), function (v) { try { v.pause(); } catch (e) {} }); } });
+  function sgrVoice(box) {
+    var au = box.querySelector("audio"), btn = box.querySelector(".sgr-vbtn"), w = box.querySelector(".sgr-wave i"), t = box.querySelector(".sgr-vt");
+    if (!au.__b) {
+      au.__b = 1;
+      var paint = function () { var d = au.duration; w.style.width = (d && isFinite(d) ? Math.min(100, au.currentTime / d * 100) : 0) + "%"; if (!au.paused || au.currentTime) t.textContent = fmt(au.currentTime); btn.innerHTML = au.paused ? SGR_ICON.play : SGR_ICON.pause; btn.setAttribute("aria-label", au.paused ? sgrL("播放語音", "Play voice message") : sgrL("暫停語音", "Pause voice message")); };
+      au.addEventListener("timeupdate", paint); au.addEventListener("play", paint); au.addEventListener("pause", paint);
+      au.addEventListener("ended", function () { au.currentTime = 0; paint(); });
+      au.addEventListener("error", function () { box.classList.add("err"); t.textContent = sgrL("語音暫時無法播放", "Voice unavailable"); });
+    }
+    if (au.getAttribute("data-src")) { au.src = au.getAttribute("data-src"); au.removeAttribute("data-src"); }
+    if (au.paused) { sgrPauseAll(); try { audio.pause(); } catch (e) {} au.play().catch(function () {}); } else au.pause();
+    hap(8);
+  }
+  function sgrVideo(el) {
+    var v = el.querySelector("video.sgr-vid"); if (!v) return;
+    if (!v.__b) {
+      v.__b = 1;
+      v.addEventListener("play", function () { el.classList.add("playing"); });
+      v.addEventListener("pause", function () { el.classList.remove("playing"); });
+      v.addEventListener("ended", function () { el.classList.remove("playing"); });
+      v.addEventListener("error", function () { el.classList.add("noimg"); el.classList.remove("playing"); });
+    }
+    if (v.getAttribute("data-src")) { v.src = v.getAttribute("data-src"); v.removeAttribute("data-src"); }
+    if (v.paused) { sgrPauseAll(); try { audio.pause(); } catch (e) {} v.play().catch(function () {}); } else v.pause();
+    hap(8);
+  }
+  function sgrPaintActs(rid) {
+    Array.prototype.forEach.call(document.querySelectorAll("#sgr .sgr-it[data-rid]"), function (el) {
+      var r = el.getAttribute("data-rid"); if (rid && r !== rid) return;
+      var it = SGR.items[+el.getAttribute("data-i")]; var a = el.querySelector(".sgr-act"); if (it && a) a.innerHTML = sgrActHTML(it);
+    });
+  }
+  $("feed-body").addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-sgr]"); if (!b || !$("sgr")) return;
+    var what = b.getAttribute("data-sgr"), el = b.closest(".sgr-it"), it = el && SGR.items[+el.getAttribute("data-i")];
+    if (what === "top") { $("sgr").scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (!it) return;
+    if (what === "like") { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) { nb.classList.add("pop"); nb.focus({ preventScroll: true }); } return; }
+    if (what === "comment") { sgcOpen(it, b); return; }
+    if (what === "support") { hap(8); sgrPauseAll(); go("merch"); return; }
+    if (what === "voice") { sgrVoice(b); return; }
+    if (what === "video") { sgrVideo(el); return; }
+  });
+  $("feed-body").addEventListener("click", function (e) {   /* 點影片畫面本身也能暫停／播放 */
+    var v = e.target.closest && e.target.closest("#sgr video.sgr-vid"); if (v) sgrVideo(v.closest(".sgr-it"));
+  });
+  /* ── 留言面板（從底部滑出）── */
+  function sgcEl() { return $("sgc"); }
+  function sgcAgo(ts) {
+    var s = Math.max(0, (Date.now() - Number(ts || 0)) / 1000);
+    if (s < 60) return sgrL("剛剛", "just now"); if (s < 3600) return Math.floor(s / 60) + sgrL(" 分鐘前", "m");
+    if (s < 86400) return Math.floor(s / 3600) + sgrL(" 小時前", "h"); if (s < 86400 * 7) return Math.floor(s / 86400) + sgrL(" 天前", "d");
+    return sgrDay(ts);
+  }
+  function sgcListHTML(c) {
+    if (!c || c.loading) return '<div class="sgc-empty"><i class="sgc-spin"></i><p>' + sgrL("載入留言中…", "Loading comments…") + '</p></div>';
+    if (c.err) return '<div class="sgc-empty"><p>' + sgrL("留言暫時載入不了", "Couldn't load comments") + '</p><button type="button" class="sgc-retry">' + sgrL("重試", "Retry") + '</button></div>';
+    if (!c.items.length) return '<div class="sgc-empty"><p class="t">' + sgrL("還沒有留言", "No comments yet") + '</p><p>' + sgrL("想對 Chance 說什麼？", "Anything to tell Chance?") + '</p></div>';
+    return '<ul class="sgc-ul">' + c.items.map(function (m) {
+      return '<li class="sgc-li' + (m.isArtist ? ' artist' : '') + '"><div class="sgc-h"><b>' + esc(m.isArtist ? "CHANCE" : (m.userName || sgrL("粉絲", "Fan"))) + '</b>' + (m.mine ? '<span class="me">' + sgrL("你", "You") + '</span>' : '') + '<time>' + esc(sgcAgo(m.createdAt)) + '</time></div><p>' + esc(m.body || "") + '</p></li>';
+    }).join("") + '</ul>';
+  }
+  function sgcPaint() {
+    var w = sgcEl(); if (!w || !w.__it) return; var tid = sgrTrack(w.__it.rid), c = SGR.cm[tid];
+    w.querySelector(".sgc-t").textContent = sgrL("留言", "Comments") + (c && !c.loading && !c.err ? " · " + c.count : "");
+    w.querySelector(".sgc-list").innerHTML = sgcListHTML(c);
+    var r = w.querySelector(".sgc-retry"); if (r) r.onclick = function () { sgcLoad(w.__it, true); };
+  }
+  function sgcLoad(it, force) {
+    var tid = sgrTrack(it.rid), c = SGR.cm[tid];
+    if (c && !force && !c.err && Date.now() - (c.at || 0) < 30000) { sgcPaint(); return; }
+    SGR.cm[tid] = { loading: true, items: (c && c.items) || [], count: (c && c.count) || 0 }; sgcPaint();
+    var fp = feedPassInfo();
+    fetch(CFG.api.workerBaseUrl + "/comments/list?album=" + SGR_ALBUM + "&track=" + encodeURIComponent(tid) + (fp.email ? "&email=" + encodeURIComponent(fp.email) : ""), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) { if (!d || !d.ok) throw 0; var items = (d.items || []).slice().sort(function (a, b) { return Number(b.isArtist) - Number(a.isArtist) || Number(b.createdAt || 0) - Number(a.createdAt || 0); }); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() }; })
+      .catch(function () { SGR.cm[tid] = { err: true, items: [], count: 0 }; })
+      .then(function () { sgcPaint(); sgrPaintActs(it.rid); });
+  }
+  function sgcOpen(it, from) {
+    if (sgcEl()) sgcClose(true);
+    var w = document.createElement("div"); w.id = "sgc"; w.className = "sgc"; w.setAttribute("data-no-translate", "");
+    var nick = fanNick();
+    w.innerHTML = '<div class="sgc-dim" data-x="1"></div><div class="sgc-panel" role="dialog" aria-modal="true" aria-labelledby="sgc-t">' +
+      '<div class="sgc-grab" aria-hidden="true"></div>' +
+      '<div class="sgc-hd"><h2 class="sgc-t" id="sgc-t" tabindex="-1">' + sgrL("留言", "Comments") + '</h2><button type="button" class="sgc-x" data-x="1" aria-label="' + sgrL("關閉留言", "Close comments") + '">' + SGR_ICON.x + '</button></div>' +
+      '<div class="sgc-list"></div>' +
+      '<form class="sgc-form" novalidate><label class="sr" for="sgc-in">' + sgrL("留言內容", "Your comment") + '</label><textarea id="sgc-in" rows="1" maxlength="300" placeholder="' + sgrL("留下你的話…", "Say something…") + '" enterkeyhint="send"></textarea><button type="submit" class="sgc-send" aria-label="' + sgrL("送出留言", "Post comment") + '" disabled>' + SGR_ICON.up + '</button></form>' +
+      '<p class="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + '</p>' +
+    '</div>';
+    w.__it = it; w.__from = from;
+    document.body.appendChild(w); document.body.classList.add("sgc-open");
+    requestAnimationFrame(function () { w.classList.add("in"); });
+    try { history.pushState(Object.assign({}, history.state || {}, { sgc: 1 }), ""); w.__hist = 1; } catch (e) {}
+    var ta = w.querySelector("textarea"), send = w.querySelector(".sgc-send"), note = w.querySelector(".sgc-note");
+    var keep = SGR.draft && SGR.draft.rid === it.rid ? SGR.draft.v : ""; ta.value = keep; send.disabled = !keep.trim();
+    ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || w.__busy; ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; SGR.draft = { rid: it.rid, v: ta.value }; });
+    ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!send.disabled) w.querySelector("form").requestSubmit ? w.querySelector("form").requestSubmit() : sgcPost(w); } });
+    w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); sgcPost(w); });
+    w.addEventListener("click", function (e) { if (e.target.closest("[data-x]")) sgcClose(false); });
+    w.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.preventDefault(); sgcClose(false); return; }
+      if (e.key === "Tab") { var f = w.querySelectorAll("button:not([disabled]),textarea"); if (!f.length) return; var a = f[0], z = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
+    });
+    /* 往下拉把手關閉 */
+    var grab = w.querySelector(".sgc-grab"), hd = w.querySelector(".sgc-hd"), pn = w.querySelector(".sgc-panel"), y0 = null;
+    [grab, hd].forEach(function (g) {
+      g.addEventListener("touchstart", function (e) { y0 = e.touches[0].clientY; pn.style.transition = "none"; }, { passive: true });
+      g.addEventListener("touchmove", function (e) { if (y0 == null) return; var dy = Math.max(0, e.touches[0].clientY - y0); pn.style.transform = "translateY(" + dy + "px)"; }, { passive: true });
+      g.addEventListener("touchend", function (e) { if (y0 == null) return; var dy = (e.changedTouches[0].clientY - y0); y0 = null; pn.style.transition = ""; pn.style.transform = ""; if (dy > 90) sgcClose(false); });
+    });
+    sgcKb(); setTimeout(function () { var h = w.querySelector(".sgc-t"); if (h) h.focus({ preventScroll: true }); }, 60);
+    sgcLoad(it, false);
+    hap(8);
+  }
+  function sgcPost(w) {
+    var it = w.__it, ta = w.querySelector("textarea"), send = w.querySelector(".sgc-send"), note = w.querySelector(".sgc-note");
+    var text = (ta.value || "").trim(); if (!text || w.__busy) return;
+    var fp = feedPassInfo();
+    if (!fp.unlocked || !fp.email || !fp.code) { note.textContent = sgrL("解鎖 SIGNAL 後才能留言", "Unlock SIGNAL to comment"); note.classList.add("bad"); return; }
+    w.__busy = true; send.disabled = true; ta.setAttribute("aria-busy", "true"); note.classList.remove("bad"); note.textContent = sgrL("送出中…", "Posting…");
+    var tid = sgrTrack(it.rid), ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+    fetch(CFG.api.workerBaseUrl + "/comments/post", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl ? ctl.signal : undefined,
+      body: JSON.stringify({ email: fp.email, code: fp.code, album: SGR_ALBUM, track: tid, body: text, timestampSeconds: null, userName: fanNick() || "粉絲" }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { s: r.status, d: d }; }); })
+      .then(function (x) {
+        if (x.s === 200 && x.d && x.d.ok && x.d.item) {
+          var c = SGR.cm[tid] || { items: [], count: 0 }; c.items = [x.d.item].concat(c.items.filter(function (m) { return m.id !== x.d.item.id; })); c.count = x.d.count || c.items.length; c.at = Date.now(); c.loading = false; c.err = false; SGR.cm[tid] = c;
+          ta.value = ""; ta.style.height = "auto"; SGR.draft = null; note.textContent = sgrL("已送出 · 公開留言", "Posted · public comment"); sgcPaint(); sgrPaintActs(it.rid); hap(12); return;
+        }
+        throw x;
+      })
+      .catch(function (x) {
+        var s = x && x.s;
+        note.classList.add("bad");
+        note.textContent = s === 401 ? sgrL("這組 email／兌換碼無法留言", "This email/code can't comment") : s === 429 ? sgrL("留言太頻繁，請稍後再試（文字已保留）", "Too many comments. Try again later (your text is kept).") : s === 403 ? sgrL("目前無法留言", "Commenting is unavailable") : sgrL("送出失敗，文字已保留，請再試一次", "Couldn't post. Your text is kept — try again.");
+      })
+      .then(function () { clearTimeout(tm); w.__busy = false; ta.removeAttribute("aria-busy"); send.disabled = !ta.value.trim(); });
+  }
+  function sgcClose(silent) {
+    var w = sgcEl(); if (!w) return;
+    var from = w.__from, hist = w.__hist; w.__hist = 0;
+    w.classList.remove("in"); w.classList.add("out"); document.body.classList.remove("sgc-open");
+    setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 260);
+    if (hist && !silent && history.state && history.state.sgc) { SGR.skipPop = true; try { history.back(); } catch (e) {} }
+    if (!silent && from && from.isConnected) try { from.focus({ preventScroll: true }); } catch (e) {}
+  }
+  window.addEventListener("popstate", function () {
+    if (SGR.skipPop) { SGR.skipPop = false; return; }
+    var w = sgcEl(); if (w && !(history.state && history.state.sgc)) { w.__hist = 0; sgcClose(false); }
+  });
+  function sgcKb() {   /* 鍵盤升起時把面板推到鍵盤上方 */
+    var vv = window.visualViewport; if (!vv || sgcKb.b) return; sgcKb.b = 1;
+    var f = function () { var w = sgcEl(); if (!w) return; var off = Math.max(0, window.innerHeight - vv.height - vv.offsetTop); w.style.setProperty("--kb", off + "px"); w.classList.toggle("kb", off > 80); };
+    vv.addEventListener("resize", f); vv.addEventListener("scroll", f);
+  }
+
   function renderMoodWall() {
     loadLiveFeed(false);
     setTimeout(feedNewsCheck, 600);
@@ -8913,7 +9286,7 @@ window.ALBUM_SWITCH = {
       /* B226T：未解鎖畫面 = 全幅人像 + 頂部 SIGNAL + Unlock（不顯示價格、方案、試看、介紹）。
          圖片、文字、按鈕三個獨立元素；樣式全部限定在 #screen-mood.sgl-locked。 */
       if (__ft) __ft.classList.add('hidden');
-      if (__sm) __sm.classList.add("sgl-locked");
+      if (__sm) { __sm.classList.add("sgl-locked"); __sm.classList.remove("sgr-on"); } SGR.built = false; sgcClose(true);
       $("feed-body").innerHTML =
         '<div class="sgl-bg" aria-hidden="true"></div>' +
         '<h2 class="sgl-title">SIGNAL</h2>' +
@@ -8923,6 +9296,8 @@ window.ALBUM_SWITCH = {
       return;
     }
     if (__sm) __sm.classList.remove("sgl-locked");
+    if (sgrOn()) { if (__ft) __ft.classList.add('hidden'); sgrRender(live); return; }   /* B314T：上下滑 */
+    if (__sm) __sm.classList.remove("sgr-on");
     if (__ft) __ft.classList.remove('hidden');
     $("feed-body").innerHTML = feedLoadingHTML() + out;
     try { paintSparks(); } catch (e) {}                /* B178T：新訊息閃金 ✨ */
@@ -10833,7 +11208,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B313T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B314T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -10986,12 +11361,13 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 <script src="shop-content.js?v=3" defer></script>
+<script src="shop-content-t314.js?v=B314T" defer></script>
 <script src="shop-views.js?v=3" defer></script>
 <script>
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-t309.js?v=B312T";   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-t314.js?v=B314T";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
