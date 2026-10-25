@@ -3,6 +3,175 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
+<script>/* B319T：信箋英文版。語言跟 App 同一個判斷（?lang → 已選語言 sky-lang → 瀏覽器第一語言；嵌在 App 裡直接用 App 的語言）。
+   只翻畫面上的固定文字與日期；粉絲寫的信、署名、輸入框內容一律不翻。Chance 收信端、團隊後台、測試面板維持中文（內部用）。 */
+(function () {
+  "use strict";
+  var lang = "";
+  try { if (parent !== window && parent.SKY_LANG) lang = parent.SKY_LANG; } catch (e) {}
+  if (!lang) {
+    var q = "", pref = "";
+    try { q = (new URLSearchParams(location.search).get("lang") || "").toLowerCase(); } catch (e) {}
+    try { pref = localStorage.getItem("sky-lang") || ""; } catch (e) {}
+    if (q === "zh" || q === "en") pref = q;
+    var p = (pref === "zh" || pref === "en") ? pref : ((navigator.languages && navigator.languages[0]) || navigator.language || "zh-TW");
+    lang = /^zh(?:-|$)/i.test(p) ? "zh" : "en";
+  }
+  window.DC_LANG = lang;
+  if (lang !== "en") return;
+  document.documentElement.lang = "en";
+
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var MONL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function dates(s) {
+    return String(s)
+      .replace(/(\d{4}) 年 (\d{1,2}) 月 (\d{1,2}) 日 (\d{1,2}:\d{2})/g, function (_, y, m, d, t) { return MON[m - 1] + " " + d + ", " + y + ", " + t; })
+      .replace(/(\d{1,2}) 月 (\d{1,2}) 日 (\d{1,2}:\d{2})/g, function (_, m, d, t) { return MON[m - 1] + " " + d + ", " + t; })
+      .replace(/(\d{1,2}) 月 (\d{1,2}) 日/g, function (_, m, d) { return MON[m - 1] + " " + d; })
+      .replace(/(\d{4}) 年 (\d{1,2}) 月/g, function (_, y, m) { return MONL[m - 1] + " " + y; });
+  }
+  var D = {
+    "Dear CHANCE 相遇信箋": "Dear CHANCE · Letters",
+    "設計預覽 · 不會收費或寄送": "Design preview · No charge, nothing is sent", "測試面板": "Test panel",
+    "寫信": "Write", "預覽": "Preview", "寄出": "Send", "我的信件": "My letters", "回到周邊": "Back to shop", "返回": "Back",
+    "有些話，": "Some words,", "只想寫給你。": "just for you.", "把想說的話，留在這封信裡。": "Leave what you want to say in this letter.",
+    "／封 · 數位信箋": "/ letter · Digital stationery", "寫一封信": "Write a letter", "先寫草稿": "Start a draft", "收信說明": "How it works",
+    "相遇信箋主視覺": "Dear Chance stationery artwork",
+    "你本月的心意，已經寄出。": "Your letter for this month has been sent.", "每人每月限寄一封。": "One letter per person per month.", "查看我的信": "View my letter",
+    "你有一個保留中的名額": "You have a reserved spot", "繼續付款": "Continue to payment",
+    "本期尚未開放收信": "Letters aren’t open yet this month", "草稿可以先寫，會保留在此裝置。": "You can write a draft now. It stays on this device.",
+    "本期收信已結束。": "Letters are closed for this month.",
+    "草稿會保留，但不會自動寄出、不會自動扣款，也不會自動取得下期名額。": "Your draft is kept, but it won’t be sent or charged automatically, and it won’t reserve a spot next month.",
+    "本期暫停收新信": "New letters are paused this month", "已寄出的信仍會在期限前讀完。草稿會保留。": "Letters already sent will still be read by the deadline. Your draft is kept.",
+    "你的草稿會保留在此裝置。": "Your draft stays on this device.",
+    "收信規則": "Letter rules", "名額與時間": "Spots & timing", "額滿或截止，任一條件成立就停止收新信。": "New letters stop as soon as spots run out or the deadline passes.",
+    "購買內容": "What you get", "本期一次寄信名額、數位信箋、Chance 本人閱讀確認、寄出紀念副本。": "One letter spot this month, digital stationery, read confirmation by Chance himself, and a keepsake copy of what you sent.",
+    "閱讀承諾": "Reading promise", "「已讀完」只由 Chance 本人帳號確認，團隊審核或開啟畫面都不算。": "“Read” is confirmed only from Chance’s own account. Team review or simply opening the screen doesn’t count.",
+    "不保證逐一回覆，購買不能換取回覆優先權。": "Replies aren’t guaranteed, and buying doesn’t give you reply priority.",
+    "截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。": "Closing only stops new letters. Letters already sent are still read as promised.",
+    "寄出之後": "After you send", "付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。": "After payment, the letter you previewed is sent. It can’t be edited or withdrawn.",
+    "付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。": "If spots are full or the deadline has passed when your payment completes, the letter isn’t sent and you’ll be refunded. It won’t show as delivered.",
+    "尚待公布（正式上線前必須補上）": "Still to be published (required before launch)", "信件內容規則，以及不符規則時的處理方式。": "Content rules for letters, and what happens if a letter breaks them.",
+    "退款政策與處理時間。": "Refund policy and processing time.", "未能於期限內讀完時的延期通知與補償方式。": "How we notify and compensate you if a letter isn’t read by the deadline.",
+    "關閉": "Close",
+    "從一句最想說的話開始…": "Start with the one thing you most want to say…", "信件正文，寫給 CHANCE": "Your letter to CHANCE", "署名，最多 20 字": "Signature, up to 20 characters", "你的名字": "Your name",
+    "這次變更尚未儲存，請先不要離開。": "This change hasn’t been saved yet. Please don’t leave.", "重試儲存": "Try saving again", "複製正文": "Copy text",
+    "剛剛的修改還沒存進此裝置。可以重試，或先複製正文。": "Your latest edits aren’t saved on this device yet. Try again, or copy the text first.", "留在此頁": "Stay on this page", "不儲存，仍要離開": "Leave without saving",
+    "這封信有一個保留中的名額": "This letter has a reserved spot",
+    "下一步 · 確認信件": "Next · Review your letter", "寫下正文後就能預覽。": "Write something to preview it.", "預覽後才會確認名額與付款。": "Spots and payment are confirmed only after you preview.",
+    "編輯中…": "Editing…", "尚未儲存": "Not saved yet", "草稿僅存於此裝置": "Drafts are stored on this device only", "已儲存在此裝置": "Saved on this device",
+    "已複製正文": "Text copied", "已選取正文，請手動複製": "Text selected — please copy it manually",
+    "把心意，寄給 Chance。": "Send your letter to Chance.", "查看完整信件": "View full letter",
+    "收件人": "To", "CHANCE · 專屬信箱": "CHANCE · Private mailbox", "收信期別": "Round", "可用名額": "Spots left", "親自閱讀期限": "Read by", "價格": "Price",
+    "付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。": "After payment, the letter you’re previewing will be sent.\nIt can’t be edited or withdrawn after sending.\nReplies aren’t guaranteed.",
+    "我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。": "I’ve read the letter rules. I understand the letter can’t be changed after sending and replies aren’t guaranteed.",
+    "查看收信規則": "View letter rules", "確認名額中": "Checking spots…", "返回修改": "Back to edit",
+    "本期名額剛剛額滿，你的草稿已保留。": "This month just filled up. Your draft is saved.", "本期收信已結束。你的草稿已保留。": "Letters are closed for this month. Your draft is saved.",
+    "本期尚未開放收信。": "Letters aren’t open yet this month.", "本期暫停收新信。你的草稿已保留。": "New letters are paused. Your draft is saved.",
+    "信件內容不符合字數限制。": "Your letter doesn’t meet the length limit.", "暫時無法確認名額，請稍後再試。": "We can’t confirm spots right now. Please try again later.",
+    "暫時無法確認名額，請稍後再試。你的草稿仍在。": "We can’t confirm spots right now. Please try again later. Your draft is still here.",
+    "保留中的名額會寄出先前的版本": "Your reserved spot will send the earlier version",
+    "登入後才能寄出": "Sign in to send", "寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。": "Spots, payments and your letters are tied to your account, so you can see them on any phone. Your draft is kept.",
+    "以 Email 登入（Demo）": "Sign in with email (demo)", "先不要": "Not now", "已登入（Demo）": "Signed in (demo)",
+    "名額已為你保留": "Your spot is reserved", "時間以伺服器為準": "Server time applies", "將寄出的是你剛剛預覽、已固定的內容：": "This is the locked version you just previewed:",
+    "訂單": "Order", "金額": "Amount",
+    "付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。": "After payment, the letter you previewed will be sent.\nIt can’t be edited or withdrawn. Replies aren’t guaranteed.",
+    "付款處理中": "Processing payment…", "DEMO 模擬付款 · 不會收費": "DEMO payment · No charge", "回到預覽，重新確認名額": "Back to preview to confirm again", "先不付款": "Not now",
+    "保留時間已到，名額已釋放。": "Your hold expired and the spot was released.", "你的草稿仍在。": "Your draft is still here.", "尚未付款。": "Not paid yet.", "付款沒有完成。": "Payment didn’t go through.", "付款沒有完成": "Payment didn’t go through", "尚未付款": "Not paid yet",
+    "保留已到期，名額已釋放。你的草稿仍在。": "Your hold expired and the spot was released. Your draft is still here.",
+    "這封信沒有寄出": "This letter wasn’t sent", "正在確認付款結果…請勿重複付款": "Confirming your payment… Please don’t pay again.",
+    "付款已完成，正在確認收件…": "Payment complete. Confirming delivery…", "不需要再次付款。": "No need to pay again.", "還沒有付款。": "Not paid yet.",
+    "信沒有寄出，你的草稿仍在。": "Your letter wasn’t sent. Your draft is still here.", "回到預覽": "Back to preview",
+    "付款完成時本期名額已滿或已截止，無法寄出。": "Spots were full or the deadline had passed when your payment completed, so the letter couldn’t be sent.",
+    "跳過動畫": "Skip animation", "連線較慢，正在查詢這封信的寄送狀態…": "Slow connection — checking your letter’s status…", "正在確認收件…": "Confirming delivery…",
+    "不會重新寄出，也不會重複扣款。請不要再付款一次。": "It won’t be sent or charged twice. Please don’t pay again.", "你的信件內容已保留。": "Your letter is saved.",
+    "確認狀態後重試": "Check status and try again", "聯絡協助": "Get help", "你的信，已送達": "Your letter has arrived", "Chance 的專屬信箱。": "in Chance’s private mailbox.",
+    "送達代表信箱已接收，不代表已讀。Chance 本人讀完後會另外顯示。": "Delivered means the mailbox received it, not that it’s been read. You’ll see when Chance has read it.",
+    "模擬送達 · 沒有真的寄出": "Simulated delivery · Nothing was actually sent", "查看信件": "View letter", "你的信已送達 Chance 的專屬信箱": "Your letter has arrived in Chance’s private mailbox",
+    "已回覆": "Replied", "Chance 已讀完": "Read by Chance", "收信規則待處理": "Under review", "已送達，等待 Chance 閱讀": "Delivered · waiting for Chance to read",
+    "退款處理中": "Refund in progress", "退款完成": "Refunded", "已付款，寄送處理中": "Paid · sending", "付款結果確認中": "Confirming payment", "名額保留中，等待付款": "Spot held · awaiting payment", "失敗": "Failed",
+    "已寄出": "Sent", "草稿": "Drafts", "回信": "Replies",
+    "登入後可以查看寄出的信與訂單。草稿仍在此裝置。": "Sign in to see letters you’ve sent and your orders. Drafts stay on this device.",
+    "還沒有寄出的信。": "No letters sent yet.", "僅存於此裝置": "This device only", "（只有署名）": "(Signature only)", "沒有草稿。": "No drafts.",
+    "尚未收到回信。若有新回信，會出現在這裡。\n寄信不保證獲得回覆。": "No replies yet. New replies will show up here.\nSending a letter doesn’t guarantee a reply.",
+    "收藏那些，\n認真說過的話。": "Keep the words\nyou truly meant.", "再寫一封信": "Write another letter",
+    "名額保留、內容固定": "Spot held · letter locked", "付款完成": "Payment complete", "已送達 Chance 專屬信箱": "Delivered to Chance’s private mailbox",
+    "Chance 本人確認已讀完": "Read confirmed by Chance", "Chance 回覆了你": "Chance replied",
+    "寄給 CHANCE": "To CHANCE", "Chance 的回覆": "Chance’s reply", "寄送進度與訂單": "Delivery progress & order", "金額（下單時）": "Amount (at order)", "閱讀期限（下單時承諾）": "Read-by date (promised at order)",
+    "（未署名）": "(Unsigned)", "找不到這封信，可能已被重設。": "We couldn’t find this letter. It may have been reset.", "回到首頁": "Back to start", "找不到這封信": "Letter not found",
+    "暫時連不上服務": "Can’t reach the service right now", "此裝置無法儲存資料。": "This device can’t save data.", "請稍後再試。": "Please try again later."
+  };
+  var R = [
+    [/^保留到 (.+)。付款會寄出保留當下的內容。$/, function (m) { return "Reserved until " + m[1] + ". Paying will send the version you reserved."; }],
+    [/^(.+)將於 (.+) 開放。可以先寫草稿，不收費、不占名額。$/, function (m) { return m[1].trim() + " opens " + m[2] + ". You can write a draft now — it’s free and doesn’t use a spot."; }],
+    [/^下一期 (.+)，於 (.+) 開放。$/, function (m) { return "Next round: " + m[1] + ", opens " + m[2] + "."; }],
+    [/^本月的.+封心意，已全部收到。$/, function () { return "All of this month’s letters have been received."; }],
+    [/^其中 (\d+) 個名額仍在別人的付款保留中；若到期未付款，名額會重新開放。$/, function (m) { return m[1] + " spot(s) are on hold for other fans’ payments. If they don’t pay in time, those spots reopen."; }],
+    [/^其中 (\d+) 個名額正在付款保留中，已從可用名額扣除。$/, function (m) { return m[1] + " spot(s) are on hold for payment and aren’t counted as available."; }],
+    [/^(.+) · 可用名額$/, function (m) { return m[1] + " · Spots left"; }],
+    [/^每月開放 (\d+) 封，每人每月最多成功寄出 (\d+) 封。$/, function (m) { return m[1] + " letters are accepted each month. Each person can send up to " + m[2] + " per month."; }],
+    [/^每月 1 日 00:00 開放，10 日 23:59 截止，以台灣時間（Asia\/Taipei）為準。(?:本期為 (.+) 至 (.+)。)?$/, function (m) { return "Opens on the 1st at 00:00 and closes on the 10th at 23:59, Taiwan time (Asia/Taipei)." + (m[1] ? " This round: " + m[1] + " – " + m[2] + "." : ""); }],
+    [/^在預覽頁確認付款時，名額會保留 (\d+) 分鐘。未付款且到期，名額會釋放給其他人。$/, function (m) { return "When you confirm on the preview page, your spot is held for " + m[1] + " minutes. If you don’t pay in time, it’s released to others."; }],
+    [/^NT\$(\d+)／封。數位商品，無實體寄送。$/, function (m) { return "NT$" + m[1] + " per letter. Digital product; nothing is shipped."; }],
+    [/^每一封符合本規則且成功寄出的信，Chance 承諾於當月底（本期 (.+)）前親自讀完。$/, function (m) { return "Chance promises to personally read every letter that follows these rules and is sent successfully by the end of the month (this round: " + m[1] + ")."; }],
+    [/^付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 (.+)。$/, function (m) { return "Paying sends the version you reserved; edits now won’t change that order. Reserved until " + m[1] + "."; }],
+    [/^超過 ([\d,]+) 字 · ([\d,]+) \/ 1,000$/, function (m) { return "Over by " + m[1] + " · " + m[2] + " / 1,000 characters"; }],
+    [/^([\d,]+) \/ 1,000 字$/, function (m) { return m[1] + " / 1,000 characters"; }],
+    [/^署名最多 20 字，目前 (\d+) 字。$/, function (m) { return "Signatures can be up to 20 characters (now " + m[1] + ")."; }],
+    [/^✓ 已儲存 · 僅存於此裝置\s*(.*)$/, function (m) { return "✓ Saved · on this device only" + (m[1] ? " " + m[1] : ""); }],
+    [/^(.+) 前$/, function (m) { return m[1]; }],
+    [/^確認付款並寄出 · NT\$(\d+)$/, function (m) { return "Confirm, pay & send · NT$" + m[1]; }],
+    [/^繼續付款並寄出 · NT\$(\d+)$/, function (m) { return "Continue to pay & send · NT$" + m[1]; }],
+    [/^前往付款 · NT\$(\d+)$/, function (m) { return "Continue to payment · NT$" + m[1]; }],
+    [/^按下後會先保留名額 (\d+) 分鐘，再前往付款。$/, function (m) { return "Your spot will be held for " + m[1] + " minutes, then you’ll go to payment."; }],
+    [/^名額保留到 (.+)，到期未付款會釋放。$/, function (m) { return "Spot held until " + m[1] + ". It’s released if unpaid."; }],
+    [/^名額保留到 (.+)，可以再試一次。$/, function (m) { return "Spot held until " + m[1] + ". You can try again."; }],
+    [/^名額保留到 (.+)$/, function (m) { return "Spot held until " + m[1]; }],
+    [/^保留到 (.+)$/, function (m) { return "Held until " + m[1]; }],
+    [/^你在 (.+) 保留名額時，內容已固定為：$/, function (m) { return "When you reserved on " + m[1] + ", the letter was locked as:"; }],
+    [/^若要寄出現在這個版本，請等保留於 (.+) 到期後重新確認。$/, function (m) { return "To send this version instead, wait until the hold ends at " + m[1] + " and confirm again."; }],
+    [/^(.*)這筆付款(已退款完成|已進入退款處理)，不會再扣款。你的草稿仍保留在此裝置。$/, function (m) { return (m[1] ? tr(m[1]) + " " : "") + (m[2] === "已退款完成" ? "This payment has been refunded" : "A refund is being processed") + ", and you won’t be charged again. Your draft is still on this device."; }],
+    [/^Chance 將於 (.+) 前親自讀完。$/, function (m) { return "Chance will personally read it by " + m[1] + "."; }],
+    [/^Demo：這裡會開客服，帶入訂單編號 (.+)$/, function (m) { return "Demo: this would open support with order " + m[1]; }],
+    [/^親自閱讀期限 (.+)$/, function (m) { return "Read by " + m[1]; }],
+    [/^草稿 · (.+)$/, function (m) { return "Draft · " + m[1]; }],
+    [/^Chance 的回覆 · (.+)$/, function (m) { return "Chance’s reply · " + m[1]; }],
+    [/^期限 (.+)$/, function (m) { return "Due " + m[1]; }]
+  ];
+  function tr(raw) {
+    var t = String(raw).trim(); if (!t || !/[㐀-鿿]/.test(t)) return raw;
+    var out = D[t];
+    if (out == null) { var td = dates(t); if (td !== t && !/[㐀-鿿]/.test(td)) out = td; }
+    if (out == null) for (var i = 0; i < R.length; i++) { var m = R[i][0].exec(t); if (m) { for (var j = 1; j < m.length; j++) if (m[j] != null) m[j] = dates(m[j]); out = R[i][1](m); break; } }
+    if (out == null) return raw;
+    return String(raw).replace(t, out);
+  }
+  window.DC_TR = tr;
+  var SKIP = "script,style,textarea,input,.p-body,.p-sig,.snap,.item .s,.lsa-letter,[data-no-translate]";
+  var INTERNAL = '[data-route="inbox"],[data-route="cletter"],[data-route="admin"]';
+  function walk(n) {
+    if (n.nodeType === 3) { var p = n.parentElement; if (!p || p.closest(SKIP)) return; var s = tr(n.nodeValue); if (s !== n.nodeValue) n.nodeValue = s; return; }
+    if (n.nodeType !== 1 || n.matches(SKIP)) {
+      if (n.nodeType === 1 && n.matches("textarea,input")) ["placeholder", "aria-label"].forEach(function (a) { if (n.hasAttribute(a)) { var o = n.getAttribute(a), s = tr(o); if (s !== o) n.setAttribute(a, s); } });
+      return;
+    }
+    if (n.closest && n.closest(".sim")) return;   /* 測試面板內部選項維持中文 */
+    ["aria-label", "title", "alt", "placeholder"].forEach(function (a) { if (n.hasAttribute(a)) { var o = n.getAttribute(a), s = tr(o); if (s !== o) n.setAttribute(a, s); } });
+    for (var c = n.firstChild; c; c = c.nextSibling) walk(c);
+  }
+  var busy = false;
+  function apply(root) { if (busy) return; if (document.body && document.body.matches(INTERNAL)) return; busy = true; try { walk(root || document.body || document.documentElement); if (document.title) document.title = tr(document.title); } finally { busy = false; } }
+  var obs = new MutationObserver(function (ms) {
+    if (busy) return; if (document.body && document.body.matches(INTERNAL)) return;
+    busy = true;
+    try { ms.forEach(function (m) { if (m.type === "characterData") walk(m.target); else m.addedNodes.forEach(function (a) { walk(a); }); }); }
+    finally { busy = false; }
+  });
+  obs.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  document.addEventListener("DOMContentLoaded", function () { apply(); });
+  window.DC_I18N_APPLY = apply;
+})();
+</script>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 /* Isolated letter UI v1: scoped views only, no App layout changes. */
 .demo-bar{position:relative;padding-top:4px;padding-bottom:4px;min-height:36px}.demo-open{min-height:32px;padding:0 8px;font-size:12px}.demo-txt{font-size:12px}.demo-tag{font-size:10px}
@@ -13,7 +182,8 @@ body[data-route="compose"]{background:var(--paper);color:var(--ink);padding:0;co
 body[data-route="compose"] .orbits{display:none}body[data-route="compose"] .app{max-width:640px;padding:0 24px 24px;min-height:100dvh}body[data-route="compose"] .demo-bar{margin:0 -24px;padding-inline:24px;background:var(--paper);border-color:#d4c4a8}body[data-route="compose"] .demo-txt,body[data-route="compose"] .demo-open,body[data-route="compose"] .top-mid,body[data-route="compose"] .icon-btn{color:var(--ink)}
 body[data-route="compose"] .screen{gap:16px;min-height:calc(100svh - 130px)}body[data-route="compose"] .paper{border-radius:0;box-shadow:none;padding:42px 0 12px;flex:1}body[data-route="compose"] .corner{display:none}body[data-route="compose"] .salute{font-size:38px;margin-bottom:24px}body[data-route="compose"] .body-ta{min-height:260px;font-size:18px}body[data-route="compose"] .count,body[data-route="compose"] .save,body[data-route="compose"] .small{color:#716351}body[data-route="compose"] .save.err,body[data-route="compose"] .field-err,body[data-route="compose"] .count.over{color:#992f25}body[data-route="compose"] .btn-gold{background:#302922;color:var(--paper);box-shadow:none;border-radius:28px}body[data-route="compose"] .state{color:var(--ink)}body[data-route="compose"] .state b{color:var(--ink)}
 body[data-route="ritual"] .app{max-width:600px;min-height:100dvh}body[data-route="ritual"] #view>.screen{min-height:calc(100svh - 145px);justify-content:center}body[data-route="ritual"] .lsa{max-width:520px}body[data-route="ritual"] .lsa-wrap{max-height:62svh;aspect-ratio:320/350;width:auto;margin:auto}body[data-route="ritual"] .lsa-note{font-size:16px}body[data-route="ritual"] .lsa-bg{opacity:0}
-@media(max-width:350px){.entry-copy h1{font-size:28px}.letter-entry{padding-inline:0}.facts li{font-size:16px;flex-wrap:wrap}.facts li b{text-align:left}body[data-route="compose"] .app{padding-inline:18px}body[data-route="compose"] .demo-bar{margin-inline:-18px;padding-inline:18px}}
+.consent-rules{align-self:flex-start;margin:-8px 0 0 36px;padding:0 4px;font-size:15px}
+@media(max-width:350px){.top .top-mid{letter-spacing:.08em}.entry-copy h1{font-size:28px}.letter-entry{padding-inline:0}.facts li{font-size:16px;flex-wrap:wrap}.facts li b{text-align:left}body[data-route="compose"] .app{padding-inline:18px}body[data-route="compose"] .demo-bar{margin-inline:-18px;padding-inline:18px}}
 @media(prefers-reduced-motion:reduce){.screen,.scrim,.sheet{animation:none!important}*{scroll-behavior:auto!important}}
 
 </style>
@@ -680,10 +850,10 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
    '<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
    (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+box+
    (holdDiff?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
-   ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label>':'')+
+   ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>':'')+
    (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'
      :(blocked?'':'<button class="btn btn-gold" id="confirm" type="button"'+(reserving?' disabled aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>確認名額中':'確認付款並寄出 · NT$'+(per?per.price:99))+'</button><p class="small" style="text-align:center">按下後會先保留名額 '+(per?per.holdMin:10)+' 分鐘，再前往付款。</p>'))+
-   '<button class="btn btn-ghost" id="edit" type="button">返回修改</button><button class="btn btn-text" id="rules" type="button">查看收信規則</button></section>'},
+   '<button class="btn btn-ghost" id="edit" type="button">返回修改</button>'+((!blocked||ov.myHold)?'':'<button class="btn btn-text" id="rules" type="button">查看收信規則</button>')+'</section>'},
  wire:function(ov){
   bindState();var d=CL.drafts[R.param];if(!d)return V.missing.wire();
   $("edit").onclick=function(){lastErr=null;stack.pop();setRoute({name:"compose",param:d.id});render();window.scrollTo(0,0)};

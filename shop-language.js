@@ -40,6 +40,36 @@
  '台灣免運・海外':'Free Taiwan shipping · International','／包':'/ pack','/ 包':'/ pack','品名：':'Product:','售價：':'Price:'
  };
  Object.assign(D,{
+ /* B319T：購票頁、購票須知（海外粉絲付款前看得懂；英文僅供參考，以中文為準） */
+ '購買票券':'Buy tickets','訂單明細':'Order summary','收票 Email':'Email for your ticket','你的 email（票會寄到這裡）':'Your email (your ticket is sent here)',
+ '你的稱呼':'Your name','僅用於本活動（報到與現場使用）':'Used only for this event (check-in on the day).',
+ 'CHANCE 在海報上署名會用這個名字，請確認寫法':'CHANCE will sign the poster with this name. Please check the spelling.',
+ '購買前請注意':'Before you buy','每人限購 1 張（以收票 Email 認定）':'1 ticket per person (per email).',
+ '每人每票種限購 1 張（以收票 Email 認定）':'1 ticket per person per ticket type (per email)','每人每票種限購 1 張（以收票 Email 認定）。':'1 ticket per person per ticket type (per email).',
+ '周邊於活動當天憑票現場領取':'Merch is collected at the event with your ticket.',
+ '完整購票須知 ›':'Full ticket terms ›','應付金額':'Total due','前往付款即表示同意':'By continuing to payment, you agree to the','《購票須知》':'ticket terms',
+ '綠界 ECPay 安全付款 · 付款後票直接進票夾':'Secure payment by ECPay · Your ticket goes straight to your ticket wallet',
+ '票會寄到':'Your ticket will be sent to','，也會存進票夾':' and saved in your ticket wallet.',
+ '販售中':'On sale','下一步':'Next','合計':'Total','知道了':'Got it',
+ '活動':'Event','票種福利':'What’s included','終身編號':'Lifetime number','限購與入場':'Limits & entry','退換票':'Refunds & transfers','主辦單位':'Organizer',
+ '依付款完成順序配發；有人退票時，釋出的號碼由下一位購買者遞補。':'Assigned in order of payment. If someone gets a refund, their number goes to the next buyer.',
+ '終身編號不是座位號碼；編號與福利隨票轉讓，歸新持有人。':'It is not a seat number. The number and perks move with the ticket if you transfer it.',
+ '購票時需填寫稱呼，僅用於本活動（報到使用）。':'You’ll enter a name when buying; it’s used only for check-in at this event.',
+ '購票時需填寫稱呼，僅用於本活動（報到與 VVIP 海報署名）。':'You’ll enter a name when buying; it’s used only for check-in and the VVIP signed poster.',
+ '依現場引導入場，場內自由入座。':'Enter as directed by staff. Open seating inside.',
+ '因主辦單位因素取消、改期或主要演出內容變更，全額退款、不收手續費。':'If the organizer cancels, reschedules or substantially changes the event, you get a full refund with no fee.',
+ '非供自用、購票轉售圖利者，主辦單位得不予退換票。':'Tickets bought for resale at a profit may be refused refunds or exchanges.',
+ '退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。':'To request a refund, email heartbeats0693@gmail.com with your purchase email and ticket number.',
+ '名稱：夏米爾企業社':'Name: 夏米爾企業社 (Shamir Enterprise)','負責人：張紫瑩':'Representative: 張紫瑩','客服信箱：heartbeats0693@gmail.com':'Support: heartbeats0693@gmail.com',
+ '地址：臺北市中正區懷寧街76號':'Address: No. 76, Huaining St., Zhongzheng Dist., Taipei City, Taiwan',
+ '※ 現場流程時間以當日公告為準':'※ On-site times follow the announcements on the day. This English text is for reference only; the Chinese version prevails.',
+ '入場 QR 在「我的票」':'Your entry QR is in “My tickets”','出示票券入場':'Show your ticket at the entrance','查看票券詳情':'Ticket details',
+ '完整生日活動入場・發餐':'Full birthday party entry · Meal included','第一支 MV 首播・嘉賓演出':'First MV premiere · Guest performance',
+ '生日牆全體合照・全場大合照':'Group photo at the birthday wall · Full-room group photo','散場擊掌送客':'High-five send-off','現場抽獎資格（5 位：手鍊／帽T）':'Lucky draw entry (5 winners: bracelet / hoodie)',
+ '第一支 MV 現場搶先首映與創作分享':'First MV premiere and the story behind it','生日環節・現場抽獎':'Birthday moment · Lucky draw','全場大合照（成品可下載）':'Full-room group photo (downloadable)',
+ '主辦精選活動照下載':'Selected event photos to download','散場擊掌一次':'One high-five at the send-off','數位紀念票（App 票根）':'Digital keepsake ticket (App stub)',
+ '合照與照片':'Photos','生日牆全體合照、全場大合照由官方攝影師拍攝，主辦精選活動照免費下載。':'The group photo at the birthday wall and the full-room group photo are taken by the official photographer. Selected event photos are free to download.',
+ '照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。':'We’ll email you when photos are up. The CHANCE App is a web app, so there’s nothing to install: open chance1228.com in any phone browser and sign in with your ticket email.',
  '微風影城 A 廳':'Breeze Cinemas · Hall A','微風影城 A 廳 · 台北':'Breeze Cinemas · Hall A, Taipei',
  '加入排隊':'Join the waitlist','排隊中…':'Joining…','好':'OK',
  '排隊，提早 24 小時買票':'Get access 24 hours early',
@@ -62,7 +92,24 @@
  'NT$99 · 每人每月一封':'NT$99 · One letter per person each month','CHANCE 官方周邊，數量有限。':'Official CHANCE merch. Limited quantities.',
  '每月限量 · 數位':'Monthly limit · Digital','／封':'/ letter','模擬付款 · 不會收費':'Demo checkout · No charge'
  });
+ const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK={'日':'Sun','一':'Mon','二':'Tue','三':'Wed','四':'Thu','五':'Fri','六':'Sat'};
+ const enDay=(m,d,w)=>(WK[w]||w)+', '+MON[(+m-1)%12]+' '+d;
+ const enTime=t=>{const [h,mi]=t.split(':').map(Number);return ((h%12)||12)+':'+String(mi).padStart(2,'0')+(h<12?' AM':' PM');};
+ const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
+ /* B319T：購票頁的日期、退票、編號、福利 */
+ [/^(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+)・(.+)$/,(_,m,d,w,t,v)=>enDay(m,d,w)+' · '+enTime(t)+' Taipei time · '+(D[v]||v)],
+ [/^(.+)｜(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+) 開始$/,(_,n,m,d,w,t)=>(D[n]||n)+' | '+enDay(m,d,w)+', starts '+enTime(t)+' (Taipei time)'],
+ [/^(.+)，共 (\d+) 席$/,(_,v,n)=>(D[v]||v)+' · '+n+' seats'],
+ [/^演出日前 20 日（(.+)）前可申請退票，酌收票價 10% 手續費$/,(_,d)=>'Refunds available until 20 days before the show ('+d+'), with a 10% fee.'],
+ [/^演出日前 20 日前可申請退票，酌收票價 10% 手續費$/,()=>'Refunds available until 20 days before the show, with a 10% fee.'],
+ [/^演出日前 20 日(?:（(.+)）)?前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。$/,(_,d)=>'Refunds are available until 20 days before the show'+(d?' ('+d+')':'')+', with a 10% fee. After that, no refunds, but you can transfer the ticket to a friend from your ticket wallet.'],
+ [/^終身編號依付款完成順序配發（No\.(\d+)–(\d+)）$/,(_,a,b)=>'Lifetime numbers are assigned in order of payment (No.'+a+'–'+b+').'],
+ [/^（(NT\$[\d,]+)，編號 (\d+)–(\d+)）：(.*)$/,(_,p,a,b,l)=>' ('+p+', No.'+a+'–'+b+'): '+enList(l)],
+ [/^(所有入場者共享|全票種共享)：(.*)$/,(_,k,l)=>(k==='全票種共享'?'Included with every ticket type: ':'Included for everyone: ')+enList(l)],
+ [/^入場憑 App 票夾的入場 QR，開場前 (\d+) 小時出現，給工作人員掃描即完成入場。$/,(_,h)=>'Enter with the QR code in your App ticket wallet. It appears '+h+' hours before doors open; staff scan it at the entrance.'],
+ [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
+ [/^下一步 (NT\$[\d,]+)$/,(_,p)=>'Next '+p],
  [/^(.+) 還沒開賣。留下 email 拿到排隊號碼，$/,(_,n)=>(D[n]||n)+' is not on sale yet. Leave your email to receive a waitlist number. '],
  [/^同一個 email 只會有一個號碼；(\d+) 席數量有限，收到通知請盡快購買。$/,(_,n)=>'One waitlist number per email. '+n+' seats are available; purchase promptly after receiving your invitation.'],
  [/^你是第 (\d+) 位$/,(_,n)=>'Your waitlist number: '+n],
