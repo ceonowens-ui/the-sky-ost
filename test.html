@@ -1631,29 +1631,14 @@ body.sgc-open #feed-back{visibility:hidden}
 .sgc-form.sup{box-shadow:0 0 0 1px rgba(232,191,122,.6)}
 .sgc-chip{flex:none;height:44px;margin:0;padding:0 10px;border-radius:999px;border:1px solid rgba(232,191,122,.4);background:none;color:#E8BF7A;font:500 13px/1 'Noto Sans TC',-apple-system,sans-serif;display:flex;align-items:center;gap:4px;cursor:pointer}
 .sgc-chip[aria-pressed="true"]{background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;border-color:transparent}
-.sgc-pay{position:absolute;inset:0;z-index:3;display:flex;align-items:flex-end;background:rgba(0,0,0,.5);border-radius:22px 22px 0 0;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,visibility 0s .2s}
-.sgc-pay.in{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .2s,visibility 0s}
-.sgc-pay-c{width:100%;background:#1b171d;border-radius:22px 22px 0 0;border-top:1px solid rgba(232,191,122,.35);padding:18px 20px calc(16px + env(safe-area-inset-bottom));display:grid;gap:12px;transform:translateY(24px);transition:transform .25s}
-.sgc-pay.in .sgc-pay-c{transform:none}
-.sgc-pay h3{margin:0;font:500 18px/1.3 'Noto Sans TC',-apple-system,sans-serif;color:#F3EEEA}
-.sgc-pay-q{margin:0;padding:10px 12px;border-radius:12px;border:1px solid rgba(232,191,122,.4);background:rgba(232,191,122,.07);font-size:14px;line-height:1.5;color:#F3EEEA;word-break:break-word;max-height:4.6em;overflow:hidden}
+.sgc-tipbar{margin:8px 16px 0;display:grid;gap:6px;flex:none}
+.sgc-tipbar[hidden]{display:none}
 .sgc-amts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sgc-amt{min-height:56px;border-radius:14px;border:1px solid rgba(232,191,122,.35);background:#221e25;color:#F3EEEA;cursor:pointer;font:600 17px/1 'Noto Sans TC',-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+.sgc-amt{min-height:44px;border-radius:12px;border:1px solid rgba(232,191,122,.35);background:#221e25;color:#F3EEEA;cursor:pointer;font:600 16px/1 'Noto Sans TC',-apple-system,sans-serif;font-variant-numeric:tabular-nums}
 .sgc-amt[aria-pressed="true"]{border-color:#E8BF7A;background:rgba(232,191,122,.16);color:#F0DCA8}
 .sgc-amt[disabled]{opacity:.35;cursor:default}
-.sgc-pay-s{margin:0;font-size:12.5px;line-height:1.55;color:#A39B8E}.sgc-pay-s b{color:#E8BF7A;font-weight:500}
-.sgc-pay-go{min-height:52px;border-radius:999px;border:0;background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;font:600 16px/1 'Noto Sans TC',-apple-system,sans-serif;cursor:pointer}
-.sgc-pay-go[disabled]{opacity:.55;cursor:default}
-.sgc-pay-no{min-height:44px;border:0;background:none;color:#A39B8E;font:inherit;cursor:pointer}
-.sgc-pay-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.sgc-bal{font-size:13px;color:#E8BF7A;font-variant-numeric:tabular-nums}
-.sgc-step{display:grid;gap:12px}.sgc-step[hidden]{display:none}
-.sgc-top{min-height:56px;border-radius:14px;border:1px solid rgba(232,191,122,.35);background:#221e25;color:#F3EEEA;cursor:pointer;font:600 17px/1 'Noto Sans TC',-apple-system,sans-serif;font-variant-numeric:tabular-nums}
-.sgc-top[aria-pressed="true"]{border-color:#E8BF7A;background:rgba(232,191,122,.16);color:#F0DCA8}
-.sgc-pay-buy{min-height:52px;border-radius:999px;border:0;background:linear-gradient(135deg,#F0DCA8,#D2A65C);color:#211705;font:600 16px/1 'Noto Sans TC',-apple-system,sans-serif;cursor:pointer}
-.sgc-pay-buy[disabled]{opacity:.55;cursor:default}
-.sgc-test{font-size:11.5px;opacity:.8}
-@media (prefers-reduced-motion:reduce){.sgc-pay,.sgc-pay-c{transition:none}.sgc-li.sup.new{animation:none}}
+.sgc-tip-s{margin:0;font-size:12px;line-height:1.5;color:#A39B8E}.sgc-tip-s b{color:#E8BF7A;font-weight:500}
+@media (prefers-reduced-motion:reduce){.sgc-li.sup.new{animation:none}}
 .sgc .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 @media (max-width:340px){.sgr-cap{right:76px;left:14px}.sgr-b{width:58px}.sgr-txt{font-size:15px;-webkit-line-clamp:5}}
@@ -3721,6 +3706,37 @@ body, #stage{ background:#080809 !important; }
 /* B319T：購票頁「完整購票須知」「《購票須知》」小字連結：外觀不變，點擊範圍加大到 44px 以上 */.tkb-lk{position:relative}.tkb-lk::after{content:"";position:absolute;left:-6px;right:-6px;top:-14px;bottom:-14px}.tkb-fine .tkb-lk::after{top:-26px;bottom:-6px}</style>
 </head>
 <body>
+<!-- B321T：打開 App 的開場動畫——最多 2 秒、東西載好就提早進（最少 0.9 秒，避免一閃而過）；點一下可略過；切換分頁不會出現。測試用 ?nosplash=1 關掉 -->
+<style id="sky-splash-css">
+#sky-splash{position:fixed;inset:0;z-index:2147483000;background:#08060C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .45s ease;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#sky-splash.out{opacity:0;pointer-events:none}
+#sky-splash .ss-k{font:500 11px/1 'Bodoni Moda',Didot,'Times New Roman',serif;letter-spacing:.42em;padding-left:.42em;color:rgba(243,238,234,.7);opacity:0;animation:ssIn .7s .05s ease forwards}
+#sky-splash .ss-t{font:italic 600 40px/1.1 'Playfair Display',Georgia,'Times New Roman',serif;letter-spacing:.02em;color:#F3EEEA;opacity:0;transform:translateY(6px);animation:ssIn .8s .15s ease forwards}
+#sky-splash .ss-l{width:120px;height:1px;margin-top:8px;background:rgba(232,191,122,.18);overflow:hidden}
+#sky-splash .ss-l i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#D2A65C,#F0DCA8);transform:scaleX(0);transform-origin:left;animation:ssBar 1.8s .1s cubic-bezier(.3,.6,.2,1) forwards}
+#sky-splash.done .ss-l i{animation:none;transform:scaleX(1);transition:transform .3s ease}
+@keyframes ssIn{to{opacity:1;transform:none}}
+@keyframes ssBar{to{transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){#sky-splash .ss-k,#sky-splash .ss-t{animation:none;opacity:1;transform:none}#sky-splash .ss-l i{animation:none;transform:scaleX(1)}#sky-splash{transition-duration:.2s}}
+</style>
+<div id="sky-splash" aria-hidden="true"><div class="ss-k">CHANCE</div><div class="ss-t">THE SKY</div><div class="ss-l"><i></i></div></div>
+<script>(function () {
+  var el = document.getElementById("sky-splash"); if (!el) return;
+  var skip = false; try { skip = /[?&]nosplash=1\b/.test(location.search) || !!window.__SKY_NOSPLASH; } catch (e) {}
+  if (skip) { el.parentNode.removeChild(el); return; }
+  var t0 = Date.now(), MIN = 900, MAX = 2000, gone = false;
+  function go() {
+    if (gone) return; gone = true; el.classList.add("done");
+    setTimeout(function () { el.classList.add("out"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); window.__skySplashOff = Date.now() - t0; }, 480); }, Math.max(0, MIN - (Date.now() - t0)));
+  }
+  function ready() {
+    var f = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    Promise.race([f, new Promise(function (r) { setTimeout(r, 500); })]).then(function () { requestAnimationFrame(function () { requestAnimationFrame(go); }); });
+  }
+  if (document.readyState === "complete") ready(); else window.addEventListener("load", ready);
+  setTimeout(go, MAX);
+  el.addEventListener("click", go);
+})();</script>
 <script>/* B223V：登記所有 new Audio() 實例（只登記，不改行為），供迷你播放列讀播放狀態 */
 (function(){var A=window.Audio;window.__AUD=[];function W(src){var a=(src===undefined)?new A():new A(src);window.__AUD.push(a);try{document.dispatchEvent(new CustomEvent("aud:new",{detail:a}))}catch(_){}return a}W.prototype=A.prototype;window.Audio=W;})();
 </script>
@@ -9970,11 +9986,9 @@ window.ALBUM_SWITCH = {
     return sgrDay(ts);
   }
   /* B320T：應援留言（測試）——只存在這支手機（localStorage），不送後台、不扣款 */
-  var TIP_KEY = "sky:tip:t320", TIP_BAL_KEY = "sky:tipbal:t320", TIP_AMTS = [50, 100, 150], TIP_TOPUPS = [300, 500, 1000], TIP_DAY_CAP = 1000;
+  var TIP_KEY = "sky:tip:t320", TIP_AMTS = [50, 100, 150], TIP_DAY_CAP = 1000;   /* B321T：先只列金額，結帳尚未製作（按送出＝預覽） */
   /* 開關：預設關閉（粉絲完全看不到應援）。CÉON 說「開放打賞」前，只有 ?tip=1 預覽看得到（記在這個分頁）；?tip=0 關掉預覽 */
   var TIP_OPEN = (function () { try { var q = location.search; if (/[?&]tip=1\b/.test(q)) sessionStorage.setItem("sky:tipprev", "1"); if (/[?&]tip=0\b/.test(q)) sessionStorage.removeItem("sky:tipprev"); return sessionStorage.getItem("sky:tipprev") === "1"; } catch (e) { return /[?&]tip=1\b/.test(location.search); } })();
-  function tipBal() { try { return Math.max(0, Number(localStorage.getItem(TIP_BAL_KEY)) || 0); } catch (e) { return 0; } }
-  function tipSetBal(n) { try { localStorage.setItem(TIP_BAL_KEY, String(Math.max(0, n))); } catch (e) {} }
   var TIP_STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg>';
   var TIP_HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
   function tipAll() { try { var a = JSON.parse(localStorage.getItem(TIP_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
@@ -10026,24 +10040,10 @@ window.ALBUM_SWITCH = {
       '<div class="sgc-grab" aria-hidden="true"></div>' +
       '<div class="sgc-hd"><h2 class="sgc-t" id="sgc-t" tabindex="-1">' + sgrL("留言", "Comments") + '</h2><button type="button" class="sgc-x" data-x="1" aria-label="' + sgrL("關閉留言", "Close comments") + '">' + SGR_ICON.x + '</button></div>' +
       '<div class="sgc-list"></div>' +
+      (TIP_OPEN ? '<div class="sgc-tipbar" hidden><div class="sgc-amts" role="group" aria-label="' + sgrL("應援金額", "Support amount") + '">' + TIP_AMTS.map(function (a, i) { return '<button type="button" class="sgc-amt" data-a="' + a + '" aria-pressed="' + (i === 0) + '">NT$' + a + '</button>'; }).join("") + '</div>' +
+        '<p class="sgc-tip-s"><b>' + sgrL("金額不會公開", "Amounts are never shown") + '</b>' + sgrL(" · 所有應援留言同一種金色，最新三則置頂 · 預覽中，結帳尚未開放、不會扣款", " · every supporter comment is the same gold; the latest three are pinned · preview only, checkout isn't open and nothing is charged") + '</p></div>' : '') +
       '<form class="sgc-form' + (TIP_OPEN ? ' has-chip' : '') + '" novalidate>' + (TIP_OPEN ? '<button type="button" class="sgc-chip" aria-pressed="false" aria-describedby="sgc-note">' + TIP_STAR + sgrL("應援", "Support") + '</button>' : '') + '<label class="sr" for="sgc-in">' + sgrL("留言內容", "Your comment") + '</label><textarea id="sgc-in" rows="1" maxlength="300" placeholder="' + sgrL("留下你的話…", "Say something…") + '" enterkeyhint="send"></textarea><button type="submit" class="sgc-send" aria-label="' + sgrL("送出留言", "Post comment") + '" disabled>' + SGR_ICON.up + '</button></form>' +
       '<p class="sgc-note" id="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + '</p>' +
-      (TIP_OPEN ? '<div class="sgc-pay" role="dialog" aria-modal="true" aria-labelledby="sgc-pay-t"><div class="sgc-pay-c">' +
-        '<div class="sgc-pay-top"><h3 id="sgc-pay-t">' + sgrL("應援這則 SIGNAL", "Support this SIGNAL") + '</h3><span class="sgc-bal"></span></div><p class="sgc-pay-q"></p>' +
-        '<div class="sgc-step" data-step="tip">' +
-          '<div class="sgc-amts" role="group" aria-label="' + sgrL("應援金額", "Amount") + '">' + TIP_AMTS.map(function (a, i) { return '<button type="button" class="sgc-amt" data-a="' + a + '" aria-pressed="' + (i === 0) + '">NT$' + a + '</button>'; }).join("") + '</div>' +
-          '<p class="sgc-pay-s"><b>' + sgrL("金額不會公開。", "Amounts are never shown.") + '</b>' + sgrL("所有應援留言都是同一種金色，置頂只看時間：最新三則在最上面。每天最多 NT$" + TIP_DAY_CAP + "。", "Every supporter comment uses the same gold; pinning is by time — the latest three stay on top. Up to NT$" + TIP_DAY_CAP + " a day.") + '</p>' +
-          '<button type="button" class="sgc-pay-go"></button>' +
-        '</div>' +
-        '<div class="sgc-step" data-step="top" hidden>' +
-          '<p class="sgc-pay-s">' + sgrL("先儲值應援餘額，之後每次應援按一下就從餘額扣，不用每次付款。", "Top up once, then each support is one tap from your balance.") + '</p>' +
-          '<div class="sgc-amts" role="group" aria-label="' + sgrL("儲值金額", "Top-up amount") + '">' + TIP_TOPUPS.map(function (a, i) { return '<button type="button" class="sgc-top" data-t="' + a + '" aria-pressed="' + (i === 0) + '">NT$' + a + '</button>'; }).join("") + '</div>' +
-          '<p class="sgc-pay-s">' + sgrL("餘額一律以台幣計算、沒有期限；沒用完的可以申請退款（規則待公布）。", "Your balance is in NT$, never expires, and unused balance can be refunded (terms to be published).") + '</p>' +
-          '<button type="button" class="sgc-pay-buy"></button>' +
-        '</div>' +
-        '<p class="sgc-pay-s sgc-test">' + sgrL("測試版：儲值與扣款都是模擬，不會扣款、不會送出到後台。", "Test build: top-ups and charges are simulated — nothing is charged or sent.") + '</p>' +
-        '<button type="button" class="sgc-pay-no">' + sgrL("先不要", "Not now") + '</button>' +
-      '</div></div>' : '') +
     '</div>';
     w.__it = it; w.__from = from;
     document.body.appendChild(w); document.body.classList.add("sgc-open");
@@ -10053,12 +10053,12 @@ window.ALBUM_SWITCH = {
     var keep = SGR.draft && SGR.draft.rid === it.rid ? SGR.draft.v : ""; ta.value = keep; send.disabled = !keep.trim();
     ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || w.__busy; ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; SGR.draft = { rid: it.rid, v: ta.value }; });
     ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!send.disabled) w.querySelector("form").requestSubmit ? w.querySelector("form").requestSubmit() : sgcPost(w); } });
-    w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); if (TIP_OPEN && w.__sup) tipOpen(w); else sgcPost(w); });
+    w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); if (TIP_OPEN && w.__sup) tipSend(w); else sgcPost(w); });
     if (TIP_OPEN) tipWire(w);
     w.addEventListener("click", function (e) { if (e.target.closest("[data-x]")) sgcClose(false); });
     w.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") { e.preventDefault(); if (TIP_OPEN && w.querySelector(".sgc-pay.in")) { tipClosePay(w); return; } sgcClose(false); return; }
-      if (e.key === "Tab") { var pay = w.querySelector(".sgc-pay.in"), f = Array.prototype.filter.call((pay || w).querySelectorAll("button:not([disabled]),textarea"), function (x) { return pay || !x.closest(".sgc-pay"); }); if (!f.length) return; var a = f[0], z = f[f.length - 1];
+      if (e.key === "Escape") { e.preventDefault(); if (TIP_OPEN && w.__sup) { w.__sup = false; tipSync(w); return; } sgcClose(false); return; }
+      if (e.key === "Tab") { var f = Array.prototype.filter.call(w.querySelectorAll("button:not([disabled]),textarea"), function (x) { return !x.closest("[hidden]"); }); if (!f.length) return; var a = f[0], z = f[f.length - 1];
         if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } }
     });
     /* 往下拉把手關閉 */
@@ -10073,68 +10073,35 @@ window.ALBUM_SWITCH = {
     hap(8);
   }
   function tipNote(w, t, bad) { var n = w.querySelector(".sgc-note"); n.textContent = t; n.classList.toggle("bad", !!bad); }
-  function tipSync(w) {
-    var chip = w.querySelector(".sgc-chip"), form = w.querySelector(".sgc-form"), ta = w.querySelector("textarea");
-    chip.setAttribute("aria-pressed", String(!!w.__sup)); form.classList.toggle("sup", !!w.__sup);
-    ta.placeholder = w.__sup ? sgrL("寫一句給 CHANCE，會以金色置頂", "Write to CHANCE — it'll be pinned in gold") : sgrL("留下你的話…", "Say something…");
-    tipNote(w, w.__sup ? sgrL("應援：送出後選金額 · 金額不會公開", "Support: choose an amount after sending · amounts stay private") : sgrL("公開留言 · 顯示為「" + (fanNick() || "粉絲") + "」", "Public comment · shown as “" + (fanNick() || "Fan") + "”"));
-  }
-  function tipPick(w, sel, b) { w.querySelectorAll(sel).forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }
   function tipAmt(w) { var b = w.querySelector('.sgc-amt[aria-pressed="true"]'); return b ? Number(b.dataset.a) : 0; }
-  function tipView(w, step) {
-    var bal = tipBal(), amt = tipAmt(w), go = w.querySelector(".sgc-pay-go"), buy = w.querySelector(".sgc-pay-buy");
-    w.querySelector(".sgc-bal").textContent = sgrL("應援餘額 NT$" + bal, "Balance NT$" + bal);
-    w.querySelectorAll(".sgc-step").forEach(function (el) { el.hidden = el.dataset.step !== step; });
-    if (step === "tip") { go.disabled = false; go.textContent = bal >= amt ? sgrL("用餘額應援 NT$" + amt, "Support NT$" + amt + " from balance") : sgrL("餘額不足，先儲值", "Not enough balance — top up"); }
-    else { var t = w.querySelector('.sgc-top[aria-pressed="true"]'); buy.disabled = false; buy.textContent = sgrL("前往綠界儲值 NT$" + (t ? t.dataset.t : "") + "（模擬）", "Top up NT$" + (t ? t.dataset.t : "") + " (simulated)"); }
-    w.__step = step;
+  function tipCap(w) {   /* 每天上限：超過的金額不能選；全部都超過就回傳 false */
+    var left = TIP_DAY_CAP - tipToday(), cur = w.querySelector('.sgc-amt[aria-pressed="true"]'), first = null;
+    w.querySelectorAll(".sgc-amt").forEach(function (b) { var ok = Number(b.dataset.a) <= left; b.disabled = !ok; if (ok && !first) first = b; });
+    if (cur && cur.disabled) { cur.setAttribute("aria-pressed", "false"); if (first) first.setAttribute("aria-pressed", "true"); }
+    return !!first;
+  }
+  function tipSync(w) {
+    var chip = w.querySelector(".sgc-chip"), form = w.querySelector(".sgc-form"), ta = w.querySelector("textarea"), bar = w.querySelector(".sgc-tipbar");
+    chip.setAttribute("aria-pressed", String(!!w.__sup)); form.classList.toggle("sup", !!w.__sup); bar.hidden = !w.__sup;
+    ta.placeholder = w.__sup ? sgrL("寫一句給 CHANCE…", "A line for CHANCE…") : sgrL("留下你的話…", "Say something…");
+    if (w.__sup && !tipCap(w)) { tipNote(w, sgrL("今天的應援已達上限 NT$" + TIP_DAY_CAP + "，明天再來", "You've reached today's NT$" + TIP_DAY_CAP + " support limit"), true); return; }
+    tipNote(w, w.__sup ? sgrL("選好金額，寫一句話送出", "Pick an amount, write a line, and send") : sgrL("公開留言 · 顯示為「" + (fanNick() || "粉絲") + "」", "Public comment · shown as “" + (fanNick() || "Fan") + "”"));
   }
   function tipWire(w) {
     w.__sup = false;
     w.querySelector(".sgc-chip").addEventListener("click", function () { w.__sup = !w.__sup; tipSync(w); hap(6); w.querySelector("textarea").focus(); });
-    w.querySelectorAll(".sgc-amt").forEach(function (b) { b.addEventListener("click", function () { if (b.disabled) return; tipPick(w, ".sgc-amt", b); tipView(w, "tip"); }); });
-    w.querySelectorAll(".sgc-top").forEach(function (b) { b.addEventListener("click", function () { tipPick(w, ".sgc-top", b); tipView(w, "top"); }); });
-    w.querySelector(".sgc-pay-no").addEventListener("click", function () { tipClosePay(w); });
-    w.querySelector(".sgc-pay").addEventListener("click", function (e) { if (e.target === e.currentTarget) tipClosePay(w); });
-    w.querySelector(".sgc-pay-go").addEventListener("click", function () { if (tipBal() >= tipAmt(w)) tipSpend(w); else { tipView(w, "top"); var t = w.querySelector('.sgc-top[aria-pressed="true"]'); if (t) t.focus({ preventScroll: true }); } });
-    w.querySelector(".sgc-pay-buy").addEventListener("click", function () { tipTopUp(w); });
+    w.querySelectorAll(".sgc-amt").forEach(function (b) { b.addEventListener("click", function () { if (b.disabled) return; w.querySelectorAll(".sgc-amt").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); hap(4); }); });
   }
-  function tipOpen(w) {
-    var ta = w.querySelector("textarea"), text = (ta.value || "").trim(); if (!text || w.__busy) return;
+  function tipSend(w) {
+    var it = w.__it, ta = w.querySelector("textarea"), text = (ta.value || "").trim(); if (!text || w.__busy) return;
     var fp = feedPassInfo();
     if (!fp.unlocked || !fp.email || !fp.code) { tipNote(w, sgrL("解鎖 SIGNAL 後才能應援", "Unlock SIGNAL to support"), true); return; }
-    var left = TIP_DAY_CAP - tipToday(), first = null;
-    w.querySelectorAll(".sgc-amt").forEach(function (b) { var ok = Number(b.dataset.a) <= left; b.disabled = !ok; b.setAttribute("aria-pressed", "false"); if (ok && !first) first = b; });
-    if (!first) { tipNote(w, sgrL("今天的應援已達上限 NT$" + TIP_DAY_CAP + "，明天再來", "You've reached today's NT$" + TIP_DAY_CAP + " support limit"), true); return; }
-    first.setAttribute("aria-pressed", "true");
-    w.querySelector(".sgc-pay-q").textContent = "「" + text + "」";
-    tipView(w, "tip");
-    w.querySelector(".sgc-pay").classList.add("in");
-    setTimeout(function () { try { first.focus({ preventScroll: true }); } catch (e) {} }, 60);
-  }
-  function tipClosePay(w) { var p = w.querySelector(".sgc-pay"); if (!p || !p.classList.contains("in")) return; p.classList.remove("in"); try { w.querySelector(".sgc-chip").focus({ preventScroll: true }); } catch (e) {} }
-  function tipTopUp(w) {
-    var buy = w.querySelector(".sgc-pay-buy"), t = w.querySelector('.sgc-top[aria-pressed="true"]'); if (!t || buy.disabled) return;
-    var add = Number(t.dataset.t); buy.disabled = true; buy.textContent = sgrL("儲值處理中…（模擬，不會扣款）", "Processing… (simulated, no charge)");
-    setTimeout(function () {
-      if (!w.isConnected) return;
-      tipSetBal(tipBal() + add); tipView(w, "tip");
-      tipNote(w, sgrL("已儲值 NT$" + add + "（模擬）· 餘額 NT$" + tipBal(), "Topped up NT$" + add + " (simulated) · balance NT$" + tipBal()));
-      try { w.querySelector(".sgc-pay-go").focus({ preventScroll: true }); } catch (e) {}
-    }, 1100);
-  }
-  function tipSpend(w) {
-    var it = w.__it, ta = w.querySelector("textarea"), go = w.querySelector(".sgc-pay-go"), text = (ta.value || "").trim();
-    var amt = tipAmt(w); if (!text || !amt || go.disabled) return;
-    if (amt > TIP_DAY_CAP - tipToday()) { tipClosePay(w); tipOpen(w); return; }
-    if (tipBal() < amt) { tipView(w, "top"); return; }
-    go.disabled = true;
-    tipSetBal(tipBal() - amt);
+    if (!tipCap(w)) { tipNote(w, sgrL("今天的應援已達上限 NT$" + TIP_DAY_CAP + "，明天再來", "You've reached today's NT$" + TIP_DAY_CAP + " support limit"), true); return; }
+    var amt = tipAmt(w); if (!amt) return;
     var all = tipAll(); all.push({ id: "tip-" + Date.now(), tid: sgrTrack(it.rid), body: text.slice(0, 300), name: fanNick() || sgrL("粉絲", "Fan"), amt: amt, createdAt: Date.now(), seen: false, fresh: true }); tipSave(all);
     ta.value = ""; ta.style.height = "auto"; SGR.draft = null; w.__sup = false; tipSync(w);
-    w.querySelector(".sgc-pay").classList.remove("in");
     sgcPaint(); var l = w.querySelector(".sgc-list"); if (l) l.scrollTop = 0;
-    tipNote(w, sgrL("應援成功 · 已金色置頂 · 餘額 NT$" + tipBal(), "Supported · pinned in gold · balance NT$" + tipBal()));
+    tipNote(w, sgrL("應援預覽 · 已金色置頂（結帳尚未開放，沒有扣款）", "Support preview · pinned in gold (checkout isn't open; nothing charged)"));
     w.querySelector(".sgc-send").disabled = true; hap(14);
     try { w.querySelector(".sgc-chip").focus({ preventScroll: true }); } catch (e) {}
   }
@@ -12126,7 +12093,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B320T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B321T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
