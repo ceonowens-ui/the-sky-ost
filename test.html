@@ -9788,7 +9788,7 @@ window.ALBUM_SWITCH = {
     var cn = c && c.count ? c.count : 0;
     return '<button type="button" class="sgr-b sgr-like' + (on ? ' on' : '') + '" data-sgr="like" aria-pressed="' + on + '" aria-label="' + sgrL("喜歡", "Like") + (n ? (sgrEN() ? ", " : "，") + n : "") + '">' + SGR_ICON.paw + '<span>' + sgrL("喜歡", "Like") + '</span>' + (n ? '<b>' + n + '</b>' : '') + '</button>' +
       '<button type="button" class="sgr-b sgr-cm" data-sgr="comment" aria-haspopup="dialog" aria-label="' + sgrL("留言", "Comments") + (cn ? (sgrEN() ? ", " : "，") + cn : "") + '">' + SGR_ICON.ghost + '<span>' + sgrL("留言", "Comment") + '</span>' + (cn ? '<b>' + cn + '</b>' : '') + '</button>' +
-      '<button type="button" class="sgr-b sgr-sup" data-sgr="support" aria-label="' + sgrL("支持：前往 SHOP", "Support: go to SHOP") + '">' + SGR_ICON.bag + '<span>' + sgrL("支持", "Support") + '</span></button>';
+      '<button type="button" class="sgr-b sgr-sup" data-sgr="support" aria-label="' + (TIP_OPEN ? sgrL("支持：應援這則", "Support this post") : sgrL("支持：前往 SHOP", "Support: go to SHOP")) + '">' + SGR_ICON.bag + '<span>' + sgrL("支持", "Support") + '</span></button>';
   }
   /* B319T：影片右上角喇叭（看得出有沒有聲音、點一下切換）＋下載中轉圈（不是假裝變快，只是讓人知道在載） */
   var SGR_SND = {
@@ -9969,7 +9969,7 @@ window.ALBUM_SWITCH = {
     if (!it) return;
     if (what === "like") { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) { nb.classList.add("pop"); nb.focus({ preventScroll: true }); } return; }
     if (what === "comment") { sgcOpen(it, b); return; }
-    if (what === "support") { hap(8); sgrPauseAll(); go("merch"); return; }
+    if (what === "support") { hap(8); if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
     if (what === "voice") { sgrVoice(b); return; }
     if (what === "video") { sgrVideo(el); return; }
     if (what === "sound") { sgrSound(el); return; }
@@ -12093,7 +12093,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B321T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B322T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12252,7 +12252,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=5eb0afc365b7";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=bb74eee11dd3";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();

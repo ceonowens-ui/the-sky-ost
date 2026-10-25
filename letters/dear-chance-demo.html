@@ -72,7 +72,7 @@
     "暫時無法確認名額，請稍後再試。你的草稿仍在。": "We can’t confirm spots right now. Please try again later. Your draft is still here.",
     "保留中的名額會寄出先前的版本": "Your reserved spot will send the earlier version",
     "登入後才能寄出": "Sign in to send", "寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。": "Spots, payments and your letters are tied to your account, so you can see them on any phone. Your draft is kept.",
-    "以 Email 登入（Demo）": "Sign in with email (demo)", "先不要": "Not now", "已登入（Demo）": "Signed in (demo)",
+    "以 Email 登入（Demo）": "Sign in with email (demo)", "先不要": "Not now", "已登入（Demo）": "Signed in (demo)", "以 Email 登入": "Sign in with email", "已登入": "Signed in",
     "名額已為你保留": "Your spot is reserved", "時間以伺服器為準": "Server time applies", "將寄出的是你剛剛預覽、已固定的內容：": "This is the locked version you just previewed:",
     "訂單": "Order", "金額": "Amount",
     "付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。": "After payment, the letter you previewed will be sent.\nIt can’t be edited or withdrawn. Replies aren’t guaranteed.",
@@ -133,6 +133,7 @@
     [/^(.*)這筆付款(已退款完成|已進入退款處理)，不會再扣款。你的草稿仍保留在此裝置。$/, function (m) { return (m[1] ? tr(m[1]) + " " : "") + (m[2] === "已退款完成" ? "This payment has been refunded" : "A refund is being processed") + ", and you won’t be charged again. Your draft is still on this device."; }],
     [/^Chance 將於 (.+) 前親自讀完。$/, function (m) { return "Chance will personally read it by " + m[1] + "."; }],
     [/^Demo：這裡會開客服，帶入訂單編號 (.+)$/, function (m) { return "Demo: this would open support with order " + m[1]; }],
+    [/^如需協助，請來信 (\S+)，並附上訂單編號 (.+)$/, function (m) { return "Need help? Email " + m[1] + " with order " + m[2] + "."; }],
     [/^親自閱讀期限 (.+)$/, function (m) { return "Read by " + m[1]; }],
     [/^草稿 · (.+)$/, function (m) { return "Draft · " + m[1]; }],
     [/^Chance 的回覆 · (.+)$/, function (m) { return "Chance’s reply · " + m[1]; }],
@@ -182,7 +183,7 @@ body[data-route="compose"]{background:var(--paper);color:var(--ink);padding:0;co
 body[data-route="compose"] .orbits{display:none}body[data-route="compose"] .app{max-width:640px;padding:0 24px 24px;min-height:100dvh}body[data-route="compose"] .demo-bar{margin:0 -24px;padding-inline:24px;background:var(--paper);border-color:#d4c4a8}body[data-route="compose"] .demo-txt,body[data-route="compose"] .demo-open,body[data-route="compose"] .top-mid,body[data-route="compose"] .icon-btn{color:var(--ink)}
 body[data-route="compose"] .screen{gap:16px;min-height:calc(100svh - 130px)}body[data-route="compose"] .paper{border-radius:0;box-shadow:none;padding:42px 0 12px;flex:1}body[data-route="compose"] .corner{display:none}body[data-route="compose"] .salute{font-size:38px;margin-bottom:24px}body[data-route="compose"] .body-ta{min-height:260px;font-size:18px}body[data-route="compose"] .count,body[data-route="compose"] .save,body[data-route="compose"] .small{color:#716351}body[data-route="compose"] .save.err,body[data-route="compose"] .field-err,body[data-route="compose"] .count.over{color:#992f25}body[data-route="compose"] .btn-gold{background:#302922;color:var(--paper);box-shadow:none;border-radius:28px}body[data-route="compose"] .state{color:var(--ink)}body[data-route="compose"] .state b{color:var(--ink)}
 body[data-route="ritual"] .app{max-width:600px;min-height:100dvh}body[data-route="ritual"] #view>.screen{min-height:calc(100svh - 145px);justify-content:center}body[data-route="ritual"] .lsa{max-width:520px}body[data-route="ritual"] .lsa-wrap{max-height:62svh;aspect-ratio:320/350;width:auto;margin:auto}body[data-route="ritual"] .lsa-note{font-size:16px}body[data-route="ritual"] .lsa-bg{opacity:0}
-.consent-rules{align-self:flex-start;margin:-8px 0 0 36px;padding:0 4px;font-size:15px}
+.consent-rules{align-self:flex-start;width:auto;max-width:calc(100% - 36px);margin:-8px 0 0 36px;padding:0 4px;font-size:15px}
 @media(max-width:350px){.top .top-mid{letter-spacing:.08em}.entry-copy h1{font-size:28px}.letter-entry{padding-inline:0}.facts li{font-size:16px;flex-wrap:wrap}.facts li b{text-align:left}body[data-route="compose"] .app{padding-inline:18px}body[data-route="compose"] .demo-bar{margin-inline:-18px;padding-inline:18px}}
 @media(prefers-reduced-motion:reduce){.screen,.scrim,.sheet{animation:none!important}*{scroll-behavior:auto!important}}
 
@@ -219,6 +220,7 @@ button,input,textarea,select{font:inherit;color:inherit;-webkit-tap-highlight-co
 .orbits svg{width:100%;height:100%}
 .app>*{position:relative;z-index:1}
 
+body:not(.dc-demo) .demo-bar{display:none!important}
 .demo-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:10px;
   margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
   background:rgba(14,13,18,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,183,126,.22)}
@@ -699,6 +701,9 @@ var stack=[],R=null,timers=[],lastErr=null,reserving=false,RT={seen:{}};
 function clearTimers(){timers.forEach(function(t){clearInterval(t)});timers=[]}
 function setRoute(r){R=r;CL.route=r;cSave()}
 var EMBED=/[?&]embed=1/.test(location.search);
+/* B322T：預設顯示最終外觀（不顯示 DEMO 條與 Demo 字樣）；測試面板要用 ?dcdemo=1（信箋本身或 test.html 網址都可）。付款、寄送仍是模擬。 */
+var DEMO_UI=/[?&]dcdemo=1/.test(location.search)||(function(){try{return parent!==window&&/[?&]dcdemo=1/.test(parent.location.search)}catch(e){return false}})();
+if(DEMO_UI)document.body.classList.add("dc-demo");
 function closeEmbed(){try{parent.postMessage({dc:"close"},location.origin)}catch(e){}}
 function home(){return SIM.role==="chance"?"inbox":SIM.role==="team"?"admin":"product"}
 function go(name,param,opts){opts=opts||{};lastErr=null;if(R&&!opts.replace)stack.push(R);setRoute({name:name,param:param||null});render();window.scrollTo(0,0)}
@@ -874,8 +879,8 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   };
  }};
 function loginSheet(){
-  sheet('<div class="grab"></div><h2>登入後才能寄出</h2><p class="small">寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。</p><button class="btn btn-gold" id="lg" type="button">以 Email 登入（Demo）</button><button class="btn btn-ghost" id="cancel" type="button">先不要</button>',
-   function(close){$("lg").onclick=function(){SIM.role="fan";simSave();close();render();toast("已登入（Demo）")};$("cancel").onclick=close});
+  sheet('<div class="grab"></div><h2>登入後才能寄出</h2><p class="small">寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。</p><button class="btn btn-gold" id="lg" type="button">'+(DEMO_UI?'以 Email 登入（Demo）':'以 Email 登入')+'</button><button class="btn btn-ghost" id="cancel" type="button">先不要</button>',
+   function(close){$("lg").onclick=function(){SIM.role="fan";simSave();close();render();toast(DEMO_UI?"已登入（Demo）":"已登入")};$("cancel").onclick=close});
 }
 
 /* 付款 sheet：保留期限以後端為準，內容已固定 */
@@ -890,7 +895,7 @@ function openPay(view){
      '<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>'+
      '<div id="payMsg">'+msg+'</div>'+
      '<div class="stack"><button class="btn btn-gold" id="pay" type="button"'+(busy||expired?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>'+
-     '<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>'+
+     (DEMO_UI?'<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>':'')+
      (expired?'<button class="btn btn-ghost" id="again" type="button">回到預覽，重新確認名額</button>':'')+
      '<button class="btn btn-ghost" id="cancel" type="button"'+(busy?' disabled':'')+'>先不付款</button></div>';
   },function(close0,repaint){
@@ -936,7 +941,7 @@ V.ritual={load:function(){return API.status(R.param)},view:function(r){
   /* 交易狀態只看後端（這裡是模擬後端）；動畫播完不代表送達 */
   function map(v){
     var o=v.order,L=v.letter;
-    if(L)return{state:"confirmed",readBy:L.readBy,demo:true};
+    if(L)return{state:"confirmed",readBy:L.readBy,demo:DEMO_UI};
     if(o.status==="refund_pending"||o.status==="refunded")return{state:"failed",title:"這封信沒有寄出",message:(o.refundReason||"")+"這筆付款"+(o.status==="refunded"?"已退款完成":"已進入退款處理")+"，不會再扣款。你的草稿仍保留在此裝置。",actions:["help"]};
     if(o.status==="confirming")return{state:"pending",waitText:"正在確認付款結果…請勿重複付款"};
     if(o.status==="paid")return{state:"pending",waitText:"付款已完成，正在確認收件…",note:"不需要再次付款。"};
@@ -946,7 +951,7 @@ V.ritual={load:function(){return API.status(R.param)},view:function(r){
   var anim=LetterSendAnimation.create($("lsaHost"),{letter:{body:snap.body,signature:snap.sig},resume:seen,skipToDone:!!CL.flown[oid],
     onVisualComplete:function(){CL.flown[oid]=1;cSave();after();say("你的信已送達 Chance 的專屬信箱")},
     onRetry:function(){var did=v0.hold&&v0.hold.draftId;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:"mailbox",param:"sent"});render()},
-    onHelp:function(){toast("Demo：這裡會開客服，帶入訂單編號 "+oid)},
+    onHelp:function(){toast(DEMO_UI?"Demo：這裡會開客服，帶入訂單編號 "+oid:"如需協助，請來信 heartbeats0693@gmail.com，並附上訂單編號 "+oid)},
     onViewLetter:function(){go("letter",oid)}});
   RT.anim=anim;
   function update(v){
