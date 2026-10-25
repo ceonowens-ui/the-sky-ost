@@ -12,7 +12,7 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
 <script src="app-i18n-en.js?v=B294T"></script>
 <script src="shop-language.js?v=B313T"></script>
 <script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
-<link rel="stylesheet" href="b283-local.css">
+<link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
 <meta charset="utf-8">
 <script>/* B266T／B267T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
    只在：主畫面 App（standalone）＋有配對 cookie＋這個 App 還沒有本機解鎖紀錄 時啟動。
@@ -3028,6 +3028,640 @@ body.a2ck-on #terms-sheet{z-index:115030}
 #a2tip .tip-x{width:44px;height:44px;right:0;top:0}
 #a2ck .ck-st:not([hidden])+.ck-go{margin-top:14px}
 </style>
+
+<!-- Local startup fix: preserve static stylesheet order before first paint. -->
+<style id="own-b-style">
+/* ===== B220T OWN｜B「時尚雜誌版」—— 只作用在 #screen-purchase；只改視覺，不改任何文案 ===== */
+#screen-purchase{ background:#080809 !important; padding-top:0 !important; }
+#screen-purchase .own-b-hero{ position:relative; width:100%; aspect-ratio:900/833; max-height:430px; overflow:hidden; background:#080809; }
+#screen-purchase .own-b-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:60% 40%; display:block; filter:grayscale(1); }
+#screen-purchase .own-b-shade{ position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,8,9,.62) 0%,rgba(8,8,9,0) 24%,rgba(8,8,9,0) 58%,rgba(8,8,9,.86) 88%,#080809 100%),
+             linear-gradient(90deg,rgba(8,8,9,.55) 0%,rgba(8,8,9,0) 46%); }
+#screen-purchase .own-b-top{ position:absolute; left:0; right:0; top:0; z-index:2; display:grid; grid-template-columns:44px 1fr 44px; align-items:center;
+  padding:calc(8px + env(safe-area-inset-top)) 10px 0; }
+#screen-purchase .own-b-back{ width:44px; height:44px; display:grid; place-items:center; padding:0; background:none; border:0; border-radius:22px; color:#E6DAC4; cursor:pointer; -webkit-appearance:none; appearance:none; }
+#screen-purchase .own-b-back:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase .own-b-toptitle{ text-align:center; font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:16px; letter-spacing:.34em; padding-left:.34em; color:#D8C3A0; }
+#screen-purchase .own-b-mast{ position:absolute; left:20px; top:calc(76px + env(safe-area-inset-top)); z-index:1; }
+#screen-purchase .own-b-artist{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:12px; letter-spacing:.44em; color:#CFC6B8; }
+#screen-purchase .own-b-work{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-weight:400; font-size:clamp(28px,8vw,36px); line-height:1.05; letter-spacing:.01em; color:#D8C3A0; margin-top:8px; white-space:nowrap; }
+
+/* 原主標／副標：沿用原文字，改成左對齊雜誌排版，允許自然換行（不截字） */
+#screen-purchase .page-titles{ position:relative; z-index:2; text-align:left !important; padding:0 20px !important; margin-top:-30px; }
+#screen-purchase .page-title-en{ font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:11.5px !important; letter-spacing:.36em !important; color:#D8C3A0 !important; }
+#screen-purchase .page-title-tc{ font-family:var(--font-serif-tc) !important; font-size:clamp(23px,6.6vw,28px) !important; font-weight:600 !important; line-height:1.32 !important; letter-spacing:.04em !important; color:#F3EDE3 !important; margin-top:10px !important; white-space:normal !important; }
+#screen-purchase .page-titles .page-note{ font-size:15px !important; line-height:1.6 !important; color:#B9AE9F !important; margin-top:8px !important; letter-spacing:.06em; }
+#screen-purchase #unlock-form-view{ margin-top:22px !important; }
+#screen-purchase #unlock-done-view{ margin-top:26px !important; }
+
+/* 299／799 方案卡：左右並排，卡片依完整權益自動增高；過窄時改上下排列 */
+#screen-purchase #plans{ display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important; padding:0 20px !important; align-items:stretch; }
+@media (max-width:359px){ #screen-purchase #plans{ grid-template-columns:1fr; } }
+#screen-purchase #plans .plan{ display:flex; flex-direction:column; min-width:0; background:#0C0C0E !important; border:1px solid #2A2A2F !important; border-radius:14px !important; padding:14px 13px 15px !important; box-shadow:none !important; transition:border-color .18s,background .18s; }
+#screen-purchase #plans .plan.selected{ border-color:#D8C3A0 !important; background:linear-gradient(180deg,#15130F,#0C0C0E 55%) !important; }
+#screen-purchase #plans .plan:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase #plans .plan-badge{ position:static !important; order:-1; align-self:stretch; margin:-14px -13px 12px; padding:6px 6px !important; border-radius:13px 13px 0 0 !important;   /* B221T：卡片頂端整條，整句一行放得下 */
+  background:rgba(216,195,160,.10) !important; border:0; border-bottom:1px solid rgba(216,195,160,.22); color:#E3D0AE !important; text-align:center;
+  font-family:inherit !important; font-size:12px !important; line-height:1.45; letter-spacing:.02em !important; white-space:normal; }
+#screen-purchase #plans .plan-name{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:var(--font-serif-tc) !important; font-size:16.5px !important; letter-spacing:.06em !important; color:#EDE6DA; }
+#screen-purchase #plans .own-radio{ flex:none; position:relative; width:20px; height:20px; border-radius:50%; border:1.5px solid #5A5960; }
+#screen-purchase #plans .plan.selected .own-radio{ border-color:#D8C3A0; }
+#screen-purchase #plans .plan.selected .own-radio::after{ content:""; position:absolute; inset:4px; border-radius:50%; background:#D8C3A0; }
+#screen-purchase #plans .plan-price{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:8px; row-gap:2px; margin-top:10px !important;
+  font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:clamp(26px,7.6vw,32px) !important; font-weight:500 !important; line-height:1.1; color:#A9A39A; }
+#screen-purchase #plans .plan.selected .plan-price{ color:#E3C893; }
+#screen-purchase #plans .plan-was{ margin-left:0 !important; font-size:14px !important; font-weight:400 !important; color:#8E877D !important; text-decoration:line-through !important; }
+#screen-purchase #plans .plan-features{ margin-top:12px !important; padding-top:12px; border-top:1px solid rgba(255,255,255,.07); gap:8px !important; }
+#screen-purchase #plans .plan-feature{ align-items:flex-start !important; gap:7px !important; font-size:13.5px !important; line-height:1.55 !important; color:#CFC7BA !important; }
+#screen-purchase #plans .plan-feature,#screen-purchase #plans .plan-badge,#screen-purchase .page-title-tc,#screen-purchase .page-titles .page-note{ word-break:keep-all; overflow-wrap:anywhere; }   /* 中文只在原本的空白／「·」處換行，避免單字落單；太長時仍可換行不溢出 */
+#screen-purchase #plans .plan:not(.selected) .plan-feature{ color:#A8A196 !important; }
+#screen-purchase #plans .plan-feature svg{ flex:none; width:12px; height:12px; margin-top:5px; stroke:#BFA77F !important; }
+
+/* 結帳：全寬膠囊、紫→金；文字由原本 renderPlans 產生（不硬編碼價格） */
+#screen-purchase .cta-block{ padding:16px 20px 0 !important; }
+#screen-purchase #btn-checkout{ position:relative; min-height:56px; padding:14px 52px !important; border-radius:999px !important; border:0 !important;
+  background:linear-gradient(90deg,#7460A6 0%,#A28BB0 48%,#D9BE91 100%) !important; color:#17121D !important;
+  font-family:var(--font-serif-tc) !important; font-size:16px !important; font-weight:600 !important; letter-spacing:.08em !important; line-height:1.4;
+  box-shadow:0 12px 28px -16px rgba(217,190,145,.6) !important; }
+#screen-purchase #btn-checkout::after{ content:"→"; position:absolute; right:22px; top:50%; transform:translateY(-50%); font-size:18px; font-family:-apple-system,system-ui,sans-serif; }
+#screen-purchase #btn-checkout:focus-visible{ outline:2px solid #D8C3A0; outline-offset:3px; }
+
+/* 「已經購買了？」：預設收合，細分隔線＋右側＋ */
+#screen-purchase .own-rd-toggle{ display:flex !important; align-items:center; justify-content:space-between; width:calc(100% - 40px); margin:22px 20px 0 !important; padding:17px 2px !important;
+  background:none; border:0; border-top:1px solid rgba(255,255,255,.09); border-bottom:1px solid rgba(255,255,255,.09); color:#CFC6B8; text-align:left; cursor:pointer; -webkit-appearance:none; appearance:none; font:inherit; }
+#screen-purchase .own-rd-toggle::before,#screen-purchase .own-rd-toggle::after{ content:none !important; display:none !important; }
+#screen-purchase .own-rd-toggle span{ font-family:var(--font-serif-tc),sans-serif !important; font-size:15px !important; letter-spacing:.06em !important; text-transform:none !important; color:#CFC6B8 !important; white-space:normal !important; }
+#screen-purchase .own-rd-toggle:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+#screen-purchase .own-rd-ic{ position:relative; flex:none; width:16px; height:16px; }
+#screen-purchase .own-rd-ic::before,#screen-purchase .own-rd-ic::after{ content:""; position:absolute; left:0; right:0; top:50%; height:1.5px; margin-top:-.75px; background:#CFC6B8; transition:transform .2s; }
+#screen-purchase .own-rd-ic::after{ transform:rotate(90deg); }
+#screen-purchase .own-rd-toggle[aria-expanded="true"] .own-rd-ic::after{ transform:rotate(0deg); }
+#screen-purchase #unlock-form-view.own-rd-closed .form-block{ display:none !important; }
+#screen-purchase .form-block{ padding-top:16px; }
+#screen-purchase .form-block .page-note{ color:#B9AE9F !important; font-size:14.5px !important; line-height:1.65 !important; word-break:keep-all; overflow-wrap:anywhere; }
+</style>
+<style id="app-black-style">
+/* ===== B222T：整個 App 底色改黑（跟 OWN 頁一致 #080809）＋ Nav 島改黑 =====
+   只改「底色」：不動內容卡片、按鈕、封面、付費會員 SIGNAL 人像背景與任何文字 */
+#stage, #screen-player { background:#080809 !important; }
+.screen-sub, #screen-mood, #screen-mood.mood-vip { background:#080809 !important; }
+#sheet { background:#0C0C0E !important; }
+#sheet-backdrop { background:rgba(0,0,0,.6) !important; }
+@media (min-width:520px){ body { background:#050506 !important; } }
+/* Nav 島：黑色玻璃、細框、光暈減弱；選中＝香檳金 */
+#nav, .nav-island { background:rgba(10,10,12,.88) !important; border-color:rgba(255,255,255,.08) !important; }
+#nav::before { opacity:.35; }
+.navbtn { color:rgba(206,198,186,.55) !important; }
+.navbtn.active { color:#E3C893 !important; }
+#nav-ind { background:linear-gradient(180deg,rgba(216,195,160,.20),rgba(216,195,160,.08)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.35) !important; }
+</style>
+<style id="v2-upgrade-style">
+/* ===== B223V 升級模組（v2.html 專用；test.html 未動）===== */
+/* PLAY：控制鍵放大到 Apple 建議尺寸；進度條加粗＋加大點擊區 */
+#screen-player .btn-play{ width:64px !important; height:64px !important; }
+#screen-player .btn-play svg{ width:26px; height:26px; }
+#screen-player .btn-ghost{ min-width:48px; min-height:48px; padding:10px !important; display:inline-flex; align-items:center; justify-content:center; }
+#screen-player .icon-round{ width:48px !important; height:48px !important; }
+#screen-player .prog{ height:6px !important; }
+#screen-player .prog::before{ content:""; position:absolute; left:0; right:0; top:-14px; bottom:-14px; }
+/* 字級階層：Nav 標籤 12px、頁尾法務列 44px、票券／抽卡標籤最小 12px（裝飾字不動） */
+.navbtn .navlbl{ font-size:12px !important; }
+.legal-foot .lf-links{ gap:6px !important; }
+.legal-foot .lf-links button{ min-height:44px; padding:0 12px !important; font-size:13px !important; }
+.legal-foot .lf-info{ font-size:12px !important; line-height:1.7 !important; }
+#screen-lucky .lkg-tag{ font-size:12px !important; letter-spacing:1.2px !important; }
+.tk .tk-cd span, .tk-layer .tk-tag, .tk-layer .tk-lab, .tk-layer .tk-dl .k, .tk-ticket-meta div:last-child span{ font-size:12px !important; }
+/* 效能：徽章／膠囊／小標的 backdrop-filter 改實色（泡泡、Nav 島、播放卡保留） */
+.pcard-badge,.drop-card,.feedhead-cap,#screen-mood .pin,#screen-mood .m-badge,.rp-pill,.rp-note,.newpill,.rxpick,#screen-mood .rx-chip,#screen-mood .rx-add,#screen-mood.mood-vip .rx-chip,#screen-mood.mood-vip .rx-add{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+/* 迷你播放列：播放中且不在 PLAY 頁時，固定在 Nav 島上方 */
+.mini-player{ position:fixed; left:14px; right:14px; z-index:45; height:60px; display:flex; align-items:center; gap:4px; padding:6px 8px 6px 6px;
+  background:#141416; border:1px solid rgba(255,255,255,.09); border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,.55);
+  transition:opacity .22s ease, transform .22s ease; }
+.mini-player.hidden{ display:none !important; }
+.mini-player .mp-open{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; color:inherit; text-align:left; cursor:pointer; min-height:48px; }
+.mini-player .mp-cover{ width:44px; height:44px; border-radius:10px; object-fit:cover; background:#222; flex:none; }
+.mini-player .mp-txt{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+.mini-player .mp-title{ font-family:var(--font-serif-tc); font-size:14px; font-weight:600; color:#F3EDE3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mini-player .mp-sub{ font-size:11.5px; color:#A8A196; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em; }
+.mini-player .mp-btn{ flex:none; width:44px; height:44px; border-radius:22px; border:0; background:none; color:#E6DAC4; display:grid; place-items:center; cursor:pointer; }
+.mini-player .mp-btn.mp-play{ background:#F3EDE3; color:#111; }
+.mini-player .mp-btn:active{ transform:scale(.92); }
+.mini-player .mp-btn:focus-visible,.mini-player .mp-open:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
+body.has-mini .screen.active::after{ content:""; display:block; height:var(--dock-mini-reserve,64px); }   /* B240T：固定預留 mini 高度，不隨 nav 收合改變（避免 scrollTop 跳動） */
+/* B240T：底部永久 sticky 購票列已移除（改為頂部一次性提示 #tk-hint，見 B240T 模組） */
+</style>
+<style id="chance-player-upgrade-style">
+/* CHANCE Player UX v1 — all rules are scoped to the player or its open state. */
+#screen-player.cp-ready { --cp-gold:#ddc9a4; --cp-dock-bottom:104px; --cp-dock-height:126px; --cp-side:24px; overflow:hidden; }
+#screen-player.cp-ready .player-fold { min-height:0!important; padding-top:0!important; }
+#screen-player.cp-ready .cover-card { bottom:18%!important; border-radius:0!important; }
+#screen-player.cp-ready .np-card { position:absolute!important; left:var(--cp-side); right:var(--cp-side); bottom:calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 12px); margin:0!important; gap:0!important; }
+#screen-player.cp-ready .np-title { white-space:normal; overflow-wrap:anywhere; line-height:1.15; font-size:clamp(24px,7vw,32px)!important; letter-spacing:.3px; }
+#screen-player.cp-ready .np-sub { white-space:normal; line-height:1.5; font-size:14px!important; color:#b8b2c0!important; margin-top:8px; }
+#screen-player.cp-ready .np-label { font-size:11px!important; letter-spacing:2.2px!important; color:#c7bdca!important; }
+#screen-player.cp-ready .np-actions { gap:0; margin-left:4px; align-self:center; }
+#screen-player.cp-ready #btn-heart, #screen-player.cp-ready #btn-loop { position:static; transform:none; padding:10px!important; }
+#screen-player.cp-ready #btn-heart svg { width:21px!important; height:21px!important; }
+#screen-player.cp-ready #btn-open-sheet { display:none!important; }
+#screen-player.cp-ready button:focus-visible, #screen-player.cp-ready [role=slider]:focus-visible { outline:2px solid var(--cp-gold); outline-offset:3px; }
+#screen-player .cp-icon { border:0; background:none; color:#ded9e2; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; flex:none; border-radius:12px; }
+#screen-player .cp-icon svg { width:22px; height:22px; }
+#screen-player .cp-icon[aria-pressed=true] { color:var(--cp-gold); background:rgba(221,201,164,.09); }
+#screen-player .cp-icon:active { opacity:.65; }
+#screen-player #cp-transport { position:absolute; z-index:10; left:var(--cp-side); right:var(--cp-side); bottom:var(--cp-dock-bottom); }
+#screen-player.cp-ready #prog { height:4px!important; margin:16px 0 0; touch-action:none; }
+#screen-player.cp-ready #prog::before { top:-16px; bottom:-16px; }
+#screen-player.cp-ready #prog-fill { background:var(--cp-gold)!important; }
+#screen-player.cp-ready #prog-dot { box-shadow:none!important; }
+#screen-player.cp-ready #prog-glow { display:none; }
+#screen-player.cp-ready .np-times { margin:12px 0 8px; transform:none!important; font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#bbb4c4!important; letter-spacing:.2px; }
+#screen-player.cp-ready .np-controls { display:grid!important; grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 64px minmax(44px,1fr) minmax(44px,1fr); gap:0!important; justify-items:center; margin:0!important; }
+#screen-player.cp-ready .np-controls > button { position:static; transform:none; min-width:44px; width:100%; max-width:64px; min-height:56px; padding:10px!important; }
+#screen-player.cp-ready .np-controls #btn-play { width:64px!important; height:64px!important; }
+#screen-player.cp-ready .np-controls #btn-play svg { width:34px!important; height:34px!important; }
+#screen-player.cp-ready .np-controls #btn-prev svg, #screen-player.cp-ready .np-controls #btn-next svg { width:28px!important; height:28px!important; }
+#screen-player .cp-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+#screen-player #cp-panel { position:absolute; z-index:6; inset:0; background:linear-gradient(155deg,#29232e,#151318 65%,#101014); display:flex; flex-direction:column; padding:calc(12px + env(safe-area-inset-top,0px)) var(--cp-side) calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 16px); }
+#screen-player #cp-panel[hidden], #screen-player [hidden] { display:none!important; }
+#screen-player #cp-panel::before { content:""; position:absolute; inset:0; background-image:var(--cp-art); background-size:cover; background-position:center; filter:blur(45px); opacity:.12; pointer-events:none; }
+#screen-player .cp-panel-top, #screen-player .cp-panel-head, #screen-player .cp-panel-tools, #screen-player .cp-body { position:relative; }
+#screen-player .cp-panel-top { display:flex; justify-content:space-between; align-items:center; min-height:40px; flex:none; }
+#screen-player #cp-heading { font:500 12px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; letter-spacing:2px; color:#c5bdce; }
+#screen-player .cp-panel-head { display:flex; align-items:center; gap:12px; margin:8px 0 12px; flex:none; }
+#screen-player #cp-thumb { width:48px; height:48px; border-radius:7px; object-fit:cover; background:#211d26; }
+#screen-player .cp-meta { flex:1; min-width:0; }
+#screen-player #cp-title { font:600 16px/1.35 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; overflow-wrap:anywhere; }
+#screen-player #cp-artist { font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b6aebf; margin-top:4px; }
+#screen-player .cp-panel-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:40px; flex:none; }
+#screen-player #cp-lyric-note { font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b4a9bd; }
+#screen-player .cp-language { display:flex; gap:3px; padding:3px; border:1px solid #53485c; border-radius:10px; }
+#screen-player .cp-language button { min-width:44px; min-height:38px; border:0; background:none; border-radius:7px; color:#c5bdce; cursor:pointer; }
+#screen-player .cp-language button[aria-pressed=true] { background:#49404f; color:#fff; }
+#screen-player .cp-body { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:#5e5268 transparent; }
+#screen-player #cp-lyrics { padding:22px 0 40%; scroll-behavior:auto; -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent); mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent); }
+#screen-player .cp-line { display:block; margin:0 0 20px; width:100%; text-align:left; font:700 clamp(23px,6.7vw,30px)/1.45 -apple-system,BlinkMacSystemFont,"Noto Sans TC",system-ui,sans-serif; letter-spacing:-.4px; color:#e1dce5; border:0; padding:0; background:none; overflow-wrap:anywhere; }
+#screen-player .cp-line[data-time] { color:#9990a4; cursor:pointer; transition:color .22s ease; }
+#screen-player .cp-line[data-time]:hover, #screen-player .cp-line.current { color:#fff; }
+#screen-player .cp-line.past { color:#b5adbf; }
+#screen-player .cp-gap { height:14px; }
+#screen-player .cp-credits { font:13px/1.8 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b9afc6; white-space:pre-wrap; padding-top:24px; margin-top:30px; border-top:1px solid #49404f; }
+#screen-player .cp-empty { color:#c5bdce; font:15px/1.8 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; padding:25px 0; }
+#screen-player .cp-text-button { border:1px solid #655774; background:#352d3e; color:#f3edf7; padding:10px 16px; border-radius:18px; min-height:44px; cursor:pointer; font:13px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+#screen-player #cp-follow { position:absolute; z-index:12; bottom:calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 8px); left:50%; transform:translateX(-50%); white-space:nowrap; }
+#screen-player #cp-queue { padding-top:12px; }
+#screen-player .cp-queue-heading { margin:10px 0; color:#bfb4c9; font:500 12px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; letter-spacing:1px; }
+#screen-player .cp-track { display:flex; align-items:center; gap:12px; margin:2px 0; padding:10px 8px; border-radius:12px; }
+#screen-player .cp-track.current { background:rgba(221,201,164,.09); }
+#screen-player .cp-track-select { border:0; background:none; color:inherit; display:flex; align-items:center; gap:12px; flex:1; min-width:0; min-height:48px; padding:0; text-align:left; cursor:pointer; }
+#screen-player .cp-track img { width:44px; height:44px; object-fit:cover; border-radius:6px; background:#2b2432; flex:none; }
+#screen-player .cp-track-text { display:block; flex:1; min-width:0; }
+#screen-player .cp-track-name { display:block; font:500 15px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; overflow-wrap:anywhere; }
+#screen-player .cp-track-artist { display:block; margin-top:4px; font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b6a9c2; }
+#screen-player .cp-track-state { color:var(--cp-gold); font:11px/1.3 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; flex:none; }
+#screen-player .cp-track-note { display:block; font-size:11px; color:#b6a9c2; margin-top:2px; }
+#screen-player #cp-menu-wrap { position:absolute; z-index:30; inset:0; display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.64); padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px)); }
+#screen-player #cp-menu { width:100%; max-height:90%; overflow:auto; background:#211d26; border:1px solid #4d4256; border-radius:22px; padding:12px 18px 20px; box-shadow:0 15px 50px #0008; }
+#screen-player .cp-menu-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+#screen-player #cp-menu h2 { font:600 18px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+#screen-player #cp-menu .cp-menu-action { width:100%; display:flex; align-items:center; gap:12px; min-height:50px; text-align:left; border:0; border-top:1px solid #ffffff12; background:none; color:#eee7f2; font:15px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; cursor:pointer; }
+#screen-player #cp-menu .cp-menu-action svg { width:21px; height:21px; flex:none; }
+#screen-player #cp-menu #btn-lyrics { border:0!important; width:100%!important; height:auto!important; border-radius:0; color:#eee7f2!important; }
+#screen-player #cp-share-url { width:100%; border:1px solid #615469; background:#16121c; color:#e4dce9; border-radius:8px; padding:12px; font:13px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; margin:8px 0; }
+#screen-player #cp-message { position:absolute; z-index:40; left:20px; right:20px; top:calc(16px + env(safe-area-inset-top,0px)); padding:12px 16px; background:#302937; color:#fff; border:1px solid #5d5068; border-radius:12px; font:14px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; text-align:center; pointer-events:none; }
+#screen-player.cp-immersive .player-fold { visibility:hidden; pointer-events:none; }
+body.cp-immersive #nav-wrap { visibility:hidden; pointer-events:none; }
+body.cp-menu-open #nav-wrap { visibility:hidden; pointer-events:none; }
+#screen-player.cp-ready #cover-img { animation:none; }
+#screen-player.cp-ready .cover-card::before { height:62%; background:linear-gradient(180deg,transparent,#080809); }
+@media(max-width:360px) { #screen-player.cp-ready { --cp-side:18px; } #screen-player .cp-panel-head { gap:8px; } #screen-player #cp-thumb { width:40px; height:40px; } }
+@media(max-height:680px) { #screen-player.cp-ready .np-title { font-size:24px!important; } #screen-player.cp-ready .np-sub { font-size:12px!important; line-height:1.35; margin-top:5px; } #screen-player .cp-panel-head { margin:0 0 4px; } #screen-player #cp-panel { padding-top:env(safe-area-inset-top,0px); } #screen-player .cp-line { font-size:24px; margin-bottom:15px; } }
+@media(prefers-reduced-motion:reduce) { #screen-player.cp-ready *, #screen-player.cp-ready *::before { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
+
+</style>
+<style id="b240-dock-style">
+/* ===================== B240T：合併音樂島（mini-player＋nav 同一個黑金 dock）＋頂部一次性購票提示 =====================
+   集中變數：dock 寬、nav 高、mini 高、底部安全距離。所有位置由 CSS 決定，JS 只切 body class（不每幀量位置）。 */
+:root{ --dock-w:min(calc(100vw - 20px),440px); --dock-nav-h:62px; --dock-mini-h:56px;
+  --dock-b:max(8px, calc(var(--sab, env(safe-area-inset-bottom)) + 8px));
+  --dock-bg:#0D0C0B; --dock-line:rgba(241,236,227,.10); --dock-gold:#D8C3A0; --dock-ease:cubic-bezier(.2,.8,.2,1);
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); }
+/* ---- nav：寬度跟螢幕走（不再溢出 320/390），實色黑底、單一細框 ---- */
+#nav-wrap{ bottom:var(--dock-b) !important; transition:transform .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
+#nav-wrap #nav{ width:var(--dock-w); height:var(--dock-nav-h); box-sizing:border-box; padding:4px 6px !important; justify-content:space-between; transform:none !important;
+  background:var(--dock-bg) !important; border:1px solid var(--dock-line) !important; border-radius:22px !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.5) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  transition:border-radius .24s var(--dock-ease); }
+#nav-wrap #nav::before{ display:none !important; }
+#nav-wrap #nav .navbtn{ flex:1 1 0; min-width:0; width:auto !important; min-height:44px; height:100%; padding:0 !important; margin:0 !important; }
+#nav-wrap #nav .navbtn .navlbl{ letter-spacing:1.2px !important; }
+#nav-wrap #nav-ind{ top:4px !important; left:6px !important; height:calc(100% - 8px) !important; width:calc((100% - 12px) / var(--nav-n,5)) !important;
+  background:rgba(216,195,160,.11) !important; box-shadow:none !important; border-radius:16px !important; }
+#nav-wrap #nav .navbtn.active{ color:var(--dock-gold) !important; }
+#nav-wrap #nav .navbtn:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-3px; border-radius:16px; }
+@media (max-width:359px){ #nav-wrap #nav .navbtn .navlbl{ letter-spacing:.6px !important; } }
+/* ---- mini-player：與 nav 同寬同底色，貼在 nav 正上方；上一首／下一首移到完整播放器（handler 不動） ---- */
+#mini-player.mini-player{ left:0; right:0; margin:0 auto; width:var(--dock-w); box-sizing:border-box; height:var(--dock-mini-h);
+  bottom:calc(var(--dock-b) + var(--dock-nav-h)) !important; z-index:69; padding:6px 6px 6px 8px; gap:2px;
+  background:var(--dock-bg); border:1px solid var(--dock-line); border-radius:22px; box-shadow:0 14px 34px rgba(0,0,0,.5);
+  transition:transform .24s var(--dock-ease), border-radius .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
+#mini-player #mp-prev, #mini-player #mp-next{ display:none; }
+#mini-player .mp-cover{ width:40px; height:40px; border-radius:9px; }
+#mini-player .mp-btn{ width:44px; height:44px; min-width:44px; flex:none; margin:0; }
+#mini-player .mp-btn.mp-play{ position:relative; background:transparent; color:#F1ECE3; border:0; }
+#mini-player .mp-btn.mp-play::before{ content:""; position:absolute; inset:2px; border-radius:50%; border:1px solid rgba(241,236,227,.55); pointer-events:none; }   /* 視覺 40px 細圈，點擊區 44px */
+#mini-player .mp-open{ min-height:44px; height:44px; }
+#mini-player .mp-tog{ color:#B5AC9E; }
+#mini-player .mp-tog svg{ transition:transform .24s var(--dock-ease); }
+#mini-player .mp-tog.up svg{ transform:rotate(180deg); }
+/* 合併：mini 在上、nav 在下，同一個外框（中間一條極淡分隔） */
+body.dock-merged #mini-player.mini-player{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:rgba(241,236,227,.06); box-shadow:none; }
+body.dock-merged #nav-wrap #nav{ border-top-left-radius:0 !important; border-top-right-radius:0 !important; border-top-color:transparent !important; }
+/* 收合：nav 往下收、inert；mini 平順下移到 safe-area＋8px，恢復完整圓角 */
+body.dock-collapsed #nav-wrap{ transform:translateY(calc(100% + var(--dock-b) + 16px)); opacity:0; pointer-events:none; }
+body.dock-collapsed #mini-player.mini-player{ transform:translateY(var(--dock-nav-h)); }
+/* 覆蓋層（票券層、留言 sheet、選單、條款、曲目表、email）與鍵盤開啟時：整個 dock 讓開 */
+body.dock-off #nav-wrap, body.dock-off #mini-player{ visibility:hidden !important; pointer-events:none !important; }
+/* ---- 頂部一次性購票提示 ---- */
+.tk-hint{ position:fixed; z-index:80; left:0; right:0; margin:0 auto; top:calc(env(safe-area-inset-top, 0px) + 10px); width:min(calc(100vw - 24px),420px); box-sizing:border-box;
+  min-height:44px; max-height:52px; display:flex; align-items:center; gap:2px; padding:0 4px 0 6px; border-radius:14px;
+  background:#141016; border:1px solid rgba(216,195,160,.22); box-shadow:0 10px 26px rgba(0,0,0,.45); color:#EDE6DA;
+  opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s var(--dock-ease); font-family:-apple-system,"PingFang TC",sans-serif; }
+.tk-hint.in{ opacity:1; transform:none; }
+.tk-hint[hidden]{ display:none; }
+.tk-hint .tkh-go{ flex:1; min-width:0; min-height:44px; display:flex; align-items:center; gap:7px; padding:0 8px; background:none; border:0; color:inherit; font:inherit; font-size:13.5px; text-align:left; cursor:pointer; border-radius:10px; }
+.tk-hint .tkh-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tk-hint .tkh-sep{ color:#6F675B; flex:none; }
+.tk-hint .tkh-price{ flex:none; color:var(--dock-gold); font-family:Georgia,"Times New Roman",serif; white-space:nowrap; }
+.tk-hint .tkh-cta{ flex:none; margin-left:auto; padding-left:8px; color:var(--dock-gold); white-space:nowrap; }
+.tk-hint .tkh-x{ flex:none; width:44px; height:44px; display:grid; place-items:center; background:none; border:0; color:#8F8778; font-size:18px; line-height:1; cursor:pointer; border-radius:10px; }
+.tk-hint button:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-2px; }
+body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant #mini-player.mini-player{ transition:none !important; }
+@media (prefers-reduced-motion: reduce){ #nav-wrap, #nav-wrap #nav, #mini-player.mini-player, #mini-player .mp-tog svg, .tk-hint{ transition:none !important; } }
+</style>
+<style id="b241-dock-style">
+/* ===================== B241T：nav 置中＋classic 比例＋mini 字幕流動（接在 B240T dock 樣式之後覆寫） =====================
+   根因：.navbtn 是 flex column + align-items:center（只有水平置中），B240T 改成 padding:0; height:100% 後缺 justify-content:center，
+   圖示＋文字整組貼在按鈕上緣（實測比按鈕中心高 9px）；label 沒定行高，Bodoni 預設行高讓整組再偏上。 */
+:root{ --dock-w:min(calc(100vw - 30px),420px); --dock-nav-h:58px; --dock-mini-h:64px; --dock-r:20px; --dock-pad:5px;
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.4px; }
+/* ---- nav：五等分、整組正中、選中底色同中心 ---- */
+#nav-wrap #nav{ padding:var(--dock-pad) !important; border-radius:var(--dock-r) !important; }
+#nav-wrap #nav .navbtn{ display:flex !important; flex-direction:column; justify-content:center; align-items:center; gap:3px;
+  height:100%; min-height:44px; padding:0 !important; line-height:1; }
+#nav-wrap #nav .navbtn .navico{ flex:none; width:20px; height:20px; display:grid; place-items:center; }
+#nav-wrap #nav .navbtn .navico svg{ display:block; width:17px; height:17px; }
+#nav-wrap #nav .navbtn .navlbl{ display:block; flex:none; height:12px; line-height:12px; font-size:10.5px !important;
+  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); white-space:nowrap; }   /* text-indent 抵銷字尾字距，字形真正置中 */
+#nav-wrap #nav .navbtn.active .navico{ filter:none; }   /* 拿掉選中發光（不增加陰影） */
+#nav-wrap #nav-ind{ top:var(--dock-pad) !important; left:var(--dock-pad) !important; height:calc(100% - var(--dock-pad) * 2) !important;
+  width:calc((100% - var(--dock-pad) * 2) / var(--nav-n,5)) !important; box-sizing:border-box;
+  border-radius:calc(var(--dock-r) - var(--dock-pad)) !important; background:rgba(216,195,160,.08) !important; border:1px solid rgba(216,195,160,.14); box-shadow:none !important; }
+#nav-wrap #nav .navbtn:focus-visible{ border-radius:calc(var(--dock-r) - var(--dock-pad)); }
+@media (max-width:359px){ :root{ --nav-ls:.8px; } }
+/* ---- mini：略高於 nav；封面 42、歌名 14.5、副標 11.5、播放／收合 44 ---- */
+#mini-player.mini-player{ padding:10px 6px 10px 11px; gap:4px; border-radius:var(--dock-r); }
+#mini-player .mp-open{ gap:11px; height:44px; min-height:44px; }
+#mini-player .mp-cover{ width:42px; height:42px; border-radius:8px; }
+#mini-player .mp-txt{ flex:1; min-width:0; gap:3px; }   /* 撐滿歌名區（B240T 只用了內容寬，字幕過早截斷） */
+#mini-player .mp-title{ font-size:14.5px; line-height:18px; }
+/* 原 #mp-sub 保留給 syncMini 寫字與讀屏器；視覺改由 .mp-marq 顯示（aria-hidden） */
+#mini-player .mp-sub.mp-sub-sr{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
+#mini-player .mp-marq{ position:relative; display:block; overflow:hidden; white-space:nowrap; height:15px; font-size:11.5px; line-height:15px; color:#A8A196; letter-spacing:.04em; }
+#mini-player .mp-mtrack{ display:inline-flex; will-change:transform; }
+#mini-player .mp-mseg{ flex:none; }
+#mini-player .mp-mgap{ flex:none; width:36px; }
+#mini-player .mp-marq:not(.run) .mp-mtrack{ display:block; overflow:hidden; text-overflow:ellipsis; }   /* 短字／reduced-motion：靜止 */
+#mini-player .mp-marq.run{ -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); }   /* 只淡右緣；靜止／短字不套遮罩 */
+</style>
+<style id="b242-readable-style">
+/* ===================== B242T：可讀性優先（真機回饋：nav／mini 字太小）＋ PLAY 封面模式整組上移 =====================
+   全部用真實尺寸變數（不用 transform:scale）；保留 B241 的置中結構與字幕流動。 */
+:root{ --dock-w:min(calc(100vw - 24px),480px); --dock-nav-h:76px; --dock-mini-h:82px; --dock-r:22px; --dock-pad:6px;
+  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.1px; --nav-fs:14px; --nav-ico:25px; }
+@media (max-width:359px){ :root{ --nav-fs:13px; --nav-ls:.8px; --nav-ico:24px; } }
+/* ---- nav：label 14px、icon 25px；未選中也有清楚對比（不再 opacity .62 乘暗色） ---- */
+#nav-wrap #nav .navbtn{ gap:4px; color:rgba(230,223,210,.80) !important; }
+#nav-wrap #nav .navbtn .navico{ width:calc(var(--nav-ico) + 1px); height:calc(var(--nav-ico) + 1px); }
+#nav-wrap #nav .navbtn .navico svg{ width:var(--nav-ico); height:var(--nav-ico); stroke-width:1.8; }
+#nav-wrap #nav .navbtn .navlbl{ opacity:1 !important; height:16px; line-height:16px; font-size:var(--nav-fs) !important; font-weight:600;
+  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#nav-wrap #nav-ind{ background:rgba(216,195,160,.12) !important; border-color:rgba(216,195,160,.20); }
+/* ---- 合併 mini：等比例放大（82 高、封面 52、歌名 18、副標 14、播放鍵 48） ---- */
+#mini-player.mini-player{ padding:15px 8px 15px 15px; gap:6px; }
+#mini-player .mp-open{ gap:13px; height:52px; min-height:52px; }
+#mini-player .mp-cover{ width:52px; height:52px; border-radius:10px; }
+#mini-player .mp-txt{ gap:4px; }
+#mini-player .mp-title{ font-size:18px; line-height:22px; font-weight:600; color:#F5EFE5; }
+#mini-player .mp-marq{ height:18px; font-size:14px; line-height:18px; color:#C4BBAD; letter-spacing:.02em; }
+#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
+#mini-player .mp-btn.mp-play::before{ inset:0; border-color:rgba(241,236,227,.62); }
+#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
+#mini-player .mp-tog svg{ width:24px; height:24px; }
+@media (max-width:359px){   /* 320：歌名區太窄 → 封面 50、間距收窄、歌名 17（按鈕仍 48／44） */
+  #mini-player.mini-player{ padding:15px 6px 15px 12px; gap:4px; }
+  #mini-player .mp-open{ gap:10px; }
+  #mini-player .mp-cover{ width:50px; height:50px; }
+  #mini-player .mp-title{ font-size:17px; }
+}
+/* ---- PLAY 封面模式：字級放大＋整組往上（只作用在 cover，不碰歌詞／待播清單） ---- */
+#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 36px); --cp-gap:18px; }
+@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 36px); } }
+@media (max-height:720px){ #screen-player.cp-ready{ --cp-gap:12px; } }
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift)); }
+#screen-player.cp-ready:not(.cp-immersive) .np-card{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift) + var(--cp-dock-height) + var(--cp-gap)); }
+#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(30px, 9.2vw, 38px) !important; line-height:1.2; padding-bottom:2px; }   /* overflow:hidden（原設定）：行高留足避免裁到下伸部 */
+#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:16px !important; line-height:1.45; margin-top:8px; color:#CFC8D4 !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-label{ font-size:12px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-times{ font-size:14px; margin:12px 0 10px; color:#CBC4D2 !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 76px minmax(44px,1fr) minmax(44px,1fr); align-items:center; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:60px; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:74px !important; height:74px !important; max-width:none !important; min-width:74px; flex:none; border-radius:50% !important; border:1.5px solid rgba(241,236,227,.82) !important; background:rgba(12,11,10,.28) !important; box-sizing:border-box; }   /* 主播放視覺 74px（細線圓，與歌詞模式一致） */
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:38px !important; height:38px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-prev svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-next svg{ width:31px !important; height:31px !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-lyrics svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-queue svg{ width:24px; height:24px; }
+@media (max-height:720px){   /* 矮螢幕 compact：播放鍵 66、控制列與 nav 保留呼吸 */
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 68px minmax(44px,1fr) minmax(44px,1fr); }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:66px !important; height:66px !important; min-width:66px; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:34px !important; height:34px !important; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:56px; }
+  #screen-player.cp-ready:not(.cp-immersive) .np-times{ margin:10px 0 6px; }
+}
+</style>
+<style id="b243-tuned-style">
+/* ===================== B243T：CÉON 用 tuner 定的數值（iPhone 14 Plus） =====================
+   PLAY 上移 21／nav 64、文字 13.5、圖示 22、左右 32、未選中 40%／音樂島 84、封面 50、副標 13.5。
+   320–359px 寬：左右留白自動縮成 16px（避免 LUCKY 被裁）。 */
+:root{ --dock-nav-h:64px; --nav-fs:13.5px; --nav-ico:22px; --dock-w:min(calc(100vw - 64px),480px); --dock-mini-h:84px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.40) !important; }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#mini-player .mp-cover{ width:50px; height:50px; }
+#mini-player .mp-open{ height:50px; min-height:50px; }
+#mini-player .mp-marq{ font-size:13.5px; }
+#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 21px); }
+@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 21px); } }
+</style>
+<style id="b244-cover-soft-style">
+/* ===================== B244T：PLAY 主照片柔化（只作用在封面模式） =====================
+   根因：原本的 .cover-card::before 黑色漸層與影片同 z-index、排在影片之前 → 被影片蓋住，照片底部變成一條硬線。
+   改用 mask-image 讓整張照片（含影片）往下淡出到透明；底部圓角；變數供 tuner 調整。 */
+#screen-player.cp-ready{ --cv-bottom:12%; --cv-fade:55%; --cv-r:28px; --cv-side:0px; }
+#screen-player.cp-ready:not(.cp-immersive) .cover-card{ bottom:var(--cv-bottom) !important; left:var(--cv-side) !important; right:var(--cv-side) !important;
+  border-radius:0 0 var(--cv-r) var(--cv-r) !important; overflow:hidden;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%); }
+</style>
+<style id="b245-tuned-style">
+/* ===================== B245T：CÉON tuner 第二次設定（iPhone 14 Plus） =====================
+   照片底部 25%、漸層從 80% 開始；nav 88%（高 56.5、文字 12、圖示 19.5、字重 500、左右 39）；
+   音樂島 98%（高 82.5、封面 48、歌名 17.5、副標 13、播放鍵 47）。320–359px：左右 16、nav 文字 13。 */
+#screen-player.cp-ready{ --cv-bottom:25%; --cv-fade:80%; }
+:root{ --dock-nav-h:56.5px; --nav-fs:12px; --nav-ico:19.5px; --dock-w:min(calc(100vw - 78px),480px); --dock-mini-h:82.5px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:15px; line-height:15px; }
+#mini-player .mp-cover{ width:48px; height:48px; }
+#mini-player .mp-open{ height:48px; min-height:48px; }
+#mini-player .mp-title{ font-size:17.5px; line-height:21.5px; }
+#mini-player .mp-marq{ font-size:13px; line-height:17px; height:17px; }
+#mini-player .mp-btn.mp-play{ width:47px; height:47px; min-width:47px; }
+#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
+@media (max-width:359px){ #mini-player .mp-title{ font-size:17px; } }
+</style>
+<style id="b246-readable-style">
+/* ===================== B246T：真機回饋 — nav／待播清單／Unlock 可讀性 =====================
+   參考 Apple Music 的可讀原則（清楚對比、列表用系統 sans、主標題夠大），保留 CHANCE 黑金與 serif nav 標籤；
+   PLAY 照片構圖沿用 B245（--cv-bottom 25%、--cv-fade 80%）不變。 */
+/* ---- 1. 全站 nav：74 高、label 14／500、icon 25、左右 15、未選中 78% ---- */
+:root{ --dock-nav-h:74px; --nav-fs:14px; --nav-ico:25px; --dock-w:min(calc(100vw - 30px),480px); --dock-mini-h:82.5px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:13px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.78) !important; }
+#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:17px; line-height:17px; }
+/* ---- 3. 音樂島：82.5 高、封面 50、歌名 18、副標 14、播放鍵 48 ---- */
+#mini-player .mp-cover{ width:50px; height:50px; }
+#mini-player .mp-open{ height:50px; min-height:50px; }
+#mini-player .mp-title{ font-size:18px; line-height:22px; }
+#mini-player .mp-marq{ font-size:14px; line-height:18px; height:18px; }
+#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
+@media (max-width:359px){ #mini-player .mp-cover{ width:46px; height:46px; } #mini-player .mp-title{ font-size:17px; } }   /* 窄屏優先保留文字寬度 */
+/* ---- 2. 待播清單（#cp-queue；舊 #sheet 已不再使用）：系統 sans、Apple Music 式可讀字級 ---- */
+#screen-player.cp-immersive:not(.cp-lyr){ --cp-q-bottom:calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 16px); }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-transport{ bottom:var(--cp-q-bottom); }   /* nav 在待播清單時隱藏：控制列不再替它留空 */
+#screen-player.cp-immersive:not(.cp-lyr) #cp-panel{ padding-bottom:calc(var(--cp-q-bottom) + var(--cp-dock-height) + 12px); }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-heading{ font:600 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:1.5px; color:#D4CCDC; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-thumb{ width:52px; height:52px; border-radius:8px; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font:600 20px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F4EFF7; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-artist{ font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C9BFD1; margin-top:3px; }
+#screen-player.cp-immersive:not(.cp-lyr) #cp-queue-note{ font:400 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C2B8CA; }
+#screen-player #cp-queue .cp-queue-heading{ margin:18px 0 6px; font:600 14.5px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.06em; color:#CFC6D6; }
+#screen-player #cp-queue .cp-track{ min-height:72px; padding:10px 8px; gap:14px; }
+#screen-player #cp-queue .cp-track-select{ gap:14px; min-height:52px; }
+#screen-player #cp-queue .cp-track img{ width:50px; height:50px; border-radius:8px; }
+#screen-player #cp-queue .cp-track-name{ font:600 17.5px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F2EDF5;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+#screen-player #cp-queue .cp-track-artist{ margin-top:3px; font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C3B8CC; }
+#screen-player #cp-queue .cp-track-note{ margin-top:2px; font-size:14px; line-height:1.35; color:#B9AEC4; }
+#screen-player #cp-queue .cp-track-state{ font:500 14px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; max-width:30%; text-align:right; }
+/* ---- 4. FEED 未解鎖 Unlock：由 dock 實際占用高度（CSS 變數）推導位置；nav 收合時不跟著動 ---- */
+#screen-mood.sgl-locked{ --sg-btn-w:min(58vw,280px); --sg-btn-h:50px; --sg-btn-font:21px; --sgl-gap:40px; }
+#screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--sgl-gap)) !important; }
+body.has-mini #screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + var(--sgl-gap) - 4px) !important; }
+</style>
+<style id="b247-ux-style">
+/* ===================== B247T：全站 UI/UX 自檢後的精修 =====================
+   參考 Apple Music（選中 glyph＋label 同一顆 pill、旁邊 tab 不位移）與 Weverse artist feed（作者／時間→正文→媒體）的層級原則；
+   不換品牌字：專輯歌名、品牌大標、nav 標籤維持 serif；資訊性的小字改成可讀的系統 sans。價格字型不動。 */
+/* ---- 1. nav 選中：label 14→15（窄屏 13→14）、600、亮金；label 盒高固定 17px，五等寬不位移、dock 不變高 ---- */
+#nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease; }
+#nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease, transform .12s ease; }
+#nav-wrap #nav .navbtn.active .navlbl{ font-size:calc(var(--nav-fs) + 1px) !important; font-weight:600; }   /* B241 用 !important 鎖住 nav 字級，這裡同樣需要 */
+#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
+#nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:scale(.94); }   /* 按壓只做視覺微縮，不影響排版 */
+@media (prefers-reduced-motion:reduce){
+  #nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:none; }
+  #nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:none; }
+}
+/* ---- 2. FEED 已解鎖：少框線、資訊可讀（作者／時間 → 正文 → 媒體） ---- */
+#screen-mood:not(.sgl-locked) .chat-bubble{ border-color:transparent; background:rgba(12,10,16,.46); box-shadow:0 6px 22px rgba(0,0,0,.30); }
+#screen-mood:not(.sgl-locked) .chat-photo{ border-color:transparent; }
+#screen-mood:not(.sgl-locked) .chat-voice{ border-color:transparent; background:rgba(126,63,168,.26); }
+#screen-mood:not(.sgl-locked) .chat-voice .v-time{ font:500 13px/1 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; font-variant-numeric:tabular-nums; letter-spacing:0; color:rgba(255,255,255,.82); }
+#screen-mood:not(.sgl-locked) .chat-day{ font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.08em; color:rgba(232,214,180,.74) !important; }
+#screen-mood:not(.sgl-locked) .feedhead-days{ font-size:13px; line-height:1.3; color:rgba(214,203,226,.86); }
+#screen-mood:not(.sgl-locked) .feed-cue span{ font-size:13px; color:rgba(255,255,255,.74); }
+#screen-mood .chat-video .cv-exp{ z-index:3; }   /* 擴大的點擊區要在影片播放層之上 */
+#screen-mood .chat-video .cv-exp::after{ content:""; position:absolute; inset:-7px; }   /* 視覺 32px；點擊區＝內框 30＋7×2＝44px（方形，最外緣也點得到） */
+/* ---- 3. 五頁資訊字級統一（只動資訊文字；品牌裝飾字、價格不動） ---- */
+#screen-merch .sv3-block-h{ text-wrap:balance; }          /* 「CHANCE 生日會」不再只剩「會」一個字換行 */
+#screen-merch .sv3-block-m{ font-size:14px; }
+#screen-merch .sv3-sub{ font-size:14px; }
+/* R2：R1 的 #screen-purchase .xxx 權重低於原本 #screen-purchase.own-unlocked .xxx，沒生效 → 用同一條選擇器鏈覆寫 */
+#screen-purchase.own-unlocked .pass-count{ font-size:13px; }                       /* caption：TRACKS UNLOCKED（pc-num 36 不動） */
+#screen-purchase.own-unlocked .pass-next{ font-size:13px; color:#BEB29D; }          /* caption：NEXT TRACK · 日期 */
+#screen-purchase.own-unlocked .pass-unlock .ou-l{ font-size:14px; }                /* 資訊：解鎖 SIGNAL 頻道（價格 .ou-r 不動） */
+#screen-lucky .lkc-left{ font-size:14px; }
+</style>
+<style id="b247t2-style">
+/* ===================== B247T2：第二輪精修 ===================== */
+/* ---- 2. nav 按壓：舊 .navbtn:active scale(.92) ＋ 子層 .94 會疊成 ≈.865 → 父層歸零，只留子層 .94；tabPop 改輕柔，減少動態完全停止 ---- */
+#nav-wrap #nav .navbtn:active{ transform:none !important; }
+#nav-wrap #nav .navbtn.pop .navico{ animation:navPopSoft .2s ease-out; }
+@keyframes navPopSoft{ 0%{ transform:scale(.95); } 100%{ transform:scale(1); } }
+@media (prefers-reduced-motion:reduce){ #nav-wrap #nav .navbtn.pop .navico{ animation:none !important; } #nav-wrap #nav-ind{ transition:none !important; } }   /* 選中底色原本有 .46s 位移轉場，B240 的 reduce 沒選到它 */
+/* ---- 3. FEED 真實功能：反應列／時間／自己的訊息／回覆欄 ---- */
+#screen-mood .rx-row{ column-gap:4px; row-gap:12px; }                                   /* 換行時上下點擊區不重疊 */
+#screen-mood.mood-vip .chat-meta .rx-chip, #screen-mood.mood-vip .chat-meta .rx-add{ position:relative; height:32px; min-width:40px; justify-content:center; padding:0 10px;
+  border-color:transparent; background:rgba(14,10,22,.52); font-size:15px; }
+#screen-mood.mood-vip .chat-meta .rx-chip b{ font-size:14px; }
+#screen-mood.mood-vip .chat-meta .rx-chip.on{ background:rgba(183,140,255,.30); box-shadow:inset 0 0 0 1px rgba(183,140,255,.7); color:#F3E6C4; }   /* 選中仍可辨識 */
+#screen-mood.mood-vip .chat-meta .rx-add{ color:rgba(255,255,255,.62); font-size:16px; }
+#screen-mood .chat-meta .rx-chip:active, #screen-mood .chat-meta .rx-add:active{ transform:none; opacity:.85; }   /* 舊 :active scale(.92) 會讓 44 點擊區一起縮 → 改用透明度做按壓回饋 */
+#screen-mood .chat-meta .rx-chip::after, #screen-mood .chat-meta .rx-add::after{ content:""; position:absolute; left:-2px; right:-2px; top:-6px; bottom:-6px; }   /* 視覺 32、點擊 44；左右只延伸 2px＝間距 4 的一半，不重疊 */
+#screen-mood.mood-vip .chat-meta .chat-time, #screen-mood .chat-meta .chat-time{ font-size:13px; letter-spacing:.2px; }
+#screen-mood .mine-lock{ font-size:13px; }
+#screen-mood .my-bubble{ border-color:rgba(169,140,255,.28); }
+#screen-mood .myv-dur{ font-size:13px; font-variant-numeric:tabular-nums; }
+#screen-mood .myv-play{ position:relative; }
+#screen-mood .myv-play::after{ content:""; position:absolute; inset:-6px; }               /* 視覺 32、點擊 44 */
+/* 回覆欄：輸入 16px（避免 iOS 自動放大）、mic／send 44、提示次要 14 */
+.rpbar .rp-inp{ font-size:16px; }
+.rpbar .rp-mic, .rpbar .rp-send{ width:44px; height:44px; }
+.rpbar .rp-lockicon{ font-size:13px; }
+.rpbar .rp-note-sub{ font-size:14px; line-height:1.2; }
+.rpbar .rp-pill{ background:rgba(16,14,20,.92); border-color:rgba(255,255,255,.12); }      /* 毛玻璃在第 9077 行被強制關掉，原本 .16 透明底會讓後面訊息透出來 → 改成近乎不透明 */
+.rpbar .rp-note{ background:linear-gradient(135deg,rgba(40,28,64,.94),rgba(22,16,36,.95)); }
+/* 回覆欄位置：原本 dockReplyBar 只貼 nav 上緣，合併音樂島出現時會疊住它 → 依 dock 實際占用高度擺放（nav 收合時不跟著跳） */
+.rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + 8px) !important; }
+body.has-mini .rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 8px) !important; }
+body.has-rpbar #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + 92px); }
+body.has-rpbar.has-mini #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 92px); }
+/* ---- 4. 標題列：往下滑時內容會從浮動標題底下經過 → 加一層隨 --veil 出現的暗色漸層；人像開場（頂端）不加暗 ---- */
+#screen-mood.mood-vip .feed-tabs::before{ content:""; position:absolute; z-index:-1; left:0; right:0; top:calc(-1 * env(safe-area-inset-top, 0px)); bottom:-30px; pointer-events:none;
+  background:linear-gradient(180deg, rgba(8,7,11,.88) 0%, rgba(8,7,11,.66) 58%, rgba(8,7,11,0) 100%); opacity:var(--veil, 0); }
+/* cue：原本固定在畫面底部 150px，會壓到第一則訊息 → 改成跟著開場留白，停在第一則訊息正上方（一樣靠 --cue 淡出） */
+#screen-mood.mood-vip .feed-cue{ position:absolute; bottom:auto; top:calc(58vh - 58px); }
+</style>
+<style id="b248-tuned-style">
+/* ===================== B248T：CÉON tuner 設定（iPhone 14 Plus，數值＝手機上看到的實際尺寸，比例已換算） ===================== */
+/* PLAY：歌名 36（窄螢幕等比縮）、副標 15 */
+#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(29px, 8.42vw, 36px) !important; }
+#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:15px !important; }
+/* PLAY 時間軸：玻璃膠囊（時間｜進度條｜時間 同一行；留言數在下方置中；拖曳進度仍是原本 #prog） */
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ display:grid; grid-template-columns:auto 1fr auto; grid-template-areas:"cur bar dur" "cm cm cm" "ctl ctl ctl" "lyr lyr lyr"; column-gap:14px; align-items:center; }
+#screen-player.cp-ready:not(.cp-immersive) #cp-transport::before{ content:""; grid-row:1; grid-column:1 / 4; height:40px; margin:0 -16px; border-radius:999px; pointer-events:none;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.16); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14); }
+#screen-player.cp-ready:not(.cp-immersive) .np-times{ display:contents; }
+#screen-player.cp-ready:not(.cp-immersive) #t-cur{ grid-area:cur; z-index:1; }
+#screen-player.cp-ready:not(.cp-immersive) #t-dur{ grid-area:dur; z-index:1; }
+#screen-player.cp-ready:not(.cp-immersive) #prog{ grid-area:bar; z-index:1; margin:0 !important; }
+#screen-player.cp-ready:not(.cp-immersive) #cm-btn{ grid-area:cm; justify-self:center; margin:12px 0 12px; }
+#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-area:ctl; }
+#screen-player.cp-ready:not(.cp-immersive) #cp-lyr-row{ grid-area:lyr; }
+/* nav：高 59、文字 11（選中 12）、圖示 20、字重 400、字距 1.7、左右 24（窄屏 15）、未選中 45%、完全膠囊、不透明度 31%＋毛玻璃 */
+:root{ --dock-nav-h:59px; --nav-fs:11px; --nav-ico:20px; --dock-w:min(calc(100vw - 48px),480px); --dock-mini-h:65px; --dock-r:40px; }
+@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:11px; } }
+#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.45) !important; }
+#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
+#nav-wrap #nav .navbtn .navlbl{ font-weight:400; height:14px; line-height:14px; letter-spacing:1.7px !important; text-indent:1.7px !important; }
+#nav-wrap #nav .navbtn.active .navlbl{ font-weight:600; }
+body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{ background:rgba(13,12,11,.31) !important; -webkit-backdrop-filter:blur(22px) saturate(150%) !important; backdrop-filter:blur(22px) saturate(150%) !important; }
+/* 音樂島：高 65、封面 39.5、歌名 14、副標 10、播放鍵 44（點擊區下限） */
+#mini-player .mp-cover{ width:39.5px; height:39.5px; }
+#mini-player .mp-open{ height:44px; min-height:44px; }
+#mini-player .mp-title{ font-size:14px; line-height:18px; }
+#mini-player .mp-marq{ font-size:10px; line-height:14px; height:14px; }
+#mini-player .mp-btn.mp-play{ width:44px; height:44px; min-width:44px; }
+#mini-player .mp-btn.mp-play svg{ width:20px; height:20px; }
+@media (max-width:359px){ #mini-player .mp-cover{ width:39.5px; height:39.5px; } #mini-player .mp-title{ font-size:14px; } }
+/* 待播清單：頂部目前歌曲 21、封面 47、每列 75 */
+#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font-size:21px; }
+#screen-player #cp-queue .cp-track img{ width:47px; height:47px; }
+#screen-player #cp-queue .cp-track{ min-height:75px; }
+</style>
+<style id="b249-blackgold">
+/* ===================== B249T：黑金統一（只改顏色）＋ 點擊區 44px ＋ SIGNAL 影片占位 ===================== */
+/* 全站主題變數：test 版原本是「墨紫金」，這裡把紫色變數換成黑金（只有 14 處用到） */
+:root{ --bg:#080809 !important; --bg-top:#151311 !important; --surface:rgba(22,20,18,.55) !important; --secondary:#8A6D3B !important; --accent:#D6B66F !important; --grad:linear-gradient(90deg,#8A6D3B,#F0DCA8) !important; }
+body, #stage{ background:#080809 !important; }
+/* PLAY：封面左上的紫色光暈、進度條底色 → 黑金 */
+.cover-shade{ background:
+    radial-gradient(120% 90% at 30% 12%, rgba(214,182,111,.10), rgba(20,18,15,0) 66%),
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.28) 8%, transparent 22%, rgba(8,8,9,0) 46%, rgba(8,8,9,.72) 76%, #080809 100%) !important; }
+.prog{ background:rgba(241,236,227,.16) !important; }
+/* LUCKY：紫色 → 暖黑＋金 */
+#screen-lucky::before{ background:
+    linear-gradient(180deg, rgba(8,8,9,.88) 0%, rgba(9,9,10,.5) 24%, rgba(9,9,10,.54) 52%, rgba(8,8,9,.92) 100%),
+    radial-gradient(120% 60% at 50% 6%, rgba(214,182,111,.10), transparent 60%),
+    url("https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/lucky-bg.jpg") center top / cover no-repeat;
+  filter:grayscale(1) sepia(.18) brightness(.92); }
+#screen-lucky .page-title-tc{ color:rgba(243,239,228,.92) !important; }
+#screen-lucky .page-note.lucky-rule, #screen-lucky .lkc-title, #screen-lucky .lkc-left{ color:rgba(232,224,208,.62) !important; }
+#screen-lucky .lkc-count{ color:rgba(243,239,228,.86) !important; }
+#screen-lucky .lkc-node.off{ border-color:rgba(214,182,111,.35); background:rgba(30,28,24,.55); color:rgba(214,182,111,.6); }
+#screen-lucky .lkc-line{ background:rgba(214,182,111,.22); }
+#screen-lucky .lkc-line.on{ background:linear-gradient(90deg,#D9B26A,#F0DCA8); }
+#screen-lucky .lkg{ border-color:rgba(214,182,111,.24); background:linear-gradient(165deg,#1c1a16,#0d0c0b 70%); }
+#screen-lucky .lkg.none{ background-color:#0d0c0b; background-image:none; }
+#screen-lucky .lkg.none::before{ content:"" !important; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:url("assets/cards/the-sky-locked-card-back-v1.png") center / cover no-repeat;
+  filter:grayscale(1) sepia(.35) brightness(.9) contrast(1.05); }
+#screen-lucky .lkg-tag{ background:rgba(14,13,11,.82); }
+#screen-lucky .lkg-n{ background:rgba(10,10,10,.72); }
+.lk-deck-card{ background:linear-gradient(160deg,#2a2620,#121110); }
+.orb-stage::before{ background:radial-gradient(circle at 50% 50%, rgba(214,182,111,.22), rgba(217,178,106,.08) 40%, transparent 68%); }
+
+/* 付費 SIGNAL：拿掉紫色調，背景人像維持黑白 */
+#screen-mood.mood-vip::before{ background-image:
+    linear-gradient(180deg, rgba(8,8,9,.46) 0%, rgba(8,8,9,.14) 130px, transparent 210px),
+    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(6,6,7,.58) 100%),
+    linear-gradient(180deg, rgba(12,12,13,.10) 0%, rgba(12,12,13,.12) 42%, rgba(10,10,11,.30) 62%, rgba(9,9,10,.66) 78%, rgba(8,8,9,.90) 90%, #080809 100%),
+    linear-gradient(180deg, rgba(214,182,111,.05) 0%, rgba(214,182,111,.02) 42%, transparent 72%),
+    url("assets/images/artist-background.jpg"); }
+#screen-mood.mood-vip #__fx3dveil{ background:
+    linear-gradient(180deg, rgba(8,8,9,.46) 0%, rgba(8,8,9,.14) 130px, transparent 210px),
+    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(6,6,7,.58) 100%),
+    linear-gradient(180deg, rgba(12,12,13,.10) 0%, rgba(12,12,13,.12) 42%, rgba(10,10,11,.30) 62%, rgba(9,9,10,.66) 78%, rgba(8,8,9,.90) 90%, #080809 100%),
+    linear-gradient(180deg, rgba(214,182,111,.05) 0%, rgba(214,182,111,.02) 42%, transparent 72%); }
+#screen-mood.mood-vip::after{ background:linear-gradient(180deg, rgba(9,9,10,.86), rgba(8,8,9,.94)); }
+.fh-dot, .feedhead-cap .fh-dot{ background:#D6B66F; box-shadow:0 0 7px rgba(214,182,111,.7); }
+.chat-ava{ background:#1c1a17; }
+#screen-mood:not(.sgl-locked) .chat-voice{ background:rgba(12,12,12,.46); }
+.chat-voice .wave i{ background:rgba(232,224,208,.42); }
+.chat-voice .wave i.on{ background:#D9B26A; }
+.chat-voice .wave i.cur{ background:#F0DCA8; }
+#screen-mood.mood-vip .chat-meta .rx-chip, #screen-mood.mood-vip .chat-meta .rx-add{ background:rgba(12,12,12,.52); }
+.chat-video .cv-exp{ background:rgba(10,10,10,.6); }
+
+/* SIGNAL 影片：還沒載入前用黑金占位（不再一打開就抓影片），點了顯示轉圈 */
+#screen-mood .chat-video:not(.cv-ready) video.cv{ aspect-ratio:4 / 5; object-fit:cover;
+  background:radial-gradient(120% 80% at 50% 28%, rgba(214,182,111,.16), rgba(10,10,10,0) 62%), linear-gradient(160deg,#1a1814,#0a0a0a); }
+#screen-mood .chat-video.cv-loading .cv-play{ display:flex !important; pointer-events:none; }
+#screen-mood .chat-video.cv-loading .cv-play svg{ opacity:.35; }
+#screen-mood .chat-video.cv-loading .cv-play::after{ content:""; position:absolute; inset:-6px; border-radius:50%;
+  border:2px solid rgba(240,220,168,.22); border-top-color:#F0DCA8; animation:b249spin .8s linear infinite; }
+@keyframes b249spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ #screen-mood .chat-video.cv-loading .cv-play::after{ animation-duration:2.4s; } }
+
+/* 暱稱彈窗：紫 → 黑金 */
+.nickcard{ background:linear-gradient(135deg,rgba(34,31,27,.74),rgba(14,13,12,.84)); }
+.nickcard .nk-ok{ color:#17130B; }
+
+/* OWN 結帳鍵：紫金漸層 → 金色 */
+#screen-purchase #btn-checkout{ background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%) !important; color:#17130B !important; }
+
+/* 點擊區至少 44px（看起來一樣大，只放大能點的範圍） */
+#screen-player #cm-btn{ position:relative; }
+#screen-player #cm-btn::after{ content:""; position:absolute; left:-4px; right:-4px; top:-10px; bottom:-10px; }
+#screen-purchase .own-b-back{ position:relative; }
+#screen-purchase .own-b-back::after{ content:""; position:absolute; left:0; right:0; top:-14px; bottom:-14px; }
+</style>
+<link rel="stylesheet" href="b284-local.css?v=c4b27b98f1d2">
+<link rel="stylesheet" href="b285-local.css?v=689af7694baa">
+<link rel="stylesheet" href="own-collection-local.css?v=3a37b8310eff">
 </head>
 <body>
 <script>/* B223V：登記所有 new Audio() 實例（只登記，不改行為），供迷你播放列讀播放狀態 */
@@ -3157,10 +3791,11 @@ body.a2ck-on #terms-sheet{z-index:115030}
     <div id="unlock-done-view" class="hidden">
       <!-- B233T：極簡黑金收藏頁（無底色；id 全部沿用，JS 綁定與資料來源不動） -->
       <div class="pass-card own-u">
+        <div class="own-collection-title" data-no-translate><div>CHANCE</div><h1>THE SKY</h1></div>
         <div class="pass-count" id="pass-count"></div>
         <div class="pass-next" id="pass-next"></div>
         <div class="pass-cta">
-          <button class="pass-play" id="btn-goto-player">▶ 播放已收藏歌曲</button>
+          <button class="pass-play" id="btn-goto-player">▶ 播放我的專輯</button>
           <button class="pass-unlock hidden" id="btn-upgrade">解鎖 SIGNAL 頻道・補 NT$500</button>
           <button class="fl-redeem hidden" id="btn-redeem-owned">已購買？輸入兌換碼</button>
         </div>
@@ -3168,18 +3803,19 @@ body.a2ck-on #terms-sheet{z-index:115030}
     </div>
 
       <!-- B313T：介面語言（第一次之外，隨時可在這裡換） -->
-      <div class="lang-row" id="lang-row" data-no-translate>
+      <details class="lang-row own-language" id="lang-row" data-no-translate>
+        <summary><span><span aria-hidden="true">◎　</span>語言 / Language</span><span class="own-language-value">中文</span></summary>
         <div class="lr-t"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg><span>介面語言 · Language</span></div>
         <div class="lr-seg" role="radiogroup" aria-label="介面語言 Language"><button type="button" role="radio" data-lang="zh">中文</button><button type="button" role="radio" data-lang="en">English</button></div>
-        <div class="lr-n">歌詞、SIGNAL、留言維持原文 · Lyrics &amp; posts stay original</div>
-      </div>
+        <div class="lr-n">歌詞與貼文保留原文 · Lyrics &amp; posts stay original</div>
+      </details>
 
       <div class="legal-foot">
         <div class="lf-links">
           <button data-open-terms="terms">購買須知</button>
           <button data-open-terms="privacy">隱私權政策</button>
         </div>
-        <div class="lf-info">夏米爾企業社　統一編號 38472654<br>客服信箱 heartbeats0693@gmail.com</div>
+        <details class="own-service"><summary data-no-translate>客服 / Contact</summary><div class="lf-info">夏米爾企業社　統一編號 38472654<br>客服信箱 heartbeats0693@gmail.com</div></details>
       </div>
   </section>
 
@@ -5902,7 +6538,7 @@ window.ALBUM_SWITCH = {
 "全解鎖 · 專輯＋頻道": "All access · album + channel",
 "已購買？輸入兌換碼": "Already bought? Enter your code",
 "已收藏歌曲可不限次數聆聽": "Your tracks · listen anytime, unlimited",
-"▶ 播放已收藏歌曲": "▶ Play your tracks",
+"▶ 播放我的專輯": "▶ Play my album",
 "收藏一張會成長的專輯": "An album that keeps growing",
 "每月，解鎖一首新歌": "One new song unlocked, every month",
 "已解鎖內容可不限次數聆聽": "Unlocked content · listen without limits",
@@ -6135,6 +6771,7 @@ window.ALBUM_SWITCH = {
   }
   function skyLangPaintOwn() {
     var row = document.getElementById("lang-row"); if (!row) return;
+    row.querySelector(".own-language-value").textContent = window.SKY_LANG === "en" ? "English" : "中文";
     Array.prototype.forEach.call(row.querySelectorAll("[data-lang]"), function (b) {
       b.setAttribute("aria-checked", String(b.getAttribute("data-lang") === window.SKY_LANG));
       b.onclick = function () { var l = b.getAttribute("data-lang"); if (l === window.SKY_LANG) { try { localStorage.setItem("sky-lang", l); } catch (e) {} return; } skyLangSet(l); };
@@ -6237,7 +6874,7 @@ window.ALBUM_SWITCH = {
       $("nav-ind").style.transform = "translateX(" + (activeBtn.offsetLeft - navBtns[0].offsetLeft) + "px)";
       void activeBtn.offsetWidth; activeBtn.classList.add("pop");
     }
-    if (screen === "mood") feedNewsSeen();           /* B125T：進頻道＝已讀，收紅點 */
+    if (screen === "mood") { feedNewsSeen(); sgrAutoVideo(); }           /* B125T：進頻道＝已讀，收紅點 */
     if (screen === "mood") { try { if (feedUnlockedQ()) setTimeout(function () { if (state.screen === "mood") askNick(); }, 900); } catch (e) {} }   /* B154T：問暱稱；B307T：0.9 秒內已離開 FEED 就不跳（原本會跟到別的分頁） */
     /* B168T：回覆框先不上線 —— 要開放時把這行還原即可
     try { buildReplyBar(); } catch (e) {} */
@@ -6302,7 +6939,7 @@ window.ALBUM_SWITCH = {
   $("btn-goto-player").addEventListener("click", function () { go("player"); });
   /* B74：已購專輯者的兌換入口（補 500 升級後拿到的碼從這裡輸入） */
   $("btn-redeem-owned").addEventListener("click", function () {
-    hap(8); attachRedeemForm($("btn-redeem-owned").parentNode);
+    hap(8); a2OwnRedeemPage();
   });
   /* B28：已有專輯 → 補 500 升級全解鎖（同一套兌換碼系統，不開第二條金流） */
   $("btn-upgrade").addEventListener("click", function () {
@@ -6337,7 +6974,7 @@ window.ALBUM_SWITCH = {
       lsSet(NS + ":passUnlocked", unlockedCount);
     }
     var pc = $("pass-count");
-    if (pc) pc.innerHTML = '<span class="pc-num">' + unlockedCount + '</span> TRACKS UNLOCKED';
+    if (pc) { pc.setAttribute('data-no-translate', ''); pc.textContent = window.SKY_LANG === 'en' ? 'Collected · ' + unlockedCount + (unlockedCount === 1 ? ' track unlocked' : ' tracks unlocked') : '已收藏 · 已解鎖 ' + unlockedCount + ' 首'; }
     var pn = $("pass-next");
     if (pn){
       var nx = passCfg.next;
@@ -6742,7 +7379,7 @@ window.ALBUM_SWITCH = {
     var fp = feedPassInfo();
     var full = (purchasedProduct() === "deluxe") || !!fp.full;
     $("btn-upgrade").classList.toggle("hidden", full);
-    $("btn-redeem-owned").classList.toggle("hidden", full);
+    $("btn-redeem-owned").classList.remove("hidden"); /* 已購仍可兌換其他有效碼 */
     renderPass();
   }
 
@@ -6815,7 +7452,18 @@ window.ALBUM_SWITCH = {
         a2OkOpen({ simple: true, t: "升級成功", s: "SIGNAL 頻道與全部影片已解鎖。" });   /* B278T：原本只有底部小字 */
         renderUnlockView(); loadLiveFeed(true); renderMoodWall(); done(true); return;
       }
-      if (pid === "feed-pass" || /^video-/.test(pid)) { redeemFeed(email, code); done(true); return; }
+      /* Consume this verified response once; never report success before a second request. */
+      if (pid === "feed-pass") {
+        if (!feedPassInfo().full) lsSet(LS.feedpass, { unlocked: true, email: email, code: code });   /* 已是全解鎖就不覆蓋（舊頻道碼不能把 799 降級） */
+        renderUnlockView(); loadLiveFeed(true); renderMoodWall();
+        hap([12, 30, 12, 30, 40]); a2OkOpen({ simple: true, t: "頻道已解鎖", s: "歡迎進來 SIGNAL。" });
+        done(true); return;
+      }
+      if (/^video-/.test(pid)) {
+        var ownedVideos = vidsOwned(); ownedVideos[pid] = { email: email, code: code }; lsSet(LS.vids, ownedVideos);
+        renderMoodWall(); hap([12, 30, 40]); a2OkOpen({ simple: true, t: "影片已解鎖", s: "可以在 SIGNAL 觀看。" });
+        done(true); return;
+      }
       unlockNow({ email: email, code: code, product: data.product || "299" });
       done(true);
     }).catch(function () { if (!quiet) toast("連線失敗 · 後端未回應"); done(false, "net"); });
@@ -7821,14 +8469,16 @@ window.ALBUM_SWITCH = {
     if (!A2.standalone && !$("a2-own")) {
       var b = document.createElement("button");
       b.type = "button"; b.id = "a2-own"; b.className = "a2-own";
-      b.innerHTML = '<span class="a2-ol"><i>' + A2I.plus + '</i>放到主畫面・下次點圖示就能聽</span><span class="a2-or">教學 ›</span>';
+      b.setAttribute('data-no-translate', '');
+      b.innerHTML = '<span class="a2-ol"><i>' + A2I.plus + '</i>' + (window.SKY_LANG === 'en' ? 'Add to Home Screen' : '加入主畫面') + '</span><span class="a2-or">›</span>';
       b.addEventListener("click", function () { a2TutOpen("own"); });
       add(b);
     }
     if (A2.iOS && !A2.inapp && !$("a2-wallet")) {
       var wl = document.createElement("button");
       wl.type = "button"; wl.id = "a2-wallet"; wl.className = "a2-own a2-sub";
-      wl.innerHTML = '<span class="a2-ol">收藏專輯卡（Apple 錢包，可稍後）' + (T261 ? '・測試卡 000' : '') + '</span><span class="a2-or">›</span>';
+      wl.setAttribute('data-no-translate', '');
+      wl.innerHTML = '<span class="a2-ol">' + (window.SKY_LANG === 'en' ? 'My Wallet card' : '我的錢包卡') + (T261 ? '<small>' + (window.SKY_LANG === 'en' ? 'Design test card · 000' : '設計測試卡 · 000') + '</small>' : '') + '</span><span class="a2-or">›</span>';
       wl.addEventListener("click", function () { a2st({ walletTap: Date.now() }); location.href = T3_PASS; });
       add(wl);
     }
@@ -9036,7 +9686,7 @@ window.ALBUM_SWITCH = {
   }
   function sgrItemHTML(it, i, n) {
     var bg = it.photo ? '<img class="sgr-img" data-src="' + esc(it.photo) + '" alt="" decoding="async">'
-      : it.video ? '<video class="sgr-vid" data-src="' + esc(it.video) + '" playsinline webkit-playsinline preload="none"></video><button type="button" class="sgr-vplay" data-sgr="video" aria-label="' + sgrL("播放影片", "Play video") + '">' + SGR_ICON.play + '</button>'
+      : it.video ? '<video class="sgr-vid" data-src="' + esc(it.video) + '" playsinline webkit-playsinline muted loop preload="none"></video><button type="button" class="sgr-vplay" data-sgr="video" aria-label="' + sgrL("播放影片", "Play video") + '">' + SGR_ICON.play + '</button>'
       : '';
     var kind = it.photo ? "photo" : it.video ? "video" : it.voice ? "voice" : "text";
     var voice = it.voice ? '<div class="sgr-voice" data-sgr="voice"><button type="button" class="sgr-vbtn" aria-label="' + sgrL("播放語音", "Play voice message") + '">' + SGR_ICON.play + '</button><span class="sgr-wave"><i></i></span><span class="sgr-vt">' + esc(it.dur || sgrL("語音", "Voice")) + '</span><audio data-src="' + esc(it.voice) + '" preload="none"></audio></div>' : '';
@@ -9055,7 +9705,7 @@ window.ALBUM_SWITCH = {
     var keepRid = SGR.built ? SGR.rid : "";
     var key = items.map(function (x) { return x.rid + "|" + (x.text || "").length + "|" + (x.photo || x.video || x.voice || ""); }).join(",") + "|" + window.SKY_LANG;
     sm.classList.add("sgr-on"); sm.classList.remove("mood-vip");
-    if (SGR.built && key === SGR.key && fb.querySelector("#sgr")) { sgrPaintTop(); sgrPlace(); return; }   /* 內容沒變：不重建，不跳位 */
+    if (SGR.built && key === SGR.key && fb.querySelector("#sgr")) { sgrPaintTop(); sgrPlace(); sgrAutoVideo(); return; }   /* 內容沒變：不重建，不跳位 */
     SGR.items = items; SGR.key = key;
     var n = items.length;
     fb.innerHTML = '<div class="sgr" id="sgr" role="feed" aria-label="SIGNAL" aria-busy="false">' +
@@ -9084,8 +9734,9 @@ window.ALBUM_SWITCH = {
     var h = root.clientHeight || 1, i = Math.round(root.scrollTop / h);
     if (i === SGR.idx && !force) return;
     if (SGR.idx >= 0) sgrPauseIn(sgrEl(SGR.idx));
+    if (i !== SGR.idx && SGR.idx >= 0) SGR.up = "";   /* 換到別則：上一則的「手動暫停」不再記 */
     SGR.idx = i; var it = SGR.items[i]; SGR.rid = it ? it.rid : SGR.rid;
-    sgrWarm(i); sgrWarm(i + 1);
+    sgrWarm(i); sgrWarm(i + 1); sgrAutoVideo();
     var top = $("sgr-top"); if (top) top.classList.toggle("dim", i > 0);
   }
   function sgrPauseIn(el) {
@@ -9093,7 +9744,11 @@ window.ALBUM_SWITCH = {
     Array.prototype.forEach.call(el.querySelectorAll("audio,video"), function (m) { try { m.pause(); } catch (e) {} });
   }
   function sgrPauseAll() { var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("audio,video"), function (m) { try { m.pause(); } catch (e) {} }); }
-  function sgrLeave() { sgrPauseAll(); sgcClose(true); }
+  function sgrLeave() { sgrPauseAll(); SGR.up = ""; SGR.bg = null; sgcClose(true); }
+  /* 修復 1：靜音影片不算出聲，不跟主播放器搶；只有出聲的頻道媒體（語音、開了聲音的影片）才互斥 */
+  function sgrAudible(m) { return m.tagName === "AUDIO" || !m.muted; }
+  function sgrPauseAudible() { var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("audio,video"), function (m) { if (sgrAudible(m)) { try { m.pause(); } catch (e) {} } }); }
+  function sgrCurRid() { var it = SGR.items[SGR.idx]; return it ? it.rid : ""; }
   function sgrPlace() {
     var sm = $("screen-mood"); if (!sm || !sm.classList.contains("sgr-on")) return;
     var H = window.innerHeight || 800, top = H, nv = $("nav");
@@ -9107,8 +9762,22 @@ window.ALBUM_SWITCH = {
       var mp = document.getElementById("mini-player"); if (mp) new MutationObserver(f).observe(mp, { attributes: true, attributeFilter: ["class", "style", "hidden"] }); }
   })();
   window.addEventListener("resize", function () { sgrPlace(); var r = $("sgr"); if (r && SGR.idx >= 0) r.scrollTop = SGR.idx * r.clientHeight; });
-  try { audio.addEventListener("play", sgrPauseAll); } catch (e) {}   /* 主播放器開始播 → 頻道裡的語音／影片停 */
-  document.addEventListener("visibilitychange", function () { if (document.hidden) { var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("video"), function (v) { try { v.pause(); } catch (e) {} }); } });
+  try { audio.addEventListener("play", sgrPauseAudible); } catch (e) {}   /* 主播放器開始播 → 頻道裡出聲的語音／影片停；靜音自動播放的影片繼續 */
+  /* 修復 2：進背景前記住「目前這支影片正在由系統播放、不是使用者按停的」；回前景仍在 FEED、仍是同一支 → 靜音恢復（不開聲、不重試） */
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      var el = sgrEl(SGR.idx), cv = el && el.querySelector("video.sgr-vid");
+      if (state.screen === "mood" && cv && !cv.paused && SGR.up !== sgrCurRid()) SGR.bg = { rid: sgrCurRid() };
+      var r = $("sgr"); if (r) Array.prototype.forEach.call(r.querySelectorAll("video"), function (v) { try { v.pause(); } catch (e) {} });
+      return;
+    }
+    var b = SGR.bg; if (!b) return;
+    setTimeout(function () {
+      if (document.hidden || SGR.bg !== b) return;   /* 又進背景，留著下次回來再判斷 */
+      SGR.bg = null;
+      if (state.screen === "mood" && b.rid && b.rid === sgrCurRid()) sgrAutoVideo();
+    }, 150);
+  });
   function sgrVoice(box) {
     var au = box.querySelector("audio"), btn = box.querySelector(".sgr-vbtn"), w = box.querySelector(".sgr-wave i"), t = box.querySelector(".sgr-vt");
     if (!au.__b) {
@@ -9122,17 +9791,38 @@ window.ALBUM_SWITCH = {
     if (au.paused) { sgrPauseAll(); try { audio.pause(); } catch (e) {} au.play().catch(function () {}); } else au.pause();
     hap(8);
   }
-  function sgrVideo(el) {
-    var v = el.querySelector("video.sgr-vid"); if (!v) return;
+  /* Local user-approved behavior only: play the active video; never unlock media. */
+  function sgrVideoReady(el) {
+    var v = el && el.querySelector("video.sgr-vid"); if (!v) return null;
     if (!v.__b) {
       v.__b = 1;
       v.addEventListener("play", function () { el.classList.add("playing"); });
       v.addEventListener("pause", function () { el.classList.remove("playing"); });
-      v.addEventListener("ended", function () { el.classList.remove("playing"); });
       v.addEventListener("error", function () { el.classList.add("noimg"); el.classList.remove("playing"); });
     }
+    v.playsInline = true; v.loop = true;
     if (v.getAttribute("data-src")) { v.src = v.getAttribute("data-src"); v.removeAttribute("data-src"); }
-    if (v.paused) { sgrPauseAll(); try { audio.pause(); } catch (e) {} v.play().catch(function () {}); } else v.pause();
+    return v;
+  }
+  function sgrAutoVideo() {
+    if (!SGR || state.screen !== "mood" || document.hidden) return;
+    var el = sgrEl(SGR.idx), v = el && el.querySelector("video.sgr-vid");
+    if (!v || !v.paused || (SGR.up && SGR.up === sgrCurRid())) return;   /* 使用者自己按停的不自動播 */
+    v.muted = true; v.defaultMuted = true;
+    v = sgrVideoReady(el); sgrPauseAll();   /* 同時只有一支頻道媒體；不停主播放器（靜音影片不搶音樂） */
+    var current = function () { return state.screen === "mood" && !document.hidden && el === sgrEl(SGR.idx) && el.isConnected; };
+    try { var p = v.play(); if (p && p.then) p.then(function () { if (!current()) v.pause(); }).catch(function () { el.classList.remove("playing"); }); } catch (e) { el.classList.remove("playing"); }
+  }
+  function sgrVideo(el) {
+    var v = sgrVideoReady(el); if (!v) return;
+    /* First tap on a silent playing video turns sound on; subsequent taps pause/play. */
+    if (!v.paused && v.muted) { v.muted = false; try { audio.pause(); } catch (e) {} hap(8); return; }   /* 使用者開影片聲音 → 才停音樂（避免疊音） */
+    if (v.paused) {
+      SGR.up = "";
+      sgrPauseAll(); try { audio.pause(); } catch (e) {}
+      v.muted = false;
+      v.play().then(function () { if (state.screen !== "mood" || document.hidden || el !== sgrEl(SGR.idx) || !el.isConnected) v.pause(); }).catch(function () {});
+    } else { SGR.up = sgrCurRid(); v.pause(); }
     hap(8);
   }
   function sgrPaintActs(rid) {
@@ -9371,7 +10061,7 @@ window.ALBUM_SWITCH = {
         loadLiveFeed(true); renderMoodWall(); try { cloudLoad(); cloudSave(); } catch(e){} return;
       }
       if (pid === "feed-pass") {
-        lsSet(LS.feedpass, { unlocked: true, email: email, code: code });
+        if (!feedPassInfo().full) lsSet(LS.feedpass, { unlocked: true, email: email, code: code });   /* 已是全解鎖就不覆蓋 */
         hap([12, 30, 12, 30, 40]); a2OkOpen({ simple: true, t: "頻道已解鎖", s: "歡迎進來 SIGNAL。" });   /* B278T */
         loadLiveFeed(true); renderMoodWall(); return;
       }
@@ -9424,7 +10114,12 @@ window.ALBUM_SWITCH = {
     if (!state.unlocked) state.selectedPlan = "deluxe";
     go("purchase");
     setTimeout(function () {
-      var t = state.unlocked ? $("btn-upgrade") : $("plans");
+      /* CÉON 10/25 15:05：299 是專輯、799 是專輯＋SIGNAL。
+         沒買過 → 799 方案卡；只買 299 → 直接開「補 NT$500」付款（同一顆按鈕、同一套 email＋同意＋綠界）；
+         升級鈕被藏（本機已是全解鎖但頻道仍鎖）→ 指向「已購買？輸入兌換碼」 */
+      var up = $("btn-upgrade");
+      if (state.unlocked && up && !up.classList.contains("hidden")) { up.click(); return; }
+      var t = state.unlocked ? $("btn-redeem-owned") : $("plans");
       if (!t || t.classList.contains("hidden")) return;
       if (!state.unlocked) renderPlans();
       try { t.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
@@ -11208,7 +11903,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B314T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B315T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -11367,83 +12062,13 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-t314.js?v=B314T";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=84f8c5279487";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
 })();
 </script>
-<style id="own-b-style">
-/* ===== B220T OWN｜B「時尚雜誌版」—— 只作用在 #screen-purchase；只改視覺，不改任何文案 ===== */
-#screen-purchase{ background:#080809 !important; padding-top:0 !important; }
-#screen-purchase .own-b-hero{ position:relative; width:100%; aspect-ratio:900/833; max-height:430px; overflow:hidden; background:#080809; }
-#screen-purchase .own-b-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:60% 40%; display:block; filter:grayscale(1); }
-#screen-purchase .own-b-shade{ position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(8,8,9,.62) 0%,rgba(8,8,9,0) 24%,rgba(8,8,9,0) 58%,rgba(8,8,9,.86) 88%,#080809 100%),
-             linear-gradient(90deg,rgba(8,8,9,.55) 0%,rgba(8,8,9,0) 46%); }
-#screen-purchase .own-b-top{ position:absolute; left:0; right:0; top:0; z-index:2; display:grid; grid-template-columns:44px 1fr 44px; align-items:center;
-  padding:calc(8px + env(safe-area-inset-top)) 10px 0; }
-#screen-purchase .own-b-back{ width:44px; height:44px; display:grid; place-items:center; padding:0; background:none; border:0; border-radius:22px; color:#E6DAC4; cursor:pointer; -webkit-appearance:none; appearance:none; }
-#screen-purchase .own-b-back:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
-#screen-purchase .own-b-toptitle{ text-align:center; font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:16px; letter-spacing:.34em; padding-left:.34em; color:#D8C3A0; }
-#screen-purchase .own-b-mast{ position:absolute; left:20px; top:calc(76px + env(safe-area-inset-top)); z-index:1; }
-#screen-purchase .own-b-artist{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-size:12px; letter-spacing:.44em; color:#CFC6B8; }
-#screen-purchase .own-b-work{ font-family:'Bodoni Moda',var(--font-label),Georgia,serif; font-weight:400; font-size:clamp(28px,8vw,36px); line-height:1.05; letter-spacing:.01em; color:#D8C3A0; margin-top:8px; white-space:nowrap; }
 
-/* 原主標／副標：沿用原文字，改成左對齊雜誌排版，允許自然換行（不截字） */
-#screen-purchase .page-titles{ position:relative; z-index:2; text-align:left !important; padding:0 20px !important; margin-top:-30px; }
-#screen-purchase .page-title-en{ font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:11.5px !important; letter-spacing:.36em !important; color:#D8C3A0 !important; }
-#screen-purchase .page-title-tc{ font-family:var(--font-serif-tc) !important; font-size:clamp(23px,6.6vw,28px) !important; font-weight:600 !important; line-height:1.32 !important; letter-spacing:.04em !important; color:#F3EDE3 !important; margin-top:10px !important; white-space:normal !important; }
-#screen-purchase .page-titles .page-note{ font-size:15px !important; line-height:1.6 !important; color:#B9AE9F !important; margin-top:8px !important; letter-spacing:.06em; }
-#screen-purchase #unlock-form-view{ margin-top:22px !important; }
-#screen-purchase #unlock-done-view{ margin-top:26px !important; }
-
-/* 299／799 方案卡：左右並排，卡片依完整權益自動增高；過窄時改上下排列 */
-#screen-purchase #plans{ display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important; padding:0 20px !important; align-items:stretch; }
-@media (max-width:359px){ #screen-purchase #plans{ grid-template-columns:1fr; } }
-#screen-purchase #plans .plan{ display:flex; flex-direction:column; min-width:0; background:#0C0C0E !important; border:1px solid #2A2A2F !important; border-radius:14px !important; padding:14px 13px 15px !important; box-shadow:none !important; transition:border-color .18s,background .18s; }
-#screen-purchase #plans .plan.selected{ border-color:#D8C3A0 !important; background:linear-gradient(180deg,#15130F,#0C0C0E 55%) !important; }
-#screen-purchase #plans .plan:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
-#screen-purchase #plans .plan-badge{ position:static !important; order:-1; align-self:stretch; margin:-14px -13px 12px; padding:6px 6px !important; border-radius:13px 13px 0 0 !important;   /* B221T：卡片頂端整條，整句一行放得下 */
-  background:rgba(216,195,160,.10) !important; border:0; border-bottom:1px solid rgba(216,195,160,.22); color:#E3D0AE !important; text-align:center;
-  font-family:inherit !important; font-size:12px !important; line-height:1.45; letter-spacing:.02em !important; white-space:normal; }
-#screen-purchase #plans .plan-name{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-family:var(--font-serif-tc) !important; font-size:16.5px !important; letter-spacing:.06em !important; color:#EDE6DA; }
-#screen-purchase #plans .own-radio{ flex:none; position:relative; width:20px; height:20px; border-radius:50%; border:1.5px solid #5A5960; }
-#screen-purchase #plans .plan.selected .own-radio{ border-color:#D8C3A0; }
-#screen-purchase #plans .plan.selected .own-radio::after{ content:""; position:absolute; inset:4px; border-radius:50%; background:#D8C3A0; }
-#screen-purchase #plans .plan-price{ display:flex; flex-wrap:wrap; align-items:baseline; column-gap:8px; row-gap:2px; margin-top:10px !important;
-  font-family:'Bodoni Moda',var(--font-label),serif !important; font-size:clamp(26px,7.6vw,32px) !important; font-weight:500 !important; line-height:1.1; color:#A9A39A; }
-#screen-purchase #plans .plan.selected .plan-price{ color:#E3C893; }
-#screen-purchase #plans .plan-was{ margin-left:0 !important; font-size:14px !important; font-weight:400 !important; color:#8E877D !important; text-decoration:line-through !important; }
-#screen-purchase #plans .plan-features{ margin-top:12px !important; padding-top:12px; border-top:1px solid rgba(255,255,255,.07); gap:8px !important; }
-#screen-purchase #plans .plan-feature{ align-items:flex-start !important; gap:7px !important; font-size:13.5px !important; line-height:1.55 !important; color:#CFC7BA !important; }
-#screen-purchase #plans .plan-feature,#screen-purchase #plans .plan-badge,#screen-purchase .page-title-tc,#screen-purchase .page-titles .page-note{ word-break:keep-all; overflow-wrap:anywhere; }   /* 中文只在原本的空白／「·」處換行，避免單字落單；太長時仍可換行不溢出 */
-#screen-purchase #plans .plan:not(.selected) .plan-feature{ color:#A8A196 !important; }
-#screen-purchase #plans .plan-feature svg{ flex:none; width:12px; height:12px; margin-top:5px; stroke:#BFA77F !important; }
-
-/* 結帳：全寬膠囊、紫→金；文字由原本 renderPlans 產生（不硬編碼價格） */
-#screen-purchase .cta-block{ padding:16px 20px 0 !important; }
-#screen-purchase #btn-checkout{ position:relative; min-height:56px; padding:14px 52px !important; border-radius:999px !important; border:0 !important;
-  background:linear-gradient(90deg,#7460A6 0%,#A28BB0 48%,#D9BE91 100%) !important; color:#17121D !important;
-  font-family:var(--font-serif-tc) !important; font-size:16px !important; font-weight:600 !important; letter-spacing:.08em !important; line-height:1.4;
-  box-shadow:0 12px 28px -16px rgba(217,190,145,.6) !important; }
-#screen-purchase #btn-checkout::after{ content:"→"; position:absolute; right:22px; top:50%; transform:translateY(-50%); font-size:18px; font-family:-apple-system,system-ui,sans-serif; }
-#screen-purchase #btn-checkout:focus-visible{ outline:2px solid #D8C3A0; outline-offset:3px; }
-
-/* 「已經購買了？」：預設收合，細分隔線＋右側＋ */
-#screen-purchase .own-rd-toggle{ display:flex !important; align-items:center; justify-content:space-between; width:calc(100% - 40px); margin:22px 20px 0 !important; padding:17px 2px !important;
-  background:none; border:0; border-top:1px solid rgba(255,255,255,.09); border-bottom:1px solid rgba(255,255,255,.09); color:#CFC6B8; text-align:left; cursor:pointer; -webkit-appearance:none; appearance:none; font:inherit; }
-#screen-purchase .own-rd-toggle::before,#screen-purchase .own-rd-toggle::after{ content:none !important; display:none !important; }
-#screen-purchase .own-rd-toggle span{ font-family:var(--font-serif-tc),sans-serif !important; font-size:15px !important; letter-spacing:.06em !important; text-transform:none !important; color:#CFC6B8 !important; white-space:normal !important; }
-#screen-purchase .own-rd-toggle:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
-#screen-purchase .own-rd-ic{ position:relative; flex:none; width:16px; height:16px; }
-#screen-purchase .own-rd-ic::before,#screen-purchase .own-rd-ic::after{ content:""; position:absolute; left:0; right:0; top:50%; height:1.5px; margin-top:-.75px; background:#CFC6B8; transition:transform .2s; }
-#screen-purchase .own-rd-ic::after{ transform:rotate(90deg); }
-#screen-purchase .own-rd-toggle[aria-expanded="true"] .own-rd-ic::after{ transform:rotate(0deg); }
-#screen-purchase #unlock-form-view.own-rd-closed .form-block{ display:none !important; }
-#screen-purchase .form-block{ padding-top:16px; }
-#screen-purchase .form-block .page-note{ color:#B9AE9F !important; font-size:14.5px !important; line-height:1.65 !important; word-break:keep-all; overflow-wrap:anywhere; }
-</style>
 <script>
 /* B220T OWN B 版：返回鍵、方案鍵盤操作、兌換收合（只加介面行為；結帳／兌換／付款邏輯完全沿用原本） */
 (function () {
@@ -11483,57 +12108,8 @@ window.ALBUM_SWITCH = {
   });
 })();
 </script>
-<style id="app-black-style">
-/* ===== B222T：整個 App 底色改黑（跟 OWN 頁一致 #080809）＋ Nav 島改黑 =====
-   只改「底色」：不動內容卡片、按鈕、封面、付費會員 SIGNAL 人像背景與任何文字 */
-#stage, #screen-player { background:#080809 !important; }
-.screen-sub, #screen-mood, #screen-mood.mood-vip { background:#080809 !important; }
-#sheet { background:#0C0C0E !important; }
-#sheet-backdrop { background:rgba(0,0,0,.6) !important; }
-@media (min-width:520px){ body { background:#050506 !important; } }
-/* Nav 島：黑色玻璃、細框、光暈減弱；選中＝香檳金 */
-#nav, .nav-island { background:rgba(10,10,12,.88) !important; border-color:rgba(255,255,255,.08) !important; }
-#nav::before { opacity:.35; }
-.navbtn { color:rgba(206,198,186,.55) !important; }
-.navbtn.active { color:#E3C893 !important; }
-#nav-ind { background:linear-gradient(180deg,rgba(216,195,160,.20),rgba(216,195,160,.08)) !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 4px 12px rgba(0,0,0,.35) !important; }
-</style>
-<style id="v2-upgrade-style">
-/* ===== B223V 升級模組（v2.html 專用；test.html 未動）===== */
-/* PLAY：控制鍵放大到 Apple 建議尺寸；進度條加粗＋加大點擊區 */
-#screen-player .btn-play{ width:64px !important; height:64px !important; }
-#screen-player .btn-play svg{ width:26px; height:26px; }
-#screen-player .btn-ghost{ min-width:48px; min-height:48px; padding:10px !important; display:inline-flex; align-items:center; justify-content:center; }
-#screen-player .icon-round{ width:48px !important; height:48px !important; }
-#screen-player .prog{ height:6px !important; }
-#screen-player .prog::before{ content:""; position:absolute; left:0; right:0; top:-14px; bottom:-14px; }
-/* 字級階層：Nav 標籤 12px、頁尾法務列 44px、票券／抽卡標籤最小 12px（裝飾字不動） */
-.navbtn .navlbl{ font-size:12px !important; }
-.legal-foot .lf-links{ gap:6px !important; }
-.legal-foot .lf-links button{ min-height:44px; padding:0 12px !important; font-size:13px !important; }
-.legal-foot .lf-info{ font-size:12px !important; line-height:1.7 !important; }
-#screen-lucky .lkg-tag{ font-size:12px !important; letter-spacing:1.2px !important; }
-.tk .tk-cd span, .tk-layer .tk-tag, .tk-layer .tk-lab, .tk-layer .tk-dl .k, .tk-ticket-meta div:last-child span{ font-size:12px !important; }
-/* 效能：徽章／膠囊／小標的 backdrop-filter 改實色（泡泡、Nav 島、播放卡保留） */
-.pcard-badge,.drop-card,.feedhead-cap,#screen-mood .pin,#screen-mood .m-badge,.rp-pill,.rp-note,.newpill,.rxpick,#screen-mood .rx-chip,#screen-mood .rx-add,#screen-mood.mood-vip .rx-chip,#screen-mood.mood-vip .rx-add{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
-/* 迷你播放列：播放中且不在 PLAY 頁時，固定在 Nav 島上方 */
-.mini-player{ position:fixed; left:14px; right:14px; z-index:45; height:60px; display:flex; align-items:center; gap:4px; padding:6px 8px 6px 6px;
-  background:#141416; border:1px solid rgba(255,255,255,.09); border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,.55);
-  transition:opacity .22s ease, transform .22s ease; }
-.mini-player.hidden{ display:none !important; }
-.mini-player .mp-open{ flex:1; min-width:0; display:flex; align-items:center; gap:10px; background:none; border:0; padding:0; color:inherit; text-align:left; cursor:pointer; min-height:48px; }
-.mini-player .mp-cover{ width:44px; height:44px; border-radius:10px; object-fit:cover; background:#222; flex:none; }
-.mini-player .mp-txt{ min-width:0; display:flex; flex-direction:column; gap:2px; }
-.mini-player .mp-title{ font-family:var(--font-serif-tc); font-size:14px; font-weight:600; color:#F3EDE3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mini-player .mp-sub{ font-size:11.5px; color:#A8A196; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:.04em; }
-.mini-player .mp-btn{ flex:none; width:44px; height:44px; border-radius:22px; border:0; background:none; color:#E6DAC4; display:grid; place-items:center; cursor:pointer; }
-.mini-player .mp-btn.mp-play{ background:#F3EDE3; color:#111; }
-.mini-player .mp-btn:active{ transform:scale(.92); }
-.mini-player .mp-btn:focus-visible,.mini-player .mp-open:focus-visible{ outline:2px solid #D8C3A0; outline-offset:2px; }
-body.has-mini .screen.active::after{ content:""; display:block; height:var(--dock-mini-reserve,64px); }   /* B240T：固定預留 mini 高度，不隨 nav 收合改變（避免 scrollTop 跳動） */
-/* B240T：底部永久 sticky 購票列已移除（改為頂部一次性提示 #tk-hint，見 B240T 模組） */
-</style>
+
+
 <script>
 /* B223V 升級模組：迷你播放列、上滑開曲目表。（B240T：SHOP sticky 購票列與 navTop 定位已移除，dock 位置交給 CSS 變數） */
 (function () {
@@ -11596,154 +12172,8 @@ body.has-mini .screen.active::after{ content:""; display:block; height:var(--doc
 })();
 </script>
 
-<style id="chance-player-upgrade-style">
-/* CHANCE Player UX v1 — all rules are scoped to the player or its open state. */
-#screen-player.cp-ready { --cp-gold:#ddc9a4; --cp-dock-bottom:104px; --cp-dock-height:126px; --cp-side:24px; overflow:hidden; }
-#screen-player.cp-ready .player-fold { min-height:0!important; padding-top:0!important; }
-#screen-player.cp-ready .cover-card { bottom:18%!important; border-radius:0!important; }
-#screen-player.cp-ready .np-card { position:absolute!important; left:var(--cp-side); right:var(--cp-side); bottom:calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 12px); margin:0!important; gap:0!important; }
-#screen-player.cp-ready .np-title { white-space:normal; overflow-wrap:anywhere; line-height:1.15; font-size:clamp(24px,7vw,32px)!important; letter-spacing:.3px; }
-#screen-player.cp-ready .np-sub { white-space:normal; line-height:1.5; font-size:14px!important; color:#b8b2c0!important; margin-top:8px; }
-#screen-player.cp-ready .np-label { font-size:11px!important; letter-spacing:2.2px!important; color:#c7bdca!important; }
-#screen-player.cp-ready .np-actions { gap:0; margin-left:4px; align-self:center; }
-#screen-player.cp-ready #btn-heart, #screen-player.cp-ready #btn-loop { position:static; transform:none; padding:10px!important; }
-#screen-player.cp-ready #btn-heart svg { width:21px!important; height:21px!important; }
-#screen-player.cp-ready #btn-open-sheet { display:none!important; }
-#screen-player.cp-ready button:focus-visible, #screen-player.cp-ready [role=slider]:focus-visible { outline:2px solid var(--cp-gold); outline-offset:3px; }
-#screen-player .cp-icon { border:0; background:none; color:#ded9e2; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; flex:none; border-radius:12px; }
-#screen-player .cp-icon svg { width:22px; height:22px; }
-#screen-player .cp-icon[aria-pressed=true] { color:var(--cp-gold); background:rgba(221,201,164,.09); }
-#screen-player .cp-icon:active { opacity:.65; }
-#screen-player #cp-transport { position:absolute; z-index:10; left:var(--cp-side); right:var(--cp-side); bottom:var(--cp-dock-bottom); }
-#screen-player.cp-ready #prog { height:4px!important; margin:16px 0 0; touch-action:none; }
-#screen-player.cp-ready #prog::before { top:-16px; bottom:-16px; }
-#screen-player.cp-ready #prog-fill { background:var(--cp-gold)!important; }
-#screen-player.cp-ready #prog-dot { box-shadow:none!important; }
-#screen-player.cp-ready #prog-glow { display:none; }
-#screen-player.cp-ready .np-times { margin:12px 0 8px; transform:none!important; font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#bbb4c4!important; letter-spacing:.2px; }
-#screen-player.cp-ready .np-controls { display:grid!important; grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 64px minmax(44px,1fr) minmax(44px,1fr); gap:0!important; justify-items:center; margin:0!important; }
-#screen-player.cp-ready .np-controls > button { position:static; transform:none; min-width:44px; width:100%; max-width:64px; min-height:56px; padding:10px!important; }
-#screen-player.cp-ready .np-controls #btn-play { width:64px!important; height:64px!important; }
-#screen-player.cp-ready .np-controls #btn-play svg { width:34px!important; height:34px!important; }
-#screen-player.cp-ready .np-controls #btn-prev svg, #screen-player.cp-ready .np-controls #btn-next svg { width:28px!important; height:28px!important; }
-#screen-player .cp-sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-#screen-player #cp-panel { position:absolute; z-index:6; inset:0; background:linear-gradient(155deg,#29232e,#151318 65%,#101014); display:flex; flex-direction:column; padding:calc(12px + env(safe-area-inset-top,0px)) var(--cp-side) calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 16px); }
-#screen-player #cp-panel[hidden], #screen-player [hidden] { display:none!important; }
-#screen-player #cp-panel::before { content:""; position:absolute; inset:0; background-image:var(--cp-art); background-size:cover; background-position:center; filter:blur(45px); opacity:.12; pointer-events:none; }
-#screen-player .cp-panel-top, #screen-player .cp-panel-head, #screen-player .cp-panel-tools, #screen-player .cp-body { position:relative; }
-#screen-player .cp-panel-top { display:flex; justify-content:space-between; align-items:center; min-height:40px; flex:none; }
-#screen-player #cp-heading { font:500 12px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; letter-spacing:2px; color:#c5bdce; }
-#screen-player .cp-panel-head { display:flex; align-items:center; gap:12px; margin:8px 0 12px; flex:none; }
-#screen-player #cp-thumb { width:48px; height:48px; border-radius:7px; object-fit:cover; background:#211d26; }
-#screen-player .cp-meta { flex:1; min-width:0; }
-#screen-player #cp-title { font:600 16px/1.35 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; overflow-wrap:anywhere; }
-#screen-player #cp-artist { font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b6aebf; margin-top:4px; }
-#screen-player .cp-panel-tools { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:40px; flex:none; }
-#screen-player #cp-lyric-note { font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b4a9bd; }
-#screen-player .cp-language { display:flex; gap:3px; padding:3px; border:1px solid #53485c; border-radius:10px; }
-#screen-player .cp-language button { min-width:44px; min-height:38px; border:0; background:none; border-radius:7px; color:#c5bdce; cursor:pointer; }
-#screen-player .cp-language button[aria-pressed=true] { background:#49404f; color:#fff; }
-#screen-player .cp-body { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scrollbar-color:#5e5268 transparent; }
-#screen-player #cp-lyrics { padding:22px 0 40%; scroll-behavior:auto; -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent); mask-image:linear-gradient(to bottom,#000 calc(100% - 28px),transparent); }
-#screen-player .cp-line { display:block; margin:0 0 20px; width:100%; text-align:left; font:700 clamp(23px,6.7vw,30px)/1.45 -apple-system,BlinkMacSystemFont,"Noto Sans TC",system-ui,sans-serif; letter-spacing:-.4px; color:#e1dce5; border:0; padding:0; background:none; overflow-wrap:anywhere; }
-#screen-player .cp-line[data-time] { color:#9990a4; cursor:pointer; transition:color .22s ease; }
-#screen-player .cp-line[data-time]:hover, #screen-player .cp-line.current { color:#fff; }
-#screen-player .cp-line.past { color:#b5adbf; }
-#screen-player .cp-gap { height:14px; }
-#screen-player .cp-credits { font:13px/1.8 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b9afc6; white-space:pre-wrap; padding-top:24px; margin-top:30px; border-top:1px solid #49404f; }
-#screen-player .cp-empty { color:#c5bdce; font:15px/1.8 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; padding:25px 0; }
-#screen-player .cp-text-button { border:1px solid #655774; background:#352d3e; color:#f3edf7; padding:10px 16px; border-radius:18px; min-height:44px; cursor:pointer; font:13px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
-#screen-player #cp-follow { position:absolute; z-index:12; bottom:calc(var(--cp-dock-bottom) + var(--cp-dock-height) + 8px); left:50%; transform:translateX(-50%); white-space:nowrap; }
-#screen-player #cp-queue { padding-top:12px; }
-#screen-player .cp-queue-heading { margin:10px 0; color:#bfb4c9; font:500 12px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; letter-spacing:1px; }
-#screen-player .cp-track { display:flex; align-items:center; gap:12px; margin:2px 0; padding:10px 8px; border-radius:12px; }
-#screen-player .cp-track.current { background:rgba(221,201,164,.09); }
-#screen-player .cp-track-select { border:0; background:none; color:inherit; display:flex; align-items:center; gap:12px; flex:1; min-width:0; min-height:48px; padding:0; text-align:left; cursor:pointer; }
-#screen-player .cp-track img { width:44px; height:44px; object-fit:cover; border-radius:6px; background:#2b2432; flex:none; }
-#screen-player .cp-track-text { display:block; flex:1; min-width:0; }
-#screen-player .cp-track-name { display:block; font:500 15px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; overflow-wrap:anywhere; }
-#screen-player .cp-track-artist { display:block; margin-top:4px; font:12px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; color:#b6a9c2; }
-#screen-player .cp-track-state { color:var(--cp-gold); font:11px/1.3 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; flex:none; }
-#screen-player .cp-track-note { display:block; font-size:11px; color:#b6a9c2; margin-top:2px; }
-#screen-player #cp-menu-wrap { position:absolute; z-index:30; inset:0; display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.64); padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px)); }
-#screen-player #cp-menu { width:100%; max-height:90%; overflow:auto; background:#211d26; border:1px solid #4d4256; border-radius:22px; padding:12px 18px 20px; box-shadow:0 15px 50px #0008; }
-#screen-player .cp-menu-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
-#screen-player #cp-menu h2 { font:600 18px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
-#screen-player #cp-menu .cp-menu-action { width:100%; display:flex; align-items:center; gap:12px; min-height:50px; text-align:left; border:0; border-top:1px solid #ffffff12; background:none; color:#eee7f2; font:15px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; cursor:pointer; }
-#screen-player #cp-menu .cp-menu-action svg { width:21px; height:21px; flex:none; }
-#screen-player #cp-menu #btn-lyrics { border:0!important; width:100%!important; height:auto!important; border-radius:0; color:#eee7f2!important; }
-#screen-player #cp-share-url { width:100%; border:1px solid #615469; background:#16121c; color:#e4dce9; border-radius:8px; padding:12px; font:13px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; margin:8px 0; }
-#screen-player #cp-message { position:absolute; z-index:40; left:20px; right:20px; top:calc(16px + env(safe-area-inset-top,0px)); padding:12px 16px; background:#302937; color:#fff; border:1px solid #5d5068; border-radius:12px; font:14px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; text-align:center; pointer-events:none; }
-#screen-player.cp-immersive .player-fold { visibility:hidden; pointer-events:none; }
-body.cp-immersive #nav-wrap { visibility:hidden; pointer-events:none; }
-body.cp-menu-open #nav-wrap { visibility:hidden; pointer-events:none; }
-#screen-player.cp-ready #cover-img { animation:none; }
-#screen-player.cp-ready .cover-card::before { height:62%; background:linear-gradient(180deg,transparent,#080809); }
-@media(max-width:360px) { #screen-player.cp-ready { --cp-side:18px; } #screen-player .cp-panel-head { gap:8px; } #screen-player #cp-thumb { width:40px; height:40px; } }
-@media(max-height:680px) { #screen-player.cp-ready .np-title { font-size:24px!important; } #screen-player.cp-ready .np-sub { font-size:12px!important; line-height:1.35; margin-top:5px; } #screen-player .cp-panel-head { margin:0 0 4px; } #screen-player #cp-panel { padding-top:env(safe-area-inset-top,0px); } #screen-player .cp-line { font-size:24px; margin-bottom:15px; } }
-@media(prefers-reduced-motion:reduce) { #screen-player.cp-ready *, #screen-player.cp-ready *::before { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
 
-</style>
-<style id="b240-dock-style">
-/* ===================== B240T：合併音樂島（mini-player＋nav 同一個黑金 dock）＋頂部一次性購票提示 =====================
-   集中變數：dock 寬、nav 高、mini 高、底部安全距離。所有位置由 CSS 決定，JS 只切 body class（不每幀量位置）。 */
-:root{ --dock-w:min(calc(100vw - 20px),440px); --dock-nav-h:62px; --dock-mini-h:56px;
-  --dock-b:max(8px, calc(var(--sab, env(safe-area-inset-bottom)) + 8px));
-  --dock-bg:#0D0C0B; --dock-line:rgba(241,236,227,.10); --dock-gold:#D8C3A0; --dock-ease:cubic-bezier(.2,.8,.2,1);
-  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); }
-/* ---- nav：寬度跟螢幕走（不再溢出 320/390），實色黑底、單一細框 ---- */
-#nav-wrap{ bottom:var(--dock-b) !important; transition:transform .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
-#nav-wrap #nav{ width:var(--dock-w); height:var(--dock-nav-h); box-sizing:border-box; padding:4px 6px !important; justify-content:space-between; transform:none !important;
-  background:var(--dock-bg) !important; border:1px solid var(--dock-line) !important; border-radius:22px !important;
-  box-shadow:0 14px 34px rgba(0,0,0,.5) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
-  transition:border-radius .24s var(--dock-ease); }
-#nav-wrap #nav::before{ display:none !important; }
-#nav-wrap #nav .navbtn{ flex:1 1 0; min-width:0; width:auto !important; min-height:44px; height:100%; padding:0 !important; margin:0 !important; }
-#nav-wrap #nav .navbtn .navlbl{ letter-spacing:1.2px !important; }
-#nav-wrap #nav-ind{ top:4px !important; left:6px !important; height:calc(100% - 8px) !important; width:calc((100% - 12px) / var(--nav-n,5)) !important;
-  background:rgba(216,195,160,.11) !important; box-shadow:none !important; border-radius:16px !important; }
-#nav-wrap #nav .navbtn.active{ color:var(--dock-gold) !important; }
-#nav-wrap #nav .navbtn:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-3px; border-radius:16px; }
-@media (max-width:359px){ #nav-wrap #nav .navbtn .navlbl{ letter-spacing:.6px !important; } }
-/* ---- mini-player：與 nav 同寬同底色，貼在 nav 正上方；上一首／下一首移到完整播放器（handler 不動） ---- */
-#mini-player.mini-player{ left:0; right:0; margin:0 auto; width:var(--dock-w); box-sizing:border-box; height:var(--dock-mini-h);
-  bottom:calc(var(--dock-b) + var(--dock-nav-h)) !important; z-index:69; padding:6px 6px 6px 8px; gap:2px;
-  background:var(--dock-bg); border:1px solid var(--dock-line); border-radius:22px; box-shadow:0 14px 34px rgba(0,0,0,.5);
-  transition:transform .24s var(--dock-ease), border-radius .24s var(--dock-ease), opacity .2s ease; will-change:transform; }
-#mini-player #mp-prev, #mini-player #mp-next{ display:none; }
-#mini-player .mp-cover{ width:40px; height:40px; border-radius:9px; }
-#mini-player .mp-btn{ width:44px; height:44px; min-width:44px; flex:none; margin:0; }
-#mini-player .mp-btn.mp-play{ position:relative; background:transparent; color:#F1ECE3; border:0; }
-#mini-player .mp-btn.mp-play::before{ content:""; position:absolute; inset:2px; border-radius:50%; border:1px solid rgba(241,236,227,.55); pointer-events:none; }   /* 視覺 40px 細圈，點擊區 44px */
-#mini-player .mp-open{ min-height:44px; height:44px; }
-#mini-player .mp-tog{ color:#B5AC9E; }
-#mini-player .mp-tog svg{ transition:transform .24s var(--dock-ease); }
-#mini-player .mp-tog.up svg{ transform:rotate(180deg); }
-/* 合併：mini 在上、nav 在下，同一個外框（中間一條極淡分隔） */
-body.dock-merged #mini-player.mini-player{ border-bottom-left-radius:0; border-bottom-right-radius:0; border-bottom-color:rgba(241,236,227,.06); box-shadow:none; }
-body.dock-merged #nav-wrap #nav{ border-top-left-radius:0 !important; border-top-right-radius:0 !important; border-top-color:transparent !important; }
-/* 收合：nav 往下收、inert；mini 平順下移到 safe-area＋8px，恢復完整圓角 */
-body.dock-collapsed #nav-wrap{ transform:translateY(calc(100% + var(--dock-b) + 16px)); opacity:0; pointer-events:none; }
-body.dock-collapsed #mini-player.mini-player{ transform:translateY(var(--dock-nav-h)); }
-/* 覆蓋層（票券層、留言 sheet、選單、條款、曲目表、email）與鍵盤開啟時：整個 dock 讓開 */
-body.dock-off #nav-wrap, body.dock-off #mini-player{ visibility:hidden !important; pointer-events:none !important; }
-/* ---- 頂部一次性購票提示 ---- */
-.tk-hint{ position:fixed; z-index:80; left:0; right:0; margin:0 auto; top:calc(env(safe-area-inset-top, 0px) + 10px); width:min(calc(100vw - 24px),420px); box-sizing:border-box;
-  min-height:44px; max-height:52px; display:flex; align-items:center; gap:2px; padding:0 4px 0 6px; border-radius:14px;
-  background:#141016; border:1px solid rgba(216,195,160,.22); box-shadow:0 10px 26px rgba(0,0,0,.45); color:#EDE6DA;
-  opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s var(--dock-ease); font-family:-apple-system,"PingFang TC",sans-serif; }
-.tk-hint.in{ opacity:1; transform:none; }
-.tk-hint[hidden]{ display:none; }
-.tk-hint .tkh-go{ flex:1; min-width:0; min-height:44px; display:flex; align-items:center; gap:7px; padding:0 8px; background:none; border:0; color:inherit; font:inherit; font-size:13.5px; text-align:left; cursor:pointer; border-radius:10px; }
-.tk-hint .tkh-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.tk-hint .tkh-sep{ color:#6F675B; flex:none; }
-.tk-hint .tkh-price{ flex:none; color:var(--dock-gold); font-family:Georgia,"Times New Roman",serif; white-space:nowrap; }
-.tk-hint .tkh-cta{ flex:none; margin-left:auto; padding-left:8px; color:var(--dock-gold); white-space:nowrap; }
-.tk-hint .tkh-x{ flex:none; width:44px; height:44px; display:grid; place-items:center; background:none; border:0; color:#8F8778; font-size:18px; line-height:1; cursor:pointer; border-radius:10px; }
-.tk-hint button:focus-visible{ outline:2px solid var(--dock-gold); outline-offset:-2px; }
-body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant #mini-player.mini-player{ transition:none !important; }
-@media (prefers-reduced-motion: reduce){ #nav-wrap, #nav-wrap #nav, #mini-player.mini-player, #mini-player .mp-tog svg, .tk-hint{ transition:none !important; } }
-</style>
+
 <script id="b240-dock">
 /* ===================== B240T：Dock 狀態機＋購票一次性提示（第二輪） =====================
    集中一份 dock 狀態（collapsed／off／immersive），只切 body class；scroll 在 rAF 合批、只讀 scrollTop；
@@ -12001,41 +12431,7 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
   window.__tkhint = { state: function () { return { shown: shown, paused: paused, flags: { hover: F.hover, focus: F.focus, press: F.press, away: F.away }, sinceDown: lastDown ? Math.round(performance.now() - lastDown) : null }; } };
 })();
 </script>
-<style id="b241-dock-style">
-/* ===================== B241T：nav 置中＋classic 比例＋mini 字幕流動（接在 B240T dock 樣式之後覆寫） =====================
-   根因：.navbtn 是 flex column + align-items:center（只有水平置中），B240T 改成 padding:0; height:100% 後缺 justify-content:center，
-   圖示＋文字整組貼在按鈕上緣（實測比按鈕中心高 9px）；label 沒定行高，Bodoni 預設行高讓整組再偏上。 */
-:root{ --dock-w:min(calc(100vw - 30px),420px); --dock-nav-h:58px; --dock-mini-h:64px; --dock-r:20px; --dock-pad:5px;
-  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.4px; }
-/* ---- nav：五等分、整組正中、選中底色同中心 ---- */
-#nav-wrap #nav{ padding:var(--dock-pad) !important; border-radius:var(--dock-r) !important; }
-#nav-wrap #nav .navbtn{ display:flex !important; flex-direction:column; justify-content:center; align-items:center; gap:3px;
-  height:100%; min-height:44px; padding:0 !important; line-height:1; }
-#nav-wrap #nav .navbtn .navico{ flex:none; width:20px; height:20px; display:grid; place-items:center; }
-#nav-wrap #nav .navbtn .navico svg{ display:block; width:17px; height:17px; }
-#nav-wrap #nav .navbtn .navlbl{ display:block; flex:none; height:12px; line-height:12px; font-size:10.5px !important;
-  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); white-space:nowrap; }   /* text-indent 抵銷字尾字距，字形真正置中 */
-#nav-wrap #nav .navbtn.active .navico{ filter:none; }   /* 拿掉選中發光（不增加陰影） */
-#nav-wrap #nav-ind{ top:var(--dock-pad) !important; left:var(--dock-pad) !important; height:calc(100% - var(--dock-pad) * 2) !important;
-  width:calc((100% - var(--dock-pad) * 2) / var(--nav-n,5)) !important; box-sizing:border-box;
-  border-radius:calc(var(--dock-r) - var(--dock-pad)) !important; background:rgba(216,195,160,.08) !important; border:1px solid rgba(216,195,160,.14); box-shadow:none !important; }
-#nav-wrap #nav .navbtn:focus-visible{ border-radius:calc(var(--dock-r) - var(--dock-pad)); }
-@media (max-width:359px){ :root{ --nav-ls:.8px; } }
-/* ---- mini：略高於 nav；封面 42、歌名 14.5、副標 11.5、播放／收合 44 ---- */
-#mini-player.mini-player{ padding:10px 6px 10px 11px; gap:4px; border-radius:var(--dock-r); }
-#mini-player .mp-open{ gap:11px; height:44px; min-height:44px; }
-#mini-player .mp-cover{ width:42px; height:42px; border-radius:8px; }
-#mini-player .mp-txt{ flex:1; min-width:0; gap:3px; }   /* 撐滿歌名區（B240T 只用了內容寬，字幕過早截斷） */
-#mini-player .mp-title{ font-size:14.5px; line-height:18px; }
-/* 原 #mp-sub 保留給 syncMini 寫字與讀屏器；視覺改由 .mp-marq 顯示（aria-hidden） */
-#mini-player .mp-sub.mp-sub-sr{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
-#mini-player .mp-marq{ position:relative; display:block; overflow:hidden; white-space:nowrap; height:15px; font-size:11.5px; line-height:15px; color:#A8A196; letter-spacing:.04em; }
-#mini-player .mp-mtrack{ display:inline-flex; will-change:transform; }
-#mini-player .mp-mseg{ flex:none; }
-#mini-player .mp-mgap{ flex:none; width:36px; }
-#mini-player .mp-marq:not(.run) .mp-mtrack{ display:block; overflow:hidden; text-overflow:ellipsis; }   /* 短字／reduced-motion：靜止 */
-#mini-player .mp-marq.run{ -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 18px),transparent 100%); }   /* 只淡右緣；靜止／短字不套遮罩 */
-</style>
+
 <script id="b241-marquee">
 /* B241T：mini 副標超出可用寬度才緩慢流動（停 1.7s → 24px/s 線性向左 → 無縫接回）。
    不改 syncMini：它照舊寫 #mp-sub.textContent；這裡用 MutationObserver 讀文字、只在「文字或寬度真的變了」才重算。
@@ -12107,330 +12503,15 @@ body.dock-instant #nav-wrap, body.dock-instant #nav-wrap #nav, body.dock-instant
     x: (function () { var m = getComputedStyle(track).transform; return m === "none" ? 0 : +(m.split(",")[4] || 0); })() }; } };
 })();
 </script>
-<style id="b242-readable-style">
-/* ===================== B242T：可讀性優先（真機回饋：nav／mini 字太小）＋ PLAY 封面模式整組上移 =====================
-   全部用真實尺寸變數（不用 transform:scale）；保留 B241 的置中結構與字幕流動。 */
-:root{ --dock-w:min(calc(100vw - 24px),480px); --dock-nav-h:76px; --dock-mini-h:82px; --dock-r:22px; --dock-pad:6px;
-  --dock-mini-reserve:calc(var(--dock-mini-h) + 8px); --nav-ls:1.1px; --nav-fs:14px; --nav-ico:25px; }
-@media (max-width:359px){ :root{ --nav-fs:13px; --nav-ls:.8px; --nav-ico:24px; } }
-/* ---- nav：label 14px、icon 25px；未選中也有清楚對比（不再 opacity .62 乘暗色） ---- */
-#nav-wrap #nav .navbtn{ gap:4px; color:rgba(230,223,210,.80) !important; }
-#nav-wrap #nav .navbtn .navico{ width:calc(var(--nav-ico) + 1px); height:calc(var(--nav-ico) + 1px); }
-#nav-wrap #nav .navbtn .navico svg{ width:var(--nav-ico); height:var(--nav-ico); stroke-width:1.8; }
-#nav-wrap #nav .navbtn .navlbl{ opacity:1 !important; height:16px; line-height:16px; font-size:var(--nav-fs) !important; font-weight:600;
-  letter-spacing:var(--nav-ls) !important; text-indent:var(--nav-ls); }
-#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
-#nav-wrap #nav-ind{ background:rgba(216,195,160,.12) !important; border-color:rgba(216,195,160,.20); }
-/* ---- 合併 mini：等比例放大（82 高、封面 52、歌名 18、副標 14、播放鍵 48） ---- */
-#mini-player.mini-player{ padding:15px 8px 15px 15px; gap:6px; }
-#mini-player .mp-open{ gap:13px; height:52px; min-height:52px; }
-#mini-player .mp-cover{ width:52px; height:52px; border-radius:10px; }
-#mini-player .mp-txt{ gap:4px; }
-#mini-player .mp-title{ font-size:18px; line-height:22px; font-weight:600; color:#F5EFE5; }
-#mini-player .mp-marq{ height:18px; font-size:14px; line-height:18px; color:#C4BBAD; letter-spacing:.02em; }
-#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
-#mini-player .mp-btn.mp-play::before{ inset:0; border-color:rgba(241,236,227,.62); }
-#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
-#mini-player .mp-tog svg{ width:24px; height:24px; }
-@media (max-width:359px){   /* 320：歌名區太窄 → 封面 50、間距收窄、歌名 17（按鈕仍 48／44） */
-  #mini-player.mini-player{ padding:15px 6px 15px 12px; gap:4px; }
-  #mini-player .mp-open{ gap:10px; }
-  #mini-player .mp-cover{ width:50px; height:50px; }
-  #mini-player .mp-title{ font-size:17px; }
-}
-/* ---- PLAY 封面模式：字級放大＋整組往上（只作用在 cover，不碰歌詞／待播清單） ---- */
-#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 36px); --cp-gap:18px; }
-@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 36px); } }
-@media (max-height:720px){ #screen-player.cp-ready{ --cp-gap:12px; } }
-#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift)); }
-#screen-player.cp-ready:not(.cp-immersive) .np-card{ bottom:calc(var(--cp-dock-bottom) + var(--cp-lift) + var(--cp-dock-height) + var(--cp-gap)); }
-#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(30px, 9.2vw, 38px) !important; line-height:1.2; padding-bottom:2px; }   /* overflow:hidden（原設定）：行高留足避免裁到下伸部 */
-#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:16px !important; line-height:1.45; margin-top:8px; color:#CFC8D4 !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-label{ font-size:12px !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-times{ font-size:14px; margin:12px 0 10px; color:#CBC4D2 !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 76px minmax(44px,1fr) minmax(44px,1fr); align-items:center; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:60px; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:74px !important; height:74px !important; max-width:none !important; min-width:74px; flex:none; border-radius:50% !important; border:1.5px solid rgba(241,236,227,.82) !important; background:rgba(12,11,10,.28) !important; box-sizing:border-box; }   /* 主播放視覺 74px（細線圓，與歌詞模式一致） */
-#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:38px !important; height:38px !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-prev svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-next svg{ width:31px !important; height:31px !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-lyrics svg, #screen-player.cp-ready:not(.cp-immersive) .np-controls #cp-open-queue svg{ width:24px; height:24px; }
-@media (max-height:720px){   /* 矮螢幕 compact：播放鍵 66、控制列與 nav 保留呼吸 */
-  #screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-template-columns:minmax(44px,1fr) minmax(44px,1fr) 68px minmax(44px,1fr) minmax(44px,1fr); }
-  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play{ width:66px !important; height:66px !important; min-width:66px; }
-  #screen-player.cp-ready:not(.cp-immersive) .np-controls #btn-play svg{ width:34px !important; height:34px !important; }
-  #screen-player.cp-ready:not(.cp-immersive) .np-controls > button{ min-height:56px; }
-  #screen-player.cp-ready:not(.cp-immersive) .np-times{ margin:10px 0 6px; }
-}
-</style>
-<style id="b243-tuned-style">
-/* ===================== B243T：CÉON 用 tuner 定的數值（iPhone 14 Plus） =====================
-   PLAY 上移 21／nav 64、文字 13.5、圖示 22、左右 32、未選中 40%／音樂島 84、封面 50、副標 13.5。
-   320–359px 寬：左右留白自動縮成 16px（避免 LUCKY 被裁）。 */
-:root{ --dock-nav-h:64px; --nav-fs:13.5px; --nav-ico:22px; --dock-w:min(calc(100vw - 64px),480px); --dock-mini-h:84px; }
-@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
-#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.40) !important; }
-#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
-#mini-player .mp-cover{ width:50px; height:50px; }
-#mini-player .mp-open{ height:50px; min-height:50px; }
-#mini-player .mp-marq{ font-size:13.5px; }
-#screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100vh - 700px) * .25), 21px); }
-@supports (height:100svh){ #screen-player.cp-ready{ --cp-lift:clamp(8px, calc((100svh - 700px) * .25), 21px); } }
-</style>
-<style id="b244-cover-soft-style">
-/* ===================== B244T：PLAY 主照片柔化（只作用在封面模式） =====================
-   根因：原本的 .cover-card::before 黑色漸層與影片同 z-index、排在影片之前 → 被影片蓋住，照片底部變成一條硬線。
-   改用 mask-image 讓整張照片（含影片）往下淡出到透明；底部圓角；變數供 tuner 調整。 */
-#screen-player.cp-ready{ --cv-bottom:12%; --cv-fade:55%; --cv-r:28px; --cv-side:0px; }
-#screen-player.cp-ready:not(.cp-immersive) .cover-card{ bottom:var(--cv-bottom) !important; left:var(--cv-side) !important; right:var(--cv-side) !important;
-  border-radius:0 0 var(--cv-r) var(--cv-r) !important; overflow:hidden;
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%);
-          mask-image:linear-gradient(180deg,#000 0%,#000 var(--cv-fade),rgba(0,0,0,.42) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .55),rgba(0,0,0,.12) calc(var(--cv-fade) + (100% - var(--cv-fade)) * .82),transparent 100%); }
-</style>
-<style id="b245-tuned-style">
-/* ===================== B245T：CÉON tuner 第二次設定（iPhone 14 Plus） =====================
-   照片底部 25%、漸層從 80% 開始；nav 88%（高 56.5、文字 12、圖示 19.5、字重 500、左右 39）；
-   音樂島 98%（高 82.5、封面 48、歌名 17.5、副標 13、播放鍵 47）。320–359px：左右 16、nav 文字 13。 */
-#screen-player.cp-ready{ --cv-bottom:25%; --cv-fade:80%; }
-:root{ --dock-nav-h:56.5px; --nav-fs:12px; --nav-ico:19.5px; --dock-w:min(calc(100vw - 78px),480px); --dock-mini-h:82.5px; }
-@media (max-width:359px){ :root{ --dock-w:calc(100vw - 32px); --nav-fs:13px; } }
-#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:15px; line-height:15px; }
-#mini-player .mp-cover{ width:48px; height:48px; }
-#mini-player .mp-open{ height:48px; min-height:48px; }
-#mini-player .mp-title{ font-size:17.5px; line-height:21.5px; }
-#mini-player .mp-marq{ font-size:13px; line-height:17px; height:17px; }
-#mini-player .mp-btn.mp-play{ width:47px; height:47px; min-width:47px; }
-#mini-player .mp-btn.mp-play svg{ width:22px; height:22px; }
-@media (max-width:359px){ #mini-player .mp-title{ font-size:17px; } }
-</style>
-<style id="b246-readable-style">
-/* ===================== B246T：真機回饋 — nav／待播清單／Unlock 可讀性 =====================
-   參考 Apple Music 的可讀原則（清楚對比、列表用系統 sans、主標題夠大），保留 CHANCE 黑金與 serif nav 標籤；
-   PLAY 照片構圖沿用 B245（--cv-bottom 25%、--cv-fade 80%）不變。 */
-/* ---- 1. 全站 nav：74 高、label 14／500、icon 25、左右 15、未選中 78% ---- */
-:root{ --dock-nav-h:74px; --nav-fs:14px; --nav-ico:25px; --dock-w:min(calc(100vw - 30px),480px); --dock-mini-h:82.5px; }
-@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:13px; } }
-#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.78) !important; }
-#nav-wrap #nav .navbtn.active{ color:#E6CB95 !important; }
-#nav-wrap #nav .navbtn .navlbl{ font-weight:500; height:17px; line-height:17px; }
-/* ---- 3. 音樂島：82.5 高、封面 50、歌名 18、副標 14、播放鍵 48 ---- */
-#mini-player .mp-cover{ width:50px; height:50px; }
-#mini-player .mp-open{ height:50px; min-height:50px; }
-#mini-player .mp-title{ font-size:18px; line-height:22px; }
-#mini-player .mp-marq{ font-size:14px; line-height:18px; height:18px; }
-#mini-player .mp-btn.mp-play{ width:48px; height:48px; min-width:48px; }
-@media (max-width:359px){ #mini-player .mp-cover{ width:46px; height:46px; } #mini-player .mp-title{ font-size:17px; } }   /* 窄屏優先保留文字寬度 */
-/* ---- 2. 待播清單（#cp-queue；舊 #sheet 已不再使用）：系統 sans、Apple Music 式可讀字級 ---- */
-#screen-player.cp-immersive:not(.cp-lyr){ --cp-q-bottom:calc(var(--sab, env(safe-area-inset-bottom, 0px)) + 16px); }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-transport{ bottom:var(--cp-q-bottom); }   /* nav 在待播清單時隱藏：控制列不再替它留空 */
-#screen-player.cp-immersive:not(.cp-lyr) #cp-panel{ padding-bottom:calc(var(--cp-q-bottom) + var(--cp-dock-height) + 12px); }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-heading{ font:600 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:1.5px; color:#D4CCDC; }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-thumb{ width:52px; height:52px; border-radius:8px; }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font:600 20px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F4EFF7; }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-artist{ font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C9BFD1; margin-top:3px; }
-#screen-player.cp-immersive:not(.cp-lyr) #cp-queue-note{ font:400 14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C2B8CA; }
-#screen-player #cp-queue .cp-queue-heading{ margin:18px 0 6px; font:600 14.5px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.06em; color:#CFC6D6; }
-#screen-player #cp-queue .cp-track{ min-height:72px; padding:10px 8px; gap:14px; }
-#screen-player #cp-queue .cp-track-select{ gap:14px; min-height:52px; }
-#screen-player #cp-queue .cp-track img{ width:50px; height:50px; border-radius:8px; }
-#screen-player #cp-queue .cp-track-name{ font:600 17.5px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#F2EDF5;
-  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
-#screen-player #cp-queue .cp-track-artist{ margin-top:3px; font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; color:#C3B8CC; }
-#screen-player #cp-queue .cp-track-note{ margin-top:2px; font-size:14px; line-height:1.35; color:#B9AEC4; }
-#screen-player #cp-queue .cp-track-state{ font:500 14px/1.3 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; max-width:30%; text-align:right; }
-/* ---- 4. FEED 未解鎖 Unlock：由 dock 實際占用高度（CSS 變數）推導位置；nav 收合時不跟著動 ---- */
-#screen-mood.sgl-locked{ --sg-btn-w:min(58vw,280px); --sg-btn-h:50px; --sg-btn-font:21px; --sgl-gap:40px; }
-#screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--sgl-gap)) !important; }
-body.has-mini #screen-mood.sgl-locked .sgl-btn{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + var(--sgl-gap) - 4px) !important; }
-</style>
-<style id="b247-ux-style">
-/* ===================== B247T：全站 UI/UX 自檢後的精修 =====================
-   參考 Apple Music（選中 glyph＋label 同一顆 pill、旁邊 tab 不位移）與 Weverse artist feed（作者／時間→正文→媒體）的層級原則；
-   不換品牌字：專輯歌名、品牌大標、nav 標籤維持 serif；資訊性的小字改成可讀的系統 sans。價格字型不動。 */
-/* ---- 1. nav 選中：label 14→15（窄屏 13→14）、600、亮金；label 盒高固定 17px，五等寬不位移、dock 不變高 ---- */
-#nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease; }
-#nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:font-size .18s ease, color .18s ease, transform .12s ease; }
-#nav-wrap #nav .navbtn.active .navlbl{ font-size:calc(var(--nav-fs) + 1px) !important; font-weight:600; }   /* B241 用 !important 鎖住 nav 字級，這裡同樣需要 */
-#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
-#nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:scale(.94); }   /* 按壓只做視覺微縮，不影響排版 */
-@media (prefers-reduced-motion:reduce){
-  #nav-wrap #nav .navbtn .navico, #nav-wrap #nav .navbtn .navlbl{ transition:none; }
-  #nav-wrap #nav .navbtn:active .navico, #nav-wrap #nav .navbtn:active .navlbl{ transform:none; }
-}
-/* ---- 2. FEED 已解鎖：少框線、資訊可讀（作者／時間 → 正文 → 媒體） ---- */
-#screen-mood:not(.sgl-locked) .chat-bubble{ border-color:transparent; background:rgba(12,10,16,.46); box-shadow:0 6px 22px rgba(0,0,0,.30); }
-#screen-mood:not(.sgl-locked) .chat-photo{ border-color:transparent; }
-#screen-mood:not(.sgl-locked) .chat-voice{ border-color:transparent; background:rgba(126,63,168,.26); }
-#screen-mood:not(.sgl-locked) .chat-voice .v-time{ font:500 13px/1 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; font-variant-numeric:tabular-nums; letter-spacing:0; color:rgba(255,255,255,.82); }
-#screen-mood:not(.sgl-locked) .chat-day{ font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"PingFang TC",system-ui,sans-serif; letter-spacing:.08em; color:rgba(232,214,180,.74) !important; }
-#screen-mood:not(.sgl-locked) .feedhead-days{ font-size:13px; line-height:1.3; color:rgba(214,203,226,.86); }
-#screen-mood:not(.sgl-locked) .feed-cue span{ font-size:13px; color:rgba(255,255,255,.74); }
-#screen-mood .chat-video .cv-exp{ z-index:3; }   /* 擴大的點擊區要在影片播放層之上 */
-#screen-mood .chat-video .cv-exp::after{ content:""; position:absolute; inset:-7px; }   /* 視覺 32px；點擊區＝內框 30＋7×2＝44px（方形，最外緣也點得到） */
-/* ---- 3. 五頁資訊字級統一（只動資訊文字；品牌裝飾字、價格不動） ---- */
-#screen-merch .sv3-block-h{ text-wrap:balance; }          /* 「CHANCE 生日會」不再只剩「會」一個字換行 */
-#screen-merch .sv3-block-m{ font-size:14px; }
-#screen-merch .sv3-sub{ font-size:14px; }
-/* R2：R1 的 #screen-purchase .xxx 權重低於原本 #screen-purchase.own-unlocked .xxx，沒生效 → 用同一條選擇器鏈覆寫 */
-#screen-purchase.own-unlocked .pass-count{ font-size:13px; }                       /* caption：TRACKS UNLOCKED（pc-num 36 不動） */
-#screen-purchase.own-unlocked .pass-next{ font-size:13px; color:#BEB29D; }          /* caption：NEXT TRACK · 日期 */
-#screen-purchase.own-unlocked .pass-unlock .ou-l{ font-size:14px; }                /* 資訊：解鎖 SIGNAL 頻道（價格 .ou-r 不動） */
-#screen-lucky .lkc-left{ font-size:14px; }
-</style>
-<style id="b247t2-style">
-/* ===================== B247T2：第二輪精修 ===================== */
-/* ---- 2. nav 按壓：舊 .navbtn:active scale(.92) ＋ 子層 .94 會疊成 ≈.865 → 父層歸零，只留子層 .94；tabPop 改輕柔，減少動態完全停止 ---- */
-#nav-wrap #nav .navbtn:active{ transform:none !important; }
-#nav-wrap #nav .navbtn.pop .navico{ animation:navPopSoft .2s ease-out; }
-@keyframes navPopSoft{ 0%{ transform:scale(.95); } 100%{ transform:scale(1); } }
-@media (prefers-reduced-motion:reduce){ #nav-wrap #nav .navbtn.pop .navico{ animation:none !important; } #nav-wrap #nav-ind{ transition:none !important; } }   /* 選中底色原本有 .46s 位移轉場，B240 的 reduce 沒選到它 */
-/* ---- 3. FEED 真實功能：反應列／時間／自己的訊息／回覆欄 ---- */
-#screen-mood .rx-row{ column-gap:4px; row-gap:12px; }                                   /* 換行時上下點擊區不重疊 */
-#screen-mood.mood-vip .chat-meta .rx-chip, #screen-mood.mood-vip .chat-meta .rx-add{ position:relative; height:32px; min-width:40px; justify-content:center; padding:0 10px;
-  border-color:transparent; background:rgba(14,10,22,.52); font-size:15px; }
-#screen-mood.mood-vip .chat-meta .rx-chip b{ font-size:14px; }
-#screen-mood.mood-vip .chat-meta .rx-chip.on{ background:rgba(183,140,255,.30); box-shadow:inset 0 0 0 1px rgba(183,140,255,.7); color:#F3E6C4; }   /* 選中仍可辨識 */
-#screen-mood.mood-vip .chat-meta .rx-add{ color:rgba(255,255,255,.62); font-size:16px; }
-#screen-mood .chat-meta .rx-chip:active, #screen-mood .chat-meta .rx-add:active{ transform:none; opacity:.85; }   /* 舊 :active scale(.92) 會讓 44 點擊區一起縮 → 改用透明度做按壓回饋 */
-#screen-mood .chat-meta .rx-chip::after, #screen-mood .chat-meta .rx-add::after{ content:""; position:absolute; left:-2px; right:-2px; top:-6px; bottom:-6px; }   /* 視覺 32、點擊 44；左右只延伸 2px＝間距 4 的一半，不重疊 */
-#screen-mood.mood-vip .chat-meta .chat-time, #screen-mood .chat-meta .chat-time{ font-size:13px; letter-spacing:.2px; }
-#screen-mood .mine-lock{ font-size:13px; }
-#screen-mood .my-bubble{ border-color:rgba(169,140,255,.28); }
-#screen-mood .myv-dur{ font-size:13px; font-variant-numeric:tabular-nums; }
-#screen-mood .myv-play{ position:relative; }
-#screen-mood .myv-play::after{ content:""; position:absolute; inset:-6px; }               /* 視覺 32、點擊 44 */
-/* 回覆欄：輸入 16px（避免 iOS 自動放大）、mic／send 44、提示次要 14 */
-.rpbar .rp-inp{ font-size:16px; }
-.rpbar .rp-mic, .rpbar .rp-send{ width:44px; height:44px; }
-.rpbar .rp-lockicon{ font-size:13px; }
-.rpbar .rp-note-sub{ font-size:14px; line-height:1.2; }
-.rpbar .rp-pill{ background:rgba(16,14,20,.92); border-color:rgba(255,255,255,.12); }      /* 毛玻璃在第 9077 行被強制關掉，原本 .16 透明底會讓後面訊息透出來 → 改成近乎不透明 */
-.rpbar .rp-note{ background:linear-gradient(135deg,rgba(40,28,64,.94),rgba(22,16,36,.95)); }
-/* 回覆欄位置：原本 dockReplyBar 只貼 nav 上緣，合併音樂島出現時會疊住它 → 依 dock 實際占用高度擺放（nav 收合時不跟著跳） */
-.rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + 8px) !important; }
-body.has-mini .rpbar{ bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 8px) !important; }
-body.has-rpbar #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + 92px); }
-body.has-rpbar.has-mini #screen-mood.feedwrap{ padding-bottom:calc(var(--dock-b) + var(--dock-nav-h) + var(--dock-mini-h) + 92px); }
-/* ---- 4. 標題列：往下滑時內容會從浮動標題底下經過 → 加一層隨 --veil 出現的暗色漸層；人像開場（頂端）不加暗 ---- */
-#screen-mood.mood-vip .feed-tabs::before{ content:""; position:absolute; z-index:-1; left:0; right:0; top:calc(-1 * env(safe-area-inset-top, 0px)); bottom:-30px; pointer-events:none;
-  background:linear-gradient(180deg, rgba(8,7,11,.88) 0%, rgba(8,7,11,.66) 58%, rgba(8,7,11,0) 100%); opacity:var(--veil, 0); }
-/* cue：原本固定在畫面底部 150px，會壓到第一則訊息 → 改成跟著開場留白，停在第一則訊息正上方（一樣靠 --cue 淡出） */
-#screen-mood.mood-vip .feed-cue{ position:absolute; bottom:auto; top:calc(58vh - 58px); }
-</style>
-<style id="b248-tuned-style">
-/* ===================== B248T：CÉON tuner 設定（iPhone 14 Plus，數值＝手機上看到的實際尺寸，比例已換算） ===================== */
-/* PLAY：歌名 36（窄螢幕等比縮）、副標 15 */
-#screen-player.cp-ready:not(.cp-immersive) .np-title{ font-size:clamp(29px, 8.42vw, 36px) !important; }
-#screen-player.cp-ready:not(.cp-immersive) .np-sub{ font-size:15px !important; }
-/* PLAY 時間軸：玻璃膠囊（時間｜進度條｜時間 同一行；留言數在下方置中；拖曳進度仍是原本 #prog） */
-#screen-player.cp-ready:not(.cp-immersive) #cp-transport{ display:grid; grid-template-columns:auto 1fr auto; grid-template-areas:"cur bar dur" "cm cm cm" "ctl ctl ctl" "lyr lyr lyr"; column-gap:14px; align-items:center; }
-#screen-player.cp-ready:not(.cp-immersive) #cp-transport::before{ content:""; grid-row:1; grid-column:1 / 4; height:40px; margin:0 -16px; border-radius:999px; pointer-events:none;
-  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.16); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
-  box-shadow:0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14); }
-#screen-player.cp-ready:not(.cp-immersive) .np-times{ display:contents; }
-#screen-player.cp-ready:not(.cp-immersive) #t-cur{ grid-area:cur; z-index:1; }
-#screen-player.cp-ready:not(.cp-immersive) #t-dur{ grid-area:dur; z-index:1; }
-#screen-player.cp-ready:not(.cp-immersive) #prog{ grid-area:bar; z-index:1; margin:0 !important; }
-#screen-player.cp-ready:not(.cp-immersive) #cm-btn{ grid-area:cm; justify-self:center; margin:12px 0 12px; }
-#screen-player.cp-ready:not(.cp-immersive) .np-controls{ grid-area:ctl; }
-#screen-player.cp-ready:not(.cp-immersive) #cp-lyr-row{ grid-area:lyr; }
-/* nav：高 59、文字 11（選中 12）、圖示 20、字重 400、字距 1.7、左右 24（窄屏 15）、未選中 45%、完全膠囊、不透明度 31%＋毛玻璃 */
-:root{ --dock-nav-h:59px; --nav-fs:11px; --nav-ico:20px; --dock-w:min(calc(100vw - 48px),480px); --dock-mini-h:65px; --dock-r:40px; }
-@media (max-width:359px){ :root{ --dock-w:calc(100vw - 30px); --nav-fs:11px; } }
-#nav-wrap #nav .navbtn{ color:rgba(230,223,210,.45) !important; }
-#nav-wrap #nav .navbtn.active{ color:#F0D59C !important; }
-#nav-wrap #nav .navbtn .navlbl{ font-weight:400; height:14px; line-height:14px; letter-spacing:1.7px !important; text-indent:1.7px !important; }
-#nav-wrap #nav .navbtn.active .navlbl{ font-weight:600; }
-body.dock-merged #nav-wrap #nav, #nav-wrap #nav, #mini-player.mini-player{ background:rgba(13,12,11,.31) !important; -webkit-backdrop-filter:blur(22px) saturate(150%) !important; backdrop-filter:blur(22px) saturate(150%) !important; }
-/* 音樂島：高 65、封面 39.5、歌名 14、副標 10、播放鍵 44（點擊區下限） */
-#mini-player .mp-cover{ width:39.5px; height:39.5px; }
-#mini-player .mp-open{ height:44px; min-height:44px; }
-#mini-player .mp-title{ font-size:14px; line-height:18px; }
-#mini-player .mp-marq{ font-size:10px; line-height:14px; height:14px; }
-#mini-player .mp-btn.mp-play{ width:44px; height:44px; min-width:44px; }
-#mini-player .mp-btn.mp-play svg{ width:20px; height:20px; }
-@media (max-width:359px){ #mini-player .mp-cover{ width:39.5px; height:39.5px; } #mini-player .mp-title{ font-size:14px; } }
-/* 待播清單：頂部目前歌曲 21、封面 47、每列 75 */
-#screen-player.cp-immersive:not(.cp-lyr) #cp-title{ font-size:21px; }
-#screen-player #cp-queue .cp-track img{ width:47px; height:47px; }
-#screen-player #cp-queue .cp-track{ min-height:75px; }
-</style>
-<style id="b249-blackgold">
-/* ===================== B249T：黑金統一（只改顏色）＋ 點擊區 44px ＋ SIGNAL 影片占位 ===================== */
-/* 全站主題變數：test 版原本是「墨紫金」，這裡把紫色變數換成黑金（只有 14 處用到） */
-:root{ --bg:#080809 !important; --bg-top:#151311 !important; --surface:rgba(22,20,18,.55) !important; --secondary:#8A6D3B !important; --accent:#D6B66F !important; --grad:linear-gradient(90deg,#8A6D3B,#F0DCA8) !important; }
-body, #stage{ background:#080809 !important; }
-/* PLAY：封面左上的紫色光暈、進度條底色 → 黑金 */
-.cover-shade{ background:
-    radial-gradient(120% 90% at 30% 12%, rgba(214,182,111,.10), rgba(20,18,15,0) 66%),
-    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.28) 8%, transparent 22%, rgba(8,8,9,0) 46%, rgba(8,8,9,.72) 76%, #080809 100%) !important; }
-.prog{ background:rgba(241,236,227,.16) !important; }
-/* LUCKY：紫色 → 暖黑＋金 */
-#screen-lucky::before{ background:
-    linear-gradient(180deg, rgba(8,8,9,.88) 0%, rgba(9,9,10,.5) 24%, rgba(9,9,10,.54) 52%, rgba(8,8,9,.92) 100%),
-    radial-gradient(120% 60% at 50% 6%, rgba(214,182,111,.10), transparent 60%),
-    url("https://pub-b585f55a49e44b31b62d5a1d0af5728e.r2.dev/lucky-bg.jpg") center top / cover no-repeat;
-  filter:grayscale(1) sepia(.18) brightness(.92); }
-#screen-lucky .page-title-tc{ color:rgba(243,239,228,.92) !important; }
-#screen-lucky .page-note.lucky-rule, #screen-lucky .lkc-title, #screen-lucky .lkc-left{ color:rgba(232,224,208,.62) !important; }
-#screen-lucky .lkc-count{ color:rgba(243,239,228,.86) !important; }
-#screen-lucky .lkc-node.off{ border-color:rgba(214,182,111,.35); background:rgba(30,28,24,.55); color:rgba(214,182,111,.6); }
-#screen-lucky .lkc-line{ background:rgba(214,182,111,.22); }
-#screen-lucky .lkc-line.on{ background:linear-gradient(90deg,#D9B26A,#F0DCA8); }
-#screen-lucky .lkg{ border-color:rgba(214,182,111,.24); background:linear-gradient(165deg,#1c1a16,#0d0c0b 70%); }
-#screen-lucky .lkg.none{ background-color:#0d0c0b; background-image:none; }
-#screen-lucky .lkg.none::before{ content:"" !important; position:absolute; inset:0; z-index:0; pointer-events:none;
-  background:url("assets/cards/the-sky-locked-card-back-v1.png") center / cover no-repeat;
-  filter:grayscale(1) sepia(.35) brightness(.9) contrast(1.05); }
-#screen-lucky .lkg-tag{ background:rgba(14,13,11,.82); }
-#screen-lucky .lkg-n{ background:rgba(10,10,10,.72); }
-.lk-deck-card{ background:linear-gradient(160deg,#2a2620,#121110); }
-.orb-stage::before{ background:radial-gradient(circle at 50% 50%, rgba(214,182,111,.22), rgba(217,178,106,.08) 40%, transparent 68%); }
 
-/* 付費 SIGNAL：拿掉紫色調，背景人像維持黑白 */
-#screen-mood.mood-vip::before{ background-image:
-    linear-gradient(180deg, rgba(8,8,9,.46) 0%, rgba(8,8,9,.14) 130px, transparent 210px),
-    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(6,6,7,.58) 100%),
-    linear-gradient(180deg, rgba(12,12,13,.10) 0%, rgba(12,12,13,.12) 42%, rgba(10,10,11,.30) 62%, rgba(9,9,10,.66) 78%, rgba(8,8,9,.90) 90%, #080809 100%),
-    linear-gradient(180deg, rgba(214,182,111,.05) 0%, rgba(214,182,111,.02) 42%, transparent 72%),
-    url("assets/images/artist-background.jpg"); }
-#screen-mood.mood-vip #__fx3dveil{ background:
-    linear-gradient(180deg, rgba(8,8,9,.46) 0%, rgba(8,8,9,.14) 130px, transparent 210px),
-    radial-gradient(128% 86% at 50% 34%, transparent 48%, rgba(6,6,7,.58) 100%),
-    linear-gradient(180deg, rgba(12,12,13,.10) 0%, rgba(12,12,13,.12) 42%, rgba(10,10,11,.30) 62%, rgba(9,9,10,.66) 78%, rgba(8,8,9,.90) 90%, #080809 100%),
-    linear-gradient(180deg, rgba(214,182,111,.05) 0%, rgba(214,182,111,.02) 42%, transparent 72%); }
-#screen-mood.mood-vip::after{ background:linear-gradient(180deg, rgba(9,9,10,.86), rgba(8,8,9,.94)); }
-.fh-dot, .feedhead-cap .fh-dot{ background:#D6B66F; box-shadow:0 0 7px rgba(214,182,111,.7); }
-.chat-ava{ background:#1c1a17; }
-#screen-mood:not(.sgl-locked) .chat-voice{ background:rgba(12,12,12,.46); }
-.chat-voice .wave i{ background:rgba(232,224,208,.42); }
-.chat-voice .wave i.on{ background:#D9B26A; }
-.chat-voice .wave i.cur{ background:#F0DCA8; }
-#screen-mood.mood-vip .chat-meta .rx-chip, #screen-mood.mood-vip .chat-meta .rx-add{ background:rgba(12,12,12,.52); }
-.chat-video .cv-exp{ background:rgba(10,10,10,.6); }
 
-/* SIGNAL 影片：還沒載入前用黑金占位（不再一打開就抓影片），點了顯示轉圈 */
-#screen-mood .chat-video:not(.cv-ready) video.cv{ aspect-ratio:4 / 5; object-fit:cover;
-  background:radial-gradient(120% 80% at 50% 28%, rgba(214,182,111,.16), rgba(10,10,10,0) 62%), linear-gradient(160deg,#1a1814,#0a0a0a); }
-#screen-mood .chat-video.cv-loading .cv-play{ display:flex !important; pointer-events:none; }
-#screen-mood .chat-video.cv-loading .cv-play svg{ opacity:.35; }
-#screen-mood .chat-video.cv-loading .cv-play::after{ content:""; position:absolute; inset:-6px; border-radius:50%;
-  border:2px solid rgba(240,220,168,.22); border-top-color:#F0DCA8; animation:b249spin .8s linear infinite; }
-@keyframes b249spin{ to{ transform:rotate(360deg); } }
-@media (prefers-reduced-motion: reduce){ #screen-mood .chat-video.cv-loading .cv-play::after{ animation-duration:2.4s; } }
 
-/* 暱稱彈窗：紫 → 黑金 */
-.nickcard{ background:linear-gradient(135deg,rgba(34,31,27,.74),rgba(14,13,12,.84)); }
-.nickcard .nk-ok{ color:#17130B; }
 
-/* OWN 結帳鍵：紫金漸層 → 金色 */
-#screen-purchase #btn-checkout{ background:linear-gradient(90deg,#B8964F 0%,#D6B66F 52%,#F0DCA8 100%) !important; color:#17130B !important; }
 
-/* 點擊區至少 44px（看起來一樣大，只放大能點的範圍） */
-#screen-player #cm-btn{ position:relative; }
-#screen-player #cm-btn::after{ content:""; position:absolute; left:-4px; right:-4px; top:-10px; bottom:-10px; }
-#screen-purchase .own-b-back{ position:relative; }
-#screen-purchase .own-b-back::after{ content:""; position:absolute; left:0; right:0; top:-14px; bottom:-14px; }
-</style>
+
+
+
+
 <script id="b242-shop-prewarm">
 /* B242T：SHOP 首屏圖片預熱。
    根因：SHOP 的 <img> 由 ticket-ui-shop-b225.js 渲染，那支 214KB 的 JS 只在「點 SHOP」或「window.load 後 2.5 秒」才載，
@@ -12465,8 +12546,6 @@ body, #stage{ background:#080809 !important; }
   if (document.readyState === "complete") afterCover(); else window.addEventListener("load", afterCover);
 })();
 </script>
-<link rel="stylesheet" href="b284-local.css">
-<link rel="stylesheet" href="b285-local.css?v=B307T">
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
 </body>
 </html>

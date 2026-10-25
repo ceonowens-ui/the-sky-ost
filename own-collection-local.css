@@ -1,0 +1,47 @@
+/* SKY-20261025-OWN: scoped presentation only. Original purchase/auth handlers retained. */
+#screen-purchase.own-unlocked{background:#080809;}
+#screen-purchase.own-unlocked .own-b-hero{height:clamp(260px,42svh,390px);max-height:390px;}
+#screen-purchase.own-unlocked .own-b-photo{object-position:62% 30%;}
+#screen-purchase.own-unlocked .own-b-mast,
+#screen-purchase.own-unlocked > .page-titles,
+#screen-purchase.own-unlocked .pass-next{display:none;}
+#screen-purchase.own-unlocked .own-b-back{height:44px;}
+#screen-purchase.own-unlocked .own-b-top{padding-top:calc(8px + env(safe-area-inset-top));align-items:center;}
+#screen-purchase.own-unlocked #unlock-done-view{margin-top:-8px !important;position:relative;}
+#screen-purchase.own-unlocked .pass-card.own-u{margin:0 22px;}
+.own-collection-title{color:#e0cda7;}
+.own-collection-title > div{font:16px Georgia,serif;letter-spacing:.3em;}
+.own-collection-title h1{font:400 clamp(42px,12vw,62px)/1.1 Georgia,serif;margin:10px 0 14px;letter-spacing:-.03em;}
+#screen-purchase.own-unlocked .pass-count{display:block;padding:0 0 24px;border:0;font:17px/1.5 -apple-system,'PingFang TC',sans-serif;letter-spacing:0;color:#e4ded4;}
+#screen-purchase.own-unlocked .pass-cta{display:flex;flex-direction:column;gap:12px;}
+#screen-purchase.own-unlocked .pass-play{order:0;min-height:54px;height:auto;padding:16px;font-size:19px;font-weight:600;letter-spacing:.02em;background:linear-gradient(105deg,#c3a162,#f0dba7);}
+#screen-purchase.own-unlocked #a2-wallet{order:1;display:flex;align-items:center;justify-content:space-between;min-height:66px;padding:14px 18px;margin:0;border:1px solid #71603f;border-radius:16px;text-align:left;background:transparent;color:#e4d5b6;}
+#screen-purchase.own-unlocked #a2-wallet .a2-ol{display:block;font-size:18px;line-height:1.4;}
+#screen-purchase.own-unlocked #a2-wallet small{display:block;font-size:16px;color:#bdb3a2;margin-top:4px;}
+#screen-purchase.own-unlocked #a2-own{order:2;margin:0;min-height:48px;padding:12px 0;border:0;background:none;font-size:16px;}
+#screen-purchase.own-unlocked #a2-own .a2-ol,#screen-purchase.own-unlocked #a2-own .a2-or{font-size:16px;}
+#screen-purchase.own-unlocked .pass-unlock:not(.hidden){order:3;margin:0;min-height:52px;gap:12px;flex-wrap:wrap;}
+#screen-purchase.own-unlocked .pass-unlock .ou-l,#screen-purchase.own-unlocked .pass-unlock .ou-r{font-size:16px;}
+#screen-purchase.own-unlocked .fl-redeem:not(.hidden){order:4;margin:0;min-height:44px;font-size:16px;}
+#screen-purchase .own-language{margin:22px 22px 0;padding:0;border:0;border-top:1px solid #302a22;border-bottom:1px solid #302a22;border-radius:0;background:none;}
+#screen-purchase .own-language summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px;cursor:pointer;list-style:none;font:16px/1.5 -apple-system,'PingFang TC',sans-serif;color:#e2d8c6;}
+#screen-purchase .own-language summary::-webkit-details-marker{display:none;}
+#screen-purchase .own-language summary::after{content:'›';font-size:24px;}
+#screen-purchase .own-language[open] summary::after{transform:rotate(90deg);}
+#screen-purchase .own-language-value{margin-left:auto;}
+#screen-purchase .own-language .lr-t{display:none;}
+#screen-purchase .own-language .lr-seg{margin:0 0 12px;}
+#screen-purchase .own-language .lr-seg button{min-height:48px;font-size:17px;}
+#screen-purchase .own-language .lr-n{font-size:16px;line-height:1.5;margin:0 0 16px;color:#bdb3a2;}
+#screen-purchase.own-unlocked .legal-foot{margin:16px 22px 0;padding:0 0 calc(140px + env(safe-area-inset-bottom));border:0;}
+#screen-purchase.own-unlocked .legal-foot .lf-links{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;}
+#screen-purchase.own-unlocked .legal-foot .lf-links button{min-height:44px;font-size:16px;color:#bdb3a2;}
+#screen-purchase.own-unlocked .legal-foot .lf-info{font-size:16px;line-height:1.6;color:#bdb3a2;overflow-wrap:anywhere;}
+#screen-purchase :is(button,summary):focus-visible{outline:2px solid #e4c989;outline-offset:3px;}
+@media(max-width:359px){#screen-purchase.own-unlocked .pass-card.own-u{margin:0 18px;}#screen-purchase .own-language{margin-left:18px;margin-right:18px;}#screen-purchase.own-unlocked .own-b-hero{height:260px;}#screen-purchase.own-unlocked #a2-own{flex-wrap:wrap;}}
+#screen-purchase.own-unlocked .own-b-hero{height:clamp(260px,36svh,340px);}
+#screen-purchase.own-unlocked .own-collection-title,#screen-purchase.own-unlocked .pass-count{text-align:left;}
+#screen-purchase.own-unlocked .own-collection-title h1{font-family:Georgia,serif !important;font-weight:400 !important;font-size:clamp(42px,12vw,60px) !important;line-height:1.1 !important;}
+#screen-purchase.own-unlocked .pass-count{padding-bottom:20px;}
+#screen-purchase .own-service summary{min-height:44px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#bdb3a2;cursor:pointer;}
+#screen-purchase .own-service .lf-info{text-align:center;}
