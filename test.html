@@ -9163,8 +9163,9 @@ window.ALBUM_SWITCH = {
   /* B308T：還沒載到過最新私訊（也沒有記住的）→ 最上面一行狀態，不讓 8/20 內建舊訊息排第一 */
   function feedLoadingHTML() {
     if (feedLiveEver) return "";
-    if (feedLiveFailed) return '<div class="chat-loading err" id="__feedLoad"><span>最新訊息暫時載入不了</span><button type="button" id="__feedRetry">重試</button></div>';
-    return '<div class="chat-loading" id="__feedLoad"><i></i><span>' + (feedLiveSlow ? "訊息載入較慢，仍在等待…" : "正在載入最新訊息…") + '</span></div>';
+    var en = window.SKY_LANG === "en";   /* B327T：這行在 #sgr-top（data-no-translate）裡，翻譯層翻不到 → 直接給英文 */
+    if (feedLiveFailed) return '<div class="chat-loading err" id="__feedLoad"><span>' + (en ? "Couldn't load the latest messages" : "最新訊息暫時載入不了") + '</span><button type="button" id="__feedRetry">' + (en ? "Retry" : "重試") + '</button></div>';
+    return '<div class="chat-loading" id="__feedLoad"><i></i><span>' + (feedLiveSlow ? (en ? "Messages are loading slowly — still waiting…" : "訊息載入較慢，仍在等待…") : (en ? "Loading the latest messages…" : "正在載入最新訊息…")) + '</span></div>';
   }
   function paintFeedLoading() {
     var el = document.getElementById("__feedLoad"); if (!el) return;
