@@ -8739,8 +8739,7 @@ window.ALBUM_SWITCH = {
       if ((r || pushPerm()) !== "granted") { P325.busy = false; pushLater(); pushOwnRow(); return; }
       return pushSubscribe().then(function () {
         P325.busy = false; a2st({ pushOnAt: Date.now(), pushFrom: from || "" });
-        toast(en ? "Notifications on. You'll hear first when CHANCE posts." : "通知開好了，CHANCE 發新動態會通知你", 3200);
-        pushOwnRow();
+        pushOwnRow();   /* B326T：成功不再跳小字（iPhone 按「允許」就已經確認過了） */
       });
     }).catch(function () { P325.busy = false; toast(en ? "Couldn't turn on notifications. Try again later." : "通知暫時開不起來，等一下再試一次", 3200); pushOwnRow(); });
   }
@@ -12296,7 +12295,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B325T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B326T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
