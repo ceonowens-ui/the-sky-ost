@@ -1,0 +1,10 @@
+// the-sky-push：THE SKY App 推播獨立後台（B325T）。只綁自己的 KV；發送權限用 Service Binding 問主後台 /feed/auth（唯讀）。
+{
+  "name": "the-sky-push",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "kv_namespaces": [{ "binding": "PUSH", "id": "<填 Cloudflare 上 the-sky-push-PUSH 的 id>" }],
+  "services": [{ "binding": "OST", "service": "the-sky-ost-api" }],
+  "vars": { "ALLOW_ORIGINS": "https://chance1228.com" }
+  // 沒有 secret：VAPID 金鑰第一次用到時在 Worker 裡自己產生、只存在 KV。
+}

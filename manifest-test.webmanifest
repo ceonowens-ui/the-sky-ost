@@ -1,0 +1,10 @@
+{
+  "name": "THE SKY",
+  "short_name": "THE SKY",
+  "display": "standalone",
+  "background_color": "#08060C",
+  "theme_color": "#08060C",
+  "icons": [
+    { "src": "assets/images/icon-180.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

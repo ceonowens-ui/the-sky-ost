@@ -88,6 +88,7 @@ html.sky-opening::after{content:"正在開啟你的專輯";position:fixed;inset:
 <meta name="twitter:description" content="CÉON 成晞 雙專輯數位體驗 — 播放、歌詞與獨家 FEED。">
 <meta name="twitter:image" content="https://chance1228.com/assets/images/og.jpg">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/icon-180.png">
+<link rel="manifest" href="manifest-test.webmanifest"><!-- B325T：iPhone 主畫面 App 要有 manifest 才能收推播（只有 test.html 有；沒設 start_url，加入主畫面照舊用當下網址） -->
 
 <!-- 字體（想換字體就改這行 + styles.css 的 --font-* 變數） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8025,6 +8026,10 @@ window.ALBUM_SWITCH = {
     } else if (kind === "offline" && opt.retry) {   /* B278T：手上有還能用的憑證（卡片鑰匙／配對 token／已換到的 email＋碼）→ 主要動作是重新連線，不叫他重打碼 */
       txt = "暫時連不上。你的專輯不會因此消失，確認網路後再試一次。";
       btns = '<button type="button" class="pri" data-t="retry">重新連線</button><button type="button" data-t="later">稍後</button>';
+    } else if (kind === "push") {   /* B325T：主畫面 App 才會出現 */
+      var en325 = window.SKY_LANG === "en";
+      txt = en325 ? "Turn on notifications to hear first when CHANCE posts." : "開啟通知，CHANCE 發新動態時第一時間知道。";
+      btns = '<button type="button" class="pri" data-t="pushon">' + (en325 ? "Turn on" : "開啟通知") + '</button><button type="button" data-t="later">' + (en325 ? "Later" : "稍後") + '</button>';
     } else if (kind === "offline") {
       txt = "現在連不上網路。連上之後重新打開，或輸入一次 email＋兌換碼，不用重買。";
       btns = '<button type="button" class="pri" data-t="redeem">輸入兌換碼</button><button type="button" data-t="later">稍後</button>';
@@ -8050,9 +8055,11 @@ window.ALBUM_SWITCH = {
       }
       if (a === "shop") { a2TipClose(); go("purchase"); return; }
       if (a === "payclose") { payMarkClear(); a2TipClose(); return; }
+      if (a === "pushon") { a2TipClose(); pushTurnOn("tip"); return; }
       if (a === "later" || a === "x") {
         if (kind === "home") { a2Skip(true); a2st({ no: (a2st().no || 0) + 1 }); }
         if (kind === "pay") payMarkClear();
+        if (kind === "push") pushLater();
         a2TipClose();
       }
     });
@@ -8671,6 +8678,119 @@ window.ALBUM_SWITCH = {
   }
   setTimeout(function () { try { ownWalletEntry(); } catch (e) {} }, 0);
 
+  /* ---------- B325T：推播通知（只在 test.html） ----------
+     - 只有「主畫面 App」收得到（iPhone 規定；Android 的 Chrome 分頁也可以）。
+     - 訂閱交給獨立後台 the-sky-push；不碰主後台、金流、兌換碼。
+     - Service Worker 用 sw-test.js，scope 只到 ./test.html，不碰共用的 sw.js；它只做推播，不快取、不搶頁面。
+     - 打開 App 時把主畫面圖示上的數字歸零。 */
+  var PUSH_BASE = "https://the-sky-push.anthonywen0693.workers.dev";
+  var PUSHK = NS + ":push";
+  var P325 = { reg: null, key: null, busy: false };
+  function pushOk() { return T261 && !window.SKY_LOCAL_PREVIEW && ("serviceWorker" in navigator) && !!window.PushManager && !!window.Notification; }
+  function pushPerm() { try { return Notification.permission; } catch (e) { return "default"; } }
+  function pushU8(s) { s = String(s || "").replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  function pushReg() {
+    if (P325.reg) return Promise.resolve(P325.reg);
+    return navigator.serviceWorker.register("sw-test.js", { scope: "./test.html" }).then(function (reg) {
+      P325.reg = reg;
+      if (reg.active) return reg;
+      return new Promise(function (res) {
+        var w = reg.installing || reg.waiting; if (!w) return res(reg);
+        var t = setTimeout(function () { res(reg); }, 8000);
+        w.addEventListener("statechange", function () { if (w.state === "activated") { clearTimeout(t); res(reg); } });
+      });
+    });
+  }
+  function pushKey() {
+    if (P325.key) return Promise.resolve(P325.key);
+    return fetch(PUSH_BASE + "/vapid").then(function (r) { return r.json(); }).then(function (d) { if (!d || !d.key) throw new Error("vapid"); P325.key = d.key; return d.key; });
+  }
+  function pushSave(sub) {
+    return fetch(PUSH_BASE + "/subscribe", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sub: sub.toJSON(), src: "test", lang: window.SKY_LANG || "zh", unlocked: !!state.unlocked, standalone: !!A2.standalone }) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (!j || !j.ok) throw new Error("save"); lsSet(PUSHK, Object.assign(lsGet(PUSHK, {}) || {}, { on: 1, at: Date.now() })); return sub; });
+  }
+  function pushSubscribe() {
+    return Promise.all([pushReg(), pushKey()]).then(function (x) {
+      var reg = x[0], key = x[1];
+      return reg.pushManager.getSubscription().then(function (old) {
+        return old || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushU8(key) });
+      });
+    }).then(pushSave);
+  }
+  function pushBadgeReset() {
+    try { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(function () {}); } catch (e) {}
+    try {
+      var rq = indexedDB.open("sky-push", 1);
+      rq.onupgradeneeded = function () { rq.result.createObjectStore("kv"); };
+      rq.onsuccess = function () { try { var db = rq.result; var tx = db.transaction("kv", "readwrite"); tx.objectStore("kv").put(0, "badge"); tx.oncomplete = function () { db.close(); }; } catch (e) {} };
+    } catch (e) {}
+  }
+  /* 一定要在按鈕的點擊裡直接叫 requestPermission（iPhone 規定要使用者親手按） */
+  function pushTurnOn(from) {
+    if (!pushOk() || P325.busy) return;
+    var en = window.SKY_LANG === "en";
+    var p = pushPerm();
+    if (p === "denied") { toast(en ? "Notifications are off. Turn them on in Settings → Notifications → THE SKY." : "通知被關掉了，請到 iPhone「設定 → 通知 → THE SKY」打開", 4200); return; }
+    P325.busy = true; hap(8);
+    var ask;
+    try { ask = Notification.requestPermission(); } catch (e) { ask = null; }
+    Promise.resolve(ask).then(function (r) {
+      if ((r || pushPerm()) !== "granted") { P325.busy = false; pushLater(); pushOwnRow(); return; }
+      return pushSubscribe().then(function () {
+        P325.busy = false; a2st({ pushOnAt: Date.now(), pushFrom: from || "" });
+        toast(en ? "Notifications on. You'll hear first when CHANCE posts." : "通知開好了，CHANCE 發新動態會通知你", 3200);
+        pushOwnRow();
+      });
+    }).catch(function () { P325.busy = false; toast(en ? "Couldn't turn on notifications. Try again later." : "通知暫時開不起來，等一下再試一次", 3200); pushOwnRow(); });
+  }
+  function pushLater() { try { sessionStorage.setItem(PUSHK + ":later", "1"); } catch (e) {} var s = lsGet(PUSHK, {}) || {}; s.no = (s.no || 0) + 1; s.laterAt = Date.now(); lsSet(PUSHK, s); }
+  function pushTipMaybe(n) {
+    if (!pushOk() || !A2.standalone || pushPerm() !== "default") return;
+    try { if (sessionStorage.getItem(PUSHK + ":later")) return; } catch (e) {}
+    var s = lsGet(PUSHK, {}) || {};
+    if (!T261 && ((s.no || 0) >= 3 || (s.laterAt && Date.now() - s.laterAt < 7 * 864e5))) return;   /* 轉正後：7 天一次、最多 3 次；test.html 每次新開都問，方便測 */
+    var sp = document.getElementById("screen-player");
+    var blocked = $("a2tip") || a2Busy() || document.getElementById("sky-splash") || document.getElementById("__langBar") || (sp && sp.classList.contains("cp-immersive"));
+    if (blocked) { if ((n || 0) < 6) setTimeout(function () { pushTipMaybe((n || 0) + 1); }, 6000); return; }
+    a2Tip("push");
+  }
+  function pushOwnRow() {
+    if (!pushOk()) return;
+    var box = document.querySelector("#unlock-done-view .pass-cta"); if (!box) return;
+    var en = window.SKY_LANG === "en", p = pushPerm(), on = p === "granted" && (lsGet(PUSHK, {}) || {}).on;
+    var b = $("a2-push");
+    if (!b) {
+      b = document.createElement("button"); b.type = "button"; b.id = "a2-push"; b.className = "a2-own a2-sub";
+      b.setAttribute("data-no-translate", "");
+      b.addEventListener("click", function () {
+        var q = pushPerm();
+        if (q === "granted" && (lsGet(PUSHK, {}) || {}).on) { toast(en ? "Notifications are on. To turn off: Settings → Notifications → THE SKY." : "通知已開啟。要關掉可到 iPhone「設定 → 通知 → THE SKY」", 4200); return; }
+        pushTurnOn("own");
+      });
+      var after = $("a2-wallet") || $("a2-own");
+      if (after && after.parentNode === box) box.insertBefore(b, after.nextSibling); else box.appendChild(b);
+    }
+    var st = on ? (en ? "On" : "已開啟") : p === "denied" ? (en ? "Off" : "已關閉") : (en ? "Turn on" : "開啟");
+    b.innerHTML = '<span class="a2-ol">' + (en ? "New post notifications" : "新動態通知") + '</span><span class="a2-or">' + st + ' ›</span>';
+  }
+  function pushBoot() {
+    if (!pushOk()) return;
+    pushBadgeReset();
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") pushBadgeReset(); });
+    if (pushPerm() === "granted") {
+      /* 已允許：確認訂閱還在、一天回報一次（換手機／重裝會重新登記） */
+      var s = lsGet(PUSHK, {}) || {};
+      if (!s.on || !s.at || Date.now() - s.at > 864e5) pushSubscribe().catch(function () {});
+      else pushReg().catch(function () {});
+    } else if (A2.standalone) {
+      pushReg().catch(function () {}); pushKey().catch(function () {});   /* 先準備好，按下「開啟通知」時才不會等 */
+      setTimeout(pushTipMaybe, 5000);
+    }
+    pushOwnRow();
+  }
+  setTimeout(function () { try { pushBoot(); } catch (e) {} }, 0);
+
   /* ---------- 6. 付款回站提示（只記「曾前往付款」，不代表付款成功） ---------- */
   var PAYK = NS + ":paygo";
   function payMarkSet(pk) {
@@ -8889,6 +9009,7 @@ window.ALBUM_SWITCH = {
     try { if (/[?&]openExternalBrowser=1/.test(location.search)) { var u = new URL(location.href); u.searchParams.delete("openExternalBrowser"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } } catch (e) {}
     if (A2.standalone) a2st({ done: true, homeAt: Date.now() });
     a2OwnEntry264();   /* B264T：OWN 固定入口（取代三件事） */
+    try { pushOwnRow(); } catch (e) {}   /* B325T：OWN「新動態通知」 */
     /* B264T 測試鉤子（只在 test.html）：?t264=tut 教學／pick 選工具列／pay 付款回站提示／ok 解鎖小卡／tip 小提示 —— 只看畫面，不解鎖、不打後台 */
     try { var q264 = T261 && (location.search.match(/[?&]t264=(tut|pick|pay|ok|tip)\b/) || [])[1];
       if (q264) setTimeout(function () { if (q264 === "tut") a2TutOpen("demo"); else if (q264 === "pick") { a2TutOpen("demo"); var dfb = document.querySelector("#a2tut .tu-diff"); if (dfb) dfb.click(); } else if (q264 === "pay") { lsSet(PAYK, { k: (CFG.payment || {}).productKey, t: Date.now() - 6e4, n: 0 }); payMarkCheck(); } else if (q264 === "ok") a2OkOpen(); else a2Tip("home"); }, 1200); } catch (e) {}
@@ -12175,7 +12296,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B324T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B325T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

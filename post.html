@@ -155,6 +155,18 @@ button[disabled]{opacity:.45;cursor:default}
     <label class="lb" style="margin-top:14px">粉絲會看到</label>
     <div class="bubble" id="prev"><span style="color:var(--dim)">…</span><div class="meta"><span class="tag">所有人</span><span>今天 17:49</span></div></div>
 
+    <!-- B325T：同時推播（獨立後台 the-sky-push；預設不推） -->
+    <label class="lb" style="margin-top:14px">同時推播通知</label>
+    <div class="seg" id="seg-push">
+      <button data-p="off" aria-pressed="true">不推</button>
+      <button data-p="on" aria-pressed="false">推播</button>
+    </div>
+    <div id="push-box" class="hide">
+      <input type="text" id="push-text" maxlength="60" value="CHANCE 發了新動態" aria-label="通知文字" style="margin-top:8px">
+      <p class="hint">通知文字會出現在粉絲的鎖定畫面，不要放付費內容。</p>
+    </div>
+    <p class="hint" id="push-hint"></p>
+
     <div class="row" style="margin-top:14px">
       <button class="primary" id="btn-send">發布</button>
     </div>
@@ -223,6 +235,7 @@ async function login(key){
     syncReviewBtn();
   }
   load();
+  pushStats();
 }
 $("btn-login").onclick = function(){
   var k = $("key").value.trim();
@@ -249,6 +262,33 @@ $("btn-review").onclick = async function(){
   S.settings = d.settings; syncReviewBtn();
   toast(next ? "他的貼文會先等你審核" : "他的貼文會直接發布");
 };
+
+/* ---------- B325T：同時推播（獨立後台 the-sky-push；用同一把發文金鑰，由主後台判斷身分） ---------- */
+var PUSH = "https://the-sky-push.anthonywen0693.workers.dev";
+S.push = false;
+function syncPush(){
+  Array.prototype.forEach.call($("seg-push").children, function(x){
+    x.setAttribute("aria-pressed", (x.dataset.p === "on") === S.push ? "true" : "false"); });
+  $("push-box").classList.toggle("hide", !S.push);
+}
+Array.prototype.forEach.call($("seg-push").children, function(b){
+  b.onclick = function(){ S.push = b.dataset.p === "on"; syncPush(); };
+});
+async function pushStats(){
+  try {
+    var r = await fetch(PUSH + "/stats", { headers:{ "X-Feed-Key": S.key } });
+    var d = await r.json();
+    $("push-hint").textContent = d.ok ? ("目前 " + d.count + " 人開了通知（測試版）" + (d.last ? " · 上次推播 " + when(d.last.at) : "")) : "";
+  } catch(e){ $("push-hint").textContent = "推播後台暫時連不上"; }
+}
+async function pushSend(){
+  try {
+    var body = $("push-text").value.trim() || "CHANCE 發了新動態";
+    var r = await fetch(PUSH + "/send", { method:"POST", headers:{ "X-Feed-Key": S.key, "Content-Type":"application/json" },
+      body: JSON.stringify({ title:"THE SKY", body: body, url:"./test.html" }) });
+    return await r.json();
+  } catch(e){ return { ok:false, err:"net" }; }
+}
 
 /* ---------- 對象切換 ---------- */
 Array.prototype.forEach.call($("seg-tier").children, function(b){
@@ -500,7 +540,18 @@ $("btn-send").onclick = async function(){
       text: text, media: mediaKey, dur: S.att ? S.att.dur : "", tier: S.tier } });
     if (!d.ok) throw new Error(d.error);
     $("text").value = ""; clearAtt();
-    toast(d.post.status === "pending" ? "已送出，等站主審核" : "發布了");
+    var msg = d.post.status === "pending" ? "已送出，等站主審核" : "發布了";
+    if (S.push) {   /* B325T：推播失敗不影響已發布的貼文 */
+      if (d.post.status === "pending") msg += " · 等審核的貼文不會推播";
+      else {
+        $("send-hint").textContent = "推播中…";
+        var pr = await pushSend();
+        msg += pr.ok ? " · 已推播給 " + pr.sent + " 人" : pr.err === "too_soon" ? " · 推播太頻繁，" + pr.wait + " 秒後再試" : " · 推播沒送出";
+        $("send-hint").textContent = "";
+      }
+      S.push = false; syncPush(); pushStats();
+    }
+    toast(msg);
     S.filter = d.post.status === "pending" ? "pending" : "live";
     syncFilters();
     load();
