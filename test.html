@@ -2989,6 +2989,14 @@ body.a2pv-on #a2guide:not(.low){top:calc(52px + env(safe-area-inset-top))}
 #screen-purchase #own-rd-open::after{content:"→";position:absolute;right:22px;top:50%;transform:translateY(-50%);font-size:18px;font-family:-apple-system,system-ui,sans-serif}
 #screen-purchase #own-rd-open:focus-visible{outline:2px solid #D8C3A0;outline-offset:3px}
 #unlock-form-view > #own-rd-form{display:none !important}
+/* B323T：「有 Apple 錢包卡？」次要入口（只在 iPhone Safari；點了展開三步＋打開錢包） */
+#screen-purchase .own-wl{margin:14px 20px 0;text-align:center}
+#screen-purchase .own-wl-btn{min-height:44px;padding:0 12px;border:0;background:none;color:#D8C3A0;font:500 15px/1.4 -apple-system,"PingFang TC",sans-serif;letter-spacing:.04em;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(216,195,160,.45);cursor:pointer}
+#screen-purchase .own-wl-box{margin:6px 0 0;padding:14px 16px;border-radius:16px;border:1px solid rgba(216,195,160,.28);background:rgba(255,255,255,.03);text-align:left}
+#screen-purchase .own-wl-box ol{margin:0;padding-left:1.3em;color:#E9DCC4;font-size:15px;line-height:1.7}
+#screen-purchase .own-wl-box p{margin:8px 0 0;font-size:13px;line-height:1.5;color:#B9AE9F}
+#screen-purchase .own-wl-go{display:block;width:100%;margin-top:12px;min-height:48px;border-radius:999px;border:1px solid rgba(216,195,160,.55);background:none;color:#F0DCA8;font:600 16px -apple-system,"PingFang TC",sans-serif;cursor:pointer}
+#screen-purchase .own-wl-btn:focus-visible,#screen-purchase .own-wl-go:focus-visible{outline:2px solid #D8C3A0;outline-offset:3px;border-radius:12px}
 .a2m.a2pg{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:0;background:#000;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:115010;animation:a2pgIn .28s cubic-bezier(.2,.9,.3,1)}
 .a2m.a2pg.out{animation:a2pgOut .24s ease forwards;pointer-events:none}
 @keyframes a2pgIn{from{transform:translateX(100%)}to{transform:none}}
@@ -3850,6 +3858,7 @@ body, #stage{ background:#080809 !important; }
       <!-- B271T：原「已經購買了？」細字摺疊列 → 完整金色入口；點了從右滑入全頁兌換子頁（原 inline 表單保留在 DOM 但不顯示，其他程式仍讀得到） -->
       <p class="own-rd-note">已有兌換碼，不用再次購買</p>
       <button type="button" class="own-rd-open" id="own-rd-open"><span>已購買？開啟專輯</span></button>
+      <div class="own-wl" id="own-wl" hidden data-no-translate></div>
       <div class="form-block" id="own-rd-form">
         <div class="page-note" style="margin-top:0;padding:0 4px 14px">兌換碼會寄到信箱，用「購買時的 email」解鎖</div>
         <label class="form-label" for="in-email">EMAIL</label>
@@ -8003,7 +8012,7 @@ window.ALBUM_SWITCH = {
     return true;
   }
   function a2TipMaybe(reason) {
-    if (A2.standalone || !A2.mobile || !state.unlocked) return;
+    if (A2.standalone || !A2.mobile || (!state.unlocked && !A2.inapp)) return;   /* B323T：在 LINE／微信等 App 內建瀏覽器，沒解鎖也提示「用 Safari 打開」 */
     var sp = document.getElementById("screen-player");   /* B286T：歌詞／TRACKS 子頁開著時提示會蓋住頂部關閉鍵 → 先記下，回到主播放器再跳 */
     if (sp && sp.classList.contains("cp-immersive")) { A2.tipWait = reason; return; }
     if (a2Skip()) return;   /* 這次按過「稍後」：這次不再跳 */
@@ -8589,6 +8598,31 @@ window.ALBUM_SWITCH = {
       add(wl);
     }
   }
+
+  /* B323T：OWN「有 Apple 錢包卡？」—— 網頁讀不到錢包裡的卡，所以是教他從卡片點回來（卡片的 OPEN ALBUM 帶專屬鑰匙 ?m=，回到這裡自動解鎖） */
+  function ownWalletEntry() {
+    var box = $("own-wl"); if (!box) return;
+    if (!A2.iOS || A2.standalone || A2.inapp || box.__done) return;
+    box.__done = 1;
+    var en = window.SKY_LANG === "en";
+    box.innerHTML = '<button type="button" class="own-wl-btn" aria-expanded="false" aria-controls="own-wl-box">' + (en ? "Have the Apple Wallet card? Open with it" : "有 Apple 錢包卡？用卡片開啟") + '</button>' +
+      '<div class="own-wl-box" id="own-wl-box" hidden><ol>' +
+      (en ? '<li>Open the <b>Wallet</b> app on your iPhone</li><li>Tap your <b>THE SKY PREMIUM</b> card</li><li>Tap <b>♪</b> on the card (or <b>OPEN ALBUM</b> on the back)</li>'
+          : '<li>打開 iPhone 的「<b>錢包</b>」App</li><li>點你的 <b>THE SKY PREMIUM</b> 卡</li><li>點卡片上的 <b>♪</b>（或卡背的「OPEN ALBUM · 開啟專輯」）</li>') +
+      '</ol><p>' + (en ? "You'll come right back here, already unlocked. No code needed." : "會直接回到這裡、自動解鎖，不用輸入兌換碼。") + '</p>' +
+      '<button type="button" class="own-wl-go">' + (en ? "Open Wallet" : "打開錢包") + '</button>' +
+      '<p class="own-wl-miss" hidden>' + (en ? "If Wallet didn't open, open it from your Home Screen." : "如果沒有跳過去，請從主畫面自己打開「錢包」App。") + '</p></div>';
+    box.hidden = false;
+    var btn = box.querySelector(".own-wl-btn"), panel = box.querySelector(".own-wl-box");
+    btn.addEventListener("click", function () { var open = panel.hidden; panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); hap(6); });
+    box.querySelector(".own-wl-go").addEventListener("click", function () {
+      a2st({ walletOpenTap: Date.now() });
+      var miss = box.querySelector(".own-wl-miss");
+      setTimeout(function () { if (document.visibilityState === "visible") miss.hidden = false; }, 1500);   /* 沒跳走就提示自己打開 */
+      try { location.href = "shoebox://"; } catch (e) { miss.hidden = false; }   /* 非官方網址；能不能從 Safari 直接開錢包尚未確認 */
+    });
+  }
+  setTimeout(function () { try { ownWalletEntry(); } catch (e) {} }, 0);
 
   /* ---------- 6. 付款回站提示（只記「曾前往付款」，不代表付款成功） ---------- */
   var PAYK = NS + ":paygo";
@@ -12093,7 +12127,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B322T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B323T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
