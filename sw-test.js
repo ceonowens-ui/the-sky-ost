@@ -64,9 +64,10 @@ self.addEventListener("notificationclick", function (e) {
     for (var i = 0; i < cs.length; i++) { try { if (new URL(cs[i].url).pathname === home) { c = cs[i]; break; } } catch (x) {} }
     var open = function () { return self.clients.openWindow ? self.clients.openWindow(target.href) : null; };
     if (!c) return open();
-    var step = (!swtSame(c.url, target) && typeof c.navigate === "function")
-      ? Promise.resolve().then(function () { return c.navigate(target.href); }).then(function (nc) { if (!nc) throw new Error("nav"); return nc; })
-      : Promise.resolve(c);
+    var same = swtSame(c.url, target);
+    if (!same && typeof c.navigate !== "function") return open();   /* 目的地不同又不能換頁 → 另開，不 focus 舊頁 */
+    var step = same ? Promise.resolve(c)
+      : Promise.resolve().then(function () { return c.navigate(target.href); }).then(function (nc) { if (!nc) throw new Error("nav"); return nc; });
     return step.then(function (wc) { return wc.focus(); }).catch(open);
   }));
 });
