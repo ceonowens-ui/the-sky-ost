@@ -7719,6 +7719,51 @@ window.ALBUM_SWITCH = {
   setTimeout(function () { pairEnsure(false); }, 1500);
   setInterval(function () { if (document.visibilityState === "visible") pairEnsure(false); }, 48e4);
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") pairEnsure(false); });
+  /* B324T：LINE／微信／IG 等 App 內建瀏覽器 → Safari 的解鎖接力。
+     兩邊資料完全分開；所以在內建瀏覽器裡解鎖後，把同一套 10 分鐘、一次性的配對 token 放進網址 ?sp=（不是兌換碼），每 8 分鐘換新。
+     不管粉絲按我們的「用 Safari 打開」、LINE 的「用 Safari 開啟」或微信的「在 Safari 中打開」，網址都帶著 sp；
+     Safari 打開時拿 sp 去 /premium/pair/redeem 換回 email＋碼 → 照常走 redeemAny（主後端 /verify），然後把 sp 從網址拿掉。 */
+  var SP_KEY = "sp", spBusy = false;
+  function spGet() { try { return new URLSearchParams(location.search).get(SP_KEY) || ""; } catch (e) { return ""; } }
+  function spUrl(tok, extra) {   /* 目前網址換掉／拿掉 sp（tok 空＝拿掉）；extra＝再加的參數 */
+    try { var u = new URL(location.href); if (tok) u.searchParams.set(SP_KEY, tok); else u.searchParams.delete(SP_KEY);
+      if (extra) for (var k in extra) { if (extra[k] == null) u.searchParams.delete(k); else u.searchParams.set(k, extra[k]); }
+      return u.pathname + (u.search || "") + u.hash; } catch (e) { return location.pathname + location.search + location.hash; }
+  }
+  function spSet(tok, extra) { try { history.replaceState(history.state, "", spUrl(tok, extra)); } catch (e) {} }
+  function spFresh() { var s = a2st(); return !!spGet() && s.spAt && Date.now() - s.spAt < 48e4; }
+  function inappCarry(force, cb) {
+    if (!A2.inapp || !state.unlocked || !a2Cred()) { if (cb) cb(false); return; }
+    if (!force && spFresh()) { if (cb) cb(true); return; }
+    if (spBusy) { if (cb) setTimeout(function () { cb(spFresh()); }, 1500); return; }
+    var c = a2Cred(); spBusy = true;
+    fetch(PAIR_BASE + "/new", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: c.e, code: c.c }), cache: "no-store" })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        spBusy = false;
+        if (d && d.ok && d.token) { spSet(d.token); a2st({ spAt: Date.now() }); if (cb) cb(true); return; }
+        if (cb) cb(false);
+      }).catch(function () { spBusy = false; if (cb) cb(false); });
+  }
+  if (A2.inapp) {
+    setTimeout(function () { inappCarry(false); }, 1200);
+    setInterval(function () { if (document.visibilityState === "visible") inappCarry(false); }, 3000);   /* 只看本機狀態；需要時才打後台（剛解鎖、或 8 分鐘到） */
+  }
+  function spRedeemBoot() {
+    var tok = spGet(); if (!tok) return;
+    a2st({ spSeen: Date.now() });
+    if (state.unlocked) { if (!A2.inapp) spSet("", { openExternalBrowser: null }); return; }   /* 已經解鎖：Safari 這邊把網址清乾淨就好 */
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(tok)) { spSet("", { openExternalBrowser: null }); return; }
+    if (!A2.inapp) spSet("", { openExternalBrowser: null });   /* 先拿掉，避免重新整理或分享時再被用 */
+    fetch(PAIR_BASE + "/redeem", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: tok }), cache: "no-store" })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.ok && d.email && d.code) {
+          a2st({ carriedAt: Date.now(), carriedFrom: "inapp-sp" });
+          var rp = function () { redeemAny(d.email, d.code, null, function (ok, why) { if (!ok) a2Tip(why === "bad" ? "nopair" : "offline", why === "bad" ? null : { retry: rp }); else toast(window.SKY_LANG === "en" ? "Unlocked — carried over from the in-app browser" : "已解鎖 · 從 LINE／App 內帶過來了"); }); };
+          rp(); return;
+        }
+        a2st({ spFail: Date.now() });
+      }).catch(function () { a2st({ spFail: Date.now() }); });
+  }
   /* B261T：三個任務面板（購買／解鎖後）：1 放到主畫面 → 2 點 THE SKY 開始聽 → 3 收藏專輯卡（可稍後）。
      完成狀態不靠前端猜：1 永遠不自動打勾；2 只在主畫面 App 裡且伺服器驗證成功才打勾；3 不讀 Wallet、不自動打勾。 */
   var T3_PASS = T261 ? PAIR_BASE + "/testpass" : "https://the-sky-wallet.anthonywen0693.workers.dev/premium";
@@ -7841,11 +7886,13 @@ window.ALBUM_SWITCH = {
     w.querySelector(".a2-go").addEventListener("click", function () {
       if (P.kind === "inapp") {
         var url = location.origin + a2CarryUrl(true);
-        if (A2.inapp === "line") {
-          var u = location.origin + location.pathname + (location.search ? location.search + "&" : "?") + "openExternalBrowser=1" + (url.indexOf("#") >= 0 ? url.slice(url.indexOf("#")) : "");
-          a2Close("away"); location.href = u; return;
+        if (A2.inapp === "line") {   /* B324T：先確保網址帶著新鮮的 sp，再請 LINE 用 Safari 開 */
+          var jump = function () { a2Close("away"); location.href = location.origin + spUrl(spGet(), { openExternalBrowser: "1" }); };
+          if (state.unlocked && !spFresh()) inappCarry(true, jump); else jump();
+          return;
         }
         var done = function () { toast("已複製連結 · 打開 " + (A2.iOS ? "Safari" : "瀏覽器") + " 貼上就好"); };
+        url = location.origin + a2CarryUrl(true);   /* B324T：網址已帶 sp（10 分鐘內有效） */
         try { navigator.clipboard.writeText(url).then(done, function () { a2CopyFallback(url); done(); }); } catch (e) { a2CopyFallback(url); done(); }
         return;
       }
@@ -8851,6 +8898,7 @@ window.ALBUM_SWITCH = {
       if (T261 && A2.standalone) { var tc = pairCookieGet(); if (tc === "TESTCOOKIE0000000000000000") { pairCookieClear(); setTimeout(function () { toast("✓ 測試：cookie 有跟著進主畫面 App"); }, 600); } else if (tq) { setTimeout(function () { toast("✗ 測試：主畫面 App 沒看到 cookie"); }, 600); } }
       else if (tq) { pairCookieSet("TESTCOOKIE0000000000000000"); toast("測試 cookie 已寫入 · 現在去加入主畫面，再從主畫面打開"); } } catch (e) {}
     try { pairRedeemBoot(); } catch (e) {}
+    try { spRedeemBoot(); } catch (e) {}   /* B324T：從 LINE／微信跳過來的 ?sp= */
     /* B264T：主畫面 App 不再跳「已準備好」面板；瀏覽器回訪 → 先看付款回站提示，再看加主畫面小提示（都不是彈窗） */
     if (!a2PvBoot()) setTimeout(function () { if (payMarkCheck()) return; a2TipMaybe("visit"); }, T261 ? 2500 : 4500);   /* B267T：?t267= 預覽時不跑提醒 */
   })();
@@ -12127,7 +12175,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B323T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B324T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
