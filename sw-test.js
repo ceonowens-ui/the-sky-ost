@@ -2,7 +2,7 @@
  * 只做推播：收到推播 → 跳通知＋主畫面圖示的數字 +1；點通知 → 打開 App。
  * 不攔網路請求、不做快取、不搶已經打開的頁面（不 claim）→ 不影響正式版 sw.js，也不會讓頁面突然重新整理。
  * 推播後台：the-sky-push（獨立 Worker）。 */
-var SWT = "B325T";
+var SWT = "B327T";
 
 self.addEventListener("install", function () { self.skipWaiting(); });
 
@@ -45,14 +45,29 @@ self.addEventListener("push", function (e) {
   ]));
 });
 
+/* B327T：目的地只接受同源的 test.html（防止被帶去正式頁或外站）；
+   已經開著的 test.html 視窗：網址不同就先 navigate 再 focus；navigate／focus 失敗才另開視窗。 */
+function swtTarget(u) {
+  var home = new URL("./test.html", self.registration.scope);
+  try {
+    var t = new URL(u || "./test.html", self.registration.scope);
+    if (t.origin === home.origin && t.pathname === home.pathname) return t;
+  } catch (e) {}
+  return home;
+}
+function swtSame(a, b) { try { var x = new URL(a); return x.pathname === b.pathname && x.search === b.search && x.hash === b.hash; } catch (e) { return false; } }
 self.addEventListener("notificationclick", function (e) {
   e.notification.close();
-  var u = new URL((e.notification.data && e.notification.data.u) || "./test.html", self.registration.scope).href;
+  var target = swtTarget(e.notification.data && e.notification.data.u);
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (cs) {
-    for (var i = 0; i < cs.length; i++) {
-      if (cs[i].url.indexOf("/test.html") > -1 && "focus" in cs[i]) return cs[i].focus();
-    }
-    return self.clients.openWindow ? self.clients.openWindow(u) : null;
+    var home = new URL("./test.html", self.registration.scope).pathname, c = null;
+    for (var i = 0; i < cs.length; i++) { try { if (new URL(cs[i].url).pathname === home) { c = cs[i]; break; } } catch (x) {} }
+    var open = function () { return self.clients.openWindow ? self.clients.openWindow(target.href) : null; };
+    if (!c) return open();
+    var step = (!swtSame(c.url, target) && typeof c.navigate === "function")
+      ? Promise.resolve().then(function () { return c.navigate(target.href); }).then(function (nc) { if (!nc) throw new Error("nav"); return nc; })
+      : Promise.resolve(c);
+    return step.then(function (wc) { return wc.focus(); }).catch(open);
   }));
 });
 

@@ -8685,7 +8685,16 @@ window.ALBUM_SWITCH = {
      - 打開 App 時把主畫面圖示上的數字歸零。 */
   var PUSH_BASE = "https://the-sky-push.anthonywen0693.workers.dev";
   var PUSHK = NS + ":push";
-  var P325 = { reg: null, key: null, busy: false };
+  var P325 = { reg: null, key: null, busy: false, op: 0 };
+  var PUSH_OP_MS = 20000, PUSH_REQ_MS = 10000;
+  /* B327T：每個請求 10 秒（含讀 body）中止；整段開通知 20 秒逾時。逾時或換了新一輪，舊的晚到也不改狀態、不重複儲存 */
+  function pushFetchJSON(url, opt) {
+    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, PUSH_REQ_MS);
+    return fetch(url, Object.assign({}, opt || {}, { signal: ctl ? ctl.signal : undefined }))
+      .then(function (r) { return r.json(); })
+      .then(function (j) { clearTimeout(tm); return j; }, function (e) { clearTimeout(tm); throw e; });
+  }
+  function pushLive(op) { if (op && op !== P325.op) throw new Error("stale"); }
   function pushOk() { return T261 && !window.SKY_LOCAL_PREVIEW && ("serviceWorker" in navigator) && !!window.PushManager && !!window.Notification; }
   function pushPerm() { try { return Notification.permission; } catch (e) { return "default"; } }
   function pushU8(s) { s = String(s || "").replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
@@ -8703,20 +8712,23 @@ window.ALBUM_SWITCH = {
   }
   function pushKey() {
     if (P325.key) return Promise.resolve(P325.key);
-    return fetch(PUSH_BASE + "/vapid").then(function (r) { return r.json(); }).then(function (d) { if (!d || !d.key) throw new Error("vapid"); P325.key = d.key; return d.key; });
+    return pushFetchJSON(PUSH_BASE + "/vapid").then(function (d) { if (!d || !d.key) throw new Error("vapid"); P325.key = d.key; return d.key; });
   }
-  function pushSave(sub) {
-    return fetch(PUSH_BASE + "/subscribe", { method: "POST", headers: { "Content-Type": "application/json" },
+  function pushSave(sub, op) {
+    pushLive(op);
+    return pushFetchJSON(PUSH_BASE + "/subscribe", { method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sub: sub.toJSON(), src: "test", lang: window.SKY_LANG || "zh", unlocked: !!state.unlocked, standalone: !!A2.standalone }) })
-      .then(function (r) { return r.json(); }).then(function (j) { if (!j || !j.ok) throw new Error("save"); lsSet(PUSHK, Object.assign(lsGet(PUSHK, {}) || {}, { on: 1, at: Date.now() })); return sub; });
+      .then(function (j) { pushLive(op); if (!j || !j.ok) throw new Error("save"); lsSet(PUSHK, Object.assign(lsGet(PUSHK, {}) || {}, { on: 1, at: Date.now() })); return sub; });
   }
-  function pushSubscribe() {
+  function pushSubscribe(op) {
     return Promise.all([pushReg(), pushKey()]).then(function (x) {
+      pushLive(op);
       var reg = x[0], key = x[1];
       return reg.pushManager.getSubscription().then(function (old) {
+        pushLive(op);
         return old || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushU8(key) });
       });
-    }).then(pushSave);
+    }).then(function (sub) { return pushSave(sub, op); });
   }
   function pushBadgeReset() {
     try { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(function () {}); } catch (e) {}
@@ -8733,15 +8745,21 @@ window.ALBUM_SWITCH = {
     var p = pushPerm();
     if (p === "denied") { toast(en ? "Notifications are off. Turn them on in Settings → Notifications → THE SKY." : "通知被關掉了，請到 iPhone「設定 → 通知 → THE SKY」打開", 4200); return; }
     P325.busy = true; hap(8);
+    var op = ++P325.op;
+    var fail = function () { if (op !== P325.op) return; P325.op++; P325.busy = false; toast(en ? "Couldn't turn on notifications. Try again later." : "通知暫時開不起來，等一下再試一次", 3200); pushOwnRow(); };
+    var guard = 0;   /* B327T：iPhone 權限視窗開著時不計時（使用者想多久都可以）；按下允許後整段（註冊＋公鑰＋訂閱＋儲存，含讀 body）最多 20 秒 */
     var ask;
     try { ask = Notification.requestPermission(); } catch (e) { ask = null; }
     Promise.resolve(ask).then(function (r) {
-      if ((r || pushPerm()) !== "granted") { P325.busy = false; pushLater(); pushOwnRow(); return; }
-      return pushSubscribe().then(function () {
-        P325.busy = false; a2st({ pushOnAt: Date.now(), pushFrom: from || "" });
+      if (op !== P325.op) return;
+      if ((r || pushPerm()) !== "granted") { P325.op++; P325.busy = false; pushLater(); pushOwnRow(); return; }
+      guard = setTimeout(fail, PUSH_OP_MS);
+      return pushSubscribe(op).then(function () {
+        if (op !== P325.op) return;
+        clearTimeout(guard); P325.op++; P325.busy = false; a2st({ pushOnAt: Date.now(), pushFrom: from || "" });
         pushOwnRow();   /* B326T：成功不再跳小字（iPhone 按「允許」就已經確認過了） */
       });
-    }).catch(function () { P325.busy = false; toast(en ? "Couldn't turn on notifications. Try again later." : "通知暫時開不起來，等一下再試一次", 3200); pushOwnRow(); });
+    }).catch(function (e) { clearTimeout(guard); if (e && e.message === "stale") return; fail(); });
   }
   function pushLater() { try { sessionStorage.setItem(PUSHK + ":later", "1"); } catch (e) {} var s = lsGet(PUSHK, {}) || {}; s.no = (s.no || 0) + 1; s.laterAt = Date.now(); lsSet(PUSHK, s); }
   function pushTipMaybe(n) {
@@ -9110,7 +9128,9 @@ window.ALBUM_SWITCH = {
     feedLiveLoading = true; feedLiveFailed = false;
     clearTimeout(feedLiveSlowT);
     feedLiveSlowT = setTimeout(function () { if (feedLiveLoading && requestNo === feedLiveRequest) { feedLiveSlow = true; paintFeedLoading(); } }, 10000);   /* B308T：超過 10 秒只換提示字，背景繼續等 */
-    fetch(CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store" })
+    /* B327T：25 秒還沒拿到完整內容（含 body）就中止 → 走原本的「暫時載入不了＋重試」，不再永遠卡在「仍在等待…」 */
+    var liveCtl = window.AbortController ? new AbortController() : null, liveTm = setTimeout(function () { if (liveCtl) liveCtl.abort(); }, 25000);
+    fetch(CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store", signal: liveCtl ? liveCtl.signal : undefined })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) {
         if (requestNo !== feedLiveRequest) return;
@@ -9138,7 +9158,7 @@ window.ALBUM_SWITCH = {
         }
       })
       .catch(function () { /* 保留目前畫面，稍後回到 App 時再重試 */ if (requestNo === feedLiveRequest) { feedLiveFailed = true; paintFeedLoading(); } })
-      .then(function () { if (requestNo === feedLiveRequest) { feedLiveLoading = false; feedLiveSlow = false; clearTimeout(feedLiveSlowT); } });
+      .then(function () { clearTimeout(liveTm); if (requestNo === feedLiveRequest) { feedLiveLoading = false; feedLiveSlow = false; clearTimeout(feedLiveSlowT); } });
   }
   /* B308T：還沒載到過最新私訊（也沒有記住的）→ 最上面一行狀態，不讓 8/20 內建舊訊息排第一 */
   function feedLoadingHTML() {
@@ -10226,13 +10246,15 @@ window.ALBUM_SWITCH = {
   function sgcLoad(it, force) {
     var tid = sgrTrack(it.rid), c = SGR.cm[tid];
     if (c && !force && !c.err && Date.now() - (c.at || 0) < 30000) { sgcPaint(); return; }
-    SGR.cm[tid] = { loading: true, items: (c && c.items) || [], count: (c && c.count) || 0 }; sgcPaint();
+    var lseq = (SGR.lseq = (SGR.lseq || 0) + 1), mine = function () { return SGR.cm[tid] && SGR.cm[tid].lseq === lseq; };   /* B327T：舊請求晚到不覆蓋新的 */
+    SGR.cm[tid] = { loading: true, lseq: lseq, items: (c && c.items) || [], count: (c && c.count) || 0 }; sgcPaint();
     var fp = feedPassInfo();
-    fetch(CFG.api.workerBaseUrl + "/comments/list?album=" + SGR_ALBUM + "&track=" + encodeURIComponent(tid) + (fp.email ? "&email=" + encodeURIComponent(fp.email) : ""), { cache: "no-store" })
+    var lctl = window.AbortController ? new AbortController() : null, ltm = setTimeout(function () { if (lctl) lctl.abort(); }, 12000);   /* B327T：12 秒（含 body）沒回 → 顯示「重試」 */
+    fetch(CFG.api.workerBaseUrl + "/comments/list?album=" + SGR_ALBUM + "&track=" + encodeURIComponent(tid) + (fp.email ? "&email=" + encodeURIComponent(fp.email) : ""), { cache: "no-store", signal: lctl ? lctl.signal : undefined })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (d) { if (!d || !d.ok) throw 0; var items = (d.items || []).slice().sort(function (a, b) { return Number(b.isArtist) - Number(a.isArtist) || Number(b.createdAt || 0) - Number(a.createdAt || 0); }); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() }; })
-      .catch(function () { SGR.cm[tid] = { err: true, items: [], count: 0 }; })
-      .then(function () { sgcPaint(); sgrPaintActs(it.rid); });
+      .then(function (d) { if (!mine()) return; if (!d || !d.ok) throw 0; var items = (d.items || []).slice().sort(function (a, b) { return Number(b.isArtist) - Number(a.isArtist) || Number(b.createdAt || 0) - Number(a.createdAt || 0); }); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() }; })
+      .catch(function () { if (mine()) SGR.cm[tid] = { err: true, items: [], count: 0 }; })
+      .then(function () { clearTimeout(ltm); sgcPaint(); sgrPaintActs(it.rid); });
   }
   function sgcOpen(it, from) {
     if (sgcEl()) sgcClose(true);
@@ -10247,13 +10269,14 @@ window.ALBUM_SWITCH = {
       '<form class="sgc-form' + (TIP_OPEN ? ' has-chip' : '') + '" novalidate>' + (TIP_OPEN ? '<button type="button" class="sgc-chip" aria-pressed="false" aria-describedby="sgc-note">' + TIP_STAR + sgrL("應援", "Support") + '</button>' : '') + '<label class="sr" for="sgc-in">' + sgrL("留言內容", "Your comment") + '</label><textarea id="sgc-in" rows="1" maxlength="300" placeholder="' + sgrL("留下你的話…", "Say something…") + '" enterkeyhint="send"></textarea><button type="submit" class="sgc-send" aria-label="' + sgrL("送出留言", "Post comment") + '" disabled>' + SGR_ICON.up + '</button></form>' +
       '<p class="sgc-note" id="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + '</p>' +
     '</div>';
-    w.__it = it; w.__from = from;
+    w.__it = it; w.__from = from; w.__gen = (SGR.gen = (SGR.gen || 0) + 1);   /* B327T：每次打開留言面板一個世代號 */
     document.body.appendChild(w); document.body.classList.add("sgc-open");
     requestAnimationFrame(function () { w.classList.add("in"); });
     try { history.pushState(Object.assign({}, history.state || {}, { sgc: 1 }), ""); w.__hist = 1; } catch (e) {}
     var ta = w.querySelector("textarea"), send = w.querySelector(".sgc-send"), note = w.querySelector(".sgc-note");
     var keep = SGR.draft && SGR.draft.rid === it.rid ? SGR.draft.v : ""; ta.value = keep; send.disabled = !keep.trim();
-    ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || w.__busy; ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; SGR.draft = { rid: it.rid, v: ta.value }; });
+    if (keep) SGR.draft.gen = w.__gen;   /* B327T：帶回來的草稿歸這個面板 */
+    ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || w.__busy; ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; SGR.draft = { rid: it.rid, v: ta.value, gen: w.__gen }; });
     ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!send.disabled) w.querySelector("form").requestSubmit ? w.querySelector("form").requestSubmit() : sgcPost(w); } });
     w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); if (TIP_OPEN && w.__sup) tipSend(w); else sgcPost(w); });
     if (TIP_OPEN) tipWire(w);
@@ -10310,6 +10333,7 @@ window.ALBUM_SWITCH = {
   function sgcPost(w) {
     var it = w.__it, ta = w.querySelector("textarea"), send = w.querySelector(".sgc-send"), note = w.querySelector(".sgc-note");
     var text = (ta.value || "").trim(); if (!text || w.__busy) return;
+    var snap = { gen: w.__gen, raw: ta.value };   /* B327T：送出當下的快照；回應晚到只清「同一個面板、內容沒再改過」的草稿 */
     var fp = feedPassInfo();
     if (!fp.unlocked || !fp.email || !fp.code) { note.textContent = sgrL("解鎖 SIGNAL 後才能留言", "Unlock SIGNAL to comment"); note.classList.add("bad"); return; }
     w.__busy = true; send.disabled = true; ta.setAttribute("aria-busy", "true"); note.classList.remove("bad"); note.textContent = sgrL("送出中…", "Posting…");
@@ -10320,7 +10344,10 @@ window.ALBUM_SWITCH = {
       .then(function (x) {
         if (x.s === 200 && x.d && x.d.ok && x.d.item) {
           var c = SGR.cm[tid] || { items: [], count: 0 }; c.items = [x.d.item].concat(c.items.filter(function (m) { return m.id !== x.d.item.id; })); c.count = x.d.count || c.items.length; c.at = Date.now(); c.loading = false; c.err = false; SGR.cm[tid] = c;
-          ta.value = ""; ta.style.height = "auto"; SGR.draft = null; note.textContent = sgrL("已送出 · 公開留言", "Posted · public comment"); sgcPaint(); sgrPaintActs(it.rid); hap(12); return;
+          var same = ta.isConnected && ta.value === snap.raw;
+          if (same) { ta.value = ""; ta.style.height = "auto"; }
+          if (SGR.draft && SGR.draft.gen === snap.gen && SGR.draft.v === snap.raw) SGR.draft = null;
+          note.textContent = sgrL("已送出 · 公開留言", "Posted · public comment"); sgcPaint(); sgrPaintActs(it.rid); hap(12); return;
         }
         throw x;
       })
@@ -12295,7 +12322,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B326T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B327T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
