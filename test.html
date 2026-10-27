@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+<script>/* CARD1（候選）：錢包卡連結 #skycard=<鑰匙>。整頁最早執行：讀進記憶體、立刻從網址拿掉（之後載入的統計程式、分享、加主畫面都看不到）；不寫進任何儲存。
+   頁面已經開著、只換了 #（同一分頁再點一次卡）也要接得到：hashchange 時同樣先清網址，再通知 App（skycard 事件）。 */
+(function(){function grab(){try{var h=location.hash||"";if(h.indexOf("skycard=")<0)return null;var m=/(?:^#|&)skycard=(SC1\.[0-9a-f]{32}\.[0-9]{1,6}\.[0-9a-f]{64})(?=&|$)/.exec(h);
+var rest=h.replace(/(^#|&)skycard=[^&]*/,"$1").replace(/^#&/,"#").replace(/&&/g,"&").replace(/&$/,"");if(rest==="#")rest="";
+history.replaceState(history.state,"",location.pathname+location.search+rest);
+if(m){try{localStorage.setItem("album-app-active","the-sky");}catch(e){}return m[1];}}catch(e){}return null;}
+window.__SKYCARD=grab();
+window.addEventListener("hashchange",function(){var k=grab();if(k){window.__SKYCARD=k;try{window.dispatchEvent(new Event("skycard"));}catch(e){}}});})();</script>
 <script>/* B294T：全 App 語言＝瀏覽器第一語言（zh→中文，其他→英文）
    B313T：使用者手動選過（OWN 或第一次提示）就記住 sky-lang，之後一律照用；網址 ?lang=zh|en 會寫入（從 LINE 跳 Safari、加主畫面時把選擇帶過去） */
 (function(){var q="",pref="";try{q=(new URLSearchParams(location.search).get("lang")||"").toLowerCase();}catch(e){}
@@ -5758,6 +5766,150 @@ window.ALBUM_SWITCH = {
       if (old && !localStorage.getItem(UNS + ":" + k)) localStorage.setItem(UNS + ":" + k, old);
     });
   } catch (e) {}
+  /* ---------- CARD1（候選 2026-10-28）：點錢包卡自動接回已購權利 ----------
+     - 卡片連結 https://chance1228.com/#skycard=<鑰匙>：<head> 最前面就把鑰匙讀進記憶體、從網址拿掉（比任何統計程式都早；鑰匙不寫進儲存、不送第三方）。
+     - 鑰匙只送到卡片後端 /album/card/login 換「15 分鐘 session＋30 天續期憑證」；原 email＋兌換碼從來不會到瀏覽器。
+     - 卡片登入另外存在 UNS＋":card"，不碰原本的 LS.unlock／feedpass／vids（原碼路徑完全不變、永久備援；兩者並存時原碼優先）。
+     - 需要原碼的 API 改走卡片後端的閘道 /album/gw/*（伺服器內轉成會員自己的碼）；權利一律由伺服器判斷。
+     - 跟這台已用「另一個 email」解鎖的身分不合併、不覆蓋；換卡（不同會員）＝明確點了另一張卡，才換。
+     - 晚到的登入／續期回應：只接受最新那一次、而且還是同一位會員的（不串戶、不覆蓋後寫）。 */
+  var CARD_BASE = "https://the-sky-album-test.anthonywen0693.workers.dev";   /* 測試期：獨立測試後端；正式要等 CÉON 同意改 card.chance1228.com */
+  var CARDK = UNS + ":card";
+  var C1 = { run: 0, mem: null, renewP: null, warned: false, err: "", clearedAt: 0 };
+  function c1Now() { return Date.now(); }
+  function c1Valid(c) { return c && c.v === 1 && /^M[0-9A-F]{30}$/.test(c.mid || "") && c.email && c.ents && c.r && c.rx > c1Now() ? c : null; }
+  /* 這一頁最新接受的登入（記憶體）優先；儲存裡的只在「比記憶體新」時才用（例：另一個分頁剛續期或剛點了卡）。
+     - 同一位會員：取 session 比較晚到期的那份（多分頁各自續期都合理）；
+     - 不同會員：取比較晚接受（at）的那份 → 寫入失敗時，磁碟上的上一位不會蓋過這一頁剛登入的新卡；
+     - 這一頁清除過卡片登入（停用／補發／過期）：清除前就存在的紀錄一律不用（removeItem 失敗也不會復活）。 */
+  function cardRaw() {
+    var st = c1Valid(lsGet(CARDK, null)), m = c1Valid(C1.mem);
+    if (st && C1.clearedAt && !((st.at || 0) > C1.clearedAt)) st = null;
+    if (st && m) { if (st.mid === m.mid) return (st.sx || 0) > (m.sx || 0) ? st : m; return (st.at || 0) > (m.at || 0) ? st : m; }
+    return m || st;
+  }
+  function cardRec() { return cardRaw(); }
+  function cardSave(c) {
+    C1.mem = c; lsSet(CARDK, c);
+    var back = lsGet(CARDK, null);
+    if (!back || back.s !== c.s) c1StoreWarn();   /* 寫不進去（無痕／儲存已滿／被擋）：這次照樣能用，只是關掉後要再點一次卡 */
+  }
+  function cardClear() { C1.mem = null; C1.clearedAt = c1Now(); try { localStorage.removeItem(CARDK); } catch (e) {} }
+  /* CARD1 診斷（新提示，候選）：解鎖或卡片登入後回讀儲存；寫不進去就講一次 */
+  function c1StoreWarn() {
+    C1.storeFail = (C1.storeFail || 0) + 1;
+    if (C1.warned) return; C1.warned = true;
+    setTimeout(function () { try { toast(window.SKY_LANG === "en" ? "This browser can't keep you signed in (private mode or storage full). Tap your card again next time." : "這個瀏覽器沒辦法保存登入（可能是無痕模式或儲存空間已滿）。下次再點一次卡片即可。", 4600); } catch (e) {} }, 400);
+  }
+  function legacyEmail() {
+    var u = lsGet(LS.unlock, null) || {}, f = lsGet(LS.feedpass, null) || {}, v = lsGet(LS.vids, null) || {};
+    if (u.unlocked && u.email && u.code) return String(u.email).trim().toLowerCase();
+    if (f.unlocked && f.email && f.code) return String(f.email).trim().toLowerCase();
+    for (var k in v) if (v[k] && v[k].email && v[k].code) return String(v[k].email).trim().toLowerCase();
+    return "";
+  }
+  function cardHas(kind) {
+    var c = cardRec(); if (!c) return false; var e = c.ents || {};
+    if (kind === "album") return !!e.album;
+    if (kind === "signal") return !!e.signal;
+    if (kind === "full") return !!e.full;
+    if (kind === "any") return true;
+    if (/^video-/.test(kind)) return (e.videos || []).indexOf(kind) >= 0 || !!e.full;
+    return false;
+  }
+  /* 目前可用的 session（還有 45 秒以上）；快過期就背景續期 */
+  function cardS() {
+    var c = cardRec(); if (!c) return "";
+    if (!(c.s && c.sx - c1Now() > 45e3)) cardRenew();
+    return c.s && c.sx - c1Now() > 5e3 ? c.s : "";
+  }
+  function c1Post(path, body, ms) {
+    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 12000);
+    return fetch(CARD_BASE + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(body), cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { clearTimeout(tm); return { st: r.status, d: d || {} }; }); }, function (e) { clearTimeout(tm); throw e; });
+  }
+  function c1Rec(d) { return { v: 1, mid: d.mid, email: String(d.email || "").toLowerCase(), ents: d.ents || {}, s: d.session, sx: Number(d.sx) || 0, r: d.refresh, rx: Number(d.rx) || 0, at: Math.max(c1Now(), (C1.clearedAt || 0) + 1, ((C1.mem && C1.mem.at) || 0) + 1) }; }
+  /* 卡片登入：只接受最新一次的回應；這台已有「另一個 email」的原碼登入 → 不合併、不切換 */
+  function cardLogin(key) {
+    var run = ++C1.run;
+    C1.err = "";
+    return c1Post("/album/card/login", { key: key }, 15000).then(function (x) {
+      if (run !== C1.run) return false;
+      var d = x.d;
+      if (x.st !== 200 || !d.ok || !/^SS1\./.test(d.session || "") || !/^RF1\./.test(d.refresh || "")) {
+        C1.err = d.error || ("http_" + x.st);
+        if (x.st === 403 || x.st === 404 || x.st === 400) { if (!state.unlocked) a2Tip("card"); else toast(window.SKY_LANG === "en" ? "This card link is no longer valid. You're still signed in here." : "這張卡的連結已失效（可能已補發或停用）；這台目前的登入不受影響。", 4200); }
+        else a2Tip("offline", { retry: function () { cardLogin(key); } });
+        return false;
+      }
+      var le = legacyEmail(), em = String(d.email || "").toLowerCase();
+      if (le && le !== em) { toast(window.SKY_LANG === "en" ? "This browser is already signed in with a different email, so the card wasn't applied." : "這個瀏覽器已經用另一個 email 解鎖，沒有切換到這張卡。", 4600); return false; }
+      cardSave(c1Rec(d));
+      cardApply();
+      return true;
+    }, function () { if (run === C1.run) { C1.err = "network"; a2Tip("offline", { retry: function () { cardLogin(key); } }); } return false; });
+  }
+  /* 續期：同一時間只跑一個；回來時如果這台已經換了會員或已重新登入，就丟掉 */
+  function cardRenew(force) {
+    var c = cardRec(); if (!c) return Promise.resolve(false);
+    if (!force && c.s && c.sx - c1Now() > 6 * 60e3) return Promise.resolve(true);
+    if (C1.renewP) return C1.renewP;
+    var mid = c.mid, r0 = c.r;
+    C1.renewP = c1Post("/album/card/renew", { refresh: r0 }, 12000).then(function (x) {
+      C1.renewP = null;
+      var cur = cardRec(); if (!cur || cur.mid !== mid || cur.r !== r0) return false;   /* 已換人／已重新登入 → 不寫 */
+      if (x.st === 200 && x.d.ok && x.d.mid === mid) { cardSave(c1Rec(x.d)); return true; }
+      if (x.st === 401 || x.st === 403) { cardClear(); cardDrop(x.d.error === "revoked"); }   /* 停用／補發／過期：清掉卡片登入（原碼登入不受影響） */
+      return false;
+    }, function () { C1.renewP = null; return false; });
+    return C1.renewP;
+  }
+  function cardDrop(revoked) {
+    var legacy = !!(lsGet(LS.unlock, {}) || {}).unlocked;
+    if (!legacy && state.unlocked) { state.unlocked = false; try { renderTrackLists(); renderNowPlaying(); renderUnlockView(); renderMoodWall(); loadLiveFeed(true); paintDays(); } catch (e) {} }
+    try { if (!legacy) a2Tip("card"); } catch (e) {}
+  }
+  function cardApply() {
+    var c = cardRec(); if (!c) return;
+    try { localStorage.setItem("album-app-active", "the-sky"); } catch (e) {}
+    if (c.ents.album && !state.unlocked) { state.unlocked = true; try { renderTrackLists(true); renderNowPlaying(); } catch (e) {} }
+    try { renderUnlockView(); } catch (e) {}
+    try { loadLiveFeed(true); renderMoodWall(); paintDays(); } catch (e) {}
+    try { cloudLoad(); } catch (e) {}
+    try { a2OwnEntry264(); } catch (e) {}
+    try { pairEnsure(true); } catch (e) {}
+  }
+  /* 已用卡片登入的頁面又輸入了同 email 的原碼（例：剛買了升級）→ 告訴卡片後端加到同一位會員（伺服器向主站確認，email 用會員自己的） */
+  function cardAttach(email, code) {
+    var c = cardRec(); if (!c || String(email || "").toLowerCase() !== c.email) return;
+    var s = cardS(); if (!s) return;
+    c1Post("/album/card/attach", { s: s, code: code }, 12000).then(function (x) {
+      var cur = cardRec(); if (!cur || cur.mid !== c.mid || !(x.st === 200 && x.d.ok && x.d.ents)) return;
+      cur.ents = x.d.ents; cardSave(cur);
+    }).catch(function () {});
+  }
+  function gwURL(op, params) {
+    var q = []; for (var k in params) if (params[k] != null && params[k] !== "") q.push(encodeURIComponent(k) + "=" + encodeURIComponent(params[k]));
+    return CARD_BASE + "/album/gw/" + op + (q.length ? "?" + q.join("&") : "");
+  }
+  function gwPost(op, body, opt) {
+    var b = {}; for (var k in body) b[k] = body[k]; b.s = cardS();
+    return fetch(CARD_BASE + "/album/gw/" + op, Object.assign({ method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(b), cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" }, opt || {}));
+  }
+  /* 這個用途有沒有原碼可用（原碼優先；原碼路徑完全照舊） */
+  function legacyFor(kind) {
+    var u = lsGet(LS.unlock, null) || {}, f = lsGet(LS.feedpass, null) || {}, v = lsGet(LS.vids, null) || {};
+    if (kind === "album") return (u.unlocked && u.email && u.code) ? u : null;
+    if (kind === "signal") return (f.unlocked && f.email && f.code) ? f : null;
+    if (/^video-/.test(kind)) return (v[kind] && v[kind].email && v[kind].code) ? v[kind] : (f.full && f.email && f.code ? f : null);
+    if (kind === "any") return (u.unlocked && u.email && u.code) ? u : (f.unlocked && f.email && f.code) ? f : null;
+    return null;
+  }
+  /* 卡片登入只在「這個用途沒有原碼、但卡片有這項權利」時才用 */
+  function useCard(kind) { return !legacyFor(kind) && cardHas(kind); }
+  /* 定期續期（頁面開著、在前景）：剩不到 6 分鐘就換新 */
+  setInterval(function () { if (document.visibilityState === "visible" && cardRec()) cardRenew(false); }, 4 * 60e3);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && cardRec()) cardRenew(false); });
   function lsGet(k, fb) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? fb : v; } catch (e) { return fb; } }
   function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -5956,7 +6108,7 @@ window.ALBUM_SWITCH = {
     playing: false,
     dur: 0,
     selectedPlan: "basic",           // basic(299 專輯) / deluxe(799 全解鎖)
-    unlocked: !!(lsGet(LS.unlock, {}).unlocked),
+    unlocked: !!(lsGet(LS.unlock, {}).unlocked) || cardHas("album"),   /* CARD1：卡片登入有專輯權利也算 */
   };
   var seeking = false, saveT = 0, durFixing = false, resumeAt = 0;
   var lyricsCache = {};
@@ -5978,6 +6130,7 @@ window.ALBUM_SWITCH = {
    *    必須與 worker.js 的 PROTECTED_FILES、R2 object key 完全一致。 */
   function srcFor(t) {
     if (t.free) return t.audioPath;
+    if (useCard("album")) return gwURL("track", { file: t.protectedPath || "", s: cardS() });   /* CARD1：沒有原碼、用卡片登入 → 閘道 */
     var u = unlockInfo();
     return CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(t.protectedPath || "") +
       "&email=" + encodeURIComponent(u.email || "") + "&code=" + encodeURIComponent(u.code || "");
@@ -6112,6 +6265,11 @@ window.ALBUM_SWITCH = {
     if (!t) return;
     if (t.free || audio.__skyPreview) { toast("音樂載入失敗 · 請檢查網路後再按播放"); return; }   /* B295T：三首試聽共用 */
     if (navigator.onLine === false) { toast("目前沒有網路 · 連上後再試"); return; }
+    if (useCard("album") && !audio.__c1retry) {   /* CARD1：session 過期（例如暫停超過 15 分鐘）→ 續期一次、從原位置接著播 */
+      audio.__c1retry = 1; var atT = 0; try { atT = audio.currentTime || 0; } catch (e) {}
+      cardRenew(true).then(function (ok) { if (ok && cardRec()) { __audioErrAt = 0; playTrack(state.cur, atT); } else toast("卡片登入已失效 · 請再點一次錢包卡，或用 email＋兌換碼開啟"); });
+      return;
+    }
     fetch(srcFor(t), { headers: { Range: "bytes=0-1" } })
       .then(function (r) {
         if (r.status === 401)      { toast("伺服器認不得這組兌換碼 · 請重新兌換"); go("purchase"); }
@@ -6123,6 +6281,7 @@ window.ALBUM_SWITCH = {
       .catch(function () { toast("連不上伺服器 · 檢查一下網路"); });
   });
 
+  audio.addEventListener("playing", function () { audio.__c1retry = 0; });
   var playbackRequest = 0, pendingRestore = null;
   function requestPlayback() {
     var request = ++playbackRequest;
@@ -7505,6 +7664,7 @@ window.ALBUM_SWITCH = {
     /* 一併記住購買時用的 email，之後買周邊就不用再輸入一次 */
     var em = ($("in-email").value || "").trim().toLowerCase();
     lsSet(LS.unlock, Object.assign({ unlocked: true, email: em }, data));
+    if (!(lsGet(LS.unlock, {}) || {}).unlocked) c1StoreWarn();   /* CARD1 診斷：解鎖寫不進儲存 → 講一次（原本「重開又鎖住」的可能原因） */
     state.unlocked = true;
     go("player");
     /* B300T：解鎖後一律停在 PLAY 主畫面——不再打開舊的 UP NEXT 清單（舊播放器留下的，新版曲目頁是 TRACKS），
@@ -7558,6 +7718,7 @@ window.ALBUM_SWITCH = {
       body: JSON.stringify({ email: email, code: code }),
     }).then(function (r) { return r.json(); })).then(function (data) {
       if (!data || !data.ok) { if (!quiet) toast((data && data.message) || "兌換碼或 email 不正確"); done(false, "bad"); return; }
+      try { cardAttach(email, code); } catch (e) {}   /* CARD1：同一位會員新輸入的碼 → 也綁到卡片登入 */
       var pid = String(data.productId || "");
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
@@ -7695,7 +7856,12 @@ window.ALBUM_SWITCH = {
   }
   function pairRedeemBoot() {
     /* 只在主畫面 App（standalone）第一次啟動、而且還沒解鎖時才用 */
-    if (!A2.standalone || state.unlocked) { if (A2.standalone) pairCookieClear(); try { a2OpenDone(); } catch (e) {} return; }
+    if (!A2.standalone || state.unlocked) { if (A2.standalone) { pairCookieClear(); cpairClear(); } try { a2OpenDone(); } catch (e) {} return; }
+    if (!pairCookieGet() && !(window.__skyPair && window.__skyPair.p) && cpairGet()) {   /* CARD1：新加的主畫面 App 帶著卡片配對 cookie → 換成同一位會員的 session（單次） */
+      var ct = cpairGet(); cpairClear();
+      cardPairRedeem(ct).then(function (ok) { if (!ok) a2Tip("nopair"); });
+      return;
+    }
     /* B266T：<head> 已經先送出 redeem→/verify（window.__skyPair）→ 這裡只接手結果，不重送、不固定等待 */
     if (window.__skyPair && window.__skyPair.p) { a2st({ pairTry: (a2st().pairTry || 0) + 1, pairEarly: 1 }); a2OpenRun(window.__skyPair.p); return; }
     var tok = pairCookieGet();
@@ -7711,9 +7877,68 @@ window.ALBUM_SWITCH = {
       }).catch(function () { a2Tip("offline", { retry: pairRedeemBoot }); });   /* B278T：配對 token 還在 → 重新連線 */
   }
   function a2SetCarry(hop) { /* B261T：不再帶 #k */ }
+  /* CARD1：開頁時（1）帶著卡片鑰匙 → 登入（2）有卡片登入但 session 過期 → 續期 */
+  /* CARD1 診斷（只在 test.html?diag=1；只顯示「有沒有」與期限，不顯示任何碼、鑰匙、token）：定位「解鎖後關掉重開又鎖住」 */
+  function c1Diag() {
+    var out = {}, ok = false;
+    try { localStorage.setItem("__c1probe", "1"); ok = localStorage.getItem("__c1probe") === "1"; localStorage.removeItem("__c1probe"); } catch (e) { out.lsError = String(e && e.name || e); }
+    var u = lsGet(LS.unlock, null) || {}, f = lsGet(LS.feedpass, null) || {}, c = lsGet(CARDK, null);
+    out.page = location.pathname; out.storageWritable = ok; out.standalone = !!A2.standalone; out.inapp = !!A2.inapp;
+    out.albumChoice = (function () { try { return localStorage.getItem("album-app-active"); } catch (e) { return "?"; } })();
+    out.unlockSaved = !!(u.unlocked && u.code); out.signalSaved = !!(f.unlocked && f.code);
+    out.cardSaved = !!(c && c.v === 1); out.cardInMemoryOnly = !out.cardSaved && !!C1.mem;
+    out.cardSessionMin = c && c.sx ? Math.round((c.sx - Date.now()) / 6e4) : null; out.cardRefreshDays = c && c.rx ? Math.round((c.rx - Date.now()) / 864e5) : null;
+    out.stateUnlocked = !!state.unlocked; out.lastCardError = C1.err || ""; out.storeFailCount = C1.storeFail || 0;
+    out.cookieEnabled = navigator.cookieEnabled; out.cardPairCookie = !!cpairGet();
+    var show = function () {
+      var w = document.createElement("pre"); w.id = "c1diag";
+      w.style.cssText = "position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:99999;max-height:60vh;overflow:auto;background:rgba(0,0,0,.88);color:#9fd8a8;font:11px/1.45 ui-monospace,monospace;padding:10px;border-radius:10px;white-space:pre-wrap";
+      w.textContent = "CARD1 診斷（截圖給 Claude）\n" + JSON.stringify(out, null, 1); w.addEventListener("click", function () { w.remove(); }); document.body.appendChild(w);
+    };
+    try { if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(function (p) { out.persisted = p; return navigator.storage.estimate ? navigator.storage.estimate() : null; }).then(function (e) { if (e) out.quotaMB = Math.round((e.quota || 0) / 1048576); show(); }, show); else show(); } catch (e) { show(); }
+  }
+  window.addEventListener("skycard", function () { var k = window.__SKYCARD; window.__SKYCARD = null; if (k) cardLogin(k); });   /* CARD1：頁面開著時又點了一次卡 */
+  function cardBoot() {
+    if (T261 && /[?&]diag=1/.test(location.search)) setTimeout(c1Diag, 1800);
+    var k = window.__SKYCARD; window.__SKYCARD = null;
+    if (k) { cardLogin(k); return; }
+    if (cardRec()) cardRenew(false).then(function (ok) { if (ok) cardApply(); });
+  }
+  /* CARD1（新按鈕，候選）：Safari 已用卡片登入 → 產生一組 8 位配對碼給「已經裝好的」主畫面 App（它跟 Safari 不共用資料，只能輸入一次） */
+  function cardPairShow() {
+    cardPairNew(function (d) {
+      if (!d || !d.code) { toast(window.SKY_LANG === "en" ? "Couldn't make a pairing code. Try again." : "現在沒辦法產生配對碼，等一下再試"); return; }
+      var cd = d.code.slice(0, 4) + "-" + d.code.slice(4);
+      a2OkOpen({ simple: true, t: cd, s: window.SKY_LANG === "en" ? "Open the home-screen app → OWN → “Enter pairing code”. Valid 10 minutes, one use." : "打開主畫面 App → 在提示列按「輸入配對碼」。10 分鐘內有效、只能用一次。" });
+    });
+  }
   /* B262T：配對 cookie 提早準備。CÉON 10/20 實測：按「放到主畫面」後一兩秒才寫 cookie，接著馬上加主畫面，主畫面 App 沒拿到（後台有發 token、沒有人來換）。
      改成 Safari 只要已解鎖就先準備好 cookie，每 8 分鐘、回到前景時自動更新（token 10 分鐘有效），加主畫面時一定有一顆新鮮的。 */
+  /* CARD1：只有卡片登入（沒有原碼）時，配對改用卡片後端的單次 token（10 分鐘）＋自己的 cookie；
+     新加的主畫面 App 第一次打開時拿去換同一位會員的 session（iOS 會不會把 cookie 帶進新 App，要真機確認）。 */
+  var CPAIR_CK = T261 ? "sky_cpair_t" : "sky_cpair";
+  function cpairGet() { var m = document.cookie.match(new RegExp("(?:^|; )" + CPAIR_CK + "=([A-Za-z0-9_-]{43})")); return m ? m[1] : ""; }
+  function cpairSet(tok) { document.cookie = CPAIR_CK + "=" + tok + "; Max-Age=600; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); }
+  function cpairClear() { document.cookie = CPAIR_CK + "=; Max-Age=0; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); }
+  var C1P = { busy: false, at: 0 };
+  function cardPairNew(cb) {
+    var s0 = cardS(); if (!s0 || C1P.busy) { if (cb) cb(null); return; }
+    C1P.busy = true;
+    c1Post("/album/card/pair/new", { s: s0 }, 12000).then(function (x) { C1P.busy = false; if (x.st === 200 && x.d.ok) { if (cb) cb(x.d); } else if (cb) cb(null); }, function () { C1P.busy = false; if (cb) cb(null); });
+  }
+  function cardPairRedeem(v) {
+    return c1Post("/album/card/pair/redeem", /^[A-Za-z0-9_-]{43}$/.test(v) ? { token: v } : { code: v }, 12000).then(function (x) {
+      if (!(x.st === 200 && x.d.ok && /^SS1\./.test(x.d.session || ""))) return false;
+      var le = legacyEmail(); if (le && le !== String(x.d.email || "").toLowerCase()) { toast("這個 App 已經用另一個 email 解鎖，沒有接上這張卡。", 4200); return false; }
+      cardSave(c1Rec(x.d)); cardApply(); return true;
+    }, function () { return false; });
+  }
   function pairEnsure(force) {
+    if (!A2.standalone && A2.mobile && !A2.inapp && state.unlocked && !a2Cred() && cardRec()) {
+      if (!force && cpairGet() && Date.now() - C1P.at < 48e4) return;
+      cardPairNew(function (d) { if (d && d.token) { cpairSet(d.token); C1P.at = Date.now(); } });
+      return;
+    }
     if (A2.standalone || !A2.mobile || A2.inapp || !state.unlocked || !a2Cred()) return;
     var s = a2st();
     if (!force && pairCookieGet() && s.pairAt && Date.now() - s.pairAt < 48e4) return;
@@ -8027,7 +8252,7 @@ window.ALBUM_SWITCH = {
       btns = '<button type="button" class="pri" data-t="paycheck">再確認一次</button><button type="button" data-t="redeem">輸入兌換碼</button>';
     } else if (kind === "nopair") {
       txt = "已經買過？在這裡輸入一次 email＋兌換碼就能接上，不用重買。";
-      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
+      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button>' + (A2.standalone ? '<button type="button" data-t="cpair">輸入配對碼</button>' : '') + '<button type="button" data-t="later">稍後</button>';   /* CARD1（新按鈕，候選）：已裝的主畫面 App 用 Safari 產生的配對碼接上錢包卡 */
     } else if (kind === "card") {   /* B278T：錢包卡連結沒辦法自動開啟（原本是底部小字） */
       txt = "這張卡沒辦法自動開啟。輸入一次 email＋兌換碼就能開啟，不用重買。";
       btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
@@ -8053,6 +8278,8 @@ window.ALBUM_SWITCH = {
       if (a === "install") { var ev = A264.bip; a2TipClose(); if (!ev) { a2TutOpen("tip"); return; }
         try { ev.prompt(); ev.userChoice.then(function (c) { A264.bip = null; if (c && c.outcome === "accepted") { a2st({ done: true, doneAt: Date.now(), via: "bip" }); toast("安裝好之後，從主畫面點 THE SKY"); } }); } catch (x) { a2TutOpen("tip"); } return; }
       if (a === "redeem") { a2TipClose(); a2GoRedeem(); return; }
+      if (a === "cpair") { var pc = ""; try { pc = String(window.prompt(window.SKY_LANG === "en" ? "Enter the 8-character pairing code shown in Safari" : "輸入 Safari 上顯示的 8 位配對碼") || "").replace(/[\s-]/g, "").toUpperCase(); } catch (e) {}
+        if (!/^[A-Z0-9]{8}$/.test(pc)) return; a2TipClose(); cardPairRedeem(pc).then(function (ok) { if (!ok) toast(window.SKY_LANG === "en" ? "That pairing code didn't work. Make a new one in Safari." : "配對碼無效或已過期，請在 Safari 重新產生一組", 4200); }); return; }
       if (a === "retry") { a2TipClose(); try { if (opt.retry) opt.retry(); } catch (x) {} return; }
       if (a === "payhelp") {
         var m = t.querySelector(".tip-more");
@@ -8649,10 +8876,15 @@ window.ALBUM_SWITCH = {
   var A329 = { busy: false };
   function albumCreds() {
     var u = lsGet(LS.unlock, null) || {}, f = lsGet(LS.feedpass, null) || {};
-    if (!(u.unlocked && u.email && u.code)) return null;
+    if (!(u.unlocked && u.email && u.code)) return useCard("album") && cardS() ? { s: cardS() } : null;   /* CARD1：只有卡片登入 → 用 session 重領同一張卡 */
     var c = { email: u.email, code: u.code };   /* 主碼一律是專輯那組（序號只跟它有關） */
     /* B329T r2：升級碼（upgrade-799）單獨不是專輯權利，只能當第二組碼、同 email，伺服器確認後卡面才是 ALBUM + SIGNAL；頻道碼不送 */
     if (f.full && f.code && f.code !== u.code && String(f.email || "").toLowerCase() === String(u.email).toLowerCase()) c.sig = f.code;
+    /* CARD1：同 email 的頻道碼／單買影片碼也一起送（伺服器逐一向主站確認後綁到同一位會員；之後點卡也接得回來） */
+    var ex = [], vv = lsGet(LS.vids, null) || {}, em0 = String(u.email).toLowerCase();
+    if (f.code && !f.full && String(f.email || "").toLowerCase() === em0 && f.code !== u.code) ex.push(f.code);
+    for (var pk in vv) if (vv[pk] && vv[pk].code && String(vv[pk].email || "").toLowerCase() === em0) ex.push(vv[pk].code);
+    if (ex.length) c.extra = ex.slice(0, 4);
     return c;
   }
   /* B329T r4（CÉON 10/27）：伺服器只升不降；這台沒有升級碼、卡片又是 ALBUM 時，提示「已升級？先輸入升級碼再領一次」，不把人當成沒買過 */
@@ -8664,6 +8896,7 @@ window.ALBUM_SWITCH = {
   function albumClaim(btn) {
     if (A329.busy) return;
     var en = window.SKY_LANG === "en", c = albumCreds(), sm = btn && btn.querySelector(".a2-wl-s");
+    if (!c && useCard("album") && !A329.renewed) { A329.renewed = 1; cardRenew(true).then(function () { A329.renewed = 0; albumClaim(btn); }); return; }   /* CARD1：session 過期 → 先續期再領 */
     if (!state.unlocked || !c) { toast(en ? "Open your album with your email + code first." : "先用 email＋兌換碼開啟專輯，再領取專輯卡", 3200); return; }
     A329.busy = true; hap(8);
     var orig = sm ? sm.textContent : "";
@@ -8693,6 +8926,11 @@ window.ALBUM_SWITCH = {
   function a2OwnEntry264() {
     if (!A2.mobile) return;
     var box = document.querySelector("#unlock-done-view .pass-cta"); if (!box) return;
+    if (!A2.standalone && cardRec() && !$("c1-pair")) {   /* CARD1（新按鈕，候選；沿用 OWN 次要按鈕樣式） */
+      var pb = document.createElement("button"); pb.type = "button"; pb.id = "c1-pair"; pb.className = "a2-own a2-sub";
+      pb.textContent = window.SKY_LANG === "en" ? "Pair the home-screen app" : "主畫面 App 接上錢包卡";
+      pb.addEventListener("click", cardPairShow); box.appendChild(pb);
+    }
     var ref = $("btn-goto-player"), anchor = (ref && ref.parentNode === box) ? ref : null;
     function add(el) { if (anchor) { box.insertBefore(el, anchor.nextSibling); anchor = el; } else box.appendChild(el); }
     if (!A2.standalone && !$("a2-own")) {
@@ -9155,6 +9393,7 @@ window.ALBUM_SWITCH = {
     try { var tq = T261 && /[?&]t261cookie=1/.test(location.search);
       if (T261 && A2.standalone) { var tc = pairCookieGet(); if (tc === "TESTCOOKIE0000000000000000") { pairCookieClear(); setTimeout(function () { toast("✓ 測試：cookie 有跟著進主畫面 App"); }, 600); } else if (tq) { setTimeout(function () { toast("✗ 測試：主畫面 App 沒看到 cookie"); }, 600); } }
       else if (tq) { pairCookieSet("TESTCOOKIE0000000000000000"); toast("測試 cookie 已寫入 · 現在去加入主畫面，再從主畫面打開"); } } catch (e) {}
+    try { cardBoot(); } catch (e) {}   /* CARD1 */
     try { pairRedeemBoot(); } catch (e) {}
     try { spRedeemBoot(); } catch (e) {}   /* B324T：從 LINE／微信跳過來的 ?sp= */
     /* B264T：主畫面 App 不再跳「已準備好」面板；瀏覽器回訪 → 先看付款回站提示，再看加主畫面小提示（都不是彈窗） */
@@ -9238,10 +9477,10 @@ window.ALBUM_SWITCH = {
     var now = Date.now();
     if (!force && (feedLiveLoading || (now - feedLiveLoadedAt < 15000))) return;
     var fp = feedPassInfo();
-    var q = "";
+    var q = "", c1live = useCard("signal") && !!cardS();
     if (fp.unlocked && fp.email && fp.code) {
       q = "?e=" + encodeURIComponent(fp.email) + "&c=" + encodeURIComponent(fp.code);
-    }
+    } else if (c1live) q = "#card:" + cardRec().mid;   /* CARD1：只當「同一組帳號」的比對鍵，不會出現在網址 */
     if (feedLiveLoading && q === loadLiveFeed.q) return;   /* B308T：同一組帳號的請求還在路上，不重發（開 App 預抓＋驗證完又強制抓，會重複） */
     loadLiveFeed.q = q;
     var requestNo = ++feedLiveRequest;
@@ -9250,7 +9489,7 @@ window.ALBUM_SWITCH = {
     feedLiveSlowT = setTimeout(function () { if (feedLiveLoading && requestNo === feedLiveRequest) { feedLiveSlow = true; paintFeedLoading(); } }, 10000);   /* B308T：超過 10 秒只換提示字，背景繼續等 */
     /* B327T：25 秒還沒拿到完整內容（含 body）就中止 → 走原本的「暫時載入不了＋重試」，不再永遠卡在「仍在等待…」 */
     var liveCtl = window.AbortController ? new AbortController() : null, liveTm = setTimeout(function () { if (liveCtl) liveCtl.abort(); }, 25000);
-    fetch(CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store", signal: liveCtl ? liveCtl.signal : undefined })
+    fetch(c1live ? gwURL("feed/live", { s: cardS() }) : CFG.api.workerBaseUrl + "/feed/live" + q, { cache: "no-store", credentials: "omit", signal: liveCtl ? liveCtl.signal : undefined })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) {
         if (requestNo !== feedLiveRequest) return;
@@ -9300,6 +9539,7 @@ window.ALBUM_SWITCH = {
   function liveMediaURL(p) {
     var q = "key=" + encodeURIComponent(p.media || "");
     if (p.tier === "signal") {
+      if (useCard("signal")) return gwURL("feed/media", { key: p.media || "", s: cardS() });   /* CARD1 */
       var fp = feedPassInfo();
       q += "&e=" + encodeURIComponent(fp.email || "") + "&c=" + encodeURIComponent(fp.code || "");
     }
@@ -9417,7 +9657,7 @@ window.ALBUM_SWITCH = {
       }
       if (m.video) {
         var fp0 = feedPassInfo();
-        var own = m.protected ? (vidsOwned()[m.productId || ""] || (fp0.full ? { email: fp0.email, code: fp0.code } : null)) : true;
+        var own = m.protected ? (vidsOwned()[m.productId || ""] || (fp0.full ? (fp0.code ? { email: fp0.email, code: fp0.code } : { card: true }) : null)) : true;
         if (m.protected && !own) {
           out += '<div class="chat-line"><div class="chat-vidlock" data-pk="' + esc(m.productId || "") + '" data-price="' + (m.price || 99) + '">' +
             '<div class="vl-badge">EXCLUSIVE VIDEO</div>' +
@@ -9428,8 +9668,9 @@ window.ALBUM_SWITCH = {
           return;
         }
         var vsrc = m.protected
-          ? CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(m.video) +
+          ? (own && own.code ? CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(m.video) +
             "&email=" + encodeURIComponent(own.email || "") + "&code=" + encodeURIComponent(own.code || "")
+            : gwURL("track", { file: m.video, s: cardS() }))   /* CARD1：卡片登入的影片權利 → 閘道（伺服器挑會員自己的影片碼） */
           : m.video;
         out += '<div class="chat-line"><div class="chat-video" data-vid="' + esc(m.id || "") + '">' +
           '<video class="cv" src="' + esc(vsrc) + '" preload="none" playsinline webkit-playsinline></video>' +
@@ -9674,10 +9915,29 @@ window.ALBUM_SWITCH = {
      - 這台只有升級碼、沒有專輯那組碼 → 不猜、不補，顯示原本的「SIGNAL · 私訊頻道」（缺口：要先用專輯碼恢復一次）。
      - 只有頻道碼（feed-pass，沒買專輯）→ 照原本意義用頻道碼日期。
      - 伺服器沒有日期就不顯示天數；不拿今天、升級日、發卡日補。畫面文字與樣式不變。 */
+  /* CARD1：只有卡片登入的會員 → 日期由伺服器用會員自己的原碼查（since＝最早專輯碼、signal＝最早 SIGNAL 碼），規則同 r8：全解鎖用專輯日、只有頻道碼用頻道日 */
+  var C1SINCE = {};
+  function cardSinceFetch(mid, kind) {
+    if (C1SINCE[mid]) return; C1SINCE[mid] = 1;
+    var s0 = cardS(); if (!s0) { delete C1SINCE[mid]; return; }
+    fetch(gwURL("feed/since", { s: s0 }), { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
+      delete C1SINCE[mid];
+      var c = cardRec(); if (!c || c.mid !== mid || !d || !d.ok) return;   /* 回來時已換人 → 丟掉 */
+      if (d.since > 0) sinceSet("card-album", "card:" + mid, "", Number(d.since));
+      if (d.signal > 0) sinceSet("card-signal", "card:" + mid, "", Number(d.signal));
+      paintDays();
+    }).catch(function () { delete C1SINCE[mid]; });
+  }
   function paintDays() {
     var el = document.getElementById("feed-days"); if (!el) return;
     if (!feedUnlockedQ()) { el.textContent = "SIGNAL"; return; }
     var fp = feedPassInfo() || {}, u = lsGet(LS.unlock, {}) || {};
+    if (fp.card) {
+      var cc = cardRec(), ck = fp.full ? "card-album" : "card-signal", ct = cc ? sinceGet(ck, "card:" + cc.mid, "") : 0;
+      el.textContent = ct ? ("SIGNAL · 相遇第 " + daysSince(ct) + " 天") : "SIGNAL · 私訊頻道";
+      if (!ct && cc) cardSinceFetch(cc.mid);
+      return;
+    }
     var hasAlbum = !!(u.unlocked && u.email && u.code);
     if (fp.full && fp.email && fp.code && !sinceGet("signal", fp.email, fp.code)) sinceFetch("signal", fp.email, fp.code, null);   /* 全解鎖：SIGNAL 開通日另外存，但不拿來顯示 */
     var kind = fp.full ? (hasAlbum ? "album" : "") : "signal";
@@ -9735,8 +9995,8 @@ window.ALBUM_SWITCH = {
         if (replyLeft() <= 0) { toast("今天的額度用完了，明天再來"); return; }
         var fp = feedPassInfo(); if (!fp.unlocked) { toast("請先解鎖"); return; }
         send.disabled = true; inp.disabled = true;
-        fetch(CFG.api.workerBaseUrl + "/feed/reply", { method: "POST", headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ email: fp.email, code: fp.code, text: txt }) })
+        (fp.card ? gwPost("feed/reply", { text: txt }) : fetch(CFG.api.workerBaseUrl + "/feed/reply", { method: "POST", headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ email: fp.email, code: fp.code, text: txt }) }))
           .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
           .then(function (o) { inp.disabled = false;
             if (o.d && o.d.ok) { pushMyMsg({ ts: Date.now(), kind: "text", text: txt }); inp.value = ""; afterSend("送出了，他會看到 💛"); renderMoodWall(); }
@@ -9775,9 +10035,9 @@ window.ALBUM_SWITCH = {
             var ext = mt.indexOf("mp4") >= 0 ? "m4a" : "webm";
             var fp = feedPassInfo();
             inp.placeholder = "送出中…";
-            fetch(CFG.api.workerBaseUrl + "/feed/reply-voice?e=" + encodeURIComponent(fp.email) +
+            fetch(fp.card ? gwURL("feed/reply-voice", { s: cardS(), ext: ext, dur: dur }) : CFG.api.workerBaseUrl + "/feed/reply-voice?e=" + encodeURIComponent(fp.email) +
                   "&c=" + encodeURIComponent(fp.code) + "&ext=" + ext + "&dur=" + dur,
-                  { method: "POST", body: blob })
+                  { method: "POST", body: blob, credentials: "omit" })
               .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
               .then(function (o) { inp.placeholder = "回一句給 Chance…";
                 if (o.d && o.d.ok) { pushMyMsg({ ts: Date.now(), kind: "voice", dur: dur, url: URL.createObjectURL(blob) }); afterSend("語音送出了，他會聽到 💛"); renderMoodWall(); }
@@ -9833,7 +10093,7 @@ window.ALBUM_SWITCH = {
   }
   function sendReact(id, emo) {
     var fp = feedPassInfo();
-    if (!fp.unlocked || !fp.email || !fp.code) return;
+    if (!fp.unlocked || !fp.email || !(fp.code || fp.card)) return;
     var mine = myReacts(); var key = id + "|" + emo;
     var dir = mine[key] ? -1 : 1;
     /* 先在畫面上反應（樂觀更新），失敗再回捲 */
@@ -9843,10 +10103,10 @@ window.ALBUM_SWITCH = {
     FEED_REACTIONS[id][emo] = Math.max(0, (Number(FEED_REACTIONS[id][emo]) || 0) + dir);
     paintReactions(id);                               /* B174T：就地更新，不重繪、不跳位 */
     try { hap(dir === 1 ? 12 : 8); } catch (e) {}
-    fetch(CFG.api.workerBaseUrl + "/feed/react", {
+    (fp.card ? gwPost("feed/react", { id: id, emoji: emo, dir: dir }) : fetch(CFG.api.workerBaseUrl + "/feed/react", {
       method: "POST", headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ email: fp.email, code: fp.code, id: id, emoji: emo, dir: dir })
-    }).then(function (r) { return r.json(); })
+    })).then(function (r) { return r.json(); })
       .then(function (d) { if (d && d.ok && d.reactions) { FEED_REACTIONS[id] = d.reactions; paintReactions(id); } })
       .catch(function () {});
   }
@@ -10470,7 +10730,7 @@ window.ALBUM_SWITCH = {
   function tipSend(w) {
     var it = w.__it, ta = w.querySelector("textarea"), text = (ta.value || "").trim(); if (!text || w.__busy) return;
     var fp = feedPassInfo();
-    if (!fp.unlocked || !fp.email || !fp.code) { tipNote(w, sgrL("解鎖 SIGNAL 後才能應援", "Unlock SIGNAL to support"), true); return; }
+    if (!fp.unlocked || !fp.email || !(fp.code || fp.card)) { tipNote(w, sgrL("解鎖 SIGNAL 後才能應援", "Unlock SIGNAL to support"), true); return; }
     if (!tipCap(w)) { tipNote(w, sgrL("今天的應援已達上限 NT$" + TIP_DAY_CAP + "，明天再來", "You've reached today's NT$" + TIP_DAY_CAP + " support limit"), true); return; }
     var amt = tipAmt(w); if (!amt) return;
     var all = tipAll(); all.push({ id: "tip-" + Date.now(), tid: sgrTrack(it.rid), body: text.slice(0, 300), name: fanNick() || sgrL("粉絲", "Fan"), amt: amt, createdAt: Date.now(), seen: false, fresh: true }); tipSave(all);
@@ -10485,11 +10745,12 @@ window.ALBUM_SWITCH = {
     var text = (ta.value || "").trim(); if (!text || w.__busy) return;
     var snap = { gen: w.__gen, raw: ta.value };   /* B327T：送出當下的快照；回應晚到只清「同一個面板、內容沒再改過」的草稿 */
     var fp = feedPassInfo();
-    if (!fp.unlocked || !fp.email || !fp.code) { note.textContent = sgrL("解鎖 SIGNAL 後才能留言", "Unlock SIGNAL to comment"); note.classList.add("bad"); return; }
+    if (!fp.unlocked || !fp.email || !(fp.code || fp.card)) { note.textContent = sgrL("解鎖 SIGNAL 後才能留言", "Unlock SIGNAL to comment"); note.classList.add("bad"); return; }
     w.__busy = true; send.disabled = true; ta.setAttribute("aria-busy", "true"); note.classList.remove("bad"); note.textContent = sgrL("送出中…", "Posting…");
     var tid = sgrTrack(it.rid), ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+    (fp.card ? gwPost("comments/post", { album: SGR_ALBUM, track: tid, body: text, timestampSeconds: null, userName: fanNick() || "粉絲" }, { signal: ctl ? ctl.signal : undefined }) :
     fetch(CFG.api.workerBaseUrl + "/comments/post", { method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl ? ctl.signal : undefined,
-      body: JSON.stringify({ email: fp.email, code: fp.code, album: SGR_ALBUM, track: tid, body: text, timestampSeconds: null, userName: fanNick() || "粉絲" }) })
+      body: JSON.stringify({ email: fp.email, code: fp.code, album: SGR_ALBUM, track: tid, body: text, timestampSeconds: null, userName: fanNick() || "粉絲" }) }))
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { s: r.status, d: d }; }); })
       .then(function (x) {
         if (x.s === 200 && x.d && x.d.ok && x.d.item) {
@@ -10566,9 +10827,18 @@ window.ALBUM_SWITCH = {
    * localStorage：LS.feedpass = {unlocked,email,code}
    *               LS.vids     = { "video-01": {email,code}, ... }
    * 兌換一律走 Worker /verify，依回傳 productId 分流。 */
-  function feedPassInfo() { return lsGet(LS.feedpass, {}); }
+  function feedPassInfo() {
+    var f = lsGet(LS.feedpass, {}) || {};
+    if (f.unlocked && f.code) return f;
+    if (cardHas("signal")) { var c = cardRec(); return { unlocked: true, full: !!c.ents.full, email: c.email, card: true }; }   /* CARD1：只有旗標，沒有碼 */
+    return f;
+  }
   function feedUnlockedQ() { return !!feedPassInfo().unlocked; }
-  function vidsOwned() { return lsGet(LS.vids, {}); }
+  function vidsOwned() {
+    var v = lsGet(LS.vids, {}) || {}, c = cardRec();
+    if (c) (c.ents.videos || []).forEach(function (pid) { if (!v[pid]) v[pid] = { card: true }; });   /* CARD1：只有旗標，沒有碼 */
+    return v;
+  }
   function feedLockCard() {
     /* B59：SIGNAL 改成「THE SKY 收藏冊・差最後一格」收藏完成框架。
        金流沿用：已有專輯 → 補 500 升級（upgrade-799）；未購 → 全解鎖 799（full-unlock）。 */
@@ -10846,6 +11116,7 @@ window.ALBUM_SWITCH = {
    * 純附加：後端沒設或斷線都靜默略過，抽卡照常，壞不了。 */
   var _cloudBase = (CFG.api && CFG.api.workerBaseUrl) || "";
   function cloudCreds() {
+    if (!legacyFor("any") && cardRec()) return { card: true };   /* CARD1：只有卡片登入 → 經閘道（伺服器用會員自己的 email） */
     var u = unlockInfo(), f = feedPassInfo();
     var email = (u.email || f.email || "").trim();
     var code = (u.code || f.code || "").trim();
@@ -10859,19 +11130,20 @@ window.ALBUM_SWITCH = {
     _cloudTimer = setTimeout(function () {
       try {
         var st = lsGet(LUCK_KEY, { owned: {}, tk: 0 });
+        (cr.card ? gwPost("cards/save", { owned: st.owned || {}, gday: st.tnum || 0, tk: st.tk || 0, eSong: st.eSong || 0, eFeed: st.eFeed || 0 }) :
         fetch(_cloudBase + "/cards/save", {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=UTF-8" },  /* 避免 CORS preflight */
           body: JSON.stringify({ email: cr.email, code: cr.code, owned: st.owned || {}, gday: st.tnum || 0,
                                  tk: st.tk || 0, eSong: st.eSong || 0, eFeed: st.eFeed || 0 })   /* B134T：卡片＋券數＋領券日＋當日賺券,全部跟人走 */
-        }).catch(function () {});
+        })).catch(function () {});
       } catch (e) {}
     }, 1500);
   }
   function cloudLoad() {
     if (!_cloudBase) return;
     var cr = cloudCreds(); if (!cr) return;
-    fetch(_cloudBase + "/cards/load?e=" + encodeURIComponent(cr.email) + "&c=" + encodeURIComponent(cr.code), { cache: "no-store" })
+    fetch(cr.card ? gwURL("cards/load", { s: cardS() }) : _cloudBase + "/cards/load?e=" + encodeURIComponent(cr.email) + "&c=" + encodeURIComponent(cr.code), { cache: "no-store", credentials: "omit" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (!d || !d.ok || !d.data) return;
@@ -11884,8 +12156,8 @@ window.ALBUM_SWITCH = {
       function albumId(){return window.ALBUM_SWITCH?window.ALBUM_SWITCH.active:CFG.albumId;}
       function track(){return TRACKS[state.cur];}
       function key(){return albumId()+":"+track().n;}
-      function me(){var u=unlockInfo()||{};return {email:String(u.email||"").trim().toLowerCase(),code:String(u.code||"").trim().toUpperCase()};}
-      function canComment(){return !!state.unlocked&&!!me().email&&!!me().code;}   /* 沿用既有 ownership */
+      function me(){var u=unlockInfo()||{};if(!(u.email&&u.code)&&useCard("album")){var c=cardRec();return {email:c.email,code:"",card:true};}return {email:String(u.email||"").trim().toLowerCase(),code:String(u.code||"").trim().toUpperCase()};}   /* CARD1：卡片登入只有 email（給「我的留言」標記），沒有碼 */
+      function canComment(){var m=me();return !!state.unlocked&&!!m.email&&(!!m.code||!!m.card);}   /* 沿用既有 ownership */
       function dur(){var d=audio.duration;return (isFinite(d)&&d>0)?d:(state.dur||0);}
       function ini(name){var s=String(name||"").trim();return s?Array.from(s)[0].toUpperCase():"?";}
       function av(it){return '<span class="cm-av'+(it.isArtist?' artist':'')+'">'+(it.isArtist&&it.avatar?'<img src="'+esc(it.avatar)+'" alt="">':esc(ini(it.userName)))+'</span>';}
@@ -12067,7 +12339,7 @@ window.ALBUM_SWITCH = {
         sending=true; draft=ta.value; ta.disabled=true; $("cm-nick-in").disabled=true; $("cm-send").disabled=true; $("cm-send").textContent="發布中…";
         var ac=window.AbortController?new AbortController():null, timer;
         var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(ac)ac.abort();reject(new Error("timeout"));},15000);});
-        var request=Promise.resolve().then(function(){return fetch(API+"/comments/post",{method:"POST",headers:{"Content-Type":"application/json"},signal:ac?ac.signal:undefined,body:JSON.stringify({email:m.email,code:m.code,album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick})});})
+        var request=Promise.resolve().then(function(){return m.card?gwPost("comments/post",{album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick},{signal:ac?ac.signal:undefined}):fetch(API+"/comments/post",{method:"POST",headers:{"Content-Type":"application/json"},signal:ac?ac.signal:undefined,body:JSON.stringify({email:m.email,code:m.code,album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick})});})
           .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});});
         function current(){return sheetOpen&&sheetRun===job.run&&key()===job.key;}
         function release(){sending=false;clearTimeout(timer);if(sheetOpen){var s=$("cm-send"),f=$("cm-ta"),n=$("cm-nick-in");if(f)f.disabled=false;if(n)n.disabled=false;if(s){s.textContent="發布留言";s.disabled=!f||!f.value.trim();}}}
@@ -12092,7 +12364,7 @@ window.ALBUM_SWITCH = {
         if(!canComment()){toast("收藏專輯後可以按愛心");return;}
         var it=data.items.filter(function(i){return i.id===id;})[0]; if(!it)return; hap(4);
         it.liked=!it.liked; it.likes=Math.max(0,(it.likes||0)+(it.liked?1:-1)); el.classList.toggle("on",it.liked); el.querySelector("span").textContent=it.likes;
-        var m=me(); fetch(API+"/comments/like",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:m.email,code:m.code,album:albumId(),track:track().n,id:id})})
+        var m=me(); (m.card?gwPost("comments/like",{album:albumId(),track:track().n,id:id}):fetch(API+"/comments/like",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:m.email,code:m.code,album:albumId(),track:track().n,id:id})}))
           .then(function(r){return r.json();}).then(function(j){ if(j&&j.ok&&j.item){it.likes=j.item.likes;it.liked=j.item.liked;el.classList.toggle("on",it.liked);el.querySelector("span").textContent=it.likes;} }).catch(function(){});
       }
       new MutationObserver(function(){if(data.key!==key())resetForTrack();paintWrite();}).observe($("np-title"),{childList:true,characterData:true,subtree:true});
@@ -12474,7 +12746,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B329T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B330T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
