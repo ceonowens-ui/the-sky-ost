@@ -428,6 +428,7 @@ window.SKY_I18N_EN={"夏米爾企業社 · Business Reg. No. 38472654":"Xiamier 
 "切換 App 介面語言": "Switch app language",
 "播放進度": "Playback progress",
 "返回歌詞": "Back to lyrics",
+"返回 TRACKS": "Back to tracks",
 "回到主播放器": "Back to player",
 "返回封面": "Back to cover",
 "關閉待播清單": "Close queue",

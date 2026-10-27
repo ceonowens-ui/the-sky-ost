@@ -9,7 +9,7 @@ if(q==="zh"||q==="en"){pref=q;try{localStorage.setItem("sky-lang",q);}catch(e){}
 if(pref!=="zh"&&pref!=="en")pref="";
 var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
-<script src="app-i18n-en.js?v=B294T"></script>
+<script src="app-i18n-en.js?v=B328T"></script>
 <script src="shop-language.js?v=ce6994ebafca"></script>
 <script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
@@ -11378,7 +11378,7 @@ window.ALBUM_SWITCH = {
     var screen = $("screen-player"), stage = $("stage"), fold = screen.querySelector(".player-fold");
     if (!screen || !TRACKS.length) return;
     var browseIndex = state.cur, lastActualTrack=state.cur, queueBuilt=false, carouselTimer, carouselMoving=false, lyrPreviewNoted=false;
-    var mode = "cover", queueFrom = "cover", menuOpen = false, lastFocus = null;
+    var mode = "cover", queueFrom = "cover", lyricsFrom = "cover", menuOpen = false, lastFocus = null;   /* B328T：lyricsFrom＝歌詞頁從哪裡進來（TRACKS→歌詞→返回要回 TRACKS） */
     var songKey = "", requestID = 0, activeLine = -2, following = true, lyricTimes = null;
     var lastQueueKey = "", lyricNodes = [], messageTimer, ignoreScrollUntil = 0, rememberedTime = Math.max(0, Number(pos.time) || 0);
     var playerLang = lsGet(NS + ":player-lyrics-language", "original");
@@ -11453,9 +11453,10 @@ window.ALBUM_SWITCH = {
     more.addEventListener("click",openMenu); $("cp-menu-close").addEventListener("click",closeMenu);
     menuWrap.addEventListener("click",function(e){if(e.target===menuWrap)closeMenu();});
     lang.addEventListener("click",closeMenu);
-    function setMode(nextMode, enter) {
+    function setMode(nextMode, enter, returning) {
       closeMenu();
-      if(nextMode==="queue" && mode!=="queue"){queueFrom=mode;browseIndex=state.cur;}
+      if(nextMode==="queue" && mode!=="queue"){if(!returning)queueFrom=mode;browseIndex=state.cur;}   /* B328T：從歌詞「返回」TRACKS 不改寫來源，避免來回循環 */
+      if(nextMode==="cover"){queueFrom=lyricsFrom="cover";}   /* B328T：回主播放器一律清來源 */
       if(nextMode!=="queue")screen.appendChild(dock);
       mode=nextMode; panel.hidden=mode==="cover";
       if(mode!=="cover"){var tipEl=document.getElementById("a2tip");if(tipEl&&tipEl.classList.contains("tip-home")){a2TipClose();A2.tipWait="resume";}}   /* B286T：進歌詞／TRACKS 子頁時先收起「放到主畫面」提示（會蓋住子頁頂部） */
@@ -11467,7 +11468,8 @@ window.ALBUM_SWITCH = {
       screen.classList.toggle("cp-swipe",mode==="queue");
       screen.classList.toggle("cp-lyr",mode==="lyrics"); if(typeof lyrHeroMode==="function")lyrHeroMode(mode);   /* B235T：黑金歌詞頁 */
       $("cp-heading").textContent=mode==="queue"?"TRACKS":"歌詞";
-      $("cp-close").setAttribute("aria-label",mode==="queue"&&queueFrom==="lyrics"?"返回歌詞":"回到主播放器");
+      var cpEn=window.SKY_LANG==="en";   /* B328T：返回鍵說明分三種 */
+      $("cp-close").setAttribute("aria-label",mode==="queue"&&queueFrom==="lyrics"?(cpEn?"Back to lyrics":"返回歌詞"):mode==="lyrics"&&lyricsFrom==="queue"?(cpEn?"Back to tracks":"返回 TRACKS"):(cpEn?"Back to player":"回到主播放器"));
       $("cp-lyrics").hidden=mode!=="lyrics"; $("cp-lyrics-tools").hidden=mode!=="lyrics";
       $("cp-queue").hidden=mode!=="queue"; $("cp-queue-tools").hidden=mode!=="queue";
       lyricsButton.setAttribute("aria-pressed",String(mode==="lyrics")); queueButton.setAttribute("aria-pressed",String(mode==="queue"));
@@ -11479,10 +11481,10 @@ window.ALBUM_SWITCH = {
       if(enter) focus($("cp-close"));
       layout();
     }
-    function closePanel() { var back=mode==="queue"?queueFrom:"cover"; setMode(back,false); focus(back==="lyrics"?queueButton:lyricsButton); }
+    function closePanel() { var back=mode==="queue"?queueFrom:mode==="lyrics"?lyricsFrom:"cover"; setMode(back,false,mode==="lyrics"&&back==="queue"); focus(back==="lyrics"?queueButton:lyricsButton); }   /* B328T：歌詞返回來源 */
     window.__cpHome=function(){ closeMenu(); if(mode!=="cover") setMode("cover",false); };   /* B300T：解鎖成功後回 PLAY 主畫面用 */
-    lyricsButton.addEventListener("click",function(){setMode(mode==="lyrics"?"cover":"lyrics",mode!=="lyrics");});
-    queueButton.addEventListener("click",function(){if(mode==="queue")closePanel();else setMode("queue",true);});
+    lyricsButton.addEventListener("click",function(){ if(mode==="lyrics") setMode("cover",false); else if(mode==="queue"&&queueFrom==="lyrics") closePanel(); else { lyricsFrom=mode; setMode("lyrics",true); } });   /* B328T */
+    queueButton.addEventListener("click",function(){ if(mode==="queue"||(mode==="lyrics"&&lyricsFrom==="queue")) closePanel(); else setMode("queue",true); });   /* B328T：從 TRACKS 來的歌詞，按 TRACKS 鈕＝返回 */
     $("cp-close").addEventListener("click",closePanel);
     // Keep the original swipe-up gesture routed to the new queue, without opening the old sheet.
     $("btn-open-sheet").addEventListener("click",function(e){e.stopImmediatePropagation();setMode("queue",true);},true);
@@ -12323,7 +12325,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B327T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B328T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
