@@ -7325,7 +7325,7 @@ window.ALBUM_SWITCH = {
         fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify({ productKey: productKey, email: email, name: name || "" }),
+          body: JSON.stringify({ productKey: productKey, email: email, name: name || "", back: T261 ? "test.html" : "" }),   /* PAY1：付完款回到同一頁（主站白名單） */
           signal: ac ? ac.signal : undefined
         }).then(function (r) {
           if (dead()) throw { gone: 1 };
@@ -7337,6 +7337,7 @@ window.ALBUM_SWITCH = {
           var doc = new DOMParser().parseFromString(html, "text/html");
           var form = doc.querySelector("form");
           if (!form) throw { net: 1 };
+          payOrderKeep(doc);   /* PAY1：主站有給領取資訊才記（舊主站沒有就照舊靠 email） */
           clearTimeout(tmo);
           var f = document.importNode(form, true);
           f.style.display = "none";
@@ -7354,7 +7355,7 @@ window.ALBUM_SWITCH = {
       fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=UTF-8" },   // 避免 CORS preflight
-        body: JSON.stringify({ productKey: productKey, email: email, name: name || "" }),
+        body: JSON.stringify({ productKey: productKey, email: email, name: name || "", back: T261 ? "test.html" : "" }),
       }).then(function (r) {
         if (!r.ok) throw 0;
         return r.text();
@@ -7362,6 +7363,7 @@ window.ALBUM_SWITCH = {
         var doc = new DOMParser().parseFromString(html, "text/html");
         var form = doc.querySelector("form");
         if (!form) throw 0;
+        payOrderKeep(doc);
         var f = document.importNode(form, true);
         f.style.display = "none";
         document.body.appendChild(f);
@@ -7533,7 +7535,7 @@ window.ALBUM_SWITCH = {
      這支能處理全部五種兌換碼：the-sky-album / full-unlock / upgrade-799 / feed-pass / video-*。
      未購者用上方表單，已購專輯者用 Pass 卡下方的「已購買？輸入兌換碼」，兩邊都走這裡。 */
   function redeemAny(email, code, pre, cb) {   /* B266T：pre＝主畫面 App 在 <head> 已送出的同一個主後端 /verify 回應；cb(ok, why) 給「正在開啟」接手 */
-    var done = function (ok, why) { if (cb) { var f = cb; cb = null; try { f(ok, why); } catch (e) {} } };
+    var done = function (ok, why, pid) { if (cb) { var f = cb; cb = null; try { f(ok, why, pid); } catch (e) {} } };   /* B329T r9：成功時第 3 個參數＝這次 /verify 回的 productId（其他呼叫端只看 ok／why，不受影響） */
     var quiet = !!cb;   /* B267T：有接手的畫面（解鎖視窗／正在開啟）就不另外跳 toast，由畫面顯示狀態 */
     email = (email || "").trim(); code = (code || "").trim().toUpperCase();
     if (!email || !code) { if (!quiet) toast("請輸入 email 和兌換碼"); done(false, "empty"); return; }
@@ -7560,28 +7562,28 @@ window.ALBUM_SWITCH = {
       if (pid === "full-unlock") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         unlockNow({ email: email, code: code, product: "full-unlock" });
-        loadLiveFeed(true); renderMoodWall(); cloudLoad(); done(true); return;
+        loadLiveFeed(true); renderMoodWall(); cloudLoad(); done(true, "", pid); return;
       }
       if (pid === "upgrade-799") {
         lsSet(LS.feedpass, { unlocked: true, email: email, code: code, full: true });
         hap([12, 30, 12, 30, 40]);
         a2OkOpen({ simple: true, t: "升級成功", s: "SIGNAL 頻道與全部影片已解鎖。" });   /* B278T：原本只有底部小字 */
-        renderUnlockView(); loadLiveFeed(true); renderMoodWall(); done(true); return;
+        renderUnlockView(); loadLiveFeed(true); renderMoodWall(); done(true, "", pid); return;
       }
       /* Consume this verified response once; never report success before a second request. */
       if (pid === "feed-pass") {
         if (!feedPassInfo().full) lsSet(LS.feedpass, { unlocked: true, email: email, code: code });   /* 已是全解鎖就不覆蓋（舊頻道碼不能把 799 降級） */
         renderUnlockView(); loadLiveFeed(true); renderMoodWall();
         hap([12, 30, 12, 30, 40]); a2OkOpen({ simple: true, t: "頻道已解鎖", s: "歡迎進來 SIGNAL。" });
-        done(true); return;
+        done(true, "", pid); return;
       }
       if (/^video-/.test(pid)) {
         var ownedVideos = vidsOwned(); ownedVideos[pid] = { email: email, code: code }; lsSet(LS.vids, ownedVideos);
         renderMoodWall(); hap([12, 30, 40]); a2OkOpen({ simple: true, t: "影片已解鎖", s: "可以在 SIGNAL 觀看。" });
-        done(true); return;
+        done(true, "", pid); return;
       }
       unlockNow({ email: email, code: code, product: data.product || "299" });
-      done(true);
+      done(true, "", pid);
     }).catch(function () { if (!quiet) toast("連線失敗 · 後端未回應"); done(false, "net"); });
   }
 
@@ -8017,6 +8019,12 @@ window.ALBUM_SWITCH = {
     } else if (kind === "pay") {
       txt = "已完成付款？請查看購買信箱，輸入收到的兌換碼即可解鎖。";
       btns = '<button type="button" class="pri" data-t="redeem">輸入兌換碼</button><button type="button" data-t="payhelp">還沒收到／付款未完成</button>';
+    } else if (kind === "paywait") {   /* PAY1：沿用原本提示條樣式 */
+      txt = "正在確認付款⋯ 確認完成會自動開啟你的專輯。";
+      btns = '<button type="button" data-t="payhelp">付款未完成？</button>';
+    } else if (kind === "paylate") {
+      txt = "付款確認比平常久。兌換碼也會寄到你的購買信箱，收到後輸入即可解鎖。";
+      btns = '<button type="button" class="pri" data-t="paycheck">再確認一次</button><button type="button" data-t="redeem">輸入兌換碼</button>';
     } else if (kind === "nopair") {
       txt = "已經買過？在這裡輸入一次 email＋兌換碼就能接上，不用重買。";
       btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
@@ -8054,11 +8062,13 @@ window.ALBUM_SWITCH = {
         m.hidden = false; t.querySelector(".tip-b").hidden = true; return;
       }
       if (a === "shop") { a2TipClose(); go("purchase"); return; }
-      if (a === "payclose") { payMarkClear(); a2TipClose(); return; }
+      if (a === "payclose") { PAY1.run++; payMarkClear(); a2TipClose(); return; }
+      if (a === "paycheck") { a2TipClose(); payClaimRun(); return; }
       if (a === "pushon") { a2TipClose(); pushTurnOn("tip"); return; }
       if (a === "later" || a === "x") {
         if (kind === "home") { a2Skip(true); a2st({ no: (a2st().no || 0) + 1 }); }
         if (kind === "pay") payMarkClear();
+        if (kind === "paywait" || kind === "paylate") PAY1.run++;   /* 關掉＝這次先不等，記號留著，下次打開再確認 */
         if (kind === "push") pushLater();
         a2TipClose();
       }
@@ -8629,6 +8639,56 @@ window.ALBUM_SWITCH = {
     return true;
   }
 
+  /* ---------- B329T：領取專輯卡（Apple 錢包） ----------
+     帶這台手機已存的 email＋兌換碼（已解鎖才有）送到 the-sky-wallet /album/claim；
+     權利只由伺服器打主站 /verify 決定（只讀）；伺服器不存、不回傳兌換碼；回一次性 2 分鐘下載連結。
+     卡片連結精確是 https://chance1228.com/，卡片本身不能解鎖：沒登入的手機照常用 email＋兌換碼。 */
+  /* B329T r5：測試期先接獨立測試後端 the-sky-album-test（不碰正式 the-sky-wallet 與 5 張 PREMIUM）；
+     正式發卡時改成 https://card.chance1228.com（CÉON 10/27 定案的卡片網域），要等 CÉON 同意。 */
+  var ALBUM_BASE = "https://the-sky-album-test.anthonywen0693.workers.dev";
+  var A329 = { busy: false };
+  function albumCreds() {
+    var u = lsGet(LS.unlock, null) || {}, f = lsGet(LS.feedpass, null) || {};
+    if (!(u.unlocked && u.email && u.code)) return null;
+    var c = { email: u.email, code: u.code };   /* 主碼一律是專輯那組（序號只跟它有關） */
+    /* B329T r2：升級碼（upgrade-799）單獨不是專輯權利，只能當第二組碼、同 email，伺服器確認後卡面才是 ALBUM + SIGNAL；頻道碼不送 */
+    if (f.full && f.code && f.code !== u.code && String(f.email || "").toLowerCase() === String(u.email).toLowerCase()) c.sig = f.code;
+    return c;
+  }
+  /* B329T r4（CÉON 10/27）：伺服器只升不降；這台沒有升級碼、卡片又是 ALBUM 時，提示「已升級？先輸入升級碼再領一次」，不把人當成沒買過 */
+  function albumSubText() {
+    var en = window.SKY_LANG === "en", f = lsGet(LS.feedpass, null) || {};
+    if (a2st().albumHint && !f.full) return en ? "Upgraded? Enter your upgrade code, then add again" : "已升級？先輸入升級碼再領一次";
+    return en ? "Add to Apple Wallet" : "加入 Apple 錢包";
+  }
+  function albumClaim(btn) {
+    if (A329.busy) return;
+    var en = window.SKY_LANG === "en", c = albumCreds(), sm = btn && btn.querySelector(".a2-wl-s");
+    if (!state.unlocked || !c) { toast(en ? "Open your album with your email + code first." : "先用 email＋兌換碼開啟專輯，再領取專輯卡", 3200); return; }
+    A329.busy = true; hap(8);
+    var orig = sm ? sm.textContent : "";
+    if (sm) sm.textContent = en ? "Preparing your card…" : "準備卡片中…";
+    var done = function (msg) { A329.busy = false; if (sm) sm.textContent = orig; if (msg) toast(msg, 3600); };
+    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
+    fetch(ALBUM_BASE + "/album/claim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(c), cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, reason: "http_" + r.status }; }); })
+      .then(function (d) {
+        clearTimeout(tm);
+        if (d && d.ok && /^\/album\/pass\/[A-Za-z0-9_-]{43}\/THE-SKY\.pkpass$/.test(d.passUrl || "")) {
+          a2st({ albumCardAt: Date.now(), albumHint: d.tier === "ALBUM" && !c.sig ? Date.now() : 0 });
+          done(""); if (sm) sm.textContent = albumSubText();
+          location.href = ALBUM_BASE + d.passUrl;   /* Safari 會跳出「加入錢包」；連結一次性、2 分鐘內有效 */
+          return;
+        }
+        var why = d && d.reason;
+        done(why === "verify_failed" ? (en ? "This email + code couldn't be verified. Re-enter them in OWN and try again." : "這組 email＋兌換碼驗證不過，請在 OWN 重新輸入後再試")
+          : why === "not_album" ? (en ? "Album cards are for album purchases." : "專輯卡只給購買專輯的人")
+          : why === "rate_limited" ? (en ? "Too many tries. Please wait a minute." : "太頻繁了，請等一分鐘再試")
+          : (en ? "Couldn't prepare your card right now. Try again later." : "現在沒辦法準備卡片，等一下再試"));
+      })
+      .catch(function () { clearTimeout(tm); done(en ? "Couldn't connect. Check your network and try again." : "連不上，確認網路後再試一次"); });
+  }
+
   /* ---------- 5. OWN 固定入口（主畫面教學＋次要的錢包卡） ---------- */
   function a2OwnEntry264() {
     if (!A2.mobile) return;
@@ -8647,8 +8707,8 @@ window.ALBUM_SWITCH = {
       var wl = document.createElement("button");
       wl.type = "button"; wl.id = "a2-wallet"; wl.className = "a2-own a2-sub";
       wl.setAttribute('data-no-translate', '');
-      wl.innerHTML = '<span class="a2-ol">' + (window.SKY_LANG === 'en' ? 'My Wallet card' : '我的錢包卡') + (T261 ? '<small>' + (window.SKY_LANG === 'en' ? 'Design test card · 000' : '設計測試卡 · 000') + '</small>' : '') + '</span><span class="a2-or">›</span>';
-      wl.addEventListener("click", function () { a2st({ walletTap: Date.now() }); location.href = T3_PASS; });
+      wl.innerHTML = '<span class="a2-ol">' + (window.SKY_LANG === 'en' ? 'My Wallet card' : '我的錢包卡') + '<small class="a2-wl-s">' + albumSubText() + '</small>' + '</span><span class="a2-or">›</span>';
+      wl.addEventListener("click", function () { a2st({ walletTap: Date.now() }); albumClaim(wl); });   /* B329T：領取一般專輯卡（the-sky-wallet album-v1）；原本連到 T3_PASS 測試卡 000 */
       add(wl);
     }
   }
@@ -8661,9 +8721,9 @@ window.ALBUM_SWITCH = {
     var en = window.SKY_LANG === "en";
     box.innerHTML = '<button type="button" class="own-wl-btn" aria-expanded="false" aria-controls="own-wl-box">' + (en ? "Have the Apple Wallet card? Open with it" : "有 Apple 錢包卡？用卡片開啟") + '</button>' +
       '<div class="own-wl-box" id="own-wl-box" hidden><ol>' +
-      (en ? '<li>Open the <b>Wallet</b> app on your iPhone</li><li>Tap your <b>THE SKY PREMIUM</b> card</li><li>Tap <b>♪</b> on the card (or <b>OPEN ALBUM</b> on the back)</li>'
-          : '<li>打開 iPhone 的「<b>錢包</b>」App</li><li>點你的 <b>THE SKY PREMIUM</b> 卡</li><li>點卡片上的 <b>♪</b>（或卡背的「OPEN ALBUM · 開啟專輯」）</li>') +
-      '</ol><p>' + (en ? "You'll come right back here, already unlocked. No code needed." : "會直接回到這裡、自動解鎖，不用輸入兌換碼。") + '</p>' +
+      (en ? '<li>Open the <b>Wallet</b> app on your iPhone</li><li>Tap your <b>THE SKY</b> card</li><li>Tap <b>♪</b> on the card (or <b>OPEN ALBUM</b> on the back)</li>'
+          : '<li>打開 iPhone 的「<b>錢包</b>」App</li><li>點你的 <b>THE SKY</b> 卡</li><li>點卡片上的 <b>♪</b>（或卡背的「OPEN ALBUM · 開啟專輯」）</li>') +
+      '</ol><p>' + (en ? "It opens the album. If you're not signed in on this phone, enter your email + code once." : "會打開專輯；如果這支手機還沒登入，用購買時的 email＋兌換碼開啟一次。") + '</p>' +
       '<button type="button" class="own-wl-go">' + (en ? "Open Wallet" : "打開錢包") + '</button>' +
       '<p class="own-wl-miss" hidden>' + (en ? "If Wallet didn't open, open it from your Home Screen." : "如果沒有跳過去，請從主畫面自己打開「錢包」App。") + '</p></div>';
     box.hidden = false;
@@ -8816,16 +8876,76 @@ window.ALBUM_SWITCH = {
     lsSet(PAYK, { k: pk, t: Date.now(), n: 0 });
   }
   function payMarkClear() { try { localStorage.removeItem(PAYK); } catch (e) {} }
+  /* ---------- PAY1（候選）：付款後自動解鎖 ----------
+     建單時主站回的 HTML 裡有 #sky-order（tradeNo＋高熵領取密鑰）→ 只存在這台的 localStorage（跟「曾前往付款」記號放一起，24 小時），不進網址。
+     回站後拿去 POST /order/claim：主站只在「綠界通知驗簽成功、商品金額訂單都對」時才回 email＋兌換碼（JSON body），
+     再走原本的 redeemAny→/verify 解鎖。pending＝通知還沒到 → 有限次重試；查不到／過期／被鎖 → 改走原本「請查看信箱輸入兌換碼」。
+     不相信回站網址上的任何參數；兌換碼與購買資訊照舊寄 email 當備份。 */
+  function payOrderKeep(doc) {
+    try { var j = doc.getElementById("sky-order"); if (!j) return; var o = JSON.parse(j.textContent || "{}");
+      if (!/^SKY[A-Z0-9]{5,17}$/.test(o.tradeNo || "") || !/^[A-Za-z0-9_-]{43}$/.test(o.claim || "")) return;
+      var m = lsGet(PAYK, null); if (!m) return; m.tno = o.tradeNo; m.cl = o.claim; lsSet(PAYK, m); } catch (e) {}
+  }
+  var PAY1 = { run: 0 };
+  var PAY1_WAIT = [0, 2000, 3000, 5000, 8000, 13000, 20000], PAY1_VERIFY_MS = 20000;   /* 約 51 秒；之後改提示查信箱，可再按「再確認一次」 */
+  function payClaimRun() {
+    var m = lsGet(PAYK, null); if (!m || !m.tno || !m.cl) return false;
+    var run = ++PAY1.run, i = 0;
+    a2Tip("paywait");
+    var stop = function (kind) { if (run !== PAY1.run) return; a2TipClose(); if (kind) a2Tip(kind); };
+    var step = function () {
+      if (run !== PAY1.run) return;
+      if (i >= PAY1_WAIT.length) { stop("paylate"); return; }
+      setTimeout(function () {
+        if (run !== PAY1.run) return;
+        var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
+        fetch(CFG.api.workerBaseUrl.replace(/\/$/, "") + "/order/claim", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ tradeNo: m.tno, claim: m.cl }), cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer", signal: ctl ? ctl.signal : undefined })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { st: r.status, j: j || {} }; }); })
+          .then(function (x) {
+            clearTimeout(tm); if (run !== PAY1.run) return;
+            if (x.st === 200 && x.j.status === "paid" && x.j.email && x.j.code) {
+              var mail = x.j.emailSent === false, want = String(x.j.productId || "");
+              /* B329T r9（Codex 22:16）：不再固定 2.5 秒猜結果 —— 「正在確認付款」一直留著，等這筆碼的 /verify 真正回來才決定提示。
+                 超過 PAY1_VERIFY_MS 還沒回來 → 先改「確認比平常久」（可再確認／輸入兌換碼）；之後真的成功仍會解鎖並收掉提示。 */
+              var slow = setTimeout(function () { if (run !== PAY1.run) return; a2TipClose(); a2Tip("paylate"); }, PAY1_VERIFY_MS);
+              redeemAny(x.j.email, x.j.code, null, function (ok, why, pid) {   /* 原本的解鎖流程（含成功畫面）；碼只在記憶體與原本的解鎖紀錄裡 */
+                clearTimeout(slow); if (run !== PAY1.run) return;
+                a2TipClose();
+                if (ok && (!want || !pid || pid === want)) { payMarkClear(); if (mail) toast("已解鎖。購買確認信寄送失敗，兌換碼可在 OWN 查看或聯絡客服", 4200); return; }   /* 以這一筆的驗證結果＋商品相符為準，不看既有解鎖狀態 */
+                if (!ok && why === "net") { a2Tip("paylate"); return; }   /* 連線問題：保留領取資訊，可再確認一次 */
+                m.cl = ""; lsSet(PAYK, m);   /* 碼驗證不過／商品不符：這筆領取資訊作廢 */
+                if (ok && payHas(m.k)) { payMarkClear(); return; }   /* 商品不符但驗證後已實際擁有買的這項權利 → 不再提示 */
+                a2Tip("pay");   /* 改走信箱 */
+              });
+              return;
+            }
+            if (x.st === 202) { i++; step(); return; }
+            if (x.st >= 500 || x.st === 0) { i++; step(); return; }
+            m.cl = ""; lsSet(PAYK, m); stop("pay");   /* 404／409／410／429：這個瀏覽器的領取資訊不能用了 → 改走信箱 */
+          })
+          .catch(function () { clearTimeout(tm); if (run !== PAY1.run) return; i++; step(); });
+      }, PAY1_WAIT[i]);
+    };
+    step();
+    return true;
+  }
+  function payHas(k) {
+    var P = CFG.payment || {}, full = !!(feedPassInfo() || {}).full;
+    if (k === (P.productKeyUpgrade || "upgrade-799")) return full;
+    if (k === P.productKeyFull) return !!state.unlocked && full;
+    return !!state.unlocked;
+  }
   function payMarkCheck() {
     var m = lsGet(PAYK, null); if (!m || !m.t) return false;
     var age = Date.now() - m.t;
     if (age > 864e5 || (m.n || 0) >= 3) { payMarkClear(); return false; }
     if (age < 3000) return false;   /* 剛按下前往付款、還沒離開 */
-    var P = CFG.payment || {};
-    var isUp = m.k === (P.productKeyUpgrade || "upgrade-799");
-    var got = isUp ? !!(feedPassInfo() || {}).full : !!state.unlocked;
-    if (got) { payMarkClear(); return false; }
+    /* B329T r9（Codex 22:16）：有這筆付款的領取資訊 → 一律由這筆的確認＋驗證結果決定，不拿既有的專輯解鎖狀態代替；
+       沒有領取資訊（舊流程）→ 依「買的這個商品」的實際權利判斷：全解鎖要專輯＋完整 SIGNAL 都有才算已領 */
+    var claimable = !!(m.tno && m.cl && CFG.api && CFG.api.workerBaseUrl);
+    if (!claimable && payHas(m.k)) { payMarkClear(); return false; }
     if (a2Busy()) return false;
+    if (claimable) return payClaimRun();   /* PAY1：有這次付款的領取資訊 → 先自動確認 */
     if (a2Tip("pay")) { m.n = (m.n || 0) + 1; lsSet(PAYK, m); return true; }
     return false;
   }
@@ -9519,28 +9639,57 @@ window.ALBUM_SWITCH = {
   }
   window.addEventListener("resize", function () { setTimeout(function(){ dockReplyBar(0); }, 60); });
   window.addEventListener("orientationchange", function () { setTimeout(function(){ dockReplyBar(0); }, 220); });
-  var SINCE_KEY = "album-the-sky:since";      /* B168T：購買日（相遇第 N 天的基準） */
-  function sinceTs() { try { return Number(localStorage.getItem(SINCE_KEY) || 0) || 0; } catch (e) { return 0; } }
+  /* B329T r6（候選）：「相遇第 N 天」日期快取改成「綁已驗證身分＋分環境」。
+     - 舊的共用快取 album-the-sky:since（不分人、存了就不再查）不再讀也不刪：保住原紀錄，但不把它搬給不知道是誰的會員。
+     - 新快取放在 UNS＋":since2"（test.html 有 :t261 後綴，跟正式站分開），只在「這組碼」相符時才用；換人／換碼就重新問伺服器。
+     - 首次專輯付款日（album：LS.unlock 那組碼）與 SIGNAL 開通日（signal：SIGNAL 那組碼）分開存，誰都不覆寫誰；伺服器沒有日期就不存、不用今天補。
+     - 顯示用哪個日期見下方 r8（CÉON 10/27 22:02 定案：從第一次購買專輯算）。算法不變。
+     - 送出查詢時記下是哪組碼；回應回來時如果這台已經換了人／換了碼，就丟掉，不寫、不畫（防止串號）。 */
+  var SINCE2_KEY = UNS + ":since2";
+  function sinceId(email, code) { var s = String(email || "").trim().toLowerCase() + "|" + String(code || "").trim().toUpperCase(), h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return ("0000000" + h.toString(16)).slice(-8) + s.length; }
+  function sinceStore() { var o = lsGet(SINCE2_KEY, null); return (o && o.v === 2) ? o : { v: 2 }; }
+  function sinceGet(kind, email, code) { var o = sinceStore()[kind]; return (o && o.id === sinceId(email, code) && o.ts > 0) ? o.ts : 0; }
+  function sinceSet(kind, email, code, ts) { var o = sinceStore(); o[kind] = { id: sinceId(email, code), ts: ts, at: Date.now() }; lsSet(SINCE2_KEY, o); }
   function daysSince(t0) { return Math.max(1, Math.floor((Date.now() - t0) / 86400000) + 1); }
+  var SINCE_PENDING = {};
+  function sinceFetch(kind, email, code, done) {
+    var id = sinceId(email, code), pk = kind + ":" + id;
+    if (SINCE_PENDING[pk] || !CFG.api || !CFG.api.workerBaseUrl) return;
+    SINCE_PENDING[pk] = 1;
+    fetch(CFG.api.workerBaseUrl + "/feed/since?e=" + encodeURIComponent(email) + "&c=" + encodeURIComponent(code))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        delete SINCE_PENDING[pk];
+        var t = d && d.ok && d.since ? (Date.parse(d.since) || Number(d.since) || 0) : 0;
+        if (!t) return;                                   /* 沒有可信日期：不存、不補今天 */
+        var cur = kind === "album" ? lsGet(LS.unlock, {}) : feedPassInfo();
+        if (!cur || sinceId(cur.email, cur.code) !== id) return;   /* 回來時已換人／換碼 → 丟掉 */
+        sinceSet(kind, email, code, t);
+        if (done) done(t);
+      })
+      .catch(function () { delete SINCE_PENDING[pk]; });
+  }
+  /* B329T r8（CÉON 10/27 22:02）：升級會員的「相遇第 N 天」從第一次購買專輯算，升級不能重算。
+     - 全解鎖（feedpass.full：799 或 299＋升級）→ 用這台專輯那組碼（LS.unlock）的原始紀錄日期（主站 /feed/since 回的 ts），不用升級碼的日期。
+     - 這台只有升級碼、沒有專輯那組碼 → 不猜、不補，顯示原本的「SIGNAL · 私訊頻道」（缺口：要先用專輯碼恢復一次）。
+     - 只有頻道碼（feed-pass，沒買專輯）→ 照原本意義用頻道碼日期。
+     - 伺服器沒有日期就不顯示天數；不拿今天、升級日、發卡日補。畫面文字與樣式不變。 */
   function paintDays() {
     var el = document.getElementById("feed-days"); if (!el) return;
     if (!feedUnlockedQ()) { el.textContent = "SIGNAL"; return; }
-    var t0 = sinceTs();
+    var fp = feedPassInfo() || {}, u = lsGet(LS.unlock, {}) || {};
+    var hasAlbum = !!(u.unlocked && u.email && u.code);
+    if (fp.full && fp.email && fp.code && !sinceGet("signal", fp.email, fp.code)) sinceFetch("signal", fp.email, fp.code, null);   /* 全解鎖：SIGNAL 開通日另外存，但不拿來顯示 */
+    var kind = fp.full ? (hasAlbum ? "album" : "") : "signal";
+    var who = kind === "album" ? u : fp;
+    var t0 = kind && who.email && who.code ? sinceGet(kind, who.email, who.code) : 0;
     el.textContent = t0 ? ("SIGNAL · 相遇第 " + daysSince(t0) + " 天") : "SIGNAL · 私訊頻道";
-    if (t0) return;
-    /* 沒有就跟伺服器要一次購買日，之後存本機 */
-    var fp = feedPassInfo();
-    if (!fp || !fp.unlocked || !fp.email || !fp.code || !CFG.api || !CFG.api.workerBaseUrl) return;
-    fetch(CFG.api.workerBaseUrl + "/feed/since?e=" + encodeURIComponent(fp.email) + "&c=" + encodeURIComponent(fp.code))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d || !d.ok || !d.since) return;
-        var t = Date.parse(d.since) || Number(d.since) || 0;
-        if (!t) return;
-        try { localStorage.setItem(SINCE_KEY, String(t)); } catch (e) {}
-        el.textContent = "SIGNAL · 相遇第 " + daysSince(t) + " 天";
-      })
-      .catch(function () {});
+    if (t0 || !kind || !who.email || !who.code) return;
+    sinceFetch(kind, who.email, who.code, function (t) {
+      var f2 = feedPassInfo() || {}, u2 = lsGet(LS.unlock, {}) || {}, k2 = f2.full ? ((u2.unlocked && u2.email && u2.code) ? "album" : "") : "signal";
+      var w2 = k2 === "album" ? u2 : f2; if (k2 !== kind || sinceId(w2.email, w2.code) !== sinceId(who.email, who.code)) return;   /* 回來時已換人／換碼 → 不畫 */
+      var e2 = document.getElementById("feed-days"); if (e2) e2.textContent = "SIGNAL · 相遇第 " + daysSince(t) + " 天";
+    });
   }
   function buildReplyBar() {
     var old = document.getElementById("__rpBar");
@@ -12325,7 +12474,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B328T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B329T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
