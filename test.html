@@ -3762,15 +3762,19 @@ body, #stage{ background:#080809 !important; }
 .own-menu .own-language .om-glb,.own-menu .own-language .om-ch{display:inline-flex}
 /* 清單下方：新動態通知／已購買？輸入兌換碼／購買須知・隱私權政策，各一條細線 */
 #own-after{margin:16px 17px 0}
+#screen-purchase:not(.own-unlocked) .own-menu{margin:30px 20px 0}
+#screen-purchase:not(.own-unlocked) #own-after{margin-left:20px;margin-right:20px}
+#screen-purchase:not(.own-unlocked) .legal-foot{margin:0 20px;padding:0 0 calc(140px + env(safe-area-inset-bottom));border-top:1px solid #2a2621!important}
+.own-menu[hidden],#own-after[hidden]{display:none!important}
 #own-after > :not(.hidden){border-top:1px solid #2a2621!important}
-#screen-purchase.own-unlocked #own-after #a2-push{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;height:auto;margin:0;padding:0;background:none;border:0}
-#screen-purchase.own-unlocked #own-after #a2-push .a2-ol{font:400 11.5px/1.4 -apple-system,"PingFang TC",sans-serif;color:#ddd4c6;letter-spacing:.02em}
-#screen-purchase.own-unlocked #own-after #a2-push .a2-or{font:400 11.5px/1.4 -apple-system,"PingFang TC",sans-serif;color:#e2c48c}
-#screen-purchase.own-unlocked #own-after #c1-pair{display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;margin:0;padding:0;background:none;border:0;font:400 14px/1.4 -apple-system,"PingFang TC",sans-serif;color:#ddd4c6}
+#screen-purchase #own-after #a2-push{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;height:auto;margin:0;padding:0;background:none;border:0}
+#screen-purchase #own-after #a2-push .a2-ol{font:400 11.5px/1.4 -apple-system,"PingFang TC",sans-serif;color:#ddd4c6;letter-spacing:.02em}
+#screen-purchase #own-after #a2-push .a2-or{font:400 11.5px/1.4 -apple-system,"PingFang TC",sans-serif;color:#e2c48c}
+#screen-purchase #own-after #c1-pair{display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;margin:0;padding:0;background:none;border:0;font:400 14px/1.4 -apple-system,"PingFang TC",sans-serif;color:#ddd4c6}
 #screen-purchase.own-unlocked #own-after .fl-redeem:not(.hidden){display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;margin:0;padding:0;background:none;font:400 12.5px/1.4 -apple-system,"PingFang TC",sans-serif;color:#efe6d6;letter-spacing:.03em;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}
 #screen-purchase.own-unlocked .legal-foot{margin:0 17px;border-top:1px solid #2a2621!important;padding-top:0}
-#screen-purchase.own-unlocked .legal-foot .lf-links{gap:24px}
-#screen-purchase.own-unlocked .legal-foot .lf-links button{min-height:28px;padding:0;font-size:11px;color:#d7cec0;letter-spacing:.02em;text-decoration:underline;text-underline-offset:4px}
+#screen-purchase .legal-foot .lf-links{display:flex;justify-content:center;flex-wrap:wrap;gap:24px}
+#screen-purchase .legal-foot .lf-links button{min-height:28px;padding:0;font-size:11px;color:#d7cec0;letter-spacing:.02em;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:359px){#screen-purchase.own-unlocked .pass-card.own-u,.own-menu{margin-left:14px;margin-right:14px}.own-menu .om-ic{margin-right:16px}.own-menu .om-row,.own-menu .own-language summary{padding-left:16px;padding-right:16px;font-size:16px}}
 /* App 使用規則：沿用購買須知視窗，只換標題 */
 #terms-sheet .tm-title{display:none;font:600 15px/1.4 -apple-system,"PingFang TC",sans-serif;color:#F0DFB8;letter-spacing:.04em}
@@ -3965,7 +3969,9 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
           <button class="pass-unlock hidden" id="btn-upgrade">解鎖 SIGNAL 頻道・補 NT$500</button>
         </div>
       </div>
-      <!-- B331T：OWN 清單（CÉON 10/28 參考圖）；文字由 ownMenuPaint() 依語言填 -->
+    </div>
+
+    <!-- B331T：OWN 清單（CÉON 10/28 參考圖；已購／未購共用）；文字由 ownMenuPaint() 依語言填 -->
       <nav class="own-menu" id="own-menu" aria-label="OWN" data-no-translate>
         <button type="button" class="om-row om-hl" id="om-home"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.6 12 3.8l8.5 6.8"/><path d="M5.6 9v10.4a.8.8 0 0 0 .8.8h3.9v-6.1h3.4v6.1h3.9a.8.8 0 0 0 .8-.8V9"/></svg></i><span class="om-l"><span class="om-t">主畫面教學</span></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
         <button type="button" class="om-row" id="om-intro"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="7" height="7" rx="1.6"/><rect x="13.4" y="3.6" width="7" height="7" rx="1.6"/><rect x="3.6" y="13.4" width="7" height="7" rx="1.6"/><rect x="13.4" y="13.4" width="7" height="7" rx="1.6"/></svg></i><span class="om-l"><span class="om-t">基本功能介紹</span></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
@@ -3976,7 +3982,6 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
       <div id="own-after">
         <button class="fl-redeem hidden" id="btn-redeem-owned">已購買？輸入兌換碼</button>
       </div>
-    </div>
 
       <!-- B313T：介面語言（第一次之外，隨時可在這裡換） -->
       <span id="lang-row-home" hidden></span>
@@ -9038,19 +9043,27 @@ window.ALBUM_SWITCH = {
     home.addEventListener("click", function () { a2TutOpen("own"); });
     $("om-intro").addEventListener("click", function () { hap(6); toast(window.SKY_LANG === "en" ? "Coming soon" : "即將推出", 2200); });
     $("om-rules").addEventListener("click", function () { if (window.__openTerms) window.__openTerms("rules"); });
-    wl.addEventListener("click", function () { a2st({ walletTap: Date.now() }); albumClaim(wl); });   /* 沿用 B329T 領取一般專輯卡 */
+    wl.addEventListener("click", function () {
+      if (!state.unlocked) {   /* CÉON 10/28：專輯卡只給有購買的人；原本「有 Apple 錢包卡？用卡片開啟」併進這裡 */
+        hap(6); toast(window.SKY_LANG === "en" ? "Buy the album or enter your code to get the album card. Already have the card? Tap ♪ on it in Wallet; if this phone isn't signed in yet, enter your email + code once." : "購買或輸入兌換碼開啟專輯後，就能領取專輯卡。已經有卡的人，從錢包點卡片上的 ♪ 打開；這支手機還沒登入的話，用購買時的 email＋兌換碼開啟一次。", 6400); return;
+      }
+      a2st({ walletTap: Date.now() }); albumClaim(wl);   /* 沿用 B329T 領取一般專輯卡 */
+    });
   }
   /* 語言列：已購時搬進清單最後一列；未購時放回原本位置（未購頁外觀不變） */
   function ownMenuSync() {
     var row = $("lang-row"), slot = $("om-lang-slot"), home = $("lang-row-home"); if (!row || !slot || !home) return;
-    var inMenu = row.parentNode === slot.parentNode;
-    if (state.unlocked && !(CFG.navShowAll && ALL_FREE)) { if (!inMenu) slot.parentNode.insertBefore(row, slot); }
+    var inMenu = row.parentNode === slot.parentNode, free = !!(CFG.navShowAll && ALL_FREE);
+    $("own-menu").hidden = free; $("own-after").hidden = free;   /* 免費專輯頁（BEFORE THE SKY）不放清單 */
+    if (!free) { if (!inMenu) slot.parentNode.insertBefore(row, slot); }
     else if (inMenu) home.parentNode.insertBefore(row, home.nextSibling);
+    ownMenuPaint();
   }
 
   /* B323T：OWN「有 Apple 錢包卡？」—— 網頁讀不到錢包裡的卡，所以是教他從卡片點回來（卡片的 OPEN ALBUM 帶專屬鑰匙 ?m=，回到這裡自動解鎖） */
   function ownWalletEntry() {
     var box = $("own-wl"); if (!box) return;
+    if (true) return;   /* B331T：併進清單的「加入 Apple 錢包」（未購買點了會說明怎麼用卡片開啟） */
     if (!A2.iOS || A2.standalone || A2.inapp || box.__done) return;
     box.__done = 1;
     var en = window.SKY_LANG === "en";
