@@ -3777,6 +3777,23 @@ body, #stage{ background:#080809 !important; }
 #terms-sheet.rl .tm-tab{display:none}
 #terms-sheet.rl .tm-title{display:block}
 </style>
+<style id="b331-blackgold">/* B331T（CÉON 10/28「所有分頁黑金白字、中英文一樣」）：剩下的紫色改黑金；抽卡光暈統一金色（CÉON 選） */
+[style*="--lkglow"]{--lkglow:#FFDF8E!important}
+#terms-sheet{background:#080809!important}
+body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主畫面」提示不要蓋在條款／規則視窗上 */
+#terms-sheet .tm-head{border-bottom-color:rgba(217,178,106,.22)}
+#terms-sheet p,#terms-sheet li{color:rgba(255,255,255,.86)}
+#terms-sheet .tm-kv span:first-child{color:rgba(255,255,255,.55)}
+#terms-sheet .tm-kv span:last-child{color:#fff}
+#terms-sheet .tm-x{color:rgba(255,255,255,.7)}
+#screen-lucky .lk-chip{color:#F4EEE4!important}
+#lk-hold{background:radial-gradient(ellipse at 50% 42%,rgba(26,22,15,.86) 0%,rgba(3,3,3,.97) 82%)!important}
+#lk-phys{background:radial-gradient(ellipse at 50% 30%,rgba(42,34,20,.92),rgba(3,3,3,.98) 78%)!important}
+#lk-phys .pz-title{text-shadow:0 0 22px #FFDF8E}
+#lk-phys .pz-hero-card{box-shadow:0 18px 40px rgba(0,0,0,.62),0 0 30px #FFDF8E}
+#lk-slot .sl-cab{background:linear-gradient(180deg,#1e1a13 0%,#100e0b 55%,#080808 100%)!important;box-shadow:0 0 0 2px rgba(247,231,188,.92),0 0 0 7px rgba(120,88,38,.55),0 0 34px rgba(233,196,106,.28),0 22px 60px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.16),inset 0 0 26px rgba(217,178,106,.12)!important}
+#lk-dq.tint .dq-gem{background:linear-gradient(158deg,#FFFFFF 0%,#FFDF8E 38%,#8a6428 72%,#16120a 100%)!important}
+</style>
 <style id="b318-shop-old-hide">/* B318T：SHOP 舊版列表（renderMerch 的 THE SKY COLLECTION）不再在新 SHOP 模組載入前閃出來；與模組載入後注入的規則相同，購買按鈕仍在 DOM 供模組沿用 */#screen-merch .page-titles,#merch-list{display:none!important}
 /* B319T：購票頁「完整購票須知」「《購票須知》」小字連結：外觀不變，點擊範圍加大到 44px 以上 */.tkb-lk{position:relative}.tkb-lk::after{content:"";position:absolute;left:-6px;right:-6px;top:-14px;bottom:-14px}.tkb-fine .tkb-lk::after{top:-26px;bottom:-6px}</style>
 </head>
