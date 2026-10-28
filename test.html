@@ -19,15 +19,15 @@ var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
 <script src="shop-language.js?v=ce6994ebafca"></script>
-<script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
-<link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
-<meta charset="utf-8">
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
   take();
   window.addEventListener("hashchange", function () { if (take()) location.reload(); });   /* 頁面已開著時又點了卡：只有 # 變、不會重載 → 存好後重載一次 */
 })();</script>
+<script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
+<link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
+<meta charset="utf-8">
 <script>/* B266T／B267T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
    只在：主畫面 App（standalone）＋有配對 cookie＋這個 App 還沒有本機解鎖紀錄 時啟動。
    本機紀錄只用來決定要不要先顯示「正在開啟」，不是授權；真正解鎖仍由主後端 /verify 的結果決定（主程式 redeemAny）。 */
@@ -12651,7 +12651,7 @@ window.ALBUM_SWITCH = {
           state.cur = si; state.dur = 0; renderProgress(0);
         }
         renderNowPlaying(); renderTrackLists(true); updateMediaSession();
-        toast("單曲卡 · 已為你解鎖《I'M SORRY》");
+        toast(window.SKY_LANG === "en" ? "Single card · I'M SORRY unlocked for you" : "單曲卡 · 已為你解鎖《I'M SORRY》");   /* B334T：英文介面也要英文 */
       })
       .catch(function () {});
   }
@@ -13051,7 +13051,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B332T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B334T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
