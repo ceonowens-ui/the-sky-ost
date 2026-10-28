@@ -22,6 +22,12 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
 <script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
 <meta charset="utf-8">
+<script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
+(function () {
+  function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
+  take();
+  window.addEventListener("hashchange", function () { if (take()) location.reload(); });   /* 頁面已開著時又點了卡：只有 # 變、不會重載 → 存好後重載一次 */
+})();</script>
 <script>/* B266T／B267T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
    只在：主畫面 App（standalone）＋有配對 cookie＋這個 App 還沒有本機解鎖紀錄 時啟動。
    本機紀錄只用來決定要不要先顯示「正在開啟」，不是授權；真正解鎖仍由主後端 /verify 的結果決定（主程式 redeemAny）。 */
@@ -6270,7 +6276,13 @@ window.ALBUM_SWITCH = {
     var p = String(unlockInfo().product || "");
     return (p === "599" || p === "799" || p === "deluxe" || p === "full-unlock" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
   }
-  function isLocked(t) { return !t.free && !state.unlocked; }
+  /* 單曲卡（chance-single）：持卡者只解鎖《I'm Sorry》。鑰匙由 <head> 最早的 script 存進 localStorage，
+   * 開機時問 /single/check，通過才算數；音檔走 chance-single，不用會員碼。下載、收藏仍需完整解鎖。 */
+  var SINGLE = { base: "https://chance-single.anthonywen0693.workers.dev", path: "sky/03.mp3", key: "", ok: false };
+  try { SINGLE.key = localStorage.getItem("chance.single.v1") || ""; } catch (e) {}
+  function singleFor(t) { return SINGLE.ok && !state.unlocked && t.protectedPath === SINGLE.path; }
+  function albumLocked(t) { return !t.free && !state.unlocked; }
+  function isLocked(t) { return albumLocked(t) && !singleFor(t); }
 
   /* ---------- 音源路徑 ----------
    * 免費曲：本地檔（assets/audio/，可公開部署在 GitHub Pages）。
@@ -6280,6 +6292,7 @@ window.ALBUM_SWITCH = {
    *    必須與 worker.js 的 PROTECTED_FILES、R2 object key 完全一致。 */
   function srcFor(t) {
     if (t.free) return t.audioPath;
+    if (singleFor(t)) return SINGLE.base + "/single/track?k=" + encodeURIComponent(SINGLE.key);
     if (useCard("album")) return gwURL("track", { file: t.protectedPath || "", s: cardS() });   /* CARD1：沒有原碼、用卡片登入 → 閘道 */
     var u = unlockInfo();
     return CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(t.protectedPath || "") +
@@ -6684,7 +6697,7 @@ window.ALBUM_SWITCH = {
   /* 單曲下載：典藏版限定（Worker 端同樣會驗證，前端只是 UI 把關） */
   function downloadTrack(i) {
     var t = TRACKS[i];
-    if (isLocked(t)) { toast("需解鎖完整專輯才能下載"); go("purchase"); return; }
+    if (albumLocked(t)) { toast("需解鎖完整專輯才能下載"); go("purchase"); return; }
     if (!t.free && purchasedProduct() !== "deluxe") { toast("下載為典藏版限定"); return; }
     var url = srcFor(t) + (t.free ? "" : "&download=1");
     try {
@@ -11298,7 +11311,7 @@ window.ALBUM_SWITCH = {
   }
   $("btn-heart").addEventListener("click", function (e) {
     var t = TRACKS[state.cur];
-    if (isLocked(t)) { toast("解鎖後才能收藏這首的心動瞬間"); return; }
+    if (albumLocked(t)) { toast("解鎖後才能收藏這首的心動瞬間"); return; }
     var stage = $("stage").getBoundingClientRect();
     var b = e.currentTarget.getBoundingClientRect();
     var ox = ((b.left + b.width / 2 - stage.left) / stage.width * 100).toFixed(1);
@@ -12620,6 +12633,28 @@ window.ALBUM_SWITCH = {
   });
   renderProgress(pos.time || 0);
   initPlayerUpgrade();
+
+  /* 單曲卡：有鑰匙、還沒完整解鎖 → 問 chance-single；通過就解鎖《I'm Sorry》並停在這首（不自動播放）。
+   * 卡片連結是 ?album=the-sky&track=1（test.html 的 track 是曲號）。 */
+  if (SINGLE.key && !state.unlocked) {
+    fetch(SINGLE.base + "/single/check?k=" + encodeURIComponent(SINGLE.key), { cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) {
+          if (d && d.error === "invalid_card") { try { localStorage.removeItem("chance.single.v1"); } catch (e) {} }
+          return;
+        }
+        SINGLE.ok = true;
+        var si = -1;
+        for (var i = 0; i < TOTAL; i++) if (TRACKS[i].protectedPath === SINGLE.path) si = i;
+        if (si >= 0 && audio.paused && (/[?&]track=1(&|$)/.test(location.search) || isLocked(TRACKS[state.cur]))) {
+          state.cur = si; state.dur = 0; renderProgress(0);
+        }
+        renderNowPlaying(); renderTrackLists(true); updateMediaSession();
+        toast("單曲卡 · 已為你解鎖《I'M SORRY》");
+      })
+      .catch(function () {});
+  }
 })();
 
 </script>

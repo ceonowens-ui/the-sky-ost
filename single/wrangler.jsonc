@@ -1,0 +1,15 @@
+// chance-single：CHANCE 單曲卡獨立後台。持卡者（Wallet 卡上的鑰匙）只能聽《I'm Sorry》。
+// 不綁 the-sky-ost-api、不碰 the-sky-audio；音檔放活動專用 R2 chance-single-audio（只放這一首）。
+{
+  "name": "chance-single",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "r2_buckets": [{ "binding": "SINGLE_AUDIO", "bucket_name": "chance-single-audio" }],
+  "vars": {
+    "SINGLE_ENABLED": "on",                 // 總開關：不是 "on" 就全部拒絕（緊急停用改成 off 再部署）
+    "SINGLE_VOID": "",                      // 作廢的卡號，逗號分隔，例如 "007,012"
+    "ALLOW_ORIGINS": "https://chance1228.com"
+  }
+  // 沒有 secret：cards.js 只存每張卡鑰匙的 SHA-256，鑰匙本身只在卡片裡。
+}
