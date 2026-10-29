@@ -2097,7 +2097,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function buyHTML() {
     var ev = buyEv(), n = validTickets().length;
     var right = '<button class="r tkb-mine" data-act="open-wallet">我的票' + (n ? ' <b>' + n + '</b>' : '') + '</button>';
-    var h = buyBar("周邊", "TICKETS", right).replace('class="tk-bar tkb-bar"', 'class="tk-bar tkb-bar la-bar"');
+    var h = buyBar("收藏", "TICKETS", right).replace('class="tk-bar tkb-bar"', 'class="tk-bar tkb-bar la-bar"');
     if (!ev) return '<div class="tkb la">' + h + '<div class="tk-empty">' + (S.loading ? "載入中…" : "目前沒有開放購票的活動。") + '</div></div>';
     var ts = ev.tiers || [];
     if (isSolo(ev) && tierBuyable(ev, ts[0])) S.buySel = ts[0].key;   // 只有一種票就直接選好（同原本）
@@ -2136,7 +2136,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function buyHTML0() {
     var ev = buyEv(), n = validTickets().length;
     var right = '<button class="r tkb-mine" data-act="open-wallet">我的票' + (n ? ' <b>' + n + '</b>' : '') + '</button>';
-    var h = buyBar("周邊", "TICKETS", right);
+    var h = buyBar("收藏", "TICKETS", right);
     if (!ev) return h + '<div class="tk-empty">' + (S.loading ? "載入中…" : "目前沒有開放購票的活動。") + '</div>';
     var tiers = ev.tiers || [];
     if (isSolo(ev) && tierBuyable(ev, tiers[0])) S.buySel = tiers[0].key;   // B225T：只有一種票就直接選好

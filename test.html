@@ -18,12 +18,24 @@ if(pref!=="zh"&&pref!=="en")pref="";
 var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
-<script src="shop-language.js?v=ce6994ebafca"></script>
+<script src="shop-language.js?v=6164fc6c3f42"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
   take();
   window.addEventListener("hashchange", function () { if (take()) location.reload(); });   /* 頁面已開著時又點了卡：只有 # 變、不會重載 → 存好後重載一次 */
+})();</script>
+<script>/* B335T（UI/UX P2-8）：子頁面的返回鍵守衛。開子頁時 pushState 一筆；popstate 時若那個子頁還開著就只關它、不離開 App。
+   用 UI 關閉時把自己加的那筆退掉（skip 一次 popstate）。只管這裡登記的 key，不碰既有的 sgf／a2pg／a2ck／sgc 流程。 */
+window.SKY_BACK = (function () {
+  var open = {}, skip = 0;
+  function push(key, closeFn) { if (open[key]) return; open[key] = closeFn; try { history.pushState(Object.assign({}, history.state || {}, { b335: key }), ""); } catch (e) {} }
+  function done(key) { if (!open[key]) return; delete open[key]; if (history.state && history.state.b335 === key) { skip++; try { history.back(); } catch (e) { skip--; } } }
+  window.addEventListener("popstate", function () {
+    if (skip) { skip--; return; }
+    for (var k in open) { if (!(history.state && history.state.b335 === k)) { var f = open[k]; delete open[k]; try { f(); } catch (e) {} } }
+  });
+  return { push: push, done: done };
 })();</script>
 <script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
@@ -975,9 +987,9 @@ textarea, select { font-size: 16px !important; }
 #toast { position: absolute; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom));
          z-index: 100; transform: translateX(-50%);
          background: rgba(20,15,26,.96); border: 1px solid rgba(var(--primary-rgb), .4);
-         color: #fff; padding: 10px 20px; border-radius: 22px; font-size: 12.5px;
-         font-family: var(--font-serif-tc); white-space: nowrap; max-width: 84%;
-         overflow: hidden; text-overflow: ellipsis; text-align: center;
+         color: #fff; padding: 11px 20px; border-radius: 22px; font-size: 15px; line-height: 1.45;
+         font-family: var(--font-serif-tc); white-space: normal; max-width: 86%; width: max-content;
+         overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-align: center;   /* B335T：15px、最多 3 行，不再截斷（UI/UX P1-3） */
          box-shadow: 0 8px 24px rgba(0,0,0,.5);
          opacity: 0; pointer-events: none; transition: opacity .25s ease; }
 #toast.show { opacity: 1; }
@@ -2388,7 +2400,7 @@ body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
   border:none; border-radius:18px; color:#241703;
   background:linear-gradient(100deg,#F3DFAE 0%,#EBCB86 48%,#D2A65C 100%);
   font-family:var(--font-serif-tc); font-size:clamp(15px,4.3vw,17.5px); font-weight:700; letter-spacing:1.5px;
-  box-shadow:0 10px 26px rgba(217,178,106,.32); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  box-shadow:0 10px 26px rgba(217,178,106,.32); white-space:normal; line-height:1.2; overflow:hidden; }   /* B335T：英文長句改兩行，不截斷（UI/UX P1-6） */
 #screen-lucky .lk-draw:disabled { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
   color:rgba(255,255,255,.42); box-shadow:none; opacity:1; }
 #screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
@@ -3292,7 +3304,7 @@ body.has-mini .screen.active::after{ content:""; display:block; height:var(--doc
 #screen-player #cp-menu .cp-menu-action svg { width:21px; height:21px; flex:none; }
 #screen-player #cp-menu #btn-lyrics { border:0!important; width:100%!important; height:auto!important; border-radius:0; color:#eee7f2!important; }
 #screen-player #cp-share-url { width:100%; border:1px solid #615469; background:#16121c; color:#e4dce9; border-radius:8px; padding:12px; font:13px/1.4 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; margin:8px 0; }
-#screen-player #cp-message { position:absolute; z-index:40; left:20px; right:20px; top:calc(16px + env(safe-area-inset-top,0px)); padding:12px 16px; background:#302937; color:#fff; border:1px solid #5d5068; border-radius:12px; font:14px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; text-align:center; pointer-events:none; }
+#screen-player #cp-message { position:absolute; z-index:40; left:20px; right:20px; top:calc(72px + env(safe-area-inset-top,0px));   /* B335T（P2-7）：不蓋到左上返回鍵 */ padding:12px 16px; background:#302937; color:#fff; border:1px solid #5d5068; border-radius:12px; font:14px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; text-align:center; pointer-events:none; }
 #screen-player.cp-immersive .player-fold { visibility:hidden; pointer-events:none; }
 body.cp-immersive #nav-wrap { visibility:hidden; pointer-events:none; }
 body.cp-menu-open #nav-wrap { visibility:hidden; pointer-events:none; }
@@ -3843,6 +3855,47 @@ body, #stage{ background:#080809 !important; }
 #a2vid video{max-width:100%;max-height:100%;width:auto;height:100%;aspect-ratio:9/16;border-radius:14px;background:#000}
 #a2vid .av-err{margin:0 16px 16px;font-size:16px;line-height:1.5;color:#f3dcab;text-align:center}
 #a2vid .av-err .av-alt{margin-left:6px;min-height:44px;border:0;background:none;color:#ecc98c;font-size:16px;text-decoration:underline}
+</style>
+<style id="b335-p2">/* B335T：UI/UX 審查 P2（版型不動，只調位置、留白、字級與小元件） */
+/* P2-1 滑動提示：移到進度條上方，不再壓到歌名副標 */
+.swipe-hint{bottom:112px;font-size:11px}
+/* P2-2 SIGNAL 提示條關閉鍵 */
+.sigbar-x{flex:none;width:36px;height:36px;margin:-4px -8px -4px 0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font:400 15px/1 -apple-system,sans-serif;color:rgba(247,235,203,.7)}
+.sigbar-x:active{background:rgba(255,255,255,.1)}
+/* P2-3／P2-4／P2-5 被分頁列或迷你播放器蓋住：底部留白＝分頁列＋迷你播放器 */
+#screen-purchase #unlock-form-view{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+body.has-mini #screen-purchase #unlock-form-view,body.has-mini #screen-purchase #own-after,body.has-mini #screen-lucky .lucky-wrap,body.has-mini #screen-lucky{padding-bottom:calc(230px + env(safe-area-inset-bottom))}
+#screen-lucky{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+/* P2-9 留言面板「改名」 */
+.sgc-nick{appearance:none;border:0;background:none;padding:0 4px;margin-left:2px;font:inherit;font-size:14px;color:#e2c48c;text-decoration:underline;text-underline-offset:3px}
+/* P2-11 320 寬：語言列不換行 */
+@media (max-width:359px){#screen-purchase .own-menu .own-language summary > span:first-of-type{white-space:nowrap;font-size:17px}#screen-purchase .own-menu .own-language-value{font-size:17px}}
+/* P2-12 放大字體：分頁島字級是 CÉON TUNER 定稿（--nav-fs），不縮；只讓它不跟著系統放大字體膨脹、標籤不換行不相撞 */
+#nav-wrap #nav{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#nav-wrap #nav .navbtn{min-width:0}
+#nav-wrap #nav .navbtn .navlbl{white-space:nowrap;max-width:100%;overflow:hidden}
+/* P2-16 歌詞最後幾行不被播放列蓋住 */
+#screen-player.cp-lyr #cp-lyrics{padding-bottom:calc(var(--cp-dock-height,126px) + 120px)!important}
+</style>
+<style id="b335-fontsize">/* B335T：UI/UX 審查 P1-8——非裝飾文字一律 ≥14px（只改字級，版型不動） */
+#screen-purchase #plans .plan-feature{font-size:15px!important;line-height:1.5!important}
+#screen-purchase #plans .plan-badge{font-size:14px!important}
+.nickcard .nk-sub{font-size:15px}
+.nickcard button{font-size:16px;min-height:46px}
+.mini-player .mp-sub{font-size:13.5px}
+#mini-player .mp-mseg{font-size:13px}
+#lk-hold .hold-tip{font-size:15px}
+#lk-hold .hold-badge{font-size:13px}
+#sgc-note{font-size:14px!important}
+#lk-phys .pz-eyebrow{font-size:13px}
+/* 票務／周邊模組（design-lock 凍結檔不改，字級由這裡蓋） */
+.tk-layer .q-sm,.tk-sheet .q-sm{font-size:14px!important}
+#cx-shop .cxl-mt{font-size:14px!important}
+#cx-shop .cxl-tag{font-size:12.5px!important}
+#cx-shop .cxl-demo{font-size:14px!important}
+.tk-layer .tk-login-hint,.tk-sheet .tk-login-hint{font-size:14px!important}
+.tk-layer .tk-login-sum,.tk-sheet .tk-login-sum{font-size:15px!important}
+.tk-layer .q-f label,.tk-layer .q-lab{font-size:14px!important}
 </style>
 <style id="b331-blackgold">/* B331T（CÉON 10/28「所有分頁黑金白字、中英文一樣」）：剩下的紫色改黑金；抽卡光暈統一金色（CÉON 選） */
 [style*="--lkglow"]{--lkglow:#FFDF8E!important}
@@ -6351,7 +6404,7 @@ window.ALBUM_SWITCH = {
   function skyCtaFit(c) {
     var tx = c && c.querySelector(".sky-cta-txt"); if (!tx || !tx.clientWidth) return;
     tx.style.fontSize = "";
-    for (var fz = parseFloat(getComputedStyle(tx).fontSize) || 20, k = 0; tx.scrollWidth > tx.clientWidth + 1 && fz > 16 && k < 8; k++) { fz -= 1; tx.style.fontSize = fz + "px"; }
+    for (var fz = parseFloat(getComputedStyle(tx).fontSize) || 20, k = 0; tx.scrollWidth > tx.clientWidth + 1 && fz > 14 && k < 10; k++) { fz -= 1; tx.style.fontSize = fz + "px"; }
     if (!skyCtaFit.__fonts && document.fonts && document.fonts.ready) { skyCtaFit.__fonts = 1; document.fonts.ready.then(function () { document.querySelectorAll(".sky-cta:not([hidden])").forEach(skyCtaFit); }); }
   }
   function skyPreviewUI() {
@@ -8849,7 +8902,7 @@ window.ALBUM_SWITCH = {
     var w = a2UnlockEl() || a2UnlockOpen({ state: "wait" });
     if (w.classList.contains("pv")) { a2UnlockPaint("wait"); return; }   /* 預覽：只看畫面，不送出 */
     if (A267.busy) return;
-    if (!email || !code) { a2UnlockPaint("form", { empty: true }); return; }
+    if (!email || !code) { a2UnlockPaint("form", { empty: true }); try { (email ? $("a2u-c") : $("a2u-e")).focus({ preventScroll: true }); } catch (e) {} return; }   /* B335T（P2-10） */
     A267.busy = true;
     a2UnlockPaint("wait");
     var my = (A267.run = (A267.run || 0) + 1);
@@ -9136,6 +9189,7 @@ window.ALBUM_SWITCH = {
     document.removeEventListener("keydown", a2VidKey, true);
     document.removeEventListener("visibilitychange", a2VidVis);
     w.remove();
+    try { window.SKY_BACK.done("a2vid"); } catch (e) {}
     var f = A2V.from; A2V.from = null; try { if (f && f.offsetParent) f.focus({ preventScroll: true }); } catch (e) {}
   }
   function a2VidKey(e) { if (e.key === "Escape") { e.preventDefault(); a2VidClose(); } }
@@ -9181,6 +9235,7 @@ window.ALBUM_SWITCH = {
     w.querySelector(".av-x").addEventListener("click", a2VidClose);
     document.addEventListener("keydown", a2VidKey, true);
     document.addEventListener("visibilitychange", a2VidVis);
+    try { window.SKY_BACK.push("a2vid", a2VidClose); } catch (e) {}
     try { w.querySelector(".av-x").focus({ preventScroll: true }); } catch (e) {}
   }
   /* 語言列：已購時搬進清單最後一列；未購時放回原本位置（未購頁外觀不變） */
@@ -9584,7 +9639,7 @@ window.ALBUM_SWITCH = {
     else a2CkErr("e", "");
     if (!$("ck-c").checked) { a2CkErr("c", "請先勾選同意《購買須知》與《隱私權政策》，才能前往付款"); ok = false; }
     else a2CkErr("c", "");
-    if (!ok) { var first = !$("ck-err-e").hidden ? $("ck-e") : $("ck-c"); try { first.scrollIntoView({ block: "center", behavior: a2Reduce() ? "auto" : "smooth" }); } catch (e) {} return; }
+    if (!ok) { var first = !$("ck-err-e").hidden ? $("ck-e") : $("ck-c"); try { first.scrollIntoView({ block: "center", behavior: a2Reduce() ? "auto" : "smooth" }); } catch (e) {} try { first.focus({ preventScroll: true }); } catch (e) {} return; }   /* B335T（P2-10）：焦點到第一個錯誤欄位 */
     if (A276.o.preview) { a2CkStatus('<p class="ck-st-t">預覽</p><p>不會前往付款，也不會建立訂單。</p>'); return; }
     a2CkStatus("");
     lsSet(NS + ":lastemail", v);   /* 與原本 askEmail 相同：記住，下次不用再打 */
@@ -10374,10 +10429,9 @@ window.ALBUM_SWITCH = {
     return n + "|" + ids;
   }
   var NICKASK_KEY = "album-the-sky:nick-asked";
-  function askNick() {
+  function askNick(force) {   /* B335T（UI/UX P2-9）：force＝從留言面板點「顯示為…」主動改名 */
     if (document.getElementById("__nickWrap")) return;
-    if (fanNick()) return;
-    try { if (localStorage.getItem(NICKASK_KEY)) return; } catch (e) {}
+    if (!force) { if (fanNick()) return; try { if (localStorage.getItem(NICKASK_KEY)) return; } catch (e) {} }
     try { a2TipClose(); } catch (e) {}   /* B307T：暱稱卡是正式對話框，先收掉上面的「放到主畫面」提示，一次只有一個 */
     var w = document.createElement("div");
     w.id = "__nickWrap"; w.className = "nickwrap";
@@ -10391,6 +10445,8 @@ window.ALBUM_SWITCH = {
     var row = document.createElement("div"); row.className = "nk-row";
     var skip = document.createElement("button"); skip.className = "nk-skip"; skip.type = "button"; skip.textContent = "以後再說";
     var ok = document.createElement("button"); ok.className = "nk-ok"; ok.type = "button"; ok.textContent = "就這樣叫我";
+    ok.disabled = true; inp.addEventListener("input", function () { ok.disabled = !(inp.value || "").trim(); });   /* B335T：空白不能送出（原本會默默關掉） */
+    if (force && fanNick()) { inp.value = fanNick(); ok.disabled = false; }
     function close() { w.classList.remove("in"); setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 260); }
     function save() {
       var v = (inp.value || "").trim().slice(0, 12);
@@ -10400,7 +10456,7 @@ window.ALBUM_SWITCH = {
     }
     skip.addEventListener("click", function () { try { localStorage.setItem(NICKASK_KEY, "1"); } catch (e) {} close(); });
     ok.addEventListener("click", save);
-    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && (inp.value || "").trim()) save(); });
     row.appendChild(skip); row.appendChild(ok);
     card.appendChild(ava); card.appendChild(q); card.appendChild(sub); card.appendChild(inp); card.appendChild(row);
     w.appendChild(card); document.body.appendChild(w);
@@ -10574,6 +10630,11 @@ window.ALBUM_SWITCH = {
     b.appendChild(ava); b.appendChild(txt); b.appendChild(ch);
     b.style.top = "calc(" + (topOff || 0) + "px + env(safe-area-inset-top) + 10px)";
     b.addEventListener("click", function () { onTap(); });
+    /* B335T（UI/UX P2-2）：加「✕」＋ 12 秒自動收起（分頁上的紅點照舊，不會漏看） */
+    var x = document.createElement("span"); x.className = "sigbar-x"; x.setAttribute("role", "button"); x.setAttribute("aria-label", window.SKY_LANG === "en" ? "Dismiss" : "關閉"); x.textContent = "✕";
+    function dismiss() { b.classList.remove("in"); setTimeout(function () { if (b.parentNode) b.remove(); }, 320); }
+    x.addEventListener("click", function (e) { e.stopPropagation(); e.preventDefault(); dismiss(); });
+    b.appendChild(x); setTimeout(dismiss, 12000);
     document.body.appendChild(b);
     requestAnimationFrame(function () { b.classList.add("in"); });
   }
@@ -10920,13 +10981,14 @@ window.ALBUM_SWITCH = {
       (TIP_OPEN ? '<div class="sgc-tipbar" hidden><div class="sgc-amts" role="group" aria-label="' + sgrL("應援金額", "Support amount") + '">' + TIP_AMTS.map(function (a, i) { return '<button type="button" class="sgc-amt" data-a="' + a + '" aria-pressed="' + (i === 0) + '">NT$' + a + '</button>'; }).join("") + '</div>' +
         '<p class="sgc-tip-s"><b>' + sgrL("金額不會公開", "Amounts are never shown") + '</b>' + sgrL(" · 所有應援留言同一種金色，最新三則置頂 · 預覽中，結帳尚未開放、不會扣款", " · every supporter comment is the same gold; the latest three are pinned · preview only, checkout isn't open and nothing is charged") + '</p></div>' : '') +
       '<form class="sgc-form' + (TIP_OPEN ? ' has-chip' : '') + '" novalidate>' + (TIP_OPEN ? '<button type="button" class="sgc-chip" aria-pressed="false" aria-describedby="sgc-note">' + TIP_STAR + sgrL("應援", "Support") + '</button>' : '') + '<label class="sr" for="sgc-in">' + sgrL("留言內容", "Your comment") + '</label><textarea id="sgc-in" rows="1" maxlength="300" placeholder="' + sgrL("留下你的話…", "Say something…") + '" enterkeyhint="send"></textarea><button type="submit" class="sgc-send" aria-label="' + sgrL("送出留言", "Post comment") + '" disabled>' + SGR_ICON.up + '</button></form>' +
-      '<p class="sgc-note" id="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + '</p>' +
+      '<p class="sgc-note" id="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + ' <button type="button" class="sgc-nick" data-no-translate>' + sgrL("改名", "Change") + '</button></p>' +
     '</div>';
     w.__it = it; w.__from = from; w.__gen = (SGR.gen = (SGR.gen || 0) + 1);   /* B327T：每次打開留言面板一個世代號 */
     document.body.appendChild(w); document.body.classList.add("sgc-open");
     requestAnimationFrame(function () { w.classList.add("in"); });
     try { history.pushState(Object.assign({}, history.state || {}, { sgc: 1 }), ""); w.__hist = 1; } catch (e) {}
     var ta = w.querySelector("textarea"), send = w.querySelector(".sgc-send"), note = w.querySelector(".sgc-note");
+    try { var nkb = w.querySelector(".sgc-nick"); if (nkb) nkb.addEventListener("click", function (e) { e.preventDefault(); askNick(true); }); } catch (e) {}   /* B335T（P2-9）：可改暱稱 */
     var keep = SGR.draft && SGR.draft.rid === it.rid ? SGR.draft.v : ""; ta.value = keep; send.disabled = !keep.trim();
     if (keep) SGR.draft.gen = w.__gen;   /* B327T：帶回來的草稿歸這個面板 */
     ta.addEventListener("input", function () { send.disabled = !ta.value.trim() || w.__busy; ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; SGR.draft = { rid: it.rid, v: ta.value, gen: w.__gen }; });
@@ -11473,7 +11535,7 @@ window.ALBUM_SWITCH = {
     } catch (e) {}
   };
   function luckMemberQ() {
-    var u = lsGet("album-the-sky:unlock", {}), f = lsGet("album-the-sky:feedpass", {});
+    var u = lsGet(LS.unlock, {}), f = lsGet(LS.feedpass, {});   /* B335T：改讀 LS（test.html 的鍵有 :t261 後綴；原本寫死正式鍵 → 已購在 test 被當免費用戶，UI/UX P1-1） */
     return !!(u.unlocked || (f.unlocked && f.full));
   }
   function luckToday() {
@@ -11620,8 +11682,10 @@ window.ALBUM_SWITCH = {
       if (closed) return; closed = true;
       ov.classList.add("out");
       setTimeout(function () { ov.remove(); }, 360);
+      try { window.SKY_BACK.done("lkhold"); } catch (e) {}
       lkAfterReveal(c);
     }
+    try { window.SKY_BACK.push("lkhold", close); } catch (e) {}
     /* 點卡片本身不關閉（保留長按存圖）；點按鈕或卡片外區域才收進圖鑑 */
     ov.addEventListener("click", function (e) { if (e.target.closest(".hold-card")) return; close(); });
     return ov;
@@ -12123,6 +12187,7 @@ window.ALBUM_SWITCH = {
       if(nextMode==="cover"){queueFrom=lyricsFrom="cover";}   /* B328T：回主播放器一律清來源 */
       if(nextMode!=="queue")screen.appendChild(dock);
       mode=nextMode; panel.hidden=mode==="cover";
+      try{ if(mode==="cover") window.SKY_BACK.done("cp"); else window.SKY_BACK.push("cp", function(){ setMode("cover",false); }); }catch(_){}
       if(mode!=="cover"){var tipEl=document.getElementById("a2tip");if(tipEl&&tipEl.classList.contains("tip-home")){a2TipClose();A2.tipWait="resume";}}   /* B286T：進歌詞／TRACKS 子頁時先收起「放到主畫面」提示（會蓋住子頁頂部） */
       if(mode==="cover"&&A2.tipWait){var tw=A2.tipWait;A2.tipWait=null;setTimeout(function(){try{if(tw==="resume"){if(!a2Skip())a2Tip("home");}else a2TipMaybe(tw);}catch(_){}},700);}   /* B286T：回到主播放器才跳被延後的提示 */
       screen.classList.toggle("cp-immersive",mode!=="cover");
@@ -12352,7 +12417,7 @@ window.ALBUM_SWITCH = {
     var sharing=false;
     function shareSelected(){
       if(sharing)return;
-      var t=shareTrack(),data={title:t.title+" · "+(t.artist||CFG.artistName||"CHANCE"),text:"一起聽 "+t.title,url:shareLink()};
+      var t=shareTrack(),data={title:t.title+" · "+(t.artist||CFG.artistName||"CHANCE"),text:(window.SKY_LANG==="en"?"Listen with me: ":"一起聽 ")+t.title,url:shareLink()};   /* B335T：英文介面分享英文（UI/UX P1-5） */
       if(!navigator.share){copyLink(data.url);return;}sharing=true;
       try{Promise.resolve(navigator.share(data)).catch(function(err){if(err.name!=="AbortError")copyLink(data.url);}).finally(function(){sharing=false;});}catch(_){sharing=false;copyLink(data.url);}
     }
@@ -12554,10 +12619,12 @@ window.ALBUM_SWITCH = {
         bd.hidden=false; sh.hidden=false; renderSheet(focusId); document.body.classList.add("cm-open");
         cmLockBg(); var fx=composing?$("cm-ta"):sh.querySelector(".cm-x"); if(fx){ try{fx.focus({preventScroll:true});}catch(_){} }
         requestAnimationFrame(function(){bd.classList.add("in");sh.classList.add("in");});
+        try{window.SKY_BACK.push("cm",closeSheet);}catch(_){}
         load(true);
       }
       function closeSheet(){
         if(!sheetOpen)return; sheetRun++; sheetOpen=false; composing=false; draft="";
+        try{window.SKY_BACK.done("cm");}catch(_){}
         bd.classList.remove("in"); sh.classList.remove("in"); document.body.classList.remove("cm-open");
         setTimeout(function(){ if(!sheetOpen){bd.hidden=true;sh.hidden=true;sh.style.height="";sh.style.bottom="";} },340);
         cmUnlockBg();
@@ -12651,7 +12718,7 @@ window.ALBUM_SWITCH = {
           state.cur = si; state.dur = 0; renderProgress(0);
         }
         renderNowPlaying(); renderTrackLists(true); updateMediaSession();
-        toast(window.SKY_LANG === "en" ? "Single card · I'M SORRY unlocked for you" : "單曲卡 · 已為你解鎖《I'M SORRY》");   /* B334T：英文介面也要英文 */
+        try { var seenK = "chance.single.v1.seen"; if (localStorage.getItem(seenK) !== SINGLE.key) { localStorage.setItem(seenK, SINGLE.key); toast(window.SKY_LANG === "en" ? "Single card · I'M SORRY unlocked for you" : "單曲卡 · 已為你解鎖《I'M SORRY》"); } } catch (e) {}   /* B334T 英文；B335T（P2-15）只在第一次或換卡時提示 */
       })
       .catch(function () {});
   }
@@ -13030,8 +13097,8 @@ window.ALBUM_SWITCH = {
     }
     sheet.querySelector(".tm-body").scrollTop = 0;
   }
-  function openTerms(which) { showDoc(which || "terms"); sheet.classList.remove("hidden"); }
-  function closeTerms() { sheet.classList.add("hidden"); }
+  function openTerms(which) { showDoc(which || "terms"); sheet.classList.remove("hidden"); try { window.SKY_BACK.push("terms", closeTerms); } catch (e) {} }
+  function closeTerms() { sheet.classList.add("hidden"); try { window.SKY_BACK.done("terms"); } catch (e) {} }
   window.__openTerms = openTerms;
 
   sheet.addEventListener("click", function (e) {
@@ -13051,7 +13118,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B334T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B335T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13210,7 +13277,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=bb74eee11dd3";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=8155b6843822";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
@@ -13264,7 +13331,7 @@ window.ALBUM_SWITCH = {
 (function () {
   function $(id) { return document.getElementById(id); }
   var nav = $("nav"), audio = null;
-  function isPlayerAudio(a) { return a && !a.paused && (a.duration > 5 || isNaN(a.duration)); }
+  function isPlayerAudio(a) { return a && !a.paused && (a.duration > 5 || isNaN(a.duration)) && !/\/sfx\//.test(a.currentSrc || a.src || ""); }   /* B335T：抽卡音效（assets/sfx/）不算播放器（UI/UX P1-2） */
   function pickAudio() { var L = window.__AUD || []; for (var i = L.length - 1; i >= 0; i--) if (isPlayerAudio(L[i])) return L[i]; return audio; }
   function bindAudio(a) { if (!a || a.__mp) return; a.__mp = true; ["play", "pause", "ended", "loadedmetadata", "durationchange"].forEach(function (ev) { a.addEventListener(ev, function () { if (ev === "play" && (a.duration > 5 || isNaN(a.duration))) { audio = a; started = true; } if (a === audio) syncMini(); }); }); }
   (window.__AUD || []).forEach(bindAudio); document.addEventListener("aud:new", function (e) { bindAudio(e.detail); });

@@ -5,6 +5,22 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B335T：票夾（我的票）、票券登入、票種、轉讓、合照——英文介面原本整頁中文（UI/UX 審查 P1-4） */
+ '我的票夾':'My tickets','收藏':'Collection','更多':'More','去購票':'Get tickets','即將到來':'Upcoming','過往':'Past','還沒有過往的票。':'No past tickets yet.',
+ '買票後，票會自動放進這裡。':'Tickets you buy will appear here.','入場過的票會變成票根留在這裡。':'Used tickets stay here as stubs.','沒有即將到來的票。':'No upcoming tickets.',
+ '已買過票？':'Already have a ticket?','用 email 找回你的票':'Find it with your email','登入':'Sign in','你的 email':'Your email','寄驗證碼給我':'Email me a code','位數驗證碼':'-digit code',
+ '買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。':"If you've bought the album you're already signed in. Otherwise enter your email and we'll send you a code (also used to receive a ticket from a friend).",
+ '已入場':'Admitted','已退票':'Refunded','已作廢':'Void','已結束':'Ended','轉讓中':'Transferring','轉讓給朋友':'Transfer to a friend','取消轉讓':'Cancel transfer','看轉讓 QR':'Show transfer QR',
+ '這張票正在轉讓中（10 分鐘內有效）':'This ticket is being transferred (valid for 10 minutes)','找不到這張票，可能已轉讓給朋友。':"This ticket wasn't found. It may have been transferred.",
+ '更新票券':'Refresh tickets','出示入場 QR':'Show entry QR','入場 QR 還沒出現':'Entry QR not available yet','為了防止截圖轉賣，開場前':'To prevent screenshot resale, the QR appears','小時出現 QR':'hours before doors',
+ '會自動出現在這裡':'will appear here automatically','開場前':'Before doors','小時':'hours','小時，入場 QR 會出現在票上。':'hours before doors, the entry QR will appear on your ticket.',
+ '票種':'Ticket type','選擇票種':'Choose a ticket type','你的票種享有':'Your ticket includes','自由入座':'General admission','席':'seats','張':'','張票':'tickets','剩':'left','你有':'You have','起':'from','購買':'Buy',
+ '全場售完':'Sold out','再買一張給朋友':'Buy one for a friend','加到行事曆':'Add to calendar','導航到':'Directions to','會場':'Venue','分享':'Share','終身編號 No.':'Member No.','已排隊 No.':'On the waitlist · No.',
+ '生日牆合照':'Birthday wall photo','加購':'Add-on','已加購':'Added','票券已含':'Included','在生日牆與 CHANCE 合照一次，成片全數下載':'One photo with CHANCE at the birthday wall; download all shots',
+ '你的照片':'Your photos','拍照用 QR':'Photo QR','拍照用 QR（給攝影師拍）':'Photo QR (show the photographer)','拍照用 QR（測試）':'Photo QR (test)',
+ '活動後你的合照成片、全場大合照與精選活動照會出現在這裡，免費下載。':'After the event, your photo, the group photo and selected event photos will appear here for free download.',
+ '活動後全場大合照與精選活動照會出現在這裡，免費下載。':'After the event, the group photo and selected event photos will appear here for free download.',
+ '周邊收藏':'Merch collection','收藏進度':'Collection progress',
  '你的收藏':'Your collection','票券與周邊，各自收好。':'Tickets and merch, all in one place.',
  '收藏不只是擁有，而是與你的時間並肩。':'More than ownership. A moment shared with you.',
  '購買周邊':'Shop merch','立即購買':'Shop now','立即購票':'Get tickets','查看我的票':'My tickets','我的票':'My tickets','周邊':'Shop','返回':'Back','帳號':'Account',
@@ -97,6 +113,16 @@
  const enTime=t=>{const [h,mi]=t.split(':').map(Number);return ((h%12)||12)+':'+String(mi).padStart(2,'0')+(h<12?' AM':' PM');};
  const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
+ /* B335T：票夾數量句 */
+ [/^你有 (\d+) 張票$/,(_,n)=>'You have '+n+(n==='1'?' ticket':' tickets')],
+ [/^剩 (\d+) 張$/,(_,n)=>n+' left'],
+ [/^(\d+) 張票$/,(_,n)=>n+(n==='1'?' ticket':' tickets')],
+ [/^(\d+) 席$/,(_,n)=>n+' seats'],
+ [/^已入場 (\d+:\d+)$/,(_,t)=>'Admitted '+t],
+ [/^(\d+) 位數驗證碼$/,(_,n)=>n+'-digit code'],
+ [/^開場前 (\d+) 小時出現 QR$/,(_,n)=>'QR appears '+n+' hours before doors'],
+ [/^開場前 (\d+) 小時，入場 QR 會出現在票上。$/,(_,n)=>'The entry QR will appear on your ticket '+n+' hours before doors.'],
+ [/（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）/,(_,w)=>'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'],   /* B335T（P2-17）：英文用半形括號 */
  /* B319T：購票頁的日期、退票、編號、福利 */
  [/^(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+)・(.+)$/,(_,m,d,w,t,v)=>enDay(m,d,w)+' · '+enTime(t)+' Taipei time · '+(D[v]||v)],
  [/^(.+)｜(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+) 開始$/,(_,n,m,d,w,t)=>(D[n]||n)+' | '+enDay(m,d,w)+', starts '+enTime(t)+' (Taipei time)'],
