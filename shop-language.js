@@ -69,6 +69,8 @@
  '亦可以備註留下全名跟電話在12/27現場領取時請人代領':'You can also leave your full name and phone number in the order note and have someone pick up for you on site on 12/27',
  '*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名':'*Gifts for Chance are welcome on the day, but please avoid overly expensive items. No on-site autographs.',
  '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
+ /* B341T：票種福利（後台與 test.html 一致） */
+ '離場HI FIVE':'HI FIVE on the way out','6號小卡':'No. 6 photo card','隨機A3海報一張':'One random A3 poster',
  /* 場地若在後台改成 8 樓 A 廳：英文跟著換 */
  '微風影城8樓A廳':'Breeze Cinemas · Hall A, 8F','微風影城 8 樓 A 廳':'Breeze Cinemas · Hall A, 8F','微風影城8樓A廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei','微風影城 8 樓 A 廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei',
  };

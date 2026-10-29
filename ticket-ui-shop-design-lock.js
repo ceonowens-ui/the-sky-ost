@@ -1952,7 +1952,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ✏️ 活動主視覺文字改 BUY_TEXT；價格/席次/福利從 Worker 場次資料讀
      ════════════════════════════════════════════════════════════════ */
   var BUY_TEXT = {
-    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["第一支 MV 現場搶先首映與創作分享", "生日環節・現場抽獎", "全場大合照（成品可下載）", "主辦精選活動照下載", "散場擊掌一次", "數位紀念票（App 票根）"], ppNote: "",
+    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
       /* B337T：生日會資訊（CÉON 10/29 13:21 提供原文，一字不改；英文在 shop-language.js 逐行對照）。每個陣列＝一段 */
       info: { title: "生日會資訊", groups: [
         ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
