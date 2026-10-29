@@ -6020,7 +6020,12 @@ window.ALBUM_SWITCH = {
   var pos = lsGet(LS.pos, {});
   var state = {
     screen: "player",
-    cur: Math.max(0, Math.min(Number.isInteger(pos.cur) ? pos.cur : 0, TOTAL - 1)),
+    cur: (function () {   /* B340T（CÉON 10/29 14:27）：THE SKY 進 App 一律停在《I'M SORRY》（不再接上次的歌）；分享連結 ?track= 照舊 */
+      var last = Math.max(0, Math.min(Number.isInteger(pos.cur) ? pos.cur : 0, TOTAL - 1));
+      if (CFG.albumId !== "the-sky" || new URLSearchParams(location.search).has("track")) return last;
+      var i = TRACKS.findIndex(function (t) { return t.n === 1 && /sorry/i.test(t.title); });
+      return i >= 0 ? i : last;
+    })(),
     playing: false,
     dur: 0,
     selectedPlan: "basic",           // basic(299 專輯) / deluxe(799 全解鎖)
@@ -11537,6 +11542,28 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 控制鍵綁定 ---------- */
   $("btn-play").addEventListener("click", togglePlay);
+  /* B340T：進 App 後「第一次碰螢幕」就開始播《I'M SORRY》（未購＝30 秒試聽、已購＝完整版、上次停在這首就接著播）。
+     iPhone／瀏覽器規定有聲音的播放必須先有一次觸碰，無法完全不碰就出聲（封面影片能自動播是因為靜音）。
+     本來就控制影音的地方（播放鍵、迷你播放列、進度條、歌詞／待播面板、加主畫面教學影片、SIGNAL 影音）不搶，避免重複播放或互相打架。 */
+  (function () {
+    if (CFG.albumId !== "the-sky" || new URLSearchParams(location.search).has("track")) return;
+    var idx = TRACKS.findIndex(function (t) { return t.n === 1 && /sorry/i.test(t.title); }); if (idx < 0) return;
+    var OWNS = "#btn-play,#btn-prev,#btn-next,#mini-player,#prog,#cp-dock,#cp-panel,#cp-share-quick,#cp-menu-wrap";
+    var SKIP = OWNS + ",#om-home,#a2vid,#a2tip [data-t=tut],#a2tip [data-t=install],video:not(#cover-video),audio,.chat-video,[data-src],input,textarea,select,label";
+    var armed = true;
+    function disarm() { armed = false; document.removeEventListener("touchend", kick, true); document.removeEventListener("click", kick, true); }
+    function kick(e) {
+      if (!armed) return;
+      if (window.__noAutoStart) { disarm(); return; }   /* 自動化回歸測試用的開關（舊測試維持原意）；正式使用者不會有這個值 */
+      if (!audio.paused || state.playing || state.cur !== idx) { disarm(); return; }   /* 已經在播，或使用者自己選了別首 → 不管 */
+      var t = e.target && e.target.closest ? e.target : null;
+      if (t && t.closest(SKIP)) { if (t.closest(OWNS)) disarm(); return; }   /* 點的是播放器本身 → 交給它，不再自動播 */
+      disarm();
+      try { togglePlay(); window.__autoStart = { at: Date.now(), via: e.type }; } catch (_) {}
+    }
+    document.addEventListener("touchend", kick, true);
+    document.addEventListener("click", kick, true);
+  })();
   $("btn-prev").addEventListener("click", prev);
   $("btn-next").addEventListener("click", next);
   (function () {                                     /* B126T：單曲重複開關 */
@@ -12591,7 +12618,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B339T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B340T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
