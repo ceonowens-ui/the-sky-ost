@@ -53,7 +53,24 @@
  '取得驗證碼':'Get verification code','發送驗證碼':'Send code','寄送驗證碼':'Send code','輸入驗證碼':'Enter verification code','驗證碼':'Verification code','驗證':'Verify','驗證中…':'Verifying…','登入':'Sign in','登出':'Sign out',
  'Email 驗證':'Verify email','輸入 Email':'Enter email','你的 Email':'Your email','驗證 Email':'Verify email','輸入你的 Email':'Enter your email','請輸入 Email':'Enter your email',
  '查詢我的票':'Find my tickets','重新寄送':'Resend','重新寄送驗證碼':'Resend code','沒有收到？':'Didn’t receive it?','購買紀錄':'Purchase history','我的訂單':'My orders','入場':'Entry','限量':'Limited',
- '台灣免運・海外':'Free Taiwan shipping · International','／包':'/ pack','/ 包':'/ pack','品名：':'Product:','售價：':'Price:'
+ '台灣免運・海外':'Free Taiwan shipping · International','／包':'/ pack','/ 包':'/ pack','品名：':'Product:','售價：':'Price:',
+ /* B337T：生日會資訊（CÉON 10/29 13:21 原文 → 英文逐行對照；中文原文一字不改） */
+ '生日會資訊':'Birthday Party Info',
+ '地點：微風影城8樓A廳':'Venue: Breeze Cinemas, Hall A, 8F',
+ '票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)':'Ticket: NT$1,880 (includes a HI FIVE on the way out, a No. 6 photo card, and one random A3 poster)',
+ '座位名額：120名':'Seats: 120',
+ '時間：14:00開始入場、14:30活動開始、16:00活動結束':'Time: Doors open 14:00, event starts 14:30, event ends 16:00',
+ '11/1開始預購 (商品請於當日提前13:20至現場領取)':'Pre-orders open 11/1 (please come early at 13:20 on the day to collect your items on site)',
+ '會依購買姓名+電話方式核對劃消':'We will verify and check you off by the buyer’s name + phone number',
+ '另販售周邊海報A3一組4張 520元 限量50組*':'Also on sale: A3 poster set (4 posters per set), NT$520, limited to 50 sets*',
+ '及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組':'Overseas fans who can’t attend can buy the A3 poster set + No. 6 photo card bundle, NT$980, limited to 30 sets',
+ '亞洲寄送+250':'Shipping within Asia +NT$250',
+ '其他地區+500':'Other regions +NT$500',
+ '亦可以備註留下全名跟電話在12/27現場領取時請人代領':'You can also leave your full name and phone number in the order note and have someone pick up for you on site on 12/27',
+ '*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名':'*Gifts for Chance are welcome on the day, but please avoid overly expensive items. No on-site autographs.',
+ '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
+ /* 場地若在後台改成 8 樓 A 廳：英文跟著換 */
+ '微風影城8樓A廳':'Breeze Cinemas · Hall A, 8F','微風影城 8 樓 A 廳':'Breeze Cinemas · Hall A, 8F','微風影城8樓A廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei','微風影城 8 樓 A 廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei',
  };
  Object.assign(D,{
  /* B319T：購票頁、購票須知（海外粉絲付款前看得懂；英文僅供參考，以中文為準） */
@@ -122,7 +139,7 @@
  [/^(\d+) 位數驗證碼$/,(_,n)=>n+'-digit code'],
  [/^開場前 (\d+) 小時出現 QR$/,(_,n)=>'QR appears '+n+' hours before doors'],
  [/^開場前 (\d+) 小時，入場 QR 會出現在票上。$/,(_,n)=>'The entry QR will appear on your ticket '+n+' hours before doors.'],
- [/（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）/,(_,w)=>'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'],   /* B335T（P2-17）：英文用半形括號 */
+ [/^(.*)（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）(.*)$/,(_,a,w,b)=>a+'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'+b.replace('台北時間','Taipei time')],   /* B335T（P2-17）：英文用半形括號 */
  /* B319T：購票頁的日期、退票、編號、福利 */
  [/^(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+)・(.+)$/,(_,m,d,w,t,v)=>enDay(m,d,w)+' · '+enTime(t)+' Taipei time · '+(D[v]||v)],
  [/^(.+)｜(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+) 開始$/,(_,n,m,d,w,t)=>(D[n]||n)+' | '+enDay(m,d,w)+', starts '+enTime(t)+' (Taipei time)'],
