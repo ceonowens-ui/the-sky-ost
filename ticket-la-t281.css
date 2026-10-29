@@ -124,3 +124,14 @@
 .tkb .tk-in, .tkb #tkm-pre .tkm-row, .tkb .tkb-cta { min-height:48px; font-size:16px; }
 .tkb-terms .tkb-lk { min-height:44px; }
 .tkb #tkm-pre .tkm-im { width:64px; height:64px; object-fit:cover; }
+
+/* B345T：分批入場、自由選位（選票頁票卡下方＋結帳頁付款前）。沿用 la-info／tkc-note 的金框黑底 */
+.la-entry{position:relative;z-index:3;margin:calc(22 * var(--u)) 18px 0;padding:14px 18px;border:1px solid rgba(217,184,126,.45);border-radius:16px;background:rgba(14,12,10,.86)}
+.la-entry-h{margin:0 0 4px;font:600 18px/1.45 "Noto Serif TC","Songti TC",serif;letter-spacing:.04em;color:#E6CB95}
+.la-entry-l{margin:0;font:400 16px/1.6 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;color:#EFE7DA;overflow-wrap:anywhere}
+.tk-layer[lang=en] .la-entry-h{letter-spacing:0}
+.tkb .tkc-entry{margin:18px 0 12px;padding:14px 16px;border:1px solid rgba(217,184,126,.45);border-radius:14px;background:rgba(216,188,128,.07)}
+.tkb .tkc-entry-h{margin:0 0 6px;font-size:17px;font-weight:700;color:#E6CB95}
+.tkb .tkc-entry ul{margin:0;padding-left:1.2em}
+.tkb .tkc-entry li{margin:0 0 6px;font-size:16px;line-height:1.6;color:#f3eee6;overflow-wrap:anywhere}
+.tkb .tkc-entry li:last-child{margin-bottom:0}
