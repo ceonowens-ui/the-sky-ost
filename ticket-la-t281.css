@@ -107,3 +107,11 @@
 .la-info-l{margin:0 0 6px;font:400 15.5px/1.65 -apple-system,"PingFang TC","Noto Sans TC",sans-serif;color:#EFE7DA;letter-spacing:.01em;word-break:break-word;overflow-wrap:anywhere}
 .la-info-l:last-child{margin-bottom:0}
 .tk-layer[lang=en] .la-info-l{letter-spacing:0}
+
+/* B343T：周邊數量（每筆最多 5 組；後台 M2 才出現） */
+.tkm-qty{display:flex;align-items:center;gap:12px;margin:10px 2px 4px;font:400 15px/1.4 -apple-system,"PingFang TC",sans-serif;color:#EFE7DA}
+.tkm-qty > span{flex:none}
+.tkm-qty button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(217,184,126,.5);background:rgba(20,16,12,.9);color:#E6CB95;font:500 22px/1 -apple-system,sans-serif;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.tkm-qty button:disabled{opacity:.35;cursor:default}
+.tkm-qty b{min-width:24px;text-align:center;font-size:18px;color:#fff}
+.tkm-qty small{margin-left:auto;font-size:13px;color:#B9AE9F}

@@ -516,7 +516,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   function payNow() {
     var b = S.buy; if (!b) return;
-    var ev = buyEvent(b.evId), pp = b.kind === "pp", mc = pp ? "" : mCodeFor(ev, b), key = pp ? ev.ppKey : (b.tier ? (ev.id + "-" + b.tier + (mc ? "-x-" + mc : (b.tier === "ga" && b.pp && coPPAvail(ev, { key: "ga" }) ? "-pp" : ""))) : ev.productKey);
+    var ev = buyEvent(b.evId), pp = b.kind === "pp", mc = pp ? "" : mCodeFor(ev, b), key = pp ? ev.ppKey : (b.tier ? (ev.id + "-" + b.tier + (mc ? "-x-" + mc + (mQ(ev.id, b) > 1 ? "-q" + mQ(ev.id, b) : "") : (b.tier === "ga" && b.pp && coPPAvail(ev, { key: "ga" }) ? "-pp" : ""))) : ev.productKey);
     var email = (!S.session && b.email) ? b.email : myEmail(); if (!email) return msg("#tk-bmsg", "請先確認 email");
     try { sessionStorage.setItem("tk225:bf", JSON.stringify({ e: b.evId, n: ticketsFor(b.evId).length, at: Date.now() })); } catch (e) {}   // B225T：記下付款前張數
     if (C.demo) {   // demo：不跳綠界，模擬付款成功後走跟真實一樣的「輪詢→成功」流程
@@ -2249,7 +2249,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!evId || S.mm[evId] || S.mmTried[evId]) return;
     S.mmTried[evId] = 1;
     api("/ticket/merch?eventId=" + encodeURIComponent(evId)).then(function (j) {
-      if (j && j.ok && j.merch) { S.mm[evId] = { m: j.merch, ship: j.ship }; if (cb) cb(); else S.layers.forEach(renderLayer); }
+      if (j && j.ok && j.merch) { S.mm[evId] = { m: j.merch, ship: j.ship, v: j.v || "" }; if (cb) cb(); else S.layers.forEach(renderLayer); }
     }).catch(function () {});
   }
   function mLoadMine() {
@@ -2267,7 +2267,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mOwned(evId, k) { return S.morders.some(function (o) { return o.eventId === evId && o.items && o.items[k]; }); }
   function mCut(mi) { var d = mi && mi.m.cutoff ? tw(mi.m.cutoff) : null; return d ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
   function mCodeFor(ev, b) { var mi = ev && mInfo(ev.id); return mi && mi.m.open && b ? mSel(b) : ""; }
-  function mAddPrice(ev, b) { var mi = ev && mInfo(ev.id); if (!mi || !mi.m.open) return 0; var r = mResolve(mi, mSel(b)); return r ? r.price : 0; }
+  /* B343T：後台 M2（/ticket/merch 回 v:"m2"）才開「數量（每筆最多 5 組）」與「沒有票也能現場領（姓名＋電話）」；舊後台照舊 1 組、現場領要有票 */
+  var MQ_MAX = 5;
+  function mV2(evId) { var mi = mInfo(evId); return !!(mi && mi.v === "m2"); }
+  function mQMax(evId, o) { var mi = mInfo(evId); if (!mi) return 1; var I = mi.m.items, c = mSel(o), n = MQ_MAX; ["b", "h"].forEach(function (k) { if ((c === k || c === "bh") && I[k]) n = Math.min(n, Number(I[k].left || 0)); }); return Math.max(1, n); }
+  function mQ(evId, o) { if (!mV2(evId) || !o) return 1; var q = Math.floor(Number(o.mq || 1)); return Math.max(1, Math.min(q, mQMax(evId, o))); }
+  function mQtyHTML(evId, o, act, attr) {
+    if (!mV2(evId) || !mSel(o)) return "";
+    var q = mQ(evId, o), mx = mQMax(evId, o);
+    return '<div class="tkm-qty"><span>數量</span><button type="button" ' + attr + '="' + act + '" data-d="-1" aria-label="減少"' + (q <= 1 ? " disabled" : "") + '>−</button><b>' + q + '</b><button type="button" ' + attr + '="' + act + '" data-d="1" aria-label="增加"' + (q >= mx ? " disabled" : "") + '>＋</button><small>每筆最多 ' + MQ_MAX + ' 組</small></div>';
+  }
+  function mAddPrice(ev, b) { var mi = ev && mInfo(ev.id); if (!mi || !mi.m.open) return 0; var r = mResolve(mi, mSel(b)); return r ? r.price * mQ(ev.id, b) : 0; }
   function mRows(evId, o, act) {   // act："co-m"（結帳頁 data-act）或 "m-t"（單買彈窗 data-sact）
     var mi = mInfo(evId); if (!mi) return "";
     var I = mi.m.items, attr = act === "co-m" ? "data-act" : "data-sact";
@@ -2312,7 +2322,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B337T"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B343T"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2326,16 +2336,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
         '<span class="tx"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + (k === "s" && !out ? '<i class="tkm-bdg">★ 最划算・剩 ' + esc(it.left) + ' 組</i>' : '') + '</b><small>' + esc(sub) + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
-    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") +
+    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") + mQtyHTML(ev.id, o, "pre-mq", "data-act") +
       '<p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
   }
   function preMToggle(k) {
-    var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || mOwned(ev.id, k)) return;
+    var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || (k && mOwned(ev.id, k))) return;
     var o = S.pre, sm = mSetMode(ev, o);
-    if (k === "s") { o.mb = o.mh = !sm; }
+    if (!k) {}   /* B343T：只重畫（數量） */
+    else if (k === "s") { o.mb = o.mh = !sm; }
     else if (sm) { if (k === "b") o.mh = false; else o.mb = false; }
     else o["m" + k] = !o["m" + k];
-    hap(8);
+    if (k) hap(8);
     var L = layerEl("buy"); if (!L) return;
     var box = L.querySelector("#tkm-pre"); if (box) box.outerHTML = mPreRows(ev);
     var T = selTier(ev), fb = L.querySelector(".tkb-foot .fx b"); if (fb && T) fb.textContent = nt(preTotal(ev, T));
@@ -2345,7 +2356,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var mi = mInfo(ev.id), r = mi ? mResolve(mi, mSel(b)) : null;
     h += '<div class="tkc-ev"><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '・' + esc(ev.venue || "") + '</span></div>';
     h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span>' + esc(T.name) + '</span><b>' + nt(T.price) + '</b>' +
-      (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (r.code === "s" ? '<small>含一對一 60 秒・戴手鍊・簽帽T</small>' : '') + '</span><b>' + nt(r.price) + '</b>' : '') + '</div>';
+      (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (mQ(ev.id, b) > 1 ? " ×" + mQ(ev.id, b) : "") + '</span><b>' + nt(r.price * mQ(ev.id, b)) + '</b>' : '') + '</div>';
     h += ppAddonHTML(ev, T, b);
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
     else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
@@ -2384,42 +2395,47 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mOpen(evId) {
     var mi = mInfo(evId); if (!mi) { S.mmTried[evId] = 0; return mEnsure(evId, function () { mOpen(evId); }); }
     var hasT = loggedIn() && ticketsFor(evId).length > 0;
-    if (!S.mx || S.mx.evId !== evId) S.mx = { evId: evId, mode: hasT ? "pickup" : "ship", ship: { country: "" }, email: myEmail() || lsGet(K.email) || "" };
+    if (!S.mx || S.mx.evId !== evId) S.mx = { evId: evId, mode: (hasT || mV2(evId)) ? "pickup" : "ship", mq: 1, ship: { country: "" }, pk: { name: "", phone: "" }, email: myEmail() || lsGet(K.email) || "" };
     mSheet();
   }
-  function mTermsText(mode) {
-    return "周邊為預購商品，" + (mode === "ship" ? "活動後陸續寄出" : "活動當天憑票現場領取") + "。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。" +
+  function mTermsText(mode, v2) {
+    return "周邊為預購商品，" + (mode === "ship" ? "活動後陸續寄出" : v2 ? "活動當天現場領取（報訂購姓名＋電話）" : "活動當天憑票現場領取") + "。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。" +
       (mode === "ship" ? "採中華郵政 e 小包並提供追蹤號碼；寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄；關稅與進口稅由收件人負擔。" : "");
   }
   function mSheet() {
     var o = S.mx; if (!o) return;
     var mi = mInfo(o.evId), ev = buyEvent(o.evId) || {}; if (!mi) return;
     var hasT = loggedIn() && ticketsFor(o.evId).length > 0;
-    if (o.mode === "pickup" && !hasT) o.mode = "ship";
+    var v2 = mV2(o.evId), q = mQ(o.evId, o);
+    if (o.mode === "pickup" && !hasT && !v2) o.mode = "ship";
     var r = mResolve(mi, mSel(o)), fee = 0, z = null;
     if (o.mode === "ship" && o.ship.country) { var c = mi.ship.countries.filter(function (x) { return x[0] === o.ship.country; })[0]; z = c ? mi.ship.zones[c[2]] : null; if (z && r) fee = Number(z[r.code] || 0); }
-    var total = r ? r.price + fee : 0;
+    var total = r ? r.price * q + fee : 0;
     var h = '<div class="tkb-sh tkm-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button><div class="tk-eyebrow">Birthday Merch</div><h3>生日限定周邊</h3><div class="tk-hint">' + esc(ev.name || "") + (mCut(mi) ? '・預購至 ' + esc(mCut(mi)) : '') + '</div>';
-    h += mRows(o.evId, o, "m-t");
-    h += '<div class="tkb-sec">取貨方式</div><div class="tkm-seg"><button type="button" data-sact="m-mode" data-m="pickup" class="' + (o.mode === "pickup" ? "on" : "") + '"' + (hasT ? "" : " disabled") + '>現場領取<small>' + (hasT ? esc(md(ev.startAt)) + " 憑票領取" : "需持有這場門票") + '</small></button><button type="button" data-sact="m-mode" data-m="ship" class="' + (o.mode === "ship" ? "on" : "") + '">海外寄送<small>運費依地區計算</small></button></div>';
+    h += mRows(o.evId, o, "m-t") + mQtyHTML(o.evId, o, "m-mq", "data-sact");
+    h += '<div class="tkb-sec">取貨方式</div><div class="tkm-seg"><button type="button" data-sact="m-mode" data-m="pickup" class="' + (o.mode === "pickup" ? "on" : "") + '"' + (hasT || v2 ? "" : " disabled") + '>現場領取<small>' + (v2 ? esc(md(ev.startAt)) + " 報姓名＋電話領取" : hasT ? esc(md(ev.startAt)) + " 憑票領取" : "需持有這場門票") + '</small></button><button type="button" data-sact="m-mode" data-m="ship" class="' + (o.mode === "ship" ? "on" : "") + '">' + (v2 ? "寄送" : "海外寄送") + '<small>' + (v2 ? "台灣・亞洲 NT$250／其他 NT$500" : "運費依地區計算") + '</small></button></div>';
     if (o.mode === "ship") {
       h += '<select class="tk-in tkb-in" data-mf="country" aria-label="國家／地區"><option value="">選擇國家／地區</option>' + mi.ship.countries.map(function (c) { return '<option value="' + c[0] + '"' + (o.ship.country === c[0] ? " selected" : "") + '>' + esc(c[1]) + '</option>'; }).join("") + '</select>';
       [["name", "收件人姓名", "name"], ["phone", "電話（含國碼）", "tel"], ["addr", "地址（街道、門牌、樓層）", "street-address"], ["city", "城市", "address-level2"], ["state", "州／省（沒有可空白）", "address-level1"], ["postal", "郵遞區號（香港、澳門免填）", "postal-code"]].forEach(function (f) {
         h += '<input class="tk-in tkb-in" data-mf="' + f[0] + '" autocomplete="' + f[2] + '" placeholder="' + f[1] + '" aria-label="' + f[1] + '" value="' + esc(o.ship[f[0]] || "") + '">'; });
-      h += '<div class="tkm-hint">清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。台灣粉絲請選現場領取。</div>';
+      h += '<div class="tkm-hint">' + (v2 ? "清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。" : "清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。台灣粉絲請選現場領取。") + '</div>';
+    }
+    if (o.mode === "pickup" && v2) {   /* B343T：現場領取用訂購姓名＋電話核對（不用有票） */
+      h += '<div class="tkb-sec">領取人資料（現場核對用）</div>';
+      [["name", "領取人姓名", "name"], ["phone", "手機號碼", "tel"]].forEach(function (f) { h += '<input class="tk-in tkb-in" data-mf="pk-' + f[0] + '" autocomplete="' + f[2] + '" placeholder="' + f[1] + '" aria-label="' + f[1] + '" value="' + esc((o.pk || {})[f[0]] || "") + '">'; });
     }
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>訂單確認信寄到 <b>' + esc(maskEmail(myEmail())) + '</b></span></div>';
     else h += '<div class="tkb-sec">Email（訂單確認信寄到這裡）</div><input class="tk-in tkb-in" type="email" inputmode="email" autocapitalize="off" data-mf="email" autocomplete="email" placeholder="你的 email" value="' + esc(o.email || "") + '">';
-    h += '<div class="tkm-sum"><span>' + (r ? esc(r.code === "s" ? mi.m.items.s.name : r.label) : "還沒選商品") + '</span><b>' + (r ? nt(r.price) : "—") + '</b>' +
+    h += '<div class="tkm-sum"><span>' + (r ? esc(r.code === "s" ? mi.m.items.s.name : r.label) + (q > 1 ? " ×" + q : "") : "還沒選商品") + '</span><b>' + (r ? nt(r.price * q) : "—") + '</b>' +
       (o.mode === "ship" ? '<span>運費' + (z ? "（" + esc(z.label) + "）" : "") + '</span><b>' + (z ? nt(fee) : "選國家後顯示") + '</b>' : '') + '</div>';
-    h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(total) + '</b></div><p class="tkb-fine">' + esc(mTermsText(o.mode)) + '</p>';
+    h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(total) + '</b></div><p class="tkb-fine">' + esc(mTermsText(o.mode, v2)) + '</p>';
     h += '<div class="tk-msg" id="tkm-msg"></div><button class="tk-btn p" data-sact="m-pay"' + (r ? "" : " disabled") + '>' + (r ? "前往付款 " + nt(total) : "請先選商品") + '</button></div>';
     sheet(h);
     var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
     sheetEl.querySelectorAll("[data-mf]").forEach(function (inp) {
       inp.addEventListener(inp.tagName === "SELECT" ? "change" : "input", function () {
         var k = inp.getAttribute("data-mf");
-        if (k === "email") o.email = inp.value.trim().toLowerCase(); else o.ship[k] = inp.value;
+        if (k === "email") o.email = inp.value.trim().toLowerCase(); else if (k.indexOf("pk-") === 0) { o.pk = o.pk || {}; o.pk[k.slice(3)] = inp.value; } else o.ship[k] = inp.value;
         if (k === "country") mSheet();
       });
     });
@@ -2428,6 +2444,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var o = S.mx; if (!o || !el) return;
     if (a === "m-t") { var k = el.getAttribute("data-k"); if (mOwned(o.evId, k)) return; o["m" + k] = !o["m" + k]; hap(8); return mSheet(); }
     if (a === "m-mode") { if (el.disabled) return; o.mode = el.getAttribute("data-m"); return mSheet(); }
+    if (a === "m-mq") { o.mq = Math.max(1, Math.min(mQ(o.evId, o) + Number(el.getAttribute("data-d") || 0), mQMax(o.evId, o))); hap(6); return mSheet(); }
     if (a === "m-pay") return mPay(el);
   }
   function mPay(btn) {
@@ -2435,10 +2452,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var email = loggedIn() ? myEmail() : (o.email || "");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg("#tkm-msg", "請輸入正確的 email");
     if (o.mode === "ship") { var s = o.ship; if (!s.country) return msg("#tkm-msg", "請選國家／地區"); if (!s.name || !s.phone || !s.addr) return msg("#tkm-msg", "請填完整收件人、電話、地址"); }
+    var v2 = mV2(o.evId), pk = o.pk || {};
+    if (o.mode === "pickup" && v2 && (!String(pk.name || "").trim() || String(pk.phone || "").replace(/[^0-9]/g, "").length < 8)) return msg("#tkm-msg", "請填領取人姓名和手機（現場核對用）");
     lsSet(K.email, email);
     var reset = function () { btn.disabled = false; mSheet(); };
     btn.disabled = true; btn.textContent = "處理中…";
-    api("/ticket/merch/draft", { eventId: o.evId, code: code, mode: o.mode, email: email, session: S.session || "", ship: o.mode === "ship" ? o.ship : null }).then(function (j) {
+    var body = { eventId: o.evId, code: code, mode: o.mode, email: email, session: S.session || "", ship: o.mode === "ship" ? o.ship : (v2 ? { name: String(pk.name || "").trim(), phone: String(pk.phone || "").trim() } : null) };
+    if (v2) body.qty = mQ(o.evId, o);
+    api("/ticket/merch/draft", body).then(function (j) {
       if (!j || !j.ok) { reset(); return msg("#tkm-msg", (j && j.message) || "無法建立訂單，請稍後再試"); }
       try { sessionStorage.setItem("tk225:m", JSON.stringify({ evId: o.evId, code: j.code, label: j.label, mode: o.mode, email: email, at: Date.now() })); } catch (e) {}
       if (C.demo) { demoBuyMerch(email, o.evId, j.code, o.mode, o.ship); closeSheet(); setTimeout(mAwait, 400); return; }
@@ -2460,7 +2481,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       try { sessionStorage.removeItem("tk225:m"); } catch (e) {}
       var ev = buyEvent(p.evId) || {};
       sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Birthday Merch</div><h3>' + (ok ? "周邊訂單成立" : "付款已送出") + '</h3><div class="tk-hint">' + esc(p.label || MLBL[p.code] || "") + '・' +
-        (p.mode === "ship" ? "活動後寄出，寄出時會寄追蹤號碼給你" : esc(md(ev.startAt)) + " 憑票現場領取") + '<br>確認信會寄到 ' + esc(maskEmail(p.email)) + (ok ? "" : "<br>通常一兩分鐘內寄到；沒收到請來信 heartbeats0693@gmail.com") + '</div></div><button class="tk-btn p" data-sact="close">好</button>');
+        (p.mode === "ship" ? "活動後寄出，寄出時會寄追蹤號碼給你" : esc(md(ev.startAt)) + (mV2(p.evId) ? " 現場報訂購姓名＋電話領取" : " 憑票現場領取")) + '<br>確認信會寄到 ' + esc(maskEmail(p.email)) + (ok ? "" : "<br>通常一兩分鐘內寄到；沒收到請來信 heartbeats0693@gmail.com") + '</div></div><button class="tk-btn p" data-sact="close">好</button>');
       S.layers.forEach(renderLayer); render();
     };
     if (!loggedIn()) return done(false);   // 海外粉絲多半沒登入：不等，直接告知確認信
@@ -2601,8 +2622,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; S.pre = {}; return openLayer("buy"); }
     if (act === "tier-sel") { var tk = b.getAttribute("data-tier"); S.buySel = S.buySel === tk ? null : tk; hap(8); renderLayer("buy"); return; }
     if (act === "tier-info") { e.stopPropagation(); return tierDetailSheet(b.getAttribute("data-tier")); }
-    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; } return openLayer("checkout"); }
+    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; } return openLayer("checkout"); }
     if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
+    if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
     if (act === "buy-remind") { var rev = buyEv(); if (rev) qOpen(rev); return; }
     if (act === "co-pay") { return startPayment(); }
     if (act === "co-pp") return coPPToggle();
@@ -2650,7 +2672,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "login") return doLogin();
   }
   function sheetAct2(a, el) {
-    if (a === "m-t" || a === "m-mode" || a === "m-pay") return mSheetAct(a, el);
+    if (a === "m-t" || a === "m-mode" || a === "m-pay" || a === "m-mq") return mSheetAct(a, el);
     if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }

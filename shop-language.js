@@ -80,6 +80,9 @@
  '周邊為預購商品，活動當天憑票現場領取。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event with your ticket. Under Taiwan consumer protection law you can cancel for a full refund any time before you receive it, and request a return and refund within 7 days of receiving it (for event pickup, counted from the event day).',
  '現場領取：活動當天憑票領取（出示 App「我的票」）。':'Event pickup: collect on the event day with your ticket (show “My tickets” in the app).','每人各限購 1 份。':'Limit 1 of each per person.',
  '周邊於活動當天憑票現場領取':'Merch is picked up at the event with your ticket',
+ /* B343T：數量、免票現場領取（姓名＋電話） */
+ '每筆最多 5 組':'Up to 5 per order','寄送':'Ship','台灣・亞洲 NT$250／其他 NT$500':'Taiwan & Asia NT$250 / elsewhere NT$500','領取人資料（現場核對用）':'Pickup details (checked at the event)','領取人姓名':'Name for pickup','手機號碼':'Mobile number','請填領取人姓名和手機（現場核對用）':'Please enter the pickup name and mobile number (checked at the event).','減少':'Decrease','增加':'Increase',
+ '周邊為預購商品，活動當天現場領取（報訂購姓名＋電話）。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event (give the name + phone on your order). Under Taiwan consumer protection law you can cancel for a full refund any time before you receive it, and request a return and refund within 7 days of receiving it (for event pickup, counted from the event day).',
  '電話（含國碼）':'Phone (with country code)','地址（街道、門牌、樓層）':'Address (street, number, floor)','城市':'City','州／省（沒有可空白）':'State / province (optional)','郵遞區號（香港、澳門免填）':'Postal code (not needed for Hong Kong / Macau)','例如：小晞、Amy':'e.g. Amy','6 位數驗證碼':'6-digit code','例如 K7X 2M9':'e.g. K7X 2M9',
  /* B341T：票種福利（後台與 test.html 一致） */
  '離場HI FIVE':'HI FIVE on the way out','6號小卡':'No. 6 photo card','隨機A3海報一張':'One random A3 poster',
@@ -189,6 +192,9 @@
  /* B342T：剩 N 件、運費（地區） */
  [/^(.+)・剩 (\d+) (件|組)$/,(_,a,n)=>(D[a]||a)+' · '+n+' left'],
  [/^運費（(.+)）$/,(_,z)=>'Shipping ('+(D[z]||z)+')'],
+ [/^(\d+)\/(\d+) 報姓名＋電話領取$/,(_,m,d)=>'Pick up '+m+'/'+d+' with name + phone'],
+ [/^(\d+)\/(\d+) 現場報訂購姓名＋電話領取$/,(_,m,d)=>'Pick up at the event on '+m+'/'+d+' with the name + phone on your order'],
+ [/^(.+) ×(\d+)$/,(_,a,n)=>(D[a]||a)+' ×'+n],
  [/^(.*)（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）(.*)$/,(_,a,w,b)=>a+'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'+b.replace('台北時間','Taipei time')],   /* B335T（P2-17）：英文用半形括號 */
  ];
  const countries=typeof Intl.DisplayNames==='function'?new Intl.DisplayNames(['en'],{type:'region'}):null;
