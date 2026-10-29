@@ -3519,8 +3519,7 @@ body, #stage{ background:#080809 !important; }
 .sigbar-x{flex:none;width:36px;height:36px;margin:-4px -8px -4px 0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font:400 15px/1 -apple-system,sans-serif;color:rgba(247,235,203,.7)}
 .sigbar-x:active{background:rgba(255,255,255,.1)}
 /* P2-3／P2-4／P2-5 被分頁列或迷你播放器蓋住：底部留白＝分頁列＋迷你播放器 */
-#screen-purchase #unlock-form-view{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
-body.has-mini #screen-purchase #unlock-form-view,body.has-mini #screen-purchase #own-after,body.has-mini #screen-lucky .lucky-wrap,body.has-mini #screen-lucky{padding-bottom:calc(230px + env(safe-area-inset-bottom))}
+body.has-mini #screen-purchase #own-after,body.has-mini #screen-lucky .lucky-wrap,body.has-mini #screen-lucky{padding-bottom:calc(230px + env(safe-area-inset-bottom))}
 #screen-lucky.screen-sub{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
 /* P2-9 留言面板「改名」 */
 .sgc-nick{appearance:none;border:0;background:none;padding:0 4px;margin-left:2px;font:inherit;font-size:14px;color:#e2c48c;text-decoration:underline;text-underline-offset:3px}
@@ -3532,6 +3531,26 @@ body.has-mini #screen-purchase #unlock-form-view,body.has-mini #screen-purchase 
 #nav-wrap #nav .navbtn .navlbl{white-space:nowrap;max-width:100%;overflow:hidden}
 /* P2-16 歌詞最後幾行不被播放列蓋住 */
 #screen-player.cp-lyr #cp-lyrics{padding-bottom:calc(var(--cp-dock-height,126px) + 120px)!important}
+</style>
+<style id="b336-own">/* B336T：OWN 清單 C 版（CÉON 10/29 附圖）——購買區下方：已購買？開啟專輯 → 加入主畫面 → 語言 → 更多設定（Apple 錢包／通知／使用規則）。黑金版型、字級、方案卡不動 */
+#screen-purchase .own-rd-note{margin-top:14px}
+#screen-purchase:not(.own-unlocked) .own-menu{margin-top:16px}
+.own-menu .om-more-box[hidden]{display:none}
+.own-menu .om-more-box{background:rgba(255,236,200,.035)}
+.own-menu .om-more-box .om-row{border-top:1px solid rgba(255,236,200,.09)}
+.own-menu .om-more-box > :first-child{border-top:1px solid rgba(255,236,200,.09)}
+.own-menu #om-more[aria-expanded="true"] .om-ch{transform:rotate(90deg)}
+.own-menu #om-more .om-ic svg{stroke:none}
+.own-menu #a2-push.om-row{display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;height:auto;min-height:60px;margin:0;padding:8px 18px 8px 16px;background:none;border:0;border-top:1px solid rgba(255,236,200,.09)!important;color:#fff;text-align:left;cursor:pointer}
+.own-menu #a2-push.om-row:active{background:rgba(217,178,106,.10)}
+.own-menu #a2-push .a2-ol{display:inline-flex;align-items:center;gap:20px;font:400 20px/1.25 -apple-system,"PingFang TC",sans-serif;color:#fff;letter-spacing:.04em}
+.own-menu #a2-push .a2-or{display:inline-flex;align-items:center;gap:16px;font:400 20px/1.25 -apple-system,"PingFang TC",sans-serif;color:#fff}
+.own-menu #a2-push .om-bell{display:inline-flex;width:32px;height:32px;margin:0 0 0 1px;color:#e8c98a}
+.own-menu #a2-push .om-bell svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.own-menu #a2-push .om-ch{display:inline-flex;width:13px;height:20px;color:#efe6d6}
+.own-menu #a2-push .om-ch svg{width:13px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.own-menu #a2-push[hidden]{display:none}
+@media(max-width:359px){.own-menu #a2-push.om-row{padding-left:12px;padding-right:12px}.own-menu #a2-push .a2-ol,.own-menu #a2-push .a2-or{font-size:19px}.own-menu #a2-push .a2-ol{gap:14px}}
 </style>
 <style id="b335-fontsize">/* B335T：UI/UX 審查 P1-8——非裝飾文字一律 ≥14px（只改字級，版型不動） */
 #screen-purchase #plans .plan-feature{font-size:15px!important;line-height:1.5!important}
@@ -3744,9 +3763,13 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
     <!-- B331T：OWN 清單（CÉON 10/28 參考圖；已購／未購共用）；文字由 ownMenuPaint() 依語言填 -->
       <nav class="own-menu" id="own-menu" aria-label="OWN" data-no-translate>
         <button type="button" class="om-row om-hl" id="om-home"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.6 12 3.8l8.5 6.8"/><path d="M5.6 9v10.4a.8.8 0 0 0 .8.8h3.9v-6.1h3.4v6.1h3.9a.8.8 0 0 0 .8-.8V9"/></svg></i><span class="om-l"><span class="om-t">主畫面教學</span></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
-        <button type="button" class="om-row" id="om-wallet"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.2"/><path d="M2.8 9.6h18.4"/><path d="M6.2 15.2h1.6"/></svg></i><span class="om-l"><span class="om-t">加入 Apple 錢包</span><small class="a2-wl-s"></small></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
         <span id="om-lang-slot" hidden></span>
+        <button type="button" class="om-row" id="om-more" aria-expanded="false" aria-controls="om-more-box"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></i><span class="om-l"><span class="om-t">更多設定</span></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
+        <div class="om-more-box" id="om-more-box" hidden><!-- B336T：更多設定（CÉON 10/29 C 版）：Apple 錢包／通知／使用規則 收進這裡；id 不變，JS 綁定照舊 -->
+        <button type="button" class="om-row" id="om-wallet"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.8" y="5.2" width="18.4" height="13.6" rx="2.2"/><path d="M2.8 9.6h18.4"/><path d="M6.2 15.2h1.6"/></svg></i><span class="om-l"><span class="om-t">加入 Apple 錢包</span><small class="a2-wl-s"></small></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
+          <span id="om-push-slot" hidden></span>
         <button type="button" class="om-row" id="om-rules"><i class="om-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6.4C10.3 5 7.9 4.4 3.4 4.6v14.2c4.5-.2 6.9.4 8.6 1.8 1.7-1.4 4.1-2 8.6-1.8V4.6C16.1 4.4 13.7 5 12 6.4z"/><path d="M12 6.4v14.2"/></svg></i><span class="om-l"><span class="om-t">App 使用規則</span></span><i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></button>
+        </div>
       </nav>
       <div id="own-after">
         <button class="fl-redeem hidden" id="btn-redeem-owned" data-no-translate><i class="om-tk" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5v2.2a2.3 2.3 0 0 0 0 4.6v2.2A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5v-2.2a2.3 2.3 0 0 0 0-4.6z"/><path d="M9.5 9.5v1M9.5 13.5v1"/></svg></i><span class="om-rd-t">輸入兌換碼</span></button>
@@ -8737,7 +8760,7 @@ window.ALBUM_SWITCH = {
   function ownMenuPaint() {
     var m = $("own-menu"); if (!m) return;
     var en = window.SKY_LANG === "en";
-    var T = { "om-home": en ? "Add to Home Screen" : "加入主畫面", "om-rules": en ? "Rules & Policies" : "使用規則", "om-wallet": en ? "Add to Apple Wallet" : "加入 Apple 錢包" };
+    var T = { "om-home": en ? "Add to Home Screen" : "加入主畫面", "om-rules": en ? "Rules & Policies" : "使用規則", "om-wallet": en ? "Add to Apple Wallet" : "加入 Apple 錢包", "om-more": en ? "More Settings" : "更多設定" };   /* B336T：更多設定 */
     var rd = $("btn-redeem-owned"); if (rd && rd.querySelector(".om-rd-t")) rd.querySelector(".om-rd-t").textContent = en ? "Enter code" : "輸入兌換碼";
     for (var id in T) { var b = $(id); if (b) b.querySelector(".om-t").textContent = T[id]; }
     var home = $("om-home"), wl = $("om-wallet");
@@ -8745,6 +8768,8 @@ window.ALBUM_SWITCH = {
     wl.hidden = !(A2.iOS && !A2.inapp);           /* Apple 錢包只有 iPhone；LINE／微信等內建瀏覽器加不了卡 */
     var sm = wl.querySelector(".a2-wl-s"); if (sm && !A329.busy) sm.textContent = albumSubLine();
     if (m.__wired) return; m.__wired = 1;
+    var more = $("om-more"), mbox = $("om-more-box");   /* B336T：更多設定 展開／收起（只在清單內，不換頁、不進歷史） */
+    if (more && mbox) more.addEventListener("click", function () { var open = mbox.hidden; mbox.hidden = !open; more.setAttribute("aria-expanded", String(open)); try { hap(4); } catch (e) {} if (open) setTimeout(function () { try { mbox.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (e) {} }, 60); });
     home.addEventListener("click", function () { a2VidOpen(home); });   /* B332T：改播 CÉON 提供的教學影片 */
     $("om-rules").addEventListener("click", function () { if (window.__openTerms) window.__openTerms("rules"); });
     wl.addEventListener("click", function () {
@@ -8937,8 +8962,9 @@ window.ALBUM_SWITCH = {
         if (q === "granted" && (lsGet(PUSHK, {}) || {}).on) { toast(en ? "Notifications are on. To turn off: Settings → Notifications → THE SKY." : "通知已開啟。要關掉可到 iPhone「設定 → 通知 → THE SKY」", 4200); return; }
         pushTurnOn("own");
       });
-      var oa = $("own-after");   /* B331T：清單下方第一條（參考圖） */
-      if (oa) oa.insertBefore(b, oa.firstChild); else box.appendChild(b);
+      b.classList.add("om-row");   /* B336T：改放進 OWN 清單「更多設定」裡（錢包之後、使用規則之前） */
+      var ps = $("om-push-slot"), oa = $("own-after");
+      if (ps) ps.parentNode.insertBefore(b, ps); else if (oa) oa.insertBefore(b, oa.firstChild); else box.appendChild(b);
     }
     var st = on ? (en ? "On" : "已開啟") : p === "denied" ? (en ? "Off" : "已關閉") : (en ? "Turn on" : "開啟");
     b.innerHTML = '<span class="a2-ol"><i class="om-bell" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.2 16.6V10.8a5.8 5.8 0 0 1 11.6 0v5.8l1.6 1.9H4.6z"/><path d="M10 20.6a2.1 2.1 0 0 0 4 0"/></svg></i>' + (en ? "Notifications" : "通知") + '</span><span class="a2-or">' + st + '<i class="om-ch" aria-hidden="true"><svg viewBox="0 0 12 16"><polyline points="3.5 2.5 9 8 3.5 13.5"/></svg></i></span>';   /* B332T：照參考圖；狀態照實際（已開啟／已關閉／開啟） */
@@ -12535,7 +12561,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B335T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B336T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
