@@ -8,7 +8,7 @@
   var EP = "https://the-sky-stats.anthonywen0693.workers.dev/ev";
   if (/[?&](tune|t267|t264)=/.test(location.search)) return;   /* 調版面／預覽模式不算使用 */
   var OA = window.Audio, audio = null;
-  window.Audio = function () { var a = new OA(); if (!audio) { audio = a; hookAudio(a); } return a; };
+  window.Audio = function (src) { var a = (src === undefined) ? new OA() : new OA(src); if (!audio) { audio = a; hookAudio(a); } return a; };   /* B335T：原本把 new Audio(src) 的 src 丟掉 → LUCKY 音效、SIGNAL 語音在 test.html 播不出來（UI/UX 補抓） */
   window.Audio.prototype = OA.prototype;
 
   var sid = "";

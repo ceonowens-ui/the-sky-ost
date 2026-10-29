@@ -37,7 +37,7 @@ window.SKY_BACK = (function () {
   });
   return { push: push, done: done };
 })();</script>
-<script src="stats-track.js?v=S2"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
+<script src="stats-track.js?v=S3"></script><!-- B292T：匿名使用統計埋點（只在 test.html；送到獨立 the-sky-stats Worker） -->
 <link rel="stylesheet" href="b283-local.css?v=166ed99512a1">
 <meta charset="utf-8">
 <script>/* B266T／B267T（只在 test.html）：主畫面 App 第一次打開，整頁還在下載時就先開始「接上收藏」。
@@ -3520,7 +3520,7 @@ body, #stage{ background:#080809 !important; }
 /* P2-3／P2-4／P2-5 被分頁列或迷你播放器蓋住：底部留白＝分頁列＋迷你播放器 */
 #screen-purchase #unlock-form-view{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
 body.has-mini #screen-purchase #unlock-form-view,body.has-mini #screen-purchase #own-after,body.has-mini #screen-lucky .lucky-wrap,body.has-mini #screen-lucky{padding-bottom:calc(230px + env(safe-area-inset-bottom))}
-#screen-lucky{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+#screen-lucky.screen-sub{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
 /* P2-9 留言面板「改名」 */
 .sgc-nick{appearance:none;border:0;background:none;padding:0 4px;margin-left:2px;font:inherit;font-size:14px;color:#e2c48c;text-decoration:underline;text-underline-offset:3px}
 /* P2-11 320 寬：語言列不換行 */
@@ -12739,7 +12739,7 @@ window.ALBUM_SWITCH = {
   var nav = $("nav"), audio = null;
   function isPlayerAudio(a) { return a && !a.paused && (a.duration > 5 || isNaN(a.duration)) && !/\/sfx\//.test(a.currentSrc || a.src || ""); }   /* B335T：抽卡音效（assets/sfx/）不算播放器（UI/UX P1-2） */
   function pickAudio() { var L = window.__AUD || []; for (var i = L.length - 1; i >= 0; i--) if (isPlayerAudio(L[i])) return L[i]; return audio; }
-  function bindAudio(a) { if (!a || a.__mp) return; a.__mp = true; ["play", "pause", "ended", "loadedmetadata", "durationchange"].forEach(function (ev) { a.addEventListener(ev, function () { if (ev === "play" && (a.duration > 5 || isNaN(a.duration))) { audio = a; started = true; } if (a === audio) syncMini(); }); }); }
+  function bindAudio(a) { if (!a || a.__mp) return; a.__mp = true; ["play", "pause", "ended", "loadedmetadata", "durationchange"].forEach(function (ev) { a.addEventListener(ev, function () { if (ev === "play" && isPlayerAudio(a)) { audio = a; started = true; }   /* B335T：sfx 不算播放（UI/UX P1-2） */ if (a === audio) syncMini(); }); }); }
   (window.__AUD || []).forEach(bindAudio); document.addEventListener("aud:new", function (e) { bindAudio(e.detail); });
   function onScreen(id) { var s = $("screen-" + id); return !!(s && s.classList.contains("active")); }
 
