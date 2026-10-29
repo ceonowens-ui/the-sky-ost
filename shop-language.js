@@ -11,7 +11,7 @@
  '已買過票？':'Already have a ticket?','用 email 找回你的票':'Find it with your email','登入':'Sign in','你的 email':'Your email','寄驗證碼給我':'Email me a code','位數驗證碼':'-digit code',
  '買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。':"If you've bought the album you're already signed in. Otherwise enter your email and we'll send you a code (also used to receive a ticket from a friend).",
  '已入場':'Admitted','已退票':'Refunded','已作廢':'Void','已結束':'Ended','轉讓中':'Transferring','轉讓給朋友':'Transfer to a friend','取消轉讓':'Cancel transfer','看轉讓 QR':'Show transfer QR',
- '這張票正在轉讓中（10 分鐘內有效）':'This ticket is being transferred (valid for 10 minutes)','找不到這張票，可能已轉讓給朋友。':"This ticket wasn't found. It may have been transferred.",
+ '開演前 3 小時起停止轉讓':'Transfers close 3 hours before the show','這張票正在轉讓中（10 分鐘內有效）':'This ticket is being transferred (valid for 10 minutes)','找不到這張票，可能已轉讓給朋友。':"This ticket wasn't found. It may have been transferred.",
  '更新票券':'Refresh tickets','出示入場 QR':'Show entry QR','入場 QR 還沒出現':'Entry QR not available yet','為了防止截圖轉賣，開場前':'To prevent screenshot resale, the QR appears','小時出現 QR':'hours before doors',
  '會自動出現在這裡':'will appear here automatically','開場前':'Before doors','小時':'hours','小時，入場 QR 會出現在票上。':'hours before doors, the entry QR will appear on your ticket.',
  '票種':'Ticket type','選擇票種':'Choose a ticket type','你的票種享有':'Your ticket includes','自由入座':'General admission','席':'seats','張':'','張票':'tickets','剩':'left','你有':'You have','起':'from','購買':'Buy',

@@ -74,8 +74,10 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
  * ===================================================================== */
 (function () {
   "use strict";
+  /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。沒設＝正式，行為不變 */
+  var TKAPI = (function () { try { var m = /[?&]tkapi=(test|prod)\b/.exec(location.search); if (m) localStorage.setItem("tk:api", m[1]); return localStorage.getItem("tk:api") === "test" ? "test" : "prod"; } catch (e) { return "prod"; } })();
   var C = {
-    api: "https://the-sky-ost-api.anthonywen0693.workers.dev",
+    api: TKAPI === "test" ? "https://the-sky-ost-api-test.anthonywen0693.workers.dev" : "https://the-sky-ost-api.anthonywen0693.workers.dev",
     unlockKeys: ["album-the-sky:unlock", "album-the-sky:feedpass"],
     merchKey: "album-the-sky:merch",
     mount: "#screen-merch", before: "#merch-list",
@@ -87,7 +89,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     scanFile: "tk-scan.js?v=2",
     terms: "演出日前 20 日前可申請退票，酌收票價 10% 手續費；之後恕不退票，可用票夾「轉讓給朋友」換人。活動取消、改期或主要演出內容變更，全額退款。",   // TODO 退換票條款待 CÉON 定案
   };
-  var K = { sess: "tk:session", email: "tk:email" };
+  var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };   // 測試後台的登入另外存，不混用
+  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
             layers: [], sel: null, tab: "up", detail: null, addTab: "cam" };
 
@@ -307,7 +310,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     }).catch(function () { return false; });
   }
   function setSession(s, email) { S.session = s; S.email = email; lsSet(K.sess, s); lsSet(K.email, email); }
-  function clearSession() { S.session = null; S.tickets = []; lsSet(K.sess, null); }
+  function clearSession() { S.session = null; S.tickets = []; lsSet(K.sess, null); lsSet("tk:phone", null); if (S.buy) S.buy.phone = ""; }   // B347T：登出也清掉記住的手機
 
   /* ---------- 資料 ---------- */
   function loadEvents() { return api("/ticket/events").then(function (j) { S.events = (j && j.events) || []; try { qSync(); } catch (e) {} }).catch(function () {}); }
@@ -682,7 +685,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var payload = { session: S.session }; if (pt.token) payload.token = pt.token; else payload.code = pt.code;
     api("/ticket/transfer/accept", payload).then(function (j) {
       S.pendingTransfer = null;
-      if (!j.ok) { var m = { self: "這張票本來就是你的", transfer_expired: "轉讓已失效，請對方重新產生", transfer_invalid: "轉讓已被取消或已完成", expired: "這場已經結束了", code_wrong: "代碼不對或已過期", locked: "輸錯太多次，10 分鐘後再試" }[j.error] || j.message || "接受失敗"; return sheet('<div class="tk-big"><div class="ic">✕</div><h3>' + esc(m) + '</h3></div><button class="tk-btn p" data-sact="close">好</button>'); }
+      if (!j.ok) { var m = { frozen: "開演前 3 小時起停止轉讓", self: "這張票本來就是你的", transfer_expired: "轉讓已失效，請對方重新產生", transfer_invalid: "轉讓已被取消或已完成", expired: "這場已經結束了", code_wrong: "代碼不對或已過期", locked: "輸錯太多次，10 分鐘後再試" }[j.error] || j.message || "接受失敗"; return sheet('<div class="tk-big"><div class="ic">✕</div><h3>' + esc(m) + '</h3></div><button class="tk-btn p" data-sact="close">好</button>'); }
       hap([20, 40, 20]);
       sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Transfer complete</div><h3>這張票是你的了</h3><div class="tk-hint">' + esc((j.ticket && j.ticket.id) || "") + '<br>入場時到 SHOP → 票夾 出示 QR。</div></div><button class="tk-btn p" data-sact="tomerch">看我的票</button>');
       refresh(true);
