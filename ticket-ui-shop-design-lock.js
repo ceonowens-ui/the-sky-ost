@@ -2236,7 +2236,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
 
     /* ===== B225T：生日限定周邊（手鍊／帽T／雙件組）＋海外寄送 =====
      價格、庫存、截止、運費都以伺服器 /ticket/merch 為準；前端只負責顯示與送出。 */
-  var MLBL = { b: "手鍊", h: "帽T", s: "雙件組", bh: "手鍊＋帽T" };
+  var MLBL = { b: "手鍊", h: "帽T", s: "雙件組", bh: "手鍊＋帽T" };   /* 舊備援；B342T 起名稱一律讀後台設定（mLbl） */
+  function mNm(it, k) { return it ? (it.short || it.name || k) : k; }
+  function mLbl(evId, code) {   /* B342T：周邊名稱讀後台（A3 海報組／組合…），不再寫死手鍊帽T */
+    var mi = mInfo(evId), I = (mi && mi.m.items) || {};
+    if (code === "bh") return (I.b && I.h) ? mNm(I.b, "b") + "＋" + mNm(I.h, "h") : MLBL.bh;
+    return I[code] ? mNm(I[code], code) : (MLBL[code] || code);
+  }
   S.mm = {}; S.mmTried = {}; S.morders = []; S.mx = null;
   function mInfo(evId) { return (evId && S.mm[evId]) || null; }
   function mEnsure(evId, cb) {
@@ -2255,7 +2261,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!mi || !code) return null;
     var I = mi.m.items;
     if (code === "bh" && I.s && I.s.left > 0) code = "s";
-    if (code === "bh") return I.b && I.h ? { code: "bh", price: I.b.price + I.h.price, label: "手鍊＋帽T" } : null;
+    if (code === "bh") return I.b && I.h ? { code: "bh", price: I.b.price + I.h.price, label: mNm(I.b, "b") + "＋" + mNm(I.h, "h") } : null;
     var it = I[code]; return it ? { code: code, price: it.price, label: it.short || it.name } : null;
   }
   function mOwned(evId, k) { return S.morders.some(function (o) { return o.eventId === evId && o.items && o.items[k]; }); }
@@ -2283,7 +2289,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mAddonHTML(ev, T, b) {
     var mi = ev && mInfo(ev.id); if (!mi) { mEnsure(ev && ev.id); return ""; }
     if (!mi.m.open) return "";
-    return '<div id="tkm-co"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">預購至 ' + esc(mCut(mi)) + '・活動當天現場領取</small></div>' + mRows(ev.id, b || {}, "co-m") + '</div>';
+    return '<div id="tkm-co"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">' + (mCut(mi) ? '預購至 ' + esc(mCut(mi)) + '・' : '') + '活動當天現場領取</small></div>' + mRows(ev.id, b || {}, "co-m") + '</div>';
   }
   function coMToggle(k) {
     var b = S.buy; if (!b) return;
@@ -2298,7 +2304,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var ev = buyEvent(evId) || {}, mi = mInfo(evId);
     var o = S.morders.filter(function (x) { return x.eventId === evId && x.mode !== "ship" && Date.now() - Date.parse(x.paidAt || 0) < 3 * 3600e3; }).slice(-1)[0];
     if (!o) return "";
-    var nm = o.code === "s" && mi ? mi.m.items.s.name : (MLBL[o.code] || o.code);
+    var nm = o.code === "s" && mi ? mi.m.items.s.name : mLbl(evId, o.code);
     return '<div class="tkb-okinfo tkm-ok">🎁<span>已加購 <b>' + esc(nm) + '</b>，' + esc(md(ev.startAt)) + ' 活動當天憑票現場領取' + (o.code === "s" ? "（含一對一 60 秒）" : "") + '。</span></div>';
   }
   /* ---- B225T 精簡購票：單一票種時，第 1 頁就能勾周邊，第 2 頁只確認 ---- */
@@ -2355,10 +2361,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mBuySection(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return ""; }
     var I = mi.m.items, ks = ["b", "h", "s"].filter(function (k) { return I[k]; }); if (!ks.length) return "";
-    var h = '<div class="tkb-sec tkm-sec">生日限定周邊 <small class="tkm-cut">' + (mi.m.open ? "預購至 " + esc(mCut(mi)) : mi.m.onSale ? "預購已截止" : "即將開賣") + '</small></div><div class="tkm-grid">';
+    var h = '<div class="tkb-sec tkm-sec">生日限定周邊 <small class="tkm-cut">' + (mi.m.open ? (mCut(mi) ? "預購至 " + esc(mCut(mi)) : "預購中") : mi.m.onSale ? "預購已截止" : "即將開賣") + '</small></div><div class="tkm-grid">';
     ks.forEach(function (k) { var it = I[k];
       h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? "剩 " + esc(it.left) + (k === "s" ? " 組" : " 件") : "已售完") + '</i></div></div>'; });
-    h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。買票時可在結帳頁直接加購；已經有票或人在海外，可以單獨購買（海外附 CHANCE 手寫名字卡）。</div>';
+    h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。買票時可在結帳頁直接加購；已經有票或人在海外，可以單獨購買。</div>';
     if (mi.m.open) h += '<button class="tkb-cta ghost wide tkm-open" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 <i>→</i></button>';
     return h;
   }
@@ -2367,11 +2373,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var od = S.morders.filter(function (o) { return o.eventId === ev.id; }), mi = mInfo(ev.id);
     if (!mi && mine.length) mEnsure(ev.id);
     var h = od.map(function (o) {
-      var lbl = o.code === "s" ? "雙件組" : (MLBL[o.code] || o.code);
+      var lbl = mLbl(ev.id, o.code);
       var st = o.mode === "ship" ? (o.shipped ? "已寄出・追蹤 " + o.shipped.tracking : "活動後寄出") : "現場領取" + (o.code === "s" ? "・含一對一 60 秒" : "");
       return '<div class="foot pp"><div class="l">🎁 ' + esc(lbl) + '<small>' + esc(st) + '</small></div><span class="tk-chip d">✓ 已購</span></div>';
     }).join("");
-    if (!od.length && mine.length && mi && mi.m.open) h += '<div class="foot pp"><div class="l">🎁 生日限定周邊<small>手鍊・帽T・雙件組，預購至 ' + esc(mCut(mi)) + '</small></div><button class="tk-chip o" data-act="m-open" data-ev="' + esc(ev.id) + '">加購</button></div>';
+    if (!od.length && mine.length && mi && mi.m.open) h += '<div class="foot pp"><div class="l">🎁 生日限定周邊<small>' + esc(["b", "h", "s"].filter(function (k) { return mi.m.items[k]; }).map(function (k) { return mNm(mi.m.items[k], k); }).join("・")) + (mCut(mi) ? '，預購至 ' + esc(mCut(mi)) : '') + '</small></div><button class="tk-chip o" data-act="m-open" data-ev="' + esc(ev.id) + '">加購</button></div>';
     return h;
   }
   /* ---- 單買周邊／海外寄送（彈窗） ---- */
@@ -2393,9 +2399,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var r = mResolve(mi, mSel(o)), fee = 0, z = null;
     if (o.mode === "ship" && o.ship.country) { var c = mi.ship.countries.filter(function (x) { return x[0] === o.ship.country; })[0]; z = c ? mi.ship.zones[c[2]] : null; if (z && r) fee = Number(z[r.code] || 0); }
     var total = r ? r.price + fee : 0;
-    var h = '<div class="tkb-sh tkm-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button><div class="tk-eyebrow">Birthday Merch</div><h3>生日限定周邊</h3><div class="tk-hint">' + esc(ev.name || "") + '・預購至 ' + esc(mCut(mi)) + '</div>';
+    var h = '<div class="tkb-sh tkm-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button><div class="tk-eyebrow">Birthday Merch</div><h3>生日限定周邊</h3><div class="tk-hint">' + esc(ev.name || "") + (mCut(mi) ? '・預購至 ' + esc(mCut(mi)) : '') + '</div>';
     h += mRows(o.evId, o, "m-t");
-    h += '<div class="tkb-sec">取貨方式</div><div class="tkm-seg"><button type="button" data-sact="m-mode" data-m="pickup" class="' + (o.mode === "pickup" ? "on" : "") + '"' + (hasT ? "" : " disabled") + '>現場領取<small>' + (hasT ? esc(md(ev.startAt)) + " 憑票領取" : "需持有這場門票") + '</small></button><button type="button" data-sact="m-mode" data-m="ship" class="' + (o.mode === "ship" ? "on" : "") + '">海外寄送<small>附 CHANCE 手寫名字卡</small></button></div>';
+    h += '<div class="tkb-sec">取貨方式</div><div class="tkm-seg"><button type="button" data-sact="m-mode" data-m="pickup" class="' + (o.mode === "pickup" ? "on" : "") + '"' + (hasT ? "" : " disabled") + '>現場領取<small>' + (hasT ? esc(md(ev.startAt)) + " 憑票領取" : "需持有這場門票") + '</small></button><button type="button" data-sact="m-mode" data-m="ship" class="' + (o.mode === "ship" ? "on" : "") + '">海外寄送<small>運費依地區計算</small></button></div>';
     if (o.mode === "ship") {
       h += '<select class="tk-in tkb-in" data-mf="country" aria-label="國家／地區"><option value="">選擇國家／地區</option>' + mi.ship.countries.map(function (c) { return '<option value="' + c[0] + '"' + (o.ship.country === c[0] ? " selected" : "") + '>' + esc(c[1]) + '</option>'; }).join("") + '</select>';
       [["name", "收件人姓名", "name"], ["phone", "電話（含國碼）", "tel"], ["addr", "地址（街道、門牌、樓層）", "street-address"], ["city", "城市", "address-level2"], ["state", "州／省（沒有可空白）", "address-level1"], ["postal", "郵遞區號（香港、澳門免填）", "postal-code"]].forEach(function (f) {
@@ -2475,11 +2481,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var I = mi.m.items, li = function (a) { return '<li>' + a + '</li>'; };
     return '<div class="pt">生日限定周邊（預購）</div><ul>' +
       ["b", "h", "s"].filter(function (k) { return I[k]; }).map(function (k) { return li('<b>' + esc(I[k].name) + '</b>（' + nt(I[k].price) + '，限量 ' + esc(I[k].cap) + (k === "s" ? " 組" : " 件") + '）：' + esc(I[k].perk)); }).join("") +
-      li('預購至 ' + esc(mCut(mi)) + ' 23:59，截止後開始製作；商品圖為示意圖，實際商品以實物為準。') +
-      li('每人各限購 1 份；同時購買手鍊與帽T 自動套用雙件組價，雙件組售完後以單品價計算。') +
-      li('現場領取：活動當天憑票領取，互動（戴手鍊、簽帽T、一對一）依現場安排進行。') +
+      li((mCut(mi) ? '預購至 ' + esc(mCut(mi)) + ' 23:59，截止後開始製作；' : '') + '商品圖為示意圖，實際商品以實物為準。') +
+      (mi.m.perPerson ? li('每人各限購 1 份。') : '') + (I.s ? li('同時購買兩件自動套用' + esc(mNm(I.s, 's')) + '價，售完後以單品價計算。') : '') +
+      li('現場領取：活動當天憑票領取（出示 App「我的票」）。') +
       li('退款：依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款，退貨運費由主辦單位負擔。來信 heartbeats0693@gmail.com，註明購買 Email。') + '</ul>' +
-      (mi.m.shipOn ? '<div class="pt">海外寄送</div><ul>' + li('可寄送日本、韓國、港澳、中國大陸、東南亞、歐美、澳紐等 37 個國家／地區，運費依地區計算，附 CHANCE 手寫名字卡。') +
+      (mi.m.shipOn ? '<div class="pt">海外寄送</div><ul>' + li('可寄送日本、韓國、港澳、中國大陸、東南亞、歐美、澳紐等 37 個國家／地區，運費依地區計算。') +
         li('採中華郵政 e 小包，活動後陸續寄出並提供追蹤號碼。') + li('寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄。') + li('關稅與進口稅由收件人負擔。') + '</ul>' : '');
   }
   /* ---- demo（?tkdemo=1；加 &tkppt=1 看 PPT 版單一票價） ---- */

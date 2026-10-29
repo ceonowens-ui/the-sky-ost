@@ -69,6 +69,18 @@
  '亦可以備註留下全名跟電話在12/27現場領取時請人代領':'You can also leave your full name and phone number in the order note and have someone pick up for you on site on 12/27',
  '*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名':'*Gifts for Chance are welcome on the day, but please avoid overly expensive items. No on-site autographs.',
  '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
+ /* B342T：買票＋生日周邊加購（A3 海報組／A3 海報組＋6號小卡）、單買周邊・海外寄送 */
+ '加購生日限定周邊':'Birthday merch add-ons','生日限定周邊':'Birthday merch','生日限定周邊（預購）':'Birthday merch (pre-order)','選填・活動當天現場領取':'Optional · pick up at the event','活動當天現場領取':'Pick up at the event','預購中':'Pre-order open','預購已截止':'Pre-orders closed',
+ 'A3 海報組（一組 4 張）':'A3 poster set (4 posters)','A3 海報組':'A3 poster set','A3 海報組＋6號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組＋6號小卡':'A3 poster set + No. 6 photo card','A3 海報組＋A3 海報組＋6號小卡':'A3 poster set + A3 poster set & No. 6 photo card',
+ '海外無法到場也可寄送':'Can be shipped if you can’t attend','人在海外，或已經有票想加買？':'Overseas, or already have a ticket?','單買周邊・海外寄送 ›':'Buy merch only · ship overseas ›','單買周邊・海外寄送':'Buy merch only · ship overseas',
+ '需持有這場門票':'Requires a ticket to this event','海外寄送':'Ship overseas','運費依地區計算':'Shipping fee by region','Email（訂單確認信寄到這裡）':'Email (your order confirmation goes here)',
+ '亞洲':'Asia','中國大陸':'Mainland China','歐洲':'Europe','大洋洲':'Oceania','加拿大・中南美・非洲':'Canada · Latin America · Africa','美國':'USA',
+ '清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。台灣粉絲請選現場領取。':'We can’t ship to countries not on this list (including Middle East destinations where postal service is suspended). Email heartbeats0693@gmail.com with questions. Fans in Taiwan, please choose event pickup.',
+ '周邊為預購商品，活動後陸續寄出。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。採中華郵政 e 小包並提供追蹤號碼；寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄；關稅與進口稅由收件人負擔。':'Merch is pre-order and ships after the event. Under Taiwan consumer protection law you can cancel for a full refund any time before you receive it, and request a return and refund within 7 days of receiving it (for event pickup, counted from the event day). Ships via Chunghwa Post ePacket with tracking. If it hasn’t arrived 45 days after dispatch or tracking shows it lost, we reship once for free; reshipping after a wrong address or a refused delivery is at your cost; no reshipment once tracking shows delivered. Duties and import taxes are paid by the recipient.',
+ '周邊為預購商品，活動當天憑票現場領取。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event with your ticket. Under Taiwan consumer protection law you can cancel for a full refund any time before you receive it, and request a return and refund within 7 days of receiving it (for event pickup, counted from the event day).',
+ '現場領取：活動當天憑票領取（出示 App「我的票」）。':'Event pickup: collect on the event day with your ticket (show “My tickets” in the app).','每人各限購 1 份。':'Limit 1 of each per person.',
+ '周邊於活動當天憑票現場領取':'Merch is picked up at the event with your ticket',
+ '電話（含國碼）':'Phone (with country code)','地址（街道、門牌、樓層）':'Address (street, number, floor)','城市':'City','州／省（沒有可空白）':'State / province (optional)','郵遞區號（香港、澳門免填）':'Postal code (not needed for Hong Kong / Macau)','例如：小晞、Amy':'e.g. Amy','6 位數驗證碼':'6-digit code','例如 K7X 2M9':'e.g. K7X 2M9',
  /* B341T：票種福利（後台與 test.html 一致） */
  '離場HI FIVE':'HI FIVE on the way out','6號小卡':'No. 6 photo card','隨機A3海報一張':'One random A3 poster',
  /* 場地若在後台改成 8 樓 A 廳：英文跟著換 */
@@ -141,7 +153,6 @@
  [/^(\d+) 位數驗證碼$/,(_,n)=>n+'-digit code'],
  [/^開場前 (\d+) 小時出現 QR$/,(_,n)=>'QR appears '+n+' hours before doors'],
  [/^開場前 (\d+) 小時，入場 QR 會出現在票上。$/,(_,n)=>'The entry QR will appear on your ticket '+n+' hours before doors.'],
- [/^(.*)（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）(.*)$/,(_,a,w,b)=>a+'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'+b.replace('台北時間','Taipei time')],   /* B335T（P2-17）：英文用半形括號 */
  /* B319T：購票頁的日期、退票、編號、福利 */
  [/^(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+)・(.+)$/,(_,m,d,w,t,v)=>enDay(m,d,w)+' · '+enTime(t)+' Taipei time · '+(D[v]||v)],
  [/^(.+)｜(\d+)\/(\d+)（(?:星期)?([日一二三四五六]|Sun|Mon|Tue|Wed|Thu|Fri|Sat)）(\d+:\d+) 開始$/,(_,n,m,d,w,t)=>(D[n]||n)+' | '+enDay(m,d,w)+', starts '+enTime(t)+' (Taipei time)'],
@@ -174,7 +185,11 @@
  [/^售價：(.+)／包$/,(_,n)=>'Price: '+n+' / pack'],
  [/^(.+)・免運$/,(_,n)=>(D[n]||n)+' · Free'],
  [/^已排隊 · 第 (\d+) 位$/,(_,n)=>'Waitlist · No. '+n],
- [/^（(\d+) 個國家／地區）。以中華郵政國際 e 小包寄出，寄出會再寄信給你追蹤號碼。$/,(_,n)=>' ('+n+' destinations). Ships via Chunghwa Post international ePacket. Tracking details will be emailed after dispatch.']
+ [/^（(\d+) 個國家／地區）。以中華郵政國際 e 小包寄出，寄出會再寄信給你追蹤號碼。$/,(_,n)=>' ('+n+' destinations). Ships via Chunghwa Post international ePacket. Tracking details will be emailed after dispatch.'],
+ /* B342T：剩 N 件、運費（地區） */
+ [/^(.+)・剩 (\d+) (件|組)$/,(_,a,n)=>(D[a]||a)+' · '+n+' left'],
+ [/^運費（(.+)）$/,(_,z)=>'Shipping ('+(D[z]||z)+')'],
+ [/^(.*)（(Sun|Mon|Tue|Wed|Thu|Fri|Sat|星期[日一二三四五六])）(.*)$/,(_,a,w,b)=>a+'('+({'星期日':'Sun','星期一':'Mon','星期二':'Tue','星期三':'Wed','星期四':'Thu','星期五':'Fri','星期六':'Sat'}[w]||w)+')'+b.replace('台北時間','Taipei time')],   /* B335T（P2-17）：英文用半形括號 */
  ];
  const countries=typeof Intl.DisplayNames==='function'?new Intl.DisplayNames(['en'],{type:'region'}):null;
  function translate(text){
