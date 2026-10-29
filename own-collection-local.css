@@ -15,9 +15,6 @@
 #screen-purchase.own-unlocked .pass-count{display:block;padding:0 0 24px;border:0;font:17px/1.5 -apple-system,'PingFang TC',sans-serif;letter-spacing:0;color:#e4ded4;}
 #screen-purchase.own-unlocked .pass-cta{display:flex;flex-direction:column;gap:12px;}
 #screen-purchase.own-unlocked .pass-play{order:0;min-height:54px;height:auto;padding:16px;font-size:19px;font-weight:600;letter-spacing:.02em;background:linear-gradient(105deg,#c3a162,#f0dba7);}
-#screen-purchase.own-unlocked #a2-wallet{order:1;display:flex;align-items:center;justify-content:space-between;min-height:66px;padding:14px 18px;margin:0;border:1px solid #71603f;border-radius:16px;text-align:left;background:transparent;color:#e4d5b6;}
-#screen-purchase.own-unlocked #a2-wallet .a2-ol{display:block;font-size:18px;line-height:1.4;}
-#screen-purchase.own-unlocked #a2-wallet small{display:block;font-size:16px;color:#bdb3a2;margin-top:4px;}
 #screen-purchase.own-unlocked #a2-own{order:2;margin:0;min-height:48px;padding:12px 0;border:0;background:none;font-size:16px;}
 #screen-purchase.own-unlocked #a2-own .a2-ol,#screen-purchase.own-unlocked #a2-own .a2-or{font-size:16px;}
 #screen-purchase.own-unlocked .pass-unlock:not(.hidden){order:3;margin:0;min-height:52px;gap:12px;flex-wrap:wrap;}
