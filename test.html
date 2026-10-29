@@ -3532,6 +3532,10 @@ body.has-mini #screen-purchase #own-after,body.has-mini #screen-lucky .lucky-wra
 /* P2-16 歌詞最後幾行不被播放列蓋住 */
 #screen-player.cp-lyr #cp-lyrics{padding-bottom:calc(var(--cp-dock-height,126px) + 120px)!important}
 </style>
+<style id="b339-hero-square">/* B339T（CÉON 10/29 14:17「不要圓邊，直接滿版」）：PLAY 封面去掉下方圓角，左右貼齊螢幕邊；底部漸層與照片高度沿用 TUNER 設定 */
+#screen-player.cp-ready{ --cv-r:0px; --cv-side:0px; }
+#screen-player.cp-ready .cover-card, #screen-player.cp-ready .cover-card::after, #screen-player.cp-ready .cover-card img, #screen-player.cp-ready .cover-card video{ border-radius:0 !important; }
+</style>
 <style id="b338-hero">/* B338T：新 Hero 影片金字收尾時，主畫面歌名區淡出（只在 PLAY 封面模式；歌詞／TRACKS 不受影響） */
 #screen-player .np-card .np-head{transition:opacity .5s ease}
 body.cv-gold #screen-player:not(.cp-immersive) .np-card .np-head{opacity:0;pointer-events:none;transition-duration:.35s}
@@ -4687,9 +4691,10 @@ const THE_SKY = {
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
   coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
-  coverVideo: "assets/images/sky/cover-video-imsorry-gold.mp4?v=1029",  // B338T：CÉON 10/29 新 Hero 影片〈I'M SORRY 金字收尾〉（開 App 自動靜音循環；載入失敗退回 coverImage）。正式站仍用舊 cover-video.mp4，檔名分開互不影響
-  coverGoldFrom: 4.3,   // B338T：影片 4.5 秒起浮出金色 I'M SORRY 標題 → 從 4.3 秒起 App 歌名區淡出，循環回開頭再淡回（CÉON 10/29 選）；換影片時一併調整或刪掉
-  coverPoster: "assets/images/sky/cover-poster-imsorry-gold.jpg?v=1029", // B338T：新影片第一格當開場底圖（B136T 同原則：打開就是這格，影片從同一格接著動）
+  coverVideo: "assets/images/sky/cover-video-imsorry-center.mp4?v=1029b",  // B339T：CÉON 10/29 14:17 換成〈I'M SORRY 金字置中小字〉版（開 App 自動靜音循環；載入失敗退回 coverImage）。正式站仍用舊 cover-video.mp4，檔名分開互不影響
+  coverGoldFrom: 4.2,           // B339T：新版金字約 4.4 秒浮現、在畫面高度 45.5%–54.6%（coverGoldBand）
+  coverGoldBand: [0.455, 0.546], // 只有在「這支手機上金字真的會壓到歌名」時才淡出歌名（大螢幕金字在歌名上方 → 不淡；小螢幕如 SE 會壓到 → 淡）
+  coverPoster: "assets/images/sky/cover-poster-imsorry-center.jpg?v=1029b", // B339T：新影片第一格當開場底圖（B136T 同原則）
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
   /* ---- 品牌配色（每張專輯的色系）-------------------------------- */
@@ -5858,8 +5863,19 @@ window.ALBUM_SWITCH = {
     cvKick();
     /* B338T：影片播到金字段落時，PLAY 主畫面的歌名／副標／SHARE 淡出（只淡、不移位；看不見時也點不到），循環回開頭就淡回 */
     if (CFG.coverGoldFrom > 0) {
+      /* B339T：依實際畫面算金字落點（卡片大小、裁切位置），跟歌名區有重疊才淡出 */
+      var cvGoldHits = function () {
+        var B = CFG.coverGoldBand; if (!B) return true;
+        var card = $("cover-card"), head = document.querySelector("#screen-player .np-card .np-head"); if (!card || !head) return false;
+        var c = card.getBoundingClientRect(), hd = head.getBoundingClientRect(); if (!c.height || !hd.height) return false;
+        var vw = cv.videoWidth || 720, vh = cv.videoHeight || 1280, dh = vh * Math.max(c.width / vw, c.height / vh);
+        var py = (getComputedStyle(cv).objectPosition || "50% 50%").split(" ")[1] || "50%", top;
+        top = /px$/.test(py) ? c.top + parseFloat(py) : c.top + (c.height - dh) * (parseFloat(py) / 100);
+        var g0 = top + dh * B[0], g1 = top + dh * B[1];
+        return g1 > hd.top - 8 && g0 < hd.bottom + 8;
+      };
       var cvGold = function () {
-        var on = !cv.paused && !cv.ended && cv.currentTime >= CFG.coverGoldFrom && $("cover-card").classList.contains("cover-video-on");
+        var on = !cv.paused && !cv.ended && cv.currentTime >= CFG.coverGoldFrom && $("cover-card").classList.contains("cover-video-on") && cvGoldHits();
         if (document.body.classList.contains("cv-gold") !== on) document.body.classList.toggle("cv-gold", on);
       };
       ["timeupdate", "play", "playing", "pause", "seeked", "ended", "emptied", "error"].forEach(function (ev) { cv.addEventListener(ev, cvGold); });
@@ -12575,7 +12591,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B338T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B339T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
