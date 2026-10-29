@@ -37,6 +37,26 @@ table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}th,td{t
 .sheetbox{width:min(100%,520px);max-height:92vh;overflow:auto;background:#121212;border:1px solid var(--line);border-radius:28px 28px 0 0;padding:22px 18px calc(26px + env(safe-area-inset-bottom));text-align:center}
 .qrwrap{display:flex;justify-content:center;margin:16px 0 10px}.qrbox{padding:14px;background:#f3f0e8;border-radius:22px}.tiny{font-size:10px;color:var(--muted);word-break:break-all;line-height:1.5}
 details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
+/* O1（10/29）：現場名單、失敗訂單、測試場工具 */
+.st-refunded{color:#d88f8f}.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.tools .btn.sm{margin:0}
+.rwrap{overflow-x:auto;max-height:70vh;overflow-y:auto}.rwrap table{margin-top:6px}.rwrap td input[type=checkbox]{width:22px;height:22px;-webkit-appearance:checkbox;appearance:auto;margin:0;padding:0}
+label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18px!important;height:18px;padding:0;flex:0 0 auto;accent-color:#d8bc80}
+.printhead,.pcheck{display:none}.warnbox{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(230,163,163,.35);background:rgba(230,163,163,.06);color:#e6c0c0;font-size:12px;line-height:1.5}
+@media print{
+  html,body{background:#fff!important;color:#000!important}
+  .app{max-width:none;padding:0}
+  .app>*:not(#rosterCard),.sheet{display:none!important}
+  #rosterCard{display:block!important;border:0;background:#fff;color:#000;padding:0;margin:0;border-radius:0}
+  #rosterCard .noprint,#rosterCard input[type=checkbox]{display:none!important}
+  #rosterCard .printhead{display:block!important;font-size:13px;margin:0 0 6px;color:#000}
+  #rosterCard .pcheck{display:inline!important;font-size:14px}
+  #rosterCard .rwrap{overflow:visible!important;max-height:none!important}
+  #rosterCard table{font-size:11px;color:#000}
+  #rosterCard th,#rosterCard td{color:#000!important;border-bottom:1px solid #888;padding:4px 3px}
+  #rosterCard thead{display:table-header-group}
+  #rosterCard tr{page-break-inside:avoid;break-inside:avoid}
+  @page{margin:12mm}
+}
 </style>
 </head>
 <body>
@@ -53,7 +73,6 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
     <h3>場次</h3>
     <select id="event" onchange="pickEvent()"></select>
     <button class="btn primary" id="btnQuick" onclick="quickTest()">⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）</button>
-    <button class="btn" id="btnBday" onclick="makeBirthdayPPT()">🎂 套用 PPT 版 12/27（全場 980・生日周邊・先不開賣）</button>
     <div class="stat"><div><b id="sCap">–</b><span>可售</span></div><div><b id="sSold">–</b><span>已售</span></div><div><b id="sUsed">–</b><span>已入場</span></div><div><b id="sLeft">–</b><span>剩餘</span></div></div>
     <details class="row" id="evDetails"><summary>編輯／新增場次</summary>
       <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
@@ -68,9 +87,12 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
 
   <div class="card" id="issueCard" style="display:none">
     <h3>手動發票</h3>
-    <div class="sub">公關票、測試票、補發用。發完會寄信給對方，票直接出現在他的 app。</div>
+    <div class="sub">公關票、測試票、補發用。發完會寄信給對方，票直接出現在他的 app。有票種的場次一定要選票種。</div>
     <div class="grid2"><div class="row"><span class="label">Email</span><input id="i_email" type="email" placeholder="fan@example.com" /></div><div class="row"><span class="label">張數</span><input id="i_qty" type="number" value="1" min="1" max="10" /></div></div>
+    <div class="row"><span class="label">票種</span><select id="i_tier"></select></div>
+    <div class="grid2"><div class="row"><span class="label">姓名（現場核對用）</span><input id="i_name" maxlength="40" placeholder="王小明" /></div><div class="row"><span class="label">手機</span><input id="i_phone" type="tel" inputmode="tel" maxlength="20" placeholder="0912345678" /></div></div>
     <div class="row"><span class="label">備註（選填）</span><input id="i_note" placeholder="公關票 / 測試" /></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_mail" style="width:auto" checked /> <span id="i_mailLbl">寄確認信給對方（只有測試場可以不寄）</span></label>
     <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_force" style="width:auto" /> 超過可售張數也硬發（公關票用）</label>
     <button class="btn primary" onclick="issue()">發票</button><div class="msg" id="issueMsg"></div>
   </div>
@@ -79,6 +101,30 @@ details summary{cursor:pointer;font-size:13px;color:#c6c0b5;padding:6px 0}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">票列表</h3><div><button class="btn sm" onclick="refresh()">重新整理</button><button class="btn sm" onclick="exportCsv()">匯出 CSV</button></div></div>
     <div class="row"><input id="filter" placeholder="搜 email 或票號" oninput="renderList()" /></div>
     <div style="overflow-x:auto"><table><thead><tr><th>票號</th><th>持有人</th><th>狀態</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
+  </div>
+
+  <div class="card" id="rosterCard" style="display:none">
+    <div class="printhead" id="rPrintHead"></div>
+    <div class="noprint" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">現場名單</h3><button class="btn sm" id="btnRoster" onclick="loadRoster()">下載名單</button></div>
+    <div class="sub noprint">現場備案：依姓名／票號核對、手動勾入場、可下載或列印紙本。勾選會先跳確認，每次都會留核銷紀錄。</div>
+    <div class="msg noprint" id="rInfo"></div>
+    <div class="tools noprint"><select id="rSort" onchange="renderRoster()" style="width:auto;padding:7px 10px;font-size:12px"><option value="no">依編號</option><option value="name">依姓名</option></select><input id="rFilter" placeholder="搜姓名、票號、email、後 4 碼" oninput="renderRoster()" style="flex:1;min-width:140px;padding:8px 10px;font-size:12px" /><button class="btn sm" onclick="exportRosterCsv()">下載 CSV</button><button class="btn sm" onclick="printRoster()">列印</button></div>
+    <div class="rwrap"><table><thead><tr><th>編號</th><th>姓名</th><th>票號</th><th>Email</th><th>手機後4碼</th><th>狀態</th><th>入場</th></tr></thead><tbody id="rBody"></tbody></table></div>
+  </div>
+
+  <div class="card" id="failCard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">失敗訂單</h3><button class="btn sm" onclick="loadFailed()">重新整理</button></div>
+    <div class="sub">付款成功但系統沒發出票的訂單（所有場次）。按「補發」會用原訂單的票種、姓名、手機發票，並寄確認信。</div>
+    <div class="msg" id="fMsg"></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>訂單編號</th><th>時間</th><th>Email</th><th>場次</th><th>票種</th><th>姓名</th><th>手機</th><th>金額</th><th>原因</th><th></th></tr></thead><tbody id="fBody"></tbody></table></div>
+  </div>
+
+  <div class="card" id="testCard" style="display:none">
+    <h3>測試場工具</h3>
+    <div class="sub">只在測試場（場次 id 含 test）出現。生日會等正式場次不會有這些按鈕。</div>
+    <div class="grid2"><div class="row"><span class="label">批量張數（不寄信）</span><input id="b_count" type="number" value="181" min="1" max="500" /></div><div class="row"><span class="label">從第幾號開始</span><input id="b_from" type="number" value="1" min="1" /></div></div>
+    <button class="btn" id="btnBulk" onclick="bulkIssue()">批量發票（不寄信）</button><div class="msg" id="bMsg"></div>
+    <button class="btn danger" id="btnPurge" onclick="purgeTest()">清掉測試場所有票</button><div class="msg" id="pMsg"></div>
   </div>
 
   <div class="card" id="merchCard" style="display:none">
@@ -118,7 +164,8 @@ async function connect() {
     if (!j.ok) throw new Error(j.error === "forbidden" ? "鑰匙不對" : j.error);
     localStorage.setItem("chance-admin-key", key());
     events = j.events; $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次</span>';
-    ["evCard", "issueCard", "listCard", "merchCard"].forEach((id) => $(id).style.display = "block");
+    ["evCard", "issueCard", "listCard", "rosterCard", "failCard", "merchCard"].forEach((id) => $(id).style.display = "block");
+    loadFailed();
     const sel = $("event"); sel.innerHTML = events.length ? '<option value="">— 選場次 —</option>' : '<option value="">（還沒有場次 → 按下面金色按鈕建立）</option>';
     $("btnQuick").style.display = events.find((e) => e.id === "meet-test") ? "none" : "block";
     if (!events.length) $("evDetails").open = true;
@@ -126,13 +173,24 @@ async function connect() {
     const saved = localStorage.getItem("chance-admin-event"); if (saved && events.find((e) => e.id === saved)) { sel.value = saved; pickEvent(); }
   } catch (e) { $("connMsg").innerHTML = '<span class="err">' + e.message + "</span>"; }
 }
-function fmt(iso) { if (!iso) return "未設時間"; const d = new Date(iso); if (isNaN(d)) return iso; const t = new Date(d.getTime() + 8 * 3600e3); return t.getUTCFullYear() + "/" + (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0"); }
+/* 台北時間 M/D HH:mm（不管這台電腦設在哪個時區） */
+function fmt(iso) { if (iso == null || iso === "") return "未設時間"; const d = new Date(iso); if (isNaN(d)) return String(iso); const t = new Date(d.getTime() + 8 * 3600e3); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0"); }
+const isTestEv = (e) => !!e && /(^|-)test($|-)/.test(String(e.id || e));
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 function toLocalInput(iso) { if (!iso) return ""; const d = new Date(iso); if (isNaN(d)) return ""; const t = new Date(d.getTime() + 8 * 3600e3); return t.toISOString().slice(0, 16); }
 function fromLocalInput(v) { return v ? v + ":00+08:00" : null; }
 async function pickEvent() {
   cur = events.find((e) => e.id === $("event").value) || null; localStorage.setItem("chance-admin-event", cur ? cur.id : "");
-  fillForm(cur); await refresh(); loadMerch();
+  fillForm(cur); fillIssue(cur); showTestTools(); roster = null; renderRoster(); await refresh(); loadMerch(); if (cur) loadRoster();
 }
+function fillIssue(e) {
+  const ts = (e && Array.isArray(e.tiers)) ? e.tiers : [], sel = $("i_tier");
+  sel.innerHTML = ts.length ? (ts.length > 1 ? '<option value="">— 選票種 —</option>' : "") + ts.map((t) => '<option value="' + esc(t.key) + '">' + esc(t.name || t.key) + "（" + esc(t.key) + (t.price ? "・NT$" + t.price : "") + "）</option>").join("") : '<option value="">（這場沒有票種）</option>';
+  sel.disabled = !ts.length; if (ts.length === 1) sel.value = ts[0].key;
+  const test = isTestEv(e), m = $("i_mail"); m.checked = true; m.disabled = !test;
+  $("i_mailLbl").textContent = test ? "寄確認信給對方（測試場可以取消，不寄信）" : "寄確認信給對方（正式場次一定寄，不能取消）";
+}
+function showTestTools() { $("testCard").style.display = cur && isTestEv(cur) && cur.id !== "meet-20261227" ? "block" : "none"; }
 function fillForm(e) {
   $("f_id").value = e ? e.id : ""; $("f_id").disabled = !!e; $("f_code").value = e ? (e.code || "") : ""; $("f_name").value = e ? (e.name || "") : ""; $("f_start").value = e ? toLocalInput(e.startAt) : "";
   $("f_venue").value = e ? (e.venue || "") : ""; $("f_cap").value = e ? (e.capacity || "") : ""; $("f_price").value = e ? (e.price || "") : ""; $("f_pk").value = e ? (e.id + "　pp-" + e.id) : ""; $("f_sale").value = e && e.onSale === false ? "false" : "true";
@@ -155,39 +213,20 @@ async function quickTest() {
   $("i_email").focus(); $("issueMsg").innerHTML = '<span class="ok">測試場建好了 → 填 email 按「發票」</span>';
 }
 
-/* ===== B225：PPT 版 12/27＋生日限定周邊 ===== */
-const MERCH_PPT = { onSale: false, cutoff: "2026-11-15T23:59:59+08:00", perPerson: 1, shipOn: true, items: {
-  b: { name: "THE SKY 生日限定水晶手鍊", short: "手鍊", price: 2280, cap: 60, perk: "CHANCE 親手幫你戴上", img: "shop-assets/merch-b225/bracelet.jpg" },
-  h: { name: "THE SKY 31st 生日限定帽T", short: "帽T", price: 3280, cap: 60, perk: "CHANCE 當場在帽T 上簽名", img: "shop-assets/merch-b225/hoodie.jpg" },
-  s: { name: "生日雙件組（手鍊＋帽T）", short: "雙件組", price: 4280, cap: 30, perk: "一對一 60 秒＋戴手鍊＋簽帽T・互動照片免費送", img: "shop-assets/merch-b225/set.jpg" } } };
-async function makeBirthdayPPT() {
-  if (!confirm("套用 PPT 版：12/27 改成全場單一票價 980（181 席、編號 001–181），PhotoPass 關閉，生日周邊設定好但「先不開賣」。\n\n目前已售出的票不受影響。確定？")) return;
-  const b = $("btnBday"); b.disabled = true; b.textContent = "套用中…";
-  const ev = { id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: "2026-12-27T13:00:00+08:00", venue: "微風影城 A 廳", onSale: false, photoPrice: 0, photoOnSale: false,
-    tiers: [{ key: "ga", name: "入場票", price: 980, cap: 181, numFrom: 1, numTo: 181, onSale: true,
-      perks: ["完整生日活動入場・發餐", "第一支 MV 首播・嘉賓演出", "生日牆全體合照・全場大合照", "散場擊掌送客", "現場抽獎資格（5 位：手鍊／帽T）"] }] };
-  const j = await api("/ticket/admin/event", { event: ev });
-  let m = { ok: false, error: "skip" };
-  if (j.ok) m = await api("/ticket/admin/merch", { eventId: ev.id, merch: MERCH_PPT });
-  b.disabled = false; b.textContent = "🎂 套用 PPT 版 12/27（全場 980・生日周邊・先不開賣）";
-  if (!j.ok) { $("connMsg").innerHTML = '<span class="err">場次套用失敗：' + (j.error || "") + "</span>"; return; }
-  if (!m.ok) { $("connMsg").innerHTML = '<span class="err">場次已改成 980，但周邊設定失敗：' + (m.error === "not_found" ? "Worker 還沒更新到 v4（先用合併器部署）" : (m.error || "")) + "</span>"; }
-  else $("connMsg").innerHTML = '<span class="ok">已套用 PPT 版：全場 980、周邊已設定（都還沒開賣）。要開賣：上面「開賣中」設「是」＋下面「周邊開賣」設「是」。</span>';
-  await connect(); $("event").value = ev.id; await pickEvent();
-}
 let mOrders = [], mCfg = null;
-const MLBL = { b: "手鍊", h: "帽T", s: "雙件組", bh: "手鍊＋帽T" };
+const MLBL0 = { b: "商品 b", h: "商品 h", s: "組合 s", bh: "b＋h" };
+const mLbl = (k) => { const I = (mCfg && mCfg.items) || {}; if (k === "bh" && I.b && I.h) return (I.b.short || I.b.name) + "＋" + (I.h.short || I.h.name); return (I[k] && (I[k].short || I[k].name)) || MLBL0[k] || k; };
 async function loadMerch() {
   if (!cur) { $("mStats").textContent = ""; $("mBody").innerHTML = ""; return; }
   const j = await api("/ticket/admin/merch/orders?eventId=" + encodeURIComponent(cur.id));
   if (!j.ok) { $("mStats").innerHTML = j.error === "not_found" ? '<span class="err">Worker 還沒更新到 v4</span>' : '<span class="err">' + (j.error || "讀取失敗") + "</span>"; return; }
   mOrders = j.orders || []; mCfg = j.merch;
-  if (!mCfg) { $("mStats").textContent = "這場還沒設定周邊（12/27 按上面「套用 PPT 版」）"; $("mBody").innerHTML = ""; return; }
+  if (!mCfg) { $("mStats").textContent = "這場沒有設定周邊。"; $("mBody").innerHTML = ""; return; }
   const I = mCfg.items || {};
-  $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => MLBL[k] + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
+  $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => esc(mLbl(k)) + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
     "　·　海外 " + mOrders.filter((o) => o.mode === "ship").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
   $("m_sale").value = mCfg.onSale === true ? "true" : "false"; $("m_cut").value = toLocalInput(mCfg.cutoff);
-  $("mBody").innerHTML = mOrders.map((o, i) => "<tr><td>" + fmt(o.paidAt) + "</td><td>" + o.email + "</td><td>" + (MLBL[o.code] || o.code) + "</td><td>" +
+  $("mBody").innerHTML = mOrders.map((o, i) => "<tr><td>" + fmt(o.paidAt) + "</td><td>" + o.email + "</td><td>" + esc(mLbl(o.code)) + (o.qty > 1 ? " ×" + o.qty : "") + "</td><td>" +
     (o.mode === "ship" ? "寄 " + ((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場") + "</td><td>" + o.amount + "</td><td>" +
     (o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? o.shipped.tracking : "")) + "</td></tr>").join("");
 }
@@ -207,28 +246,11 @@ async function shipOrder(i) {
 function exportMerchCsv() {
   const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
   const rows = [["付款時間", "Email", "稱呼", "品項", "方式", "商品", "運費", "合計", "收件人", "電話", "國家", "郵遞區號", "地址", "城市", "州省", "追蹤號碼", "綠界交易號"]];
-  for (const o of mOrders) { const s = o.ship || {}; rows.push([fmt(o.paidAt), o.email, o.name, MLBL[o.code] || o.code, o.mode === "ship" ? "海外寄送" : "現場領取", o.mprice, o.fee, o.amount, s.name, s.phone, s.country, s.postal, s.addr, s.city, s.state, o.shipped ? o.shipped.tracking : "", o.tradeNo]); }
+  for (const o of mOrders) { const s = o.ship || {}; rows.push([fmt(o.paidAt), o.email, o.name, mLbl(o.code) + (o.qty > 1 ? " ×" + o.qty : ""), o.mode === "ship" ? "海外寄送" : "現場領取", o.mprice, o.fee, o.amount, s.name, s.phone, s.country, s.postal, s.addr, s.city, s.state, o.shipped ? o.shipped.tracking : "", o.tradeNo]); }
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + rows.map((r) => r.map(q).join(",")).join("\n")], { type: "text/csv" }));
   a.download = "merch-" + (cur ? cur.id : "") + ".csv"; a.click();
 }
 
-async function makeBirthday() {
-  const b = $("btnBday"); b.disabled = true; b.textContent = "建立中…";
-  const ev = {
-    id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: "2026-12-27T13:00:00+08:00",
-    venue: "微風影城 A 廳", onSale: false, photoPrice: 0, photoOnSale: false,
-    tiers: [
-      { key: "vvip", name: "VVIP 守護席", price: 3280, cap: 35, numFrom: 1, numTo: 35, onSale: true, perks: ["一對一 90 秒", "合照", "簽名海報", "限定編號拍立得", "專屬語音（叫你名字，錄進 App）", "優先入場", "前排座位"] },
-      { key: "vip", name: "VIP", price: 2280, cap: 65, numFrom: 36, numTo: 100, onSale: true, perks: ["單獨合照", "簽名", "海報", "限定編號拍立得", "優先入場"] },
-      { key: "ga", name: "一般", price: 1280, cap: 81, numFrom: 101, numTo: 181, onSale: true, perks: ["含餐（飲料＋爆米花）", "抽獎", "第一支 MV 全球首播", "散場擊掌"] }
-    ]
-  };
-  const j = await api("/ticket/admin/event", { event: ev });
-  b.disabled = false; b.textContent = "🎂 建立／更新 12/27 生日會（三票種・照海報・先不開賣）";
-  if (!j.ok) { $("connMsg").innerHTML = '<span class="err">建立失敗：' + (j.error || "") + "</span>"; return; }
-  await connect(); $("event").value = "meet-20261227"; await pickEvent();
-  $("connMsg").innerHTML = '<span class="ok">生日會三票種已建立。整場「開賣中」目前是「否」= 粉絲看到開賣提醒、還不能買。要開賣：上面「編輯場次」把「開賣中」設「是」再儲存。終身編號 VVIP 001–035／VIP 036–100／一般 101–181。</span>';
-}
 async function refresh() {
   if (!cur) { $("tbody").innerHTML = ""; return; }
   const j = await api("/ticket/stats?eventId=" + encodeURIComponent(cur.id));
@@ -248,9 +270,12 @@ async function issue() {
   if (!cur) return $("issueMsg").innerHTML = '<span class="err">先選場次</span>';
   if (!email) return $("issueMsg").innerHTML = '<span class="err">要有 email</span>';
   $("issueMsg").textContent = "發票中…";
-  const j = await api("/ticket/issue", { eventId: cur.id, email, qty, note: $("i_note").value.trim(), force: $("i_force").checked });
-  if (!j.ok) return $("issueMsg").innerHTML = '<span class="err">' + (j.error === "sold_out" ? "已售完（剩 " + j.left + "）— 要硬發請勾選下面" : j.error) + "</span>";
-  $("issueMsg").innerHTML = '<span class="ok">已發 ' + j.tickets.length + " 張：" + j.tickets.map((t) => t.id).join("、") + (j.emailed ? " · 信已寄" : " · <span class='err'>信沒寄成，票還是有效</span>") + "</span>";
+  const ts = Array.isArray(cur.tiers) ? cur.tiers : [], tier = $("i_tier").value || null;
+  if (ts.length && !tier) return $("issueMsg").innerHTML = '<span class="err">這場有票種，請先選票種</span>';
+  const noMail = isTestEv(cur) && !$("i_mail").checked;
+  const j = await api("/ticket/issue", { eventId: cur.id, email, qty, tier, name: $("i_name").value.trim() || null, phone: $("i_phone").value.trim() || null, noMail, note: $("i_note").value.trim(), force: $("i_force").checked });
+  if (!j.ok) return $("issueMsg").innerHTML = '<span class="err">' + esc(j.error === "sold_out" ? "已售完（剩 " + j.left + "）— 要硬發請勾選下面" : ({ need_tier: "要選票種", bad_tier: "票種不對", limit: "這個 email 這個票種已經有票了（每人限 1 張）", nomail_test_only: "只有測試場可以不寄信", bad_email: "email 格式不對", no_event: "找不到場次" }[j.error] || j.message || j.error)) + "</span>";
+  $("issueMsg").innerHTML = '<span class="ok">已發 ' + j.tickets.length + " 張：" + j.tickets.map((t) => esc(t.id) + (t.seatNo ? "（No." + String(t.seatNo).padStart(3, "0") + "）" : "")).join("、") + (noMail ? " · 沒寄信（測試）" : (j.emailed ? " · 信已寄" : " · <span class='err'>信沒寄成，票還是有效</span>")) + "</span>";
   refresh();
 }
 async function openTicket(id) {
@@ -277,6 +302,114 @@ function exportCsv() {
   const lines = ["ticketId,owner,status,ver"].concat(stats.tickets.map((t) => [t.id, t.owner, t.status, t.ver].join(",")));
   const a = document.createElement("a"); a.href = "data:text/csv;charset=utf-8,﻿" + encodeURIComponent(lines.join("\n")); a.download = (cur ? cur.id : "tickets") + ".csv"; a.click();
 }
+/* ===== O1：現場名單（清單 2） ===== */
+let roster = null;
+const RST = { valid: "未入場", used: "已入場", refunded: "已退票", void: "作廢" };
+const no3 = (n) => n ? "No." + String(n).padStart(3, "0") : "—";
+async function loadRoster() {
+  if (!cur) return;
+  const b = $("btnRoster"); b.disabled = true; b.textContent = "下載中…";
+  try {
+    const j = await api("/ticket/manifest?eventId=" + encodeURIComponent(cur.id));
+    if (!j.ok) throw new Error(j.error === "forbidden" ? "鑰匙不對" : (j.error || "失敗"));
+    roster = { at: j.at || Date.now(), v: j.v || "", event: j.event || cur, tickets: j.tickets || [] };
+  } catch (e) { roster = null; $("rInfo").innerHTML = '<span class="err">名單下載失敗：' + esc(e.message) + "</span>"; b.disabled = false; b.textContent = "重新下載名單"; $("rBody").innerHTML = ""; return; }
+  b.disabled = false; b.textContent = "重新下載名單";
+  renderRoster();
+}
+function rosterRows() {
+  if (!roster) return [];
+  const f = $("rFilter").value.trim().toLowerCase(), byName = $("rSort").value === "name";
+  return roster.tickets.filter((t) => !f || [t.id, t.n, t.o, t.p4, no3(t.sn)].some((x) => String(x || "").toLowerCase().includes(f)))
+    .slice().sort((a, b) => byName ? String(a.n || "￿").localeCompare(String(b.n || "￿"), "zh-Hant") || (a.sn || 9e9) - (b.sn || 9e9) : (a.sn || 9e9) - (b.sn || 9e9) || a.id.localeCompare(b.id));
+}
+function renderRoster() {
+  if (!roster) { $("rBody").innerHTML = '<tr><td colspan="7" style="color:var(--muted)">' + (cur ? "按「下載名單」" : "先選場次") + "</td></tr>"; $("rInfo").textContent = ""; $("rPrintHead").textContent = ""; return; }
+  const T = roster.tickets, used = T.filter((t) => t.s === "used").length, valid = T.filter((t) => t.s === "valid").length;
+  const when = "下載於 " + fmt(roster.at) + "（台北）";
+  $("rInfo").innerHTML = '<span class="ok">' + esc(when) + " · " + T.length + " 張 · 已入場 " + used + " · 未入場 " + valid + "</span>" + (roster.v === "o1" ? "" : '<div class="warnbox">後台還沒更新到 M3：名單沒有姓名、手機後 4 碼與編號，勾入場也不會留確認紀錄。</div>');
+  $("rPrintHead").textContent = (roster.event.name || (cur && cur.id) || "") + "　現場名單　" + when + "　共 " + T.length + " 張（已入場 " + used + "）";
+  const rows = rosterRows();
+  $("rBody").innerHTML = rows.map((t) => { const dis = t.s === "refunded" || t.s === "void";
+    return '<tr data-id="' + esc(t.id) + '"><td class="mono">' + no3(t.sn) + "</td><td>" + esc(t.n || "") + '</td><td class="mono">' + esc(t.id) + '</td><td style="word-break:break-all">' + esc(t.o || "") + '</td><td class="mono">' + esc(t.p4 || "") + '</td><td class="st-' + esc(t.s) + '">' + esc(RST[t.s] || t.s) + '</td><td><input type="checkbox" data-ck="' + esc(t.id) + '"' + (t.s === "used" ? " checked" : "") + (dis ? " disabled" : "") + ' onchange="toggleEntry(this)" aria-label="入場 ' + esc(t.id) + '"><span class="pcheck">' + (t.s === "used" ? "☑" : (dis ? "—" : "☐")) + "</span></td></tr>"; }).join("") || '<tr><td colspan="7" style="color:var(--muted)">沒有符合的票</td></tr>';
+}
+async function toggleEntry(box) {
+  const id = box.getAttribute("data-ck"), t = roster && roster.tickets.find((x) => x.id === id); if (!t) return;
+  const who = no3(t.sn) + " " + (t.n || "") + "（" + id + "）";
+  if (box.checked) {
+    if (!confirm("確認放行 " + who + "？\nEmail " + (t.o || "") + (t.p4 ? "　手機後 4 碼 " + t.p4 : "") + "\n會記錄為後台手動入場。")) { box.checked = false; return; }
+    const j = await api("/ticket/checkin", { ticketId: id, confirm: true, via: "admin", by: "後台" });
+    if (j.ok) t.s = "used"; else { alert("沒有放行：" + ({ already_used: "已經入場過了", void: "已作廢", refunded: "已退票", too_early: "還沒開放入場", expired: "已過入場時間", need_confirm: "後台還沒更新到 M3（需要確認步驟）", not_found: "查無此票" }[j.reason] || j.reason || j.error || "失敗")); if (j.reason === "already_used") t.s = "used"; }
+  } else {
+    if (!confirm("把 " + who + " 復原成未入場？")) { box.checked = true; return; }
+    const j = await api("/ticket/admin/reset", { ticketId: id });
+    if (j.ok) t.s = "valid"; else alert("復原失敗：" + (j.error || ""));
+  }
+  renderRoster(); refresh();
+}
+function exportRosterCsv() {
+  if (!roster) return alert("先下載名單");
+  const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"', when = fmt(roster.at);
+  const rows = [["編號", "姓名", "票號", "Email（遮罩）", "手機後4碼", "狀態", "入場", "名單下載時間（台北）"]].concat(rosterRows().map((t) => [no3(t.sn), t.n || "", t.id, t.o || "", t.p4 || "", RST[t.s] || t.s, t.s === "used" ? "是" : "否", when]));
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map((r) => r.map(q).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" }));
+  a.download = "roster-" + (cur ? cur.id : "") + "-" + when.replace(/[\/ :]/g, "") + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+}
+function printRoster() { if (!roster) return alert("先下載名單"); renderRoster(); window.print(); }
+
+/* ===== O1：失敗訂單（清單 9） ===== */
+let failed = [];
+async function loadFailed() {
+  $("fMsg").textContent = "讀取中…";
+  let j; try { j = await api("/ticket/admin/failed"); } catch (e) { j = { ok: false, error: "network" }; }
+  if (!j.ok) { failed = []; $("fBody").innerHTML = ""; $("fMsg").innerHTML = '<span class="err">' + (j.error === "not_found" ? "後台還沒更新到 M3（看不到失敗訂單）" : esc(j.error || "讀取失敗")) + "</span>"; return; }
+  failed = j.items || [];
+  const open = failed.filter((x) => !x.resolved).length;
+  $("fMsg").innerHTML = failed.length ? '<span class="' + (open ? "err" : "ok") + '">' + failed.length + " 筆，未處理 " + open + " 筆</span>" : '<span class="ok">沒有失敗訂單</span>';
+  $("fBody").innerHTML = failed.map((x, i) => '<tr><td class="mono">' + esc(x.tradeNo) + "</td><td>" + fmt(x.paidAt || x.ts) + '</td><td style="word-break:break-all">' + esc(x.email || "") + "</td><td>" + esc(x.eventId || "") + "</td><td>" + esc(x.tier || "—") + "</td><td>" + esc(x.name || "") + "</td><td>" + esc(x.phone || "") + "</td><td>" + esc(x.amount || "") + "</td><td>" + esc(x.reason || "") + "</td><td>" +
+    (x.resolved ? '<span class="ok">已補發 ' + fmt(x.resolved.at) + "<br>" + esc((x.resolved.ids || []).join("、")) + "</span>" : '<button class="btn sm" data-fi="' + i + '" onclick="resolveFailed(' + i + ')">補發</button>') + "</td></tr>").join("");
+}
+async function resolveFailed(i) {
+  const x = failed[i]; if (!x || x.resolved) return;
+  if (!confirm("補發訂單 " + x.tradeNo + "？\n\n場次：" + (x.eventId || "") + "\n票種：" + (x.tier || "（無）") + "\n收票：" + (x.email || "") + "\n姓名：" + (x.name || "") + "　手機：" + (x.phone || "") + "\n\n會發一張票並寄確認信給對方。")) return;
+  $("fMsg").textContent = "補發中…";
+  const j = await api("/ticket/admin/failed/resolve", { tradeNo: x.tradeNo });
+  if (j.ok) { await loadFailed(); $("fMsg").innerHTML = '<span class="ok">已補發 ' + esc((j.ids || []).join("、")) + (j.emailed ? " · 信已寄" : " · 信沒寄成，票還是有效") + "</span>"; refresh(); }
+  else $("fMsg").innerHTML = '<span class="err">補發失敗：' + esc(j.error === "already_resolved" ? "這筆已經補發過了" : (j.message || j.error || "")) + "</span>";
+}
+
+/* ===== O1：測試場批量發票、清掉測試票（清單 11） ===== */
+async function bulkIssue() {
+  if (!cur || !isTestEv(cur) || cur.id === "meet-20261227") return;
+  let left = Math.max(1, Math.min(500, Number($("b_count").value) || 0)), from = Math.max(1, Number($("b_from").value) || 1), total = 0, errs = 0, calls = 0;
+  const b = $("btnBulk"); b.disabled = true;
+  while (left > 0) {
+    const n = Math.min(40, left);
+    $("bMsg").textContent = "發票中… " + total + " 張（從第 " + from + " 號）";
+    const j = await api("/ticket/admin/bulk", { eventId: cur.id, from, count: n }); calls++;
+    if (!j.ok) { $("bMsg").innerHTML = '<span class="err">停在 ' + total + " 張：" + esc(j.error === "not_found" ? "後台還沒更新到 M3" : (j.error || "失敗")) + "</span>"; b.disabled = false; return; }
+    total += j.issued || 0; errs += (j.errors || []).length; from = j.next || from + n; left -= n;
+  }
+  $("b_from").value = from;
+  $("bMsg").innerHTML = '<span class="ok">已發 ' + total + " 張（沒寄信，分 " + calls + " 次）" + (errs ? "，" + errs + " 張失敗（可能已經發過同號）" : "") + "</span>";
+  b.disabled = false; await refresh(); loadRoster();
+}
+async function purgeTest() {
+  if (!cur || !isTestEv(cur) || cur.id === "meet-20261227") return;
+  const v = prompt("這會刪掉「" + (cur.name || cur.id) + "」所有票、核銷紀錄，已售歸零。\n確定的話輸入場次 id：" + cur.id);
+  if (v == null) return; if (v.trim() !== cur.id) { $("pMsg").innerHTML = '<span class="err">輸入的場次 id 不對，沒有刪除</span>'; return; }
+  /* M3 分段清：先刪票（每次最多 120），票刪完再刪核銷紀錄；more:false 才算完成（已售歸 0）。KV 列表有延遲，每次間隔約 0.8 秒，最多 30 次 */
+  const b = $("btnPurge"); b.disabled = true; let del = 0, logs = 0, loops = 0, j;
+  do {
+    if (loops) await new Promise((r) => setTimeout(r, 800));
+    $("pMsg").textContent = "清除中… 已刪 " + del + " 張" + (logs ? "、核銷紀錄 " + logs + " 筆" : "") + "（第 " + (loops + 1) + " 次）";
+    j = await api("/ticket/admin/purge", { eventId: cur.id, confirm: cur.id }); loops++;
+    if (!j.ok) break; del += j.deleted || 0; logs += j.logs || 0;
+  } while (j.more && loops < 30);
+  b.disabled = false;
+  $("pMsg").innerHTML = j.ok ? (j.more ? '<span class="err">已刪 ' + del + " 張、核銷紀錄 " + logs + " 筆，但還沒清完（試了 " + loops + " 次），請稍後再按一次</span>" : '<span class="ok">已清掉 ' + del + " 張、核銷紀錄 " + logs + " 筆，已售歸 0</span>") : '<span class="err">清除失敗（已刪 ' + del + " 張）：" + esc(j.error === "not_found" ? "後台還沒更新到 M3" : (j.error || "")) + "</span>";
+  $("b_from").value = 1; await refresh(); loadRoster();
+}
+
 if (key()) connect();
 </script>
 </body></html>

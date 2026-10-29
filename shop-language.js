@@ -94,6 +94,10 @@
  '請依公告時間完成報到並留意叫號。如錯過自己的入場批次，仍可憑有效票券入場；完成報到後，請依工作人員指示，跟隨當時的隊伍入場，選擇剩餘空位。錯過批次者不另保留原本的優先選位順序。':'Please check in at the announced time and listen for your batch to be called. If you miss your batch, you can still enter with a valid ticket: after checking in, follow the staff’s directions, enter with the batch going in at that time, and choose from the seats left. If you miss your batch, your original place in the seating order is not held.',
  '請勿以物品替尚未入場的人佔位。希望坐在一起的朋友，可選擇一起等候較後的入場批次，再從當時剩餘的座位中選擇。':'Please don’t use your belongings to save seats for people who haven’t come in yet. Friends who want to sit together can wait and enter with a later batch, then choose from the seats still open.',
  '部分座位可能因無障礙需求、攝影、工作人員或場地安排而保留，請依現場標示與工作人員引導入座。':'Some seats may be reserved for accessibility needs, filming, staff or venue arrangements. Please follow the signs and the staff’s directions when taking a seat.',
+ /* B346T：門票手機（現場核對） */
+ '現場核對用（姓名＋手機後 4 碼），不會公開':'Used only for check-in at the event (name + last 4 digits). Never shown publicly.',
+ '例如：0912345678':'e.g. 0912345678 or +81 90 1234 5678', '請填寫手機號碼':'Please enter your mobile number.','手機號碼格式不對，再看一下':'That mobile number doesn’t look right. Please check it.',
+ '購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。':'A mobile number is required when buying. It is used only for check-in at this event (name + last 4 digits).',
  /* B343T：數量、免票現場領取（姓名＋電話） */
  '每筆最多 5 組':'Up to 5 per order','寄送':'Ship','台灣・亞洲 NT$250／其他 NT$500':'Taiwan & Asia NT$250 / elsewhere NT$500','領取人資料（現場核對用）':'Pickup details (checked at the event)','領取人姓名':'Name for pickup','手機號碼':'Mobile number','請填領取人姓名和手機（現場核對用）':'Please enter the pickup name and mobile number (checked at the event).','減少':'Decrease','增加':'Increase',
  '周邊為預購商品，活動當天現場領取（報訂購姓名＋電話）。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event (give the name + phone on your order). Under Taiwan consumer protection law you can cancel for a full refund any time before you receive it, and request a return and refund within 7 days of receiving it (for event pickup, counted from the event day).',

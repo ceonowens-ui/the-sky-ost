@@ -49,6 +49,12 @@ input,select{width:100%;border:1px solid var(--line);background:#0b0b0b;color:va
 .sheet h3{font-size:22px;margin:3px 0 7px}.qrwrap{display:flex;justify-content:center;margin:18px 0 12px}.qrbox{padding:14px;background:#f3f0e8;border-radius:22px}
 .tiny{font-size:10px;color:var(--muted);word-break:break-all;line-height:1.5;text-align:center}
 .demo{color:#efd9a9;font-size:10px;letter-spacing:.2em}
+/* O1：重新下載提醒、補傳清單、手動核對 */
+.warnbox{display:none;margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(216,143,143,.14);border:1px solid rgba(216,143,143,.55);color:#f1c4c4;font-size:13px;font-weight:700;line-height:1.5}
+.li{margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0b0b0b;font-size:12px;line-height:1.55;color:#ddd5c8}
+.btn.mrow{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;font-weight:500}.btn.mrow b{font-size:16px}.btn.mrow span{font-size:12px;color:var(--muted)}
+.mono{font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em}
+.mc{margin-top:12px;padding:16px;border:1px solid rgba(216,188,128,.35);border-radius:18px;background:#0b0b0b}.mc b{display:block;font-size:24px;margin-bottom:6px}.mc p{margin:4px 0;font-size:14px;color:#ddd5c8}
 </style>
 </head>
 <body>
@@ -60,12 +66,15 @@ input,select{width:100%;border:1px solid var(--line);background:#0b0b0b;color:va
     <div class="hero"><div class="eyebrow">Check-in</div><h1>核銷機</h1><div class="sub">工作人員用。先輸入鑰匙、選場次、下載名單，再開始掃。<span id="demoTag" class="demo"></span></div></div>
     <div class="card">
       <div class="row"><span class="label">STAFF KEY</span><input id="key" type="password" placeholder="現場鑰匙" autocomplete="off" /></div>
+      <div class="row"><span class="label">工作人員名稱（核銷紀錄用）</span><input id="byName" type="text" maxlength="16" placeholder="例：小明" autocomplete="off" /></div>
       <div class="row"><span class="label">場次</span><select id="event"><option value="">— 載入中 —</option></select></div>
       <button class="btn" id="btnManifest" onclick="downloadManifest()">下載名單（離線也能掃）</button>
       <div class="stat"><div><b id="sCap">–</b><span>可售</span></div><div><b id="sValid">–</b><span>未入場</span></div><div><b id="sUsed">–</b><span>已入場</span></div></div>
       <div class="last" id="manifestInfo">尚未下載名單。</div>
+      <div class="warnbox" id="mfWarn"></div>
       <button class="btn primary" id="btnStart" onclick="startScan()">開始掃碼</button>
     </div>
+    <div class="card" id="dupCard" style="display:none"><div class="eyebrow">Sync</div><div class="sub" style="margin:6px 0 2px">離線補傳結果（兩支手機都放行同一張時會出現在這裡）</div><div id="dupList"></div><button class="btn ghost" onclick="clearDups()">清除清單</button></div>
     <div class="note"><b>現場提醒</b>：用 <b>Safari</b> 開這頁，不要從 LINE／IG 點連結（內建瀏覽器打不開相機）。第一次會問相機權限，按允許。</div>
     <div class="card" id="demoCard" style="display:none"><div class="eyebrow">Demo</div><div class="sub" style="margin:6px 0 4px">用另一支手機開同一個網址加 <b>?demo=1</b>，按下面的按鈕顯示測試票 QR，這支拿來掃。</div>
       <div class="grid2" style="margin-top:10px"><button class="btn" onclick="showDemoQr(0)">測試票 A</button><button class="btn" onclick="showDemoQr(1)">測試票 B</button></div>
@@ -78,18 +87,25 @@ input,select{width:100%;border:1px solid var(--line);background:#0b0b0b;color:va
     <div class="hero" style="padding-bottom:4px"><div class="eyebrow" id="scanEvent">—</div><h1 style="font-size:22px">對準 QR</h1></div>
     <div id="reader"></div>
     <div class="stat"><div><b id="cIn">0</b><span>本機已掃</span></div><div><b id="cQueue">0</b><span>待補傳</span></div><div><b id="cLeft">–</b><span>未入場</span></div></div>
+    <div class="warnbox" id="mfWarn2"></div>
     <div class="last" id="lastLine">還沒掃到任何票。</div>
-    <div class="grid2" style="margin-top:12px"><button class="btn" onclick="openManual()">手動輸票號</button><button class="btn ghost" onclick="stopScan()">停止／回設定</button></div>
+    <div class="grid2" style="margin-top:12px"><button class="btn" onclick="openManual()">手動核對</button><button class="btn ghost" onclick="stopScan()">停止／回設定</button></div>
   </section>
 </div>
 
 <!-- 結果 -->
 <div class="overlay" id="overlay" onclick="hideOverlay()"><div class="ov"><div class="big" id="ovIcon">✓</div><h2 id="ovTitle">放行</h2><p id="ovLine1"></p><p id="ovLine2"></p><div class="id" id="ovId"></div><div class="tap">點一下關閉 · 也會自動關</div></div></div>
 
-<!-- 手動輸入 -->
-<div class="sheet" id="manualSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Manual</div><h3>手動輸票號</h3><div class="sub">相機掃不到時用。票號在粉絲的票卡上（例：1227-ABCD2345）。</div>
-  <div class="row"><input id="manualId" placeholder="票號" autocapitalize="characters" autocomplete="off" /></div>
-  <button class="btn primary" onclick="manualCheckin()">核銷這張</button><button class="btn ghost" onclick="manualSheet.classList.remove('show')">取消</button></div></div>
+<!-- 手動核對：查 → 核對 → 確認才放行 -->
+<div class="sheet" id="manualSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Manual</div><h3>手動核對</h3>
+  <div id="manualFind"><div class="sub">相機掃不到時用。輸入票號、姓名或手機末 4 碼，核對粉絲本人後再放行。</div>
+  <div class="row"><input id="manualId" placeholder="票號／姓名／手機末 4 碼" autocomplete="off" onkeydown="if(event.key==='Enter')manualSearch()" /></div>
+  <button class="btn primary" onclick="manualSearch()">查詢</button><div class="last" id="manualMsg"></div><div id="manualList"></div>
+  <button class="btn ghost" onclick="manualSheet.classList.remove('show')">取消</button></div>
+  <div id="manualConfirm" style="display:none"><div class="sub">請核對姓名、手機末 4 碼，確認是本人再放行。</div>
+    <div class="mc"><b id="mcName"></b><p id="mcLine"></p><p class="mono" id="mcId"></p><p id="mcSt"></p></div>
+    <button class="btn primary" id="mcGo" onclick="manualCheckin()">確認放行</button><button class="btn ghost" onclick="manualConfirmHide()">返回</button></div>
+</div></div>
 
 <!-- Demo QR -->
 <div class="sheet" id="qrSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox" style="text-align:center"><div class="eyebrow">Demo Ticket</div><h3 id="qrTitle">測試票</h3>
@@ -98,42 +114,57 @@ input,select{width:100%;border:1px solid var(--line);background:#0b0b0b;color:va
 
 <script>
 /* ===== 設定 ===== */
+/* O1（10/29 CÉON）：手動核對要確認才放行、離線驗簽章、逾時不自動走離線、補傳列出重複入場、名單下載日期與提醒、日期一律台北時間 */
 const API = "https://the-sky-ost-api.anthonywen0693.workers.dev";
 const DEMO = new URLSearchParams(location.search).get("demo") === "1";
-const LS = { key: "chance-scan-key", ev: "chance-scan-event", mani: "chance-scan-manifest:", used: "chance-scan-used:", queue: "chance-scan-queue" };
-let scanner = null, manifest = null, curEvent = null, lastCode = "", lastAt = 0, busy = false, ovTimer = null, localIn = 0;
+const LS = { key: "chance-scan-key", ev: "chance-scan-event", mani: "chance-scan-manifest:", used: "chance-scan-used:", queue: "chance-scan-queue", dev: "chance-scan-dev", by: "chance-scan-by", dups: "chance-scan-dups" };
+let scanner = null, manifest = null, curEvent = null, lastCode = "", lastAt = 0, busy = false, ovTimer = null, localIn = 0, manualPick = null;
 
 /* Demo 資料：四張假票（A 有效、B 有效、C 已入場、D 轉讓後舊碼 ver 不符） */
 const DEMO_EV = { id: "demo", name: "DEMO 場（本機模擬）", startAt: new Date(Date.now() + 3600e3).toISOString(), venue: "Demo", capacity: 4, sold: 4, open: Date.now() - 3600e3, close: Date.now() + 5 * 3600e3 };
 const DEMO_T = [
-  { id: "DEMO-AAAA2222", v: 1, s: "valid", o: "a***@demo", sig: "0123456789abcdef0123" },
-  { id: "DEMO-BBBB3333", v: 1, s: "valid", o: "b***@demo", sig: "1123456789abcdef0123" },
-  { id: "DEMO-CCCC4444", v: 1, s: "used", o: "c***@demo", sig: "2123456789abcdef0123" },
-  { id: "DEMO-DDDD5555", v: 2, s: "valid", o: "d***@demo", sig: "3123456789abcdef0123" },
+  { id: "DEMO-AAAA2222", v: 1, s: "valid", o: "a***@demo", n: "王小明", p4: "5678", sn: 1, sig: "0123456789abcdef0123" },
+  { id: "DEMO-BBBB3333", v: 1, s: "valid", o: "b***@demo", n: "Amy Lin", p4: "1234", sn: 2, sig: "1123456789abcdef0123" },
+  { id: "DEMO-CCCC4444", v: 1, s: "used", o: "c***@demo", n: "陳大文", p4: "9012", sn: 3, sig: "2123456789abcdef0123" },
+  { id: "DEMO-DDDD5555", v: 2, s: "valid", o: "d***@demo", n: "林美美", p4: "3456", sn: 4, sig: "3123456789abcdef0123" },
 ];
 const demoQrOf = (i) => "CT1." + DEMO_T[i].id + "." + (i === 3 ? 1 : DEMO_T[i].v) + "." + DEMO_T[i].sig; // D 給舊版本 ver=1
 
 const $ = (id) => document.getElementById(id);
 const key = () => $("key").value.trim();
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function devId() { let d = localStorage.getItem(LS.dev); if (!d) { d = "D" + Math.random().toString(36).slice(2, 8).toUpperCase(); localStorage.setItem(LS.dev, d); } return d; }
+const staffBy = () => (($("byName") && $("byName").value) || "").trim().slice(0, 16);
 function setNet() { const on = navigator.onLine; const p = $("netPill"); p.textContent = DEMO ? "DEMO · 本機" : (on ? "● ONLINE" : "● OFFLINE"); p.className = "pill " + (on ? "on" : "off"); }
 window.addEventListener("online", () => { setNet(); syncQueue(); }); window.addEventListener("offline", setNet);
 
+/* 日期一律用台北時間顯示（不看手機時區、不用「上午／下午」）：M/D HH:mm */
+function tw(x) { const ms = typeof x === "number" ? x : Date.parse(x); if (!isFinite(ms)) return ""; const t = new Date(ms + 8 * 3600e3); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0"); }
+const fmt = tw;
+
 async function api(path, opt = {}, timeout = 5000) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), timeout);
-  try { const r = await fetch(API + path, { ...opt, signal: ctl.signal, headers: { "Content-Type": "application/json" } }); return await r.json(); }
+  try { const r = await fetch(API + path, { ...opt, signal: ctl.signal, headers: { "Content-Type": "application/json" } }); const j = await r.json().catch(() => ({ ok: false, error: "http_" + r.status })); if (j && typeof j === "object") j.__http = r.status; return j; }
   finally { clearTimeout(t); }
 }
+/* QR 簽章 → sha256 前 8 bytes（16 hex），對名單的 sh。名單只有雜湊，拿不到原簽章，不能用名單偽造 QR */
+async function sigHash(sig) { const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(sig)); return Array.from(new Uint8Array(h)).slice(0, 8).map((b) => b.toString(16).padStart(2, "0")).join(""); }
 
 /* ===== 初始化 ===== */
 (async function init() {
   setNet();
   $("key").value = localStorage.getItem(LS.key) || "";
+  $("byName").value = localStorage.getItem(LS.by) || "";
+  $("byName").addEventListener("change", () => localStorage.setItem(LS.by, staffBy()));
+  devId();
   if (DEMO) { $("demoTag").textContent = " · DEMO"; $("demoCard").style.display = "block"; $("key").value = $("key").value || "demo"; }
   await loadEvents();
-  const saved = localStorage.getItem(LS.ev); if (saved) $("event").value = saved;
+  const saved = localStorage.getItem(LS.ev); if (saved && [...$("event").options].some((o) => o.value === saved)) $("event").value = saved;   /* 存的場次不在清單裡（換場、DEMO）就留第一個，不要變成空白 */
   onEventChange();
   $("event").addEventListener("change", onEventChange);
+  renderDups();
   setInterval(syncQueue, 20000);
+  setInterval(renderManifest, 60000);   /* 提醒「開放入場前請重新下載名單」會隨時間出現 */
 })();
 
 async function loadEvents() {
@@ -144,9 +175,8 @@ async function loadEvents() {
   // 離線時：從已下載的名單補場次
   if (!evs.length) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(LS.mani)) { try { const m = JSON.parse(localStorage.getItem(k)); evs.push(m.event); } catch (e) {} } } }
   if (!evs.length) { sel.innerHTML = '<option value="">（載不到場次，檢查網路）</option>'; return; }
-  for (const e of evs) { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name + (e.startAt ? " · " + fmt(e.startAt) : ""); sel.appendChild(o); }
+  for (const e of evs) { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name + (e.startAt ? " · " + tw(e.startAt) : ""); sel.appendChild(o); }
 }
-function fmt(iso) { const d = new Date(iso); if (isNaN(d)) return ""; const t = new Date(d.getTime() + 8 * 3600e3); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0"); }
 function onEventChange() {
   curEvent = $("event").value; localStorage.setItem(LS.ev, curEvent || "");
   manifest = curEvent ? JSON.parse(localStorage.getItem(LS.mani + curEvent) || "null") : null;
@@ -154,17 +184,28 @@ function onEventChange() {
 }
 function usedSet() { return new Set(JSON.parse(localStorage.getItem(LS.used + curEvent) || "[]")); }
 function markUsed(id) { const s = usedSet(); s.add(id); localStorage.setItem(LS.used + curEvent, JSON.stringify([...s])); }
+const isO1 = (m) => !!m && (m.v === "o1" || (m.tickets || []).some((t) => t.sh));
+/* 開放入場前 2 小時內（或已開放），名單卻是在開放前超過 1 小時下載的 → 提醒重新下載 */
+function needRedownload(m, now) { const ev = m && m.event; if (!ev || !ev.open || !m.at) return false; now = now || Date.now(); return now >= ev.open - 2 * 3600e3 && m.at < ev.open - 3600e3; }
 function renderManifest() {
-  if (!manifest) { $("manifestInfo").textContent = "尚未下載名單。有網路時可直接掃；沒網路一定要先下載。"; $("sCap").textContent = $("sValid").textContent = $("sUsed").textContent = "–"; $("cLeft").textContent = "–"; return; }
+  const warn = [$("mfWarn"), $("mfWarn2")];
+  if (!manifest) { $("manifestInfo").textContent = "尚未下載名單。有網路時可直接掃；沒網路一定要先下載。"; $("sCap").textContent = $("sValid").textContent = $("sUsed").textContent = "–"; $("cLeft").textContent = "–"; warn.forEach((w) => { if (w) w.style.display = "none"; }); return; }
   const u = usedSet(); let valid = 0, used = 0;
-  for (const t of manifest.tickets) { if (t.s === "used" || u.has(t.id)) used++; else if (t.s === "valid") valid++; }
+  for (const t of manifest.tickets) { if (t.s === "used" || (t.s === "valid" && u.has(t.id))) used++; else if (t.s === "valid") valid++; }
   $("sCap").textContent = manifest.event.capacity || "–"; $("sValid").textContent = valid; $("sUsed").textContent = used; $("cLeft").textContent = valid;
-  $("manifestInfo").innerHTML = "名單：<b>" + manifest.tickets.length + " 張</b> · 下載於 " + new Date(manifest.at).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + (manifest.event.open ? "<br>入場窗：" + fmt(new Date(manifest.event.open).toISOString()) + " ～ " + fmt(new Date(manifest.event.close).toISOString()) : "");
+  $("manifestInfo").innerHTML = "名單：<b>" + manifest.tickets.length + " 張</b> · 下載於 <b>" + tw(manifest.at) + "</b>（台北時間）" +
+    (manifest.event.open ? "<br>入場窗：" + tw(manifest.event.open) + " ～ " + tw(manifest.event.close) : "") +
+    (isO1(manifest) ? "" : '<br><span style="color:#e0a3a3">名單是舊版，離線無法驗簽章，請連線後重新下載。</span>');
+  const need = needRedownload(manifest);
+  warn.forEach((w) => { if (!w) return; w.style.display = need ? "block" : "none"; w.textContent = "⚠ 開放入場前請重新下載名單（目前名單下載於 " + tw(manifest.at) + "）"; });
 }
 async function downloadManifest() {
   if (!curEvent) return alert("先選場次");
   localStorage.setItem(LS.key, key());
-  if (DEMO) { manifest = { at: Date.now(), event: DEMO_EV, tickets: DEMO_T.map((t) => ({ id: t.id, v: t.v, s: t.s, o: t.o })) }; localStorage.setItem(LS.mani + curEvent, JSON.stringify(manifest)); renderManifest(); return; }
+  if (DEMO) {
+    const tickets = []; for (const t of DEMO_T) tickets.push({ id: t.id, v: t.v, s: t.s, o: t.o, n: t.n, p4: t.p4, sn: t.sn, sh: await sigHash(t.sig).catch(() => null) });
+    manifest = { v: "o1", at: Date.now(), event: DEMO_EV, tickets }; localStorage.setItem(LS.mani + curEvent, JSON.stringify(manifest)); renderManifest(); return;
+  }
   $("btnManifest").disabled = true; $("btnManifest").textContent = "下載中…";
   try {
     const j = await api("/ticket/manifest?eventId=" + encodeURIComponent(curEvent) + "&staffKey=" + encodeURIComponent(key()), {}, 15000);
@@ -173,7 +214,7 @@ async function downloadManifest() {
     // 伺服器說已入場的，本機 used 也同步（避免重複）
     for (const t of j.tickets) if (t.s === "used") markUsed(t.id);
     renderManifest();
-  } catch (e) { alert("下載失敗：" + e.message); }
+  } catch (e) { alert("下載失敗：" + (e && e.name === "AbortError" ? "連線逾時" : e.message)); }
   $("btnManifest").disabled = false; $("btnManifest").textContent = "重新下載名單";
 }
 
@@ -182,16 +223,16 @@ function go(n) { document.querySelectorAll(".screen").forEach((x) => x.classList
 async function startScan() {
   if (!curEvent) return alert("先選場次");
   if (!DEMO && !key()) return alert("先輸入 STAFF KEY");
-  localStorage.setItem(LS.key, key());
+  localStorage.setItem(LS.key, key()); localStorage.setItem(LS.by, staffBy());
   $("scanEvent").textContent = ($("event").selectedOptions[0] || {}).textContent || curEvent;
-  go("scan"); beepInit();
+  go("scan"); beepInit(); renderManifest();
   if (!scanner) scanner = new Html5Qrcode("reader", { verbose: false });
   try {
     await scanner.start({ facingMode: "environment" }, { fps: 12, qrbox: (w, h) => ({ width: Math.min(240, w * .8), height: Math.min(240, w * .8) }), aspectRatio: 1.0 }, onScan, () => {});
     const f = document.createElement("div"); f.className = "frame"; f.innerHTML = "<div></div>"; $("reader").appendChild(f);
   } catch (e) { alert("相機打不開：" + e + "\n\n請用 Safari 開這頁並允許相機。"); go("setup"); }
 }
-async function stopScan() { try { if (scanner) await scanner.stop(); } catch (e) {} go("setup"); renderManifest(); }
+async function stopScan() { try { if (scanner) await scanner.stop(); } catch (e) {} go("setup"); renderManifest(); renderDups(); }
 async function onScan(text) {
   const now = Date.now();
   if (busy || (text === lastCode && now - lastAt < 4000)) return;
@@ -199,38 +240,47 @@ async function onScan(text) {
   try { await handleCode(text); } finally { setTimeout(() => { busy = false; }, 600); }
 }
 const parse = (s) => { const m = /^CT1\.([A-Z0-9-]+)\.(\d+)\.([0-9a-f]{20})$/.exec(String(s || "").trim()); return m ? { id: m[1], ver: Number(m[2]), sig: m[3] } : null; };
-const REASON = { bad_format: ["不是票", "這個 QR 不是 CHANCE 門票"], not_found: ["查無此票", "票號不存在"], invalid_sig: ["舊碼／已轉讓", "這張票已轉讓，請對方出示新 QR"], void: ["已作廢", "這張票已被作廢"], already_used: ["已入場", "這張票已經掃過"], too_early: ["還沒開放入場", "開演前 3 小時才開放"], expired: ["已失效", "開演後 2 小時票就失效"], forbidden: ["鑰匙不對", "回設定重新輸入 STAFF KEY"], network: ["沒網路", "已用本機名單核銷，回網會自動補傳"] };
+const REASON = { bad_format: ["不是票", "這個 QR 不是 CHANCE 門票"], not_found: ["查無此票", "票號不存在"], invalid_sig: ["舊碼／已轉讓", "這張票已轉讓，請對方出示新 QR"], bad_sig: ["簽章不符／舊碼", "QR 跟名單對不上，請對方打開 App 出示最新 QR"], void: ["已作廢", "這張票已被作廢"], refunded: ["已退票", "這張票已退票，不能入場"], already_used: ["已入場", "這張票已經掃過"], too_early: ["還沒開放入場", "開演前 3 小時才開放"], expired: ["已失效", "開演後 2 小時票就失效"], forbidden: ["鑰匙不對", "回設定重新輸入 STAFF KEY"], need_confirm: ["請先確認", "核對姓名後按確認放行"] };
+/* 放行／拒絕畫面上的「人」：姓名 · 手機末 4 碼 · 編號 · 遮罩 email */
+function who(x) { if (!x) return ""; const seat = x.seat || (x.sn ? String(x.sn).padStart(3, "0") : ""); return [x.name || x.n || "", (x.p4 ? "手機末 " + x.p4 : ""), (seat ? "No." + seat : ""), x.owner || x.o || ""].filter(Boolean).join(" · "); }
 
 async function handleCode(text) {
   const p = parse(text);
   if (!p) return show("bad", "不是票", REASON.bad_format[1], "", text.slice(0, 40));
-  // 1) 有網路 → 問伺服器
+  // 1) 有網路 → 問伺服器；逾時或連不上 → 請工作人員重掃（不自動改走離線，避免兩邊各放行一次）
   if (!DEMO && navigator.onLine) {
-    try {
-      const j = await api("/ticket/checkin", { method: "POST", body: JSON.stringify({ staffKey: key(), qr: text }) }, 4000);
-      if (j.ok) { markUsed(j.id); localIn++; return show("good", "放行", j.event || "", j.owner || "", j.id); }
-      const r = REASON[j.reason] || [j.reason || "拒絕", ""];
-      return show(j.reason === "already_used" ? "warn" : "bad", r[0], r[1] + (j.usedAt ? "（" + new Date(j.usedAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "）" : ""), j.owner || "", j.id || p.id);
-    } catch (e) { /* 掉到離線流程 */ }
+    let j;
+    try { j = await api("/ticket/checkin", { method: "POST", body: JSON.stringify({ staffKey: key(), qr: text, dev: devId(), by: staffBy() }) }, 4000); }
+    catch (e) { lastCode = ""; return show("warn", e && e.name === "AbortError" ? "連線逾時，請再掃一次" : "連不上伺服器，請再掃一次", "這張還沒核銷。網路真的斷了，就關掉 Wi-Fi／行動網路改用離線名單", "", p.id); }
+    if (j.ok) { markUsed(j.id); localIn++; return show("good", "放行", j.event || "", who(j), j.id); }
+    const r = REASON[j.reason] || [j.reason || j.error || "拒絕", ""];
+    return show(j.reason === "already_used" ? "warn" : "bad", r[0], r[1] + (j.usedAt ? "（入場於 " + tw(j.usedAt) + "）" : ""), who(j), j.id || p.id);
   }
   // 2) 離線 → 本機名單
   if (!manifest) return show("bad", "沒網路也沒名單", "回設定按「下載名單」再掃", "", p.id);
   const t = manifest.tickets.find((x) => x.id === p.id);
   if (!t) return show("bad", "查無此票", "本機名單裡沒有這張（名單可能太舊）", "", p.id);
-  if (t.s === "void") return show("bad", REASON.void[0], REASON.void[1], t.o, p.id);
-  if (t.v !== p.ver) return show("bad", REASON.invalid_sig[0], REASON.invalid_sig[1], t.o, p.id);
-  if (t.s === "used" || usedSet().has(p.id)) return show("warn", REASON.already_used[0], REASON.already_used[1], t.o, p.id);
+  if (t.s === "void") return show("bad", REASON.void[0], REASON.void[1], who(t), p.id);
+  if (t.s === "refunded") return show("bad", REASON.refunded[0], REASON.refunded[1], who(t), p.id);
+  if (t.s !== "valid" && t.s !== "used") return show("bad", "不能入場", "票的狀態：" + t.s, who(t), p.id);
+  if (t.v !== p.ver) return show("bad", REASON.invalid_sig[0], REASON.invalid_sig[1], who(t), p.id);
+  if (isO1(manifest)) {
+    let h = null; try { h = await sigHash(p.sig); } catch (e) {}
+    if (!h) return show("bad", "無法驗簽章", "這支手機不支援驗簽章，請連上網路再掃", who(t), p.id);
+    if (!t.sh || h !== t.sh) return show("bad", REASON.bad_sig[0], REASON.bad_sig[1], who(t), p.id);
+  }
+  if (t.s === "used" || usedSet().has(p.id)) return show("warn", REASON.already_used[0], REASON.already_used[1], who(t), p.id);
   const now = Date.now(), ev = manifest.event;
-  if (ev.open && now < ev.open) return show("bad", REASON.too_early[0], REASON.too_early[1], t.o, p.id);
-  if (ev.close && now > ev.close) return show("bad", REASON.expired[0], REASON.expired[1], t.o, p.id);
+  if (ev.open && now < ev.open) return show("bad", REASON.too_early[0], REASON.too_early[1], who(t), p.id);
+  if (ev.close && now > ev.close) return show("bad", REASON.expired[0], REASON.expired[1], who(t), p.id);
   markUsed(p.id); localIn++;
-  if (!DEMO) enqueue({ qr: text, at: now });
-  show("good", DEMO ? "放行（DEMO）" : "放行（離線）", ev.name || "", t.o, p.id);
+  if (!DEMO) enqueue({ qr: text, at: now, dev: devId() });
+  show("good", DEMO ? "放行（DEMO）" : "放行（離線）", (ev.name || "") + (isO1(manifest) ? "" : "（舊版名單，未驗簽章）"), who(t), p.id);
 }
 function show(kind, title, l1, l2, id) {
   const ov = $("overlay"); ov.className = "overlay show " + kind;
   $("ovIcon").textContent = kind === "good" ? "✓" : (kind === "warn" ? "!" : "✕"); $("ovTitle").textContent = title; $("ovLine1").textContent = l1 || ""; $("ovLine2").textContent = l2 || ""; $("ovId").textContent = id || "";
-  $("lastLine").innerHTML = "<b>" + title + "</b> · " + (id || "") + " · " + new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  $("lastLine").innerHTML = "<b>" + esc(title) + "</b> · " + esc(id || "") + (l2 ? " · " + esc(l2) : "") + " · " + tw(Date.now());
   $("cIn").textContent = localIn; renderCounts();
   try { navigator.vibrate && navigator.vibrate(kind === "good" ? 80 : [60, 60, 60]); } catch (e) {}
   beep(kind === "good" ? 880 : 220, kind === "good" ? .12 : .35);
@@ -239,31 +289,92 @@ function show(kind, title, l1, l2, id) {
 function hideOverlay() { $("overlay").className = "overlay"; }
 function renderCounts() { if (manifest) { const u = usedSet(); let valid = 0; for (const t of manifest.tickets) if (t.s === "valid" && !u.has(t.id)) valid++; $("cLeft").textContent = valid; } $("cQueue").textContent = queue().length; }
 
-/* ===== 離線佇列 ===== */
+/* ===== 離線佇列＋補傳結果（重複入場清單） ===== */
 function queue() { return JSON.parse(localStorage.getItem(LS.queue) || "[]"); }
 function enqueue(item) { const q = queue(); q.push(item); localStorage.setItem(LS.queue, JSON.stringify(q)); renderCounts(); }
+function dups() { return JSON.parse(localStorage.getItem(LS.dups) || "[]"); }
+function renderDups() {
+  const d = dups(), box = $("dupCard"); if (!box) return;
+  box.style.display = d.length ? "block" : "none";
+  const dup = d.filter((x) => x.kind === "dup"), rej = d.filter((x) => x.kind !== "dup");
+  $("dupList").innerHTML = (dup.length ? "<b>重複入場 " + dup.length + " 筆</b>（離線時另一支手機已放行過）" + dup.map((x) => '<div class="li">' + esc(x.id) + (x.name ? " · " + esc(x.name) : "") + "<br>第一次入場 " + (x.firstAt ? tw(x.firstAt) : "—") + " · 這支手機掃 " + (x.at ? tw(x.at) : "—") + "</div>").join("") : "") +
+    (rej.length ? '<div style="margin-top:10px"><b>伺服器不認 ' + rej.length + " 筆</b></div>" + rej.map((x) => '<div class="li">' + esc(x.id || "—") + (x.name ? " · " + esc(x.name) : "") + " · " + esc((REASON[x.reason] || [x.reason])[0]) + " · 掃於 " + (x.at ? tw(x.at) : "—") + "</div>").join("") : "");
+}
+function clearDups() { if (!confirm("清除補傳結果清單？（不影響已核銷的票）")) return; localStorage.setItem(LS.dups, "[]"); renderDups(); }
 let syncing = false;
+/* 補傳：每批最多 100 筆；後台回 processed＝處理了前幾筆，只移除那幾筆（舊後台沒有 processed＝整批都處理了），還有剩就送下一批 */
 async function syncQueue() {
-  if (DEMO || syncing || !navigator.onLine) return; const q = queue(); if (!q.length || !key()) return;
+  if (DEMO || syncing || !navigator.onLine) return; if (!queue().length || !key()) return;
   syncing = true;
+  let sent = 0, nd = 0, nr = 0, rounds = 0;
   try {
-    const j = await api("/ticket/checkin/batch", { method: "POST", body: JSON.stringify({ staffKey: key(), items: q }) }, 15000);
-    if (j && j.ok) { localStorage.setItem(LS.queue, "[]"); const dup = j.results.filter((r) => !r.ok && r.reason !== "already_used").length; if (dup) $("lastLine").innerHTML += "<br>補傳完成，其中 " + dup + " 筆伺服器不認（請看後台）"; }
-  } catch (e) {} finally { syncing = false; renderCounts(); }
+    while (navigator.onLine && rounds++ < 50) {
+      const q = queue(); if (!q.length) break;
+      const chunk = q.slice(0, 100);
+      const j = await api("/ticket/checkin/batch", { method: "POST", body: JSON.stringify({ staffKey: key(), dev: devId(), by: staffBy(), items: chunk }) }, 15000);
+      if (!j || !j.ok) break;
+      const res = j.results || [];
+      const done = Math.max(0, Math.min(chunk.length, typeof j.processed === "number" ? j.processed : chunk.length));
+      if (!done) break;
+      localStorage.setItem(LS.queue, JSON.stringify(queue().slice(done)));   /* 重新讀：補傳期間新掃的會接在後面，不會被刪 */
+      const add = [];
+      res.slice(0, done).forEach((r, i) => { if (r.ok) return; const at = r.at || (chunk[i] && chunk[i].at) || null, id = r.id || ((parse(r.qr || (chunk[i] && chunk[i].qr)) || {}).id) || null;
+        add.push(r.reason === "already_used" ? { kind: "dup", id, name: r.name || null, firstAt: r.usedAt || null, at } : { kind: "rej", id, name: r.name || null, reason: r.reason || r.error || "?", at }); });
+      if (add.length) { localStorage.setItem(LS.dups, JSON.stringify(dups().concat(add))); renderDups(); }
+      sent += done; nd += add.filter((x) => x.kind === "dup").length; nr += add.filter((x) => x.kind !== "dup").length;
+      renderCounts();
+    }
+  } catch (e) {} finally {
+    syncing = false; renderCounts();
+    if (sent) $("lastLine").innerHTML += "<br>補傳完成 " + sent + " 筆" + (nd ? "，<b>重複入場 " + nd + " 筆</b>" : "") + (nr ? "，伺服器不認 " + nr + " 筆" : "") + (nd || nr ? "（回設定畫面看清單）" : "") + (queue().length ? "；還有 " + queue().length + " 筆待補傳" : "");
+  }
 }
 
-/* ===== 手動 ===== */
-function openManual() { $("manualId").value = ""; $("manualSheet").classList.add("show"); setTimeout(() => $("manualId").focus(), 100); }
+/* ===== 手動核對：查票號／姓名／手機末 4 碼 → 看資料 → 按「確認放行」才核銷 ===== */
+function openManual() { $("manualId").value = ""; $("manualList").innerHTML = ""; $("manualMsg").textContent = ""; manualConfirmHide(); $("manualSheet").classList.add("show"); setTimeout(() => $("manualId").focus(), 100); }
+function manualConfirmHide() { manualPick = null; $("manualConfirm").style.display = "none"; $("manualFind").style.display = "block"; }
+const ST = { valid: "未入場", used: "已入場", void: "已作廢", refunded: "已退票" };
+function manualRender(list) {
+  $("manualList").innerHTML = list.map((x, i) => '<button class="btn mrow" onclick="manualPickAt(' + i + ')"><b>' + esc(x.name || "（沒有姓名）") + '</b><span>' + esc([x.p4 ? "手機末 " + x.p4 : "", x.seat ? "No." + x.seat : "", x.owner || ""].filter(Boolean).join(" · ")) + '</span><span class="mono">' + esc(x.id) + " · " + esc(ST[x.status] || x.status || "") + "</span></button>").join("");
+  manualRender.list = list;
+}
+function manualPickAt(i) { const x = (manualRender.list || [])[i]; if (x) manualAsk(x); }
+function manualAsk(x) {
+  manualPick = x; $("manualFind").style.display = "none"; $("manualConfirm").style.display = "block";
+  $("mcName").textContent = x.name || (x.legacy ? "（舊後台：查不到姓名）" : "（沒有姓名）");
+  $("mcLine").textContent = [x.p4 ? "手機末 " + x.p4 : "", x.seat ? "No." + x.seat : "", x.owner || ""].filter(Boolean).join(" · ") || "請核對票號與粉絲出示的票";
+  $("mcId").textContent = x.id; $("mcSt").textContent = ST[x.status] || (x.legacy ? "狀態待伺服器確認" : (x.status || ""));
+  const can = x.legacy || x.status === "valid";
+  $("mcGo").disabled = !can; $("mcGo").textContent = can ? "確認放行" : ("不能放行（" + (ST[x.status] || x.status) + "）");
+}
+async function manualSearch() {
+  const q = $("manualId").value.trim(); if (!q) return;
+  $("manualMsg").textContent = ""; $("manualList").innerHTML = "";
+  if (DEMO) { const Q = q.toUpperCase(), ql = q.toLowerCase(); return manualRender(DEMO_T.filter((t) => t.id === Q || t.id.endsWith("-" + Q) || t.n.toLowerCase().includes(ql) || t.p4 === q).map((t) => ({ id: t.id, name: t.n, owner: t.o, p4: t.p4, seat: String(t.sn).padStart(3, "0"), status: usedSet().has(t.id) ? "used" : t.s }))); }
+  if (!navigator.onLine) { $("manualMsg").textContent = "手動核對需要網路；離線請掃 QR。"; return; }
+  if (!curEvent) { $("manualMsg").textContent = "先回設定選場次。"; return; }
+  $("manualMsg").textContent = "查詢中…";
+  let j;
+  try { j = await api("/ticket/lookup", { method: "POST", body: JSON.stringify({ staffKey: key(), eventId: curEvent, q }) }, 6000); }
+  catch (e) { $("manualMsg").textContent = e && e.name === "AbortError" ? "連線逾時，請再按一次查詢。" : "連不上伺服器，請再按一次查詢。"; return; }
+  if (j && j.ok) { $("manualMsg").textContent = j.results.length ? "找到 " + j.results.length + " 筆，點一筆核對：" : "查無符合的票（票號、姓名或手機末 4 碼）。"; return manualRender(j.results); }
+  if (j && (j.error === "not_found" || j.__http === 404)) {   // 舊後台沒有查詢：只能用票號，仍要先確認
+    if (!/^[A-Z0-9]+-[A-Z0-9]+$/i.test(q)) { $("manualMsg").textContent = "後台還沒更新，只能輸入完整票號（例：1227-ABCD2345）。"; return; }
+    $("manualMsg").textContent = ""; return manualAsk({ id: q.toUpperCase(), legacy: true });
+  }
+  $("manualMsg").textContent = (REASON[j && j.error] || [(j && (j.error || j.message)) || "查詢失敗"])[0];
+}
 async function manualCheckin() {
-  const id = $("manualId").value.trim().toUpperCase(); if (!id) return;
-  $("manualSheet").classList.remove("show");
+  const x = manualPick; if (!x) return;
+  const id = x.id;
+  $("manualSheet").classList.remove("show"); manualConfirmHide();
   if (DEMO) { const i = DEMO_T.findIndex((t) => t.id === id); return i < 0 ? show("bad", "查無此票", "", "", id) : handleCode(demoQrOf(i)); }
-  if (!navigator.onLine) return show("bad", "手動輸入需要網路", "離線只能掃 QR", "", id);
+  if (!navigator.onLine) return show("bad", "手動核對需要網路", "離線只能掃 QR", "", id);
   try {
-    const j = await api("/ticket/checkin", { method: "POST", body: JSON.stringify({ staffKey: key(), ticketId: id }) }, 6000);
-    if (j.ok) { markUsed(j.id); localIn++; return show("good", "放行（手動）", j.event || "", j.owner || "", j.id); }
-    const r = REASON[j.reason] || [j.reason || "拒絕", ""]; show(j.reason === "already_used" ? "warn" : "bad", r[0], r[1], j.owner || "", j.id || id);
-  } catch (e) { show("bad", "連不上伺服器", "", "", id); }
+    const j = await api("/ticket/checkin", { method: "POST", body: JSON.stringify({ staffKey: key(), ticketId: id, confirm: true, dev: devId(), by: staffBy() }) }, 6000);
+    if (j.ok) { markUsed(j.id); localIn++; return show("good", "放行（手動）", j.event || "", who(j) || who(x), j.id); }
+    const r = REASON[j.reason] || [j.reason || "拒絕", ""]; show(j.reason === "already_used" ? "warn" : "bad", r[0], r[1] + (j.usedAt ? "（入場於 " + tw(j.usedAt) + "）" : ""), who(j) || who(x), j.id || id);
+  } catch (e) { show("warn", e && e.name === "AbortError" ? "連線逾時，請再試一次" : "連不上伺服器，請再試一次", "這張還沒核銷", "", id); }
 }
 
 /* ===== Demo QR 顯示（給另一支手機掃） ===== */
