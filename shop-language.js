@@ -16,6 +16,7 @@
  '會自動出現在這裡':'will appear here automatically','開場前':'Before doors','小時':'hours','小時，入場 QR 會出現在票上。':'hours before doors, the entry QR will appear on your ticket.',
  '票種':'Ticket type','選擇票種':'Choose a ticket type','你的票種享有':'Your ticket includes','自由入座':'General admission','席':'seats','張':'','張票':'tickets','剩':'left','你有':'You have','起':'from','購買':'Buy',
  '全場售完':'Sold out','再買一張給朋友':'Buy one for a friend','加到行事曆':'Add to calendar','導航到':'Directions to','會場':'Venue','分享':'Share','終身編號 No.':'Member No.','已排隊 No.':'On the waitlist · No.',
+ '商品圖片為示意圖，實際商品以實物為準。':'Product images are illustrations; the actual items may differ.','透過綠界 ECPay 安全付款':'Secure payment through ECPay',
  '生日牆合照':'Birthday wall photo','加購':'Add-on','已加購':'Added','票券已含':'Included','在生日牆與 CHANCE 合照一次，成片全數下載':'One photo with CHANCE at the birthday wall; download all shots',
  '你的照片':'Your photos','拍照用 QR':'Photo QR','拍照用 QR（給攝影師拍）':'Photo QR (show the photographer)','拍照用 QR（測試）':'Photo QR (test)',
  '活動後你的合照成片、全場大合照與精選活動照會出現在這裡，免費下載。':'After the event, your photo, the group photo and selected event photos will appear here for free download.',

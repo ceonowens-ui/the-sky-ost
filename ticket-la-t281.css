@@ -115,3 +115,12 @@
 .tkm-qty button:disabled{opacity:.35;cursor:default}
 .tkm-qty b{min-width:24px;text-align:center;font-size:18px;color:#fff}
 .tkm-qty small{margin-left:auto;font-size:13px;color:#B9AE9F}
+
+/* 獨立購票候選：提昇結帳與購票須知可讀性，維持原版視覺。 */
+.tkb .tkc-note, .tkb .tkc-note li, .tkb #tkm-pre .tkb-fine,
+.tkb #tkm-pre .tkm-cut, .tkb #tkm-pre .tkm-row small,
+.tkb .tkb-hint, .tkb .tkb-fine, .tkb .tkb-sec2,
+.tkb-terms li, .tkb-terms .nt { font-size:16px; line-height:1.6; }
+.tkb .tk-in, .tkb #tkm-pre .tkm-row, .tkb .tkb-cta { min-height:48px; font-size:16px; }
+.tkb-terms .tkb-lk { min-height:44px; }
+.tkb #tkm-pre .tkm-im { width:64px; height:64px; object-fit:cover; }

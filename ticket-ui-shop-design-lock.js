@@ -1965,7 +1965,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     limitNote: "每人每票種限購 1 張（以收票 Email 認定）"
   };
   function bt(ev) { return (ev && BUY_TEXT[ev.id]) || BUY_TEXT._default; }
-  function asset(p) { return (C.base || "") + p; }
+  function asset(p) {
+    /* 僅替換交接包中的兩張預設佔位圖；後台日後設定其他圖片時沿用新圖。 */
+    if (p === "shop-assets/merch-1227/a3-poster-set.jpg") p = "shop-assets/merch-1227/poster-concept.jpg";
+    if (p === "shop-assets/merch-1227/a3-set-no6-card.jpg") p = "shop-assets/merch-1227/poster-card-concept.jpg";
+    return (C.base || "") + p;
+  }
 
   var ICON = {
     crown: '<path d="M3.5 8.5l4.2 3.6L12 5l4.3 7.1 4.2-3.6-1.8 10H5.3z"/><path d="M5.6 20.5h12.8"/>',
@@ -2116,7 +2121,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var st = laState(ev), soloSel = st.solo && !!selTier(ev), x = "";
     if (!st.solo) x += '<div class="tkb-list" role="radiogroup" aria-label="選擇票種">' + ts.map(function (t) { return tierRow(ev, t); }).join("") + '</div>';
     if (!soloSel && !st.pre) x += '<p class="tkb-fine">' + esc(BUY_TEXT.limitNote) + '　·　' + esc(termsFor(ev)) + '　<button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></p>';
-    if (!st.pre) x += soloSel ? mPreRows(ev) : mBuySection(ev);
+    /* 商品在下一步選購；這裡只提前取得資料，不呈現商品。 */
+    if (!st.pre) mEnsure(ev.id, function () {
+      var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre");
+      if (box && S.buy && S.buy.evId === ev.id) box.outerHTML = mPreRows(ev);
+    });
     return '<div class="tkb la">' + h + laHeroHTML(ev) + laTicketHTML(ev, st) + (x ? '<div class="la-extra">' + x + '</div>' : '') + laInfoHTML(ev) + laFootHTML(ev, st) + '</div>';
   }
   /* 紙票撕邊＋兩側缺口（依實際大小畫；字放大、旋轉螢幕會重畫） */
@@ -2230,7 +2239,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>';
     h += '<div class="tk-msg" id="tk-bmsg"></div>';
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">' + esc(termsFor(ev)) + '<br>前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">綠界 ECPay 安全付款 · 付款後票直接進票夾</div></div>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
   }
 
@@ -2322,7 +2331,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B343T"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B344T"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2331,13 +2340,16 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var it = I[k]; if (!it) return "";
       var own = mOwned(ev.id, k) || (k === "s" && (mOwned(ev.id, "b") || mOwned(ev.id, "h"))), out = it.left <= 0;
       var on = !own && !out && (k === "s" ? sm : (!!o["m" + k] && !sm));
-      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : it.perk;
+      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : "活動當天現場領取";
+      var pic = it.img || "";
+      if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "b" && (!pic || /(?:^|\/)a3-poster-set\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-concept.jpg";
+      if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "h" && (!pic || /(?:^|\/)a3-set-no6-card\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-card-concept.jpg";
       return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
-        '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
+        '<i class="bx">' + (on ? "✓" : "") + '</i>' + (pic ? '<img class="tkm-im" src="' + esc(asset(pic)) + '" alt="">' : '') +
         '<span class="tx"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + (k === "s" && !out ? '<i class="tkm-bdg">★ 最划算・剩 ' + esc(it.left) + ' 組</i>' : '') + '</b><small>' + esc(sub) + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
     return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") + mQtyHTML(ev.id, o, "pre-mq", "data-act") +
-      '<p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
+      '<p class="tkb-fine">商品圖片為示意圖，實際商品以實物為準。</p><p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
   }
   function preMToggle(k) {
     var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || (k && mOwned(ev.id, k))) return;
@@ -2347,8 +2359,20 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     else if (sm) { if (k === "b") o.mh = false; else o.mb = false; }
     else o["m" + k] = !o["m" + k];
     if (k) hap(8);
-    var L = layerEl("buy"); if (!L) return;
+    var L = layerEl("checkout") || layerEl("buy"); if (!L) return;
     var box = L.querySelector("#tkm-pre"); if (box) box.outerHTML = mPreRows(ev);
+    if (S.buy && S.buy.evId === ev.id) {
+      S.buy.mb = !!o.mb; S.buy.mh = !!o.mh; S.buy.mq = o.mq || 1;
+      var tier = (ev.tiers || []).filter(function (t) { return t.key === S.buy.tier; })[0];
+      if (tier) {
+        var total = nt(coTotal(ev, tier, S.buy)), tb = L.querySelector('.tkb-total b'), cp = L.querySelector('[data-act="co-pay"]');
+        if (tb) tb.textContent = total;
+        if (cp && !cp.disabled) cp.innerHTML = '前往付款 ' + total + ' <i>→</i>';
+        var sm = L.querySelector('.tkc-sum'), mi = mInfo(ev.id), sel = mi && mResolve(mi, mSel(S.buy));
+        if (sm) sm.innerHTML = '<span>' + esc(tier.name) + '</span><b>' + nt(tier.price) + '</b>' + (sel ? '<span>' + esc(sel.code === 's' ? mi.m.items.s.name : sel.label) + (mQ(ev.id, S.buy) > 1 ? ' ×' + mQ(ev.id, S.buy) : '') + '</span><b>' + nt(sel.price * mQ(ev.id, S.buy)) + '</b>' : '');
+        var nl = L.querySelector('[data-tkm-note]'); if (nl) nl.hidden = !sel;   /* B344T：購買前請注意的周邊那行跟著勾選 */
+      }
+    }
     var T = selTier(ev), fb = L.querySelector(".tkb-foot .fx b"); if (fb && T) fb.textContent = nt(preTotal(ev, T));
     var lt = L.querySelector("[data-la-total]"); if (lt && T) lt.textContent = nt(preTotal(ev, T));   /* B281T */
   }
@@ -2358,14 +2382,15 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span>' + esc(T.name) + '</span><b>' + nt(T.price) + '</b>' +
       (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (mQ(ev.id, b) > 1 ? " ×" + mQ(ev.id, b) : "") + '</span><b>' + nt(r.price * mQ(ev.id, b)) + '</b>' : '') + '</div>';
     h += ppAddonHTML(ev, T, b);
+    h += mPreRows(ev);
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
     else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
     h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>';
     h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>每人限購 1 張（以收票 Email 認定）</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
-      (r ? '<li>周邊於活動當天憑票現場領取</li>' : '') + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
+      '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天憑票現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
     h += '<div class="tk-msg" id="tk-bmsg"></div>';
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">綠界 ECPay 安全付款 · 付款後票直接進票夾</div></div>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
