@@ -29,7 +29,8 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
    用 UI 關閉時把自己加的那筆退掉（skip 一次 popstate）。只管這裡登記的 key，不碰既有的 sgf／a2pg／a2ck／sgc 流程。 */
 window.SKY_BACK = (function () {
   var open = {}, skip = 0;
-  function push(key, closeFn) { if (open[key]) return; open[key] = closeFn; try { history.pushState(Object.assign({}, history.state || {}, { b335: key }), ""); } catch (e) {} }
+  function push(key, closeFn) { if (open[key]) return; var s = history.state || {}; if (s.a2ck || s.a2pg || s.sgc) return;   /* 結帳頁／兌換頁／留言面板自己管返回鍵（結帳頁會先關條款）→ 不疊加 */
+    open[key] = closeFn; try { history.pushState(Object.assign({}, history.state || {}, { b335: key }), ""); } catch (e) {} }
   function done(key) { if (!open[key]) return; delete open[key]; if (history.state && history.state.b335 === key) { skip++; try { history.back(); } catch (e) { skip--; } } }
   window.addEventListener("popstate", function () {
     if (skip) { skip--; return; }
