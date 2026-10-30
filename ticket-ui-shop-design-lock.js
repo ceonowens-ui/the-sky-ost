@@ -90,7 +90,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     scanFile: "tk-scan.js?v=2",
     terms: "演出日前 10 日前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。",   // B352T：CÉON 10/30 採用的退票草稿（文化部規範適用性、截止日算法、例外情況待核實；只放隔離測試候選）   // TODO 退換票條款待 CÉON 定案
   };
-  var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };   // 測試後台的登入另外存，不混用
+  var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
+  var TMAIL = TKAPI === "test" ? '<div class="tk-hint" style="color:#e07a6a;margin-top:6px">測試後台只寄信到「信箱名＋數字」的地址（例如 name+1@gmail.com），其他信箱收不到門票信和驗證碼。</div>' : "";   // B354T
+  var BOOT_QS = location.search;   // B354T：開頁時的網址參數（付款回站判斷用，replaceState 之前先記下）   // 測試後台的登入另外存，不混用
   if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
             layers: [], sel: null, tab: "up", detail: null, addTab: "cam" };
@@ -544,11 +546,13 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { msg("#tk-bmsg", j.message); return; } } catch (e) {} throw 0; }
-        var f = document.importNode(form, true); f.style.display = "none"; document.body.appendChild(f); f.submit();
+        var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
+        document.body.appendChild(f); f.submit();
       }).catch(function () { msg("#tk-bmsg", "付款頁開不起來，請稍後再試"); });
   }
   /* 付款回來（?tkbought / ?tkphoto）或 demo 付完：輪詢票夾直到票進來，再跳成功畫面 */
   function awaitPurchase(evId, kind) {
+    try { localStorage.removeItem("tk:paying"); } catch (e) {}
     if (!loggedIn()) return claimSheet(evId, kind);
     openLayer("wallet");
     var before = kind === "pp" ? -1 : ticketsFor(evId).length;
@@ -2271,7 +2275,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += ppAddonHTML(ev, T, b) + mAddonHTML(ev, T, b);
     h += '<div class="tkb-seat">' + ic("star", "bi s") + '<span>付款後依付款完成順序配發 <b>終身編號</b>（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）；有人退票時，釋出的號碼由下一位遞補。編號隨票轉讓。</span></div>';
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
-    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
+    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">' + TMAIL;
     h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>'
     h += phoneBlock();
     h += entryCoHTML(ev);   /* B345T */
@@ -2423,7 +2427,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += ppAddonHTML(ev, T, b);
     h += mPreRows(ev);
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
-    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">';
+    else h += '<div class="tkb-sec">收票 Email</div><input class="tk-in tkb-in" id="tk-bem" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="你的 email（票會寄到這裡）" value="' + esc(lsGet(K.email) || "") + '">' + TMAIL;
     h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>'
     h += phoneBlock();
     h += entryCoHTML(ev);   /* B345T */
@@ -2739,6 +2743,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "login") return doLogin();
   }
   function sheetAct2(a, el) {
+    if (a === "paid-yes") { var pg = S.paying; S.paying = null; closeSheet(); if (pg) awaitPurchase(pg.evId, pg.kind); return; }
+    if (a === "paid-no") { S.paying = null; try { localStorage.removeItem("tk:paying"); } catch (e) {} closeSheet(); return; }
     if (a === "m-t" || a === "m-mode" || a === "m-pay" || a === "m-mq") return mSheetAct(a, el);
     if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }
     if (a === "showmail") { toast(S.email); return; }
@@ -2788,6 +2794,18 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       if (host.classList.contains("active")) refresh(false);
     } else refresh(false);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(function () { render(); }); });
+    /* B354T：從綠界回到 App（主畫面 App 的綠界頁是另一層，關掉後網址沒有 ?tkbought）→ 問一次付款完成了沒 */
+    function resumePaying() {
+      if (/[?&](tkbought|tkphoto)=/.test(BOOT_QS) || S.paying) return;
+      var pg = null; try { pg = JSON.parse(localStorage.getItem("tk:paying") || "null"); } catch (e) {}
+      if (!pg || !pg.evId) return;
+      if (Date.now() - (pg.t || 0) > 30 * 60e3) { try { localStorage.removeItem("tk:paying"); } catch (e) {} return; }
+      S.paying = pg;
+      sheet('<div class="tk-big"><div class="ic">💳</div><div class="tk-eyebrow">Payment</div><h3>剛剛的付款完成了嗎？</h3><div class="tk-hint">綠界如果已經顯示「付款成功」，按下面查看你的票（還沒登入的話會請你輸入信箱收到的驗證碼）。</div></div><button class="tk-btn p" data-sact="paid-yes">已付款，查看我的票</button><button class="tk-btn g" data-sact="paid-no">還沒付／取消</button>');
+    }
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") setTimeout(resumePaying, 400); });
+    window.addEventListener("pageshow", function (e) { if (e.persisted) setTimeout(resumePaying, 400); });
+    setTimeout(resumePaying, 1500);
     setInterval(tick, 20000);
     var m = /[?&]transfer=([A-Za-z0-9]+)/.exec(location.search);
     if (m) { var nb = $(C.merchNavSel); if (nb) setTimeout(function () { nb.click(); }, 300); handleIncoming(m[1]); }
