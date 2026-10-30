@@ -191,3 +191,17 @@
 .tk-layer[data-layer="done"] .tkb-tkt .stub.wait .cap { font-size:16px; padding:14px 0 4px; }
 .tk-layer[data-layer="done"] .tkd-qr { display:block; width:min(240px,68vw); height:auto; aspect-ratio:1/1; margin:0 auto; background:#fff; }
 .tk-layer[data-layer="done"] .tkb-ok p span { white-space:nowrap; }
+/* B355T：320 寬英文「Ticket wallet」返回鍵會折成兩行壓到票卡 → 窄螢幕不折行、字小一點 */
+.tk-layer[data-layer="checkout"] .tk-bar button,
+.tk-layer[data-layer="done"] .tk-bar button,
+.tk-layer[data-layer="wallet"] .tk-bar button,
+.tk-layer[data-layer="pass"] .tk-bar button { white-space:nowrap; }
+@media (max-width:389px) {
+  .tk-layer[data-layer="checkout"] .tk-bar button,
+  .tk-layer[data-layer="done"] .tk-bar button,
+  .tk-layer[data-layer="wallet"] .tk-bar button,
+  .tk-layer[data-layer="pass"] .tk-bar button { font-size:15px; }
+  .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }   /* 裝飾用的 ENTRY PASS 標題，窄螢幕讓給返回鍵 */
+}
+/* 英文返回鍵「Ticket wallet」比較長，393 寬也會碰到中間的 ENTRY PASS → 英文介面一律讓給返回鍵 */
+html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
