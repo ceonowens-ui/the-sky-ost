@@ -184,3 +184,10 @@
 .tk-layer[data-layer="done"] .tkb-tkt .tx span,
 .tk-layer[data-layer="done"] .tkb-tkt .tx small,
 .tk-layer[data-layer="done"] .tkb-tkt .no { font-size:12px; }
+/* B355T：成功頁票卡直接放真正的入場 QR（跟票夾同一份），沒有 QR 時只寫「準備中」，不畫假 QR、不放票號條碼 */
+.tk-layer[data-layer="done"] .tkb-tkt .stub.qr,
+.tk-layer[data-layer="done"] .tkb-tkt .stub.wait { padding:16px 16px 14px; text-align:center; }
+.tk-layer[data-layer="done"] .tkb-tkt .stub .cap { font:600 14px/1.3 -apple-system,"Noto Sans TC",sans-serif; letter-spacing:.08em; color:#59401d; margin:0 0 10px; }
+.tk-layer[data-layer="done"] .tkb-tkt .stub.wait .cap { font-size:16px; padding:14px 0 4px; }
+.tk-layer[data-layer="done"] .tkd-qr { display:block; width:min(240px,68vw); height:auto; aspect-ratio:1/1; margin:0 auto; background:#fff; }
+.tk-layer[data-layer="done"] .tkb-ok p span { white-space:nowrap; }

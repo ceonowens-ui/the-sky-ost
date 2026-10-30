@@ -5,11 +5,18 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B355T：成功頁（真正的入場 QR）、確認付款中、還在確認中 */
+ '購買成功':'Purchase complete','已收進我的票夾':'Saved to your ticket wallet','入場 QR':'Entry QR','入場 QR 準備中…':'Entry QR is being prepared…',
+ '查看我的票夾':'Open my ticket wallet','繼續逛周邊':'Keep browsing merch','入場 QR 在票夾裡。':'Your entry QR is in your ticket wallet.',
+ '正在確認付款和票券…':'Confirming your payment and ticket…','正在確認付款和 PhotoPass…':'Confirming your payment and PhotoPass…','通常幾秒內就好，別關掉這個畫面。':'This usually takes a few seconds. Please keep this screen open.',
+ '還在確認中':'Still confirming','票夾裡還沒看到這筆購買的票。':"This purchase's ticket isn't in your wallet yet.",'還沒確認到這筆 PhotoPass。':"This PhotoPass hasn't been confirmed yet.",
+ '如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。':'If ECPay showed “Payment successful”, it usually appears within a minute or two. Tap “Check again” — no need to buy again.',
+ '重新確認':'Check again',
  /* B354T：從綠界回到 App 的付款確認、測試後台寄信提示 */
  '剛剛的付款完成了嗎？':'Did your payment go through?','綠界如果已經顯示「付款成功」，按下面查看你的票（還沒登入的話會請你輸入信箱收到的驗證碼）。':'If ECPay showed “Payment successful”, tap below to see your ticket (if you are not signed in yet, we will ask for the code sent to your email).',
  '已付款，查看我的票':'I paid, show my ticket','還沒付／取消':'Not yet / cancel',
  '最後一步：收進票夾':'Last step: add it to your wallet','付款成功後，電子票會寄到':'Your e-ticket will be emailed to','付款成功後，開通通知會寄到':'Your activation notice will be emailed to',
- '我們剛寄了 6 位數驗證碼到同一個信箱，輸入後票就收進這支手機。':'We just emailed a 6-digit code to the same address. Enter it to add the ticket to this phone.',
+ '我們會寄 6 位數驗證碼到同一個信箱，輸入後票就收進這支手機。':'We will email a 6-digit code to the same address. Enter it to add the ticket to this phone.',
  '收進票夾':'Add to wallet','沒收到？重寄':"Didn't get it? Resend",'稍後再說（票在信箱裡，不會不見）':'Later (your ticket is safe in your email)',
  '測試後台只寄信到「信箱名＋數字」的地址（例如 name+1@gmail.com），其他信箱收不到門票信和驗證碼。':'Test backend: emails go only to “name+number” addresses (e.g. name+1@gmail.com); other addresses get no ticket email or code.',
  /* B335T：票夾（我的票）、票券登入、票種、轉讓、合照——英文介面原本整頁中文（UI/UX 審查 P1-4） */
