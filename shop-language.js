@@ -5,7 +5,7 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
- /* B355T：成功頁（真正的入場 QR）、確認付款中、還在確認中 */
+ /* B356T：成功頁（真正的入場 QR）、確認付款中、還在確認中 */
  '購買成功':'Purchase complete','已收進我的票夾':'Saved to your ticket wallet','入場 QR':'Entry QR','入場 QR 準備中…':'Entry QR is being prepared…',
  '查看我的票夾':'Open my ticket wallet','繼續逛周邊':'Keep browsing merch','入場 QR 在票夾裡。':'Your entry QR is in your ticket wallet.',
  '正在確認付款和票券…':'Confirming your payment and ticket…','正在確認付款和 PhotoPass…':'Confirming your payment and PhotoPass…','通常幾秒內就好，別關掉這個畫面。':'This usually takes a few seconds. Please keep this screen open.',

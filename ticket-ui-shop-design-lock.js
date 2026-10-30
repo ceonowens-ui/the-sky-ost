@@ -558,7 +558,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var before = kind === "pp" ? -1 : ticketsFor(evId).length;
     try { var bf = JSON.parse(sessionStorage.getItem("tk225:bf") || "null"); if (bf && bf.e === evId && kind !== "pp" && Date.now() - bf.at < 3 * 3600e3) before = Math.min(before, bf.n); sessionStorage.removeItem("tk225:bf"); } catch (e) {}   // B225T：付款通知先到時也能判斷
     var tries = 0;
-    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>' + (kind === "pp" ? "正在確認付款和 PhotoPass…" : "正在確認付款和票券…") + '</h3><div class="tk-hint">通常幾秒內就好，別關掉這個畫面。</div></div>');   /* B355T：票還沒出現前不說「付款成功」（回站網址不帶付款結果） */
+    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>' + (kind === "pp" ? "正在確認付款和 PhotoPass…" : "正在確認付款和票券…") + '</h3><div class="tk-hint">通常幾秒內就好，別關掉這個畫面。</div></div>');   /* B356T：票還沒出現前不說「付款成功」（回站網址不帶付款結果） */
     (function poll() {
       loadMine(true).then(function () {
         var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
@@ -580,7 +580,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       (t ? '<button class="tk-btn p" data-sact="see-ticket">看我的票</button><button class="tk-btn g" data-sact="give">轉給朋友</button>' : '') + a2hsHint() + '<button class="tk-btn g" data-sact="close">完成</button>');
   }
   function purchaseSlow(evId, kind) {
-    sheet('<div class="tk-big"><div class="ic">⏳</div><h3>還在確認中</h3><div class="tk-hint">' + (kind === "pp" ? "還沒確認到這筆 PhotoPass。" : "票夾裡還沒看到這筆購買的票。") + '</div><div class="tk-hint">如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>');   /* B355T：沒確認付款前不說「付款已收到」、不說會寄信 */
+    sheet('<div class="tk-big"><div class="ic">⏳</div><h3>還在確認中</h3><div class="tk-hint">' + (kind === "pp" ? "還沒確認到這筆 PhotoPass。" : "票夾裡還沒看到這筆購買的票。") + '</div><div class="tk-hint">如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>');   /* B356T：沒確認付款前不說「付款已收到」、不說會寄信 */
   }
   function a2hsHint() {
     var ios = /iPhone|iPad/.test(navigator.userAgent);
@@ -2373,7 +2373,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B355-UX6"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B356T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2662,7 +2662,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     for (i = 0; i < bits.length; i++) { if (bits[i] === "1") r += '<rect x="' + x + '" y="0" width="1" height="40"/>'; x++; }
     return '<svg class="tkb-bc" viewBox="-10 0 ' + (bits.length + 20) + ' 40" preserveAspectRatio="none" role="img" aria-label="票號條碼 ' + esc(txt) + '">' + r + '</svg>';
   }
-  function doneQR(t, ev) { return !!(t && t.qr && isLive(t) && qrUnlocked(t.event || ev)); }   /* B355T：只有登入後拿到自己的有效票（有 qr）才畫 */
+  function doneQR(t, ev) { return !!(t && t.qr && isLive(t) && qrUnlocked(t.event || ev)); }   /* B356T：只有登入後拿到自己的有效票（有 qr）才畫 */
   function doneHTML() {
     var dn = S.done || {}, ev = buyEvent(dn.evId) || eventById(dn.evId) || {}, t = ticketById(dn.ticketId) || ticketsFor(dn.evId)[0] || null;
     var X = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
@@ -2673,7 +2673,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       (tierLbl ? '<em class="bd">' + esc(tierLbl) + '</em>' : '') +
       '<div class="tx"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + ' <small>' + esc(X.city) + '</small></i></div>' +
       (t && t.seat ? '<div class="no">No.<b>' + esc(t.seat) + '</b></div>' : '') + '</div>' +
-      '<div class="stub' + (doneQR(t, ev) ? ' qr' : ' wait') + '">' + (doneQR(t, ev) ? '<div class="cap">入場 QR</div><canvas class="tkd-qr" id="tkd-qr" width="480" height="480" aria-label="入場 QR"></canvas><div class="id">' + esc(t.id) + '</div>' : '<div class="cap">入場 QR 準備中…</div>' + (t ? '<div class="id">' + esc(t.id) + '</div>' : '')) + '</div></div>';   /* B355T：成功頁直接放真正的入場 QR（跟票夾同一份 t.qr），不再放票號條碼和說明 */
+      '<div class="stub' + (doneQR(t, ev) ? ' qr' : ' wait') + '">' + (doneQR(t, ev) ? '<div class="cap">入場 QR</div><canvas class="tkd-qr" id="tkd-qr" width="480" height="480" aria-label="入場 QR"></canvas><div class="id">' + esc(t.id) + '</div>' : '<div class="cap">入場 QR 準備中…</div>' + (t ? '<div class="id">' + esc(t.id) + '</div>' : '')) + '</div></div>';   /* B356T：成功頁直接放真正的入場 QR（跟票夾同一份 t.qr），不再放票號條碼和說明 */
     h += mDoneHTML(dn.evId);
     if (t && t.tier === "ga" && ev.photoPrice > 0 && ev.photoOnSale !== false && !ppOwned(ev.id)) h += '<div class="tkb-pp"><div class="tx"><b>📸 加購生日牆合照</b><span>在生日牆與 CHANCE 合照一次，成片全數下載</span></div><button class="tkb-cta" data-act="buy-pp" data-ev="' + esc(ev.id) + '">' + nt(ev.photoPrice) + ' 加購</button></div>';
     h += '<button class="tkb-cta wide" data-act="done-wallet">查看我的票夾 <i>→</i></button><button class="tkb-cta ghost wide" data-act="done-close">繼續逛周邊</button>';
