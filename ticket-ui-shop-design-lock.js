@@ -477,6 +477,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     openLayer("wallet");
     sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Almost there</div><h3>最後一步：收進票夾</h3>' +
       '<div class="tk-hint">付款成功後，' + (kind === "pp" ? "開通通知" : "電子票") + '會寄到 <b>' + esc(maskEmail(em) || "你的信箱") + '</b></div></div>' +
+      '<div class="tk-hint" id="tk-cpay"></div>' +
       '<div class="tk-to dim">我們會寄 6 位數驗證碼到同一個信箱，輸入後票就收進這支手機。</div>' +
       '<input class="tk-in" id="tk-cotp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼">' +
       '<div class="tk-msg" id="tk-cmsg"></div>' +
@@ -487,6 +488,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (o) { setTimeout(function () { o.focus(); }, 80);
       o.addEventListener("input", function () { if (o.value.replace(/\D/g, "").length === 6) claimVerify(); }); }
     if (em) claimSend(true);
+    orderStatus(evId).then(function (os) { var c = $("#tk-cpay"); if (!c || !os) return; S.ost = os; c.textContent = os.paid ? "✓ 付款已確認" : "還在確認付款；綠界付款成功後，幾秒內會更新。"; });   /* B357T */
   }
   function claimSend(silent) {
     var c = S.claim || {}; if (!c.email) return msg("#tk-cmsg", "找不到你的 email，請到票夾登入");
@@ -546,11 +548,26 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { msg("#tk-bmsg", j.message); return; } } catch (e) {} throw 0; }
-        var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
+        var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
+        try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, email: email, evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); f.submit();
       }).catch(function () { msg("#tk-bmsg", "付款頁開不起來，請稍後再試"); });
   }
   /* 付款回來（?tkbought / ?tkphoto）或 demo 付完：輪詢票夾直到票進來，再跳成功畫面 */
+  /* B357T：付款回來時查這筆訂單的狀態（測試 Worker M3.3 的 /ticket/order：要訂單編號＋下單 email，只回付款／出票／寄信狀態）。
+     後台沒有這支（例如正式 M1）或查不到時回 null，畫面維持「確認中」，不猜。 */
+  function lastOrder(evId) { var o = null; try { o = JSON.parse(localStorage.getItem("tk:lastorder") || "null"); } catch (e) {} return o && o.no && o.email && Date.now() - (o.t || 0) < 6 * 3600e3 && (!evId || !o.evId || o.evId === evId) ? o : null; }
+  function orderStatus(evId) {
+    var o = lastOrder(evId); if (C.demo || !o) return Promise.resolve(null);
+    return api("/ticket/order", { no: o.no, email: o.email }).then(function (j) { return j && j.ok && j.order ? j.order : null; }).catch(function () { return null; });
+  }
+  function payingText(kind, os) {   // 付款已確認（後台說的）才改字；沒確認就不動
+    if (!os || !os.paid || !sheetEl) return;
+    var e = $("#tk-paye", sheetEl), h = $("#tk-payh", sheetEl), n = $("#tk-payn", sheetEl); if (!h) return;
+    if (e) e.textContent = "Payment confirmed";
+    if (os.ticket === "failed") { h.textContent = "付款已確認，票券還在處理"; if (n) n.textContent = "我們會盡快補發，不需要重新購買。"; }
+    else h.textContent = kind === "pp" ? "付款已確認，PhotoPass 開通中…" : "付款已確認，票券準備中…";
+  }
   function awaitPurchase(evId, kind) {
     try { localStorage.removeItem("tk:paying"); } catch (e) {}
     if (!loggedIn()) return claimSheet(evId, kind);
@@ -558,8 +575,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var before = kind === "pp" ? -1 : ticketsFor(evId).length;
     try { var bf = JSON.parse(sessionStorage.getItem("tk225:bf") || "null"); if (bf && bf.e === evId && kind !== "pp" && Date.now() - bf.at < 3 * 3600e3) before = Math.min(before, bf.n); sessionStorage.removeItem("tk225:bf"); } catch (e) {}   // B225T：付款通知先到時也能判斷
     var tries = 0;
-    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>' + (kind === "pp" ? "正在確認付款和 PhotoPass…" : "正在確認付款和票券…") + '</h3><div class="tk-hint">通常幾秒內就好，別關掉這個畫面。</div></div>');   /* B356T：票還沒出現前不說「付款成功」（回站網址不帶付款結果） */
+    S.ost = null; sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow" id="tk-paye">Checking</div><h3 id="tk-payh">' + (kind === "pp" ? "正在確認付款和 PhotoPass…" : "正在確認付款和票券…") + '</h3><div class="tk-hint" id="tk-payn">通常幾秒內就好，別關掉這個畫面。</div></div>');   /* B356T：票還沒出現前不說「付款成功」（回站網址不帶付款結果） */
     (function poll() {
+      orderStatus(evId).then(function (os) { if (os) { S.ost = os; payingText(kind, os); } });   /* B357T */
       loadMine(true).then(function () {
         var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
         if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind); }
@@ -580,6 +598,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       (t ? '<button class="tk-btn p" data-sact="see-ticket">看我的票</button><button class="tk-btn g" data-sact="give">轉給朋友</button>' : '') + a2hsHint() + '<button class="tk-btn g" data-sact="close">完成</button>');
   }
   function purchaseSlow(evId, kind) {
+    var os = S.ost, btn = '<button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>';
+    if (os && os.paid && os.ticket === "failed") return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>付款已確認，票券還在處理</h3><div class="tk-hint">這筆付款已經確認，但出票延遲，主辦會盡快補發到你的票夾和信箱。請不要重新購買。</div></div>' + btn);   /* B357T：後台確認付款才這樣說 */
+    if (os && os.paid) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>' + (kind === "pp" ? "付款已確認，PhotoPass 開通中" : "付款已確認，票券準備中") + '</h3><div class="tk-hint">票券一進來就會出現在票夾。請按「重新確認」，不需要重新購買。</div></div>' + btn);
     sheet('<div class="tk-big"><div class="ic">⏳</div><h3>還在確認中</h3><div class="tk-hint">' + (kind === "pp" ? "還沒確認到這筆 PhotoPass。" : "票夾裡還沒看到這筆購買的票。") + '</div><div class="tk-hint">如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>');   /* B356T：沒確認付款前不說「付款已收到」、不說會寄信 */
   }
   function a2hsHint() {
@@ -2668,7 +2689,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var X = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
     var tierLbl = t ? (t.tier === "ga" ? "GENERAL" : String(t.tier || "").toUpperCase()) : "";
     var h = '<div class="tk-bar tkb-bar"><button disabled style="opacity:0"></button><div class="c">購買成功</div><button class="r tkb-mine" data-act="done-close">完成</button></div>';
-    h += '<div class="tkb-ok"><div class="ck">' + ic("check", "bi") + '</div><h2>購買成功</h2><p>' + (t && t.tierName ? '<span>' + esc(t.tierName) + '</span>' + (t.seat ? ' · <span>終身編號 No.</span>' + esc(t.seat) : '') + '<br>' : '') + '<span>已收進我的票夾</span></p></div>';
+    h += '<div class="tkb-ok"><div class="ck">' + ic("check", "bi") + '</div><h2>購買成功</h2><p>' + (t && t.tierName ? '<span>' + esc(t.tierName) + '</span>' + (t.seat ? ' · <span>終身編號 No.</span>' + esc(t.seat) : '') + '<br>' : '') + '<span>已收進我的票夾</span>' + (S.ost && S.ost.paid && S.ost.emailed && S.ost.eventId === dn.evId ? '<br><span>門票信已寄出</span>' : '') + '</p></div>';   /* B357T：後台說信已送出才寫 */
     h += '<div class="tkb-tkt"><div class="im"><img src="' + esc(asset(BUY_TEXT.assets.ticket)) + '" alt=""><div class="fd"></div>' +
       (tierLbl ? '<em class="bd">' + esc(tierLbl) + '</em>' : '') +
       '<div class="tx"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + ' <small>' + esc(X.city) + '</small></i></div>' +
