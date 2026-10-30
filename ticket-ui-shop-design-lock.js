@@ -74,8 +74,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
  * ===================================================================== */
 (function () {
   "use strict";
-  /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。沒設＝正式，行為不變 */
-  var TKAPI = (function () { try { var m = /[?&]tkapi=(test|prod)\b/.exec(location.search); if (m) localStorage.setItem("tk:api", m[1]); return localStorage.getItem("tk:api") === "test" ? "test" : "prod"; } catch (e) { return "prod"; } })();
+  /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。
+     B353T：CÉON 10/30——這支 JS 只有 test.html 載入，預設改成連測試 Worker；要連正式後台才需要開一次 ?tkapi=prod */
+  var TKAPI = (function () { try { var m = /[?&]tkapi=(test|prod)\b/.exec(location.search); if (m) localStorage.setItem("tk:api", m[1]); return localStorage.getItem("tk:api") === "prod" ? "prod" : "test"; } catch (e) { return "test"; } })();
   var C = {
     api: TKAPI === "test" ? "https://the-sky-ost-api-test.anthonywen0693.workers.dev" : "https://the-sky-ost-api.anthonywen0693.workers.dev",
     unlockKeys: ["album-the-sky:unlock", "album-the-sky:feedpass"],
