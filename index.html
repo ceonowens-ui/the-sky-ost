@@ -2,6 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
+<script>/* B181：新歌上架通知 —— 開頁第一刻記下「這台以前用過 App 嗎」（之後程式會寫入，所以要最早判斷） */
+(function(){try{var r=false;for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i)||"";if(k.indexOf("album-")===0){r=true;break;}}window.__skyReturning=r;}catch(e){window.__skyReturning=false;}})();</script>
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="assets/images/icon-32.png">
@@ -370,6 +372,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .updbar .sigbar-chev{color:rgba(255,244,220,.8)}
 .sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
 .updbar:disabled{opacity:.8}
+#__newSongBar{cursor:pointer}
+#__newSongBar .ns-x{font-size:17px;padding:12px 6px 12px 12px;margin:-12px -4px -12px 0}
 .sigbar-solo{justify-content:center}
 /* B157T：粉絲回覆框 —— 與 nav 同寬同玻璃、直接貼在 nav 上方（Apple Music 迷你播放器疊法）；鎖頭在框內 */
 .rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none;
@@ -2175,6 +2179,13 @@ body { background: #08060C !important; }
 #screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
 #screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
+<style id="song-cover">
+/* B181（CÉON 10/30）：封面滿版、不要圓邊、照片保持清楚（拿掉紫色光暈，只留底部讓歌名讀得清楚的漸層） */
+:root { --pv-cover-radius: 0px; --pv-cover-side: 0px; }
+.cover-card, .cover-card::after { border-radius: 0 !important; }
+.cover-card::after { background: linear-gradient(180deg, rgba(0,0,0,.28), transparent) !important; }
+.cover-shade { background: linear-gradient(180deg, transparent 0%, transparent 62%, rgba(8,6,12,.55) 82%, #08060C 100%) !important; }
+</style>
 </head>
 <body>
 <div id="stage">
@@ -2468,7 +2479,7 @@ body { background: #08060C !important; }
 
 <!-- 專輯資料（換專輯只改這個檔）→ 再載入引擎 -->
 <script>
-var SKY_COVER = "assets/images/sky/cover.jpg?v=0816";
+var SKY_COVER = "assets/images/sky/cover-song-preview.jpg?v=1030";   /* B181：新封面（CÉON 10/30）；舊封面 cover.jpg＋I'M SORRY 封面影片仍在 repo，回滾用 */
 var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
 
 /* =====================================================================
@@ -3156,6 +3167,50 @@ Stillness slowly breathing
 混音室 Mixing Studio：THE VIBE STUDIO
 母帶後期製作人 Mastering Producer: CÉON
 母帶後期工程師 Mastering Engineer : CÉON`,
+  11: `you broke my heart like a shooting star
+
+去年聖誕 忘了帶走的外套
+衣櫃裡 藏著誰的味道
+忘不了你的鬧 你的笑
+原來我什麼都 不想要
+
+淚還停在眼角 連那些痛我都 擁抱
+最先說 祝福的是我
+說好的 陪著我很久
+
+Baby you broke my heart like a shooting star
+放心牽我的手 管它世界坍塌
+想哭就哭吧 我也害怕
+我會陪你 等到天亮
+
+Baby you broke my heart like a shooting star
+埋在雪裡的愛 還沒有融化
+把沒說的話 今晚說吧
+醒來我還在你 身旁
+Like a shooting star
+I'll never stop
+I'll never stop
+
+其實我都知道 你給我的愛已退潮
+這份愛 誰也搶不到
+別人的 我都不想要
+
+Baby you broke my heart like a shooting star
+放心牽我的手 管它世界坍塌
+想哭就哭吧 別再害怕
+我會陪你 等到天亮
+
+Baby you broke my heart like a shooting star
+埋在雪裡的愛 還沒有融化
+把沒說的話 今晚說吧
+醒來我還在你 身旁
+I'll never stop
+
+I'll never stop
+Like a shooting star
+醒來我還在你 身旁
+I will never stop
+`,
 };
 
 /* =====================================================================
@@ -3199,8 +3254,8 @@ const THE_SKY = {
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
   coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
-  coverVideo: "assets/images/sky/cover-video.mp4?v=0831",  // B132T：I'M SORRY 封面影片（開 App 自動靜音循環，載入失敗退回 coverImage）
-  coverPoster: "assets/images/sky/cover-poster.jpg?v=0831", // B136T：影片第一格當開場底圖 —— 打開就是這格,影片從同一格接著動,零跳圖
+  coverVideo: "",   /* B181：拿掉 I'M SORRY 封面影片，改用新照片 */  // B132T：I'M SORRY 封面影片（開 App 自動靜音循環，載入失敗退回 coverImage）
+  coverPoster: "", // B136T：影片第一格當開場底圖 —— 打開就是這格,影片從同一格接著動,零跳圖
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
   /* ---- 品牌配色（每張專輯的色系）-------------------------------- */
@@ -3279,6 +3334,8 @@ const THE_SKY = {
    * 付費放 R2（key 用 sky/ 前綴）+ worker 白名單同步。
    * ------------------------------------------------------------------- */
   tracks: [
+    /* B181（10/30 轉正）：新歌放第 1 首，曲號 n=4（1–3 不能改：留言、?track= 分享、單曲卡都用曲號）；完整版 R2 sky/shooting-star-demo.mp3（主 Worker 白名單已加） */
+    { n: 4, title: "you broke my heart like a shooting star (demo release)", subtitle: "埋在雪裡的愛 還沒有融化", free: false, audioPath: null, protectedPath: "sky/shooting-star-demo.mp3", lyricsPath: null, lyricsText: SKY_LYRICS[11], lyricsFull: true, artwork: null },
     { n: 1, title: "I'm Sorry",           subtitle: "把所有訊號收回成一句來不及的道歉",   free: false, audioPath: null,                 protectedPath: "sky/03.mp3", lyricsPath: "assets/lyrics/sky/03.txt", lyricsText: SKY_LYRICS[10], lyricsFull: true, artwork: null },
     { n: 2, title: "The SKY",             subtitle: "抬頭望向資料雲，找回最後的自由訊號", free: false, audioPath: null,                 protectedPath: "sky/01.mp3",         lyricsPath: "assets/lyrics/sky/01.txt", lyricsText: SKY_LYRICS[5], lyricsEn: EN_LYRICS.the_sky, lyricsFull: true, artwork: "assets/images/sky/t02.jpg" },
     { n: 3, title: "Don't Wanna Wake Up", subtitle: "在夢境與現實崩塌之間，我仍不願醒來", free: false, audioPath: null,                 protectedPath: "sky/02.mp3",         lyricsPath: "assets/lyrics/sky/02.txt", lyricsText: SKY_LYRICS[1], lyricsEn: EN_LYRICS.dwwu, lyricsFull: true,  artwork: "assets/images/sky/t03.jpg" },
@@ -4352,6 +4409,10 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 狀態 ---------- */
   var pos = lsGet(LS.pos, {});
+  /* B181：新歌插在 THE SKY 第一首，舊的播放位置往後移一格，粉絲打開還是停在原本那首（只做一次，存檔帶 v:181） */
+  if (CFG.albumId === "the-sky" && pos && typeof pos.cur === "number" && !pos.v) {
+    pos.cur = pos.cur + 1; pos.v = 181; lsSet(LS.pos, pos);
+  }
   var state = {
     screen: "player",
     cur: Math.min(pos.cur || 0, TOTAL - 1),
@@ -4371,6 +4432,16 @@ window.ALBUM_SWITCH = {
     return (p === "599" || p === "799" || p === "deluxe" || p === "full-unlock" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
   }
   function isLocked(t) { return !t.free && !state.unlocked; }
+  /* B181（CÉON 10/30）：沒買的人每首都能試聽 30 秒，聽完跳解鎖。試聽檔是公開的 30 秒片段（assets/preview），完整版仍只走 Worker */
+  var SKY_PREVIEW = { 1: "assets/preview/im-sorry-30s.m4a", 2: "assets/preview/the-sky-30s.m4a", 3: "assets/preview/dont-wanna-wake-up-30s.m4a", 4: "assets/preview/shooting-star-preview-30s.mp3" };
+  var PREVIEW_SEC = 30, previewing = false;
+  function previewOf(t) { return (CFG.albumId === "the-sky" && t && isLocked(t) && SKY_PREVIEW[t.n]) || null; }
+  function playable(t) { return !isLocked(t) || !!previewOf(t); }
+  function previewDone() {
+    if (!previewing) return; previewing = false;
+    try { audio.pause(); } catch (e) {}
+    toast("試聽 30 秒結束 · 解鎖完整專輯可以聽全部"); go("purchase");
+  }
 
   /* ---------- 音源路徑 ----------
    * 免費曲：本地檔（assets/audio/，可公開部署在 GitHub Pages）。
@@ -4379,6 +4450,7 @@ window.ALBUM_SWITCH = {
    * ⚠️ PITFALLS #3：file 參數用 protectedPath（含 "os3/" 之類前綴），
    *    必須與 worker.js 的 PROTECTED_FILES、R2 object key 完全一致。 */
   function srcFor(t) {
+    var pv = previewOf(t); if (pv) return pv;
     if (t.free) return t.audioPath;
     var u = unlockInfo();
     return CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(t.protectedPath || "") +
@@ -4394,7 +4466,7 @@ window.ALBUM_SWITCH = {
     var d = audio.duration;
     if (isFinite(d) && d > 0) state.dur = d;
     renderProgress(audio.currentTime);
-    if (Date.now() - saveT > 4000) { saveT = Date.now(); lsSet(LS.pos, { cur: state.cur, time: audio.currentTime }); }
+    if (Date.now() - saveT > 4000) { saveT = Date.now(); lsSet(LS.pos, { cur: state.cur, time: audio.currentTime, v: 181 }); }
   });
   /* 串流檔常回報 duration:Infinity → 逼瀏覽器解析真實長度 */
   function resolveDur() {
@@ -4430,7 +4502,9 @@ window.ALBUM_SWITCH = {
    * 聽完歌賺抽卡券的機制會失效；手動重播才能兩者兼得。 */
   var loopOne = false;
   try { loopOne = localStorage.getItem(NS + ":loop1") === "1"; } catch (e) {}
+  audio.addEventListener("timeupdate", function () { if (previewing && audio.currentTime >= PREVIEW_SEC - 0.2) previewDone(); });
   audio.addEventListener("ended", function () {
+    if (previewing) { previewDone(); return; }
     if (window.__luckEarn) window.__luckEarn("song");
     if (loopOne) { try { audio.currentTime = 0; } catch (e) {} audio.play().catch(function () {}); return; }
     next();
@@ -4463,7 +4537,9 @@ window.ALBUM_SWITCH = {
 
   function playTrack(i) {
     var t = TRACKS[i];
-    if (isLocked(t)) { toast("需解鎖完整專輯才能播放"); go("purchase"); return; }
+    if (isLocked(t) && !previewOf(t)) { toast("需解鎖完整專輯才能播放"); go("purchase"); return; }
+    previewing = !!previewOf(t);
+    if (previewing) toast("試聽 30 秒");
     durFixing = false; resumeAt = 0;
     state.cur = i; state.dur = 0;
     audio.src = srcFor(t);
@@ -4479,15 +4555,15 @@ window.ALBUM_SWITCH = {
   }
   function next() {
     var i = state.cur;
-    do { i = (i + 1) % TOTAL; } while (isLocked(TRACKS[i]) && i !== state.cur);
-    if (isLocked(TRACKS[i])) { toast("其餘曲目需解鎖完整專輯"); return; }
+    do { i = (i + 1) % TOTAL; } while (!playable(TRACKS[i]) && i !== state.cur);
+    if (!playable(TRACKS[i])) { toast("其餘曲目需解鎖完整專輯"); return; }
     playTrack(i);
   }
   function prev() {
     if (audio.currentTime > 3) { audio.currentTime = 0; return; }
     var i = state.cur;
-    do { i = (i - 1 + TOTAL) % TOTAL; } while (isLocked(TRACKS[i]) && i !== state.cur);
-    if (isLocked(TRACKS[i])) return;
+    do { i = (i - 1 + TOTAL) % TOTAL; } while (!playable(TRACKS[i]) && i !== state.cur);
+    if (!playable(TRACKS[i])) return;
     playTrack(i);
   }
 
@@ -4582,7 +4658,7 @@ window.ALBUM_SWITCH = {
   function renderNowPlaying() {
     var t = TRACKS[state.cur];
     var locked = isLocked(t);
-    $("np-title").textContent = locked ? "Unlock" : t.title;
+    $("np-title").textContent = (locked && !previewOf(t)) ? "Unlock" : t.title;   /* 試聽中顯示歌名 */
     $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
@@ -6393,8 +6469,9 @@ window.ALBUM_SWITCH = {
     window.__sigShown = true;
     try { localStorage.setItem(SIGSHOWN_KEY, fp); } catch (e) {} /* 一顯示就記住 */
     var topOff = 0;
-    var upd = document.getElementById("__updBar");
-    if (upd) topOff = upd.offsetHeight + 8;                    /* 跟更新膠囊同時出現時往下疊、留 8px */
+    ["__updBar", "__newSongBar"].forEach(function (id) {       /* 跟更新膠囊／新歌膠囊同時出現時往下疊、留 8px */
+      var e = document.getElementById(id); if (e) topOff += e.offsetHeight + 8;
+    });
     /* B150T：1 對 1 感 —— 主文直接預覽他最新那則的開頭（像 LINE 的訊息預覽）；沒文字就退回「你在嗎？」 */
     var latest = null, latestText = null;
     try {
@@ -7420,31 +7497,96 @@ window.ALBUM_SWITCH = {
     if (!document.hidden) loadLiveFeed(true);
   });
   renderProgress(pos.time || 0);
+
+  /* ---------- B181：新歌上架通知（只給舊用戶、只在 THE SKY） ----------
+   * 頂部金色膠囊（跟「有新內容」同款）：點一下 → 回 PLAY 直接播新歌（沒買＝試聽 30 秒、買了＝完整版）；
+   * 點過或按 ✕ 就不再跳；沒理會的話下次打開再跳，最多 3 次。測試：網址加 ?newsong=1 強制跳。 */
+  (function newSongNotice() {
+    var NEW_N = 4, KEY = "album-the-sky:newsong:shooting-star-demo", MAX = 3;
+    var force = /[?&]newsong=1/.test(location.search);
+    if (CFG.albumId !== "the-sky") return;
+    var idx = -1;
+    TRACKS.forEach(function (t, i) { if (t.n === NEW_N) idx = i; });
+    if (idx < 0) return;
+    var seen = "";
+    try { seen = localStorage.getItem(KEY) || ""; } catch (e) {}
+    if (!force && (!window.__skyReturning || seen === "done" || (parseInt(seen, 10) || 0) >= MAX)) return;
+    setTimeout(function show() {
+      if (document.getElementById("__newSongBar")) return;
+      try { if (!force) localStorage.setItem(KEY, String((parseInt(seen, 10) || 0) + 1)); } catch (e) {}
+      var t = TRACKS[idx];
+      var b = document.createElement("div");
+      b.id = "__newSongBar"; b.className = "sigbar updbar";
+      b.setAttribute("role", "button"); b.setAttribute("tabindex", "0");
+      b.setAttribute("aria-label", "新歌上架：" + t.title + "，點一下播放");
+      var ava = document.createElement("img"); ava.src = t.artwork || CFG.coverImage || ""; ava.alt = ""; ava.className = "sigbar-ava";
+      var txt = document.createElement("span"); txt.className = "sigbar-txt";
+      var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "新歌上架 · NEW";
+      var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = t.title;
+      txt.appendChild(eb); txt.appendChild(mn);
+      var x = document.createElement("span"); x.className = "sigbar-chev ns-x"; x.textContent = "✕";
+      x.setAttribute("role", "button"); x.setAttribute("aria-label", "關閉");
+      b.appendChild(ava); b.appendChild(txt); b.appendChild(x);
+      var top = 0;
+      ["__restartTip", "__updBar"].forEach(function (id) { var e = document.getElementById(id); if (e) top += e.offsetHeight + 8; });
+      b.style.top = "calc(" + top + "px + env(safe-area-inset-top) + 10px)";
+      var gone = false, timer = null;
+      function close(done) {
+        if (gone) return; gone = true; clearTimeout(timer);
+        if (done) { try { localStorage.setItem(KEY, "done"); } catch (e) {} }
+        b.classList.remove("in");
+        setTimeout(function () {
+          if (b.parentNode) b.parentNode.removeChild(b);
+          var sb = document.getElementById("__sigBar");          /* SIGNAL 膠囊往上補位 */
+          if (sb) { var off = 0; var u = document.getElementById("__updBar"); if (u) off = u.offsetHeight + 8;
+            sb.style.top = "calc(" + off + "px + env(safe-area-inset-top) + 10px)"; }
+        }, 260);
+      }
+      x.addEventListener("click", function (e) { e.stopPropagation(); hap(10); close(true); });
+      b.addEventListener("click", function () {
+        hap(10); close(true);
+        go("player");
+        if (!(state.cur === idx && !audio.paused)) playTrack(idx);   /* 同一個手勢裡呼叫（iOS 必要） */
+      });
+      b.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.click(); } });
+      document.body.appendChild(b);
+      requestAnimationFrame(function () { b.classList.add("in"); });
+      var sb = document.getElementById("__sigBar");               /* SIGNAL 膠囊已經在的話，往下推 */
+      if (sb) sb.style.top = "calc(" + (top + b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
+      timer = setTimeout(function () { close(false); }, 12000);    /* 12 秒沒理會先收起，下次打開再跳 */
+    }, 1500);
+  })();
 })();
 
 </script>
 <script>
-/* NEXT SIGNAL 下一首歌名：跟著目前曲目更新 */
+/* NEXT SIGNAL 下一首歌名：跟著目前曲目更新
+   B181：改用「目前那一列（.current）」的位置找下一首，並在曲目列表重畫時（例如解鎖後 Unlock → 歌名）一起更新 */
 (function () {
   var last = null;
   function tick() {
-    var t = document.getElementById("np-title"), n = document.getElementById("next-track-name");
-    if (!t || !n) return;
-    var cur = t.textContent || "";
-    if (cur === last) return;
-    last = cur;
-    var rows = document.querySelectorAll("#tracklist .track-row .track-name, #sheet-list .track-name");
-    var names = [], i;
-    for (i = 0; i < rows.length; i++) { var v = (rows[i].getAttribute("data-name") || rows[i].textContent).trim(); if (names.indexOf(v) < 0) names.push(v); }
-    var idx = names.indexOf(cur.trim());
-    n.textContent = names.length ? names[(idx + 1 + names.length) % names.length] : "";
+    var n = document.getElementById("next-track-name");
+    if (!n) return;
+    var rows = document.querySelectorAll("#tracklist .track-row");
+    if (!rows.length) rows = document.querySelectorAll("#sheet-list .track-row");
+    var names = [], cur = -1, i;
+    for (i = 0; i < rows.length; i++) {
+      var el = rows[i].querySelector(".track-name");
+      names.push(el ? (el.getAttribute("data-name") || el.textContent || "").trim() : "");
+      if (rows[i].classList.contains("current")) cur = i;
+    }
+    var key = cur + "|" + names.join("|");
+    if (key !== last) {
+      last = key;
+      n.textContent = names.length ? names[(cur + 1) % names.length] : "";
+    }
     var lab = document.getElementById("np-label");
-    if (lab && idx >= 0) {
-      var base = (lab.textContent || "Now Playing").split("·")[0].trim();
-      lab.textContent = base + " · " + String(idx + 1).padStart(2, "0");
+    if (lab && cur >= 0) {
+      var want = (lab.textContent || "Now Playing").split("·")[0].trim() + " · " + String(cur + 1).padStart(2, "0");
+      if (lab.textContent !== want) lab.textContent = want;
     }
     var sub = document.getElementById("np-sub");
-    if (sub) sub.textContent = (sub.textContent || "").replace(/^track\s*\d+\s*[·.]\s*/i, "");
+    if (sub) { var s2 = (sub.textContent || "").replace(/^track\s*\d+\s*[·.]\s*/i, ""); if (s2 !== sub.textContent) sub.textContent = s2; }
   }
   setInterval(tick, 500); setTimeout(tick, 400);
 })();
@@ -7747,7 +7889,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B180</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B181</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
