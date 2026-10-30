@@ -57,6 +57,70 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
   #rosterCard tr{page-break-inside:avoid;break-inside:avoid}
   @page{margin:12mm}
 }
+/* Visual-only proposal for B347T. Screen styles do not alter print output. */
+@media screen {
+  :root { --muted:#bcb4a8; --line:rgba(231,213,174,.18); }
+  .app { max-width:1120px; padding:calc(22px + env(safe-area-inset-top)) 24px calc(48px + env(safe-area-inset-bottom)); }
+  .brand { font-size:23px; color:#e6d0a1; }
+  .pill { font-size:13px; color:#e4d1aa; }
+  .hero { padding:30px 2px 12px; }
+  .eyebrow { font-size:13px; }
+  h1 { font-size:36px; margin:10px 0; }
+  h3 { font-size:21px; line-height:1.35; margin-bottom:10px; }
+  .sub, .note, .msg, .tiny, .warnbox { font-size:15px; line-height:1.6; }
+  .card { padding:22px; border-radius:18px; margin-top:16px; background:#121110; }
+  .label { font-size:15px; letter-spacing:0; margin-bottom:8px; color:#e2dbce; }
+  input, select { font-size:16px; min-height:48px; }
+  .btn { font-size:16px; min-height:48px; }
+  .btn.sm { font-size:15px; min-height:44px; padding:8px 14px; }
+  .stat div { padding:14px 7px; }
+  .stat b { font-size:26px; }
+  .stat span { font-size:14px; letter-spacing:0; }
+  table { font-size:15px; }
+  th { font-size:14px; letter-spacing:0; }
+  th,td { padding:12px 8px; }
+  .mono { font-size:14px; }
+  details summary { font-size:16px; min-height:44px; display:flex; align-items:center; }
+  details summary::before { content:'▸'; margin-right:10px; color:var(--gold); }
+  details[open] summary::before { content:'▾'; }
+  #issueCard label[style] { font-size:15px!important; min-height:36px; }
+  .tools { gap:8px; }
+  .tools input, .tools select { font-size:16px!important; min-height:44px; }
+  .sheetbox { width:min(100%,600px); }
+  :focus-visible { outline:2px solid #f1d397; outline-offset:3px; }
+}
+@media screen and (min-width:850px) {
+  .app { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; align-content:start; }
+  .app > * { min-width:0; grid-column:1 / -1; }
+  .app > #issueCard { grid-column:1; }
+  .app > #listCard { grid-column:2; }
+  .app > .top { align-self:start; }
+}
+@media screen and (max-width:600px) {
+  .app { padding:calc(18px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
+  .hero { padding-top:24px; }
+  h1 { font-size:32px; }
+  .card { padding:18px 16px; }
+  .grid3 { grid-template-columns:1fr; gap:0; }
+  .stat { grid-template-columns:repeat(2,1fr); }
+  .tools input { flex-basis:100%!important; width:100%!important; }
+  .rwrap { max-height:70vh; }
+  #rosterCard table, #rosterCard tbody { display:block; }
+  #rosterCard thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  #rosterCard tbody tr { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; margin:0 0 12px; border:1px solid var(--line); border-radius:14px; background:#0b0b0b; padding:8px 12px; }
+  #rosterCard tbody td { min-width:0; display:flex; flex-direction:column; gap:4px; border:0; padding:8px 0; overflow-wrap:anywhere; }
+  #rosterCard tbody td::before { color:#bcb4a8; font:14px -apple-system,BlinkMacSystemFont,sans-serif; }
+  #rosterCard tbody td:nth-child(1)::before { content:'編號'; }
+  #rosterCard tbody td:nth-child(2)::before { content:'姓名'; }
+  #rosterCard tbody td:nth-child(3)::before { content:'票號'; }
+  #rosterCard tbody td:nth-child(4)::before { content:'Email'; }
+  #rosterCard tbody td:nth-child(5)::before { content:'手機後 4 碼'; }
+  #rosterCard tbody td:nth-child(6)::before { content:'狀態'; }
+  #rosterCard tbody td:nth-child(7)::before { content:'入場'; }
+  #rosterCard tbody td[colspan]::before { content:none; }
+  #rosterCard .rwrap td input[type=checkbox] { width:28px; height:28px; }
+}
+
 </style>
 </head>
 <body>
