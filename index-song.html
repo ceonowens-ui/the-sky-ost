@@ -2468,7 +2468,7 @@ body { background: #08060C !important; }
 
 <!-- 專輯資料（換專輯只改這個檔）→ 再載入引擎 -->
 <script>
-var SKY_COVER = "assets/images/sky/cover.jpg?v=0816";
+var SKY_COVER = "assets/images/sky/cover-song-preview.jpg?v=1030";   /* 預覽頁：新封面（CÉON 10/30），正式站仍是 cover.jpg */
 var BEFORE_COVER = "assets/images/classics/cover.jpg?v=0816";
 
 /* =====================================================================
@@ -3243,8 +3243,8 @@ const THE_SKY = {
 
   /* ---- 圖片（換封面就改這裡）------------------------------------ */
   coverImage: SKY_COVER,           // 主封面（也是鎖定畫面 artwork，影片載入前的 fallback）
-  coverVideo: "assets/images/sky/cover-video.mp4?v=0831",  // B132T：I'M SORRY 封面影片（開 App 自動靜音循環，載入失敗退回 coverImage）
-  coverPoster: "assets/images/sky/cover-poster.jpg?v=0831", // B136T：影片第一格當開場底圖 —— 打開就是這格,影片從同一格接著動,零跳圖
+  coverVideo: "",   /* 預覽頁：拿掉 I'M SORRY 封面影片，改用新照片（正式站仍有影片） */  // B132T：I'M SORRY 封面影片（開 App 自動靜音循環，載入失敗退回 coverImage）
+  coverPoster: "", // B136T：影片第一格當開場底圖 —— 打開就是這格,影片從同一格接著動,零跳圖
   backgroundImage: "",                             // 選填：整頁背景圖，留空 = 用純色主題
 
   /* ---- 品牌配色（每張專輯的色系）-------------------------------- */
