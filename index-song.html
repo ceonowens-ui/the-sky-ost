@@ -2175,6 +2175,13 @@ body { background: #08060C !important; }
 #screen-lucky .lk-draw:not(:disabled):active { transform:scale(.985); }
 #screen-lucky .lk-cta { margin-top:14px; padding:15px; font-size:13.5px; line-height:1.75; }
 </style>
+<style id="song-cover">
+/* 預覽頁（CÉON 10/30）：封面滿版、不要圓邊、照片保持清楚（拿掉紫色光暈，只留底部讓歌名讀得清楚的漸層） */
+:root { --pv-cover-radius: 0px; --pv-cover-side: 0px; }
+.cover-card, .cover-card::after { border-radius: 0 !important; }
+.cover-card::after { background: linear-gradient(180deg, rgba(0,0,0,.28), transparent) !important; }
+.cover-shade { background: linear-gradient(180deg, transparent 0%, transparent 62%, rgba(8,6,12,.55) 82%, #08060C 100%) !important; }
+</style>
 </head>
 <body>
 <div id="stage">
