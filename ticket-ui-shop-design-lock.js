@@ -93,7 +93,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
   var TMAIL = TKAPI === "test" ? '<div class="tk-hint" style="color:#e07a6a;margin-top:6px">測試後台只寄信到「信箱名＋數字」的地址（例如 name+1@gmail.com），其他信箱收不到門票信和驗證碼。</div>' : "";   // B354T
   var BOOT_QS = location.search;   // B354T：開頁時的網址參數（付款回站判斷用，replaceState 之前先記下）   // 測試後台的登入另外存，不混用
-  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
+  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
             layers: [], sel: null, tab: "up", detail: null, addTab: "cam" };
 
@@ -2373,7 +2373,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B346T"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B354-UX1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';

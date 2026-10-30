@@ -135,3 +135,52 @@
 .tkb .tkc-entry ul{margin:0;padding-left:1.2em}
 .tkb .tkc-entry li{margin:0 0 6px;font-size:16px;line-height:1.6;color:#f3eee6;overflow-wrap:anywhere}
 .tkb .tkc-entry li:last-child{margin-bottom:0}
+
+/* 2026-10-30 UX candidate: readability only; ticket and payment behavior unchanged. */
+.tk-layer[data-layer="checkout"] .tk-bar button,
+.tk-layer[data-layer="done"] .tk-bar button,
+.tk-layer[data-layer="wallet"] .tk-bar button,
+.tk-layer[data-layer="pass"] .tk-bar button { min-width:48px; min-height:48px; font-size:17px; }
+.tk-layer[data-layer="checkout"] .tk-bar .chev,
+.tk-layer[data-layer="done"] .tk-bar .chev,
+.tk-layer[data-layer="wallet"] .tk-bar .chev,
+.tk-layer[data-layer="pass"] .tk-bar .chev { font-size:28px; }
+.tk-layer[data-layer="checkout"] .tkb-sec { font-size:17px; line-height:1.45; }
+.tk-layer[data-layer="checkout"] .tkb-in { font-size:16px; min-height:52px; }
+.tk-layer[data-layer="checkout"] .tkb-hint,
+.tk-layer[data-layer="checkout"] .tkb-fine,
+.tk-layer[data-layer="checkout"] .tkc-sum,
+.tk-layer[data-layer="checkout"] .tkc-note ul { font-size:16px; line-height:1.6; }
+.tk-layer[data-layer="checkout"] .ticket-paper .tkc-entry { background:#e8dbc2; border-color:#b59c6f; }
+.tk-layer[data-layer="checkout"] .ticket-paper .tkc-entry-h { color:#59401d; font-size:18px; }
+.tk-layer[data-layer="checkout"] .ticket-paper .tkc-entry li { color:#25211b; font-size:16px; line-height:1.7; }
+.tk-layer[data-layer="checkout"] .tkb-foot .tkb-cta { min-height:52px; font-size:18px; }
+.tk-layer[data-layer="wallet"] .tk-ev .n { font-size:21px; line-height:1.35; }
+.tk-layer[data-layer="wallet"] .tk-ev .m,
+.tk-layer[data-layer="wallet"] .tk-ev .foot,
+.tk-layer[data-layer="wallet"] .tk-ev .foot small { font-size:16px; line-height:1.5; }
+.tk-layer[data-layer="wallet"] .tk-chip { min-height:44px; font-size:15px; }
+.tk-layer[data-layer="pass"] .tk-title b { font-size:24px; line-height:1.3; }
+.tk-layer[data-layer="pass"] .tk-lab { font-size:14px; letter-spacing:.07em; color:#665c50; }
+.tk-layer[data-layer="pass"] .tk-val { font-size:16px!important; line-height:1.4; }
+.tk-layer[data-layer="pass"] .tk-st { font-size:13px; letter-spacing:.08em; }
+.tk-layer[data-layer="pass"] .tk-qrid { font-size:14px; letter-spacing:.08em; }
+.tk-layer[data-layer="pass"] .tk-list button { min-height:52px; font-size:17px; }
+.tk-layer[data-layer="pass"] .tk-perkbox { font-size:16px; line-height:1.6; }
+.tk-layer[data-layer="pass"] .tk-perkbox .pt { font-size:16px; }
+.tk-layer[data-layer="done"] .tkb-ok p,
+.tk-layer[data-layer="done"] .tkb-okinfo { font-size:16px; line-height:1.6; }
+.tk-layer[data-layer="done"] .tkb-tkt .stub .id { font-size:14px; }
+.tk-layer[data-layer="done"] .tkb-cta { min-height:52px; font-size:17px; }
+/* Keep test-environment notice visible without covering navigation. */
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="checkout"] .tk-bar,
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="done"] .tk-bar,
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="wallet"] .tk-bar,
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="pass"] .tk-bar { padding-top:calc(56px + env(safe-area-inset-top)); }
+.tk-layer[data-layer="pass"] .tk-tierbadge .bd,
+.tk-layer[data-layer="pass"] .tk-tierbadge .sn { font-size:15px; line-height:1.4; }
+.tk-layer[data-layer="pass"] .tk-art i { font-size:12px; letter-spacing:.16em; }
+.tk-layer[data-layer="pass"] .tk-bar .c { font-size:14px; letter-spacing:.15em; }
+.tk-layer[data-layer="done"] .tkb-tkt .tx span,
+.tk-layer[data-layer="done"] .tkb-tkt .tx small,
+.tk-layer[data-layer="done"] .tkb-tkt .no { font-size:12px; }

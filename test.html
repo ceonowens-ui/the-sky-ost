@@ -12800,7 +12800,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=3c61ab72a3e7";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=2ce53b04549d";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
