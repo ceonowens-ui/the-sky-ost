@@ -2,6 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
+<script>/* B180S3：新歌上架通知 —— 開頁第一刻記下「這台以前用過 App 嗎」（之後程式會寫入，所以要最早判斷） */
+(function(){try{var r=false;for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i)||"";if(k.indexOf("album-")===0){r=true;break;}}window.__skyReturning=r;}catch(e){window.__skyReturning=false;}})();</script>
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="icon" href="assets/images/icon-32.png">
@@ -370,6 +372,8 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .updbar .sigbar-chev{color:rgba(255,244,220,.8)}
 .sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
 .updbar:disabled{opacity:.8}
+#__newSongBar{cursor:pointer}
+#__newSongBar .ns-x{font-size:17px;padding:12px 6px 12px 12px;margin:-12px -4px -12px 0}
 .sigbar-solo{justify-content:center}
 /* B157T：粉絲回覆框 —— 與 nav 同寬同玻璃、直接貼在 nav 上方（Apple Music 迷你播放器疊法）；鎖頭在框內 */
 .rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none;
@@ -6462,8 +6466,9 @@ window.ALBUM_SWITCH = {
     window.__sigShown = true;
     try { localStorage.setItem(SIGSHOWN_KEY, fp); } catch (e) {} /* 一顯示就記住 */
     var topOff = 0;
-    var upd = document.getElementById("__updBar");
-    if (upd) topOff = upd.offsetHeight + 8;                    /* 跟更新膠囊同時出現時往下疊、留 8px */
+    ["__updBar", "__newSongBar"].forEach(function (id) {       /* 跟更新膠囊／新歌膠囊同時出現時往下疊、留 8px */
+      var e = document.getElementById(id); if (e) topOff += e.offsetHeight + 8;
+    });
     /* B150T：1 對 1 感 —— 主文直接預覽他最新那則的開頭（像 LINE 的訊息預覽）；沒文字就退回「你在嗎？」 */
     var latest = null, latestText = null;
     try {
@@ -7489,6 +7494,65 @@ window.ALBUM_SWITCH = {
     if (!document.hidden) loadLiveFeed(true);
   });
   renderProgress(pos.time || 0);
+
+  /* ---------- B180S3：新歌上架通知（只給舊用戶、只在 THE SKY） ----------
+   * 頂部金色膠囊（跟「有新內容」同款）：點一下 → 回 PLAY 直接播新歌（沒買＝試聽 30 秒、買了＝完整版）；
+   * 點過或按 ✕ 就不再跳；沒理會的話下次打開再跳，最多 3 次。測試：網址加 ?newsong=1 強制跳。 */
+  (function newSongNotice() {
+    var NEW_N = 4, KEY = "album-the-sky:newsong:shooting-star-demo", MAX = 3;
+    var force = /[?&]newsong=1/.test(location.search);
+    if (CFG.albumId !== "the-sky") return;
+    var idx = -1;
+    TRACKS.forEach(function (t, i) { if (t.n === NEW_N) idx = i; });
+    if (idx < 0) return;
+    var seen = "";
+    try { seen = localStorage.getItem(KEY) || ""; } catch (e) {}
+    if (!force && (!window.__skyReturning || seen === "done" || (parseInt(seen, 10) || 0) >= MAX)) return;
+    setTimeout(function show() {
+      if (document.getElementById("__newSongBar")) return;
+      try { if (!force) localStorage.setItem(KEY, String((parseInt(seen, 10) || 0) + 1)); } catch (e) {}
+      var t = TRACKS[idx];
+      var b = document.createElement("div");
+      b.id = "__newSongBar"; b.className = "sigbar updbar";
+      b.setAttribute("role", "button"); b.setAttribute("tabindex", "0");
+      b.setAttribute("aria-label", "新歌上架：" + t.title + "，點一下播放");
+      var ava = document.createElement("img"); ava.src = t.artwork || CFG.coverImage || ""; ava.alt = ""; ava.className = "sigbar-ava";
+      var txt = document.createElement("span"); txt.className = "sigbar-txt";
+      var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "新歌上架 · NEW";
+      var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = t.title;
+      txt.appendChild(eb); txt.appendChild(mn);
+      var x = document.createElement("span"); x.className = "sigbar-chev ns-x"; x.textContent = "✕";
+      x.setAttribute("role", "button"); x.setAttribute("aria-label", "關閉");
+      b.appendChild(ava); b.appendChild(txt); b.appendChild(x);
+      var top = 0;
+      ["__restartTip", "__updBar"].forEach(function (id) { var e = document.getElementById(id); if (e) top += e.offsetHeight + 8; });
+      b.style.top = "calc(" + top + "px + env(safe-area-inset-top) + 10px)";
+      var gone = false, timer = null;
+      function close(done) {
+        if (gone) return; gone = true; clearTimeout(timer);
+        if (done) { try { localStorage.setItem(KEY, "done"); } catch (e) {} }
+        b.classList.remove("in");
+        setTimeout(function () {
+          if (b.parentNode) b.parentNode.removeChild(b);
+          var sb = document.getElementById("__sigBar");          /* SIGNAL 膠囊往上補位 */
+          if (sb) { var off = 0; var u = document.getElementById("__updBar"); if (u) off = u.offsetHeight + 8;
+            sb.style.top = "calc(" + off + "px + env(safe-area-inset-top) + 10px)"; }
+        }, 260);
+      }
+      x.addEventListener("click", function (e) { e.stopPropagation(); hap(10); close(true); });
+      b.addEventListener("click", function () {
+        hap(10); close(true);
+        go("player");
+        if (!(state.cur === idx && !audio.paused)) playTrack(idx);   /* 同一個手勢裡呼叫（iOS 必要） */
+      });
+      b.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.click(); } });
+      document.body.appendChild(b);
+      requestAnimationFrame(function () { b.classList.add("in"); });
+      var sb = document.getElementById("__sigBar");               /* SIGNAL 膠囊已經在的話，往下推 */
+      if (sb) sb.style.top = "calc(" + (top + b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
+      timer = setTimeout(function () { close(false); }, 12000);    /* 12 秒沒理會先收起，下次打開再跳 */
+    }, 1500);
+  })();
 })();
 
 </script>
@@ -7822,7 +7886,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B180S2</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B180S3</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
