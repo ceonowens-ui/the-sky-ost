@@ -18,7 +18,7 @@ if(pref!=="zh"&&pref!=="en")pref="";
 var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"zh-TW";
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
-<script src="shop-language.js?v=f5d6c15ae3a5"></script>
+<script src="shop-language.js?v=3354a2d66c38"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
@@ -3599,6 +3599,30 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
 </style>
 <style id="b318-shop-old-hide">/* B318T：SHOP 舊版列表（renderMerch 的 THE SKY COLLECTION）不再在新 SHOP 模組載入前閃出來；與模組載入後注入的規則相同，購買按鈕仍在 DOM 供模組沿用 */#screen-merch .page-titles,#merch-list{display:none!important}
 /* B319T：購票頁「完整購票須知」「《購票須知》」小字連結：外觀不變，點擊範圍加大到 44px 以上 */.tkb-lk{position:relative}.tkb-lk::after{content:"";position:absolute;left:-6px;right:-6px;top:-14px;bottom:-14px}.tkb-fine .tkb-lk::after{top:-26px;bottom:-6px}</style>
+<style id="ticket-review-paper">
+.tk-layer[data-layer=checkout] .ticket-paper{background:#eae0ca!important;color:#1b1815!important;padding:20px 18px 22px!important;margin:0 0 20px!important;box-shadow:0 7px 22px #0009;}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-sec,.tk-layer[data-layer=checkout] .ticket-paper .tkb-total span{color:#1d1915!important;font-weight:750!important;font-size:17px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkc-sum{background:transparent!important;border:0!important;border-top:1px solid #776a55!important;border-bottom:1px solid #776a55!important;border-radius:0!important;padding:12px 0!important;color:#1d1915!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkc-sum span,.tk-layer[data-layer=checkout] .ticket-paper .tkc-sum b{color:#1d1915!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-row{background:#171515!important;color:#fff!important;border-color:#6a5a46!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-cut,.tk-layer[data-layer=checkout] .ticket-paper .tkb-hint,.tk-layer[data-layer=checkout] .ticket-paper .tkb-fine{color:#554b3d!important;font-size:15px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-in{background:#191817!important;color:#fff!important;border-color:#4d4032!important;font-size:16px!important;min-height:48px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-in::placeholder{color:#c0b6a7!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-lk{color:#66461c!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-total b{color:#1d1915!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-seat .tkb-lk{color:#ecc67f!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-seat{color:#eee5d3!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkb-seat b{color:#f4d394!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-qty,.tk-layer[data-layer=checkout] .ticket-paper .tkm-note{color:#4f4639!important}
+.tk-layer[data-layer=checkout] .ticket-paper [hidden]{display:none!important}
+
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-row{background:transparent!important;color:#211b16!important;border:0!important;border-bottom:1px solid #b8a78d!important;border-radius:0!important;padding:10px 0!important;gap:8px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-row .tx b,.tk-layer[data-layer=checkout] .ticket-paper .tkm-row em{color:#211b16!important;font-size:15px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-row .tx small{color:#5e5345!important;font-size:14px!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-row .bx{border-color:#514735!important;color:#211b16!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-qty b{color:#211b16!important}
+.tk-layer[data-layer=checkout] .ticket-paper .tkm-qty small{color:#554b3d!important}
+</style>
 </head>
 <body>
 <!-- B321T：打開 App 的開場動畫——最多 2 秒、東西載好就提早進（最少 0.9 秒，避免一閃而過）；點一下可略過；切換分頁不會出現。測試用 ?nosplash=1 關掉 -->
@@ -12618,7 +12642,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B347T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B352T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12776,7 +12800,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=c43f680ac156";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=3259971503b9";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   if (/tkbought|tkdemo|tktest|staff=|tk=/.test(location.search)) load();

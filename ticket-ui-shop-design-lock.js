@@ -87,7 +87,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     pollMs: 5000,
     base: (function () { try { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/[^\/]*$/, "") : ""; } catch (e) { return ""; } })(),   // tk-scan.js 跟 ticket-ui.js 放一起
     scanFile: "tk-scan.js?v=2",
-    terms: "演出日前 20 日前可申請退票，酌收票價 10% 手續費；之後恕不退票，可用票夾「轉讓給朋友」換人。活動取消、改期或主要演出內容變更，全額退款。",   // TODO 退換票條款待 CÉON 定案
+    terms: "演出日前 10 日前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。",   // B352T：CÉON 10/30 採用的退票草稿（文化部規範適用性、截止日算法、例外情況待核實；只放隔離測試候選）   // TODO 退換票條款待 CÉON 定案
   };
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };   // 測試後台的登入另外存，不混用
   if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
@@ -571,7 +571,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var nt0 = (want && mineEv.filter(function (x) { return x.tier === want; }).slice(-1)[0]) || mineEv.slice(-1)[0];
     if (nt0 || want) { closeSheet(); S.done = { evId: evId, ticketId: nt0 ? nt0.id : null }; openLayer("done"); return; }
     var t = ticketsFor(evId)[0];
-    sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">In your wallet</div><h3>你的票在票夾了</h3><div class="tk-hint">' + esc(ev.name || "CHANCE") + (t && t.tierName ? '　' + esc(t.tierName) : "") + (t && t.seat ? '<br><b style="color:#f0dcaa;font-size:16px">終身編號 No.' + esc(t.seat) + '</b>' : "") + '<br>入場 QR 會在開場前 ' + QR_LOCK_H + ' 小時出現。</div></div>' +
+    sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">In your wallet</div><h3>你的票在票夾了</h3><div class="tk-hint">' + esc(ev.name || "CHANCE") + (t && t.tierName ? '　' + esc(t.tierName) : "") + (t && t.seat ? '<br><b style="color:#f0dcaa;font-size:16px">終身編號 No.' + esc(t.seat) + '</b>' : "") + '<br>入場 QR 已在票夾，也寄到你的信箱。</div></div>' +
       (t ? '<button class="tk-btn p" data-sact="see-ticket">看我的票</button><button class="tk-btn g" data-sact="give">轉給朋友</button>' : '') + a2hsHint() + '<button class="tk-btn g" data-sact="close">完成</button>');
   }
   function purchaseSlow(evId, kind) {
@@ -756,7 +756,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function toast(t) { if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "tk-toast"; document.body.appendChild(toastEl); } toastEl.textContent = t; toastEl.classList.add("in"); clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove("in"); }, 2200); }
 
   /* ---------- 共用小工具 ---------- */
-  var QR_LOCK_H = 3;   // 開場前幾小時才出現 QR（0 = 永遠顯示）
+  var QR_LOCK_H = 0;   // 開場前幾小時才出現 QR（0 = 永遠顯示）。B352T：CÉON 10/30 確認購票成功後 App 立即顯示 QR（信裡也直接附 QR）
   function cssId(s) { return String(s).replace(/[^A-Za-z0-9]/g, "_"); }
   function maskEmail(e) { var p = String(e || "").split("@"); if (p.length < 2) return "—"; return p[0].slice(0, 3) + "••••@" + p[1]; }
   function tw(iso) { var d = new Date(typeof iso === "string" ? twParse(iso) : iso); if (isNaN(d)) return null; return new Date(d.getTime() + 8 * 3600e3); }
@@ -1227,7 +1227,7 @@ function coverClockKey() {
     if (!mineEv.length && !hasPast) {
       if (S.loading) return h + '<div class="tk-empty">載入中…</div>';
       var sale = upcoming().filter(function (ev) { return ev.onSale !== false; })[0];
-      h += '<div class="tkw-empty"><div class="ic">' + ic("star", "bi") + '</div><b>還沒有票</b><p>買票後，票會自動放進這裡。<br>開場前 ' + QR_LOCK_H + ' 小時，入場 QR 會出現在票上。</p>' +
+      h += '<div class="tkw-empty"><div class="ic">' + ic("star", "bi") + '</div><b>還沒有票</b><p>買票後，票會自動放進這裡。<br>入場 QR 也會同時寄到你的信箱。</p>' +
         (sale ? '<button class="tkb-cta wide" data-act="open-buy" data-ev="' + esc(sale.id) + '">去購票 <i>→</i></button>' : '') + '</div>';
       if (!S.session && !unlockCreds()) h += loginCard();
       return h;
@@ -1459,8 +1459,8 @@ function coverClockKey() {
   function shLbl(ev) { return ev && (ev.tiers || []).length > 1 ? '全票種共享' : '所有入場者共享'; }
   function sharedHTML(ev) { var a = sharedItems(ev); return a.length ? '<div class="tkb-share"><b>' + shLbl(ev) + '</b><span>' + a.map(esc).join("・") + '</span></div>' : ""; }
   function sharedList(ev) { var a = sharedItems(ev); return a.length ? '<div class="pt">' + shLbl(ev) + '</div><ul>' + a.map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' : ""; }
-  function refundBy(ev) { var d = ev && ev.startAt ? new Date(Date.parse(ev.startAt) - 20 * 864e5 + 8 * 3600e3) : null; return d && !isNaN(d) ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
-  function termsFor(ev) { var d = refundBy(ev); return d ? C.terms.replace("演出日前 20 日前", "演出日前 20 日（" + d + "）前") : C.terms; }
+  function refundBy(ev) { var d = ev && ev.startAt ? new Date(Date.parse(ev.startAt) - 10 * 864e5 + 8 * 3600e3) : null; return d && !isNaN(d) ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
+  function termsFor(ev) { var d = refundBy(ev); return d ? C.terms.replace("演出日前 10 日前", "演出日前 10 日（" + d + "）前") : C.terms; }
   function buyTermsSheet() {
     var ev = buyEvent((S.buy || {}).evId) || buyEv(); if (!ev) return;
     var d = refundBy(ev), tiers = ev.tiers || [];
@@ -1471,10 +1471,10 @@ function coverClockKey() {
       '<div class="pt">票種福利</div><ul>' + (sharedItems(ev).length ? li(shLbl(ev) + '：' + sharedItems(ev).map(esc).join("、")) : '') +
         tiers.map(function (t) { return li('<b>' + esc(t.name) + '</b>（' + nt(t.price) + '，編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '）：' + (t.perks || []).map(esc).join("、")); }).join("") + '</ul>' +
       '<div class="pt">終身編號</div><ul>' + li('依付款完成順序配發；有人退票時，釋出的號碼由下一位購買者遞補。') + li('終身編號不是座位號碼；編號與福利隨票轉讓，歸新持有人。') + '</ul>' +
-      '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li('購票時需填寫稱呼，僅用於本活動（' + (multiT ? '報到與 VVIP 海報署名' : '報到使用') + '）。') + li('購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。') + (multiT ? li('入場順序：VVIP → VIP → 一般，各批次依現場引導入場，場內自由入座。') : li('依現場引導入場，場內自由入座。')) + li('入場憑 App 票夾的入場 QR，開場前 ' + QR_LOCK_H + ' 小時出現，給工作人員掃描即完成入場。') + '</ul>' + entryTermsHTML(ev) +
+      '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li('購票時需填寫稱呼，僅用於本活動（' + (multiT ? '報到與 VVIP 海報署名' : '報到使用') + '）。') + li('購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。') + (multiT ? li('入場順序：VVIP → VIP → 一般，各批次依現場引導入場，場內自由入座。') : li('依現場引導入場，場內自由入座。')) + li('入場憑 App 票夾或門票信裡的入場 QR，給工作人員掃描即完成入場。') + '</ul>' + entryTermsHTML(ev) +
       (multiT ? '<div class="pt">合照與照片</div><ul>' + li('VIP／VVIP：與 CHANCE 的合照由官方攝影師拍攝，自己的合格合照成片全數免費下載，無須另行加購；VVIP 的 60 秒一對一已含合照。') + li('合格成片＝經攝影團隊篩選、基本校色的高解析 JPEG，不含 RAW、失焦、閉眼、測試照或重複廢片；不代表延長互動時間或不限拍攝。') + li('全票種：全場大合照與主辦精選活動照免費下載。個人合照只提供給該票券持有人，不會放進共用相簿。') + li('生日牆合照（一般票加購 PhotoPass NT$390）：在現場為 CHANCE 布置的生日牆前與 CHANCE 合照一次，由官方攝影師拍攝，自己的合格成片全數下載；不加購不影響其他福利。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>' : '<div class="pt">合照與照片</div><ul>' + li('生日牆全體合照、全場大合照由官方攝影師拍攝，主辦精選活動照免費下載。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>') +
       (multiT ? '<div class="pt">海報署名（VVIP）</div><ul>' + li('購票時填寫的稱呼，就是 CHANCE 在海報上署名使用的名字，請確認寫法。') + li('票券轉讓後，新持有人請於活動前來信 heartbeats0693@gmail.com 更新稱呼。') + '</ul>' : '') + mTermsHTML(ev) +
-      '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。') + li('因主辦單位因素取消、改期或主要演出內容變更，全額退款、不收手續費。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。') + '</ul>' +
+      '<div class="pt">退換票</div><ul>' + li('演出日前 10 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票面金額 10%。') + li('活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。') + li('票券可在票夾「轉讓給朋友」換人。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。') + '</ul>' +
       '<div class="pt">主辦單位</div><ul>' + li('名稱：夏米爾企業社') + li('負責人：張紫瑩') + li('客服信箱：heartbeats0693@gmail.com') + li('地址：臺北市中正區懷寧街76號') + '</ul>' +
       '<div class="nt">' + esc(BUY_TEXT.note) + '</div></div><button class="tk-btn p" data-sact="close">知道了</button>';
     sheet(h);
@@ -1482,7 +1482,7 @@ function coverClockKey() {
   }
   function rulesSheet() {
     sheet('<div class="tk-eyebrow">Entry</div><h3>入場須知</h3><div class="tk-hint" style="color:rgba(255,255,255,.8);line-height:1.8">' +
-      '・入場 QR 在開場前 ' + QR_LOCK_H + ' 小時自動出現，之前看不到是正常的（防止截圖轉賣）<br>・開場後 2 小時票就失效<br>・給工作人員掃 QR 就完成入場，掃過後會變成票根留在「過往」<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的，你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票；收票在票夾按「＋ 加入票券」掃 QR 或輸代碼<br>・現場有官方攝影：合照前把票根上的「拍照用 QR」舉給攝影師拍一張，照片才會對到你；VIP／VVIP 自己的合格合照成片全數免費下載；全場大合照與精選活動照全票種免費下載；一般票可加購 PhotoPass NT$390，在生日牆與 CHANCE 合照；個人照片只提供給該票券持有人<br>・會場訊號不好的話，進場前先打開這張票</div>' +
+      '・購票成功後，入場 QR 會立即出現在票夾，也會附在門票信裡<br>・開場後 2 小時票就失效<br>・給工作人員掃 QR 就完成入場，掃過後會變成票根留在「過往」<br>・轉讓：產生一次性連結（10 分鐘有效），朋友接受後票就是他的，你的 QR 立即失效<br>・沒買過專輯的朋友也能用 email 收票；收票在票夾按「＋ 加入票券」掃 QR 或輸代碼<br>・現場有官方攝影：合照前把票根上的「拍照用 QR」舉給攝影師拍一張，照片才會對到你；VIP／VVIP 自己的合格合照成片全數免費下載；全場大合照與精選活動照全票種免費下載；一般票可加購 PhotoPass NT$390，在生日牆與 CHANCE 合照；個人照片只提供給該票券持有人<br>・會場訊號不好的話，進場前先打開這張票</div>' +
       '<button class="tk-btn p" data-sact="close">知道了</button>');
   }
   function transferConfirm() {
@@ -1501,7 +1501,7 @@ function coverClockKey() {
     var ev = curEv(); if (!ev || !startMs(ev)) return;
     var f = function (ms) { return new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""); };
     var ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//CHANCE//THE SKY//ZH", "BEGIN:VEVENT", "UID:" + ev.id + "@chance1228.com", "DTSTAMP:" + f(Date.now()), "DTSTART:" + f(startMs(ev)), "DTEND:" + f(startMs(ev) + 4 * 3600e3),
-      "SUMMARY:" + (ev.name || "CHANCE"), "LOCATION:" + (ev.venue || ""), "DESCRIPTION:入場 QR 會在開場前 " + QR_LOCK_H + " 小時出現在 CHANCE app → SHOP → 票夾", "BEGIN:VALARM", "TRIGGER:-PT3H", "ACTION:DISPLAY", "DESCRIPTION:入場 QR 已經出現", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+      "SUMMARY:" + (ev.name || "CHANCE"), "LOCATION:" + (ev.venue || ""), "DESCRIPTION:入場 QR 在 CHANCE app → SHOP → 票夾，也附在門票信裡", "BEGIN:VALARM", "TRIGGER:-PT3H", "ACTION:DISPLAY", "DESCRIPTION:入場 QR 已經出現", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
     var url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })), a = document.createElement("a");
     a.href = url; a.download = (ev.name || "CHANCE") + ".ics"; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1000);
   }
@@ -1964,10 +1964,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ════════════════════════════════════════════════════════════════ */
   var BUY_TEXT = {
     "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
-      /* B337T：生日會資訊（CÉON 10/29 13:21 提供原文，一字不改；英文在 shop-language.js 逐行對照）。每個陣列＝一段 */
+      /* B337T：生日會資訊（CÉON 10/29 13:21 提供原文，一字不改；英文在 shop-language.js 逐行對照）。每個陣列＝一段
+         B349T：CÉON 10/30 確認座位名額 120 名、11/15 12:00（台北時間）開放購票。B352T：取消提前購買，所有人同時開賣 */
       info: { title: "生日會資訊", groups: [
-        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：181名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
-        ["11/1開始預購 (商品請於當日提前13:20至現場領取)", "會依購買姓名+電話方式核對劃消", "另販售周邊海報A3一組4張 520元 限量50組*", "及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組", "亞洲寄送+250", "其他地區+500", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
+        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
+        ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "會依購買姓名+電話方式核對劃消", "另販售周邊海報A3一組4張 520元 限量50組*", "及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組", "亞洲寄送+250", "其他地區+500", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
         ["*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ] } },
     _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
@@ -1975,6 +1976,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     note: "※ 現場流程時間以當日公告為準",
     limitNote: "每人每票種限購 1 張（以收票 Email 認定）"
   };
+  /* B351T：隔離測試場 meet-test 用同一份生日會文字（跟 ENTRY_RULES、周邊示意圖一樣），測試畫面才跟正式一致 */
+  BUY_TEXT["meet-test"] = BUY_TEXT["meet-20261227"];
   function bt(ev) { return (ev && BUY_TEXT[ev.id]) || BUY_TEXT._default; }
   /* B345T：分批入場、自由選位（CÉON 10/29 17:39 原文）。只掛在指定場次；其他場次沒有這段。
      meet-test＝生日會的測試替身（NT$30），掛同一份規則讓 CÉON 在 test 版真機測完整流程。報到時間、叫號、保留席未定，不寫死。 */
@@ -2413,6 +2416,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function checkoutSolo(ev, T, b, h) {
     var mi = mInfo(ev.id), r = mi ? mResolve(mi, mSel(b)) : null;
     h += '<div class="tkc-ev"><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '・' + esc(ev.venue || "") + '</span></div>';
+    h += '<div class="ticket-paper">';
     h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span>' + esc(T.name) + '</span><b>' + nt(T.price) + '</b>' +
       (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (mQ(ev.id, b) > 1 ? " ×" + mQ(ev.id, b) : "") + '</span><b>' + nt(r.price * mQ(ev.id, b)) + '</b>' : '') + '</div>';
     h += ppAddonHTML(ev, T, b);
@@ -2426,6 +2430,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天憑票現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
     h += '<div class="tk-msg" id="tk-bmsg"></div>';
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
+    h += '</div>';
     h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
   }
@@ -2663,7 +2668,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<div class="tx"><span>' + esc(X.kicker) + '</span><b>' + esc(X.short) + '</b><i>' + esc(mmdd) + ' <small>' + esc(X.city) + '</small></i></div>' +
       (t && t.seat ? '<div class="no">No.<b>' + esc(t.seat) + '</b></div>' : '') + '</div>' +
       '<div class="stub">' + (t ? c128svg(t.id) + '<div class="id">' + esc(t.id) + '</div>' : '<div class="id">票整理中…</div>') + '</div></div>';
-    h += '<div class="tkb-okinfo">' + ic("lock", "bi s") + '<span>上方是票號，<b>不是入場 QR</b>。入場 QR 會在開場前 ' + QR_LOCK_H + ' 小時自動出現在票夾（防截圖轉賣）。</span></div>' + mDoneHTML(dn.evId);
+    h += '<div class="tkb-okinfo">' + ic("lock", "bi s") + '<span>上方是票號，<b>不是入場 QR</b>。入場 QR 已在票夾，也寄到你的信箱。</span></div>' + mDoneHTML(dn.evId);
     if (t && t.tier === "ga" && ev.photoPrice > 0 && ev.photoOnSale !== false && !ppOwned(ev.id)) h += '<div class="tkb-pp"><div class="tx"><b>📸 加購生日牆合照</b><span>在生日牆與 CHANCE 合照一次，成片全數下載</span></div><button class="tkb-cta" data-act="buy-pp" data-ev="' + esc(ev.id) + '">' + nt(ev.photoPrice) + ' 加購</button></div>';
     h += '<button class="tkb-cta wide" data-act="done-wallet">查看我的票夾 <i>→</i></button><button class="tkb-cta ghost wide" data-act="done-close">繼續逛周邊</button>';
     h += a2hsHint();
