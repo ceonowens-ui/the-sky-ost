@@ -4425,6 +4425,16 @@ window.ALBUM_SWITCH = {
     return (p === "599" || p === "799" || p === "deluxe" || p === "full-unlock" || p === String((CFG.payment || {}).deluxePrice)) ? "deluxe" : "basic";
   }
   function isLocked(t) { return !t.free && !state.unlocked; }
+  /* 預覽頁（CÉON 10/30）：沒買的人每首都能試聽 30 秒，聽完跳解鎖。試聽檔是公開的 30 秒片段（assets/preview），完整版仍只走 Worker */
+  var SKY_PREVIEW = { 1: "assets/preview/im-sorry-30s.m4a", 2: "assets/preview/the-sky-30s.m4a", 3: "assets/preview/dont-wanna-wake-up-30s.m4a", 4: "assets/preview/shooting-star-preview-30s.mp3" };
+  var PREVIEW_SEC = 30, previewing = false;
+  function previewOf(t) { return (CFG.albumId === "the-sky" && t && isLocked(t) && SKY_PREVIEW[t.n]) || null; }
+  function playable(t) { return !isLocked(t) || !!previewOf(t); }
+  function previewDone() {
+    if (!previewing) return; previewing = false;
+    try { audio.pause(); } catch (e) {}
+    toast("試聽 30 秒結束 · 解鎖完整專輯可以聽全部"); go("purchase");
+  }
 
   /* ---------- 音源路徑 ----------
    * 免費曲：本地檔（assets/audio/，可公開部署在 GitHub Pages）。
@@ -4433,7 +4443,7 @@ window.ALBUM_SWITCH = {
    * ⚠️ PITFALLS #3：file 參數用 protectedPath（含 "os3/" 之類前綴），
    *    必須與 worker.js 的 PROTECTED_FILES、R2 object key 完全一致。 */
   function srcFor(t) {
-    if (t.previewOnly) return t.previewOnly;   /* 預覽頁專用：完整版上 R2 前先放 30 秒 */
+    var pv = previewOf(t); if (pv) return pv;
     if (t.free) return t.audioPath;
     var u = unlockInfo();
     return CFG.api.workerBaseUrl + "/track?file=" + encodeURIComponent(t.protectedPath || "") +
@@ -4485,7 +4495,9 @@ window.ALBUM_SWITCH = {
    * 聽完歌賺抽卡券的機制會失效；手動重播才能兩者兼得。 */
   var loopOne = false;
   try { loopOne = localStorage.getItem(NS + ":loop1") === "1"; } catch (e) {}
+  audio.addEventListener("timeupdate", function () { if (previewing && audio.currentTime >= PREVIEW_SEC - 0.2) previewDone(); });
   audio.addEventListener("ended", function () {
+    if (previewing) { previewDone(); return; }
     if (window.__luckEarn) window.__luckEarn("song");
     if (loopOne) { try { audio.currentTime = 0; } catch (e) {} audio.play().catch(function () {}); return; }
     next();
@@ -4518,7 +4530,9 @@ window.ALBUM_SWITCH = {
 
   function playTrack(i) {
     var t = TRACKS[i];
-    if (isLocked(t)) { toast("需解鎖完整專輯才能播放"); go("purchase"); return; }
+    if (isLocked(t) && !previewOf(t)) { toast("需解鎖完整專輯才能播放"); go("purchase"); return; }
+    previewing = !!previewOf(t);
+    if (previewing) toast("試聽 30 秒");
     durFixing = false; resumeAt = 0;
     state.cur = i; state.dur = 0;
     audio.src = srcFor(t);
@@ -4534,15 +4548,15 @@ window.ALBUM_SWITCH = {
   }
   function next() {
     var i = state.cur;
-    do { i = (i + 1) % TOTAL; } while (isLocked(TRACKS[i]) && i !== state.cur);
-    if (isLocked(TRACKS[i])) { toast("其餘曲目需解鎖完整專輯"); return; }
+    do { i = (i + 1) % TOTAL; } while (!playable(TRACKS[i]) && i !== state.cur);
+    if (!playable(TRACKS[i])) { toast("其餘曲目需解鎖完整專輯"); return; }
     playTrack(i);
   }
   function prev() {
     if (audio.currentTime > 3) { audio.currentTime = 0; return; }
     var i = state.cur;
-    do { i = (i - 1 + TOTAL) % TOTAL; } while (isLocked(TRACKS[i]) && i !== state.cur);
-    if (isLocked(TRACKS[i])) return;
+    do { i = (i - 1 + TOTAL) % TOTAL; } while (!playable(TRACKS[i]) && i !== state.cur);
+    if (!playable(TRACKS[i])) return;
     playTrack(i);
   }
 
@@ -4637,7 +4651,7 @@ window.ALBUM_SWITCH = {
   function renderNowPlaying() {
     var t = TRACKS[state.cur];
     var locked = isLocked(t);
-    $("np-title").textContent = locked ? "Unlock" : t.title;
+    $("np-title").textContent = (locked && !previewOf(t)) ? "Unlock" : t.title;   /* 試聽中顯示歌名 */
     $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
