@@ -205,3 +205,24 @@
 }
 /* 英文返回鍵「Ticket wallet」比較長，393 寬也會碰到中間的 ENTRY PASS → 英文介面一律讓給返回鍵 */
 html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
+/* B359T：結帳頁上方「活動資訊與入場規則」收合；我的票分頁；周邊訂單列；成功頁確認中；票券頁返回列不透明 */
+.tk-layer[data-layer="checkout"] .tkc-info { margin:4px 0 16px; border:1px solid rgba(216,188,128,.35); border-radius:14px; background:rgba(255,255,255,.03); }
+.tk-layer[data-layer="checkout"] .tkc-info > summary { list-style:none; cursor:pointer; padding:14px 16px; min-height:48px; box-sizing:border-box; font:600 17px/1.4 -apple-system,"Noto Sans TC",sans-serif; color:#f0dcaa; display:flex; justify-content:space-between; align-items:center; }
+.tk-layer[data-layer="checkout"] .tkc-info > summary::-webkit-details-marker { display:none; }
+.tk-layer[data-layer="checkout"] .tkc-info > summary::after { content:"›"; font-size:22px; transition:transform .2s; }
+.tk-layer[data-layer="checkout"] .tkc-info[open] > summary::after { transform:rotate(90deg); }
+.tk-layer[data-layer="checkout"] .tkc-info .la-info { padding:0 16px 14px; margin:0; }
+.tk-layer[data-layer="checkout"] .tkc-info .la-info-h { display:none; }
+.tk-layer[data-layer="checkout"] .tkc-info .la-info-l { font-size:16px; line-height:1.65; color:#ddd5c8; margin:0 0 6px; }
+.tk-layer[data-layer="wallet"] .tk-wtabs { margin:6px 0 14px; }
+.tk-layer[data-layer="wallet"] .tk-wtabs button { min-height:46px; font-size:16px; }
+.tk-mrow { display:grid; gap:4px; padding:16px; margin:0 0 12px; border:1px solid rgba(216,188,128,.3); border-radius:16px; background:#0f0c0d; }
+.tk-mrow b { font-size:18px; line-height:1.4; color:#f0dcaa; font-weight:600; }
+.tk-mrow span { font-size:15px; line-height:1.5; color:#ddd5c8; }
+.tk-mrow em { font-style:normal; font-size:14px; color:#8fd19e; }
+.tk-layer[data-layer="done"] .tkb-wait { padding-top:28px; }
+.tk-layer[data-layer="done"] .tkb-wait .tk-spin { margin:0 auto 18px; }
+.tk-layer[data-layer="done"] .tkb-wait .ck { font-size:30px; }
+.tk-layer[data-layer="done"] .tkb-wait h2 { font-size:24px; line-height:1.4; }
+.tk-layer[data-layer="done"] .tkb-wait p { font-size:17px; line-height:1.65; margin:10px 0 0; }
+.tk-layer[data-layer="pass"] .tk-bar { background:#0b0709; }

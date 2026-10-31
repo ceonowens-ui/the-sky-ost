@@ -5,6 +5,10 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B359T：流程簡化（SHOP 直接進結帳、成功頁確認中、我的票分頁、測試重設） */
+ '測試版・不連正式票務':'Test build · not live ticketing','重新測試':'Reset test',
+ '活動資訊與入場規則':'Event info & entry rules','回到 SHOP':'Back to SHOP','查看我的票 →':'View my tickets →',
+ '周邊訂單':'Merch orders','確認付款':'Confirming payment','✓ 已付款':'✓ Paid','活動後寄出':'Ships after the event','Payment confirmed':'Payment confirmed',
  '使用購買時的 Email':'Use your purchase email',
  '輸入購買時的 Email，收取驗證碼後查看訂單。':'Enter your purchase email. Use the verification code to view your orders.',
 
