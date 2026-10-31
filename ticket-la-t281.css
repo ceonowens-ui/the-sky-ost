@@ -255,3 +255,17 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="pass"] .tk-bought.anim { animation:tkBoughtRise .6s ease-out both; }
 .tk-layer[data-layer="pass"] .tk-bought.anim ~ .tk-pass { animation:tkBoughtRise .7s .15s ease-out both; }
 @media (prefers-reduced-motion:reduce) { .tk-layer[data-layer="pass"] .tk-bought.anim, .tk-layer[data-layer="pass"] .tk-bought.anim ~ .tk-pass { animation:none; } }
+/* B361T：SHOP「購買周邊」直接是兩個生日周邊；結帳欄位錯誤提示 */
+#sv3-merch .sv3-bdm-sub { margin:4px 0 14px; font-size:16px; line-height:1.5; color:#ddd5c8; }
+#sv3-merch .sv3-bdm-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+#sv3-merch .sv3-bdm-it { all:unset; box-sizing:border-box; cursor:pointer; display:flex; flex-direction:column; gap:4px; padding:10px 10px 12px; border-radius:16px; border:1px solid rgba(216,188,128,.35); background:#0f0c0d; color:#f6f1e7; }
+#sv3-merch .sv3-bdm-it[disabled] { opacity:.45; cursor:default; }
+#sv3-merch .sv3-bdm-it img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px; margin-bottom:6px; background:#1a1517; }
+#sv3-merch .sv3-bdm-it b { font-size:16px; line-height:1.35; font-weight:600; }
+#sv3-merch .sv3-bdm-it em { font-style:normal; font-size:17px; font-weight:700; color:#f0dcaa; }
+#sv3-merch .sv3-bdm-it span { font-size:13px; line-height:1.45; color:#cfc7b8; }
+#sv3-merch .sv3-bdm-it small { font-size:13px; color:#9c9589; }
+#sv3-merch .sv3-bdm-it i { font-style:normal; margin-top:auto; padding-top:8px; font-size:15px; font-weight:600; color:#e8c987; }
+#sv3-merch .sv3-bdm-note { margin:12px 0 0; font-size:13px; line-height:1.5; color:#9c9589; }
+.tk-layer[data-layer="checkout"] .tk-ferr { margin:6px 2px 4px; font-size:15px; line-height:1.5; font-weight:600; color:#ff8f7a; }
+.tk-layer[data-layer="checkout"] .tk-in.err { border-color:#ff8f7a !important; box-shadow:0 0 0 2px rgba(255,143,122,.35); }

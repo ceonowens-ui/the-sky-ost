@@ -5,6 +5,14 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B361T：結帳欄位檢查、SHOP 周邊兩個選項 */
+ '請填寫你的稱呼':'Please enter your name','稱呼最多 20 個字':'Name can be up to 20 characters','稱呼至少要有一個字（不能只有符號）':'Your name needs at least one letter (not only symbols)',
+ '請填寫手機號碼':'Please enter your mobile number','手機號碼只能填數字':'Mobile number can only contain digits',
+ '海外號碼請填「+國碼＋號碼」，例如 +852 91234567':'For non-Taiwan numbers, add the country code, e.g. +852 91234567',
+ '台灣手機是 09 開頭 10 碼；海外號碼請在前面加「+國碼」':'Taiwan mobiles are 10 digits starting with 09; for other countries add +country code',
+ '請填寫收票 email':'Please enter the email for your ticket','email 格式不對，再看一下':'That email doesn’t look right — please check it',
+ '測試版請用「信箱名＋數字」，例如 name+1@gmail.com，不然收不到信':'Test build: use name+number, e.g. name+1@gmail.com, or the email won’t arrive',
+ '選這個':'Choose','商品圖片為示意圖。海外寄送、現場領取都在下一步選。':'Images are for illustration. Choose overseas shipping or event pickup in the next step.',
  /* B360T：SHOP 第三區「我的票」、付款完直接到票 */
  '全部':'All','這個帳號還沒有票或周邊訂單。':'No tickets or merch orders on this account yet.','已經買過？用購買時的 Email 找回你的票和周邊訂單。':'Already bought? Use your purchase email to find your tickets and merch orders.',
  '用 Email 找回':'Find with email','打開我的票':'Open my tickets','點一下放大 QR':'Tap to enlarge the QR','入場 QR':'Entry QR','準備中':'Preparing',
