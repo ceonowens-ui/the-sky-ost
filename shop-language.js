@@ -5,6 +5,28 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ '使用購買時的 Email':'Use your purchase email',
+ '輸入購買時的 Email，收取驗證碼後查看訂單。':'Enter your purchase email. Use the verification code to view your orders.',
+
+ '我的訂單':'My orders',
+ '使用購買時的 Email 查看周邊訂單':'Use your purchase email to view your merch orders',
+ '這個帳號尚未找到周邊訂單。若已付款，請稍後更新，或確認登入的 Email。':'No merch orders found for this account yet. If you have paid, refresh later or check your sign-in email.',
+
+ '付款已確認，訂單需協助':'Payment confirmed — order needs assistance',
+ '請勿再次付款。請聯絡客服核對這筆訂單。':'Please do not pay again. Contact support to check this order.',
+ '聯絡客服':'Contact support',
+ '卡包付款尚未接入隔離測試，這個候選版暫不開放付款。':'Card-pack checkout is not connected to isolated testing and is unavailable in this preview.',
+ '購票：隔離測試版（不會連到正式票務）':'Tickets: isolated test version',
+
+ '正在確認付款…':'Confirming payment…',
+ '付款已確認，訂單處理中':'Payment confirmed — preparing your order',
+ '付款狀態確認中':'Checking payment status',
+ '若已完成付款，請勿重複購買。可稍後重新確認或查看訂單。':'If you have paid, please do not buy again. Check again later or view your orders.',
+ '訂單已成立':'Order confirmed',
+ '查看我的訂單':'View my orders',
+ '查看周邊訂單':'View merch orders',
+ '使用購買時的 Email 查看訂單；若已付款，請勿重複購買。':'Use your purchase email to view your order. If you have paid, please do not buy again.',
+
  /* B357T：後台確認付款（M3.3 /ticket/order）後的字句 */
  '付款已確認，票券準備中…':'Payment confirmed — preparing your ticket…','付款已確認，PhotoPass 開通中…':'Payment confirmed — activating PhotoPass…',
  '付款已確認，票券準備中':'Payment confirmed — preparing your ticket','付款已確認，PhotoPass 開通中':'Payment confirmed — activating PhotoPass','付款已確認，票券還在處理':'Payment confirmed — ticket still processing',

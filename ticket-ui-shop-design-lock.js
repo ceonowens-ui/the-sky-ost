@@ -76,7 +76,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   "use strict";
   /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。
      B353T：CÉON 10/30——這支 JS 只有 test.html 載入，預設改成連測試 Worker；要連正式後台才需要開一次 ?tkapi=prod */
-  var TKAPI = (function () { try { var m = /[?&]tkapi=(test|prod)\b/.exec(location.search); if (m) localStorage.setItem("tk:api", m[1]); return localStorage.getItem("tk:api") === "prod" ? "prod" : "test"; } catch (e) { return "test"; } })();
+  var TKAPI = "test"; // This independent candidate cannot switch to production.
   var C = {
     api: TKAPI === "test" ? "https://the-sky-ost-api-test.anthonywen0693.workers.dev" : "https://the-sky-ost-api.anthonywen0693.workers.dev",
     unlockKeys: ["album-the-sky:unlock", "album-the-sky:feedpass"],
@@ -93,7 +93,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
   var TMAIL = TKAPI === "test" ? '<div class="tk-hint" style="color:#e07a6a;margin-top:6px">測試後台只寄信到「信箱名＋數字」的地址（例如 name+1@gmail.com），其他信箱收不到門票信和驗證碼。</div>' : "";   // B354T
   var BOOT_QS = location.search;   // B354T：開頁時的網址參數（付款回站判斷用，replaceState 之前先記下）   // 測試後台的登入另外存，不混用
-  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.textContent = "購票：測試後台（綠界測試環境）· ?tkapi=prod 切回"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 11px/1.3 -apple-system,sans-serif;padding:4px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
+  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.textContent = "購票：隔離測試版（不會連到正式票務）"; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;background:#7a1f1f;color:#fff;font:600 14px/1.4 -apple-system,sans-serif;padding:6px 10px;border-radius:0 0 8px 8px;pointer-events:none"; (document.body || document.documentElement).appendChild(tb); } catch (e) {} }
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
             layers: [], sel: null, tab: "up", detail: null, addTab: "cam" };
 
@@ -548,7 +548,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { msg("#tk-bmsg", j.message); return; } } catch (e) {} throw 0; }
-        var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
+        testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
         try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, email: email, evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); f.submit();
       }).catch(function () { msg("#tk-bmsg", "付款頁開不起來，請稍後再試"); });
@@ -609,13 +609,14 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
 
   /* ---------- 轉讓（我給別人） ---------- */
-  var sheetEl;
+  var sheetEl, sheetRevision = 0;
   function sheet(html) {
+    sheetRevision++;
     if (!sheetEl) { sheetEl = document.createElement("div"); sheetEl.className = "tk-sheet"; sheetEl.addEventListener("click", function (e) { if (e.target === sheetEl) closeSheet(); }); document.body.appendChild(sheetEl); }
     sheetEl.innerHTML = '<div class="tk-box">' + html + '</div>'; sheetEl.classList.add("show");
     sheetEl.querySelectorAll("[data-sact]").forEach(function (b) { b.addEventListener("click", function () { sheetAct2(b.getAttribute("data-sact"), b); }); });
   }
-  function closeSheet() { if (sheetEl) sheetEl.classList.remove("show"); stopPoll(); stopScan(); }
+  function closeSheet() { sheetRevision++; if (sheetEl) sheetEl.classList.remove("show"); stopPoll(); stopScan(); }
   function startTransfer(id) {
     api("/ticket/transfer/start", { session: S.session, ticketId: id }).then(function (j) {
       if (!j.ok) return toast(j.message || (j.error === "expired" ? "開演後 2 小時不能轉讓了" : "現在不能轉讓"));
@@ -1156,6 +1157,7 @@ function coverClockKey() {
   function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
   function openLayer(name, opts) {
     opts = opts || {};
+    if (name === "wallet") S.walletMerch = !!opts.merch;
     if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
@@ -1180,8 +1182,9 @@ function coverClockKey() {
     if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); }
   }
   function back() { if (S.layers.length) history.back(); }
-  function closeAll() { while (S.layers.length) popLayer(); }
+  function closeAll() { closeSheet(); while (S.layers.length) popLayer(); }
   window.addEventListener("popstate", function (e) {
+    closeSheet();
     var want = (e.state && e.state.tk) || 0;
     while (S.layers.length > want) popLayer();
   });
@@ -1212,7 +1215,7 @@ function coverClockKey() {
   }
 
   /* ---------- 票夾：一場活動一張卡 ---------- */
-  function loginCard() { return '<details class="tk-login-fold" id="tk-login"><summary class="tk-login-sum"><span>已買過票？<b>用 email 找回你的票</b></span><i>›</i></summary><div class="tk-login-body"><p class="tk-login-hint">買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。</p><form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"><div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div><div class="tk-msg" id="tk-lmsg"></div><button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button><button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div></details>'; }
+  function loginCard(merch) { var html = '<details class="tk-login-fold" id="tk-login"><summary class="tk-login-sum"><span>已買過票？<b>用 email 找回你的票</b></span><i>›</i></summary><div class="tk-login-body"><p class="tk-login-hint">買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。</p><form><input class="tk-in" id="tk-em" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"><div id="tk-otpwrap" style="display:none"><input class="tk-in" id="tk-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼"></div><div class="tk-msg" id="tk-lmsg"></div><button class="tk-btn p" id="tk-send" data-act="otp">寄驗證碼給我</button><button class="tk-btn p" id="tk-login-btn" data-act="login" style="display:none">登入</button></form></div></details>'; return merch ? html.replace('class="tk-login-fold"', 'class="tk-login-fold" open').replace('已買過票？', '查看周邊訂單').replace('用 email 找回你的票', '使用購買時的 Email').replace('買過專輯會自動登入；沒有的話輸入 email，我們寄一組驗證碼給你（收朋友轉讓的票也用這個）。', '輸入購買時的 Email，收取驗證碼後查看訂單。') : html; }
   function footFor(ev) {
     var mine = ticketsFor(ev.id);
     if (mine.length) {
@@ -1245,22 +1248,27 @@ function coverClockKey() {
     return '<div class="foot pp"><div class="l">📸 生日牆合照<small>在生日牆與 CHANCE 合照一次，成片全數下載</small></div><button class="tk-chip o" data-act="buy-pp" data-ev="' + esc(ev.id) + '">加購 NT$' + esc(ev.photoPrice) + '</button></div>';
   }
   function walletHTML() {
-    var h = bar("收藏", "TICKETS", { act: "menu", label: "更多", icon: "···" });
-    h += '<div class="tk-hd"><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票夾</div></div>';
+    var h = bar("收藏", S.walletMerch ? "ORDERS" : "TICKETS", { act: "menu", label: "更多", icon: "···" });
+    h += '<div class="tk-hd"' + (S.walletMerch ? ' data-merch-wallet="1"' : '') + '><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">' + (S.walletMerch ? "我的訂單" : "我的票夾") + '</div></div>';
     // B225T：票夾只放「你擁有的」；還沒有票就是空白頁，賣票交給 SHOP
     var mineEv = upcoming().filter(function (ev) { return ticketsFor(ev.id).length || S.morders.some(function (o) { return o.eventId === ev.id; }); });
     var hasPast = pastTickets().length > 0;
     if (!mineEv.length && !hasPast) {
       if (S.loading) return h + '<div class="tk-empty">載入中…</div>';
+      if (S.walletMerch) {
+        h += '<div class="tk-empty">' + ((!S.session && !unlockCreds()) ? '使用購買時的 Email 查看周邊訂單' : '這個帳號尚未找到周邊訂單。若已付款，請稍後更新，或確認登入的 Email。') + '</div>';
+        if (!S.session && !unlockCreds()) h += loginCard(S.walletMerch);
+        return h;
+      }
       var sale = upcoming().filter(function (ev) { return ev.onSale !== false; })[0];
       h += '<div class="tkw-empty"><div class="ic">' + ic("star", "bi") + '</div><b>還沒有票</b><p>買票後，票會自動放進這裡。<br>入場 QR 也會同時寄到你的信箱。</p>' +
         (sale ? '<button class="tkb-cta wide" data-act="open-buy" data-ev="' + esc(sale.id) + '">去購票 <i>→</i></button>' : '') + '</div>';
-      if (!S.session && !unlockCreds()) h += loginCard();
+      if (!S.session && !unlockCreds()) h += loginCard(S.walletMerch);
       return h;
     }
     if (!hasPast) S.tab = "up";
     if (hasPast) h += '<div class="tk-seg"><button class="' + (S.tab !== "past" ? "on" : "") + '" data-act="tab" data-tab="up">即將到來</button><button class="' + (S.tab === "past" ? "on" : "") + '" data-act="tab" data-tab="past">過往</button></div>';
-    if (!S.session && !unlockCreds()) h += loginCard();
+    if (!S.session && !unlockCreds()) h += loginCard(S.walletMerch);
     if (S.tab === "past") {
       var pt = pastTickets();
       if (!pt.length) h += '<div class="tk-empty">還沒有過往的票。<br>入場過的票會變成票根留在這裡。</div>';
@@ -1737,6 +1745,7 @@ function coverClockKey() {
     if (a === "pay") return cxPay(b);
   }
   function cxPay(btn) {
+    if (TKAPI === "test") return cxRender("卡包付款尚未接入隔離測試，這個候選版暫不開放付款。");
     var f = CX.f, i = cxItem(), email = String(f.email || "").trim().toLowerCase();
     var pick = cxIsPick();
     if (!f.name || !f.phone || (!pick && !f.addr)) return cxRender(pick ? "請填姓名和手機" : "請填完整收件人、手機、地址");
@@ -1867,6 +1876,7 @@ function coverClockKey() {
      任何失敗都不自動重送（後端可能已建立草稿／待付款訂單），只有使用者按「重新開啟付款頁」才再送一次 */
   function cx9Live(att) { var el = layerEl("cxc"); return CX.att === att && !!el && S.layers[S.layers.length - 1] === "cxc"; }
   function cx9Pay() {
+    if (TKAPI === "test") return cx9Fail("卡包付款尚未接入隔離測試，這個候選版暫不開放付款。");
     if (CX.busy) return;
     var f = CX.f, i = cxItem(), email = String(f.email || "").trim().toLowerCase(), pick = cxIsPick();
     CX.st = "";
@@ -2539,54 +2549,105 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (a === "m-mq") { o.mq = Math.max(1, Math.min(mQ(o.evId, o) + Number(el.getAttribute("data-d") || 0), mQMax(o.evId, o))); hap(6); return mSheet(); }
     if (a === "m-pay") return mPay(el);
   }
+  function testPaymentForm(form) {
+    if (!form) throw new Error("missing_payment_form");
+    var action = new URL(form.getAttribute("action") || "", location.href);
+    if (TKAPI === "test" && (action.origin !== "https://payment-stage.ecpay.com.tw" || action.pathname !== "/Cashier/AioCheckOut/V5" || String(form.getAttribute("method") || "get").toLowerCase() !== "post")) throw new Error("test_payment_only");
+    return form;
+  }
   function mPay(btn) {
-    var o = S.mx, code = mSel(o); if (!code) return msg("#tkm-msg", "請先選商品");
+    if (!btn || btn.disabled) return;
+    var payRevision = sheetRevision;
+    function currentAttempt() { return sheetRevision === payRevision && S.mx === o; }
+    var o = S.mx; if (!o) return; var code = mSel(o); if (!code) return msg("#tkm-msg", "請先選商品");
     var email = loggedIn() ? myEmail() : (o.email || "");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg("#tkm-msg", "請輸入正確的 email");
     if (o.mode === "ship") { var s = o.ship; if (!s.country) return msg("#tkm-msg", "請選國家／地區"); if (!s.name || !s.phone || !s.addr) return msg("#tkm-msg", "請填完整收件人、電話、地址"); }
     var v2 = mV2(o.evId), pk = o.pk || {};
     if (o.mode === "pickup" && v2 && (!String(pk.name || "").trim() || String(pk.phone || "").replace(/[^0-9]/g, "").length < 8)) return msg("#tkm-msg", "請填領取人姓名和手機（現場核對用）");
     lsSet(K.email, email);
-    var reset = function () { btn.disabled = false; mSheet(); };
+    var payTimer;
+    var reset = function () { clearTimeout(payTimer); btn.disabled = false; if (currentAttempt()) mSheet(); };
     btn.disabled = true; btn.textContent = "處理中…";
     var body = { eventId: o.evId, code: code, mode: o.mode, email: email, session: S.session || "", ship: o.mode === "ship" ? o.ship : (v2 ? { name: String(pk.name || "").trim(), phone: String(pk.phone || "").trim() } : null) };
     if (v2) body.qty = mQ(o.evId, o);
+    payTimer = setTimeout(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "付款頁開不起來，請稍後再試"); }, 15000);
     api("/ticket/merch/draft", body).then(function (j) {
+      if (!currentAttempt()) return;
       if (!j || !j.ok) { reset(); return msg("#tkm-msg", (j && j.message) || "無法建立訂單，請稍後再試"); }
-      try { sessionStorage.setItem("tk225:m", JSON.stringify({ evId: o.evId, code: j.code, label: j.label, mode: o.mode, email: email, at: Date.now() })); } catch (e) {}
-      if (C.demo) { demoBuyMerch(email, o.evId, j.code, o.mode, o.ship); closeSheet(); setTimeout(mAwait, 400); return; }
+      try { mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now() }); } catch (e) {}
+      if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, o.ship); closeSheet(); setTimeout(mAwait, 400); return; }
       var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
       fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back, name: "" }) })
         .then(function (r) { return r.text(); })
         .then(function (html) {
+          if (!currentAttempt()) return;
           var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
           if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) { reset(); msg("#tkm-msg", jj.message); return; } } catch (e) {} throw 0; }
-          var f = document.importNode(form, true); f.style.display = "none"; document.body.appendChild(f); f.submit();
-        }).catch(function () { reset(); msg("#tkm-msg", "付款頁開不起來，請稍後再試"); });
-    }).catch(function () { reset(); msg("#tkm-msg", "連不上伺服器"); });
+          testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
+          try { var mp = mPending(); var mn = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (mp && mn) { mp.no = mn; mRemember(mp); } } catch (e) {}
+          clearTimeout(payTimer); document.body.appendChild(f); f.submit();
+        }).catch(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "付款頁開不起來，請稍後再試"); });
+    }).catch(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "連不上伺服器"); });
   }
   /* ---- 付款回來 ---- */
-  function mPending() { try { var p = JSON.parse(sessionStorage.getItem("tk225:m") || "null"); return p && Date.now() - p.at < 3 * 3600e3 ? p : null; } catch (e) { return null; } }
+  // Local recovery covers reopen in the SAME browser. Safari and PWA remain separate.
+  function mRemember(p) {
+    try { sessionStorage.setItem("tk225:m", JSON.stringify(p)); } catch (e) {}
+    try { localStorage.setItem("tk225:m", JSON.stringify(p)); } catch (e) {}
+  }
+  function mPending() {
+    var all = [];
+    ["sessionStorage", "localStorage"].forEach(function (name) {
+      try { var st = window[name]; var p = JSON.parse(st.getItem("tk225:m") || "null");
+        if (p && p.evId && p.email && Number.isFinite(p.at) && Date.now() >= p.at && Date.now() - p.at < 3 * 3600e3) all.push(p);
+      } catch (e) {}
+    });
+    all.sort(function (a, b) { return b.at - a.at; });
+    return all[0] || null;
+  }
+  function mForget(p) {
+    ["sessionStorage", "localStorage"].forEach(function (name) { try {
+      var st = window[name]; var saved = JSON.parse(st.getItem("tk225:m") || "null");
+      if (saved && saved.at === p.at && saved.no === p.no) st.removeItem("tk225:m");
+    } catch (e) {} });
+  }
   function mAwait() {
-    var p = mPending(); if (!p) return;
-    var done = function (ok) {
-      try { sessionStorage.removeItem("tk225:m"); } catch (e) {}
-      var ev = buyEvent(p.evId) || {};
-      sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Birthday Merch</div><h3>' + (ok ? "周邊訂單成立" : "付款已送出") + '</h3><div class="tk-hint">' + esc(p.label || MLBL[p.code] || "") + '・' +
-        (p.mode === "ship" ? "活動後寄出，寄出時會寄追蹤號碼給你" : esc(md(ev.startAt)) + (mV2(p.evId) ? " 現場報訂購姓名＋電話領取" : " 憑票現場領取")) + '<br>確認信會寄到 ' + esc(maskEmail(p.email)) + (ok ? "" : "<br>通常一兩分鐘內寄到；沒收到請來信 heartbeats0693@gmail.com") + '</div></div><button class="tk-btn p" data-sact="close">好</button>');
-      S.layers.forEach(renderLayer); render();
-    };
-    if (!loggedIn()) return done(false);   // 海外粉絲多半沒登入：不等，直接告知確認信
-    var tries = 0;
-    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Payment received</div><h3>付款成功，訂單整理中…</h3><div class="tk-hint">通常幾秒內就好。</div></div>');
-    (function poll() {
-      ensureSession().then(function () { return loadMine(true); }).then(function () {
-        var got = S.morders.some(function (o) { return o.eventId === p.evId && Date.parse(o.paidAt || 0) >= p.at - 120e3; });
-        if (got) return done(true);
-        if (++tries >= 8) return done(false);
-        setTimeout(poll, 1800);
-      });
-    })();
+    var p = mPending(); if (!p) return mRecover();
+    var tries = 0, confirmed = false, timer;
+    sheet('<div class="tk-big tkm-flow"><div class="tk-spin"></div><h3>正在確認付款…</h3></div>');
+    var revision = sheetRevision;
+    function live() { var current = mPending(); return sheetRevision === revision && current && current.at === p.at && current.no === p.no; }
+    function slow() { if (!live()) return; sheet('<div class="tk-big tkm-flow"><h3>' + (confirmed ? '付款已確認，訂單處理中' : '付款狀態確認中') + '</h3><div class="tk-hint">若已完成付款，請勿重複購買。可稍後重新確認或查看訂單。</div></div><button class="tk-btn p" data-sact="m-recheck">重新確認</button><button class="tk-btn g" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>'); }
+    function paid() {
+      if (!live()) return;
+      mForget(p);
+      var art = "";
+      try { var img = new URL(p.img || "", location.href); if (p.img && (img.origin === location.origin || img.protocol === "https:")) art = '<img class="tkm-confirm-art" src="' + esc(img.href) + '" alt="" />'; } catch (e) {}
+      if (!document.getElementById("tkm-paid-motion")) { var st = document.createElement("style"); st.id = "tkm-paid-motion"; st.textContent = '@keyframes tkmPaidRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}.tkm-paid{animation:tkmPaidRise .6s ease-out both}.tkm-paid .tk-hint{font-size:18px;line-height:1.6}@media(prefers-reduced-motion:reduce){.tkm-paid{animation:none}}'; document.head.appendChild(st); }
+      sheet('<div class="tk-big tkm-flow tkm-paid"><div class="ic ok">✓</div><div class="tk-eyebrow">Birthday Merch</div>' + art + '<h3>訂單已成立</h3><div class="tk-hint">' + esc(p.label || MLBL[p.code] || "") + '</div></div><button class="tk-btn p" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">完成</button>');
+    }
+    if (C.demo || !p.no) return slow();
+    function later() { if (!live()) return; if (++tries >= 8) return slow(); setTimeout(poll, 1800); }
+    function poll() {
+      if (!live()) return;
+      var settled = false;
+      timer = setTimeout(function () { if (settled) return; settled = true; slow(); }, 12000);
+      api("/ticket/order", { no: p.no, email: p.email }).then(function (j) {
+        if (settled) return; settled = true; clearTimeout(timer);
+        if (!live()) return;
+        if (j && j.ok && j.order && j.order.paid && j.order.ticket === "none" && j.order.eventId === p.evId) {
+          confirmed = true;
+          if (j.order.merch === "recorded") return paid();
+          if (j.order.merch === "failed") return sheet('<div class="tk-big tkm-flow"><h3>付款已確認，訂單需協助</h3><div class="tk-hint">請勿再次付款。請聯絡客服核對這筆訂單。</div></div><a class="tk-btn p" href="mailto:heartbeats0693@gmail.com">聯絡客服</a><button class="tk-btn g" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>');
+        }
+        later();
+      }).catch(function () { if (settled) return; settled = true; clearTimeout(timer); later(); });
+    }
+    poll();
+  }
+  function mRecover() {
+    sheet('<div class="tk-big tkm-flow"><h3>查看周邊訂單</h3><div class="tk-hint">使用購買時的 Email 查看訂單；若已付款，請勿重複購買。</div></div><button class="tk-btn p" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>');
   }
   /* ---- 購票須知：周邊與海外寄送 ---- */
   function mTermsHTML(ev) {
@@ -2601,6 +2662,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       (mi.m.shipOn ? '<div class="pt">海外寄送</div><ul>' + li('可寄送日本、韓國、港澳、中國大陸、東南亞、歐美、澳紐等 37 個國家／地區，運費依地區計算。') +
         li('採中華郵政 e 小包，活動後陸續寄出並提供追蹤號碼。') + li('寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄。') + li('關稅與進口稅由收件人負擔。') + '</ul>' : '');
   }
+  CSS += '.tk-layer:has([data-merch-wallet]) .tk-empty,.tk-layer:has([data-merch-wallet]) .tk-login-hint{font-size:16px;line-height:1.6}.tk-layer:has([data-merch-wallet]) .tk-login-sum{font-size:18px;line-height:1.5}.tk-layer:has([data-merch-wallet]) .tk-login-sum b{display:block;font-size:16px}.tk-layer:has([data-merch-wallet]) .tk-btn{font-size:18px;min-height:52px}';
+  CSS += '.tk-box:has(.tkm-flow) .tk-btn{font-size:18px;min-height:52px}.tkm-flow h3{font-size:26px;line-height:1.4}.tkm-flow .tk-hint{font-size:18px;line-height:1.6}.tkm-confirm-art{display:block;width:140px;max-width:55%;aspect-ratio:1;object-fit:cover;margin:16px auto;border-radius:14px}.tkm-paid .ic{display:none}';
   /* ---- demo（?tkdemo=1；加 &tkppt=1 看 PPT 版單一票價） ---- */
   function dT() {   // demo 預先擁有的票：tkppt=1 時跟著 PPT 版變入場票
     return /[?&]tkppt=1/.test(location.search)
@@ -2767,10 +2830,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function sheetAct2(a, el) {
     if (a === "paid-yes") { var pg = S.paying; S.paying = null; closeSheet(); if (pg) awaitPurchase(pg.evId, pg.kind); return; }
     if (a === "paid-no") { S.paying = null; try { localStorage.removeItem("tk:paying"); } catch (e) {} closeSheet(); return; }
+    if (a === "m-recheck") return mAwait();
     if (a === "m-t" || a === "m-mode" || a === "m-pay" || a === "m-mq") return mSheetAct(a, el);
     if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }
     if (a === "showmail") { toast(S.email); return; }
     if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
+    if (a === "m-orders") { closeSheet(); openLayer("wallet", { merch: true }); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
     if (a === "add-open") { closeSheet(); setTimeout(function () { addSheet(); }, 220); return; }
     if (a === "refresh") { closeSheet(); loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); toast("票券已更新"); }); return; }
@@ -2818,7 +2883,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(function () { render(); }); });
     /* B354T：從綠界回到 App（主畫面 App 的綠界頁是另一層，關掉後網址沒有 ?tkbought）→ 問一次付款完成了沒 */
     function resumePaying() {
-      if (/[?&](tkbought|tkphoto)=/.test(BOOT_QS) || S.paying) return;
+      if (/[?&](tkbought|tkphoto|tkmerch)=/.test(BOOT_QS) || S.paying) return;
+      var merchPending = mPending();
+      if (merchPending && merchPending.no) {
+        if (S.merchResumed === merchPending.no || (sheetEl && sheetEl.classList.contains("show"))) return;
+        S.merchResumed = merchPending.no; mAwait(); return;
+      }
       var pg = null; try { pg = JSON.parse(localStorage.getItem("tk:paying") || "null"); } catch (e) {}
       if (!pg || !pg.evId) return;
       if (Date.now() - (pg.t || 0) > 30 * 60e3) { try { localStorage.removeItem("tk:paying"); } catch (e) {} return; }
@@ -2839,11 +2909,19 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       if (unlockCreds() || lsGet(K.sess)) refresh(false);
       return;
     }
+    var mreturn = /[?&]tkmerch=([a-z0-9-]+)/.exec(location.search);
+    if (mreturn) {
+      try { var cleanUrl = new URL(location.href); cleanUrl.searchParams.delete("tkmerch"); history.replaceState(null, "", cleanUrl.pathname + cleanUrl.search + cleanUrl.hash); } catch (e) {}
+      var mnav = $(C.merchNavSel); if (mnav) mnav.click();
+      var pendingMerch = mPending();
+      if (pendingMerch && pendingMerch.evId === mreturn[1]) mAwait(); else mRecover();
+      return;
+    }
     var mbuy = /[?&]tkbought=([a-z0-9-]+)/.exec(location.search), mpho = /[?&]tkphoto=([a-z0-9-]+)/.exec(location.search);
     if (mbuy || mpho) {
       try { history.replaceState(null, "", location.pathname + (C.demo ? "?tkdemo=1" : "")); } catch (e) {}
       var nb2 = $(C.merchNavSel); if (nb2) setTimeout(function () { nb2.click(); }, 300);
-      if (mbuy && mPending()) { ensureSession().then(function () { render(); setTimeout(mAwait, 500); }); return; }
+      if (mbuy && mPending() && mPending().evId === mbuy[1]) { ensureSession().then(function () { render(); setTimeout(mAwait, 500); }); return; }
       var pe = (mbuy ? mbuy[1] : mpho[1]), pk = mbuy ? "meet" : "pp";
       ensureSession().then(function () { render(); setTimeout(function () { awaitPurchase(pe, pk); }, 500); });
       return;
