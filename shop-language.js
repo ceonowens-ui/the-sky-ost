@@ -5,6 +5,10 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B360T：SHOP 第三區「我的票」、付款完直接到票 */
+ '全部':'All','這個帳號還沒有票或周邊訂單。':'No tickets or merch orders on this account yet.','已經買過？用購買時的 Email 找回你的票和周邊訂單。':'Already bought? Use your purchase email to find your tickets and merch orders.',
+ '用 Email 找回':'Find with email','打開我的票':'Open my tickets','點一下放大 QR':'Tap to enlarge the QR','入場 QR':'Entry QR','準備中':'Preparing',
+ '入場 QR 就在下面，也收進「我的票」了':'Your entry QR is below and saved in My tickets.','通常幾秒內就會出現。':'It usually appears within a few seconds.','活動當天現場領取':'Pick up at the event',
  /* B359T：流程簡化（SHOP 直接進結帳、成功頁確認中、我的票分頁、測試重設） */
  '測試版・不連正式票務':'Test build · not live ticketing','重新測試':'Reset test',
  '活動資訊與入場規則':'Event info & entry rules','回到 SHOP':'Back to SHOP','查看我的票 →':'View my tickets →',
