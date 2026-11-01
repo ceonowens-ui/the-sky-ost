@@ -72,9 +72,9 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
   <aside class="side" id="side">
     <div class="mbar"><b>SHOP Tuner</b><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
     <div class="mtabs" id="mtabs"></div>
-    <h1>CHANCE SHOP Tuner <span style="font-size:11px;color:var(--mut);font-weight:400">B370T</span></h1>
+    <h1>CHANCE SHOP Tuner <span style="font-size:11px;color:var(--mut);font-weight:400">B372T</span></h1>
     <p class="note">預設值＝目前畫面（打開頁面時自動量）。拖滑桿即時預覽，只改這個預覽，不會改到線上。調好按「複製設定」貼給 Claude。</p>
-    <div class="note" style="color:#e8cf9e">看不到下面的「連 iPhone」或版號不是 B370T：按 Cmd＋Shift＋R 強制重新整理（瀏覽器可能還在用舊版）。</div>
+    <div class="note" style="color:#e8cf9e">看不到下面的「連 iPhone」或版號不是 B372T：按 Cmd＋Shift＋R 強制重新整理（瀏覽器可能還在用舊版）。</div>
     <div class="warn" id="warn">讀不到 App 內容：Tuner 要和 test.html 放在同一個網站（chance1228.com/shop-tuner.html），直接開下載的檔案不能用。</div>
     <div class="row devRow" style="grid-template-columns:108px 1fr"><label>機型</label><select id="dev"></select></div>
     <div class="grp" data-g="nav">
@@ -171,7 +171,7 @@ var GROUPS=[
  ]},
  {key:'g6',tab:'顏色',title:'顏色（只影響 SHOP 和票務頁）',items:[
   {k:'gold',label:'金色亮度',type:'zoom',sel:'',min:70,max:130,step:1,fb:100,u:'%'},
-  {k:'bgl',label:'底色深淺',type:'zoom',sel:'',min:0,max:30,step:1,fb:0,u:'%'}
+  {k:'bgl',label:'SHOP 底色亮度',type:'zoom',sel:'',min:0,max:30,step:1,fb:0,u:'%'}
  ]}
 ];
 var S={}, DEF={}, MEAS={}, PENDING=null;
@@ -215,7 +215,7 @@ function css(){
   each(function(it){
     if(S[it.k]===DEF[it.k]) return;
     if(it.k==='gold'){ out.push('.sv3, .tk-layer{filter:none;} .sv3 .sv3-go.on, .sv3 .sv3-bdm-it em, .sv3 .sv3-bdm-it i, .sv3-mine-all, .tk-layer .tkb-cta, .tk-layer .tk-h1{filter:brightness('+S.gold/100+') saturate('+S.gold/100+') !important;}'); return; }
-    if(it.k==='bgl'){ var a=S.bgl/100; out.push('.sv3, .tk-layer{background-color:rgba(255,255,255,'+(a*0.25).toFixed(3)+') !important; background-blend-mode:screen;}'); return; }
+    if(it.k==='bgl'){ var mix=function(c){ return Math.round(c+(255-c)*S.bgl/100*0.25); }; out.push('.sv3{background-color:rgb('+mix(11)+','+mix(9)+','+mix(13)+') !important;}'); return; }   /* B372T：只調亮 SHOP 主頁底色（#0B090D），不碰其他頁的底色 */
     if(it.type==='zoom'){ out.push(it.sel+'{zoom:'+S[it.k]/100+' !important;}'); return; }
     if(it.type==='css'){ out.push(it.cssf(S[it.k])); return; }
     if(it.type==='seg'){

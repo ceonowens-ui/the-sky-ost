@@ -289,4 +289,4 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="pass"] .tk-qrwrap2 canvas{width:192px !important;height:192px !important;}
 .tk-layer[data-layer="pass"] .tk-pass{border-radius:28px !important;}
 .sv3, .tk-layer{filter:none;} .sv3 .sv3-go.on, .sv3 .sv3-bdm-it em, .sv3 .sv3-bdm-it i, .sv3-mine-all, .tk-layer .tkb-cta, .tk-layer .tk-h1{filter:brightness(0.93) saturate(0.93) !important;}
-.sv3, .tk-layer{background-color:rgba(255,255,255,0.015) !important; background-blend-mode:screen;}
+.sv3{background-color:rgb(15,13,17) !important;}   /* B372T：「底色 6%」＝ SHOP 主頁底色 #0B090D 調亮一點；不再把疊在上面的頁面（卡包、信、結帳）變透明（B371T 的寫法讓下面的 SHOP 透上來） */
