@@ -276,3 +276,17 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-hold b { color:#fff; }
 .tk-layer[data-layer="checkout"] .ticket-paper .tk-hold { background:#fff6e2; color:#5a4320; border-color:#d8bc80; }
 .tk-layer[data-layer="checkout"] .ticket-paper .tk-hold b { color:#7a1f1f; }
+/* B371T：CÉON 11/01 用 SHOP Tuner 調好的設定（iPhone 15/16 393×852 預覽，照 Tuner 輸出原樣套用）
+   SHOP：內容往上移 160px 疊到封面；活動卡 89%、購買周邊 78%、我的票 87%；周邊卡片間距 23px、圓角 28px、價格 21.5px
+   票券頁：QR 192px、票卡圓角 28px；顏色：金色亮度 93%、底色 6% */
+.sv3 .sv3-cover{margin-bottom:-160px !important;} .sv3 .sv3-sec{position:relative;z-index:3;}
+#sv3-tickets{zoom:0.89 !important;}
+#sv3-merch{zoom:0.78 !important;}
+#sv3-mine{zoom:0.87 !important;}
+#sv3-merch .sv3-bdm-grid{gap:23px !important;}
+#sv3-merch .sv3-bdm-it{border-radius:28px !important;}
+#sv3-merch .sv3-bdm-it em{font-size:21.5px !important;}
+.tk-layer[data-layer="pass"] .tk-qrwrap2 canvas{width:192px !important;height:192px !important;}
+.tk-layer[data-layer="pass"] .tk-pass{border-radius:28px !important;}
+.sv3, .tk-layer{filter:none;} .sv3 .sv3-go.on, .sv3 .sv3-bdm-it em, .sv3 .sv3-bdm-it i, .sv3-mine-all, .tk-layer .tkb-cta, .tk-layer .tk-h1{filter:brightness(0.93) saturate(0.93) !important;}
+.sv3, .tk-layer{background-color:rgba(255,255,255,0.015) !important; background-blend-mode:screen;}
