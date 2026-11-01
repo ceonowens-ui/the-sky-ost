@@ -1916,7 +1916,7 @@ function coverClockKey() {
   function lettersHTML() {
     return '<div class="dcl"><iframe class="dcl-f" src="' + esc(LETTERS_CFG.src) + '" title="寫給 Chance 的信" allow="clipboard-write"></iframe></div>';
   }
-  window.addEventListener("message", function (e) {   /* 信的流程按「返回」→ 回到周邊列表 */
+  window.addEventListener("message", function (e) {   /* 信的流程按「返回」→ 回到上一頁（從 SHOP 進來就回 SHOP，從周邊列表進來就回列表） */
     if (e.origin !== location.origin || !e.data || e.data.dc !== "close") return;
     if (S.layers[S.layers.length - 1] === "dcl") back();
   });
@@ -2947,7 +2947,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "mbuy") { e.stopPropagation(); return merchBuy(b.getAttribute("data-key")); }
     if (act === "shop-buy") { e.stopPropagation(); return cxOpen(); }
     if (act === "cxl-pack") { e.stopPropagation(); return cxOpenPack(); }
-    if (act === "shop-letters") { e.stopPropagation(); cxLoad(); openLayer("cxl"); setTimeout(function () { openLayer("dcl"); }, 60); return; }
+    if (act === "shop-letters") { e.stopPropagation(); return openLayer("dcl"); }   // B374T：SHOP 點信 → 直接開信；返回回到 SHOP（不再先墊一層周邊列表）
     if (act === "cxl-letters") { e.stopPropagation(); return openLayer("dcl"); }
     if (act === "cxd-go") { e.stopPropagation(); if (!cxCanBuy(cxItem())) return; return openLayer("cxc"); }
     if (act === "pick-tier") { e.stopPropagation(); return tierSheet(b.getAttribute("data-ev")); } if(act==="buytier"){ e.stopPropagation(); var _ev=b.getAttribute("data-ev"), _tier=b.getAttribute("data-tier"); S.tierEv=_ev; buyConfirm(_ev,"meet",_tier); return; }
