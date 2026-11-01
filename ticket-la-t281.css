@@ -280,13 +280,57 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
    SHOP：內容往上移 160px 疊到封面；活動卡 89%、購買周邊 78%、我的票 87%；周邊卡片間距 23px、圓角 28px、價格 21.5px
    票券頁：QR 192px、票卡圓角 28px；顏色：金色亮度 93%、底色 6% */
 .sv3 .sv3-cover{margin-bottom:-160px !important;} .sv3 .sv3-sec{position:relative;z-index:3;}
-#sv3-tickets{zoom:0.89 !important;}
-#sv3-merch{zoom:0.78 !important;}
-#sv3-mine{zoom:0.87 !important;}
 #sv3-merch .sv3-bdm-grid{gap:23px !important;}
 #sv3-merch .sv3-bdm-it{border-radius:28px !important;}
-#sv3-merch .sv3-bdm-it em{font-size:21.5px !important;}
 .tk-layer[data-layer="pass"] .tk-qrwrap2 canvas{width:192px !important;height:192px !important;}
 .tk-layer[data-layer="pass"] .tk-pass{border-radius:28px !important;}
 .sv3, .tk-layer{filter:none;} .sv3 .sv3-go.on, .sv3 .sv3-bdm-it em, .sv3 .sv3-bdm-it i, .sv3-mine-all, .tk-layer .tkb-cta, .tk-layer .tk-h1{filter:brightness(0.93) saturate(0.93) !important;}
 .sv3{background-color:rgb(15,13,17) !important;}   /* B372T：「底色 6%」＝ SHOP 主頁底色 #0B090D 調亮一點；不再把疊在上面的頁面（卡包、信、結帳）變透明（B371T 的寫法讓下面的 SHOP 透上來） */
+/* B373T：字級統一成 iPhone 系統 App 的標準字級（大標 34／商品頁標題 22／品名・價格・按鈕 17 粗／內文 17／次要 15／條款 13／最小 12），
+   整區不再用縮放（B371T 的 89%／78%／87% 會把字一起縮到 8–12px），拿掉多餘的小標和說明。CÉON 11/01 同意 */
+/* SHOP 主頁 */
+.sv3 .sv3-sec-num { font-size:12px !important; }
+.sv3 .sv3-block-h { font-size:34px !important; line-height:1.2 !important; }
+#sv3-tickets .sv3-block-m { font-size:17px !important; line-height:1.55 !important; }
+#sv3-tickets .sv3-go { font-size:17px !important; font-weight:600 !important; }
+#sv3-merch .sv3-bdm-sub { font-size:15px !important; margin-bottom:12px !important; }
+#sv3-merch .sv3-bdm-it b { font-size:17px !important; font-weight:600 !important; line-height:1.35 !important; }
+#sv3-merch .sv3-bdm-it em { font-size:17px !important; font-weight:600 !important; }
+#sv3-merch .sv3-bdm-it span, #sv3-merch .sv3-bdm-it small { font-size:15px !important; line-height:1.45 !important; }
+#sv3-merch .sv3-bdm-it i, #sv3-merch .sv3-bdm-note { display:none !important; }   /* 「選這個」（整張卡片本來就能點）、示意圖說明（移到商品頁和購買須知） */
+#sv3-mine .sv3-mine-empty, #sv3-mine .sv3-mine-btn, #sv3-mine .sv3-mine-all { font-size:17px !important; }
+#sv3-mine .sv3-mine-tk .tx b, #sv3-mine .sv3-mine-m .tx b { font-size:17px !important; font-weight:600 !important; }
+#sv3-mine .sv3-mine-tk .tx i, #sv3-mine .sv3-mine-tk .tx em, #sv3-mine .sv3-mine-m .tx span { font-size:15px !important; }
+#sv3-mine .sv3-mine-tk .tx span, #sv3-mine .sv3-mine-tk .tx small, #sv3-mine .sv3-mine-m .tx em { font-size:13px !important; }
+.sv3 .sv3-higher, .sv3 .sv3-sig { display:none !important; }   /* 封面右下裝飾字和簽名：內容往上移後會疊到活動卡 */
+/* 生日周邊視窗 */
+.tkm-sh .tk-eyebrow { display:none !important; }   /* Birthday Merch */
+.tkm-sh > h3 { font-size:34px !important; line-height:1.2 !important; }
+.tkm-sh > .tk-hint { font-size:15px !important; }
+.tkm-sh .tkm-row .tx b, .tkm-sh .tkm-row em { font-size:17px !important; font-weight:600 !important; }
+.tkm-sh .tkm-row .tx small, .tkm-sh .tkm-qty small, .tkm-sh .tkb-mail span, .tkm-sh .tkm-seg button small { font-size:15px !important; }
+.tkm-sh .tkb-sec, .tkm-sh .tkm-qty > span, .tkm-sh .tkm-seg button, .tkm-sh .tkm-sum span, .tkm-sh .tkm-sum b, .tkm-sh .tk-in { font-size:17px !important; }
+.tkm-sh .tkb-sec, .tkm-sh .tkb-total span { font-weight:600 !important; }
+.tkm-sh .tkb-total span { font-size:17px !important; }
+.tkm-sh .tkb-total b { font-size:28px !important; }
+.tkm-sh .tkb-fine { font-size:13px !important; line-height:1.6 !important; }
+.tkm-sh .tk-hold { font-size:15px !important; }
+.tkm-sh .tk-btn { font-size:17px !important; font-weight:600 !important; }
+/* 卡包商品頁 */
+.tk-layer .cx9-d .cx9-eb { display:none !important; }   /* CHANCE COLLECTION / VOL.01 */
+.tk-layer .cx9-bar .cx9-t { font-size:17px !important; font-weight:600 !important; }
+.tk-layer .cx9-d .cx9-name { font-size:22px !important; line-height:1.3 !important; }
+.tk-layer .cx9-d .cx9-price { font-size:22px !important; }
+.tk-layer .cx9-d .cx9-price small, .tk-layer .cx9-ship li, .tk-layer .cx9-acc-b p { font-size:15px !important; }
+.tk-layer .cx9-d .cx9-sub, .tk-layer .cx9-acc > summary, .tk-layer .cx9-cta { font-size:17px !important; }
+.tk-layer .cx9-cta { font-weight:600 !important; }
+/* 周邊列表（信籤入口） */
+.tk-layer[data-layer="cxl"] .cx9-bar .cx9-t { visibility:hidden !important; }   /* 兩個「購買周邊」只留大標 */
+.tk-layer .cxl .cxl-h { font-size:34px !important; line-height:1.2 !important; }
+.tk-layer .cxl .cxl-s, .tk-layer .cxl .cxl-tag { display:none !important; }   /* 「CHANCE 官方周邊，數量有限。」「每月限量・數位」 */
+.tk-layer .cxl .cxl-nm, .tk-layer .cxl .cxl-pr, .tk-layer .cxl .cxl-go { font-size:17px !important; }
+.tk-layer .cxl .cxl-nm, .tk-layer .cxl .cxl-pr { font-weight:600 !important; }
+.tk-layer .cxl .cxl-mt, .tk-layer .cxl .cxl-pr small { font-size:15px !important; }
+.tk-layer .cxl .cxl-demo { font-size:13px !important; }
+.tk-layer .cxl .cxl-demo b { font-size:12px !important; }
+.tk-layer .cx9-ln { font-size:15px !important; }

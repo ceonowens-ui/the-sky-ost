@@ -1765,7 +1765,7 @@ function coverClockKey() {
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
     if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
-      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), it.perk || "", it.left > 0 ? "剩 " + it.left + " 件" : "", !(it.left > 0))); }); }
+      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), it.perk || "", it.left > 0 && it.left <= 10 ? "剩 " + it.left + " 件" : "", !(it.left > 0))); }); }   // B373T：剩 10 件以下才顯示件數
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
@@ -2494,7 +2494,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(evId, k), out = it.left <= 0, on = !!o["m" + k] && !own && !out;
       return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" ' + attr + '="' + act + '" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
         '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
-        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + '・' + (own ? "你已購買" : out ? "已售完" : "剩 " + esc(it.left) + " 件") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
+        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : it.left <= 10 ? "・剩 " + esc(it.left) + " 件" : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
     var h = row("b") + row("h"), r = mResolve(mi, mSel(o));
     if (mSel(o) === "bh" && r) h += r.code === "s"
@@ -2530,7 +2530,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B372T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B373T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
