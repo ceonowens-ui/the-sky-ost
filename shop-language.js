@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B381T：UX 迴圈第 1 回 */
+ '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B379T：沒付款回來 */
  '還沒收到付款':'Payment not received yet','這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。':'This order has not been paid and nothing was charged. To continue, tap “Pay again” to go back to checkout — your details are still there.','重新付款':'Pay again','不買了，回上一頁':'Never mind, go back','商品':'Item',
  /* B378T：UX 第二批 */

@@ -1356,13 +1356,18 @@ function coverClockKey() {
     if (S.walletMerch && S.morders.length) {
       var jm = S.justBoughtM; if (jm && Date.now() - jm.at < 90e3) {   // B378T：剛付完的周邊 → 購買成功橫幅（淡入上升），寫清楚下一步
         jm.shownAt = jm.shownAt || Date.now(); var jev = eventById(jm.evId) || buyEvent(jm.evId) || {};
-        h += '<div class="tk-bought tk-bought-m' + (Date.now() - jm.shownAt < 1500 ? ' anim' : '') + '"><div class="ck">✓</div><div><b>購買成功</b><span>' + esc(jm.label) + (jm.mode === "ship" ? '・活動後寄出，寄出會寄追蹤號碼給你' : '・' + esc(md(jev.startAt)) + ' 到周邊服務台報姓名和手機領取') + '</span><span>訂單已收進「我的票」，確認信稍後寄到</span></div></div>';
+        var enW = sxEN();   // B381T：橫幅分三行：買了什麼／日期＋地點＋要報什麼／已收進我的票
+        h += '<div class="tk-bought tk-bought-m' + (Date.now() - jm.shownAt < 1500 ? ' anim' : '') + '"><div class="ck">✓</div><div><b>購買成功</b><span>' + esc(jm.label) + (jm.qty > 1 ? ' ×' + esc(jm.qty) : '') + '</span>' +
+          (jm.mode === "ship" ? '<span class="tk-bought-next">' + (enW ? 'Ships after the event — the tracking number goes to your email' : '活動後寄出，追蹤號碼會寄到你的 Email') + '</span>'
+            : '<span class="tk-bought-next"><strong>' + esc(md(jev.startAt)) + '</strong>' + (enW ? 'Birthday party day · merch desk · give your name and phone' : '生日會當天・周邊服務台・報姓名和手機領取') + '</span>') +
+          '<span>訂單已收進「我的票」，確認信稍後寄到</span></div></div>';
       } else S.justBoughtM = null;
       h += S.morders.slice().sort(function (a, b) { return String(b.paidAt || "").localeCompare(String(a.paidAt || "")); }).map(function (o, idx) {
         var ev = eventById(o.eventId) || buyEvent(o.eventId) || {};
         var st = o.mode === "ship" ? (o.shipped ? "已寄出・追蹤 " + o.shipped.tracking : "活動後寄出") : "活動當天現場領取";
         var mi2 = mInfo(o.eventId), it2 = mi2 && mi2.m && mi2.m.items ? mi2.m.items[o.code] || mi2.m.items[String(o.code || "")[0]] : null;
-        return '<div class="tk-mrow' + (idx === 0 && jm ? ' new' : '') + '">' + (it2 && it2.img ? '<img class="tk-mrow-im" src="' + esc(asset(it2.img)) + '" alt="">' : '') + '<div class="tk-mrow-tx"><b>' + esc(mLbl(o.eventId, o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + '</b><span>' + esc(ev.name || "CHANCE") + '</span><span>' + esc(st) + '</span></div><em>✓ 已付款</em></div>';
+        var rp2 = mi2 ? mResolve(mi2, o.code) : null, amt2 = Number(o.amount || o.total) || (rp2 && o.mode !== "ship" ? rp2.price * (Number(o.qty) || 1) : 0);   // B381T：訂單卡寫金額（寄送含運費要後台給，沒有就不猜）
+        return '<div class="tk-mrow' + (idx === 0 && jm ? ' new' : '') + '">' + (it2 && it2.img ? '<img class="tk-mrow-im" src="' + esc(asset(it2.img)) + '" alt="">' : '') + '<div class="tk-mrow-tx"><b>' + esc(mLbl(o.eventId, o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + '</b><span>' + esc(ev.name || "CHANCE") + '</span><span>' + esc(st) + '</span></div><em>✓ 已付款' + (amt2 ? '<small>' + nt(amt2) + '</small>' : '') + '</em></div>';
       }).join("");
       return h;
     }
@@ -1777,7 +1782,7 @@ function coverClockKey() {
   function bdMerchHTML() {
     var card = function (act, attrs, img, name, price, note, left, off) {
       return '<button class="sv3-bdm-it" data-act="' + act + '"' + attrs + (off ? ' disabled' : '') + '>' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy">' : '') +
-        '<b>' + esc(name) + '</b>' + (price ? '<em>' + esc(price) + '</em>' : '') + (note ? '<span>' + esc(note) + '</span>' : '') + (left ? '<small>' + esc(left) + '</small>' : '') + '<i>' + (off ? "已售完" : "選這個") + '</i></button>';
+        '<b>' + esc(name) + '</b>' + (price ? '<em>' + esc(price) + '</em>' : '') + (note ? '<span>' + esc(note) + '</span>' : '') + (left ? (Array.isArray(left) ? '<small class="sv3-tags">' + left.map(function (t) { return '<u class="sv3-tag' + (t.cls ? ' ' + t.cls : '') + '">' + esc(t.t) + '</u>'; }).join('') + '</small>' : '<small>' + esc(left) + '</small>') : '') + '<i>' + (off ? "已售完" : "選這個") + '</i></button>';
     };
     var reg = [];
     cxLoad();   // 卡包資料（the-sky-shop）
@@ -1786,7 +1791,7 @@ function coverClockKey() {
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
     if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
-      var en2 = sxEN(), tg = [k === "h" ? (en2 ? "Recommended" : "推薦") : "", Number(it.cap) > 0 ? (en2 ? "Limited to " + it.cap : "限量 " + it.cap + " 組") : "", it.left > 0 && it.left <= 10 ? (en2 ? it.left + " left" : "剩 " + it.left) : ""].filter(Boolean).join(en2 ? " · " : "・");   // B377T：真的限量數字＋推薦
+      var en2 = sxEN(), tg = [k === "h" ? { t: en2 ? "Recommended" : "推薦", cls: "rec" } : null, Number(it.cap) > 0 ? { t: en2 ? "Limited to " + it.cap : "限量 " + it.cap + " 組" } : null, it.left > 0 && it.left <= 10 ? { t: en2 ? it.left + " left" : "剩 " + it.left, cls: "hot" } : null].filter(Boolean);   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤
       bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? "6 號小卡只隨組合" : (it.perk || ""), tg, !(it.left > 0))); }); }
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
@@ -1983,6 +1988,7 @@ function coverClockKey() {
       (cxPickOK() ? '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (si.tw ? "台灣免運" : "") + (si.over ? (si.tw ? "・" : "") + esc(si.over.replace("海外運費 ", "海外 ")) : "") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-cx="m-pick"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>12/27 生日會・免運</small></span></button></div>' : '') +
+      '<div class="cx9-total"><div><span>商品小計</span><b>' + cxNT(t.sub) + '</b></div><div><span>運費</span><b>' + (t.fee === null ? "—" : t.fee ? cxNT(t.fee) : "免運") + '</b></div><div class="tot"><span>合計</span><b>' + (t.total === null ? "—" : cxNT(t.total)) + '</b></div></div>' +   // B381T：合計卡搬到商品／取貨方式下方，跟周邊購買頁一致
       '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + '</h3><div class="cx9-form">' +
         (pick ? '' : cx9Row("country", "寄送地區", '<select data-cf="country"' + A("country") + '>' + opts + '</select>')) +
         cx9Row("name", pick ? "姓名" : "收件人姓名", '<input data-cf="name" autocomplete="name" maxlength="60" placeholder="' + (pick ? "現場核對用" : "請輸入收件人姓名") + '" value="' + esc(f.name) + '"' + A("name") + '>') +
@@ -1992,7 +1998,6 @@ function coverClockKey() {
         cx9Row("email", "Email", '<input data-cf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(f.email || "") + '"' + A("email") + '>') +
       '</div>' +
       '<p class="cx9-err" role="alert"' + (CX.err && !CX.bad ? '' : ' hidden') + '>' + esc(CX.err || "") + '</p>' +
-      '<div class="cx9-total"><div><span>商品小計</span><b>' + cxNT(t.sub) + '</b></div><div><span>運費</span><b>' + (t.fee === null ? "—" : t.fee ? cxNT(t.fee) : "免運") + '</b></div><div class="tot"><span>合計</span><b>' + (t.total === null ? "—" : cxNT(t.total)) + '</b></div></div>' +
       '<ul class="cx9-note"><li>' + (pick ? "12/27 CHANCE 生日會當天，到周邊服務台報上訂單編號與姓名領取（需本人到場）。" : tw ? "台灣：付款後 7 個工作天內寄出，寄出會再寄信給你追蹤號碼。" : "海外：以中華郵政國際 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li><li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
       '<div class="cx9-st" role="status"' + (CX.st ? '' : ' hidden') + '>' + (CX.st || "") + '</div>' +
       '<div class="cx9-foot"><button type="button" class="cx9-cta" data-cx="pay"' + (t.total === null || busy ? " disabled" : "") + '>' + esc(ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div>' +
@@ -2552,7 +2557,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B379T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B381T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2669,6 +2674,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!mi) return '<div class="cx9 cx9-c mx">' + cx9Bar("確認訂單") + '<p class="cx9-st">載入中…</p></div>';
     var hasT = loggedIn() && ticketsFor(o.evId).length > 0, v2 = mV2(o.evId), I = mi.m.items, busy = !!o.busy;
     if (o.mode === "pickup" && !hasT && !v2) o.mode = "ship";
+    if (o.mode === "ship" && !(o.ship || {}).country) { var cs0 = (mi.ship && mi.ship.countries) || []; o.ship = o.ship || {}; o.ship.country = cs0.some(function (x) { return x[0] === "TW"; }) ? "TW" : (cs0[0] ? cs0[0][0] : ""); }   // B381T：寄送預設台灣（跟卡包一致），運費和合計一進來就看得到
     var pick = o.mode === "pickup", r = mResolve(mi, mSel(o)), q = mQ(o.evId, o), mx = mQMax(o.evId, o), sh = o.ship, z = null, fee = pick ? 0 : null;
     if (!pick && sh.country) { var cc = mi.ship.countries.filter(function (x) { return x[0] === sh.country; })[0]; z = cc ? mi.ship.zones[cc[2]] : null; if (z) fee = Number(z[r ? r.code : "b"] || 0); }
     var sub = r ? r.price * q : 0, total = r && fee !== null ? sub + fee : null, day = md(ev.startAt), en = sxEN();
@@ -2678,7 +2684,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(o.evId, k), out = !(it.left > 0), on = solo ? !own && !out : !!o["m" + k] && !own && !out;
       if (solo && on && !o["m" + k]) o["m" + k] = true;
       // B377T：單選（圓點＝只能選一個）；標籤：推薦、限量 N 組、剩 N；組合寫清楚「6 號小卡只隨組合」
-      var tags = (k === "h" ? '<i class="mx-tag rec">推薦</i>' : '') + (Number(it.cap) > 0 ? '<i class="mx-tag">' + (en ? "Limited to " + esc(it.cap) : "限量 " + esc(it.cap) + " 組") + '</i>' : '') + (!out && !own && it.left <= 10 ? '<i class="mx-tag hot">' + (en ? esc(it.left) + " left" : "剩 " + esc(it.left) + " 組") + '</i>' : '');
+      var tags = (k === "h" ? '<i class="mx-tag rec">推薦</i>' : '') + (Number(it.cap) > 0 ? '<i class="mx-tag">' + (en ? "Limited to " + esc(it.cap) : "限量 " + esc(it.cap) + " 組") + '</i>' : '') + (!out && !own && it.left <= 10 ? '<i class="mx-tag hot">' + (en ? esc(it.left) + " left" : "剩 " + esc(it.left) + " 組") + '</i>' : '') +
+        (mCut(mi) ? '<i class="mx-tag due">' + (en ? "Pre-order until " + esc(mCut(mi)) : "預購至 " + esc(mCut(mi))) + '</i>' : '');   // B381T：期限也放在商品卡上（原本只在小標旁）
       var sub = own ? "你已購買" : out ? "已售完" : k === "h" ? "A3 海報組 ＋ 6 號小卡（小卡只隨組合）" : esc(it.perk || "");
       if (solo) return '<div class="cx9-sum1 mx-it solo' + (on ? " on" : "") + '" data-k="' + k + '">' + (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></div>';
       return '<button type="button" role="radio" aria-checked="' + on + '" class="cx9-sum1 mx-it' + (on ? " on" : "") + '" data-mx="item" data-k="' + k + '"' + (own || out || busy ? " disabled" : "") + '><i aria-hidden="true"></i>' +
@@ -2689,16 +2696,18 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var ctaTxt = busy ? "處理中…" : !r ? "請先選商品" : "前往付款 · " + (total === null ? nt(sub) : nt(total));
     var cut = mCut(mi);
     var h = '<div class="cx9 cx9-c mx">' + cx9Bar("生日限定周邊") +   // B377T：這頁還在選商品，不叫「確認訂單」
-      '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + (cut ? '<small>預購至 ' + esc(cut) + '</small>' : '') + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
+      '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
       (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
       (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>每筆最多 ' + MQ_MAX + ' 組</small></div>' : '') +
       '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + (hasT || v2 ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
+      (pick ? '<div class="cx9-total"><div class="tot"><span>合計<small>現場領取・免運</small></span><b>' + (r ? nt(sub) : "—") + '</b></div></div>'   // B377T：現場領取永遠免運，一行就好；B381T：合計卡搬到取貨方式正下方
+        : '<div class="cx9-total"><div><span>商品小計</span><b>' + (r ? nt(sub) : "—") + '</b></div><div><span>運費</span><b>' + (fee === null ? "選地區後顯示" : nt(fee)) + '</b></div><div class="tot"><span>合計</span><b>' + (total === null ? "—" : nt(total)) + '</b></div></div>') +
       '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + (o.pre ? '<small>已帶入購票時的資料，可以改</small>' : '') + '</h3><div class="cx9-form">';
     if (pick && v2) h += cx9Row("pk-name", "姓名", '<input data-mf="pk-name" autocomplete="name" maxlength="60" placeholder="現場核對用" value="' + esc((o.pk || {}).name || "") + '"' + A("pk-name") + '>') +
       cx9Row("pk-phone", "手機", '<input data-mf="pk-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="請輸入手機號碼" value="' + esc((o.pk || {}).phone || "") + '"' + A("pk-phone") + '>');
-    if (!pick) h += cx9Row("country", "寄送地區", '<select data-mf="country"' + A("country") + '><option value="">請選擇</option>' + opts + '</select>') +
+    if (!pick) h += cx9Row("country", "寄送地區", '<select data-mf="country"' + A("country") + '>' + opts + '</select>') +
       cx9Row("name", "收件人姓名", '<input data-mf="name" autocomplete="name" maxlength="60" placeholder="請輸入收件人姓名" value="' + esc(sh.name || "") + '"' + A("name") + '>') +
       cx9Row("phone", "手機", '<input data-mf="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="' + (sh.country && !tw ? "含國碼，例如 +852 91234567" : "請輸入手機號碼") + '" value="' + esc(sh.phone || "") + '"' + A("phone") + '>') +
       cx9Row("postal", "郵遞區號", '<input data-mf="postal" autocomplete="postal-code" maxlength="16" placeholder="' + (noPostal ? "選填" : "必填") + '" value="' + esc(sh.postal || "") + '"' + A("postal") + '>') +
@@ -2707,12 +2716,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       : cx9Row("email", "Email", '<input data-mf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(o.email || "") + '"' + A("email") + '>');
     h += '</div>' +
       '<p class="cx9-err" role="alert"' + (o.err && !o.bad ? '' : ' hidden') + '>' + esc(o.err || "") + '</p>' +
-      (pick ? '<div class="cx9-total"><div class="tot"><span>合計<small>現場領取・免運</small></span><b>' + (r ? nt(sub) : "—") + '</b></div></div>'   // B377T：現場領取永遠免運，一行就好
-        : '<div class="cx9-total"><div><span>商品小計</span><b>' + (r ? nt(sub) : "—") + '</b></div><div><span>運費</span><b>' + (fee === null ? "選地區後顯示" : nt(fee)) + '</b></div><div class="tot"><span>合計</span><b>' + (total === null ? "—" : nt(total)) + '</b></div></div>') +
       '<ul class="cx9-note"><li>' + (pick ? (en ? (v2 ? "On " + esc(day) + ", pick up at the merch desk with your name and phone number." : "Pick up with your ticket on " + esc(day) + ".") : v2 ? esc(day) + " 生日會當天，到周邊服務台報上姓名和手機領取。" : esc(day) + " 生日會當天憑票現場領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
-        '<li>按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</li><li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
+        '<li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p></div></details>' +
-      '<div class="cx9-foot"><button type="button" class="cx9-cta" data-mx="pay"' + (!r || busy ? " disabled" : "") + '>' + esc(ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div></div>';
+      '<div class="cx9-foot"><div class="cx9-hold">按「前往付款」後名額保留 3 分鐘，逾時讓給下一位</div><button type="button" class="cx9-cta" data-mx="pay"' + (!r || busy ? " disabled" : "") + '>' + esc(ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div></div>';
     return h;
   }
   function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop; el.innerHTML = mxHTML(); el.scrollTop = sc; }
@@ -2798,7 +2805,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     api("/ticket/merch/draft", body).then(function (j) {
       if (!currentAttempt()) return;
       if (!j || !j.ok) return reset((j && j.message) || "無法建立訂單，請稍後再試");
-      try { mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now() }); } catch (e) {}
+      try { var rsv = mResolve(mInfo(o.evId), j.code || code), qn = body.qty || 1, fee0 = 0;   // B381T：記下數量和金額，沒付款回來的窗要寫
+        if (o.mode === "ship" && sh.country && rsv) { var mi0 = mInfo(o.evId), cc0 = mi0.ship.countries.filter(function (x) { return x[0] === sh.country; })[0], z0 = cc0 ? mi0.ship.zones[cc0[2]] : null; if (z0) fee0 = Number(z0[rsv.code] || 0); }
+        mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now(), qty: qn, amt: Number(j.amount || j.total) || (rsv ? rsv.price * qn + fee0 : 0) }); } catch (e) {}
       if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, ship); o.busy = false; setTimeout(mAwait, 300); return; }   // B378T：示範也走同一條「落在訂單卡」的路
       var back2 = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
       fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back2, name: "" }) })
@@ -2849,7 +2858,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       try { var img = new URL(p.img || "", location.href); if (p.img && (img.origin === location.origin || img.protocol === "https:")) art = '<img class="tkm-confirm-art" src="' + esc(img.href) + '" alt="" />'; } catch (e) {}
       if (!document.getElementById("tkm-paid-motion")) { var st = document.createElement("style"); st.id = "tkm-paid-motion"; st.textContent = '@keyframes tkmPaidRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}.tkm-paid{animation:tkmPaidRise .6s ease-out both}.tkm-paid .tk-hint{font-size:18px;line-height:1.6}@media(prefers-reduced-motion:reduce){.tkm-paid{animation:none}}'; document.head.appendChild(st); }
       // B378T：跟票一樣，付完直接落在「我的票 → 周邊訂單」，上方顯示「購買成功」動畫和下一步要做什麼；不再用小窗
-      hap([20, 40, 20]); S.justBoughtM = { no: p.no || "", at: Date.now(), label: p.label || MLBL[p.code] || "", mode: p.mode || "pickup", evId: p.evId, img: art ? p.img : "" };
+      hap([20, 40, 20]); S.justBoughtM = { no: p.no || "", at: Date.now(), label: p.label || MLBL[p.code] || "", mode: p.mode || "pickup", evId: p.evId, img: art ? p.img : "", qty: Number(p.qty) || 1 };
       closeSheet();
       var go = function () { openLayer("wallet", { merch: true }); };
       var land = function () { var nL = S.layers.length; if (nL) { closeAll(); try { history.go(-nL); } catch (e) {} setTimeout(go, 320); } else go(); };   // 把購買頁的歷史也退掉，之後按一次返回就回 SHOP
@@ -2871,7 +2880,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
           if (j.order.merch === "failed" && j.order.late) return sheet('<div class="tk-big tkm-flow"><h3>付款超過 3 分鐘，商品已讓給下一位</h3><div class="tk-hint">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</div></div><button class="tk-btn g" data-sact="close">關閉</button>');   // B363T
           if (j.order.merch === "failed") return sheet('<div class="tk-big tkm-flow"><h3>付款已確認，訂單需協助</h3><div class="tk-hint">請勿再次付款。請聯絡客服核對這筆訂單。</div></div><a class="tk-btn p" href="mailto:heartbeats0693@gmail.com">聯絡客服</a><button class="tk-btn g" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>');
         }
-        if (j && j.ok && j.order && j.order.paid === false) return unpaidSheet({ kind: "merch", evId: p.evId, startMs: p.at || Date.now(), no: p.no, email: p.email });   // B379T：沒付就直說
+        if (j && j.ok && j.order && j.order.paid === false) return unpaidSheet({ kind: "merch", evId: p.evId, startMs: p.at || Date.now(), no: p.no, email: p.email, label: p.label, code: p.code, qty: p.qty, amt: p.amt });   // B379T：沒付就直說
         later();
       }).catch(function () { if (settled) return; settled = true; clearTimeout(timer); later(); });
     }
@@ -2879,10 +2888,18 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   /* B379T（CÉON 11/02）：去了綠界沒付就回來 → 不停在「確認中」。照實說「還沒收到付款」＋保留倒數，
      「重新付款」回到結帳頁（資料都還在，再按一次前往付款；綠界不接受同一個訂單編號再付，所以會是新的一筆），「不買了」把名額讓出、回上一頁 */
+  function unpaidLine(o) {   // B381T：這張窗要寫清楚是哪一筆、幾件、多少錢（不放 email 等個資）
+    var en = sxEN(), qty = Math.max(1, Number(o.qty) || 1), amt = Number(o.amt) || 0, name = "", ev = buyEvent(o.evId) || eventById(o.evId) || {};
+    if (o.kind === "merch") { var mi = mInfo(o.evId), rr = mi && o.code ? mResolve(mi, o.code) : null; name = o.label || (rr && rr.label) || (o.code ? mLbl(o.evId, o.code) : ""); if (!amt && rr) amt = Number(rr.price || 0) * qty; }
+    else { var tier = (ev.tiers || []).filter(function (t) { return t.key === o.tier; })[0] || (ev.tiers || [])[0]; name = (ev.name || "CHANCE") + " " + (tier ? tier.name : (en ? "ticket" : "門票")); if (!amt && tier) amt = Number(tier.price || 0) * qty; }
+    if (!name) return "";
+    return '<div class="tk-unpaid-ord"><b>' + esc(name) + ' × ' + qty + '</b>' + (amt ? '<span>' + nt(amt) + '</span>' : '') + '</div>';
+  }
   function unpaidSheet(o) {
     S.unpaid = o;
-    sheet('<div class="tk-big"><div class="ic">💳</div><div class="tk-eyebrow">Not paid yet</div><h3>還沒收到付款</h3><div class="tk-hint">這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。</div>' + holdHTML(o.startMs) + '</div>' +
+    sheet('<div class="tk-big"><div class="ic">💳</div><div class="tk-eyebrow">Not paid yet</div><h3>還沒收到付款</h3>' + unpaidLine(o) + '<div class="tk-hint">這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。</div>' + holdHTML(o.startMs) + '</div>' +
       '<button class="tk-btn p" data-sact="unpaid-retry">重新付款</button><button class="tk-btn g" data-sact="unpaid-cancel">不買了，回上一頁</button>');
+    if (o.kind === "merch" && !mInfo(o.evId) && !(Number(o.amt) > 0)) { S.mmTried[o.evId] = 0; mEnsure(o.evId, function () { S.layers.forEach(renderLayer); if (S.unpaid === o) unpaidSheet(o); }); }   // B381T：周邊資料還沒到就先抓，抓到再把金額補上
   }
   function unpaidRelease(o) {   // 把保留的名額讓出來，清掉本機記的這筆
     if (o && o.no && o.email && !C.demo) api("/ticket/order/cancel", { no: o.no, email: o.email }).catch(function () {});
