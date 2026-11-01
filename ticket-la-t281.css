@@ -349,3 +349,22 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .mx .mx-qty > span { font-size:17px; color:var(--soft); }
 .tk-layer .mx .mx-qty small { font-size:15px; color:var(--mut); }
 .tk-layer .mx .mx-ro { font-size:17px; color:var(--ink); padding:10px 0; }
+/* B376T：買票結帳頁「加購生日限定周邊」＝周邊購買頁的版型（一件一張卡、圓點、價格另起一行、數量膠囊），顏色配米色票紙 */
+.tk-layer #tkm-pre .mxp-it { display:flex; align-items:center; gap:14px; width:100%; margin:0 0 10px; padding:12px; border:1px solid rgba(60,45,25,.2); border-radius:16px; background:rgba(255,255,255,.38); color:#25211b; text-align:left; font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tk-layer #tkm-pre .mxp-it > i { flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid rgba(40,30,20,.45); }
+.tk-layer #tkm-pre .mxp-it.on { border:1.5px solid #a9813f; background:rgba(217,184,126,.22); }
+.tk-layer #tkm-pre .mxp-it.on > i { border-color:#8a6a35; background:#8a6a35; box-shadow:inset 0 0 0 4px #f3ead8; }
+.tk-layer #tkm-pre .mxp-it:disabled { opacity:.45; cursor:default; }
+.tk-layer #tkm-pre .mxp-it img { flex:none; width:72px; height:72px; object-fit:cover; border-radius:10px; }
+.tk-layer #tkm-pre .mxp-t { min-width:0; display:block; }
+.tk-layer #tkm-pre .mxp-t b { display:block; font-size:17px; font-weight:600; line-height:1.4; color:#25211b; }
+.tk-layer #tkm-pre .mxp-t > span { display:block; margin-top:2px; font-size:17px; font-weight:600; color:#7a5a28; }
+.tk-layer #tkm-pre .mxp-t > span em { margin-left:8px; font-style:normal; font-size:13px; font-weight:600; color:#7a1f1f; }
+.tk-layer #tkm-pre .mxp-t small { display:block; margin-top:2px; font-size:15px; color:rgba(37,33,27,.62); }
+.tk-layer #tkm-pre .mxp-qty { display:flex; align-items:center; gap:14px; margin:4px 0 10px; }
+.tk-layer #tkm-pre .mxp-qty > span { font-size:17px; color:#25211b; }
+.tk-layer #tkm-pre .mxp-qty small { font-size:15px; color:rgba(37,33,27,.62); }
+.tk-layer #tkm-pre .mxp-step { display:inline-flex; align-items:center; border:1px solid rgba(40,30,20,.28); border-radius:14px; overflow:hidden; }
+.tk-layer #tkm-pre .mxp-step button { width:46px; height:44px; border:0; background:transparent; color:#25211b; font:400 22px/1 -apple-system,sans-serif; cursor:pointer; }
+.tk-layer #tkm-pre .mxp-step button:disabled { color:rgba(37,33,27,.3); cursor:default; }
+.tk-layer #tkm-pre .mxp-step output { min-width:30px; text-align:center; font-size:17px; font-weight:600; color:#25211b; }

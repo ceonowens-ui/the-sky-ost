@@ -2538,7 +2538,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B375T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B376T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2551,11 +2551,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var pic = it.img || "";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "b" && (!pic || /(?:^|\/)a3-poster-set\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-concept.jpg";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "h" && (!pic || /(?:^|\/)a3-set-no6-card\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-card-concept.jpg";
-      return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
-        '<i class="bx">' + (on ? "✓" : "") + '</i>' + (pic ? '<img class="tkm-im" src="' + esc(asset(pic)) + '" alt="">' : '') +
-        '<span class="tx"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + (k === "s" && !out ? '<i class="tkm-bdg">★ 最划算・剩 ' + esc(it.left) + ' 組</i>' : '') + '</b><small>' + esc(sub) + '</small></span><em>＋' + nt(it.price) + '</em></button>';
+      // B376T：跟周邊購買頁同一個版型（一件一張卡：圓點、圖、品名、價格另起一行、說明），顏色配票紙
+      return '<button type="button" class="mxp-it' + (on ? " on" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '><i aria-hidden="true"></i>' +
+        (pic ? '<img src="' + esc(asset(pic)) + '" alt="">' : '') +
+        '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算・剩 ' + esc(it.left) + ' 組</em>' : '') + '</span><small>' + esc(sub) + '</small></span></button>';
     };
-    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") + mQtyHTML(ev.id, o, "pre-mq", "data-act") +
+    var q = mQ(ev.id, o), qx = mQMax(ev.id, o);
+    var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>每筆最多 ' + MQ_MAX + ' 組</small></div>' : '';
+    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") + qty +
       '<p class="tkb-fine">商品圖片為示意圖，實際商品以實物為準。</p><p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
   }
   function preMToggle(k) {
