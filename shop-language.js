@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B382T：UX 迴圈第 2 回 */
+ '售完為止':'While stocks last','推薦・獨家 6 號小卡':'Top pick · No.6 card','推薦・只在這裡拿得到的 6 號小卡':'Top pick · No.6 card only here','含國碼，如 +852…':'With country code, e.g. +852…','付款後 7 個工作天內寄出・台灣免運':'Ships within 7 business days of payment · free shipping in Taiwan','海外 e 小包寄出・附追蹤號碼':'Ships by international ePacket · tracking included','12/27 生日會當天・周邊服務台領取・免運':'Pick up at the merch desk on 12/27 · free','購買、退換貨與個資處理，依《購買須知》與《隱私權政策》。':'Purchases, refunds and personal data follow the Purchase Terms and Privacy Policy.',
  /* B381T：UX 迴圈第 1 回 */
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B379T：沒付款回來 */

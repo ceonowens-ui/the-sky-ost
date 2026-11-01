@@ -428,3 +428,14 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="wallet"] .tk-bought-m .tk-bought-next { color:#ddd5c8 !important; font-size:15px !important; margin-top:4px; }
 .tk-layer[data-layer="wallet"] .tk-bought-m .tk-bought-next strong { font:500 22px/1 "Bodoni Moda",Georgia,serif; color:#f0dcaa; margin-right:6px; }
 .tk-layer[data-layer="wallet"] .tk-mrow em small { display:block; margin-top:4px; font-size:13px; color:#a39b8e; text-align:right; }
+/* B382T（UX 迴圈第 2 回，評審指定三項）：推薦膠囊帶理由、期限膠囊（沒 cutoff 寫「售完為止」）；按付款一次標出所有錯的欄位；
+   付款底板線條金卡 SVG；卡包結帳頁付款鈕上方一行出貨／領取條件、表單下方「購買須知 ›」 */
+#sv3-merch .sv3-bdm-it .sv3-tag, .tk-layer .mx .mx-tag { white-space:nowrap; }
+#sv3-merch .sv3-bdm-it .sv3-tag.due { border-style:dashed; color:#cfc7b8; border-color:rgba(207,199,184,.45); }
+.tk-layer .mx .mx-tag.due { color:#cfc7b8; border-color:rgba(207,199,184,.45); }
+.tk-big .ic svg { display:block; width:30px; height:30px; }
+.tk-layer .cx9-c .cx9-foot { padding-top:20px !important; }
+.tk-layer .cx9-c .cx9-acc { margin-top:12px; }
+.tk-layer .cx9-acc-b p { margin:0 0 8px; font-size:15px; line-height:1.6; color:var(--mut); }
+.tk-layer .cx9-acc-b p:last-child { margin-bottom:0; }
+.tk-layer .cx9-acc-b .cx9-ln { font-size:15px; color:var(--g2,#E8C98C); }
