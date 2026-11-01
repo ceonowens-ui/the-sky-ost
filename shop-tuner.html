@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>CHANCE SHOP Tuner</title>
+<style>
+/* B364T：SHOP／票務頁 Tuner（只給 CÉON 調設計用；只改預覽，不會改到線上）。結構沿用 play-tuner.html */
+:root{ --bg:#0f0e10; --panel:#18161a; --line:#2b2830; --tx:#ece6dc; --mut:#9a93a0; --gold:#d8c3a0; }
+*{ box-sizing:border-box; } html,body{ margin:0; height:100%; background:var(--bg); color:var(--tx); font:13px/1.45 -apple-system,"PingFang TC",sans-serif; }
+.app{ display:flex; height:100%; }
+.stageWrap{ flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+.scaler{ transform-origin:center center; }
+.device{ position:relative; border-radius:56px; background:#000; box-shadow:0 0 0 12px #1c1b1f, 0 0 0 13px #3a3840, 0 30px 80px rgba(0,0,0,.6); overflow:hidden; }
+.device iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; }
+.island{ position:absolute; left:50%; transform:translateX(-50%); background:#000; border-radius:20px; z-index:5; pointer-events:none; }
+.home{ position:absolute; left:50%; bottom:8px; width:134px; height:5px; margin-left:-67px; border-radius:3px; background:rgba(255,255,255,.85); z-index:5; pointer-events:none; }
+.side{ width:380px; flex:none; background:var(--panel); border-left:1px solid var(--line); overflow-y:auto; padding:14px 16px 40px; }
+h1{ font-size:15px; margin:0 0 4px; color:var(--gold); letter-spacing:.04em; }
+.note{ color:var(--mut); font-size:12px; margin:0 0 12px; }
+h2{ font-size:12px; letter-spacing:.14em; color:var(--gold); margin:18px 0 6px; padding-top:12px; border-top:1px solid var(--line); }
+.row{ display:grid; grid-template-columns:108px 1fr 54px; align-items:center; gap:8px; margin:6px 0; }
+.row label{ color:#cfc8d2; }
+.row input[type=range]{ width:100%; accent-color:var(--gold); }
+.row .v{ text-align:right; font-variant-numeric:tabular-nums; color:var(--tx); }
+.row .v.changed{ color:var(--gold); font-weight:600; }
+.row.na label,.row.na .v{ opacity:.45; }
+select,input[type=text]{ width:100%; background:#0f0e10; color:var(--tx); border:1px solid var(--line); border-radius:8px; padding:7px 8px; font:inherit; }
+.btns{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+button{ background:#232027; color:var(--tx); border:1px solid #37333c; border-radius:9px; padding:7px 10px; font:inherit; cursor:pointer; }
+button:hover{ border-color:var(--gold); }
+button.primary{ background:var(--gold); color:#151210; border-color:var(--gold); font-weight:600; }
+.seg{ display:flex; gap:4px; } .seg button{ flex:1; padding:6px 4px; } .seg button.on{ border-color:var(--gold); color:var(--gold); }
+textarea{ width:100%; height:170px; background:#0b0a0c; color:#cfe; border:1px solid var(--line); border-radius:8px; font:11px/1.4 ui-monospace,Menlo,monospace; padding:8px; }
+.warn{ background:#2a1f12; border:1px solid #5a4322; color:#e8cf9e; border-radius:8px; padding:8px 10px; font-size:12px; margin:8px 0; display:none; }
+/* 手機模式（寬度 ≤700）：App 全螢幕＋上方可收合的調整面板 */
+.mbar{ display:none; }
+body.mobile{ overflow:hidden; }
+body.mobile .stageWrap{ position:fixed; inset:0; display:block; }
+body.mobile .scaler{ transform:none !important; }
+body.mobile .device{ width:100vw !important; height:100vh !important; height:100dvh !important; border-radius:0 !important; box-shadow:none !important; }
+body.mobile .island, body.mobile .home, body.mobile .devRow{ display:none !important; }
+body.mobile .side{ position:fixed; left:0; right:0; top:0; width:auto; z-index:20; max-height:50vh; max-height:50dvh; padding:calc(env(safe-area-inset-top,0px) + 6px) 12px 12px;
+  background:rgba(16,14,18,.95); border:0; border-bottom:1px solid #3a3530; border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:opacity .15s ease; -webkit-overflow-scrolling:touch; }
+body.mobile.bottom .side{ top:auto; bottom:0; border-radius:18px 18px 0 0; border-bottom:0; border-top:1px solid #3a3530; padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px); }
+body.mobile .side.peek{ opacity:.25; }
+body.mobile .side.closed{ max-height:none; overflow:hidden; padding-bottom:6px; }
+body.mobile .side.closed > *:not(.mbar){ display:none !important; }
+body.mobile .mbar{ display:flex; align-items:center; gap:6px; position:sticky; top:-6px; z-index:2; background:inherit; padding:2px 0 8px; }
+body.mobile .mbar b{ color:var(--gold); font-size:13px; flex:1; }
+body.mobile .mbar button{ padding:7px 10px; font-size:12px; }
+body.mobile .mtabs{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:2px 0 6px; } body.mobile .mtabs button{ padding:7px 2px; font-size:12px; }
+body.mobile .mtabs button.on{ border-color:var(--gold); color:var(--gold); }
+body.mobile .grp{ display:none; } body.mobile .grp.on{ display:block; }
+body.mobile h2{ margin-top:4px; padding-top:0; border-top:0; }
+body.mobile .row{ grid-template-columns:92px 1fr 54px; margin:9px 0; }
+body.mobile .row input[type=range]{ height:28px; }
+body.mobile h1, body.mobile .side > .note{ display:none; }
+</style></head>
+<body>
+<div class="app">
+  <div class="stageWrap" id="stageWrap"><div class="scaler" id="scaler">
+    <div class="device" id="device">
+      <div class="island" id="island"></div>
+      <iframe id="f" title="CHANCE App 預覽"></iframe>
+      <div class="home" id="home"></div>
+    </div>
+  </div></div>
+  <aside class="side" id="side">
+    <div class="mbar"><b>SHOP Tuner</b><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
+    <div class="mtabs" id="mtabs"></div>
+    <h1>CHANCE SHOP Tuner</h1>
+    <p class="note">預設值＝目前畫面（打開頁面時自動量）。拖滑桿即時預覽，只改這個預覽，不會改到線上。調好按「複製設定」貼給 Claude。</p>
+    <div class="warn" id="warn">讀不到 App 內容：Tuner 要和 test.html 放在同一個網站（chance1228.com/shop-tuner.html），直接開下載的檔案不能用。</div>
+    <div class="row devRow" style="grid-template-columns:108px 1fr"><label>機型</label><select id="dev"></select></div>
+    <div class="grp" data-g="nav">
+      <div class="row" style="grid-template-columns:108px 1fr"><label>App 網址</label><input type="text" id="src" value="test.html?tkdemo=1&lang=zh"></div>
+      <div class="seg" style="margin:6px 0"><button onclick="setSrc('test.html?tkdemo=1&lang=zh')">示範資料（有票）</button><button onclick="setSrc('test.html?lang=zh')">測試後台</button><button onclick="setSrc('test.html?tkdemo=1&lang=en')">英文</button></div>
+      <div class="btns"><button onclick="loadSrc()">載入</button><button onclick="reloadApp()">重新整理</button></div>
+      <div class="note" style="margin:2px 0 4px">跳到要調的畫面：</div>
+      <div class="btns">
+        <button onclick="go('shop')">SHOP</button><button onclick="go('merch')">↓ 購買周邊</button><button onclick="go('mine')">↓ 我的票</button>
+        <button onclick="go('checkout')">結帳頁</button><button onclick="go('msheet')">周邊視窗</button><button onclick="go('wallet')">我的票（頁）</button><button onclick="go('pass')">票券 QR</button><button onclick="go('back')">‹ 返回</button>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <div class="grp" data-g="out">
+      <h2>輸出</h2>
+      <div class="btns"><button class="primary" onclick="copyCfg()">複製設定</button><button onclick="resetAll()">全部重設</button></div>
+      <textarea id="out" readonly placeholder="按「複製設定」後這裡會出現設定文字（只列有改的項目）"></textarea>
+    </div>
+  </aside>
+</div>
+<script>
+var DEVICES=[
+  {id:'15',name:'iPhone 15/16（393×852 靈動島）',w:393,h:852,island:true,bottom:34},
+  {id:'14',name:'iPhone 12/13/14（390×844）',w:390,h:844,island:false,bottom:34},
+  {id:'15pm',name:'iPhone 15/16 Plus/Pro Max（430×932）',w:430,h:932,island:true,bottom:34},
+  {id:'mini',name:'iPhone 12/13 mini（375×812）',w:375,h:812,island:false,bottom:34},
+  {id:'se',name:'iPhone SE（375×667）',w:375,h:667,island:false,bottom:0},
+  {id:'320',name:'窄螢幕測試（320×690）',w:320,h:690,island:false,bottom:0}
+];
+/* 每一項：sel＝要調的元素、props＝要改的 CSS 屬性；預設值打開時從畫面量（量不到用 fb）。
+   type:'zoom'＝整區縮放（%）；type:'seg'＝選項。只有改過的項目才會蓋到畫面上 */
+var GROUPS=[
+ {key:'g0',tab:'SHOP',title:'SHOP 整頁',items:[
+  {k:'szoom',label:'SHOP 整體縮放',type:'zoom',sel:'.sv3',min:80,max:125,step:1,fb:100,u:'%'},
+  {k:'side',label:'左右留白',sel:'.sv3 .sv3-sec',props:['padding-left','padding-right'],min:0,max:40,step:1,fb:0,u:'px'},
+  {k:'secgap',label:'區塊上方距離',sel:'.sv3 .sv3-sec',props:['padding-top'],min:0,max:80,step:1,fb:24,u:'px'},
+  {k:'secnum',label:'區塊編號字級',sel:'.sv3 .sv3-sec-num',props:['font-size'],min:9,max:18,step:0.5,fb:12,u:'px'},
+  {k:'sech',label:'區塊標題字級',sel:'.sv3 .sv3-block-h',props:['font-size'],min:22,max:56,step:1,fb:36,u:'px'}
+ ]},
+ {key:'g1',tab:'活動卡',title:'01 活動卡（生日會）',items:[
+  {k:'evm',label:'日期地點字級',sel:'#sv3-tickets .sv3-block-m',props:['font-size'],min:12,max:22,step:0.5,fb:15,u:'px'},
+  {k:'evgo',label:'「立即購票」字級',sel:'#sv3-tickets .sv3-go',props:['font-size'],min:12,max:24,step:0.5,fb:16,u:'px'},
+  {k:'evtk',label:'票圖寬度',sel:'#sv3-tickets .sv3-ticket',props:['width'],min:100,max:260,step:2,fb:160,u:'px'}
+ ]},
+ {key:'g2',tab:'周邊',title:'02 購買周邊',items:[
+  {k:'mcols',label:'每排幾張',type:'seg',sel:'#sv3-merch .sv3-bdm-grid',opts:[['2','2 張（現行）'],['1','1 張大圖'],['3','3 張']],fb:'2'},
+  {k:'mgap',label:'卡片間距',sel:'#sv3-merch .sv3-bdm-grid',props:['gap'],min:4,max:28,step:1,fb:12,u:'px'},
+  {k:'mpad',label:'卡片內距',sel:'#sv3-merch .sv3-bdm-it',props:['padding'],min:4,max:24,step:1,fb:10,u:'px'},
+  {k:'mrad',label:'卡片圓角',sel:'#sv3-merch .sv3-bdm-it',props:['border-radius'],min:0,max:32,step:1,fb:16,u:'px'},
+  {k:'mimg',label:'圖片比例',type:'seg',sel:'#sv3-merch .sv3-bdm-it img',opts:[['1/1','正方（現行）'],['4/3','橫 4:3'],['3/4','直 3:4']],fb:'1/1'},
+  {k:'mname',label:'品名字級',sel:'#sv3-merch .sv3-bdm-it b',props:['font-size'],min:12,max:22,step:0.5,fb:16,u:'px'},
+  {k:'mprice',label:'價格字級',sel:'#sv3-merch .sv3-bdm-it em',props:['font-size'],min:12,max:26,step:0.5,fb:17,u:'px'},
+  {k:'mnote',label:'說明字級',sel:'#sv3-merch .sv3-bdm-it span',props:['font-size'],min:10,max:18,step:0.5,fb:13,u:'px'},
+  {k:'mrow',label:'分排標題字級',sel:'#sv3-merch .sv3-bdm-sub',props:['font-size'],min:12,max:22,step:0.5,fb:16,u:'px'}
+ ]},
+ {key:'g3',tab:'我的票',title:'03 我的票（SHOP 區塊）',items:[
+  {k:'tqr',label:'QR 大小',sel:'#sv3-mine .sv3-mine-tk .qr',props:['width','height'],min:80,max:200,step:2,fb:120,u:'px'},
+  {k:'tpad',label:'票卡內距',sel:'#sv3-mine .sv3-mine-tk',props:['padding'],min:8,max:28,step:1,fb:16,u:'px'},
+  {k:'trad',label:'票卡圓角',sel:'#sv3-mine .sv3-mine-tk',props:['border-radius'],min:0,max:32,step:1,fb:18,u:'px'},
+  {k:'tname',label:'活動名字級',sel:'#sv3-mine .sv3-mine-tk .tx b',props:['font-size'],min:14,max:26,step:0.5,fb:19,u:'px'},
+  {k:'tinfo',label:'日期地點字級',sel:'#sv3-mine .sv3-mine-tk .tx i',props:['font-size'],min:11,max:20,step:0.5,fb:15,u:'px'},
+  {k:'tmimg',label:'周邊圖片大小',sel:'#sv3-mine .sv3-mine-m img',props:['width','height'],min:48,max:120,step:2,fb:72,u:'px'}
+ ]},
+ {key:'g4',tab:'結帳',title:'結帳頁',items:[
+  {k:'czoom',label:'結帳頁整體縮放',type:'zoom',sel:'.tk-layer[data-layer="checkout"] .tkb',min:85,max:120,step:1,fb:100,u:'%'},
+  {k:'csec',label:'欄位標題字級',sel:'.tk-layer[data-layer="checkout"] .tkb-sec',props:['font-size'],min:12,max:22,step:0.5,fb:17,u:'px'},
+  {k:'cin',label:'輸入框字級',sel:'.tk-layer[data-layer="checkout"] .tk-in',props:['font-size'],min:14,max:22,step:0.5,fb:17,u:'px'},
+  {k:'cinh',label:'輸入框高度',sel:'.tk-layer[data-layer="checkout"] .tk-in',props:['min-height'],min:40,max:68,step:1,fb:52,u:'px'},
+  {k:'chint',label:'說明小字',sel:'.tk-layer[data-layer="checkout"] .tkb-hint',props:['font-size'],min:12,max:19,step:0.5,fb:15,u:'px'},
+  {k:'chold',label:'3 分鐘提醒字級',sel:'.tk-hold',props:['font-size'],min:12,max:20,step:0.5,fb:15,u:'px'},
+  {k:'cpay',label:'付款按鈕高度',sel:'.tk-layer[data-layer="checkout"] .tkb-cta',props:['min-height'],min:44,max:72,step:1,fb:54,u:'px'},
+  {k:'cpayf',label:'付款按鈕字級',sel:'.tk-layer[data-layer="checkout"] .tkb-cta',props:['font-size'],min:14,max:24,step:0.5,fb:18,u:'px'}
+ ]},
+ {key:'g5',tab:'票券',title:'票券頁（入場 QR）',items:[
+  {k:'pqr',label:'QR 大小',sel:'.tk-layer[data-layer="pass"] .tk-qrwrap2 canvas',props:['width','height'],min:160,max:320,step:2,fb:240,u:'px'},
+  {k:'prad',label:'票卡圓角',sel:'.tk-layer[data-layer="pass"] .tk-pass',props:['border-radius'],min:0,max:36,step:1,fb:22,u:'px'},
+  {k:'ptitle',label:'活動名字級',sel:'.tk-layer[data-layer="pass"] .tk-title b',props:['font-size'],min:18,max:36,step:0.5,fb:26,u:'px'},
+  {k:'pbought',label:'「購買成功」字級',sel:'.tk-layer[data-layer="pass"] .tk-bought b',props:['font-size'],min:14,max:28,step:0.5,fb:20,u:'px'}
+ ]},
+ {key:'g6',tab:'顏色',title:'顏色（只影響 SHOP 和票務頁）',items:[
+  {k:'gold',label:'金色亮度',type:'zoom',sel:'',min:70,max:130,step:1,fb:100,u:'%'},
+  {k:'bgl',label:'底色深淺',type:'zoom',sel:'',min:0,max:30,step:1,fb:0,u:'%'}
+ ]}
+];
+var S={}, DEF={}, MEAS={}, PENDING=null;
+var f=document.getElementById('f');
+function each(fn){ GROUPS.forEach(function(g){ g.items.forEach(fn); }); }
+each(function(it){ DEF[it.k]=it.fb; S[it.k]=it.fb; });
+function doc(){ try{ return f.contentDocument; }catch(e){ return null; } }
+/* 從畫面量預設值（只量還沒改過的項目；元素還沒出現就先用 fb，之後打開那個畫面會再量） */
+function measure(){
+  var d=doc(); if(!d||!d.body) return;
+  each(function(it){
+    if(it.type||MEAS[it.k]||S[it.k]!==DEF[it.k]) return;
+    var el=d.querySelector(it.sel); if(!el) return;
+    var st=d.defaultView.getComputedStyle(el), v=parseFloat(st.getPropertyValue(it.props[0]));
+    if(!isFinite(v)) return;
+    v=Math.round(v/it.step)*it.step; MEAS[it.k]=true; DEF[it.k]=v; S[it.k]=v;
+    if(it._inp){ it._inp.min=Math.min(it.min,v); it._inp.max=Math.max(it.max,v); it._inp.value=v; it._v.textContent=v+it.u; it._row.classList.remove('na'); }
+  });
+}
+function css(){
+  var out=[];
+  each(function(it){
+    if(S[it.k]===DEF[it.k]) return;
+    if(it.k==='gold'){ out.push('.sv3, .tk-layer{filter:none;} .sv3 .sv3-go.on, .sv3 .sv3-bdm-it em, .sv3 .sv3-bdm-it i, .sv3-mine-all, .tk-layer .tkb-cta, .tk-layer .tk-h1{filter:brightness('+S.gold/100+') saturate('+S.gold/100+') !important;}'); return; }
+    if(it.k==='bgl'){ var a=S.bgl/100; out.push('.sv3, .tk-layer{background-color:rgba(255,255,255,'+(a*0.25).toFixed(3)+') !important; background-blend-mode:screen;}'); return; }
+    if(it.type==='zoom'){ out.push(it.sel+'{zoom:'+S[it.k]/100+' !important;}'); return; }
+    if(it.type==='seg'){
+      if(it.k==='mcols') out.push(it.sel+'{grid-template-columns:repeat('+S[it.k]+',1fr) !important;}');
+      if(it.k==='mimg') out.push(it.sel+'{aspect-ratio:'+S[it.k]+' !important;}');
+      return; }
+    out.push(it.sel+'{'+it.props.map(function(p){ return p+':'+S[it.k]+it.u+' !important;'; }).join('')+'}');
+  });
+  return out.join('\n');
+}
+function apply(){
+  var d=doc(), w=document.getElementById('warn');
+  if(!d||!d.body){ if(f.src) w.style.display='block'; return; }
+  w.style.display='none'; measure();
+  var st=d.getElementById('shop-tuner-override');
+  if(!st){ st=d.createElement('style'); st.id='shop-tuner-override'; d.body.appendChild(st); }
+  else if(st!==d.body.lastElementChild) d.body.appendChild(st);
+  var c=css(); if(st.textContent!==c) st.textContent=c;
+}
+/* 跳到某個畫面（在預覽裡模擬點擊） */
+function go(a){ var d=doc(); if(!d) return; var w=f.contentWindow; var q=function(s){ return d.querySelector(s); }, click=function(s){ var e=q(s); if(e) e.click(); return !!e; };
+  var shop=function(){ click('.navbtn[data-screen="merch"]'); };
+  if(a==='shop'){ shop(); setTimeout(function(){ try{ w.scrollTo(0,0); var sc=q('#screen-merch'); if(sc) sc.scrollTop=0; }catch(e){} },300); }
+  if(a==='merch'||a==='mine'){ shop(); setTimeout(function(){ var e=q(a==='merch'?'#sv3-merch':'#sv3-mine'); if(e) e.scrollIntoView({block:'start'}); },500); }
+  if(a==='checkout'){ shop(); setTimeout(function(){   /* 示範資料已經有票（活動卡變「查看我的票」）→ 換成測試後台（新訪客，只讀不下單）再打開結帳頁 */
+      if(q('.sv3 [data-act="open-now"]')||!q('.sv3 [data-act="open-buy"]')){ if(/tkdemo=1/.test(document.getElementById('src').value)){ PENDING='checkout'; setSrc('test.html?lang='+(/lang=en/.test(document.getElementById('src').value)?'en':'zh')); } return; }
+      click('.sv3 [data-act="open-buy"]'); },500); }
+  if(a==='msheet'){ shop(); setTimeout(function(){ click('#sv3-merch [data-act="m-open-k"]'); },500); }
+  if(a==='wallet'){ shop(); setTimeout(function(){ click('#sv3-mine [data-act="open-wallet"]')||click('[data-act="open-wallet"]'); },500); }
+  if(a==='pass'){ shop(); setTimeout(function(){ click('#sv3-mine [data-act="open-mine-pass"]')||click('[data-act="open-now"]'); },500); }
+  if(a==='back'){ try{ w.history.back(); }catch(e){} }
+  [900,1800].forEach(function(t){ setTimeout(apply,t); });
+}
+/* ---- UI ---- */
+function build(){
+  var box=document.getElementById('groups');
+  GROUPS.forEach(function(g){
+    var wrapG=document.createElement('div'); wrapG.className='grp'; wrapG.dataset.g=g.key; box.appendChild(wrapG);
+    var h=document.createElement('h2'); h.textContent=g.title; wrapG.appendChild(h);
+    g.items.forEach(function(it){
+      var row=document.createElement('div'); row.className='row'; it._row=row;
+      var lab=document.createElement('label'); lab.textContent=it.label; row.appendChild(lab);
+      if(it.type==='seg'){
+        row.style.gridTemplateColumns='108px 1fr';
+        var seg=document.createElement('div'); seg.className='seg';
+        it.opts.forEach(function(o){ var b=document.createElement('button'); b.textContent=o[1]; b.dataset.v=o[0];
+          b.onclick=function(){ S[it.k]=o[0]; [].forEach.call(seg.children,function(x){ x.classList.toggle('on',x.dataset.v===o[0]); }); apply(); };
+          if(o[0]===it.fb) b.classList.add('on'); seg.appendChild(b); });
+        row.appendChild(seg); it._seg=seg;
+      } else {
+        if(!it.type) row.classList.add('na');   /* 還沒量到（那個畫面還沒打開） */
+        var inp=document.createElement('input'); inp.type='range'; inp.min=it.min; inp.max=it.max; inp.step=it.step; inp.value=it.fb;
+        var v=document.createElement('div'); v.className='v'; v.textContent=it.fb+it.u;
+        inp.addEventListener('pointerdown',function(){ if(document.body.classList.contains('mobile')) document.getElementById('side').classList.add('peek'); });
+        inp.oninput=function(){ S[it.k]=Number(inp.value); MEAS[it.k]=true; row.classList.remove('na'); v.textContent=inp.value+it.u; v.classList.toggle('changed',S[it.k]!==DEF[it.k]); apply(); };
+        row.appendChild(inp); row.appendChild(v); it._inp=inp; it._v=v;
+      }
+      wrapG.appendChild(row);
+    });
+  });
+}
+function resetAll(){ each(function(it){ S[it.k]=DEF[it.k];
+  if(it._inp){ it._inp.value=DEF[it.k]; it._v.textContent=DEF[it.k]+it.u; it._v.classList.remove('changed'); }
+  if(it._seg){ [].forEach.call(it._seg.children,function(x){ x.classList.toggle('on',x.dataset.v===DEF[it.k]); }); } }); apply(); }
+function copyCfg(){
+  var lines=['【CHANCE SHOP Tuner 設定】機型：'+CUR.name+'　網址：'+document.getElementById('src').value], n=0;
+  GROUPS.forEach(function(g){ var gl=[];
+    g.items.forEach(function(it){ if(S[it.k]===DEF[it.k]) return; n++;
+      var val=it.type==='seg'?it.opts.filter(function(o){return o[0]===S[it.k];})[0][1]:S[it.k]+it.u;
+      var dv=it.type==='seg'?it.opts.filter(function(o){return o[0]===DEF[it.k];})[0][1]:DEF[it.k]+it.u;
+      gl.push('  '+it.label+'：'+val+'（原本 '+dv+'）'+(it.sel?'　['+it.sel+(it.props?' → '+it.props.join('、'):'')+']':'')); });
+    if(gl.length){ lines.push('— '+g.title); lines=lines.concat(gl); } });
+  if(!n) lines.push('（沒有改任何項目）');
+  lines.push('— 實際覆寫 CSS'); lines.push(css()||'（無）');
+  var t=lines.join('\n'); var ta=document.getElementById('out'); ta.value=t; ta.select();
+  if(navigator.clipboard) navigator.clipboard.writeText(t).catch(function(){ document.execCommand('copy'); }); else document.execCommand('copy');
+}
+/* ---- 機型與縮放 ---- */
+var CUR=DEVICES[0];
+function setDevice(id){
+  CUR=DEVICES.filter(function(d){return d.id===id;})[0]||DEVICES[0];
+  var dev=document.getElementById('device'); dev.style.width=CUR.w+'px'; dev.style.height=CUR.h+'px'; dev.style.borderRadius=(CUR.bottom?56:24)+'px';
+  var isl=document.getElementById('island');
+  if(!CUR.bottom) isl.style.display='none';
+  else if(CUR.island){ isl.style.display='block'; isl.style.top='11px'; isl.style.width='124px'; isl.style.height='36px'; isl.style.borderRadius='20px'; }
+  else { isl.style.display='block'; isl.style.top='0'; isl.style.width='162px'; isl.style.height='32px'; isl.style.borderRadius='0 0 20px 20px'; }
+  document.getElementById('home').style.display=CUR.bottom?'block':'none';
+  fit(); MEAS={}; each(function(it){ if(S[it.k]===DEF[it.k]&&!it.type) it._row&&it._row.classList.add('na'); }); setTimeout(apply,400);
+}
+function fit(){ if(document.body.classList.contains('mobile')) return; var wrap=document.getElementById('stageWrap'); var s=Math.min(1,(wrap.clientHeight-60)/CUR.h,(wrap.clientWidth-60)/CUR.w); document.getElementById('scaler').style.transform='scale('+s+')'; }
+function setSrc(u){ document.getElementById('src').value=u; loadSrc(); }
+function loadSrc(){ MEAS={}; f.src=document.getElementById('src').value.trim(); }
+function reloadApp(){ MEAS={}; var u=document.getElementById('src').value.trim(); f.src=u+(u.indexOf('?')>=0?'&':'?')+'t='+Date.now(); }
+(function(){ var sel=document.getElementById('dev'); DEVICES.forEach(function(d){ var o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o); }); sel.onchange=function(){ setDevice(sel.value); }; })();
+f.addEventListener('load',function(){ try{ var d=doc(); d.querySelectorAll('#a2tip').forEach(function(e){ e.remove(); }); }catch(e){} setTimeout(function(){ var pg=PENDING; PENDING=null; go(pg||'shop'); },1200); [600,1800,3200].forEach(function(t){ setTimeout(apply,t); }); });
+window.addEventListener('resize',fit);
+/* ---- 手機模式 ---- */
+var MOBILE=window.matchMedia('(max-width:700px)').matches;
+function showTab(k){ document.querySelectorAll('.grp').forEach(function(g){ g.classList.toggle('on',g.dataset.g===k); }); document.querySelectorAll('#mtabs button').forEach(function(b){ b.classList.toggle('on',b.dataset.k===k); }); }
+function togglePos(){ var bt=document.body.classList.toggle('bottom'); document.getElementById('mPos').textContent=bt?'移到上方':'移到下方'; }
+function toggleClose(){ var c=document.getElementById('side').classList.toggle('closed'); document.getElementById('mClose').textContent=c?'展開':'收起'; }
+document.addEventListener('pointerup',function(){ document.getElementById('side').classList.remove('peek'); },true);
+document.addEventListener('pointercancel',function(){ document.getElementById('side').classList.remove('peek'); },true);
+build();
+if(MOBILE){
+  document.body.classList.add('mobile');
+  var tb=document.getElementById('mtabs'); [['nav','畫面']].concat(GROUPS.map(function(g){ return [g.key,g.tab]; })).concat([['out','輸出']]).forEach(function(t){ var b=document.createElement('button'); b.textContent=t[1]; b.dataset.k=t[0]; b.onclick=function(){ showTab(t[0]); }; tb.appendChild(b); });
+  showTab('nav'); CUR={id:'device',name:'本機 '+window.innerWidth+'×'+window.innerHeight,w:window.innerWidth,h:window.innerHeight,island:false,bottom:0};
+} else {
+  document.querySelectorAll('.grp').forEach(function(g){ g.classList.add('on'); });
+  setDevice(DEVICES[0].id);
+}
+loadSrc();
+setInterval(apply,1000);   /* 只在預覽工具裡：App 重繪後補回覆寫、量剛打開的畫面 */
+</script>
+</body></html>
