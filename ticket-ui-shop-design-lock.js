@@ -265,10 +265,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   /* ---------- 假資料（?tkdemo=1） ---------- */
   var DEMO = (function () {
     var now = Date.now();
-    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T13:00:00+08:00"), venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
-                { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"], productKey: "meet-20261227-vvip", onSale: true },
-                { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["1:1 官方合照", "親簽海報", "照片免費（自己的合格合照成片全數下載）", "第二批入場"], productKey: "meet-20261227-vip", onSale: true },
-                { key: "ga", name: "一般", price: 980, cap: 81, sold: 55, left: 26, numFrom: 101, numTo: 181, perks: ["完整生日活動入場", "可加購生日牆合照（與 CHANCE 合照，NT$390）"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 690, photoOnSale: true, ppKey: "pp-meet-20261227" },
+    var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T14:30:00+08:00"), venue: "微風影城8樓A廳", capacity: 120, sold: 4, left: 116, tiers: [   /* B369T：示範資料改成跟現在的生日會一樣（一種票 NT$1,880、120 席），Tuner 看到的才是真的樣子 */
+                { key: "ga", name: "入場票", price: 1880, cap: 120, sold: 4, left: 116, numFrom: 1, numTo: 120, perks: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20261227" },
               { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
                 { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"], productKey: "meet-20270213-vvip", onSale: true },
                 { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["1:1 官方合照", "親簽海報", "照片免費（自己的合格合照成片全數下載）", "第二批入場"], productKey: "meet-20270213-vip", onSale: true },
@@ -2798,7 +2796,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function dT() {   // demo 預先擁有的票：tkppt=1 時跟著 PPT 版變入場票
     return /[?&]tkppt=1/.test(location.search)
       ? { tier: "ga", name: "入場票", perks: ["完整生日活動入場・發餐", "第一支 MV 首播・嘉賓演出", "生日牆全體合照・全場大合照", "散場擊掌送客", "現場抽獎資格（5 位：手鍊／帽T）"] }
-      : { tier: "vvip", name: "VVIP 守護席", perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"] };
+      : { tier: "ga", name: "入場票", perks: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"] };   // B369T：跟現在的生日會一樣
   }
   var DMO = [], DMCFG = null;
   function demoPPT(ev) {
@@ -2809,16 +2807,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return ev;
   }
   function demoCfg() {
-    if (!DMCFG) DMCFG = { open: true, onSale: true, cutoff: "2026-11-15T23:59:59+08:00", perPerson: 1, setSave: 1280, shipOn: true, items: {
-      b: { name: "THE SKY 生日限定水晶手鍊", short: "手鍊", price: 2280, cap: 60, left: 52, perk: "CHANCE 親手幫你戴上", img: "shop-assets/merch-b225/bracelet.jpg" },
-      h: { name: "THE SKY 31st 生日限定帽T", short: "帽T", price: 3280, cap: 60, left: 47, perk: "CHANCE 當場在帽T 上簽名", img: "shop-assets/merch-b225/hoodie.jpg" },
-      s: { name: "生日雙件組（手鍊＋帽T）", short: "雙件組", price: 4280, cap: 30, left: 18, perk: "一對一 60 秒＋戴手鍊＋簽帽T・互動照片免費送", img: "shop-assets/merch-b225/set.jpg" } } };
+    if (!DMCFG) DMCFG = {"open": true, "onSale": true, "cutoff": null, "perPerson": 0, "setSave": 0, "shipOn": true, "items": {"b": {"name": "A3 海報組（一組 4 張）", "short": "A3 海報組", "price": 520, "cap": 50, "left": 47, "perk": "活動當天現場領取", "img": "shop-assets/merch-1227/a3-poster-set.jpg"}, "h": {"name": "A3 海報組＋6號小卡組合", "short": "A3 海報組＋6號小卡", "price": 980, "cap": 30, "left": 27, "perk": "海外無法到場也可寄送", "img": "shop-assets/merch-1227/a3-set-no6-card.jpg"}}};   /* B369T：示範周邊＝你上傳的 A3 海報組／組合（跟測試後台一樣） */
     return DMCFG;
   }
-  var DSHIP = { zones: { asia: { label: "亞洲", b: 200, h: 350, s: 450, bh: 450 }, cn: { label: "中國大陸", b: 220, h: 250, s: 310, bh: 310 }, eu: { label: "歐洲", b: 280, h: 450, s: 600, bh: 600 }, oc: { label: "大洋洲", b: 300, h: 480, s: 620, bh: 620 }, am: { label: "加拿大・中南美・非洲", b: 320, h: 550, s: 700, bh: 700 }, us: { label: "美國", b: 350, h: 650, s: 850, bh: 850 } },
-    countries: [["JP", "日本", "asia"], ["KR", "韓國", "asia"], ["HK", "香港", "asia"], ["MO", "澳門", "asia"], ["CN", "中國大陸", "cn"], ["SG", "新加坡", "asia"], ["MY", "馬來西亞", "asia"], ["TH", "泰國", "asia"], ["US", "美國", "us"], ["CA", "加拿大", "am"], ["GB", "英國", "eu"], ["AU", "澳洲", "oc"]] };
+  var DSHIP = {"zones": {"tw": {"label": "台灣", "b": 250, "h": 250, "s": 250, "bh": 250}, "asia": {"label": "亞洲", "b": 250, "h": 250, "s": 250, "bh": 250}, "cn": {"label": "中國大陸", "b": 250, "h": 250, "s": 250, "bh": 250}, "eu": {"label": "歐洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "oc": {"label": "大洋洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "am": {"label": "加拿大・中南美・非洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "us": {"label": "美國", "b": 500, "h": 500, "s": 500, "bh": 500}}, "countries": [["TW", "台灣", "tw"], ["JP", "日本", "asia"], ["KR", "韓國", "asia"], ["HK", "香港", "asia"], ["MO", "澳門", "asia"], ["CN", "中國大陸", "cn"], ["SG", "新加坡", "asia"], ["MY", "馬來西亞", "asia"], ["TH", "泰國", "asia"], ["PH", "菲律賓", "asia"], ["VN", "越南", "asia"], ["ID", "印尼", "asia"], ["US", "美國", "us"], ["CA", "加拿大", "am"], ["MX", "墨西哥", "am"], ["BR", "巴西", "am"], ["AR", "阿根廷", "am"], ["CL", "智利", "am"], ["ZA", "南非", "am"], ["GB", "英國", "eu"], ["FR", "法國", "eu"], ["DE", "德國", "eu"], ["IT", "義大利", "eu"], ["ES", "西班牙", "eu"], ["NL", "荷蘭", "eu"], ["BE", "比利時", "eu"], ["CH", "瑞士", "eu"], ["AT", "奧地利", "eu"], ["SE", "瑞典", "eu"], ["NO", "挪威", "eu"], ["DK", "丹麥", "eu"], ["FI", "芬蘭", "eu"], ["IE", "愛爾蘭", "eu"], ["PT", "葡萄牙", "eu"], ["PL", "波蘭", "eu"], ["CZ", "捷克", "eu"], ["AU", "澳洲", "oc"], ["NZ", "紐西蘭", "oc"]]};   /* B369T：運費、國家跟測試後台一樣 */
   function demoMerch(p, b) {
-    if (p.indexOf("/ticket/merch?") === 0) return /meet-20261227/.test(p) ? { ok: true, v: "m1", eventId: "meet-20261227", merch: demoCfg(), ship: DSHIP } : { ok: true, merch: null };
+    if (p.indexOf("/ticket/merch?") === 0) return /meet-20261227/.test(p) ? { ok: true, v: "m2", eventId: "meet-20261227", merch: demoCfg(), ship: DSHIP } : { ok: true, merch: null };
     if (p === "/ticket/merch/mine") { var me = S.email || "you@demo"; return { ok: true, orders: DMO.filter(function (o) { return o.email === me; }) }; }
     if (p === "/ticket/merch/draft") {
       var r = mResolve({ m: demoCfg() }, b.code); if (!r) return { ok: false, message: "unknown product" };
