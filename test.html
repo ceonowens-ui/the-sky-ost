@@ -12642,7 +12642,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B363T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B365T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13277,5 +13277,45 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 <!-- Cloudflare Web Analytics（無 Cookie；只在 test.html，轉正時再搬到 index） --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ab77ff3f0fa34ed0a0d92c2401de082b"}'></script>
+<script>/* B365T：SHOP Tuner 遠端同步（只在 test.html）——電腦開 shop-tuner.html 按「連 iPhone」，iPhone 掃 QR 打開 test.html?tune=連線碼，
+   電腦拖滑桿這支手機就跟著變、電腦按「結帳頁」這支手機就跳過去。只套排版 CSS（擋掉 url() 外部讀取），不碰訂單、票、個資。按右上角 ✕ 結束 */
+(function () {
+  var m = /[?&]tune=([A-Za-z0-9]{6,10})/.exec(location.search), room = m ? m[1].toUpperCase() : null;
+  try { if (room) sessionStorage.setItem("tune:room", room); else room = sessionStorage.getItem("tune:room"); } catch (e) {}
+  if (!room) return;
+  var API = "https://the-sky-ost-api-test.anthonywen0693.workers.dev", v = -1, navId = null, timer = null;
+  var bd = document.createElement("div"); bd.id = "tune-badge";
+  bd.style.cssText = "position:fixed;right:8px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:100000;display:flex;align-items:center;gap:6px;padding:6px 6px 6px 10px;border-radius:999px;background:rgba(20,18,16,.92);border:1px solid #d8c3a0;color:#f0dcaa;font:600 12px/1 -apple-system,sans-serif";
+  bd.innerHTML = '<span id="tune-dot" style="width:8px;height:8px;border-radius:50%;background:#888"></span><span>Tuner ' + room + '</span><button type="button" aria-label="結束 Tuner" style="all:unset;cursor:pointer;padding:2px 6px;font-size:14px;color:#fff">✕</button>';
+  bd.querySelector("button").onclick = function () { try { sessionStorage.removeItem("tune:room"); } catch (e) {} clearInterval(timer); var st = document.getElementById("shop-tuner-override"); if (st) st.remove(); bd.remove(); };
+  var mount = function () { if (document.body && !bd.isConnected) document.body.appendChild(bd); };
+  var clean = function (c) { return String(c || "").replace(/</g, "").replace(/url\s*\(/gi, "none("); };
+  var q = function (s) { return document.querySelector(s); }, click = function (s) { var e = q(s); if (e) e.click(); return !!e; };
+  function go(a) {
+    var shop = function () { click('.navbtn[data-screen="merch"]'); };
+    if (a === "shop") { shop(); setTimeout(function () { try { var sc = q("#screen-merch"); if (sc) sc.scrollTop = 0; window.scrollTo(0, 0); } catch (e) {} }, 300); }
+    if (a === "merch" || a === "mine") { shop(); setTimeout(function () { var e = q(a === "merch" ? "#sv3-merch" : "#sv3-mine"); if (e) e.scrollIntoView({ block: "start" }); }, 500); }
+    if (a === "checkout") { shop(); setTimeout(function () { click('.sv3 [data-act="open-buy"]'); }, 500); }
+    if (a === "msheet") { shop(); setTimeout(function () { click('#sv3-merch [data-act="m-open-k"]'); }, 500); }
+    if (a === "wallet") { shop(); setTimeout(function () { click('#sv3-mine [data-act="open-wallet"]') || click('[data-act="open-wallet"]'); }, 500); }
+    if (a === "pass") { shop(); setTimeout(function () { click('#sv3-mine [data-act="open-mine-pass"]') || click('[data-act="open-now"]'); }, 500); }
+    if (a === "back") { try { history.back(); } catch (e) {} }
+  }
+  function tick() {
+    mount(); if (document.hidden) return;
+    fetch(API + "/ticket/tune?room=" + room + "&r=" + Date.now()).then(function (r) { return r.json(); }).then(function (j) {
+      var dot = document.getElementById("tune-dot"); if (dot) dot.style.background = j && j.ok ? "#6fd18a" : "#e07a6a";
+      if (!j || !j.ok) return;
+      var st = document.getElementById("shop-tuner-override");
+      if (!st) { st = document.createElement("style"); st.id = "shop-tuner-override"; }
+      if (j.v !== v) { v = j.v; st.textContent = clean(j.css); }
+      if (document.body && st !== document.body.lastElementChild && st.nextElementSibling !== bd) document.body.appendChild(st);
+      var nid = j.nav ? j.nav.id : 0;
+      if (navId === null) navId = nid; else if (nid !== navId) { navId = nid; if (j.nav && j.nav.a) go(j.nav.a); }   // 第一次只記下，不跳（避免一打開就跳到舊的畫面）
+    }).catch(function () { var dot = document.getElementById("tune-dot"); if (dot) dot.style.background = "#e07a6a"; });
+  }
+  tick(); timer = setInterval(tick, 800);
+})();
+</script>
 </body>
 </html>
