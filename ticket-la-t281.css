@@ -269,3 +269,5 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 #sv3-merch .sv3-bdm-note { margin:12px 0 0; font-size:13px; line-height:1.5; color:#9c9589; }
 .tk-layer[data-layer="checkout"] .tk-ferr { margin:6px 2px 4px; font-size:15px; line-height:1.5; font-weight:600; color:#ff8f7a; }
 .tk-layer[data-layer="checkout"] .tk-in.err { border-color:#ff8f7a !important; box-shadow:0 0 0 2px rgba(255,143,122,.35); }
+/* B362T：SHOP 周邊兩排（常駐商品、生日限定） */
+#sv3-merch .sv3-bdm-sub2 { margin-top:22px; }

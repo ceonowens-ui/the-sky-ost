@@ -1753,20 +1753,27 @@ function coverClockKey() {
     return { tw: tw, over: over, nOver: nOver, pick: cxPickOK() ? ((CX.ship.pickup.label || "生日會現場領取") + "・免運") : "" };
   }
   function cxMax() { var i = cxItem(); return i.left != null ? Math.min(i.maxQty || 10, i.left) : (i.maxQty || 10); }
-  /* B361T：SHOP 第二區「購買周邊」直接放生日限定周邊的兩個選項，點了就打開該商品（不先進「寫給 Chance 的信」） */
+  /* B362T（CÉON 11/01）：SHOP 第二區「購買周邊」＝常駐商品（小卡、信籤）＋生日限定周邊兩排；生日周邊也照舊可在購票結帳時加購（兩個入口、同一份庫存） */
   function bdMerchHTML() {
-    var ev = buyEv(); if (!ev || !ev.id) return "";
-    var mi = mInfo(ev.id); if (!mi) { S.mineMerchWait = 1; mEnsure(ev.id); return ""; }
-    if (!mi.m || !mi.m.open) return "";
-    var I = mi.m.items || {}, ks = ["b", "h", "s"].filter(function (k) { return I[k]; }); if (!ks.length) return "";
+    var card = function (act, attrs, img, name, price, note, left, off) {
+      return '<button class="sv3-bdm-it" data-act="' + act + '"' + attrs + (off ? ' disabled' : '') + '>' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy">' : '') +
+        '<b>' + esc(name) + '</b>' + (price ? '<em>' + esc(price) + '</em>' : '') + (note ? '<span>' + esc(note) + '</span>' : '') + (left ? '<small>' + esc(left) + '</small>' : '') + '<i>' + (off ? "已售完" : "選這個") + '</i></button>';
+    };
+    var reg = [];
+    cxLoad();   // 卡包資料（the-sky-shop）
+    var ci = cxItem(); if (ci) { var can = cxCanBuy(ci); reg.push(card("cxl-pack", "", ci.img || CX_FALLBACK.img, ci.short || ci.name, ci.price ? cxNT(ci.price) : "", ci.soldOut ? "" : can ? "台灣免運" : "敬請期待", "", ci.soldOut)); }
+    if (lettersVisible() && SHOP_HOME_LETTERS) { var LF = SHOP_HOME_LETTERS; reg.push(card("shop-letters", "", LF.img, LF.title, "", LF.desc, LF.line, false)); }
+    var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
+    if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
+    if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
+      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), it.perk || "", it.left > 0 ? "剩 " + it.left + " 件" : "", !(it.left > 0))); }); }
+    if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
-      '<div class="sv3-bdm"><h2 class="sv3-block-h">' + esc(SHOP_TEXT.merchTitle) + '</h2><p class="sv3-bdm-sub"><span>生日限定周邊</span>・<span>' + esc(ev.name || "CHANCE") + '</span></p><div class="sv3-bdm-grid">' +
-      ks.map(function (k) { var it = I[k], out = !(it.left > 0);
-        return '<button class="sv3-bdm-it" data-act="m-open-k" data-ev="' + esc(ev.id) + '" data-k="' + k + '"' + (out ? ' disabled' : '') + '>' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') +
-          '<b>' + esc(it.name) + '</b><em>' + nt(it.price) + '</em><span>' + esc(it.perk || "") + '</span><small>' + (out ? "已售完" : "剩 " + esc(it.left) + " 件") + '</small><i>選這個</i></button>'; }).join("") +
-      '</div><p class="sv3-bdm-note">商品圖片為示意圖。海外寄送、現場領取都在下一步選。</p></div>' +
-    '</section>';
+      '<div class="sv3-bdm"><h2 class="sv3-block-h">' + esc(SHOP_TEXT.merchTitle) + '</h2>' +
+      (reg.length ? '<p class="sv3-bdm-sub"><span>常駐商品</span></p><div class="sv3-bdm-grid">' + reg.join("") + '</div>' : '') +
+      (bd.length ? '<p class="sv3-bdm-sub sv3-bdm-sub2"><span>生日限定周邊</span>・<span>' + esc(ev.name || "CHANCE") + '</span></p><div class="sv3-bdm-grid">' + bd.join("") + '</div><p class="sv3-bdm-note">商品圖片為示意圖。海外寄送、現場領取都在下一步選；買票時也可以直接加購。</p>' : '') +
+      '</div></section>';
   }
   function cxHomeHTML() {
     var bd = bdMerchHTML(); if (bd) return bd;   // B361T
@@ -1794,6 +1801,12 @@ function coverClockKey() {
         '<div class="sv3-merch-wrap cxp"><img src="' + esc(F.img || i.img || CX_FALLBACK.img) + '" alt="' + esc(F.title || i.name) + '"></div>' +
       '</button>' +
     '</section>';
+  }
+  /* B362T（CÉON 11/01）：測試版的卡包也接 the-sky-shop（卡包專用收款後端）。它若給的是綠界正式付款頁，先問一次，避免以為是測試卻真的扣款 */
+  function cxRealPayOk(form) {
+    var u = null; try { u = new URL(form.getAttribute("action") || "", location.href); } catch (e) {}
+    if (TKAPI !== "test" || !u || u.hostname !== "payment.ecpay.com.tw") return true;
+    try { return window.confirm("注意：卡包會走綠界「正式」付款，會真的扣款（不是測試環境）。\n確定要付款嗎？"); } catch (e) { return false; }
   }
   function cxOpen() {
     if (lettersVisible()) { cxLoad(); return openLayer("cxl"); }   /* B309T：有兩件以上商品才出現列表 */
@@ -1859,7 +1872,6 @@ function coverClockKey() {
     if (a === "pay") return cxPay(b);
   }
   function cxPay(btn) {
-    if (TKAPI === "test") return cxRender("卡包付款尚未接入隔離測試，這個候選版暫不開放付款。");
     var f = CX.f, i = cxItem(), email = String(f.email || "").trim().toLowerCase();
     var pick = cxIsPick();
     if (!f.name || !f.phone || (!pick && !f.addr)) return cxRender(pick ? "請填姓名和手機" : "請填完整收件人、手機、地址");
@@ -1878,6 +1890,7 @@ function coverClockKey() {
           .then(function (r) { return r.text(); }).then(function (html) {
             var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
             if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) return fail(jj.message); } catch (e) {} throw 0; }
+            if (!cxRealPayOk(form)) return fail("已取消，沒有付款。");
             var fm = document.importNode(form, true); fm.style.display = "none"; document.body.appendChild(fm); fm.submit();
           });
       }).catch(function () { fail("連不上伺服器，請稍後再試"); });
@@ -1990,7 +2003,6 @@ function coverClockKey() {
      任何失敗都不自動重送（後端可能已建立草稿／待付款訂單），只有使用者按「重新開啟付款頁」才再送一次 */
   function cx9Live(att) { var el = layerEl("cxc"); return CX.att === att && !!el && S.layers[S.layers.length - 1] === "cxc"; }
   function cx9Pay() {
-    if (TKAPI === "test") return cx9Fail("卡包付款尚未接入隔離測試，這個候選版暫不開放付款。");
     if (CX.busy) return;
     var f = CX.f, i = cxItem(), email = String(f.email || "").trim().toLowerCase(), pick = cxIsPick();
     CX.st = "";
@@ -2013,7 +2025,7 @@ function coverClockKey() {
     var fail = function (kind, msg) {
       if (CX.att !== att) return;
       CX.att++; CX.busy = false;
-      if (kind === "http") { CX.retry = false; CX.st = '<p class="t">暫時無法前往付款</p><p>' + esc(msg || "請稍後再試。") + '</p>'; }
+      if (kind === "http") { CX.retry = false; CX.st = '<p class="t">' + (msg === "已取消，沒有付款。" ? "沒有付款" : "暫時無法前往付款") + '</p><p>' + esc(msg || "請稍後再試。") + '</p>'; }
       else { CX.retry = true; CX.st = '<p class="t">付款頁未能開啟</p><p>請確認網路後再試。若已完成付款，請查看信箱，避免再次付款。</p>'; }
       cx9Paint(); var el = layerEl("cxc"), s = el && el.querySelector(".cx9-st"); try { if (s) s.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (x) {}
     };
@@ -2046,6 +2058,7 @@ function coverClockKey() {
         var doc = new DOMParser().parseFromString(o.html, "text/html"), form = doc.querySelector("form");
         if (!form) { var jj = null; try { jj = JSON.parse(o.html); } catch (e) {} if (jj && jj.message) throw { http: 1, msg: jj.message }; throw { net: 1 }; }
         clearTimeout(tmo);
+        if (!cxRealPayOk(form)) throw { http: 1, msg: "已取消，沒有付款。" };
         var fm = document.importNode(form, true); fm.style.display = "none"; document.body.appendChild(fm); fm.submit();
       }).catch(function (er) {
         clearTimeout(tmo);
@@ -2518,7 +2531,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B361T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B362T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';

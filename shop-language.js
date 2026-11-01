@@ -5,6 +5,13 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B362T：庫存帳本（防超賣）訊息、SHOP 周邊兩排、卡包接正式商店 */
+ '這個商品剛好被買完了（或有人正在結帳保留中）。還沒建立付款，不會扣款。':'This item just sold out (or someone is checking out the last one). No payment was created — you were not charged.',
+ '每人限購 1 張（以 Email 認定），這個 Email 已經買過或正在結帳。':'Limit 1 per person (by email). This email has already bought one or is checking out.',
+ '現在無法確認庫存，請稍後再試。還沒建立付款，不會扣款。':'We could not confirm stock right now. Please try again shortly — no payment was created.',
+ '這筆訂單正在等主辦確認，請不要重複購買。':'This order is waiting for the organiser to confirm. Please do not buy again.',
+ '常駐商品':'Always available','沒有付款':'Not paid','已取消，沒有付款。':'Cancelled — no payment was made.',
+ '商品圖片為示意圖。海外寄送、現場領取都在下一步選；買票時也可以直接加購。':'Images are for illustration. Choose overseas shipping or event pickup in the next step; you can also add these when buying a ticket.',
  /* B361T：結帳欄位檢查、SHOP 周邊兩個選項 */
  '請填寫你的稱呼':'Please enter your name','稱呼最多 20 個字':'Name can be up to 20 characters','稱呼至少要有一個字（不能只有符號）':'Your name needs at least one letter (not only symbols)',
  '請填寫手機號碼':'Please enter your mobile number','手機號碼只能填數字':'Mobile number can only contain digits',
