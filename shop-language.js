@@ -5,6 +5,10 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B375T：生日周邊購買頁（卡包結帳頁版型） */
+ '泰國':'Thailand','菲律賓':'Philippines','越南':'Vietnam','印尼':'Indonesia','墨西哥':'Mexico','巴西':'Brazil','阿根廷':'Argentina','智利':'Chile','南非':'South Africa','德國':'Germany','義大利':'Italy','西班牙':'Spain','荷蘭':'Netherlands','比利時':'Belgium','瑞士':'Switzerland','奧地利':'Austria','瑞典':'Sweden','挪威':'Norway','丹麥':'Denmark','芬蘭':'Finland','愛爾蘭':'Ireland','葡萄牙':'Portugal','波蘭':'Poland','捷克':'Czechia','紐西蘭':'New Zealand',
+ '選擇商品':'Choose items','請選擇':'Select','選地區後顯示':'Shown after you pick a region','請選寄送地區':'Please choose a shipping region','請先選商品':'Please choose an item first','找不到登入的 email，請重新登入':'We could not find your sign-in email — please sign in again',
+ '活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。':'Shipped after the event by Chunghwa Post e-Packet; we will email you the tracking number.',
  /* B363T：搶票只保留 3 分鐘、付款晚到 */
  '按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。':'After tapping “Go to payment”, please pay within 3 minutes — after that your spot goes to the next person.',
  '付款超過 3 分鐘，名額已讓給下一位':'Paid after 3 minutes — the spot went to the next person','付款超過 3 分鐘，商品已讓給下一位':'Paid after 3 minutes — the item went to the next person',

@@ -1261,6 +1261,7 @@ function coverClockKey() {
     var name = S.layers.pop(); if (!name) return;
     if (name === "cxc") { CX.att = (CX.att || 0) + 1; CX.busy = false; CX.st = ""; CX.retry = false; }   /* B279T：離開確認訂單＝這次付款嘗試作廢 */
     if (name === "ppstaff") ppsStop();
+    if (name === "mxc" && S.mx) { S.mx.att = (S.mx.att || 0) + 1; S.mx.busy = false; }   /* B375T：離開購買頁＝這次付款嘗試作廢 */
     if (name === "dcl") document.body.classList.remove("dcl-open");   /* B309T */
     if (name === "cxl") document.body.classList.remove("cxl-open");
     var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
@@ -1285,6 +1286,13 @@ function coverClockKey() {
     if (name === "buy") { el.innerHTML = buyHTML(); el.classList.toggle("la-on", !!el.querySelector(".la")); laShape(el); }   /* B281T */
     if (name === "checkout") el.innerHTML = checkoutHTML();
     if (name === "cxl") { el.innerHTML = cxListHTML(); document.body.classList.add("cxl-open"); }   /* B309T */
+    if (name === "mxc") {   /* B375T：生日周邊購買頁；正在輸入時不重畫 */
+      var mae = document.activeElement;
+      if (el.innerHTML && mae && el.contains(mae) && /^(INPUT|SELECT|TEXTAREA)$/.test(mae.tagName)) return;
+      if (!el.__mx) { el.__mx = 1; el.addEventListener("click", mxClick); el.addEventListener("input", mxInput); el.addEventListener("change", mxInput);
+        el.addEventListener("focusin", function (e) { if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) setTimeout(function () { try { e.target.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (x) {} }, 320); }); }
+      el.innerHTML = mxHTML();
+    }
     if (name === "dcl" && !el.querySelector("iframe")) { el.innerHTML = lettersHTML(); document.body.classList.add("dcl-open"); }   /* B309T：只建一次，不重載；開著時先藏「放到主畫面」提示，免得蓋住返回鍵 */
     if (name === "done") { el.innerHTML = doneHTML(); var dq = $("#tkd-qr", el), dd = S.done || {}, dt = ticketById(dd.ticketId) || ticketsFor(dd.evId)[0]; if (dq && dt && dt.qr) drawQR(dq, dt.qr, 240); }
     if (name === "cxd" || name === "cxc") {   /* B279T：02／03 —— 正在輸入時不重畫（避免背景更新把鍵盤收掉、游標跳走） */
@@ -1723,7 +1731,7 @@ function coverClockKey() {
      商品／價格／運費／能不能買 全部由後端 /shop/items 決定；前端只負責畫面。
      後端還沒上線或還沒開賣 → 卡片顯示「即將開賣」，按了只提示，不會壞。
      ════════════════════════════════════════════════════════════════ */
-  var CSS279 = "/* B280T 周邊 02／03（01 用原版 sv3） */  /* 02／03 共用 */ .tk-layer[data-layer=cxd],.tk-layer[data-layer=cxc]{--bg:#0B0A09;--bg-top:#1a1610;padding:0 0 env(safe-area-inset-bottom);scroll-padding:72px 0 104px} .cx9 input:disabled,.cx9 select:disabled,.cx9 textarea:disabled{opacity:.6} .cx9{--g:#D9B87E;--g2:#E8C98C;--ink:#F3EEEA;--soft:#CFC7BA;--mut:#A39B8E;--line:rgba(217,184,126,.26);min-height:100%;display:flex;flex-direction:column;color:var(--ink);font-family:-apple-system,\"PingFang TC\",\"Noto Sans TC\",sans-serif;padding:0 18px} .cx9-bar{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;margin:0 -18px 6px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;background:linear-gradient(#0B0A09 72%,rgba(11,10,9,0))} .cx9-back{width:48px;height:48px;border:0;background:none;color:var(--ink);font-size:32px;line-height:1;cursor:pointer} .cx9-t{margin:0;text-align:center;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:19px;letter-spacing:.08em;color:var(--ink)} .cx9-logo{justify-self:end;width:40px;height:40px;object-fit:contain;margin-right:4px} .cx9-hero{display:flex;justify-content:center;align-items:center;margin:2px -18px 0;padding:18px 0 22px;background:radial-gradient(60% 70% at 50% 45%,#2a251d 0%,#0B0A09 72%)} .cx9-hero img{width:min(56vw,250px);aspect-ratio:399/720;object-fit:contain;filter:drop-shadow(0 22px 32px rgba(0,0,0,.65))} .cx9-eb{margin:10px 0 4px;padding-top:12px;border-top:1px solid var(--line);font:500 13px/1.3 \"Bodoni Moda\",Georgia,serif;letter-spacing:.16em;color:var(--mut)} .cx9-name{margin:0;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:27px;line-height:1.3;color:var(--ink)} .cx9-sub{margin:4px 0 0;font-size:17px;color:var(--soft)} .cx9-price{margin:10px 0 4px;font:500 28px/1.2 \"Bodoni Moda\",Georgia,serif;color:var(--g2)} .cx9-price small{font:400 17px/1 -apple-system,\"PingFang TC\",sans-serif;color:var(--soft)} .cx9-ship{list-style:none;margin:8px 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px} .cx9-ship li{font-size:16px;line-height:1.5;color:var(--soft)} .cx9-ship .ic{margin-right:6px;filter:grayscale(1) brightness(1.4)} .cx9-acc{margin:0 0 10px;border:1px solid var(--line);border-radius:14px;background:#121010} .cx9-acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:0 16px;font-size:17px;color:var(--ink);cursor:pointer} .cx9-acc summary::-webkit-details-marker{display:none} .cx9-acc summary::after{content:\"›\";font-size:24px;color:var(--soft);transition:transform .2s} .cx9-acc[open] summary::after{transform:rotate(90deg)} .cx9-acc-b{padding:0 16px 14px} .cx9-acc-b p{margin:0 0 8px;font-size:16px;line-height:1.7;color:var(--soft)} .cx9-acc-b b{color:var(--ink);font-weight:600} .cx9-ln{min-height:44px;padding:0;border:0;background:none;color:var(--g);font:inherit;font-size:16px;text-decoration:underline;text-underline-offset:3px;cursor:pointer} .cx9-foot{position:sticky;bottom:0;z-index:2;margin:auto -18px 0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(rgba(11,10,9,0),#0B0A09 30%)} .cx9-cta{width:100%;min-height:54px;border:0;border-radius:999px;background:linear-gradient(90deg,#B8964F,#D6B66F 52%,#F0DCA8);color:#17130B;font:600 17px/1 -apple-system,\"PingFang TC\",sans-serif;letter-spacing:.06em;cursor:pointer} .cx9-cta[disabled]{opacity:.5;cursor:default} .cx9-cta i{font-style:normal} .tk-layer.cx9-kb .cx9-foot{position:static} /* 03 */ .cx9-sum1{display:flex;gap:16px;align-items:center;margin:4px 0 6px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#121010} .cx9-sum1 img{flex:none;width:64px;height:112px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))} .cx9-sum1-t{min-width:0} .cx9-sum1-t b{display:block;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:18px;line-height:1.35;color:var(--ink)} .cx9-sum1-t>span{display:block;margin:2px 0 8px;font-size:16px;color:var(--g2)} .cx9-sum1-t small{display:block;margin-top:6px;font-size:14px;color:var(--mut)} .cx9-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px} .cx9-qty button{width:46px;height:46px;border:0;background:none;color:var(--g2);font-size:22px;cursor:pointer} .cx9-qty button[disabled]{opacity:.3;cursor:default} .cx9-qty output{min-width:38px;text-align:center;font-size:18px;font-weight:600;color:var(--ink)} .cx9-h3{margin:18px 0 8px;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:17px;letter-spacing:.08em;color:var(--g)} .cx9-mth{display:grid;grid-template-columns:1fr 1fr;gap:10px} .cx9-mth button{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:#121010;color:var(--soft);text-align:left;cursor:pointer} .cx9-mth button.on{border-color:var(--g);background:rgba(217,184,126,.08);color:var(--ink)} .cx9-mth i{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5)} .cx9-mth .on i{border-color:var(--g);box-shadow:inset 0 0 0 4px #121010;background:var(--g)} .cx9-mth b{display:block;font-size:17px;font-weight:600;color:inherit} .cx9-mth small{display:block;margin-top:2px;font-size:14px;color:var(--mut);text-wrap:balance} .cx9-form{border:1px solid var(--line);border-radius:16px;background:#121010;padding:6px 14px} .cx9-row{display:grid;grid-template-columns:88px 1fr;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)} .cx9-row:last-child{border-bottom:0} .cx9-row>span{font-size:16px;color:var(--soft)} .cx9 input,.cx9 select,.cx9 textarea{width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:#0B0A09;color:var(--ink);font:400 16px/1.4 -apple-system,\"PingFang TC\",sans-serif !important;font-size:16px !important;outline:none;-webkit-appearance:none;appearance:none} .cx9 select{background-image:linear-gradient(45deg,transparent 50%,#CFC7BA 50%),linear-gradient(135deg,#CFC7BA 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px} .cx9 textarea{resize:none} .cx9 input::placeholder,.cx9 textarea::placeholder{color:#7d766c} .cx9 input:focus,.cx9 select:focus,.cx9 textarea:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(217,184,126,.2)} .cx9 [aria-invalid=true]{border-color:#E8A23A} .cx9-err{margin:10px 0 0;font-size:16px;font-weight:600;line-height:1.5;color:#F2B24C} .cx9-err[hidden],.cx9-st[hidden]{display:none} .cx9-total{margin:16px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#121010} .cx9-total div{display:flex;justify-content:space-between;margin:4px 0;font-size:16px;color:var(--soft)} .cx9-total .tot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);align-items:baseline} .cx9-total .tot span{font-size:17px;color:var(--g)} .cx9-total .tot b{font:500 26px/1.1 \"Bodoni Moda\",Georgia,serif;color:var(--g2)} .cx9-note{margin:12px 0 0;padding-left:20px;font-size:15px;line-height:1.7;color:var(--mut)} .cx9-st{margin:14px 0 0;padding:14px 16px;border:1px solid #4A3F2C;border-radius:12px;background:#14110C} .cx9-st p{margin:0 0 4px;font-size:16px;line-height:1.55;color:#E6DFD3} .cx9-st .t{font-size:17px;font-weight:600;color:#F2C86B} @media (max-width:359px){.cx9-row{grid-template-columns:1fr;gap:4px}.cx9-mth{grid-template-columns:1fr}.cx9-name{font-size:24px}} @media (prefers-reduced-motion:reduce){.cx9-acc summary::after{transition:none}} ";
+  var CSS279 = "/* B280T 周邊 02／03（01 用原版 sv3） */  /* 02／03 共用 */ .tk-layer[data-layer=cxd],.tk-layer[data-layer=cxc],.tk-layer[data-layer=mxc]{--bg:#0B0A09;--bg-top:#1a1610;padding:0 0 env(safe-area-inset-bottom);scroll-padding:72px 0 104px} .cx9 input:disabled,.cx9 select:disabled,.cx9 textarea:disabled{opacity:.6} .cx9{--g:#D9B87E;--g2:#E8C98C;--ink:#F3EEEA;--soft:#CFC7BA;--mut:#A39B8E;--line:rgba(217,184,126,.26);min-height:100%;display:flex;flex-direction:column;color:var(--ink);font-family:-apple-system,\"PingFang TC\",\"Noto Sans TC\",sans-serif;padding:0 18px} .cx9-bar{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;margin:0 -18px 6px;padding:calc(6px + env(safe-area-inset-top)) 8px 6px;background:linear-gradient(#0B0A09 72%,rgba(11,10,9,0))} .cx9-back{width:48px;height:48px;border:0;background:none;color:var(--ink);font-size:32px;line-height:1;cursor:pointer} .cx9-t{margin:0;text-align:center;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:19px;letter-spacing:.08em;color:var(--ink)} .cx9-logo{justify-self:end;width:40px;height:40px;object-fit:contain;margin-right:4px} .cx9-hero{display:flex;justify-content:center;align-items:center;margin:2px -18px 0;padding:18px 0 22px;background:radial-gradient(60% 70% at 50% 45%,#2a251d 0%,#0B0A09 72%)} .cx9-hero img{width:min(56vw,250px);aspect-ratio:399/720;object-fit:contain;filter:drop-shadow(0 22px 32px rgba(0,0,0,.65))} .cx9-eb{margin:10px 0 4px;padding-top:12px;border-top:1px solid var(--line);font:500 13px/1.3 \"Bodoni Moda\",Georgia,serif;letter-spacing:.16em;color:var(--mut)} .cx9-name{margin:0;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:27px;line-height:1.3;color:var(--ink)} .cx9-sub{margin:4px 0 0;font-size:17px;color:var(--soft)} .cx9-price{margin:10px 0 4px;font:500 28px/1.2 \"Bodoni Moda\",Georgia,serif;color:var(--g2)} .cx9-price small{font:400 17px/1 -apple-system,\"PingFang TC\",sans-serif;color:var(--soft)} .cx9-ship{list-style:none;margin:8px 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px} .cx9-ship li{font-size:16px;line-height:1.5;color:var(--soft)} .cx9-ship .ic{margin-right:6px;filter:grayscale(1) brightness(1.4)} .cx9-acc{margin:0 0 10px;border:1px solid var(--line);border-radius:14px;background:#121010} .cx9-acc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:0 16px;font-size:17px;color:var(--ink);cursor:pointer} .cx9-acc summary::-webkit-details-marker{display:none} .cx9-acc summary::after{content:\"›\";font-size:24px;color:var(--soft);transition:transform .2s} .cx9-acc[open] summary::after{transform:rotate(90deg)} .cx9-acc-b{padding:0 16px 14px} .cx9-acc-b p{margin:0 0 8px;font-size:16px;line-height:1.7;color:var(--soft)} .cx9-acc-b b{color:var(--ink);font-weight:600} .cx9-ln{min-height:44px;padding:0;border:0;background:none;color:var(--g);font:inherit;font-size:16px;text-decoration:underline;text-underline-offset:3px;cursor:pointer} .cx9-foot{position:sticky;bottom:0;z-index:2;margin:auto -18px 0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(rgba(11,10,9,0),#0B0A09 30%)} .cx9-cta{width:100%;min-height:54px;border:0;border-radius:999px;background:linear-gradient(90deg,#B8964F,#D6B66F 52%,#F0DCA8);color:#17130B;font:600 17px/1 -apple-system,\"PingFang TC\",sans-serif;letter-spacing:.06em;cursor:pointer} .cx9-cta[disabled]{opacity:.5;cursor:default} .cx9-cta i{font-style:normal} .tk-layer.cx9-kb .cx9-foot{position:static} /* 03 */ .cx9-sum1{display:flex;gap:16px;align-items:center;margin:4px 0 6px;padding:14px;border:1px solid var(--line);border-radius:16px;background:#121010} .cx9-sum1 img{flex:none;width:64px;height:112px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))} .cx9-sum1-t{min-width:0} .cx9-sum1-t b{display:block;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:18px;line-height:1.35;color:var(--ink)} .cx9-sum1-t>span{display:block;margin:2px 0 8px;font-size:16px;color:var(--g2)} .cx9-sum1-t small{display:block;margin-top:6px;font-size:14px;color:var(--mut)} .cx9-qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:12px} .cx9-qty button{width:46px;height:46px;border:0;background:none;color:var(--g2);font-size:22px;cursor:pointer} .cx9-qty button[disabled]{opacity:.3;cursor:default} .cx9-qty output{min-width:38px;text-align:center;font-size:18px;font-weight:600;color:var(--ink)} .cx9-h3{margin:18px 0 8px;font-family:\"Noto Serif TC\",\"Songti TC\",serif;font-weight:600;font-size:17px;letter-spacing:.08em;color:var(--g)} .cx9-mth{display:grid;grid-template-columns:1fr 1fr;gap:10px} .cx9-mth button{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:#121010;color:var(--soft);text-align:left;cursor:pointer} .cx9-mth button.on{border-color:var(--g);background:rgba(217,184,126,.08);color:var(--ink)} .cx9-mth i{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5)} .cx9-mth .on i{border-color:var(--g);box-shadow:inset 0 0 0 4px #121010;background:var(--g)} .cx9-mth b{display:block;font-size:17px;font-weight:600;color:inherit} .cx9-mth small{display:block;margin-top:2px;font-size:14px;color:var(--mut);text-wrap:balance} .cx9-form{border:1px solid var(--line);border-radius:16px;background:#121010;padding:6px 14px} .cx9-row{display:grid;grid-template-columns:88px 1fr;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)} .cx9-row:last-child{border-bottom:0} .cx9-row>span{font-size:16px;color:var(--soft)} .cx9 input,.cx9 select,.cx9 textarea{width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:#0B0A09;color:var(--ink);font:400 16px/1.4 -apple-system,\"PingFang TC\",sans-serif !important;font-size:16px !important;outline:none;-webkit-appearance:none;appearance:none} .cx9 select{background-image:linear-gradient(45deg,transparent 50%,#CFC7BA 50%),linear-gradient(135deg,#CFC7BA 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px} .cx9 textarea{resize:none} .cx9 input::placeholder,.cx9 textarea::placeholder{color:#7d766c} .cx9 input:focus,.cx9 select:focus,.cx9 textarea:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(217,184,126,.2)} .cx9 [aria-invalid=true]{border-color:#E8A23A} .cx9-err{margin:10px 0 0;font-size:16px;font-weight:600;line-height:1.5;color:#F2B24C} .cx9-err[hidden],.cx9-st[hidden]{display:none} .cx9-total{margin:16px 0 0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#121010} .cx9-total div{display:flex;justify-content:space-between;margin:4px 0;font-size:16px;color:var(--soft)} .cx9-total .tot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);align-items:baseline} .cx9-total .tot span{font-size:17px;color:var(--g)} .cx9-total .tot b{font:500 26px/1.1 \"Bodoni Moda\",Georgia,serif;color:var(--g2)} .cx9-note{margin:12px 0 0;padding-left:20px;font-size:15px;line-height:1.7;color:var(--mut)} .cx9-st{margin:14px 0 0;padding:14px 16px;border:1px solid #4A3F2C;border-radius:12px;background:#14110C} .cx9-st p{margin:0 0 4px;font-size:16px;line-height:1.55;color:#E6DFD3} .cx9-st .t{font-size:17px;font-weight:600;color:#F2C86B} @media (max-width:359px){.cx9-row{grid-template-columns:1fr;gap:4px}.cx9-mth{grid-template-columns:1fr}.cx9-name{font-size:24px}} @media (prefers-reduced-motion:reduce){.cx9-acc summary::after{transition:none}} ";
   var SHOP_API = window.THE_SKY_SHOP_API || "https://the-sky-shop.anthonywen0693.workers.dev";   /* 卡包專用收款後端（獨立，不碰專輯／票務主後端） */
   var CX = { items: null, ship: null, tried: 0, loading: false, qty: 1, f: { method: "ship", country: "TW", name: "", phone: "", postal: "", addr: "" } };
   var CX_FALLBACK = { key: "cardpack-v1", short: "CHANCE 官方卡包 Vol.1", name: "CHANCE 官方卡包 Vol.1 無限可能 C.X.", price: 399, img: "shop-assets/cardpack-v1.webp", onSale: false, maxQty: 10 };
@@ -2530,7 +2538,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B373T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B375T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2625,49 +2633,81 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var mi = mInfo(evId); if (!mi) { S.mmTried[evId] = 0; return mEnsure(evId, function () { mOpen(evId); }); }
     var hasT = loggedIn() && ticketsFor(evId).length > 0;
     if (!S.mx || S.mx.evId !== evId) S.mx = { evId: evId, mode: (hasT || mV2(evId)) ? "pickup" : "ship", mq: 1, ship: { country: "" }, pk: { name: "", phone: "" }, email: myEmail() || lsGet(K.email) || "" };
-    mSheet();
+    S.mx.err = ""; S.mx.bad = "";
+    if (S.layers.indexOf("mxc") >= 0) mSheet(); else openLayer("mxc");   // B375T：整頁（跟卡包結帳頁同一個版型），不再用彈窗
   }
   function mTermsText(mode, v2) {
     return "周邊為預購商品，" + (mode === "ship" ? "活動後陸續寄出" : v2 ? "活動當天現場領取（報訂購姓名＋電話）" : "活動當天憑票現場領取") + "。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。" +
       (mode === "ship" ? "採中華郵政 e 小包並提供追蹤號碼；寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄；關稅與進口稅由收件人負擔。" : "");
   }
-  function mSheet() {
-    var o = S.mx; if (!o) return;
-    var mi = mInfo(o.evId), ev = buyEvent(o.evId) || {}; if (!mi) return;
-    var hasT = loggedIn() && ticketsFor(o.evId).length > 0;
-    var v2 = mV2(o.evId), q = mQ(o.evId, o);
+  /* ===== B375T（CÉON 11/01）：生日限定周邊購買頁＝卡包結帳頁的版型 =====
+     一整頁：選商品 → 數量 → 取貨方式 → 左標籤右欄位的表單 → 小計／運費／合計 → 底部「前往付款」。訂單、庫存、付款流程跟原本的彈窗一樣。 */
+  function mxHTML() {
+    var o = S.mx; if (!o) return "";
+    var mi = mInfo(o.evId), ev = buyEvent(o.evId) || {};
+    if (!mi) return '<div class="cx9 cx9-c mx">' + cx9Bar("確認訂單") + '<p class="cx9-st">載入中…</p></div>';
+    var hasT = loggedIn() && ticketsFor(o.evId).length > 0, v2 = mV2(o.evId), I = mi.m.items, busy = !!o.busy;
     if (o.mode === "pickup" && !hasT && !v2) o.mode = "ship";
-    var r = mResolve(mi, mSel(o)), fee = 0, z = null;
-    if (o.mode === "ship" && o.ship.country) { var c = mi.ship.countries.filter(function (x) { return x[0] === o.ship.country; })[0]; z = c ? mi.ship.zones[c[2]] : null; if (z && r) fee = Number(z[r.code] || 0); }
-    var total = r ? r.price * q + fee : 0;
-    var h = '<div class="tkb-sh tkm-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button><div class="tk-eyebrow">Birthday Merch</div><h3>生日限定周邊</h3><div class="tk-hint">' + esc(ev.name || "") + (mCut(mi) ? '・預購至 ' + esc(mCut(mi)) : '') + '</div>';
-    h += mRows(o.evId, o, "m-t") + mQtyHTML(o.evId, o, "m-mq", "data-sact");
-    h += '<div class="tkb-sec">取貨方式</div><div class="tkm-seg"><button type="button" data-sact="m-mode" data-m="pickup" class="' + (o.mode === "pickup" ? "on" : "") + '"' + (hasT || v2 ? "" : " disabled") + '>現場領取<small>' + (v2 ? esc(md(ev.startAt)) + " 報姓名＋電話領取" : hasT ? esc(md(ev.startAt)) + " 憑票領取" : "需持有這場門票") + '</small></button><button type="button" data-sact="m-mode" data-m="ship" class="' + (o.mode === "ship" ? "on" : "") + '">' + (v2 ? "寄送" : "海外寄送") + '<small>' + (v2 ? "台灣・亞洲 NT$250／其他 NT$500" : "運費依地區計算") + '</small></button></div>';
-    if (o.mode === "ship") {
-      h += '<select class="tk-in tkb-in" data-mf="country" aria-label="國家／地區"><option value="">選擇國家／地區</option>' + mi.ship.countries.map(function (c) { return '<option value="' + c[0] + '"' + (o.ship.country === c[0] ? " selected" : "") + '>' + esc(c[1]) + '</option>'; }).join("") + '</select>';
-      [["name", "收件人姓名", "name"], ["phone", "電話（含國碼）", "tel"], ["addr", "地址（街道、門牌、樓層）", "street-address"], ["city", "城市", "address-level2"], ["state", "州／省（沒有可空白）", "address-level1"], ["postal", "郵遞區號（香港、澳門免填）", "postal-code"]].forEach(function (f) {
-        h += '<input class="tk-in tkb-in" data-mf="' + f[0] + '" autocomplete="' + f[2] + '" placeholder="' + f[1] + '" aria-label="' + f[1] + '" value="' + esc(o.ship[f[0]] || "") + '">'; });
-      h += '<div class="tkm-hint">' + (v2 ? "清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。" : "清單以外的國家（含中東地區郵局暫停收寄的國家）目前無法寄送，可來信 heartbeats0693@gmail.com 詢問。台灣粉絲請選現場領取。") + '</div>';
-    }
-    if (o.mode === "pickup" && v2) {   /* B343T：現場領取用訂購姓名＋電話核對（不用有票） */
-      h += '<div class="tkb-sec">領取人資料（現場核對用）</div>';
-      [["name", "領取人姓名", "name"], ["phone", "手機號碼", "tel"]].forEach(function (f) { h += '<input class="tk-in tkb-in" data-mf="pk-' + f[0] + '" autocomplete="' + f[2] + '" placeholder="' + f[1] + '" aria-label="' + f[1] + '" value="' + esc((o.pk || {})[f[0]] || "") + '">'; });
-    }
-    if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>訂單確認信寄到 <b>' + esc(maskEmail(myEmail())) + '</b></span></div>';
-    else h += '<div class="tkb-sec">Email（訂單確認信寄到這裡）</div><input class="tk-in tkb-in" type="email" inputmode="email" autocapitalize="off" data-mf="email" autocomplete="email" placeholder="你的 email" value="' + esc(o.email || "") + '">';
-    h += '<div class="tkm-sum"><span>' + (r ? esc(r.code === "s" ? mi.m.items.s.name : r.label) + (q > 1 ? " ×" + q : "") : "還沒選商品") + '</span><b>' + (r ? nt(r.price * q) : "—") + '</b>' +
-      (o.mode === "ship" ? '<span>運費' + (z ? "（" + esc(z.label) + "）" : "") + '</span><b>' + (z ? nt(fee) : "選國家後顯示") + '</b>' : '') + '</div>';
-    h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(total) + '</b></div><p class="tkb-fine">' + esc(mTermsText(o.mode, v2)) + '</p>';
-    h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tkm-msg"></div><button class="tk-btn p" data-sact="m-pay"' + (r ? "" : " disabled") + '>' + (r ? "前往付款 " + nt(total) : "請先選商品") + '</button></div>';
-    sheet(h);
-    var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
-    sheetEl.querySelectorAll("[data-mf]").forEach(function (inp) {
-      inp.addEventListener(inp.tagName === "SELECT" ? "change" : "input", function () {
-        var k = inp.getAttribute("data-mf");
-        if (k === "email") o.email = inp.value.trim().toLowerCase(); else if (k.indexOf("pk-") === 0) { o.pk = o.pk || {}; o.pk[k.slice(3)] = inp.value; } else o.ship[k] = inp.value;
-        if (k === "country") mSheet();
-      });
-    });
+    var pick = o.mode === "pickup", r = mResolve(mi, mSel(o)), q = mQ(o.evId, o), mx = mQMax(o.evId, o), sh = o.ship, z = null, fee = pick ? 0 : null;
+    if (!pick && sh.country) { var cc = mi.ship.countries.filter(function (x) { return x[0] === sh.country; })[0]; z = cc ? mi.ship.zones[cc[2]] : null; if (z) fee = Number(z[r ? r.code : "b"] || 0); }
+    var sub = r ? r.price * q : 0, total = r && fee !== null ? sub + fee : null, day = md(ev.startAt), en = sxEN();
+    var A = function (k) { return (o.bad === k ? ' aria-invalid="true"' : '') + (busy ? ' disabled' : ''); };
+    var item = function (k) {
+      var it = I[k]; if (!it) return "";
+      var own = mOwned(o.evId, k), out = !(it.left > 0), on = !!o["m" + k] && !own && !out;
+      return '<button type="button" class="cx9-sum1 mx-it' + (on ? " on" : "") + '" data-mx="item" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out || busy ? " disabled" : "") + '><i aria-hidden="true"></i>' +
+        (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="">' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span><small>' + esc(it.perk || "") + (own ? "・你已購買" : out ? "・已售完" : it.left <= 10 ? "・剩 " + esc(it.left) + " 件" : "") + '</small></span></button>';
+    };
+    var opts = mi.ship.countries.map(function (c) { var zz = mi.ship.zones[c[2]] || {}; return '<option value="' + esc(c[0]) + '"' + (c[0] === sh.country ? " selected" : "") + '>' + esc(sxTr(c[1])) + (en ? " · Shipping " : "・運費 ") + nt(zz[r ? r.code : "b"] || 0) + '</option>'; }).join("");
+    var tw = sh.country === "TW", noPostal = !sh.country || tw || ["HK", "MO"].indexOf(sh.country) >= 0;
+    var ctaTxt = busy ? "處理中…" : !r ? "請先選商品" : "前往付款 · " + (total === null ? nt(sub) : nt(total));
+    var h = '<div class="cx9 cx9-c mx">' + cx9Bar("確認訂單") +
+      '<h3 class="cx9-h3">選擇商品</h3>' + item("b") + item("h") +
+      (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
+      (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>每筆最多 ' + MQ_MAX + ' 組</small></div>' : '') +
+      '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
+        '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + (hasT || v2 ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
+        '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
+      '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + '</h3><div class="cx9-form">';
+    if (pick && v2) h += cx9Row("pk-name", "姓名", '<input data-mf="pk-name" autocomplete="name" maxlength="60" placeholder="現場核對用" value="' + esc((o.pk || {}).name || "") + '"' + A("pk-name") + '>') +
+      cx9Row("pk-phone", "手機", '<input data-mf="pk-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="請輸入手機號碼" value="' + esc((o.pk || {}).phone || "") + '"' + A("pk-phone") + '>');
+    if (!pick) h += cx9Row("country", "寄送地區", '<select data-mf="country"' + A("country") + '><option value="">請選擇</option>' + opts + '</select>') +
+      cx9Row("name", "收件人姓名", '<input data-mf="name" autocomplete="name" maxlength="60" placeholder="請輸入收件人姓名" value="' + esc(sh.name || "") + '"' + A("name") + '>') +
+      cx9Row("phone", "手機", '<input data-mf="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="' + (sh.country && !tw ? "含國碼，例如 +852 91234567" : "請輸入手機號碼") + '" value="' + esc(sh.phone || "") + '"' + A("phone") + '>') +
+      cx9Row("postal", "郵遞區號", '<input data-mf="postal" autocomplete="postal-code" maxlength="16" placeholder="' + (noPostal ? "選填" : "必填") + '" value="' + esc(sh.postal || "") + '"' + A("postal") + '>') +
+      cx9Row("addr", "地址", '<textarea data-mf="addr" rows="2" autocomplete="street-address" maxlength="160" placeholder="' + (sh.country && !tw ? "街道、門牌、樓層、城市" : "請輸入詳細地址") + '"' + A("addr") + '>' + esc(sh.addr || "") + '</textarea>');
+    h += loggedIn() ? cx9Row("email", "Email", '<span class="mx-ro">' + esc(maskEmail(myEmail())) + '</span>')
+      : cx9Row("email", "Email", '<input data-mf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(o.email || "") + '"' + A("email") + '>');
+    h += '</div>' +
+      '<p class="cx9-err" role="alert"' + (o.err ? '' : ' hidden') + '>' + esc(o.err || "") + '</p>' +
+      '<div class="cx9-total"><div><span>商品小計</span><b>' + (r ? nt(sub) : "—") + '</b></div><div><span>運費</span><b>' + (pick ? "免運" : fee === null ? "選地區後顯示" : nt(fee)) + '</b></div><div class="tot"><span>合計</span><b>' + (total === null ? "—" : nt(total)) + '</b></div></div>' +
+      '<ul class="cx9-note"><li>' + (pick ? (en ? (v2 ? "On " + esc(day) + ", pick up at the merch desk with your name and phone number." : "Pick up with your ticket on " + esc(day) + ".") : v2 ? esc(day) + " 生日會當天，到周邊服務台報上姓名和手機領取。" : esc(day) + " 生日會當天憑票現場領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
+        '<li>按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</li><li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
+      '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p></div></details>' +
+      '<div class="cx9-foot"><button type="button" class="cx9-cta" data-mx="pay"' + (!r || busy ? " disabled" : "") + '>' + esc(ctaTxt) + '</button></div></div>';
+    return h;
+  }
+  function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop; el.innerHTML = mxHTML(); el.scrollTop = sc; }
+  function mxFail(m, field) {
+    var o = S.mx; if (!o) return; o.err = m; o.bad = field || ""; mSheet();
+    var el = layerEl("mxc"); if (!el) return;
+    var t = field ? el.querySelector('[data-mf="' + field + '"]') : null;
+    try { (t || el.querySelector(".cx9-err")).scrollIntoView({ block: "center", behavior: "smooth" }); } catch (x) {}
+  }
+  function mxClick(e) {
+    var b = e.target.closest && e.target.closest("[data-mx]"), o = S.mx; if (!b || b.disabled || !o) return;
+    var a = b.getAttribute("data-mx");
+    if (a === "item") { var k = b.getAttribute("data-k"); if (mOwned(o.evId, k)) return; o["m" + k] = !o["m" + k]; o.err = ""; o.bad = ""; hap(8); return mSheet(); }
+    if (a === "minus" || a === "plus") { o.mq = Math.max(1, Math.min(mQ(o.evId, o) + (a === "plus" ? 1 : -1), mQMax(o.evId, o))); hap(6); return mSheet(); }
+    if (a === "m-pick" || a === "m-ship") { o.mode = a === "m-pick" ? "pickup" : "ship"; o.err = ""; o.bad = ""; return mSheet(); }
+    if (a === "pay") return mPay(b);
+  }
+  function mxInput(e) {
+    var o = S.mx, k = e.target.getAttribute && e.target.getAttribute("data-mf"); if (!o || !k) return;
+    var v = e.target.value;
+    if (k === "email") o.email = v.trim().toLowerCase(); else if (k.indexOf("pk-") === 0) { o.pk = o.pk || {}; o.pk[k.slice(3)] = v; } else o.ship[k] = v;
+    if (o.bad === k) { o.bad = ""; e.target.removeAttribute("aria-invalid"); }
+    if (k === "country" && e.type === "change") { o.err = ""; mSheet(); }
   }
   function mSheetAct(a, el) {
     var o = S.mx; if (!o || !el) return;
@@ -2683,39 +2723,49 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return form;
   }
   function mPay(btn) {
-    if (!btn || btn.disabled) return;
-    var payRevision = sheetRevision;
-    function currentAttempt() { return sheetRevision === payRevision && S.mx === o; }
-    var o = S.mx; if (!o) return; var code = mSel(o); if (!code) return msg("#tkm-msg", "請先選商品");
-    var email = loggedIn() ? myEmail() : (o.email || "");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg("#tkm-msg", "請輸入正確的 email");
-    if (o.mode === "ship") { var s = o.ship; if (!s.country) return msg("#tkm-msg", "請選國家／地區"); if (!s.name || !s.phone || !s.addr) return msg("#tkm-msg", "請填完整收件人、電話、地址"); }
-    var v2 = mV2(o.evId), pk = o.pk || {};
-    if (o.mode === "pickup" && v2 && (!String(pk.name || "").trim() || String(pk.phone || "").replace(/[^0-9]/g, "").length < 8)) return msg("#tkm-msg", "請填領取人姓名和手機（現場核對用）");
+    var o = S.mx; if (!o || o.busy) return;
+    var att = o.att = (o.att || 0) + 1;
+    function currentAttempt() { return S.mx === o && o.att === att && S.layers.indexOf("mxc") >= 0; }
+    var code = mSel(o); if (!code) return mxFail("請先選商品");
+    var v2 = mV2(o.evId), pk = o.pk || {}, sh = o.ship, email = loggedIn() ? myEmail() : (o.email || ""), c;
+    if (o.mode === "pickup" && v2) {   // B375T：現場領取用跟買票一樣嚴格的手機檢查（台灣 09 開頭 10 碼；海外 +國碼）
+      if (!String(pk.name || "").trim()) return mxFail("請填姓名（現場核對用）", "pk-name");
+      c = phoneCheck(pk.phone); if (c.err) return mxFail(c.err, "pk-phone");
+    }
+    if (o.mode === "ship") {
+      if (!sh.country) return mxFail("請選寄送地區", "country");
+      if (!String(sh.name || "").trim()) return mxFail("請填收件人姓名", "name");
+      if (String(sh.phone || "").replace(/[^0-9]/g, "").length < 8) return mxFail(sh.phone ? "手機號碼看起來不完整" : "請填手機", "phone");
+      if (sh.country !== "TW" && ["HK", "MO"].indexOf(sh.country) < 0 && !String(sh.postal || "").trim()) return mxFail("海外寄送請填郵遞區號", "postal");
+      if (!String(sh.addr || "").trim()) return mxFail("請填地址", "addr");
+    }
+    if (!loggedIn()) { c = emailCheck(email); if (c.err) return mxFail(c.err, "email"); email = String(email).trim().toLowerCase(); }
+    else if (!email) return mxFail("找不到登入的 email，請重新登入");   // 登入的 email 由後台給，格式後台已檢查
     lsSet(K.email, email);
     var payTimer;
-    var reset = function () { clearTimeout(payTimer); btn.disabled = false; if (currentAttempt()) mSheet(); };
-    btn.disabled = true; btn.textContent = "處理中…";
-    var body = { eventId: o.evId, code: code, mode: o.mode, email: email, session: S.session || "", ship: o.mode === "ship" ? o.ship : (v2 ? { name: String(pk.name || "").trim(), phone: String(pk.phone || "").trim() } : null) };
+    var reset = function (m) { clearTimeout(payTimer); if (!currentAttempt()) return; o.busy = false; if (m) mxFail(m); else mSheet(); };
+    o.busy = true; o.err = ""; o.bad = ""; mSheet();
+    var ship = o.mode === "ship" ? { country: sh.country, name: String(sh.name || "").trim(), phone: String(sh.phone || "").trim(), postal: String(sh.postal || "").trim(), addr: String(sh.addr || "").trim() } : (v2 ? { name: String(pk.name || "").trim(), phone: phoneCheck(pk.phone).v || String(pk.phone || "").trim() } : null);
+    var body = { eventId: o.evId, code: code, mode: o.mode, email: email, session: S.session || "", ship: ship };
     if (v2) body.qty = mQ(o.evId, o);
-    payTimer = setTimeout(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "付款頁開不起來，請稍後再試"); }, 15000);
+    payTimer = setTimeout(function () { if (!currentAttempt()) return; reset("付款頁開不起來，請稍後再試"); }, 15000);
     api("/ticket/merch/draft", body).then(function (j) {
       if (!currentAttempt()) return;
-      if (!j || !j.ok) { reset(); return msg("#tkm-msg", (j && j.message) || "無法建立訂單，請稍後再試"); }
+      if (!j || !j.ok) return reset((j && j.message) || "無法建立訂單，請稍後再試");
       try { mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now() }); } catch (e) {}
-      if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, o.ship); closeSheet(); setTimeout(mAwait, 400); return; }
-      var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
-      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back, name: "" }) })
+      if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, ship); o.busy = false; back(); setTimeout(mAwait, 500); return; }
+      var back2 = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
+      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back2, name: "" }) })
         .then(function (r) { return r.text(); })
         .then(function (html) {
           if (!currentAttempt()) return;
           var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
-          if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) { reset(); msg("#tkm-msg", jj.message); return; } } catch (e) {} throw 0; }
+          if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) return reset(jj.message); } catch (e) {} throw 0; }
           testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
           try { var mp = mPending(); var mn = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (mp && mn) { mp.no = mn; mRemember(mp); } } catch (e) {}
           clearTimeout(payTimer); document.body.appendChild(f); f.submit();
-        }).catch(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "付款頁開不起來，請稍後再試"); });
-    }).catch(function () { if (!currentAttempt()) return; reset(); msg("#tkm-msg", "連不上伺服器"); });
+        }).catch(function () { reset("付款頁開不起來，請稍後再試"); });
+    }).catch(function () { reset("連不上伺服器"); });
   }
   /* ---- 付款回來 ---- */
   // Local recovery covers reopen in the SAME browser. Safari and PWA remain separate.

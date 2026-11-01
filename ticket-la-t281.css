@@ -334,3 +334,18 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cxl .cxl-demo { font-size:13px !important; }
 .tk-layer .cxl .cxl-demo b { font-size:12px !important; }
 .tk-layer .cx9-ln { font-size:15px !important; }
+/* B375T：生日限定周邊購買頁＝卡包結帳頁版型（整頁、左標籤右欄位）；商品卡可點選，選到的金框＋實心圓點 */
+.tk-layer .mx .mx-it { width:100%; margin:0 0 10px; text-align:left; font:inherit; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tk-layer .mx .mx-it > i { flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid rgba(255,255,255,.5); }
+.tk-layer .mx .mx-it.on { border-color:var(--g); background:rgba(217,184,126,.08); }
+.tk-layer .mx .mx-it.on > i { border-color:var(--g); background:var(--g); box-shadow:inset 0 0 0 4px #121010; }
+.tk-layer .mx .mx-it:disabled { opacity:.45; cursor:default; }
+.tk-layer .mx .mx-it img { width:84px; height:84px; object-fit:cover; border-radius:10px; filter:none; }
+.tk-layer .mx .mx-it .cx9-sum1-t b { font-size:17px !important; line-height:1.4; }
+.tk-layer .mx .mx-it .cx9-sum1-t > span { font-size:17px; margin:2px 0 0; }
+.tk-layer .mx .mx-it .cx9-sum1-t small { font-size:15px; margin-top:2px; }
+.tk-layer .mx .mx-set { margin:0 0 10px; font-size:15px; color:var(--g2); }
+.tk-layer .mx .mx-qty { display:flex; align-items:center; gap:14px; margin:6px 0 4px; }
+.tk-layer .mx .mx-qty > span { font-size:17px; color:var(--soft); }
+.tk-layer .mx .mx-qty small { font-size:15px; color:var(--mut); }
+.tk-layer .mx .mx-ro { font-size:17px; color:var(--ink); padding:10px 0; }
