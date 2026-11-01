@@ -439,3 +439,23 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-acc-b p { margin:0 0 8px; font-size:15px; line-height:1.6; color:var(--mut); }
 .tk-layer .cx9-acc-b p:last-child { margin-bottom:0; }
 .tk-layer .cx9-acc-b .cx9-ln { font-size:15px; color:var(--g2,#E8C98C); }
+
+/* B383T（UX 迴圈第 3 回，評審指定三項）：訂單卡第二行數量／領取人／短訂單號，金框由暗到亮（不再整張淡入）；期限膠囊合成一顆；
+   黏底提示列尾端「・購買須知」可點；卡包商品頁 🚚🌐🎁 換線條金色圖示；多欄同時錯時捲到第一欄靠上，表單後留白 */
+.tk-mrow .tk-mrow-dt { font-size:14px !important; color:#a39b8e !important; letter-spacing:.01em; }
+.tk-layer[data-layer="wallet"] .tk-mrow em small.tk-mrow-no { margin-top:2px; font-size:12px; color:#8f877b; font-variant-numeric:tabular-nums; }
+@keyframes tkMrowGlow { 0% { border-color:#7a5f32; box-shadow:0 0 0 1px rgba(232,201,135,0); } 55% { border-color:#f3dba0; box-shadow:0 0 0 4px rgba(232,201,135,.22), 0 0 20px rgba(232,201,135,.3); } 100% { border-color:#e8c987; box-shadow:0 0 0 1px rgba(232,201,135,.35); } }
+.tk-mrow.new { animation:tkMrowGlow 1.2s .15s ease-out both; }   /* 只動邊框與光暈，不動透明度（原本 tkBoughtRise 會把整張卡從 0 淡入，中段看起來像變灰） */
+@media (prefers-reduced-motion:reduce) { .tk-mrow.new { animation:none; } }
+#sv3-merch .sv3-bdm-it .sv3-tags { gap:5px 4px; }
+#sv3-merch .sv3-bdm-it .sv3-tag { padding:2px 7px; letter-spacing:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }   /* 半寬卡片：限量＋期限兩顆並排放得下，最多兩行；再長也不撐開卡片 */
+#sv3-merch .sv3-bdm-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }   /* 1fr 1fr 會被 nowrap 膠囊撐寬而超出 393px */
+#sv3-merch .sv3-bdm-it { min-width:0; }
+#sv3-merch .sv3-bdm-it .sv3-tag.due { font-size:11px !important; padding:2px 6px; }   /* 「預購至 12/26・售完為止」在半寬卡片（內寬 142px）12px 會被省略號截掉，退一號剛好放得下 */
+.tk-layer[lang="en"] .cx9-foot .cx9-hold-ln { margin-left:.3em; }
+.tk-layer .cx9-foot .cx9-hold-ln { display:inline; min-height:17px; margin:0; padding:0 2px; border:0; background:none; color:var(--g2,#E8C98C); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tk-layer .cx9-ship li { display:inline-flex; align-items:center; }
+.tk-layer .cx9-ship .ic { display:inline-flex; margin-right:6px; color:var(--g2,#E8C98C); filter:none !important; }
+.tk-layer .cx9-ship .ic svg { display:block; width:17px; height:17px; }
+.tk-layer[data-layer="cxc"], .tk-layer[data-layer="mxc"] { scroll-padding-bottom:calc(150px + env(safe-area-inset-bottom,0px)); }
+.tk-layer .cx9-c .cx9-acc { margin-bottom:calc(20px + env(safe-area-inset-bottom,0px)); }
