@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B379T：沒付款回來 */
+ '還沒收到付款':'Payment not received yet','這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。':'This order has not been paid and nothing was charged. To continue, tap “Pay again” to go back to checkout — your details are still there.','重新付款':'Pay again','不買了，回上一頁':'Never mind, go back','商品':'Item',
  /* B378T：UX 第二批 */
  '已帶入購票時的資料，可以改':'Filled from your ticket purchase — you can change it','放大圖片':'Zoom image','點一下關閉':'Tap to close','訂單已收進「我的票」，確認信稍後寄到':'Saved to My tickets — a confirmation email is on its way','・活動後寄出，寄出會寄追蹤號碼給你':' · Ships after the event; we will email the tracking number','到周邊服務台報姓名和手機領取':'pick up at the merch desk with your name and phone','保留時間已過。還沒付款的話，請重新購買一次。':'The hold has expired. If you have not paid, please buy again.',
  /* B377T：UX 檢查第一批 */

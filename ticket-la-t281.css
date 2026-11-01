@@ -407,3 +407,6 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .mx-zoom-dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.3); } .mx-zoom-dots i.on { background:#e8c987; }
 .mx-zoom-x { position:absolute; top:calc(env(safe-area-inset-top,0px) + 12px); right:14px; width:40px; height:40px; border:0; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; font-size:18px; }
 .mx-zoom-hint { position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom,0px) + 18px); text-align:center; font-size:13px; color:#a39b8e; }
+/* B379T：購買頁只放點進來的那一個商品（不用選）；沒付款回來的「還沒收到付款」窗 */
+.tk-layer .mx .mx-it.solo { cursor:default; }
+.tk-layer .mx .mx-it.solo.on { border-color:var(--line); background:#121010; }
