@@ -659,6 +659,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function purchaseSlow(evId, kind) {
     if (kind !== "pp" && S.done && S.done.pending && S.done.evId === evId) { if (S.layers.indexOf("done") < 0) return; S.done.pending = "slow"; return openLayer("done"); }   // B359T（已經按返回離開就不再跳出來）
     var os = S.ost, btn = '<button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>';
+    if (os && os.paid && os.ticket === "failed" && os.late) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment received late</div><h3>付款超過 3 分鐘，名額已讓給下一位</h3><div class="tk-hint">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</div></div><button class="tk-btn g" data-sact="close">關閉</button>');   /* B363T */
     if (os && os.paid && os.ticket === "failed") return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>付款已確認，票券還在處理</h3><div class="tk-hint">這筆付款已經確認，但出票延遲，主辦會盡快補發到你的票夾和信箱。請不要重新購買。</div></div>' + btn);   /* B357T：後台確認付款才這樣說 */
     if (os && os.paid) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>' + (kind === "pp" ? "付款已確認，PhotoPass 開通中" : "付款已確認，票券準備中") + '</h3><div class="tk-hint">票券一進來就會出現在票夾。請按「重新確認」，不需要重新購買。</div></div>' + btn);
     sheet('<div class="tk-big"><div class="ic">⏳</div><h3>還在確認中</h3><div class="tk-hint">' + (kind === "pp" ? "還沒確認到這筆 PhotoPass。" : "票夾裡還沒看到這筆購買的票。") + '</div><div class="tk-hint">如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>');   /* B356T：沒確認付款前不說「付款已收到」、不說會寄信 */
@@ -2437,7 +2438,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-sec">你的稱呼</div>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>'
     h += phoneBlock();
     h += entryCoHTML(ev);   /* B345T */
-    h += '<div class="tk-msg" id="tk-bmsg"></div>';
+    h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">' + esc(termsFor(ev)) + '<br>前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
     h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
@@ -2531,7 +2532,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B362T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B363T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2592,7 +2593,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += entryCoHTML(ev);   /* B345T */
     h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>每人限購 1 張（以收票 Email 認定）</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
       '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天憑票現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
-    h += '<div class="tk-msg" id="tk-bmsg"></div>';
+    h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
     h += '</div>';
     h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
@@ -2659,7 +2660,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkm-sum"><span>' + (r ? esc(r.code === "s" ? mi.m.items.s.name : r.label) + (q > 1 ? " ×" + q : "") : "還沒選商品") + '</span><b>' + (r ? nt(r.price * q) : "—") + '</b>' +
       (o.mode === "ship" ? '<span>運費' + (z ? "（" + esc(z.label) + "）" : "") + '</span><b>' + (z ? nt(fee) : "選國家後顯示") + '</b>' : '') + '</div>';
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(total) + '</b></div><p class="tkb-fine">' + esc(mTermsText(o.mode, v2)) + '</p>';
-    h += '<div class="tk-msg" id="tkm-msg"></div><button class="tk-btn p" data-sact="m-pay"' + (r ? "" : " disabled") + '>' + (r ? "前往付款 " + nt(total) : "請先選商品") + '</button></div>';
+    h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tkm-msg"></div><button class="tk-btn p" data-sact="m-pay"' + (r ? "" : " disabled") + '>' + (r ? "前往付款 " + nt(total) : "請先選商品") + '</button></div>';
     sheet(h);
     var bx = sheetEl && sheetEl.querySelector(".tk-box"); if (bx) bx.classList.add("tkb-shbox");
     sheetEl.querySelectorAll("[data-mf]").forEach(function (inp) {
@@ -2767,6 +2768,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         if (j && j.ok && j.order && j.order.paid && j.order.ticket === "none" && j.order.eventId === p.evId) {
           confirmed = true;
           if (j.order.merch === "recorded") return paid();
+          if (j.order.merch === "failed" && j.order.late) return sheet('<div class="tk-big tkm-flow"><h3>付款超過 3 分鐘，商品已讓給下一位</h3><div class="tk-hint">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</div></div><button class="tk-btn g" data-sact="close">關閉</button>');   // B363T
           if (j.order.merch === "failed") return sheet('<div class="tk-big tkm-flow"><h3>付款已確認，訂單需協助</h3><div class="tk-hint">請勿再次付款。請聯絡客服核對這筆訂單。</div></div><a class="tk-btn p" href="mailto:heartbeats0693@gmail.com">聯絡客服</a><button class="tk-btn g" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>');
         }
         later();
@@ -2896,6 +2898,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* B359T：付款回來、票還沒出現 → 成功頁先顯示確認中。後台（M3.3 /ticket/order）確認付款才寫「付款已確認」 */
   function doneWaitHTML(dn) {
     var os = S.ost && S.ost.eventId === dn.evId ? S.ost : null, paid = !!(os && os.paid), failed = paid && os.ticket === "failed", spin = dn.pending === "check";
+    if (failed && os.late) return '<div class="tkb"><div class="tk-bar tkb-bar"><button data-act="done-close"><span class="chev">‹</span>SHOP</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div><div class="tkb-ok tkb-wait"><div class="ck">⏳</div><div class="tk-eyebrow" id="tk-paye">Payment received late</div><h2 id="tk-payh">付款超過 3 分鐘，名額已讓給下一位</h2><p id="tk-payn">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</p></div><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button></div>';   // B363T
     var h = '<div class="tk-bar tkb-bar"><button data-act="done-close"><span class="chev">‹</span>SHOP</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div>';
     h += '<div class="tkb-ok tkb-wait">' + (spin ? '<div class="tk-spin"></div>' : '<div class="ck">⏳</div>') +
       '<div class="tk-eyebrow" id="tk-paye">' + (paid ? "Payment confirmed" : "Checking") + '</div>' +
@@ -2982,7 +2985,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   function sheetAct2(a, el) {
     if (a === "paid-yes") { var pg = S.paying; S.paying = null; closeSheet(); if (pg) awaitPurchase(pg.evId, pg.kind); return; }
-    if (a === "paid-no") { S.paying = null; try { localStorage.removeItem("tk:paying"); } catch (e) {} closeSheet(); return; }
+    if (a === "paid-no") { var pn = S.paying, lo = pn && lastOrder(pn.evId); if (lo && !C.demo) api("/ticket/order/cancel", { no: lo.no, email: lo.email }).catch(function () {}); S.paying = null; try { localStorage.removeItem("tk:paying"); } catch (e) {} closeSheet(); return; }   // B363T：還沒付／取消 → 立刻把名額讓給下一位
     if (a === "m-recheck") return mAwait();
     if (a === "m-t" || a === "m-mode" || a === "m-pay" || a === "m-mq") return mSheetAct(a, el);
     if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }

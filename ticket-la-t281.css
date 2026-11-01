@@ -271,3 +271,8 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="checkout"] .tk-in.err { border-color:#ff8f7a !important; box-shadow:0 0 0 2px rgba(255,143,122,.35); }
 /* B362T：SHOP 周邊兩排（常駐商品、生日限定） */
 #sv3-merch .sv3-bdm-sub2 { margin-top:22px; }
+/* B363T：搶票只保留 3 分鐘的提醒 */
+.tk-hold { font-weight:600; margin:12px 0 4px; padding:10px 12px; border-radius:12px; background:rgba(232,201,135,.12); border:1px solid rgba(232,201,135,.45); font-size:15px; line-height:1.55; color:#f0dcaa; }
+.tk-hold b { color:#fff; }
+.tk-layer[data-layer="checkout"] .ticket-paper .tk-hold { background:#fff6e2; color:#5a4320; border-color:#d8bc80; }
+.tk-layer[data-layer="checkout"] .ticket-paper .tk-hold b { color:#7a1f1f; }

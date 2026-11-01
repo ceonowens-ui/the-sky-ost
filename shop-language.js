@@ -5,6 +5,10 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B363T：搶票只保留 3 分鐘、付款晚到 */
+ '按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。':'After tapping “Go to payment”, please pay within 3 minutes — after that your spot goes to the next person.',
+ '付款超過 3 分鐘，名額已讓給下一位':'Paid after 3 minutes — the spot went to the next person','付款超過 3 分鐘，商品已讓給下一位':'Paid after 3 minutes — the item went to the next person',
+ '這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。':'This payment will be fully refunded. Please do not buy again — the organiser will email you soon.',
  /* B362T：庫存帳本（防超賣）訊息、SHOP 周邊兩排、卡包接正式商店 */
  '這個商品剛好被買完了（或有人正在結帳保留中）。還沒建立付款，不會扣款。':'This item just sold out (or someone is checking out the last one). No payment was created — you were not charged.',
  '每人限購 1 張（以 Email 認定），這個 Email 已經買過或正在結帳。':'Limit 1 per person (by email). This email has already bought one or is checking out.',
