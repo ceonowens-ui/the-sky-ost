@@ -368,3 +368,18 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer #tkm-pre .mxp-step button { width:46px; height:44px; border:0; background:transparent; color:#25211b; font:400 22px/1 -apple-system,sans-serif; cursor:pointer; }
 .tk-layer #tkm-pre .mxp-step button:disabled { color:rgba(37,33,27,.3); cursor:default; }
 .tk-layer #tkm-pre .mxp-step output { min-width:30px; text-align:center; font-size:17px; font-weight:600; color:#25211b; }
+/* B377T（CÉON 11/02 UX 檢查）：周邊頁單選卡的標籤（推薦／限量／剩 N）、錯誤訊息貼欄位、卡包說明合成一塊、按鈕下的安全付款提示 */
+.tk-layer .mx .cx9-h3 small { margin-left:10px; font-size:15px; font-weight:400; color:var(--g2); }
+.tk-layer .mx .mx-tags { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; }
+.tk-layer .mx .mx-tag { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid rgba(217,184,126,.4); font-style:normal; font-size:12px; line-height:1.5; color:var(--g2); }
+.tk-layer .mx .mx-tag.rec { background:var(--g); border-color:var(--g); color:#17130B; font-weight:600; }
+.tk-layer .mx .mx-tag.hot { border-color:#FF8F7A; color:#FF8F7A; }
+.tk-layer .mx .cx9-total .tot span small { display:block; margin-top:2px; font-size:13px; font-weight:400; color:var(--mut); }
+.tk-layer .cx9-row .cx9-fe { grid-column:2; margin-top:-2px; font-size:13px; font-weight:600; color:#FF8F7A; }
+.tk-layer .cx9-row.bad > span { color:#FF8F7A; }
+.tk-layer .cx9-info { margin:8px 0 14px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:#121010; }
+.tk-layer .cx9-info p { margin:0 0 8px; font-size:15px; line-height:1.65; color:var(--soft); }
+.tk-layer .cx9-info p:last-child { margin-bottom:0; }
+.tk-layer .cx9-info b { color:var(--ink); font-weight:600; }
+.tk-layer .cx9-safe { margin-top:8px; text-align:center; font-size:13px; color:var(--mut); }
+#sv3-merch .sv3-bdm-it small { color:var(--g2, #E8C98C) !important; }

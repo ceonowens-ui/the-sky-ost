@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B377T：UX 檢查第一批 */
+ '推薦':'Recommended','6 號小卡只隨組合':'No.6 card only in the set','A3 海報組 ＋ 6 號小卡（小卡只隨組合）':'A3 poster set + No.6 card (card only in the set)','現場領取・免運':'Event pickup · free','綠界 ECPay 安全付款・信用卡':'Secure payment by ECPay · credit card',
  /* B375T：生日周邊購買頁（卡包結帳頁版型） */
  '泰國':'Thailand','菲律賓':'Philippines','越南':'Vietnam','印尼':'Indonesia','墨西哥':'Mexico','巴西':'Brazil','阿根廷':'Argentina','智利':'Chile','南非':'South Africa','德國':'Germany','義大利':'Italy','西班牙':'Spain','荷蘭':'Netherlands','比利時':'Belgium','瑞士':'Switzerland','奧地利':'Austria','瑞典':'Sweden','挪威':'Norway','丹麥':'Denmark','芬蘭':'Finland','愛爾蘭':'Ireland','葡萄牙':'Portugal','波蘭':'Poland','捷克':'Czechia','紐西蘭':'New Zealand',
  '選擇商品':'Choose items','請選擇':'Select','選地區後顯示':'Shown after you pick a region','請選寄送地區':'Please choose a shipping region','請先選商品':'Please choose an item first','找不到登入的 email，請重新登入':'We could not find your sign-in email — please sign in again',
