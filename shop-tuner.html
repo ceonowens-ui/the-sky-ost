@@ -72,9 +72,9 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
   <aside class="side" id="side">
     <div class="mbar"><b>SHOP Tuner</b><button id="mPos" onclick="togglePos()">移到下方</button><button id="mClose" onclick="toggleClose()">收起</button></div>
     <div class="mtabs" id="mtabs"></div>
-    <h1>CHANCE SHOP Tuner <span style="font-size:11px;color:var(--mut);font-weight:400">B367T</span></h1>
+    <h1>CHANCE SHOP Tuner <span style="font-size:11px;color:var(--mut);font-weight:400">B368T</span></h1>
     <p class="note">預設值＝目前畫面（打開頁面時自動量）。拖滑桿即時預覽，只改這個預覽，不會改到線上。調好按「複製設定」貼給 Claude。</p>
-    <div class="note" style="color:#e8cf9e">看不到下面的「連 iPhone」或版號不是 B367T：按 Cmd＋Shift＋R 強制重新整理（瀏覽器可能還在用舊版）。</div>
+    <div class="note" style="color:#e8cf9e">看不到下面的「連 iPhone」或版號不是 B368T：按 Cmd＋Shift＋R 強制重新整理（瀏覽器可能還在用舊版）。</div>
     <div class="warn" id="warn">讀不到 App 內容：Tuner 要和 test.html 放在同一個網站（chance1228.com/shop-tuner.html），直接開下載的檔案不能用。</div>
     <div class="row devRow" style="grid-template-columns:108px 1fr"><label>機型</label><select id="dev"></select></div>
     <div class="grp" data-g="nav">
@@ -91,8 +91,9 @@ body.mobile h1, body.mobile .side > .note{ display:none; }
         <p class="note" style="margin:0 0 6px">按「連 iPhone」→ 用 iPhone 相機掃 QR → 之後電腦拖滑桿、按上面的畫面按鈕，iPhone 大約 1 秒內跟著變。只傳排版設定，不碰訂單和資料；iPhone 右下角按 ✕ 結束。</p>
         <div class="btns"><button class="primary" onclick="linkPhone()">連 iPhone</button><button onclick="copyLink()">複製 iPhone 連結</button><button onclick="unlinkPhone()">中斷</button></div>
         <div class="btns"><button id="mirBtn" onclick="toggleMirror()">只看 iPhone 鏡像（藏起左邊預覽）</button></div>
-        <p class="note" style="margin:0 0 6px">用 Mac 的「iPhone 鏡像輸出」：按「連 iPhone」→「複製 iPhone 連結」→ 在鏡像裡打開 Safari，網址列貼上（⌘V）→ 前往。再按「只看 iPhone 鏡像」，把這個視窗縮窄放在鏡像旁邊。</p>
-        <div id="linkBox" style="display:none;text-align:center;background:#fff;border-radius:12px;padding:12px;margin:6px 0"><canvas id="linkQr" width="220" height="220"></canvas><div id="linkCode" style="color:#111;font:700 18px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.12em;margin-top:6px"></div></div>
+        <p class="note" style="margin:0 0 6px">用 Mac 的「iPhone 鏡像輸出」：按「連 iPhone」→ 在鏡像裡的 Safari 打開 <b>chance1228.com/t</b>，用 Mac 鍵盤輸入上面的 6 碼 → 連線。再按「只看 iPhone 鏡像」，把這個視窗縮窄放在鏡像旁邊。</p>
+        <div id="linkBox" style="display:none;text-align:center;background:#fff;border-radius:12px;padding:12px;margin:6px 0"><canvas id="linkQr" width="220" height="220"></canvas><div id="linkCode" style="color:#111;font:700 30px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.2em;margin-top:6px"></div><div style="color:#333;font-size:14px;line-height:1.5;margin-top:4px">iPhone 打開 <b>chance1228.com/t</b><br>輸入上面這 6 碼</div></div>
+        <input type="text" id="linkUrl" readonly style="display:none;margin:4px 0" onclick="this.select()">
         <div class="note" id="linkTxt" style="word-break:break-all"></div>
       </div>
     </div>
@@ -177,11 +178,13 @@ function linkPhone(){
   var A='ABCDEFGHJKMNPQRSTUVWXYZ23456789', r=''; var b=new Uint8Array(6); crypto.getRandomValues(b); for(var i=0;i<6;i++) r+=A[b[i]%A.length];
   ROOM=r; lastSent=null; document.getElementById('linkBox').style.display='block'; document.getElementById('linkCode').textContent=ROOM;
   try{ new QRious({element:document.getElementById('linkQr'),value:phoneUrl(),size:220,level:'M'}); }catch(e){}
-  document.getElementById('linkTxt').textContent='連線中…'; pushNow(true);
+  document.getElementById('linkTxt').textContent='連線中…'; var lu=document.getElementById('linkUrl'); lu.style.display='block'; lu.value=phoneUrl(); pushNow(true);
 }
-function copyLink(){ if(!ROOM) linkPhone(); var u=phoneUrl(), t=document.getElementById('linkTxt');
-  var done=function(){ t.textContent='已複製：'+u+'　→ 到 iPhone（鏡像輸出）Safari 網址列貼上（⌘V）'; };
-  if(navigator.clipboard) navigator.clipboard.writeText(u).then(done).catch(function(){ prompt('複製這個網址：',u); }); else prompt('複製這個網址：',u); }
+function copyLink(){ if(!ROOM) linkPhone(); var u=phoneUrl(), t=document.getElementById('linkTxt'), box=document.getElementById('linkUrl');
+  box.style.display='block'; box.value=u;
+  var done=function(){ t.textContent='已複製網址。貼不進 iPhone 的話，改用 chance1228.com/t 輸入 '+ROOM; };
+  var legacy=function(){ try{ box.focus(); box.select(); var ok=document.execCommand('copy'); if(ok) return done(); }catch(e){} t.textContent='這個瀏覽器不讓複製：請手動選取上面的網址，或改用 chance1228.com/t 輸入 '+ROOM; };
+  try{ if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(u).then(done).catch(legacy); else legacy(); }catch(e){ legacy(); } }
 function toggleMirror(){ var on=document.body.classList.toggle('mirror'); document.getElementById('mirBtn').textContent=on?'顯示左邊預覽':'只看 iPhone 鏡像（藏起左邊預覽）'; fit(); }
 function unlinkPhone(){ if(ROOM) tunePost({room:ROOM,css:''}); ROOM=null; document.getElementById('linkBox').style.display='none'; document.getElementById('linkTxt').textContent='已中斷（iPhone 會回到原本的樣子）'; }
 function pushNow(force){ if(!ROOM) return; var c=css(); if(!force&&c===lastSent) return; lastSent=c; tunePost({room:ROOM,css:c}); }
