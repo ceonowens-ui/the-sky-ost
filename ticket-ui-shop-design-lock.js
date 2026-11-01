@@ -3069,7 +3069,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "co-pp") return coPPToggle();
     if (act === "co-m") return coMToggle(b.getAttribute("data-k"));
     if (act === "m-open") { e.stopPropagation(); if (S.mx) S.mx.only = null; return mOpen(b.getAttribute("data-ev")); }
-    if (act === "m-open-k") { e.stopPropagation(); var mev = b.getAttribute("data-ev"), mk = b.getAttribute("data-k"); mOpen(mev); if (S.mx && S.mx.evId === mev && !mOwned(mev, mk)) { ["b", "h", "s"].forEach(function (x) { S.mx["m" + x] = x === mk; }); S.mx.only = mk; mSheet(); } return; }   // B361T：SHOP 點哪個周邊就先選好哪個；B379T：購買頁只顯示這一個（組合已含海報組，不再並列）
+    if (act === "m-open-k") { e.stopPropagation(); var mev = b.getAttribute("data-ev"), mk = b.getAttribute("data-k"); mOpen(mev); if (S.mx && S.mx.evId === mev && !mOwned(mev, mk)) { if (S.mx.only !== mk) S.mx.mq = 1; ["b", "h", "s"].forEach(function (x) { S.mx["m" + x] = x === mk; }); S.mx.only = mk; S.mx.err = ""; S.mx.bad = ""; mSheet(); } return; }   // B380T：換商品時數量回到 1，不帶上一個商品的數量   // B361T：SHOP 點哪個周邊就先選好哪個；B379T：購買頁只顯示這一個（組合已含海報組，不再並列）
     if (act === "done-wallet") { closeAll(); S.tab = "up"; setTimeout(function () { openLayer("wallet"); }, 260); return; }
     if (act === "done-close") { closeAll(); return; }
     if (act === "done-repoll") { var dr = S.done || {}; if (dr.evId) awaitPurchase(dr.evId, dr.kind || "meet"); return; }   // B359T
