@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B378T：UX 第二批 */
+ '已帶入購票時的資料，可以改':'Filled from your ticket purchase — you can change it','放大圖片':'Zoom image','點一下關閉':'Tap to close','訂單已收進「我的票」，確認信稍後寄到':'Saved to My tickets — a confirmation email is on its way','・活動後寄出，寄出會寄追蹤號碼給你':' · Ships after the event; we will email the tracking number','到周邊服務台報姓名和手機領取':'pick up at the merch desk with your name and phone','保留時間已過。還沒付款的話，請重新購買一次。':'The hold has expired. If you have not paid, please buy again.',
  /* B377T：UX 檢查第一批 */
  '推薦':'Recommended','6 號小卡只隨組合':'No.6 card only in the set','A3 海報組 ＋ 6 號小卡（小卡只隨組合）':'A3 poster set + No.6 card (card only in the set)','現場領取・免運':'Event pickup · free','綠界 ECPay 安全付款・信用卡':'Secure payment by ECPay · credit card',
  /* B375T：生日周邊購買頁（卡包結帳頁版型） */

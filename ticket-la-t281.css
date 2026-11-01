@@ -247,13 +247,13 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 #sv3-mine .sv3-mine-m .tx b { font-size:17px; color:#f0dcaa; font-weight:600; }
 #sv3-mine .sv3-mine-m .tx span { font-size:14px; color:#ddd5c8; }
 #sv3-mine .sv3-mine-m .tx em { font-style:normal; font-size:13px; color:#8fd19e; }
-.tk-layer[data-layer="pass"] .tk-bought { display:flex; gap:12px; align-items:center; margin:6px 0 12px; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg,#2a2114,#15110b); border:1px solid rgba(216,188,128,.5); }
-.tk-layer[data-layer="pass"] .tk-bought .ck { flex:none; width:40px; height:40px; border-radius:50%; border:2px solid #e8c987; color:#e8c987; display:flex; align-items:center; justify-content:center; font-size:20px; }
-.tk-layer[data-layer="pass"] .tk-bought b { display:block; font-size:20px; color:#f6f1e7; }
-.tk-layer[data-layer="pass"] .tk-bought span { display:block; font-size:15px; line-height:1.5; color:#ddd5c8; }
+.tk-layer[data-layer="pass"] .tk-bought, .tk-layer[data-layer="wallet"] .tk-bought { display:flex; gap:12px; align-items:center; margin:6px 0 12px; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg,#2a2114,#15110b); border:1px solid rgba(216,188,128,.5); }
+.tk-layer[data-layer="pass"] .tk-bought .ck, .tk-layer[data-layer="wallet"] .tk-bought .ck { flex:none; width:40px; height:40px; border-radius:50%; border:2px solid #e8c987; color:#e8c987; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.tk-layer[data-layer="pass"] .tk-bought b, .tk-layer[data-layer="wallet"] .tk-bought b { display:block; font-size:20px; color:#f6f1e7; }
+.tk-layer[data-layer="pass"] .tk-bought span, .tk-layer[data-layer="wallet"] .tk-bought span { display:block; font-size:15px; line-height:1.5; color:#ddd5c8; }
 @keyframes tkBoughtRise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-.tk-layer[data-layer="pass"] .tk-bought.anim { animation:tkBoughtRise .6s ease-out both; }
-.tk-layer[data-layer="pass"] .tk-bought.anim ~ .tk-pass { animation:tkBoughtRise .7s .15s ease-out both; }
+.tk-layer[data-layer="pass"] .tk-bought.anim, .tk-layer[data-layer="wallet"] .tk-bought.anim { animation:tkBoughtRise .6s ease-out both; }
+.tk-layer[data-layer="pass"] .tk-bought.anim ~ .tk-pass, .tk-layer[data-layer="wallet"] .tk-bought.anim ~ .tk-pass { animation:tkBoughtRise .7s .15s ease-out both; }
 @media (prefers-reduced-motion:reduce) { .tk-layer[data-layer="pass"] .tk-bought.anim, .tk-layer[data-layer="pass"] .tk-bought.anim ~ .tk-pass { animation:none; } }
 /* B361T：SHOP「購買周邊」直接是兩個生日周邊；結帳欄位錯誤提示 */
 #sv3-merch .sv3-bdm-sub { margin:4px 0 14px; font-size:16px; line-height:1.5; color:#ddd5c8; }
@@ -383,3 +383,27 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-info b { color:var(--ink); font-weight:600; }
 .tk-layer .cx9-safe { margin-top:8px; text-align:center; font-size:13px; color:var(--mut); }
 #sv3-merch .sv3-bdm-it small { color:var(--g2, #E8C98C) !important; }
+/* B378T（UX 第二批）：周邊付完落在訂單卡＋購買成功橫幅；訂單卡有圖；保留倒數；商品圖放大 */
+.tk-layer[data-layer="wallet"] .tk-bought-m span + span { color:#a39b8e !important; font-size:13px !important; margin-top:2px; }   /* B378T：購買成功橫幅也用在周邊訂單頁 */
+.tk-mrow { grid-template-columns:auto 1fr auto; align-items:center; column-gap:12px; }
+.tk-mrow .tk-mrow-im { width:56px; height:56px; border-radius:10px; object-fit:cover; grid-row:1; }
+.tk-mrow .tk-mrow-tx { display:grid; gap:2px; min-width:0; }
+.tk-mrow em { align-self:start; white-space:nowrap; }
+.tk-mrow.new { border-color:#e8c987; box-shadow:0 0 0 1px rgba(232,201,135,.35); animation:tkBoughtRise .7s .15s ease-out both; }
+.tk-hold-cd { margin:14px auto 0; padding:10px 14px; border-radius:12px; background:rgba(232,201,135,.1); border:1px solid rgba(232,201,135,.35); font-size:15px; line-height:1.5; color:#ddd5c8; text-align:center; }
+.tk-hold-cd b { color:#f0dcaa; font-variant-numeric:tabular-nums; font-size:17px; }
+.tk-hold-cd.over { background:rgba(255,143,122,.1); border-color:rgba(255,143,122,.4); color:#ff8f7a; }
+.tk-layer .mx .mx-pic { position:relative; flex:none; display:block; width:84px; height:84px; border-radius:10px; overflow:hidden; cursor:zoom-in; }
+.tk-layer .mx .mx-pic img { width:100%; height:100%; object-fit:cover; display:block; }
+.tk-layer .mx .mx-pic i { position:absolute; right:4px; bottom:4px; width:20px; height:20px; border-radius:6px; background:rgba(0,0,0,.55); color:#fff; font-style:normal; font-size:12px; line-height:20px; text-align:center; }
+.mx-zoom { position:fixed; inset:0; z-index:2147483000; background:rgba(5,4,6,.96); opacity:0; transition:opacity .18s; -webkit-tap-highlight-color:transparent; }
+.mx-zoom.in { opacity:1; } .mx-zoom.out { opacity:0; }
+.mx-zoom-tr { display:flex; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; }
+.mx-zoom-tr::-webkit-scrollbar { display:none; }
+.mx-zoom-tr figure { flex:none; width:100%; height:100%; margin:0; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:calc(env(safe-area-inset-top,0px) + 56px) 16px calc(env(safe-area-inset-bottom,0px) + 80px); box-sizing:border-box; }
+.mx-zoom-tr img { max-width:100%; max-height:100%; object-fit:contain; border-radius:12px; }
+.mx-zoom-tr figcaption { margin-top:14px; font-size:17px; font-weight:600; color:#f6f1e7; text-align:center; }
+.mx-zoom-dots { position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom,0px) + 44px); display:flex; justify-content:center; gap:8px; }
+.mx-zoom-dots i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.3); } .mx-zoom-dots i.on { background:#e8c987; }
+.mx-zoom-x { position:absolute; top:calc(env(safe-area-inset-top,0px) + 12px); right:14px; width:40px; height:40px; border:0; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; font-size:18px; }
+.mx-zoom-hint { position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom,0px) + 18px); text-align:center; font-size:13px; color:#a39b8e; }
