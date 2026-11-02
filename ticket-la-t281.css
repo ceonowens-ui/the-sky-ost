@@ -624,3 +624,19 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="checkout"] .tk-ferr { color:#B3261E; font-weight:600; }
 .tk-layer label.tkb-sec { display:block; }
 .tk-layer[data-layer="checkout"] .tkb-fine:has(.tkb-lk) { margin-bottom:16px; }
+/* B400T（CÉON 11/03：mobile-native＋break-ui 檢查，全部修）
+   A1 打開票券時「把螢幕亮度調到最亮」提示原本在畫面下方、剛好壓在 QR 中間 → 票券頁開著時改到畫面上方 */
+body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-inset-top) + 64px); bottom:auto; }
+/* A2 持有人 Email 原本 word-break:break-all 從字中間斷（example.t／est）→ 只在 @ 後面斷，真的太長才斷字 */
+.tk-layer .tk-val.tk-mail { word-break:normal; overflow-wrap:break-word; }
+/* A3 短標題最後一個字掉到下一行（生日／會、8樓A／廳）→ 平均斷行 */
+.tk-layer .n, .tk-layer .tx b, .tk-layer h2, .tk-layer h3, .sv3-block-h { text-wrap:balance; }
+.tk-layer .tk-title b, .tk-layer .tx b { word-break:keep-all; overflow-wrap:anywhere; }   /* 活動名稱只在空白處斷（CHANCE／生日會），中文詞不拆；真的太長才斷字 */
+.tk-layer .tx i, .tk-layer .tk-ev .m { word-break:keep-all; overflow-wrap:anywhere; }   /* 時間・地點：只在空白處斷（14:30 ·／微風影城8樓A廳），地名不拆 */
+/* A4 小螢幕（≤340 寬：iPhone SE、放大顯示）SHOP 首頁左右的直排裝飾小字跟標題疊在一起 → 收起來 */
+@media (max-width:340px) { .sv3-side-l, .sv3-side-zh { display:none !important; } }
+/* B1 按下去馬上有反應（原本放開手才動）：手指一碰縮到 0.97。用獨立的 scale 屬性，不蓋掉按鈕原本的 transform／transition */
+.tk-layer button:not([disabled]):active, .tk-layer summary:active, #sv3-merch [data-act]:active, .sv3-go:active, .tk-layer .cx9-opt:active { scale:.97; }
+.tk-layer button.pm-busy:active { scale:none; }
+/* B2 長按按鈕不選字、不跳「拷貝／分享」；訂單號、地址、Email 這些內容照樣可以選（只套在按鈕和卡片上） */
+.tk-layer button, .tk-layer summary, .tk-layer [role="button"], #sv3-merch [data-act], .sv3-go, #nav button { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; touch-action:manipulation; }
