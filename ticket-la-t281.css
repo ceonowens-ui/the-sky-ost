@@ -578,3 +578,21 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 @media (prefers-reduced-motion:reduce) { .gb::after { animation:none; } }
 /* 買票結帳的底部也改半透明，玻璃按鈕後面才看得到內容（不然只會看到一片黑） */
 .tk-layer .tkb .tkb-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 14px, rgba(11,10,9,var(--gb-foot)) calc(100% - 58px), #0b0a09 calc(100% - 44px)) !important; }   /* 按鈕那段透明、下面那行小字的地方實心，字才不會跟後面疊在一起 */
+/* B390T（CÉON 11/02：「現在有點過長」＋給了一顆短膠囊玻璃按鈕當參考）
+   主要按鈕的寬、高、圓角變成變數，預設改成置中的短膠囊；下緣多一道亮邊（像參考圖那樣底部有一圈光）。SHOP Tuner「按鈕」分頁可調、可選形狀。
+   按下去縮成 54px 圓球不受影響（只套在沒在轉圈的時候）。 */
+:root { --gb-w:72%; --gb-h:54px; --gb-r:999px; --gb-rim:.38; }
+.gb:not(.pm-busy) { display:flex; align-items:center; justify-content:center; width:var(--gb-w) !important; min-width:0 !important; height:var(--gb-h) !important; min-height:0 !important; margin-left:auto !important; margin-right:auto !important; border-radius:var(--gb-r) !important; white-space:nowrap; flex:0 0 auto; }
+.gb.pm-busy { height:54px !important; min-height:0 !important; }
+.gb { box-shadow:
+    inset 0 -1.5px 0 rgba(255,255,255,var(--gb-rim)),
+    inset 0 -8px 12px -8px rgba(255,255,255,calc(var(--gb-rim) * .7)),
+    inset 1px 2px 4px 0 rgba(255,255,255,calc(.35 * var(--gb-hi))),
+    inset 5px 5px 11px -14px rgba(255,255,255,calc(.20 * var(--gb-hi))),
+    inset -1px -2px 4px 0 rgba(255,255,255,calc(.35 * var(--gb-hi))),
+    inset -5px -7px 20px -7px rgba(255,255,255,calc(.20 * var(--gb-hi))),
+    inset -2px -4px 88px 0 rgba(0,0,0,.10),
+    inset 1.67px 3.33px 88px 0 rgba(0,0,0,.10),
+    0 18px 32px -14px rgba(232,180,100,var(--gb-glow)), 0 8px 16px -10px rgba(0,0,0,.5) !important; }
+/* 周邊／卡包結帳的底部：只有按鈕那一段透明（玻璃才看得到後面），上面「保留 3 分鐘」和下面「綠界安全付款」兩行字後面是實心，字不會跟表單疊在一起 */
+.tk-layer .cx9-c .cx9-foot, .tk-layer .cx9-d .cx9-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,.94) 14px, rgba(11,10,9,.94) calc(100% - 100px), rgba(11,10,9,var(--gb-foot)) calc(100% - 90px), rgba(11,10,9,var(--gb-foot)) calc(100% - 48px), #0b0a09 calc(100% - 40px)) !important; }
