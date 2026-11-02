@@ -612,7 +612,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { bad(j.message); return; } } catch (e) {} throw 0; }
         testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
         try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
-        document.body.appendChild(f); pmDone(cpb, function () { f.submit(); });
+        document.body.appendChild(f); pmGo(cpb, function () { f.submit(); });
       }).catch(function () { bad("付款頁開不起來，請稍後再試"); });
   }
   /* 付款回來（?tkbought / ?tkphoto）或 demo 付完：輪詢票夾直到票進來，再跳成功畫面 */
@@ -2116,7 +2116,7 @@ function coverClockKey() {
         clearTimeout(tmo);
         if (!cxRealPayOk(form)) throw { http: 1, msg: "已取消，沒有付款。" };
         var fm = document.importNode(form, true); fm.style.display = "none"; document.body.appendChild(fm);
-        var pb = layerEl("cxc"); pmDone(pb && pb.querySelector('[data-cx="pay"]'), function () { fm.submit(); });   // B385T：✓ 之後才跳綠界
+        var pb = layerEl("cxc"); pmGo(pb && pb.querySelector('[data-cx="pay"]'), function () { fm.submit(); });   // B397T：轉完圈馬上跳綠界，等綠界時繼續轉（原本 ✓ 停 0.38 秒再跳）
       }).catch(function (er) {
         clearTimeout(tmo);
         if (dead() || (er && er.gone)) return;
@@ -2588,7 +2588,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B396T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B397T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2869,7 +2869,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
           if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) return reset(jj.message); } catch (e) {} throw 0; }
           testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
           try { var mp = mPending(); var mn = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (mp && mn) { mp.no = mn; mRemember(mp); } } catch (e) {}
-          clearTimeout(payTimer); document.body.appendChild(f); pmDone(mxPayBtn(), function () { f.submit(); });
+          clearTimeout(payTimer); document.body.appendChild(f); pmGo(mxPayBtn(), function () { f.submit(); });
         }).catch(function () { reset("付款頁開不起來，請稍後再試"); });
     }).catch(function () { reset("連不上伺服器"); });
   }
@@ -3047,9 +3047,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (btn) { btn.classList.add("pm-done"); hap([12, 40, 12]); }
     setTimeout(function () { if (then) then(); }, btn && !REDUCED ? 380 : 0);
   }
+  function pmGo(btn, then) {   // B397T（CÉON 11/02：「轉完圈應該直接跳，不要卡在 ✓ 畫面」）：要跳去綠界的，不畫 ✓、不等 0.38 秒，拿到付款表單馬上送出；
+    if (btn) { btn.classList.add("pm-go"); hap(8); }   // 等綠界回應（手機上 1–4 秒）這段時間按鈕繼續轉圈，不會停在一個看起來像「完成」的 ✓。✓ 只留給不離開 App 的流程。
+    if (then) then();
+  }
   function pmFail(btn) {   // 失敗：彈回原本的長條並晃一下，按鈕可以再按
     if (!btn) return;
-    btn.classList.remove("pm-busy", "pm-in", "pm-done"); btn.removeAttribute("aria-busy");
+    btn.classList.remove("pm-busy", "pm-in", "pm-done", "pm-go"); btn.removeAttribute("aria-busy");
     if (btn.__pm != null) btn.innerHTML = btn.__pm;
     btn.disabled = false; btn.classList.add("pm", "pm-back"); hap([30, 30, 30]);
     setTimeout(function () { btn.classList.remove("pm-back"); }, 900);
