@@ -598,3 +598,9 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-c .cx9-foot:has(.gb), .tk-layer .cx9-d .cx9-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,.94) 14px, rgba(11,10,9,.94) calc(100% - 100px), rgba(11,10,9,var(--gb-foot)) calc(100% - 90px), rgba(11,10,9,var(--gb-foot)) calc(100% - 48px), #0b0a09 calc(100% - 40px)) !important; }
 /* B391T（CÉON 11/02：「改回原來金色!!! 周邊頁面」）周邊／卡包的按鈕拿掉玻璃、回到原本金色長條；上面兩條透明底部規則改成只在有玻璃按鈕時才套，周邊頁底部回到原本實心。買票結帳、重新付款仍是玻璃。 */
 /* B392T（CÉON 11/02：「買票也改金色」）買票結帳、重新付款也拿掉玻璃回到原本金色；買票底部的透明規則改成只在有玻璃按鈕時才套（現在沒有按鈕用玻璃，.gb 樣式和 Tuner 留著備用）。 */
+/* B393T（CÉON 11/02：付款列「往上滑不出現、往下滑才出現」，不要擋內容；「綠界 ECPay 安全付款」那行拿掉）
+   .ft-hide＝往下讀時收起、.ft-kb＝打字時收起（由 JS 掛在 .tk-layer 上）。只動 transform／opacity，不會 lag。付款中、失敗彈回時一定顯示。 */
+.tk-layer .cx9-foot, .tk-layer .tkb-foot { transition:transform .3s cubic-bezier(.2,.8,.2,1), opacity .22s ease; }
+.tk-layer.ft-hide .cx9-foot, .tk-layer.ft-kb .cx9-foot, .tk-layer.ft-hide .tkb-foot, .tk-layer.ft-kb .tkb-foot { transform:translateY(calc(100% + 12px)); opacity:0; pointer-events:none; }
+.tk-layer .cx9-foot:has(.pm-busy, .pm-back), .tk-layer .tkb-foot:has(.pm-busy, .pm-back) { transform:none !important; opacity:1 !important; pointer-events:auto !important; }
+@media (prefers-reduced-motion:reduce) { .tk-layer .cx9-foot, .tk-layer .tkb-foot { transition:opacity .15s; } }
