@@ -1984,7 +1984,7 @@ function coverClockKey() {
         (si.pick ? '<p><b>現場領取</b>・' + esc(si.pick) + '，12/27 生日會當天到周邊服務台報訂單編號與姓名（需本人到場）。</p>' : '') +
         '<p>每筆訂單最多 ' + max + ' 包。收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</p>' +
         '<p><button type="button" class="cx9-ln" data-open-terms="terms">購買須知</button>　<button type="button" class="cx9-ln" data-open-terms="privacy">隱私權政策</button></p></div>' +
-      '<div class="cx9-foot"><button type="button" class="cx9-cta gb" data-act="cxd-go"' + (can ? '' : ' disabled') + '>' + (i.soldOut ? '已售完' : !can ? '即將開賣' : '立即購買 · ' + cxNT(i.price)) + '</button></div>' +
+      '<div class="cx9-foot"><button type="button" class="cx9-cta" data-act="cxd-go"' + (can ? '' : ' disabled') + '>' + (i.soldOut ? '已售完' : !can ? '即將開賣' : '立即購買 · ' + cxNT(i.price)) + '</button></div>' +
     '</div>';
   }
   var cx9FE = {};   // B377T：畫表單前設好「哪一欄錯、錯什麼」，錯誤訊息直接貼在那一欄下面；B382T：改成 {欄位: 訊息}，按付款時一次標出所有錯的欄位
@@ -2018,7 +2018,7 @@ function coverClockKey() {
       '<ul class="cx9-note"><li>' + (pick ? "12/27 CHANCE 生日會當天，到周邊服務台報上訂單編號與姓名領取（需本人到場）。" : tw ? "台灣：付款後 7 個工作天內寄出，寄出會再寄信給你追蹤號碼。" : "海外：以中華郵政國際 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li><li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b">' + cx9TermsHTML(pick, tw, max, en9) + '</div></details>' +   // B382T：跟周邊購買頁同一列「購買須知 ›」
       '<div class="cx9-st" role="status"' + (CX.st ? '' : ' hidden') + '>' + (CX.st || "") + '</div>' +
-      '<div class="cx9-foot"><div class="cx9-hold">' + (pick ? "12/27 生日會當天・周邊服務台領取・免運" : tw ? "付款後 7 個工作天內寄出・台灣免運" : "海外 e 小包寄出・附追蹤號碼") + '<button type="button" class="cx9-hold-ln" data-cx="terms">・購買須知</button></div><button type="button" class="cx9-cta gb' + pmCls(busy, CX.busyAt, CX.failAt) + '" data-cx="pay"' + (t.total === null || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div>' +
+      '<div class="cx9-foot"><div class="cx9-hold">' + (pick ? "12/27 生日會當天・周邊服務台領取・免運" : tw ? "付款後 7 個工作天內寄出・台灣免運" : "海外 e 小包寄出・附追蹤號碼") + '<button type="button" class="cx9-hold-ln" data-cx="terms">・購買須知</button></div><button type="button" class="cx9-cta' + pmCls(busy, CX.busyAt, CX.failAt) + '" data-cx="pay"' + (t.total === null || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div>' +
     '</div>';
   }
   function cx9TermsHTML(pick, tw, max, en) {   // B382T：卡包結帳頁的「購買須知」摺疊：只放商品頁已經寫過的事實（每筆上限、寄送／領取），完整條款開 App 的《購買須知》《隱私權政策》
@@ -2587,7 +2587,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B390T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B391T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2761,7 +2761,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<ul class="cx9-note"><li>' + (pick ? (en ? (v2 ? "On " + esc(day) + ", pick up at the merch desk with your name and phone number." : "Pick up with your ticket on " + esc(day) + ".") : v2 ? esc(day) + " 生日會當天，到周邊服務台報上姓名和手機領取。" : esc(day) + " 生日會當天憑票現場領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
         '<li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p></div></details>' +
-      '<div class="cx9-foot"><div class="cx9-hold">按「前往付款」後名額保留 3 分鐘，逾時讓給下一位<button type="button" class="cx9-hold-ln" data-mx="terms">・購買須知</button></div><button type="button" class="cx9-cta gb' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div></div>';
+      '<div class="cx9-foot"><div class="cx9-hold">按「前往付款」後名額保留 3 分鐘，逾時讓給下一位<button type="button" class="cx9-hold-ln" data-mx="terms">・購買須知</button></div><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button><div class="cx9-safe">綠界 ECPay 安全付款・信用卡</div></div></div>';
     return h;
   }
   function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop; el.innerHTML = mxHTML(); el.scrollTop = sc; }

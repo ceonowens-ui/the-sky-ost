@@ -198,7 +198,7 @@ var GROUPS=[
 var S={}, DEF={}, MEAS={}, PENDING=null;
 /* B388T：黑玻璃按鈕的四個預設（跟示意頁一樣） */
 var GB_PRESETS={ std:{gbflow:80,gbspeed:9,gbtint:10,gbblur:47,gblq:9,gbband:14,gbhi:100,gbsheen:6,gbedge:10,gbwarm:14,gbglow:35,gbfoot:35}, clear:{gbflow:70,gbspeed:10,gbtint:4,gbblur:20,gblq:6,gbband:12,gbhi:90,gbsheen:3,gbedge:10,gbwarm:8,gbglow:25,gbfoot:15}, frost:{gbflow:60,gbspeed:11,gbtint:20,gbblur:140,gblq:14,gbband:16,gbhi:90,gbsheen:10,gbedge:10,gbwarm:16,gbglow:30,gbfoot:45}, thick:{gbflow:100,gbspeed:6,gbtint:12,gbblur:60,gblq:16,gbband:22,gbhi:170,gbsheen:14,gbedge:18,gbwarm:24,gbglow:55,gbfoot:30} };   /* B389T：照 iOS 26 Liquid Glass 參數（標準＝白 10%、模糊 4.7、邊緣液化、六道內光） */
-var GB_SHAPES={ cap:{gbw:72,gbh:54,gbr:40}, ref:{gbw:62,gbh:58,gbr:40}, bar:{gbw:100,gbh:56,gbr:40}, soft:{gbw:82,gbh:52,gbr:16} };   /* B390T：形狀＝一次設好寬、高、圓角 */
+var GB_SHAPES={ cap:{gbw:72,gbh:54,gbr:40}, ref:{gbw:66,gbh:58,gbr:40}, bar:{gbw:100,gbh:56,gbr:40}, soft:{gbw:82,gbh:52,gbr:16} };   /* B390T：形狀＝一次設好寬、高、圓角 */
 function gbShape(name){ gbSet(GB_SHAPES[name]); }
 function gbPreset(name){ gbSet(GB_PRESETS[name]); }
 function gbSet(P){ if(!P) return; each(function(it){ if(!(it.k in P)) return; S[it.k]=P[it.k]; if(it._inp){ it._inp.value=P[it.k]; it._v.textContent=P[it.k]+it.u; it._v.classList.toggle('changed',S[it.k]!==DEF[it.k]); } }); }

@@ -534,7 +534,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .gb .pm-ck { color:#f6efe2; }
 .gb[disabled]:not(.pm-busy) { color:#8f857b !important; opacity:.6; }
 /* 讓玻璃後面看得到東西：底部那條固定區的遮罩改成半透明（濃度可調） */
-.tk-layer .cx9-c .cx9-foot, .tk-layer .cx9-d .cx9-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 40%, rgba(11,10,9,calc(var(--gb-foot) + .3))) !important; }
+.tk-layer .cx9-c .cx9-foot:has(.gb), .tk-layer .cx9-d .cx9-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 40%, rgba(11,10,9,calc(var(--gb-foot) + .3))) !important; }
 .tk-layer .cx9-foot .cx9-hold, .tk-layer .cx9-foot .cx9-safe, .tk-layer .tkb-foot .tkb-sec2 { text-shadow:0 0 6px #0b0a09, 0 0 3px #0b0a09, 0 1px 2px #0b0a09; }   /* 遮罩變透明後，提示字加一圈深色光暈，表單字在後面也看得清楚
 .tk-layer .tkb-foot.solo { background:linear-gradient(rgba(13,11,12,0), rgba(13,11,12,var(--gb-foot)) 40%, rgba(10,9,9,calc(var(--gb-foot) + .3))) !important; }
 /* B389T（CÉON 11/02：「有點死黑不透明，沒有流動感」＋給了 iOS 26 Liquid Glass 的 Figma 參數）
@@ -582,7 +582,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
    主要按鈕的寬、高、圓角變成變數，預設改成置中的短膠囊；下緣多一道亮邊（像參考圖那樣底部有一圈光）。SHOP Tuner「按鈕」分頁可調、可選形狀。
    按下去縮成 54px 圓球不受影響（只套在沒在轉圈的時候）。 */
 :root { --gb-w:72%; --gb-h:54px; --gb-r:999px; --gb-rim:.38; }
-.gb:not(.pm-busy) { display:flex; align-items:center; justify-content:center; width:var(--gb-w) !important; min-width:0 !important; height:var(--gb-h) !important; min-height:0 !important; margin-left:auto !important; margin-right:auto !important; border-radius:var(--gb-r) !important; white-space:nowrap; flex:0 0 auto; }
+.gb:not(.pm-busy) { display:flex; align-items:center; justify-content:center; width:var(--gb-w) !important; min-width:0 !important; height:var(--gb-h) !important; min-height:0 !important; margin-left:auto !important; margin-right:auto !important; border-radius:var(--gb-r) !important; white-space:nowrap; flex:0 0 auto; flex-wrap:nowrap !important; padding-left:12px !important; padding-right:12px !important; }
 .gb.pm-busy { height:54px !important; min-height:0 !important; }
 .gb { box-shadow:
     inset 0 -1.5px 0 rgba(255,255,255,var(--gb-rim)),
@@ -595,4 +595,5 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
     inset 1.67px 3.33px 88px 0 rgba(0,0,0,.10),
     0 18px 32px -14px rgba(232,180,100,var(--gb-glow)), 0 8px 16px -10px rgba(0,0,0,.5) !important; }
 /* 周邊／卡包結帳的底部：只有按鈕那一段透明（玻璃才看得到後面），上面「保留 3 分鐘」和下面「綠界安全付款」兩行字後面是實心，字不會跟表單疊在一起 */
-.tk-layer .cx9-c .cx9-foot, .tk-layer .cx9-d .cx9-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,.94) 14px, rgba(11,10,9,.94) calc(100% - 100px), rgba(11,10,9,var(--gb-foot)) calc(100% - 90px), rgba(11,10,9,var(--gb-foot)) calc(100% - 48px), #0b0a09 calc(100% - 40px)) !important; }
+.tk-layer .cx9-c .cx9-foot:has(.gb), .tk-layer .cx9-d .cx9-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,.94) 14px, rgba(11,10,9,.94) calc(100% - 100px), rgba(11,10,9,var(--gb-foot)) calc(100% - 90px), rgba(11,10,9,var(--gb-foot)) calc(100% - 48px), #0b0a09 calc(100% - 40px)) !important; }
+/* B391T（CÉON 11/02：「改回原來金色!!! 周邊頁面」）周邊／卡包的按鈕拿掉玻璃、回到原本金色長條；上面兩條透明底部規則改成只在有玻璃按鈕時才套，周邊頁底部回到原本實心。買票結帳、重新付款仍是玻璃。 */
