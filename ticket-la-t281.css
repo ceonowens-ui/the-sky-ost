@@ -463,3 +463,43 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-qtyrow { display:flex; align-items:center; gap:14px; margin:12px 0 4px; }
 .tk-layer .cx9-qtyrow > span { font-size:17px; color:var(--soft); }
 .tk-layer .cx9-qtyrow small { font-size:15px; color:var(--mut); }
+/* B385T（CÉON 11/02 看過動效示意頁）：① 前往付款縮成圓形轉圈→✓／失敗彈回晃一下 ② 轉讓按住 1 秒 ③ 購買成功金色光點 ④ 選擇圓點彈一下 */
+.pm { position:relative; overflow:hidden; }
+.pm .pm-t { display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap; transition:opacity .15s; }
+.pm .pm-spin, .pm .pm-ck { position:absolute; inset:0; margin:auto; width:26px; height:26px; opacity:0; transition:opacity .2s; color:#17130b; }
+.pm .pm-spin { border:2.5px solid rgba(23,19,11,.25); border-top-color:#17130b; border-radius:50%; }
+.pm.pm-busy { width:54px !important; min-width:0 !important; padding:0 !important; border-radius:999px !important; margin-left:auto !important; margin-right:auto !important; align-self:center; display:block; }
+.pm.pm-busy, .pm.pm-busy[disabled] { background:linear-gradient(90deg,#b8964f,#d6b66f 52%,#f0dca8) !important; color:#17130b !important; opacity:1 !important; box-shadow:none; }
+.pm.pm-busy .pm-t { opacity:0; }
+.pm.pm-busy .pm-spin { opacity:1; animation:pmRot .8s linear infinite; }
+.pm.pm-in { animation:pmShrink .38s cubic-bezier(.65,0,.35,1) both; }
+.pm.pm-done .pm-spin { opacity:0; animation:none; }
+.pm.pm-done .pm-ck { opacity:1; }
+.pm .pm-ck path { stroke-dasharray:24; stroke-dashoffset:24; }
+.pm.pm-done .pm-ck path { animation:pmDraw .35s .05s ease-out forwards; }
+.pm.pm-back { animation:pmGrow .38s cubic-bezier(.65,0,.35,1) both, pmShake .42s .38s; }
+@keyframes pmShrink { from { width:100%; } to { width:54px; } }
+@keyframes pmGrow { from { width:54px; } to { width:100%; } }
+@keyframes pmRot { to { transform:rotate(360deg); } }
+@keyframes pmDraw { to { stroke-dashoffset:0; } }
+@keyframes pmShake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-7px); } 40% { transform:translateX(6px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(2px); } }
+.tk-holdbtn { position:relative; overflow:hidden; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:none; background:transparent !important; border:1.5px solid #d9b87e !important; color:#e8c98c !important; }
+.tk-holdbtn .hf { position:absolute; inset:0; background:linear-gradient(90deg,#b8964f,#e8c987); transform-origin:left; transform:scaleX(0); }
+.tk-holdbtn .ht { position:relative; z-index:1; transition:color .2s; }
+.tk-holdbtn.filling .ht, .tk-holdbtn.sent .ht { color:#17130b; }
+.tk-holdbtn.sent .hf { transform:scaleX(1); }
+.tk-hold-hint { margin:-4px 0 10px; text-align:center; font-size:13px; color:#a39b8e; min-height:20px; }
+.tk-bought .ck { position:relative; }
+.tk-bought.anim .ck { animation:pmPop .5s cubic-bezier(.34,1.56,.64,1) both; }
+.tk-spark { position:absolute; left:50%; top:50%; width:5px; height:5px; margin:-2.5px; border-radius:50%; background:#f0dca8; box-shadow:0 0 6px rgba(240,220,168,.9); pointer-events:none; opacity:0; font-style:normal; }
+.tk-spark.ln { width:2px; height:9px; margin:-4.5px -1px; border-radius:2px; }
+@keyframes pmPop { 0% { transform:scale(.6); } 60% { transform:scale(1.18); } 100% { transform:scale(1); } }
+.tk-layer .cx9-mth i.pop, .tk-layer .mx .mx-it > i.pop, .tk-layer #tkm-pre .mxp-it > i.pop { animation:pmDot .42s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pmDot { 0% { transform:scale(.7); } 55% { transform:scale(1.15); } 100% { transform:scale(1); } }
+@media (prefers-reduced-motion:reduce) { .pm.pm-in, .pm.pm-back, .pm.pm-busy .pm-spin, .tk-bought.anim .ck, i.pop { animation:none !important; } .pm.pm-done .pm-ck path { animation:none; stroke-dashoffset:0; } }
+/* B385T 修正：長按時字分兩層（底層金字、填色層深色字），填到哪裡才變色，沒填到的字還看得到 */
+.tk-holdbtn .ht { position:relative; z-index:0; }
+.tk-holdbtn .hf { transform:none !important; clip-path:inset(0 100% 0 0); display:flex; align-items:center; justify-content:center; z-index:1; }
+.tk-holdbtn .ht2 { color:#17130b; white-space:nowrap; }
+.tk-holdbtn.filling .ht, .tk-holdbtn.sent .ht { color:#e8c98c; }
+.tk-holdbtn.sent .hf { clip-path:inset(0 0 0 0); }
