@@ -640,3 +640,5 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-layer button.pm-busy:active { scale:none; }
 /* B2 長按按鈕不選字、不跳「拷貝／分享」；訂單號、地址、Email 這些內容照樣可以選（只套在按鈕和卡片上） */
 .tk-layer button, .tk-layer summary, .tk-layer [role="button"], #sv3-merch [data-act], .sv3-go, #nav button { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; touch-action:manipulation; }
+/* B400T（Codex 驗收 11/03）：購票付款失敗的原因（#tk-bmsg）在米色訂單底上原本淺紅很淡 → 深紅加粗（約 7:1） */
+.tk-layer[data-layer="checkout"] #tk-bmsg.tk-msg:not(.ok) { color:#8f211b; font-size:15px; font-weight:600; line-height:1.5; }

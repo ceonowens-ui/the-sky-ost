@@ -595,7 +595,12 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function payNow() {
     var b = S.buy; if (!b) return;
     var ev = buyEvent(b.evId), pp = b.kind === "pp", mc = pp ? "" : mCodeFor(ev, b), key = pp ? ev.ppKey : (b.tier ? (ev.id + "-" + b.tier + (mc ? "-x-" + mc + (mQ(ev.id, b) > 1 ? "-q" + mQ(ev.id, b) : "") : (b.tier === "ga" && b.pp && coPPAvail(ev, { key: "ga" }) ? "-pp" : ""))) : ev.productKey);
-    var cpb = $('[data-act="co-pay"]'), bad = function (m) { msg("#tk-bmsg", m); pmFail(cpb); };   // B385T：失敗時按鈕彈回、可以再按（原本會一直停在灰色）
+    var cpb = $('[data-act="co-pay"]'), bad = function (m) {   // B385T：失敗時按鈕彈回、可以再按（原本會一直停在灰色）
+      var notice = $("#tk-bmsg"), checkout = notice && notice.closest('.tk-layer[data-layer="checkout"]');
+      if (notice) notice.setAttribute("role", "alert");   // 先標成提示再寫字，旁白第一次就會念
+      msg("#tk-bmsg", m); pmFail(cpb);
+      if (checkout && cpb && cpb.isConnected && S.buy === b) { try { notice.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }   // B400T（Codex 驗收）：從頁頂按付款失敗時，原因在頁底看不到、像按鈕沒反應 → 捲到原因
+    };
     var email = (!S.session && b.email) ? b.email : myEmail(); if (!email) return bad("請先確認 email");
     try { sessionStorage.setItem("tk225:bf", JSON.stringify({ e: b.evId, n: ticketsFor(b.evId).length, at: Date.now() })); } catch (e) {}   // B225T：記下付款前張數
     if (C.demo) {   // demo：不跳綠界，模擬付款成功後走跟真實一樣的「輪詢→成功」流程
@@ -2591,7 +2596,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B400T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B400T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
