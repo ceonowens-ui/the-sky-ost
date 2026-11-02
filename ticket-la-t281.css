@@ -505,3 +505,35 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-holdbtn.sent .hf { clip-path:inset(0 0 0 0); }
 /* B387T：卡包結帳也顯示「已帶入你之前填過的資料」 */
 .tk-layer .cx9-h3 small.cx9-pre { margin-left:10px; font-size:15px; font-weight:400; color:var(--g2); }
+/* B388T（CÉON 11/02 選①黑玻璃・金邊，「要可以調整」）：主要按鈕（前往付款、立即購買、重新付款）改成黑色液態玻璃。
+   只用 CSS，平常完全靜止、不吃效能。七個值都是變數，SHOP Tuner 的「按鈕」分頁可以即時調（連 iPhone 也可以）。 */
+:root {
+  --gb-tint: .10;    /* 透明度：玻璃本身的白霧，越小越透明 */
+  --gb-blur: 16px;   /* 背景模糊 */
+  --gb-hi: .50;      /* 液態感：上半部內部的光 */
+  --gb-sheen: .26;   /* 液態感：上方弧形亮面 */
+  --gb-edge: 1.2px;  /* 金色邊線粗細 */
+  --gb-glow: .55;    /* 底下的暖金光 */
+  --gb-foot: .55;    /* 按鈕後面那條底部遮罩的濃度（越小越看得到後面的內容） */
+}
+.gb { position:relative; isolation:isolate; border:0 !important; color:#f6efe2 !important; text-shadow:0 1px 2px rgba(0,0,0,.5);
+  background:linear-gradient(180deg, rgba(255,255,255,var(--gb-tint)), rgba(255,255,255,calc(var(--gb-tint) * .2))) !important;
+  -webkit-backdrop-filter:blur(var(--gb-blur)) saturate(1.6); backdrop-filter:blur(var(--gb-blur)) saturate(1.6);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,calc(.25 + var(--gb-hi) * .7)), inset 0 -1.5px 0 rgba(255,255,255,.16),
+    inset 0 16px 22px -14px rgba(255,255,255,var(--gb-hi)), inset 0 -18px 24px -16px rgba(0,0,0,.7),
+    inset 0 -8px 12px -8px rgba(232,180,100,calc(var(--gb-glow) * .8)),
+    0 22px 36px -14px rgba(232,180,100,var(--gb-glow)), 0 10px 18px -10px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.4) !important; }
+.gb::before { content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,var(--gb-sheen)) 0%, rgba(255,255,255,calc(var(--gb-sheen) * .25)) 42%, rgba(255,255,255,0) 50%),
+    radial-gradient(120% 70% at 22% 0%, rgba(255,255,255,calc(var(--gb-sheen) * 1.3)), rgba(255,255,255,0) 55%), radial-gradient(80% 60% at 85% 110%, rgba(255,255,255,.12), transparent 60%); }
+.gb::after { content:""; position:absolute; inset:0; border-radius:inherit; padding:var(--gb-edge); pointer-events:none;
+  background:linear-gradient(135deg, rgba(255,236,190,.9), rgba(255,255,255,.15) 35%, rgba(255,255,255,.15) 60%, rgba(217,184,126,.7));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.gb.pm-busy, .gb.pm-busy[disabled] { background:linear-gradient(180deg, rgba(255,255,255,calc(var(--gb-tint) + .04)), rgba(255,255,255,calc(var(--gb-tint) * .3))) !important; color:#f6efe2 !important; }
+.gb .pm-spin { border-color:rgba(255,255,255,.22); border-top-color:#f6efe2; }
+.gb .pm-ck { color:#f6efe2; }
+.gb[disabled]:not(.pm-busy) { color:#8f857b !important; opacity:.6; }
+/* 讓玻璃後面看得到東西：底部那條固定區的遮罩改成半透明（濃度可調） */
+.tk-layer .cx9-c .cx9-foot, .tk-layer .cx9-d .cx9-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 40%, rgba(11,10,9,calc(var(--gb-foot) + .3))) !important; }
+.tk-layer .cx9-foot .cx9-hold, .tk-layer .cx9-foot .cx9-safe, .tk-layer .tkb-foot .tkb-sec2 { text-shadow:0 0 6px #0b0a09, 0 0 3px #0b0a09, 0 1px 2px #0b0a09; }   /* 遮罩變透明後，提示字加一圈深色光暈，表單字在後面也看得清楚
+.tk-layer .tkb-foot.solo { background:linear-gradient(rgba(13,11,12,0), rgba(13,11,12,var(--gb-foot)) 40%, rgba(10,9,9,calc(var(--gb-foot) + .3))) !important; }
