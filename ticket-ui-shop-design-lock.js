@@ -2588,7 +2588,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B397T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B398T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3014,12 +3014,15 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     function kh() { var v = window.visualViewport; return v ? Math.max(0, window.innerHeight - v.height) : 0; }
     function measure(L) { var f = L.querySelector(FOOT), fh = f && f.offsetHeight; if (fh && L.__ftH !== fh) { L.__ftH = fh; L.style.setProperty("--ft-h", fh + "px"); } }   // 給 scroll-padding 用：錯誤定位不會停在列後面
     document.addEventListener("scroll", function (e) { var L = e.target; if (L && L.classList && L.classList.contains("tk-layer") && !L.__ftRaf && L.querySelector(FOOT)) L.__ftRaf = requestAnimationFrame(function () { L.__ftRaf = 0; measure(L); }); }, { capture: true, passive: true });
-    function kbOn(L, h) { if (!L.classList.contains("ft-kb")) L.classList.add("ft-kb"); if (h > KB) L.style.paddingBottom = (h + 24) + "px"; }
+    function kbOn(L, h) { if (!L.classList.contains("ft-kb")) L.classList.add("ft-kb"); if (h > KB && /^(cxd|cxc)$/.test(L.getAttribute("data-layer") || "")) L.style.paddingBottom = (h + 24) + "px"; }   // B398T：鍵盤留白只留在卡包兩頁（B279T 原本就有）；周邊、購票打字中改版面會讓 iOS 游標掉到框外
+    /* B398T（CÉON 11/03：「填表時藍色游標會掉到框的下面」）：iOS 在 fixed 捲動層裡，鍵盤升起、欄位被捲到中間（scrollIntoView）之後，
+       游標常常停在舊位置。鍵盤穩定、欄位捲完之後把外層捲 1px 再捲回來，逼 iOS 重算游標位置（看不出來，不會改到內容）。 */
+    function caret(L) { var a = document.activeElement; if (!a || !L.contains(a) || !textish(a)) return; var y = L.scrollTop; L.scrollTop = y + 1; requestAnimationFrame(function () { L.scrollTop = y; }); }
     function kbOff(L) { var s = S(L); clearTimeout(s.probe); clearTimeout(s.settle); s.probing = false; if (!L.classList.contains("ft-kb")) return; L.classList.remove("ft-kb"); L.style.paddingBottom = ""; }
     function vvCheck() {
       var h = kh(); [].forEach.call(document.querySelectorAll(".tk-layer.ft-kb, .tk-layer.in"), function (L) {
         if (!L.querySelector(FOOT)) return; var s = S(L);
-        if (typingIn(L) && h > KB) { clearTimeout(s.settle); kbOn(L, h); return; }
+        if (typingIn(L) && h > KB) { clearTimeout(s.settle); kbOn(L, h); clearTimeout(s.car); s.car = setTimeout(function () { caret(L); }, 250); return; }   // 鍵盤高度穩定 250ms 後修游標
         if (!L.classList.contains("ft-kb") || s.probing) return;   // 剛聚焦、鍵盤還在升起：先不放回
         if (h <= KB_OFF) { clearTimeout(s.settle); s.settle = setTimeout(function () { if (kh() <= KB_OFF) kbOff(L); }, SETTLE); }   // 可視區回到原高並穩定才放回
       });
@@ -3027,6 +3030,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (window.visualViewport) { var vvR = 0; visualViewport.addEventListener("resize", function () { cancelAnimationFrame(vvR); vvR = requestAnimationFrame(vvCheck); }); }
     document.addEventListener("focusin", function (e) {
       var t = e.target, L = layerOf(t); if (!L || !editable(t)) return; var s = S(L); measure(L);
+      clearTimeout(s.car2); s.car2 = setTimeout(function () { caret(L); }, 750);   // 周邊／卡包聚焦後 320ms 會平滑捲到中間，捲完再修一次游標
       if (kh() > KB) { kbOn(L, kh()); return; }   // 鍵盤已開著（換欄位）
       if (!textish(t) || !coarse) return;   // select、桌機：等可視區真的變矮才藏
       kbOn(L, 0); s.probing = true; clearTimeout(s.probe);
