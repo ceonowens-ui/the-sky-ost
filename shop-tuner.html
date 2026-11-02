@@ -169,16 +169,21 @@ var GROUPS=[
   {k:'ptitle',label:'活動名字級',sel:'.tk-layer[data-layer="pass"] .tk-title b',props:['font-size'],min:18,max:36,step:0.5,fb:26,u:'px'},
   {k:'pbought',label:'「購買成功」字級',sel:'.tk-layer[data-layer="pass"] .tk-bought b',props:['font-size'],min:14,max:28,step:0.5,fb:20,u:'px'}
  ]},
- {key:'g7',tab:'按鈕',title:'主要按鈕・黑玻璃（前往付款、立即購買、重新付款）',items:[
+ {key:'g7',tab:'按鈕',title:'主要按鈕・液態玻璃（前往付款、立即購買、重新付款）',items:[
   /* B388T：先選一個預設，再拉滑桿微調；畫面上的付款按鈕會馬上變（要打開周邊或卡包的購買頁才看得到） */
   {k:'gbpreset',label:'預設',type:'seg',sel:'',opts:[['std','標準'],['clear','清透'],['frost','霧面'],['thick','濃厚液態']],fb:'std',onpick:function(v){ gbPreset(v); }},
-  {k:'gbtint',label:'透明度（越左越透明）',type:'css',min:0,max:40,step:1,fb:10,u:'%',sel:'',cssf:function(v){ return ':root{--gb-tint:'+(v/100)+' !important;}'; }},
-  {k:'gbblur',label:'背景模糊',type:'css',min:0,max:30,step:1,fb:16,u:'px',sel:'',cssf:function(v){ return ':root{--gb-blur:'+v+'px !important;}'; }},
-  {k:'gbhi',label:'液態感・內部的光',type:'css',min:0,max:90,step:1,fb:50,u:'%',sel:'',cssf:function(v){ return ':root{--gb-hi:'+(v/100)+' !important;}'; }},
-  {k:'gbsheen',label:'液態感・上方亮面',type:'css',min:0,max:60,step:1,fb:26,u:'%',sel:'',cssf:function(v){ return ':root{--gb-sheen:'+(v/100)+' !important;}'; }},
-  {k:'gbedge',label:'金色邊線粗細（×0.1px）',type:'css',min:0,max:30,step:1,fb:12,u:'',sel:'',cssf:function(v){ return ':root{--gb-edge:'+(v/10)+'px !important;}'; }},
-  {k:'gbglow',label:'底下的金光',type:'css',min:0,max:90,step:1,fb:55,u:'%',sel:'',cssf:function(v){ return ':root{--gb-glow:'+(v/100)+' !important;}'; }},
-  {k:'gbfoot',label:'按鈕後面的遮罩濃度',type:'css',min:0,max:70,step:1,fb:55,u:'%',sel:'',cssf:function(v){ return ':root{--gb-foot:'+(v/100)+' !important;}'; }}
+  {k:'gbflow',label:'流動感（邊緣光繞著走的亮度）',type:'css',min:0,max:100,step:1,fb:80,u:'%',sel:'',cssf:function(v){ return ':root{--gb-flow:'+(v/100)+' !important;}'; }},
+  {k:'gbspeed',label:'流動速度（秒／圈，越小越快）',type:'css',min:3,max:20,step:0.5,fb:9,u:'s',sel:'',cssf:function(v){ return ':root{--gb-speed:'+v+'s !important;}'; }},
+  {k:'gbtint',label:'透明度（白霧，越左越透明）',type:'css',min:0,max:40,step:1,fb:10,u:'%',sel:'',cssf:function(v){ return ':root{--gb-tint:'+(v/100)+' !important;}'; }},
+  {k:'gbblur',label:'背景模糊（×0.1px）',type:'css',min:0,max:200,step:1,fb:47,u:'',sel:'',cssf:function(v){ return ':root{--gb-blur:'+(v/10)+'px !important;}'; }},
+  {k:'gblq',label:'邊緣液化程度',type:'css',min:0,max:24,step:1,fb:9,u:'px',sel:'',cssf:function(v){ return ':root{--gb-lq:'+v+'px !important;}'; }},
+  {k:'gbband',label:'液化邊緣寬度',type:'css',min:4,max:28,step:1,fb:14,u:'px',sel:'',cssf:function(v){ return ':root{--gb-band:'+v+'px !important;}'; }},
+  {k:'gbhi',label:'高光強度（六道內光）',type:'css',min:0,max:200,step:5,fb:100,u:'%',sel:'',cssf:function(v){ return ':root{--gb-hi:'+(v/100)+' !important;}'; }},
+  {k:'gbsheen',label:'上方亮面',type:'css',min:0,max:40,step:1,fb:6,u:'%',sel:'',cssf:function(v){ return ':root{--gb-sheen:'+(v/100)+' !important;}'; }},
+  {k:'gbedge',label:'邊線粗細（×0.1px）',type:'css',min:0,max:30,step:1,fb:10,u:'',sel:'',cssf:function(v){ return ':root{--gb-edge:'+(v/10)+'px !important;}'; }},
+  {k:'gbwarm',label:'裡面的暖金折射',type:'css',min:0,max:60,step:1,fb:14,u:'%',sel:'',cssf:function(v){ return ':root{--gb-warm:'+(v/100)+' !important;}'; }},
+  {k:'gbglow',label:'底下的金光',type:'css',min:0,max:90,step:1,fb:35,u:'%',sel:'',cssf:function(v){ return ':root{--gb-glow:'+(v/100)+' !important;}'; }},
+  {k:'gbfoot',label:'按鈕後面的遮罩濃度',type:'css',min:0,max:70,step:1,fb:35,u:'%',sel:'',cssf:function(v){ return ':root{--gb-foot:'+(v/100)+' !important;}'; }}
  ]},
  {key:'g6',tab:'顏色',title:'顏色（只影響 SHOP 和票務頁）',items:[
   {k:'gold',label:'金色亮度',type:'zoom',sel:'',min:70,max:130,step:1,fb:100,u:'%'},
@@ -187,7 +192,7 @@ var GROUPS=[
 ];
 var S={}, DEF={}, MEAS={}, PENDING=null;
 /* B388T：黑玻璃按鈕的四個預設（跟示意頁一樣） */
-var GB_PRESETS={ std:{gbtint:10,gbblur:16,gbhi:50,gbsheen:26,gbedge:12,gbglow:55}, clear:{gbtint:3,gbblur:6,gbhi:35,gbsheen:18,gbedge:10,gbglow:45}, frost:{gbtint:22,gbblur:26,gbhi:45,gbsheen:22,gbedge:12,gbglow:40}, thick:{gbtint:12,gbblur:18,gbhi:85,gbsheen:52,gbedge:22,gbglow:75} };
+var GB_PRESETS={ std:{gbflow:80,gbspeed:9,gbtint:10,gbblur:47,gblq:9,gbband:14,gbhi:100,gbsheen:6,gbedge:10,gbwarm:14,gbglow:35,gbfoot:35}, clear:{gbflow:70,gbspeed:10,gbtint:4,gbblur:20,gblq:6,gbband:12,gbhi:90,gbsheen:3,gbedge:10,gbwarm:8,gbglow:25,gbfoot:15}, frost:{gbflow:60,gbspeed:11,gbtint:20,gbblur:140,gblq:14,gbband:16,gbhi:90,gbsheen:10,gbedge:10,gbwarm:16,gbglow:30,gbfoot:45}, thick:{gbflow:100,gbspeed:6,gbtint:12,gbblur:60,gblq:16,gbband:22,gbhi:170,gbsheen:14,gbedge:18,gbwarm:24,gbglow:55,gbfoot:30} };   /* B389T：照 iOS 26 Liquid Glass 參數（標準＝白 10%、模糊 4.7、邊緣液化、六道內光） */
 function gbPreset(name){ var P=GB_PRESETS[name]; if(!P) return; each(function(it){ if(!(it.k in P)) return; S[it.k]=P[it.k]; if(it._inp){ it._inp.value=P[it.k]; it._v.textContent=P[it.k]+it.u; it._v.classList.toggle('changed',S[it.k]!==DEF[it.k]); } }); }
 /* B365T：連 iPhone——設定透過測試後台（/ticket/tune，Durable Object）傳給 iPhone 上的 test.html?tune=連線碼 */
 var TUNE_API='https://the-sky-ost-api-test.anthonywen0693.workers.dev/ticket/tune', ROOM=null, NAVID=0, lastSent=null, pushT=null, sentN=0;

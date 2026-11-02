@@ -537,3 +537,44 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-c .cx9-foot, .tk-layer .cx9-d .cx9-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 40%, rgba(11,10,9,calc(var(--gb-foot) + .3))) !important; }
 .tk-layer .cx9-foot .cx9-hold, .tk-layer .cx9-foot .cx9-safe, .tk-layer .tkb-foot .tkb-sec2 { text-shadow:0 0 6px #0b0a09, 0 0 3px #0b0a09, 0 1px 2px #0b0a09; }   /* 遮罩變透明後，提示字加一圈深色光暈，表單字在後面也看得清楚
 .tk-layer .tkb-foot.solo { background:linear-gradient(rgba(13,11,12,0), rgba(13,11,12,var(--gb-foot)) 40%, rgba(10,9,9,calc(var(--gb-foot) + .3))) !important; }
+/* B389T（CÉON 11/02：「有點死黑不透明，沒有流動感」＋給了 iOS 26 Liquid Glass 的 Figma 參數）
+   照參數重做：① 背景模糊層＝白 10%、模糊 4.7（中間是透明的）② 液化層＝只有邊緣一圈（約 12px）糊掉、扭曲，中間清楚
+   ③ 高光層＝六道內陰影（左上、右下白光＋兩道很淡的黑）＋兩道放射漸層邊線。流動感＝邊緣那圈光慢慢繞著按鈕走（只重畫 1px 的邊，不會 lag）。
+   全部是變數，SHOP Tuner「按鈕」分頁可以調。 */
+@property --gb-a { syntax:"<angle>"; inherits:false; initial-value:200deg; }
+:root { --gb-tint:.10; --gb-blur:4.7px; --gb-band:14px; --gb-lq:9px; --gb-hi:1; --gb-sheen:.06; --gb-edge:1px; --gb-glow:.35; --gb-warm:.14; --gb-flow:.8; --gb-speed:9s; --gb-foot:.35; }
+.gb { overflow:hidden; color:#fff !important; text-shadow:0 1px 3px rgba(0,0,0,.45);
+  background:
+    radial-gradient(120% 90% at 50% 125%, rgba(232,180,100,var(--gb-warm)), rgba(232,180,100,0) 60%),
+    linear-gradient(180deg, rgba(255,255,255,var(--gb-sheen)), rgba(255,255,255,0) 50%),
+    rgba(255,255,255,var(--gb-tint)) !important;
+  -webkit-backdrop-filter:blur(var(--gb-blur)) saturate(1.5); backdrop-filter:blur(var(--gb-blur)) saturate(1.5);
+  box-shadow:
+    inset 1px 2px 4px 0 rgba(255,255,255,calc(.35 * var(--gb-hi))),
+    inset 5px 5px 11px -14px rgba(255,255,255,calc(.20 * var(--gb-hi))),
+    inset -1px -2px 4px 0 rgba(255,255,255,calc(.35 * var(--gb-hi))),
+    inset -5px -7px 20px -7px rgba(255,255,255,calc(.20 * var(--gb-hi))),
+    inset -2px -4px 88px 0 rgba(0,0,0,.10),
+    inset 1.67px 3.33px 88px 0 rgba(0,0,0,.10),
+    0 18px 32px -14px rgba(232,180,100,var(--gb-glow)), 0 8px 16px -10px rgba(0,0,0,.5) !important; }
+/* 液化：只有邊緣一圈糊掉＋提亮，中間保持清楚 */
+.gb::before { inset:0; width:auto; border-radius:inherit; z-index:-1; animation:none; will-change:auto;
+  background:rgba(255,255,255,.01);
+  -webkit-backdrop-filter:blur(var(--gb-lq)) saturate(1.8) brightness(1.15); backdrop-filter:blur(var(--gb-lq)) saturate(1.8) brightness(1.15);
+  -webkit-mask:linear-gradient(90deg,#000 0,transparent var(--gb-band),transparent calc(100% - var(--gb-band)),#000 100%), linear-gradient(180deg,#000 0,transparent calc(var(--gb-band) * .8),transparent calc(100% - var(--gb-band) * .8),#000 100%);
+  -webkit-mask-composite:source-over;
+  mask:linear-gradient(90deg,#000 0,transparent var(--gb-band),transparent calc(100% - var(--gb-band)),#000 100%), linear-gradient(180deg,#000 0,transparent calc(var(--gb-band) * .8),transparent calc(100% - var(--gb-band) * .8),#000 100%);
+  mask-composite:add; }
+/* 邊線：兩道放射漸層（45%、30%），一道淡金，慢慢繞著邊走 */
+.gb::after { padding:var(--gb-edge);
+  background:conic-gradient(from var(--gb-a), rgba(255,255,255,calc(.45 * var(--gb-flow) + .1)) 0deg, rgba(255,255,255,0) 70deg, rgba(255,226,170,calc(.25 * var(--gb-flow))) 120deg, rgba(255,255,255,0) 170deg, rgba(255,255,255,calc(.30 * var(--gb-flow) + .08)) 180deg, rgba(255,255,255,0) 250deg, rgba(255,226,170,calc(.18 * var(--gb-flow))) 300deg, rgba(255,255,255,0) 340deg, rgba(255,255,255,calc(.45 * var(--gb-flow) + .1)) 360deg);
+  animation:gbEdge var(--gb-speed) linear infinite; }
+@keyframes gbEdge { to { --gb-a:560deg; } }
+.gb.pm-busy, .gb.pm-busy[disabled] { background:radial-gradient(120% 90% at 50% 125%, rgba(232,180,100,var(--gb-warm)), rgba(232,180,100,0) 60%), rgba(255,255,255,calc(var(--gb-tint) + .04)) !important; }
+.gb .pm-spin { border-color:rgba(255,255,255,.25); border-top-color:#fff; }
+.gb .pm-ck { color:#fff; }
+.gb[disabled]:not(.pm-busy) { color:rgba(255,255,255,.45) !important; }
+.gb[disabled]:not(.pm-busy)::after { animation:none; opacity:.4; }
+@media (prefers-reduced-motion:reduce) { .gb::after { animation:none; } }
+/* 買票結帳的底部也改半透明，玻璃按鈕後面才看得到內容（不然只會看到一片黑） */
+.tk-layer .tkb .tkb-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 14px, rgba(11,10,9,var(--gb-foot)) calc(100% - 58px), #0b0a09 calc(100% - 44px)) !important; }   /* 按鈕那段透明、下面那行小字的地方實心，字才不會跟後面疊在一起 */
