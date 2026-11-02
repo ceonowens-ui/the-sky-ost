@@ -599,17 +599,21 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 /* B391T（CÉON 11/02：「改回原來金色!!! 周邊頁面」）周邊／卡包的按鈕拿掉玻璃、回到原本金色長條；上面兩條透明底部規則改成只在有玻璃按鈕時才套，周邊頁底部回到原本實心。買票結帳、重新付款仍是玻璃。 */
 /* B392T（CÉON 11/02：「買票也改金色」）買票結帳、重新付款也拿掉玻璃回到原本金色；買票底部的透明規則改成只在有玻璃按鈕時才套（現在沒有按鈕用玻璃，.gb 樣式和 Tuner 留著備用）。 */
 /* B393T 的付款列收放規則已由 B394T 取代（見檔尾） */
-/* B394T（CÉON 同意、Codex 指定，11/02）：四個購買頁底部付款列——收放、定位、鍵盤統一（JS：ticket-ui-shop-design-lock.js 的 FT）。
-   收起＝往下移（100%＋8px）＋ visibility:hidden（不能點、Tab 不會停在上面），只動 transform，正文不重排。
-   收起 180ms 加速曲線、出現 200ms 減速曲線；中途換方向由 CSS transition 從當下位置接續，不會從頭閃現。 */
-.tk-layer .cx9-foot, .tk-layer .tkb-foot { transform:translate3d(0,0,0); visibility:visible; transition:transform 200ms cubic-bezier(0,0,.2,1), visibility 0s linear 0s; will-change:transform; }
-.tk-layer.ft-hide .cx9-foot, .tk-layer.ft-kb .cx9-foot, .tk-layer.ft-hide .tkb-foot, .tk-layer.ft-kb .tkb-foot { transform:translate3d(0,calc(100% + 8px),0); visibility:hidden; pointer-events:none; transition:transform 180ms cubic-bezier(.4,0,1,1), visibility 0s linear 180ms; }
+/* B396T（CÉON 11/02：「改成一直顯示變薄」）：付款列一直顯示、只留按鈕；只有打字（.ft-kb，鍵盤開著）時收起（JS：ticket-ui-shop-design-lock.js 的 FT）。
+   收起＝往下移＋visibility:hidden（不能點、Tab 不會停），只動 transform；收起 180ms、出現 200ms；減少動態效果直接切換。 */
+.tk-layer .cx9-foot, .tk-layer .tkb-foot { transform:translate3d(0,0,0); visibility:visible; transition:transform 200ms cubic-bezier(0,0,.2,1), visibility 0s linear 0s; }
+.tk-layer.ft-kb .cx9-foot, .tk-layer.ft-kb .tkb-foot { transform:translate3d(0,calc(100% + 8px),0); visibility:hidden; pointer-events:none; transition:transform 180ms cubic-bezier(.4,0,1,1), visibility 0s linear 180ms; }
 .tk-layer .cx9-foot:has(.pm-busy, .pm-back, :focus-visible), .tk-layer .tkb-foot:has(.pm-busy, .pm-back, :focus-visible) { transform:translate3d(0,0,0) !important; visibility:visible !important; pointer-events:auto !important; transition:transform 200ms cubic-bezier(0,0,.2,1), visibility 0s linear 0s !important; }   /* 付款中、失敗彈回、列內有鍵盤焦點：一定顯示 */
-@media (prefers-reduced-motion:reduce) { .tk-layer .cx9-foot, .tk-layer .tkb-foot, .tk-layer.ft-hide .cx9-foot, .tk-layer.ft-kb .cx9-foot, .tk-layer.ft-hide .tkb-foot, .tk-layer.ft-kb .tkb-foot { transition:none !important; } }   /* 減少動態效果：直接切換，不滑動 */
+@media (prefers-reduced-motion:reduce) { .tk-layer .cx9-foot, .tk-layer .tkb-foot, .tk-layer.ft-kb .cx9-foot, .tk-layer.ft-kb .tkb-foot { transition:none !important; } }
+/* 變薄：周邊／卡包付款列只剩按鈕，上下各 10px（原本上 20px＋提示一行）。提示改放在合計下面（.cx9-hold-b） */
+.tk-layer .cx9-c .cx9-foot, .tk-layer .mx .cx9-foot { padding-top:10px !important; }
+.tk-layer .cx9-hold.cx9-hold-b { margin:10px 2px 0; text-align:left; font-size:13px; line-height:1.55; color:var(--g2,#E8C98C); text-shadow:none; }
+.tk-layer .cx9-hold-b .cx9-hold-ln { display:inline; min-height:17px; margin:0; padding:0 2px; border:0; background:none; color:var(--g2,#E8C98C); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tk-layer[lang="en"] .cx9-hold-b .cx9-hold-ln { margin-left:.3em; }
 /* 定位：卡包／周邊三頁外層原本又加一次 safe-area 底部留白（列本身已含 safe-area）→ 捲到最底時列下面多一條空白。只拿掉外層那份。
    scroll-padding 底部＝付款列實際高度＋16px（--ft-h 由 JS 量），錯誤定位、scrollIntoView 不會停在列後面。 */
 .tk-layer.in:is([data-layer=cxd],[data-layer=cxc],[data-layer=mxc]) { padding-bottom:0; }
 .tk-layer.in:is([data-layer=cxd],[data-layer=cxc],[data-layer=mxc],[data-layer=checkout]) { scroll-padding-bottom:calc(var(--ft-h, 104px) + 16px); }
-/* 收起時列往下移，Chrome／Safari 會把移出去的部分算進可捲高度（照列原本在內容最底的位置算）→ 頁面變長、到底時又縮回＝跳動。
-   付款列的父層只在垂直方向 clip（overflow-y:clip 不會變成捲動容器，sticky 照常黏在 .tk-layer 上；水平維持 visible，列左右的負 margin 不被切） */
+/* 打字收起時列往下移，Chrome／Safari 會把移出去的部分算進可捲高度 → 頁面變長。付款列的父層只在垂直方向 clip
+   （overflow-y:clip 不會變成捲動容器，sticky 照常；水平維持 visible，列左右的負 margin 不被切） */
 .tk-layer :has(> .cx9-foot), .tk-layer :has(> .tkb-foot) { overflow-x:visible; overflow-y:clip; }
