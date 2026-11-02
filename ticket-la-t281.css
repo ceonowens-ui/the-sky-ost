@@ -459,3 +459,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer .cx9-ship .ic svg { display:block; width:17px; height:17px; }
 .tk-layer[data-layer="cxc"], .tk-layer[data-layer="mxc"] { scroll-padding-bottom:calc(150px + env(safe-area-inset-bottom,0px)); }
 .tk-layer .cx9-c .cx9-acc { margin-bottom:calc(20px + env(safe-area-inset-bottom,0px)); }
+/* B384T：卡包結帳的數量移到商品卡外（跟生日周邊頁同一個樣子）；周邊卡片膠囊最多兩顆 */
+.tk-layer .cx9-qtyrow { display:flex; align-items:center; gap:14px; margin:12px 0 4px; }
+.tk-layer .cx9-qtyrow > span { font-size:17px; color:var(--soft); }
+.tk-layer .cx9-qtyrow small { font-size:15px; color:var(--mut); }

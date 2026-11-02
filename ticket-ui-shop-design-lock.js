@@ -1793,7 +1793,7 @@ function coverClockKey() {
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
     if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
-      var en2 = sxEN(), cut2 = mCut(mi), tg = [k === "h" ? { t: en2 ? "Top pick · No.6 card" : "推薦・獨家 6 號小卡", cls: "rec" } : null, Number(it.cap) > 0 ? { t: en2 ? "Limited to " + it.cap : "限量 " + it.cap + " 組" } : null, it.left > 0 && it.left <= 10 ? { t: en2 ? it.left + " left" : "剩 " + it.left, cls: "hot" } : null, it.left > 0 ? { t: cut2 ? (en2 ? "Pre-order until " + cut2 : "預購至 " + cut2 + "・售完為止") : (en2 ? "While stocks last" : "售完為止"), cls: "due" } : null].filter(Boolean);   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
+      var en2 = sxEN(), cut2 = mCut(mi), tg = [k === "h" ? { t: en2 ? "Top pick · No.6 card" : "推薦・獨家 6 號小卡", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
       bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? "6 號小卡只隨組合" : (it.perk || ""), tg, !(it.left > 0))); }); }
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
@@ -1984,9 +1984,9 @@ function coverClockKey() {
     var si = cxShipInfo(); cx9FE = CX.bad || {}; var en9 = sxEN();
     var ctaTxt = busy ? "處理中…" : CX.retry ? "重新開啟付款頁" : "前往付款 · " + (t.total === null ? "" : cxNT(t.total));
     return '<div class="cx9 cx9-c">' + cx9Bar("確認訂單") +
-      '<div class="cx9-sum1"><img src="' + esc(i.img || CX_FALLBACK.img) + '" alt=""><div class="cx9-sum1-t"><b>' + esc(i.short || i.name) + '</b><span>' + cxNT(i.price) + ' / 包</span>' +
-        '<div class="cx9-qty"><button type="button" data-cx="minus" aria-label="減少一包"' + (CX.qty <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + CX.qty + '</output><button type="button" data-cx="plus" aria-label="增加一包"' + (CX.qty >= max || busy ? " disabled" : "") + '>＋</button></div>' +
-        '<small>一次最多 ' + max + ' 包</small></div></div>' +
+      '<div class="cx9-sum1"><img src="' + esc(i.img || CX_FALLBACK.img) + '" alt=""><div class="cx9-sum1-t"><b>' + esc(i.short || i.name) + '</b><span>' + cxNT(i.price) + ' / 包</span></div></div>' +
+        '<div class="cx9-qtyrow"><span>數量</span><div class="cx9-qty"><button type="button" data-cx="minus" aria-label="減少一包"' + (CX.qty <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + CX.qty + '</output><button type="button" data-cx="plus" aria-label="增加一包"' + (CX.qty >= max || busy ? " disabled" : "") + '>＋</button></div>' +
+        '<small>一次最多 ' + max + ' 包</small></div>' +
       (cxPickOK() ? '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (si.tw ? "台灣免運" : "") + (si.over ? (si.tw ? "・" : "") + esc(si.over.replace("海外運費 ", "海外 ")) : "") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-cx="m-pick"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>12/27 生日會・免運</small></span></button></div>' : '') +
@@ -2571,7 +2571,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B383T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B384T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2682,6 +2682,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   /* ===== B375T（CÉON 11/01）：生日限定周邊購買頁＝卡包結帳頁的版型 =====
      一整頁：選商品 → 數量 → 取貨方式 → 左標籤右欄位的表單 → 小計／運費／合計 → 底部「前往付款」。訂單、庫存、付款流程跟原本的彈窗一樣。 */
+  /* B384T（CÉON 11/02 看過示意圖）：周邊卡片的第二顆膠囊。剩 10 組以下＝紅色「剩 N 組（・至 M/D）」，限量先不顯示；
+     否則「限量 N 組・售完為止」或「限量 N 組・至 M/D」。購買頁比較寬（wide）寫完整「預購至 M/D 23:59」。售完回 null（卡片本身寫已售完）。 */
+  function mPill2(it, cut, en, wide) {
+    if (!it || !(it.left > 0)) return null;
+    var hot = it.left <= 10, cap = Number(it.cap) > 0;
+    var due = cut ? (wide ? (en ? "pre-order until " + cut + " 23:59" : "預購至 " + cut + " 23:59") : (en ? "until " + cut : "至 " + cut)) : "";
+    if (hot) return { t: (en ? it.left + " left" : "剩 " + it.left + " 組") + (due ? (en ? " · " : "・") + due : ""), cls: "hot" };
+    if (cap && en && !wide) return { t: "Only " + it.cap + (due ? " · " + due : ""), cls: "" };   // 英文半寬卡放不下 while stocks last
+    if (cap) return { t: (en ? "Limited to " + it.cap : "限量 " + it.cap + " 組") + (en ? " · " : "・") + (due || (en ? "while stocks last" : "售完為止")), cls: "" };
+    return { t: due ? (en ? due.charAt(0).toUpperCase() + due.slice(1) : due.replace(/^至/, "預購至")) : (en ? "While stocks last" : "售完為止"), cls: "due" };
+  }
   function mxHTML() {
     var o = S.mx; if (!o) return "";
     var mi = mInfo(o.evId), ev = buyEvent(o.evId) || {};
@@ -2698,8 +2709,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(o.evId, k), out = !(it.left > 0), on = solo ? !own && !out : !!o["m" + k] && !own && !out;
       if (solo && on && !o["m" + k]) o["m" + k] = true;
       // B377T：單選（圓點＝只能選一個）；標籤：推薦、限量 N 組、剩 N；組合寫清楚「6 號小卡只隨組合」
-      var tags = (k === "h" ? '<i class="mx-tag rec">' + (en ? "Top pick · No.6 card only here" : "推薦・只在這裡拿得到的 6 號小卡") + '</i>' : '') + (Number(it.cap) > 0 ? '<i class="mx-tag">' + (en ? "Limited to " + esc(it.cap) : "限量 " + esc(it.cap) + " 組") + '</i>' : '') + (!out && !own && it.left <= 10 ? '<i class="mx-tag hot">' + (en ? esc(it.left) + " left" : "剩 " + esc(it.left) + " 組") + '</i>' : '') +
-        (!out && !own ? '<i class="mx-tag due">' + (mCut(mi) ? (en ? "Pre-order until " + esc(mCut(mi)) + " 23:59 · while stocks last" : "預購至 " + esc(mCut(mi)) + " 23:59・售完為止") : (en ? "While stocks last" : "售完為止")) + '</i>' : '');   // B381T：期限也放在商品卡上（原本只在小標旁）；B382T：推薦膠囊帶理由；後台沒給 cutoff 就寫「售完為止」，不自己編日期；B383T：有 cutoff 時期限與售完為止合成一顆
+      var tags = (k === "h" ? '<i class="mx-tag rec">' + (en ? "Top pick · No.6 card only here" : "推薦・只在這裡拿得到的 6 號小卡") + '</i>' : '') + (function () { var p2 = own ? null : mPill2(it, mCut(mi), en, true); return p2 ? '<i class="mx-tag' + (p2.cls ? " " + p2.cls : "") + '">' + esc(p2.t) + '</i>' : ''; })();   // B384T：推薦＋一顆（剩 ≤10 紅色「剩 N 組・預購至…」，否則「限量 N 組・售完為止／預購至…」）   // B381T：期限也放在商品卡上（原本只在小標旁）；B382T：推薦膠囊帶理由；後台沒給 cutoff 就寫「售完為止」，不自己編日期；B383T：有 cutoff 時期限與售完為止合成一顆
       var sub = own ? "你已購買" : out ? "已售完" : k === "h" ? "A3 海報組 ＋ 6 號小卡（小卡只隨組合）" : esc(it.perk || "");
       if (solo) return '<div class="cx9-sum1 mx-it solo' + (on ? " on" : "") + '" data-k="' + k + '">' + (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></div>';
       return '<button type="button" role="radio" aria-checked="' + on + '" class="cx9-sum1 mx-it' + (on ? " on" : "") + '" data-mx="item" data-k="' + k + '"' + (own || out || busy ? " disabled" : "") + '><i aria-hidden="true"></i>' +
