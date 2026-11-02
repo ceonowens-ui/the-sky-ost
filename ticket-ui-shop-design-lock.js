@@ -1270,6 +1270,7 @@ function coverClockKey() {
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
     var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
     document.getElementById("tk-layers").appendChild(el);
+    if (FT) FT.seed(el);   /* B394T：付款列收放的捲動基準在開頁當下記（新頁＝0），第一次滾輪才不會被吞掉 */
     renderLayer(name);
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
@@ -1319,7 +1320,7 @@ function coverClockKey() {
       var ae = document.activeElement;
       if (el.innerHTML && ae && el.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;
       if (!el.__cx9) { el.__cx9 = 1; el.addEventListener("click", cx9Click); el.addEventListener("input", cx9Input); el.addEventListener("change", cx9Input);
-        if (window.visualViewport) { var vvf = function () { if (!el.isConnected) { visualViewport.removeEventListener("resize", vvf); return; } var kh = window.innerHeight - visualViewport.height; el.classList.toggle("cx9-kb", kh > 120); el.style.paddingBottom = kh > 120 ? (kh + 24) + "px" : ""; }; visualViewport.addEventListener("resize", vvf); }   /* 鍵盤開著：底部按鈕改成跟著內容，不蓋住欄位 */
+        /* B394T：卡包舊的 cx9-kb（鍵盤時付款列改 static＋這裡自己掛 visualViewport）拿掉，改由 FT 四頁統一處理 */
         el.addEventListener("focusin", function (e) { if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) setTimeout(function () { try { e.target.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (x) {} }, 320); }); }
       if (name === "cxd") el.innerHTML = cx9DetailHTML(); else el.innerHTML = cx9CheckoutHTML();
     }
@@ -2587,7 +2588,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B393T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B394T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2995,20 +2996,102 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ④ 選擇圓點：被選到時輕輕彈一下。手機設定「減少動態效果」時全部不動。 */
   var REDUCED = (function () { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } })();
   var PM_IN = '<span class="pm-spin" aria-hidden="true"></span><svg class="pm-ck" viewBox="0 0 26 26" aria-hidden="true"><path d="M6 13.5l4.5 4.5L20 8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  /* B393T（CÉON 11/02）：購買頁底部付款列——往下讀時收起不擋內容，往回滑、滑到最底、剛打開時出現；打字（鍵盤打開）時收起，收起鍵盤再出現。
-     狀態掛在 .tk-layer 上（付款列重畫也不會亂跳）；付款中、付款失敗彈回時一定顯示（CSS :has 處理）。 */
-  (function () {
-    var last = new WeakMap(), FOOT = ".cx9-foot,.tkb-foot", TYPE = 'input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),textarea,select';
+  /* B394T（CÉON 同意、Codex 指定，11/02）：四個購買頁（卡包商品 cxd、卡包結帳 cxc、生日周邊 mxc、購票結帳 checkout）底部付款列的共用規則。
+     取代 B393T 的簡版和卡包舊的 cx9-kb（鍵盤時改 static＋自己掛 visualViewport）。判斷方式參考 test.html 的 dock，但不碰 dock。
+     ① 只算「使用者真的在滑」：手指拖、放手後同方向慣性、滾輪、鍵盤翻頁、拖捲軸。程式捲動（scrollIntoView、錯誤定位、重畫、帶入資料、resize、鍵盤）只更新基準、不累積。
+     ② 同方向累計：往下讀累計 HIDE px 收起、往回累計 SHOW px 出現；換方向清零；比 MICRO 小的抖動不更新基準（慢慢滑也會累計到）。
+     ③ 最上面、接近最底（列高一半，夾在 40–72px）、內容太短：一定顯示——列快到它原本在內容最底的位置時就落回去。
+        最底附近另有 STABLE px 穩定區，避免在門檻上來回切。停手維持當下狀態，不計時彈出。
+        收起時往下移的列不會把可捲範圍撐大：CSS 讓列的父層 overflow-y:clip（見 ticket-la-t281.css B394T）。
+     ④ 鍵盤：看 visualViewport 實際變矮（> KB px）＋焦點在輸入欄才算開著。觸控裝置的文字欄位一聚焦先藏（免得鍵盤升起時列閃一下），
+        PROBE ms 內可視區沒變矮（硬體鍵盤）就放回來；鍵盤收起、可視區回到原高並穩定 SETTLE ms 才放回；焦點還在 input 但鍵盤已收也會放回。
+        鍵盤開著時外層加底部留白＝鍵盤高＋24（沿用卡包舊做法，四頁一致），最後的欄位才捲得到鍵盤上面。
+     ⑤ 付款中、失敗彈回、列內有鍵盤焦點（:focus-visible）一定顯示。
+     狀態存在 WeakMap（頁面關掉元素被移除就一起回收）；監聽全部掛在 document／visualViewport 上、只掛一次，不會跟著開頁累積。 */
+  var FT = (function () {
+    var HIDE = 32, SHOW = 12, TOP = 24, MICRO = 2, STABLE = 16, INPUT_MS = 350, FLING_MS = 1100, KB = 120, KB_OFF = 80, PROBE = 650, SETTLE = 160, QUIET = 450;
+    var FOOT = ".cx9-foot,.tkb-foot", st = new WeakMap(), lastInput = 0, inDir = 0, tEnd = 0, tDir = 0, sx = 0, sy = 0, px = 0, py = 0, moved = false, horiz = false, drag = false;
+    var coarse = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+    function S(L, y0) { var s = st.get(L); if (!s) { s = { y: y0 == null ? 0 : y0, acc: 0, dir: 0, quiet: 0, probe: 0, settle: 0, probing: false }; st.set(L, s); } return s; }   // 沒記過的頁面從 0 開始算
+    /* Codex 驗收 11/02：原本第一次捲動才建狀態、把已捲的位置當基準＝第一次滑動被吞掉；改成在輸入回調裡讀 scrollTop 也不夠——
+       單次滾輪時合成器在 wheel 回調前就已經把 scrollTop 推進了。所以基準在「頁面建立」那一刻記（新頁 scrollTop＝0），輸入回調只確保狀態存在、不讀目前位置。 */
+    function arm(t) { var L = layerOf(t); if (L) S(L); }
+    function seed(L) { if (L && L.classList && L.classList.contains("tk-layer")) S(L, Math.max(0, L.scrollTop)); }
+   // openLayer 建立 .tk-layer 的當下呼叫 FT.seed（見 openLayer）
+    function layerOf(t) { var L = t && t.closest && t.closest(".tk-layer"); return L && L.querySelector(FOOT) ? L : null; }
+    function textish(t) { return !!(t && (t.isContentEditable || t.tagName === "TEXTAREA" || (t.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file|image|hidden)$/i.test(t.type || "")))); }
+    function editable(t) { return !!(t && (textish(t) || t.tagName === "SELECT")); }
+    function typingIn(L) { var a = document.activeElement; return !!(a && L.contains(a) && editable(a)); }
+    function kh() { var v = window.visualViewport; return v ? Math.max(0, window.innerHeight - v.height) : 0; }
+    function setHidden(L, h) { h = !!h; if (L.classList.contains("ft-hide") !== h) L.classList.toggle("ft-hide", h); }
+    function rebase(L, s) { s.acc = 0; s.dir = 0; s.y = Math.max(0, L.scrollTop); }
+    function trusted(d) {
+      var now = performance.now(); if (horiz) return false; if (drag) return true;
+      if (now - lastInput < INPUT_MS && (inDir === 0 || inDir === d)) return true;
+      return !!(tEnd && now - tEnd < FLING_MS && tDir === d);   // 放手後同方向的慣性
+    }
+    function step(L) {
+      var s = S(L), f = L.querySelector(FOOT); if (!f) return;
+      var fh = f.offsetHeight, max = Math.max(0, L.scrollHeight - L.clientHeight), y = Math.min(Math.max(L.scrollTop, 0), max), zone = Math.min(72, Math.max(40, Math.round(fh / 2))), dist = max - y;   // 夾住 iOS 彈性 overscroll
+      if (fh && L.__ftH !== fh) { L.__ftH = fh; L.style.setProperty("--ft-h", fh + "px"); }   // 給 scroll-padding 用：錯誤定位、scrollIntoView 不會停在列後面
+      if (f.querySelector(".pm-busy,.pm-back")) { rebase(L, s); setHidden(L, false); return; }   // 付款中／失敗彈回
+      if (y <= TOP || dist <= zone || max <= TOP + zone + STABLE + HIDE) { rebase(L, s); setHidden(L, false); return; }   // 頂、底、內容太短
+      if (L.classList.contains("ft-kb") || Date.now() < s.quiet) { rebase(L, s); return; }   // 鍵盤開著、剛收鍵盤：欄位自己捲動不算
+      var dy = y - s.y; if (Math.abs(dy) < MICRO) return;   // 抖動：基準不動，慢滑照樣累計
+      s.y = y; var d = dy > 0 ? 1 : -1;
+      if (!trusted(d)) { s.acc = 0; s.dir = 0; return; }   // 程式捲動：不累積
+      if (d !== s.dir) { s.dir = d; s.acc = 0; }
+      s.acc += Math.abs(dy);
+      if (d > 0 && s.acc >= HIDE) { s.acc = 0; if (dist > zone + STABLE && !f.querySelector(":focus-visible")) setHidden(L, true); }
+      else if (d < 0 && s.acc >= SHOW) { s.acc = 0; setHidden(L, false); }
+    }
     document.addEventListener("scroll", function (e) {
-      var L = e.target; if (!L || !L.classList || !L.classList.contains("tk-layer") || !L.querySelector(FOOT)) return;
-      var y = L.scrollTop, p = last.has(L) ? last.get(L) : 0, d = y - p;
-      if (L.classList.contains("ft-kb") || Date.now() < (L._ftQuiet || 0)) { last.set(L, y); return; }   // 打字時、剛收起鍵盤（欄位自己捲動、頁面重畫）不算
-      if (y < 40 || L.scrollHeight - L.clientHeight - y < 64) { L.classList.remove("ft-hide"); last.set(L, y); return; }   // 剛打開（最上面）或滑到最底：一定出現
-      if (Math.abs(d) < 8) return;   // 小抖動不算
-      last.set(L, y); L.classList.toggle("ft-hide", d > 0);   // 往下讀 → 收起；往回滑 → 出現
+      var L = e.target; if (!L || !L.classList || !L.classList.contains("tk-layer") || L.__ftRaf || !L.querySelector(FOOT)) return;
+      L.__ftRaf = requestAnimationFrame(function () { L.__ftRaf = 0; step(L); });
     }, { capture: true, passive: true });
-    document.addEventListener("focusin", function (e) { var t = e.target, L = t && t.closest && t.closest(".tk-layer"); if (L && t.matches(TYPE) && L.querySelector(FOOT)) L.classList.add("ft-kb"); });
-    document.addEventListener("focusout", function (e) { var L = e.target && e.target.closest && e.target.closest(".tk-layer"); if (L) setTimeout(function () { var a = document.activeElement; if (!(a && a.matches && a.matches(TYPE) && L.contains(a))) { L.classList.remove("ft-kb"); L.classList.remove("ft-hide"); L._ftQuiet = Date.now() + 600; } }, 80); });   // 收起鍵盤 → 付款列回來
+    /* ---- 可信輸入 ---- */
+    document.addEventListener("touchstart", function (e) { var t = e.touches && e.touches[0]; if (!t) return; sx = px = t.clientX; sy = py = t.clientY; moved = false; horiz = false; tEnd = 0; arm(e.target); }, { capture: true, passive: true });
+    document.addEventListener("touchmove", function (e) {
+      var t = e.touches && e.touches[0]; if (!t || !layerOf(e.target)) return;
+      if (Math.abs(t.clientX - sx) > Math.abs(t.clientY - sy) + 4) { horiz = true; return; }
+      var dy = t.clientY - py; px = t.clientX; py = t.clientY; if (Math.abs(dy) < 1) return;
+      horiz = false; moved = true; lastInput = performance.now(); inDir = dy < 0 ? 1 : -1; tDir = inDir;   // 逐段算方向：同一次按住來回拖也跟得上；手指往上＝內容往下
+    }, { capture: true, passive: true });
+    document.addEventListener("touchend", function () { if (moved && !horiz) tEnd = performance.now(); moved = false; }, { capture: true, passive: true });   // 只有真的拖過才算慣性（點按鈕不算）
+    document.addEventListener("touchcancel", function () { tEnd = 0; moved = false; }, { capture: true, passive: true });
+    document.addEventListener("wheel", function (e) { if (e.defaultPrevented || !layerOf(e.target) || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return; arm(e.target); lastInput = performance.now(); inDir = e.deltaY > 0 ? 1 : -1; }, { capture: true, passive: true });
+    window.addEventListener("keydown", function (e) {
+      if (e.defaultPrevented || editable(e.target) || !layerOf(e.target)) return; var k = e.key;
+      if (/^(PageDown|ArrowDown|End| |Spacebar)$/.test(k) && !e.shiftKey) { arm(e.target); lastInput = performance.now(); inDir = 1; }
+      else if (/^(PageUp|ArrowUp|Home)$/.test(k) || (k === " " && e.shiftKey)) { arm(e.target); lastInput = performance.now(); inDir = -1; }
+    });
+    document.addEventListener("pointerdown", function (e) { if (e.pointerType === "mouse" && e.target && e.target.classList && e.target.classList.contains("tk-layer") && layerOf(e.target)) { arm(e.target); drag = true; } }, true);   // 桌機拖捲軸
+    window.addEventListener("pointerup", function () { drag = false; }, true); window.addEventListener("pointercancel", function () { drag = false; }, true);
+    /* ---- 鍵盤 ---- */
+    function kbOn(L, h) { var s = S(L); if (!L.classList.contains("ft-kb")) L.classList.add("ft-kb"); if (h > KB) L.style.paddingBottom = (h + 24) + "px"; rebase(L, s); }
+    function kbOff(L) { var s = S(L); clearTimeout(s.probe); clearTimeout(s.settle); s.probing = false; if (!L.classList.contains("ft-kb")) return; L.classList.remove("ft-kb"); L.style.paddingBottom = ""; setHidden(L, false); s.quiet = Date.now() + QUIET; rebase(L, s); }
+    function vvCheck() {
+      var h = kh(); [].forEach.call(document.querySelectorAll(".tk-layer.ft-kb, .tk-layer.in"), function (L) {
+        if (!L.querySelector(FOOT)) return; var s = S(L);
+        if (typingIn(L) && h > KB) { clearTimeout(s.settle); kbOn(L, h); return; }
+        if (!L.classList.contains("ft-kb") || s.probing) return;   // 剛聚焦、鍵盤還在升起：先不放回
+        if (h <= KB_OFF) { clearTimeout(s.settle); s.settle = setTimeout(function () { if (kh() <= KB_OFF) kbOff(L); }, SETTLE); }   // 可視區回到原高並穩定才放回（焦點還在 input 也一樣）
+        else rebase(L, s);
+      });
+    }
+    if (window.visualViewport) { var vvR = 0; visualViewport.addEventListener("resize", function () { cancelAnimationFrame(vvR); vvR = requestAnimationFrame(vvCheck); }); }
+    document.addEventListener("focusin", function (e) {
+      var t = e.target, L = layerOf(t); if (!L || !editable(t)) return; var s = S(L);
+      if (kh() > KB) { kbOn(L, kh()); return; }   // 鍵盤已開著（換欄位）
+      if (!textish(t) || !coarse) return;   // select、桌機：等可視區真的變矮才藏
+      kbOn(L, 0); s.probing = true; clearTimeout(s.probe);
+      s.probe = setTimeout(function () { s.probing = false; if (!window.visualViewport || kh() <= KB_OFF) kbOff(L); }, PROBE);   // 硬體鍵盤／沒有虛擬鍵盤：放回來
+    });
+    document.addEventListener("focusout", function (e) {
+      var L = layerOf(e.target); if (!L) return;
+      setTimeout(function () { if (typingIn(L)) return; if (!window.visualViewport || kh() <= KB_OFF) kbOff(L); else { var s = S(L); clearTimeout(s.settle); s.settle = setTimeout(function () { if (!typingIn(L)) kbOff(L); }, 1200); } }, 80);   // 鍵盤收合動畫中：等 resize，最多 1.2 秒保底
+    });
+    return { step: step, seed: seed };
   })();
   function pmBusy(btn) {   // 不會重畫的按鈕（買票結帳）用：直接把按鈕變成轉圈
     if (!btn || btn.classList.contains("pm-busy")) return;
