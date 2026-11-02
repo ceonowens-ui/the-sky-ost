@@ -312,7 +312,17 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     }).catch(function () { return false; });
   }
   function setSession(s, email) { S.session = s; S.email = email; lsSet(K.sess, s); lsSet(K.email, email); }
-  function clearSession() { S.session = null; S.tickets = []; lsSet(K.sess, null); lsSet("tk:phone", null); if (S.buy) S.buy.phone = ""; }   // B347T：登出也清掉記住的手機
+  function clearSession() { S.session = null; S.tickets = []; lsSet(K.sess, null); lsSet("tk:phone", null); lsSet("tk:me", null); if (S.buy) S.buy.phone = ""; }   // B347T：登出也清掉記住的手機；B387T：也清掉記住的姓名、地址
+  /* B387T（CÉON 11/02）：在任何一頁填過的姓名、手機、地址，其他頁直接帶入，不用再打。只存在這支手機（localStorage），登出就清掉。
+     只補空的欄位，不蓋掉這一頁已經填的。 */
+  function meGet() { try { return JSON.parse(lsGet("tk:me") || "null") || {}; } catch (e) { return {}; } }
+  function meSet(patch) {
+    var m = meGet(), ch = false;
+    Object.keys(patch).forEach(function (k) { var v = String(patch[k] == null ? "" : patch[k]).trim().slice(0, 160); if (v && m[k] !== v) { m[k] = v; ch = true; } });
+    if (ch) { m.at = Date.now(); lsSet("tk:me", JSON.stringify(m)); }
+  }
+  document.addEventListener("input", function (e) { var t = e.target; if (t && t.id === "tk-bph") meSet({ phone: t.value }); }, true);   // 買票的手機打了就記住
+  function meFill(obj, map) { var m = meGet(), n = 0; Object.keys(map).forEach(function (k) { var v = m[map[k]]; if (v) { if (obj[k] !== v) obj[k] = v; n++; } }); return n; }   // map：{ 這頁的欄位: 記住的欄位 }；每一頁打字都會存進來，所以記住的一定是最新的
   function testReset() {   // B359T（只在測試版）：登出票務、清掉付款中的紀錄、換下一個「信箱名＋數字」；票留在測試後台，不刪
     if (TKAPI !== "test") return;
     var cur = lsGet(K.email) || "", m = /^([^+@\s]+)(?:\+(\d+))?@([^@\s]+)$/.exec(cur), next = m ? m[1] + "+" + ((+m[2] || 0) + 1) + "@" + m[3] : "";
@@ -434,7 +444,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function nickHint(T) { return T && T.key === "vvip" ? "CHANCE 在海報上署名會用這個名字，請確認寫法" : "僅用於本活動（報到與現場使用）"; }
   function nickInput(cls) { var v = (S.buy && S.buy.nick) || lsGet("tk:nick") || ""; return '<input class="tk-in' + (cls ? " " + cls : "") + '" id="tk-bnick" type="text" maxlength="20" autocomplete="nickname" enterkeyhint="done" placeholder="例如：小晞、Amy" value="' + esc(v) + '">'; }
   /* B346T：門票要手機（現場用「姓名＋手機後 4 碼」核對；後台 M3 起必填） */
-  function phoneInput() { var v = (S.buy && S.buy.phone) || lsGet("tk:phone") || ""; return '<input class="tk-in tkb-in" id="tk-bph" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" enterkeyhint="done" placeholder="例如：0912345678" value="' + esc(v) + '">'; }
+  function phoneInput() { var v = (S.buy && S.buy.phone) || lsGet("tk:phone") || meGet().phone || ""; return '<input class="tk-in tkb-in" id="tk-bph" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" enterkeyhint="done" placeholder="例如：0912345678" value="' + esc(v) + '">'; }
   function phoneBlock() { return '<div class="tkb-sec">手機號碼</div>' + phoneInput() + '<div class="tkb-hint">現場核對用（姓名＋手機後 4 碼），不會公開</div>'; }
   function fieldErr(el, text, quiet) {
     if (!el) { msg("#tk-bmsg", text); return false; }
@@ -498,7 +508,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (!$("#tk-bnick")) return true;
     var v = coCheckAll(false); if (!v) return false;
     b.nick = v["tk-bnick"]; lsSet("tk:nick", b.nick);
-    if (v["tk-bph"]) { b.phone = v["tk-bph"]; lsSet("tk:phone", b.phone); }
+    if (v["tk-bph"]) { b.phone = v["tk-bph"]; lsSet("tk:phone", b.phone); meSet({ phone: b.phone }); }
     return true;
   }
   function buyPayEmail(force) {
@@ -1996,7 +2006,7 @@ function coverClockKey() {
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (si.tw ? "台灣免運" : "") + (si.over ? (si.tw ? "・" : "") + esc(si.over.replace("海外運費 ", "海外 ")) : "") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-cx="m-pick"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>12/27 生日會・免運</small></span></button></div>' : '') +
       '<div class="cx9-total"><div><span>商品小計</span><b>' + cxNT(t.sub) + '</b></div><div><span>運費</span><b>' + (t.fee === null ? "—" : t.fee ? cxNT(t.fee) : "免運") + '</b></div><div class="tot"><span>合計</span><b>' + (t.total === null ? "—" : cxNT(t.total)) + '</b></div></div>' +   // B381T：合計卡搬到商品／取貨方式下方，跟周邊購買頁一致
-      '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + '</h3><div class="cx9-form">' +
+      '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + (CX.pre ? '<small class="cx9-pre">已帶入你之前填過的資料，可以改</small>' : '') + '</h3><div class="cx9-form">' +
         (pick ? '' : cx9Row("country", "寄送地區", '<select data-cf="country"' + A("country") + '>' + opts + '</select>')) +
         cx9Row("name", pick ? "姓名" : "收件人姓名", '<input data-cf="name" autocomplete="name" maxlength="60" placeholder="' + (pick ? "現場核對用" : "請輸入收件人姓名") + '" value="' + esc(f.name) + '"' + A("name") + '>') +
         cx9Row("phone", "手機", '<input data-cf="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="請輸入手機號碼" value="' + esc(f.phone) + '"' + A("phone") + '>') +
@@ -2020,6 +2030,7 @@ function coverClockKey() {
   function cx9Input(e) {
     var k = e.target.getAttribute && e.target.getAttribute("data-cf"); if (!k) return;
     CX.f[k] = e.target.value;
+    if (/^(name|phone|postal|addr|country)$/.test(k)) { var pt2 = {}; pt2[k] = e.target.value; meSet(pt2); }   // B387T
     if (CX.bad && CX.bad[k]) { delete CX.bad[k]; e.target.removeAttribute("aria-invalid"); cx9RowOK(e.target); }   // B382T：這一欄開始改就把紅框和說明拿掉，其他欄的還留著
     if (k === "country" && e.type === "change") { CX.err = ""; cx9Paint(); }
   }
@@ -2576,7 +2587,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B386T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B387T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2674,9 +2685,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mOpen(evId) {
     var mi = mInfo(evId); if (!mi) { S.mmTried[evId] = 0; return mEnsure(evId, function () { mOpen(evId); }); }
     var hasT = loggedIn() && ticketsFor(evId).length > 0;
-    var pn = loggedIn() ? (lsGet("tk:nick") || "") : "", pp = loggedIn() ? (lsGet("tk:phone") || "") : "";   // B378T：買過票的人，姓名和手機直接帶入（登出時會清掉）
+    var me = meGet(), pn = me.name || (loggedIn() ? (lsGet("tk:nick") || "") : ""), pp = me.phone || (loggedIn() ? (lsGet("tk:phone") || "") : "");   // B387T：先用任何一頁填過的   // B378T：買過票的人，姓名和手機直接帶入（登出時會清掉）
+    if (S.mx && S.mx.evId === evId) { var r1 = meFill(S.mx.pk || (S.mx.pk = {}), { name: "name", phone: "phone" }), r2 = meFill(S.mx.ship, { name: "name", phone: "phone", postal: "postal", addr: "addr" }); if (r1 || r2) S.mx.pre = true; }   // B387T：別頁剛改過的也帶過來
     if (!S.mx || S.mx.evId !== evId) {
-      S.mx = { evId: evId, mode: (hasT || mV2(evId)) ? "pickup" : "ship", mq: 1, ship: { country: "", name: pn, phone: pp }, pk: { name: pn, phone: pp }, pre: !!(pn || pp), email: myEmail() || lsGet(K.email) || "" };
+      S.mx = { evId: evId, mode: (hasT || mV2(evId)) ? "pickup" : "ship", mq: 1, ship: { country: me.country || "", name: pn, phone: pp, postal: me.postal || "", addr: me.addr || "" }, pk: { name: pn, phone: pp }, pre: !!(pn || pp || me.addr), email: myEmail() || lsGet(K.email) || "" };
       var lastTry = mxLast(evId); if (lastTry) { S.mx.mode = lastTry.mode || S.mx.mode; S.mx.ship = Object.assign({}, S.mx.ship, lastTry.ship || {}); S.mx.pk = Object.assign({}, S.mx.pk, lastTry.pk || {}); S.mx.pre = true; }   // B379T：上次填過的資料
     }
     S.mx.err = ""; S.mx.bad = "";
@@ -2734,7 +2746,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
       (pick ? '<div class="cx9-total"><div class="tot"><span>合計<small>現場領取・免運</small></span><b>' + (r ? nt(sub) : "—") + '</b></div></div>'   // B377T：現場領取永遠免運，一行就好；B381T：合計卡搬到取貨方式正下方
         : '<div class="cx9-total"><div><span>商品小計</span><b>' + (r ? nt(sub) : "—") + '</b></div><div><span>運費</span><b>' + (fee === null ? "選地區後顯示" : nt(fee)) + '</b></div><div class="tot"><span>合計</span><b>' + (total === null ? "—" : nt(total)) + '</b></div></div>') +
-      '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + (o.pre ? '<small>已帶入購票時的資料，可以改</small>' : '') + '</h3><div class="cx9-form">';
+      '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + (o.pre ? '<small>已帶入你之前填過的資料，可以改</small>' : '') + '</h3><div class="cx9-form">';
     if (pick && v2) h += cx9Row("pk-name", "姓名", '<input data-mf="pk-name" autocomplete="name" maxlength="60" placeholder="現場核對用" value="' + esc((o.pk || {}).name || "") + '"' + A("pk-name") + '>') +
       cx9Row("pk-phone", "手機", '<input data-mf="pk-phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="請輸入手機號碼" value="' + esc((o.pk || {}).phone || "") + '"' + A("pk-phone") + '>');
     if (!pick) h += cx9Row("country", "寄送地區", '<select data-mf="country"' + A("country") + '>' + opts + '</select>') +
@@ -2793,6 +2805,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var o = S.mx, k = e.target.getAttribute && e.target.getAttribute("data-mf"); if (!o || !k) return;
     var v = e.target.value;
     if (k === "email") o.email = v.trim().toLowerCase(); else if (k.indexOf("pk-") === 0) { o.pk = o.pk || {}; o.pk[k.slice(3)] = v; } else o.ship[k] = v;
+    var mk = k.replace(/^pk-/, ""); if (/^(name|phone|postal|addr|country)$/.test(mk)) { var pt = {}; pt[mk] = v; meSet(pt); }   // B387T：記住，別頁帶入
     if (o.bad && o.bad[k]) { delete o.bad[k]; e.target.removeAttribute("aria-invalid"); cx9RowOK(e.target); }   // B382T：這一欄開始改就把紅框和說明拿掉
     if (k === "country" && e.type === "change") { o.err = ""; mSheet(); }
   }
@@ -3223,7 +3236,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "cxl-pack") { e.stopPropagation(); return cxOpenPack(); }
     if (act === "shop-letters") { e.stopPropagation(); return openLayer("dcl"); }   // B374T：SHOP 點信 → 直接開信；返回回到 SHOP（不再先墊一層周邊列表）
     if (act === "cxl-letters") { e.stopPropagation(); return openLayer("dcl"); }
-    if (act === "cxd-go") { e.stopPropagation(); if (!cxCanBuy(cxItem())) return; return openLayer("cxc"); }
+    if (act === "cxd-go") { e.stopPropagation(); if (!cxCanBuy(cxItem())) return; CX.pre = meFill(CX.f, { name: "name", phone: "phone", postal: "postal", addr: "addr" }) > 0; var mc0 = meGet().country; if (mc0 && !CX.pre0 && cxCountries().some(function (c) { return c[0] === mc0; })) CX.f.country = mc0; CX.pre0 = 1; return openLayer("cxc"); }   // B387T：帶入別頁填過的資料
     if (act === "pick-tier") { e.stopPropagation(); return tierSheet(b.getAttribute("data-ev")); } if(act==="buytier"){ e.stopPropagation(); var _ev=b.getAttribute("data-ev"), _tier=b.getAttribute("data-tier"); S.tierEv=_ev; buyConfirm(_ev,"meet",_tier); return; }
     if (act === "buy") { e.stopPropagation(); return buyConfirm(b.getAttribute("data-ev")); }
     if (act === "buy-pp") { e.stopPropagation(); return buyConfirm(b.getAttribute("data-ev"), "pp"); }

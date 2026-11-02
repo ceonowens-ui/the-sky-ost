@@ -503,3 +503,5 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-holdbtn .ht2 { color:#17130b; white-space:nowrap; }
 .tk-holdbtn.filling .ht, .tk-holdbtn.sent .ht { color:#e8c98c; }
 .tk-holdbtn.sent .hf { clip-path:inset(0 0 0 0); }
+/* B387T：卡包結帳也顯示「已帶入你之前填過的資料」 */
+.tk-layer .cx9-h3 small.cx9-pre { margin-left:10px; font-size:15px; font-weight:400; color:var(--g2); }

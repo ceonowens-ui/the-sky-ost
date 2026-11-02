@@ -11,6 +11,8 @@
  '售完為止':'While stocks last','推薦・獨家 6 號小卡':'Top pick · No.6 card','推薦・只在這裡拿得到的 6 號小卡':'Top pick · No.6 card only here','含國碼，如 +852…':'With country code, e.g. +852…','付款後 7 個工作天內寄出・台灣免運':'Ships within 7 business days of payment · free shipping in Taiwan','海外 e 小包寄出・附追蹤號碼':'Ships by international ePacket · tracking included','12/27 生日會當天・周邊服務台領取・免運':'Pick up at the merch desk on 12/27 · free','購買、退換貨與個資處理，依《購買須知》與《隱私權政策》。':'Purchases, refunds and personal data follow the Purchase Terms and Privacy Policy.',
  /* B381T：UX 迴圈第 1 回 */
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
+ /* B387T：別頁填過的資料帶入 */
+ '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
  /* B379T：沒付款回來 */
  '還沒收到付款':'Payment not received yet','這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。':'This order has not been paid and nothing was charged. To continue, tap “Pay again” to go back to checkout — your details are still there.','重新付款':'Pay again','不買了，回上一頁':'Never mind, go back','商品':'Item',
  /* B378T：UX 第二批 */
