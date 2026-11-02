@@ -2495,7 +2495,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += entryCoHTML(ev);   /* B345T */
     h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">' + esc(termsFor(ev)) + '<br>前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide gb" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
   }
 
@@ -2587,7 +2587,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B391T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B392T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2655,7 +2655,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
     h += '</div>';
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide gb" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
+    h += '<div class="tkb-foot solo"><button class="tkb-cta wide" data-act="co-pay">前往付款 ' + nt(coTotal(ev, T, b)) + ' <i>→</i></button><div class="tkb-sec2">透過綠界 ECPay 安全付款</div></div>';
     return '<div class="tkb">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
@@ -2972,7 +2972,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function unpaidSheet(o) {
     S.unpaid = o; reopenBuy(o.kind, o.evId, o.tier, o.mc, o.mq);
     sheet('<div class="tk-big"><div class="ic">' + IC_CARD + '</div><div class="tk-eyebrow">Not paid yet</div><h3>還沒收到付款</h3>' + unpaidLine(o) + '<div class="tk-hint">這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。</div>' + holdHTML(o.startMs) + '</div>' +
-      '<button class="tk-btn p gb" data-sact="unpaid-retry">重新付款</button><button class="tk-btn g" data-sact="unpaid-cancel">不買了，回上一頁</button>');
+      '<button class="tk-btn p" data-sact="unpaid-retry">重新付款</button><button class="tk-btn g" data-sact="unpaid-cancel">不買了，回上一頁</button>');
     if (o.kind === "merch" && !mInfo(o.evId) && !(Number(o.amt) > 0)) { S.mmTried[o.evId] = 0; mEnsure(o.evId, function () { S.layers.forEach(renderLayer); if (S.unpaid === o) unpaidSheet(o); }); }   // B381T：周邊資料還沒到就先抓，抓到再把金額補上
   }
   function unpaidRelease(o) {   // 把保留的名額讓出來，清掉本機記的這筆

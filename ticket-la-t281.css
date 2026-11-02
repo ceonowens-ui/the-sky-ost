@@ -536,7 +536,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 /* 讓玻璃後面看得到東西：底部那條固定區的遮罩改成半透明（濃度可調） */
 .tk-layer .cx9-c .cx9-foot:has(.gb), .tk-layer .cx9-d .cx9-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 40%, rgba(11,10,9,calc(var(--gb-foot) + .3))) !important; }
 .tk-layer .cx9-foot .cx9-hold, .tk-layer .cx9-foot .cx9-safe, .tk-layer .tkb-foot .tkb-sec2 { text-shadow:0 0 6px #0b0a09, 0 0 3px #0b0a09, 0 1px 2px #0b0a09; }   /* 遮罩變透明後，提示字加一圈深色光暈，表單字在後面也看得清楚
-.tk-layer .tkb-foot.solo { background:linear-gradient(rgba(13,11,12,0), rgba(13,11,12,var(--gb-foot)) 40%, rgba(10,9,9,calc(var(--gb-foot) + .3))) !important; }
+.tk-layer .tkb-foot.solo:has(.gb) { background:linear-gradient(rgba(13,11,12,0), rgba(13,11,12,var(--gb-foot)) 40%, rgba(10,9,9,calc(var(--gb-foot) + .3))) !important; }
 /* B389T（CÉON 11/02：「有點死黑不透明，沒有流動感」＋給了 iOS 26 Liquid Glass 的 Figma 參數）
    照參數重做：① 背景模糊層＝白 10%、模糊 4.7（中間是透明的）② 液化層＝只有邊緣一圈（約 12px）糊掉、扭曲，中間清楚
    ③ 高光層＝六道內陰影（左上、右下白光＋兩道很淡的黑）＋兩道放射漸層邊線。流動感＝邊緣那圈光慢慢繞著按鈕走（只重畫 1px 的邊，不會 lag）。
@@ -577,7 +577,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .gb[disabled]:not(.pm-busy)::after { animation:none; opacity:.4; }
 @media (prefers-reduced-motion:reduce) { .gb::after { animation:none; } }
 /* 買票結帳的底部也改半透明，玻璃按鈕後面才看得到內容（不然只會看到一片黑） */
-.tk-layer .tkb .tkb-foot { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 14px, rgba(11,10,9,var(--gb-foot)) calc(100% - 58px), #0b0a09 calc(100% - 44px)) !important; }   /* 按鈕那段透明、下面那行小字的地方實心，字才不會跟後面疊在一起 */
+.tk-layer .tkb .tkb-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,var(--gb-foot)) 14px, rgba(11,10,9,var(--gb-foot)) calc(100% - 58px), #0b0a09 calc(100% - 44px)) !important; }   /* 按鈕那段透明、下面那行小字的地方實心，字才不會跟後面疊在一起 */
 /* B390T（CÉON 11/02：「現在有點過長」＋給了一顆短膠囊玻璃按鈕當參考）
    主要按鈕的寬、高、圓角變成變數，預設改成置中的短膠囊；下緣多一道亮邊（像參考圖那樣底部有一圈光）。SHOP Tuner「按鈕」分頁可調、可選形狀。
    按下去縮成 54px 圓球不受影響（只套在沒在轉圈的時候）。 */
@@ -597,3 +597,4 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 /* 周邊／卡包結帳的底部：只有按鈕那一段透明（玻璃才看得到後面），上面「保留 3 分鐘」和下面「綠界安全付款」兩行字後面是實心，字不會跟表單疊在一起 */
 .tk-layer .cx9-c .cx9-foot:has(.gb), .tk-layer .cx9-d .cx9-foot:has(.gb) { background:linear-gradient(rgba(11,10,9,0), rgba(11,10,9,.94) 14px, rgba(11,10,9,.94) calc(100% - 100px), rgba(11,10,9,var(--gb-foot)) calc(100% - 90px), rgba(11,10,9,var(--gb-foot)) calc(100% - 48px), #0b0a09 calc(100% - 40px)) !important; }
 /* B391T（CÉON 11/02：「改回原來金色!!! 周邊頁面」）周邊／卡包的按鈕拿掉玻璃、回到原本金色長條；上面兩條透明底部規則改成只在有玻璃按鈕時才套，周邊頁底部回到原本實心。買票結帳、重新付款仍是玻璃。 */
+/* B392T（CÉON 11/02：「買票也改金色」）買票結帳、重新付款也拿掉玻璃回到原本金色；買票底部的透明規則改成只在有玻璃按鈕時才套（現在沒有按鈕用玻璃，.gb 樣式和 Tuner 留著備用）。 */
