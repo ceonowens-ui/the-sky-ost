@@ -12643,7 +12643,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B394T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B395T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12720,6 +12720,32 @@ window.ALBUM_SWITCH = {
   }
   if (document.readyState === "complete") setTimeout(checkColdVersion, 1200);
   else window.addEventListener("load", function () { setTimeout(checkColdVersion, 1200); });
+})();
+
+/* B395T（CÉON 11/02：「購買沒成功，退回去之後就變成舊舊版頁面」）── 只在 test.html
+   原因：從綠界按返回／✕ 回來，瀏覽器會直接拿記憶體（bfcache）或快取裡的舊頁面；GitHub Pages 快取 10 分鐘，
+   「上一頁」還會用過期的副本，所以可能看到幾小時前的版本。
+   做法：開頁、從別頁返回（pageshow persisted）時，去伺服器抓 test.html 的版本章（不走快取，只抓檔尾）；伺服器比較新就自動重新載入一次。
+   同一個新版本只會自動重載一次（sessionStorage 記住），抓不到或沒變新就什麼都不做。 */
+(function () {
+  if (!/\/test\.html$/i.test(location.pathname)) return;
+  function mine() { var el = document.getElementById("__build"); var m = el && (el.textContent || "").match(/B(\d+)/); return m ? parseInt(m[1], 10) : 0; }
+  var busy = false;
+  function check() {
+    var me = mine(); if (!me || busy) return; busy = true;
+    var u = "test.html?vchk=" + Date.now();
+    fetch(u, { cache: "no-store", headers: { Range: "bytes=-131072" } })
+      .then(function (r) { return r.text().then(function (t) { return (r.status === 206 && !/id="__build"/.test(t)) ? fetch(u, { cache: "no-store" }).then(function (r2) { return r2.text(); }) : t; }); })
+      .then(function (html) {
+        busy = false; var m = html.match(/id="__build"[^>]*>B(\d+)/); if (!m) return;
+        var server = parseInt(m[1], 10); if (server <= me) return;
+        var k = "tk:vreload:" + server; try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, "1"); } catch (e) { return; }
+        location.reload();
+      })
+      .catch(function () { busy = false; });
+  }
+  window.addEventListener("pageshow", function (e) { if (e.persisted) check(); });   // 從綠界等外部頁「上一頁」回來
+  if (document.readyState === "complete") setTimeout(check, 300); else window.addEventListener("load", function () { setTimeout(check, 300); });   // 開頁（可能拿到快取的舊 HTML）
 })();
 
 /* B23 ── Service Worker 註冊 + 「有新內容」更新提示 */
