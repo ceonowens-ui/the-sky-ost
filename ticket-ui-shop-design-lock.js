@@ -635,7 +635,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       return;
     }
     var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);   // 回到目前這頁（不帶個資）
-    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" }) })
+    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, qty: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]), email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" }) })
       .then(function (r) { return r.text(); })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
@@ -2494,7 +2494,25 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
 
   /* B217T：一般票可在確認頁勾選「加購生日牆合照」，一次付款（productKey：meet-<場次>-ga-pp，價格由伺服器讀後台） */
   function coPPAvail(ev, T) { return !!(T && T.key === "ga" && ev && ev.photoPrice > 0 && ev.photoOnSale !== false && !ppOwned(ev.id)); }
-  function coTotal(ev, T, b) { return Number(T.price) + (b && b.pp && !mCodeFor(ev, b) && coPPAvail(ev, T) ? Number(ev.photoPrice) : 0) + mAddPrice(ev, b); }
+  /* B406T（CÉON 11/03）：不限每人張數，一筆可買 1–5 張；多張票都寄到同一個 Email，可以在 App 裡轉讓給朋友。加購生日牆合照時維持 1 張 */
+  var TQ_MAX = 5;
+  function tQMax(T) { var l = T && T.left != null ? Number(T.left) : TQ_MAX; return Math.max(1, Math.min(TQ_MAX, l || 1)); }
+  function tQ(b, T) { if (!b || b.pp) return 1; return Math.max(1, Math.min(Math.floor(Number(b.tq || 1)), tQMax(T))); }
+  function coTotal(ev, T, b) { return Number(T.price) * tQ(b, T) + (b && b.pp && !mCodeFor(ev, b) && coPPAvail(ev, T) ? Number(ev.photoPrice) : 0) + mAddPrice(ev, b); }
+  function tQtyHTML(T, b) {
+    var q = tQ(b, T), mx = b && b.pp ? 1 : tQMax(T);
+    return '<div class="tkm-qty" id="tk-tq"><span>張數</span><button type="button" data-act="co-tq" data-d="-1" aria-label="減少"' + (q <= 1 ? " disabled" : "") + '>−</button><b>' + q + '</b><button type="button" data-act="co-tq" data-d="1" aria-label="增加"' + (q >= mx ? " disabled" : "") + '>＋</button><small>每筆最多 ' + TQ_MAX + ' 張</small></div>';
+  }
+  function coTQ(d) {
+    var b = S.buy; if (!b) return;
+    var ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; if (!T) return;
+    b.tq = Math.max(1, Math.min(tQ(b, T) + d, b.pp ? 1 : tQMax(T))); hap(6);
+    var L = layerEl("checkout"); if (!L) return;
+    var box = L.querySelector("#tk-tq"); if (box) box.outerHTML = tQtyHTML(T, b);
+    var sr = L.querySelector("[data-tq-row]"); if (sr) sr.innerHTML = '<span>' + esc(T.name) + (tQ(b, T) > 1 ? " ×" + tQ(b, T) : "") + '</span><b>' + nt(Number(T.price) * tQ(b, T)) + '</b>';
+    var tb = L.querySelector(".tkb-total b"); if (tb) tb.textContent = nt(coTotal(ev, T, b));
+    var cp = L.querySelector('[data-act="co-pay"]'); if (cp && !cp.disabled) cp.innerHTML = "前往付款 " + nt(coTotal(ev, T, b)) + " <i>→</i>";
+  }
   function ppAddonHTML(ev, T, b) {
     if (!coPPAvail(ev, T)) return "";
     var on = !!(b && b.pp);
@@ -2621,7 +2639,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B405T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B406T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2675,8 +2693,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkc-ev"><b>' + esc(ev.name || "CHANCE") + '</b><span>' + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + '・' + esc(ev.venue || "") + '</span></div>';
     var inf = laInfoHTML(ev); if (inf) h += '<details class="tkc-info"><summary>活動資訊與入場規則</summary>' + inf + '</details>';   // B359T：原本第一步的活動說明收在這裡
     h += '<div class="ticket-paper">';
-    h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span>' + esc(T.name) + '</span><b>' + nt(T.price) + '</b>' +
+    h += '<div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span data-tq-row style="display:contents"><span>' + esc(T.name) + (tQ(b, T) > 1 ? " ×" + tQ(b, T) : "") + '</span><b>' + nt(Number(T.price) * tQ(b, T)) + '</b></span>' +
       (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (mQ(ev.id, b) > 1 ? " ×" + mQ(ev.id, b) : "") + '</span><b>' + nt(r.price * mQ(ev.id, b)) + '</b>' : '') + '</div>';
+    h += tQtyHTML(T, b);   // B406T
     h += ppAddonHTML(ev, T, b);
     h += mPreRows(ev);
     if (loggedIn()) h += '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>';
@@ -2684,7 +2703,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<label class="tkb-sec" for="tk-bnick">你的稱呼</label>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>'
     h += phoneBlock();
     h += entryCoHTML(ev);   /* B345T */
-    h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>每人限購 1 張（以收票 Email 認定）</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
+    h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>一次最多買 5 張；票都寄到同一個 Email，可以在 App 裡轉讓給朋友</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
       '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天憑票現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
     h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
@@ -3323,7 +3342,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
     if (act === "buy-remind") { var rev = buyEv(); if (rev) qOpen(rev); return; }
     if (act === "co-pay") { return startPayment(); }
-    if (act === "co-pp") return coPPToggle();
+    if (act === "co-pp") { var r0 = coPPToggle(); if (S.buy && S.buy.pp && S.buy.tq > 1) { S.buy.tq = 1; coTQ(0); } else coTQ(0); return r0; }
+    if (act === "co-tq") return coTQ(Number(b.getAttribute("data-d") || 0));
     if (act === "co-m") return coMToggle(b.getAttribute("data-k"));
     if (act === "m-open") { e.stopPropagation(); if (S.mx) S.mx.only = null; return mOpen(b.getAttribute("data-ev")); }
     if (act === "m-open-k") { e.stopPropagation(); var mev = b.getAttribute("data-ev"), mk = b.getAttribute("data-k"); mOpen(mev); if (S.mx && S.mx.evId === mev && !mOwned(mev, mk)) { if (S.mx.only !== mk) S.mx.mq = 1; ["b", "h", "s"].forEach(function (x) { S.mx["m" + x] = x === mk; }); S.mx.only = mk; S.mx.err = ""; S.mx.bad = ""; mSheet(); } return; }   // B380T：換商品時數量回到 1，不帶上一個商品的數量   // B361T：SHOP 點哪個周邊就先選好哪個；B379T：購買頁只顯示這一個（組合已含海報組，不再並列）

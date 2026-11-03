@@ -13,6 +13,8 @@
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
  '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
+ /* B406T：一次買多張 */
+ '張數':'Tickets','每筆最多 5 張':'Up to 5 per order','一次最多買 5 張；票都寄到同一個 Email，可以在 App 裡轉讓給朋友':'Up to 5 tickets per order. All tickets go to the same email and can be transferred to friends in the app',
  /* B405T：取票鑰匙／垃圾信件提示 */
  '沒收到？看一下垃圾信件（Yahoo、Hotmail 常會放在那裡），或按「重寄」。':'Didn’t get it? Check your spam folder (Yahoo and Hotmail often put it there), or tap “Resend”.',
  /* B403T：已付款、票在排隊 */
