@@ -268,6 +268,9 @@
  const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
  /* B335T：票夾數量句 */
+ [/^點一下看全部 (\d+) 張的 QR$/,(_,n)=>'Tap to see all '+n+' QR codes'],
+ [/^(.+)・共 (\d+) 張$/,(_,a,n)=>a+' · '+n+' tickets'],
+ [/^共 (\d+) 張$/,(_,n)=>n+' tickets'],
  [/^已轉讓 (\d+) 張$/,(_,n)=>n+' transferred'],
  [/^(\d+) 張轉讓中$/,(_,n)=>n+' transferring'],
  [/^你有 (\d+) 張票$/,(_,n)=>'You have '+n+(n==='1'?' ticket':' tickets')],

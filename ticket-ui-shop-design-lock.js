@@ -1243,10 +1243,12 @@ function myHomeHTML() {
       h += '<p class="sv3-mine-empty">' + (login ? "這個帳號還沒有票或周邊訂單。" : "已經買過？用購買時的 Email 找回你的票和周邊訂單。") + '</p>' +
         '<button class="sv3-mine-btn" data-act="open-wallet">' + (login ? "打開我的票" : "用 Email 找回") + ' <i>→</i></button>';
     }
-    vt.forEach(function (t) {
+    var seenEv = {};   // B413T（CÉON 11/03）：一場有很多張票時，SHOP 只放一張卡、寫「共 N 張」，點進去用上方切換看其他張
+    vt.filter(function (t) { if (seenEv[t.eventId]) return false; seenEv[t.eventId] = 1; return true; }).forEach(function (t) {
+      var nEv = vt.filter(function (x) { return x.eventId === t.eventId; }).length;
       var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {}), qr = t.qr && qrUnlocked(ev);
       h += '<button class="sv3-mine-tk" data-act="open-mine-pass" data-id="' + esc(t.id) + '"><div class="tx"><span class="bd">ENTRY PASS</span><b>' + esc(ev.name || "CHANCE") + '</b><i>' + esc(md(ev.startAt)) + ' ' + esc(hm(ev.startAt)) + (ev.venue ? '・' + esc(ev.venue) : '') + '</i>' +
-        (t.tierName ? '<em>' + esc(t.tierName) + (t.seat ? '・No.' + esc(t.seat) : '') + '</em>' : '') + '<small>點一下放大 QR</small></div>' +
+        (t.tierName ? '<em>' + esc(t.tierName) + (nEv > 1 ? '・共 ' + nEv + ' 張' : (t.seat ? '・No.' + esc(t.seat) : '')) + '</em>' : (nEv > 1 ? '<em>共 ' + nEv + ' 張</em>' : '')) + '<small>' + (nEv > 1 ? '點一下看全部 ' + nEv + ' 張的 QR' : '點一下放大 QR') + '</small></div>' +
         (qr ? '<canvas class="qr" width="240" height="240" data-qr="' + esc(t.qr) + '" aria-label="入場 QR"></canvas>' : '<div class="qr wait">入場 QR<br>準備中</div>') + '</button>';
     });
     od.forEach(function (o) {
@@ -2670,7 +2672,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B412T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B413T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3386,7 +3388,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
     if (act === "open-pass") return openLayer("pass", { sel: id });
     if (act === "pass-step") return passStep(Number(b.getAttribute("data-d") || 0));
-    if (act === "open-mine-pass") { e.stopPropagation(); openLayer("wallet"); setTimeout(function () { openLayer("pass", { sel: id }); }, 60); return; }   // B359T：SHOP「我的票」→ 票券頁（返回是我的票）
+    if (act === "open-mine-pass") { e.stopPropagation(); openLayer("pass", { sel: id }); return; }   // B359T：SHOP「我的票」→ 票券頁 → B413T（CÉON 11/03）：返回直接回 SHOP，底下不墊「我的票」
     if (act === "open-wallet-merch") { e.stopPropagation(); return openLayer("wallet", { merch: true }); }
     if (act === "tab") { S.tab = b.getAttribute("data-tab"); renderLayer("wallet"); return; }
     if (act === "eremind") { e.stopPropagation(); var ev = eventById(b.getAttribute("data-ev")); qOpen(ev || { id: b.getAttribute("data-ev") }); return; }
