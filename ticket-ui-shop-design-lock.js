@@ -1321,6 +1321,14 @@ function coverClockKey() {
     if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); }
   }
   function back() { if (S.layers.length) history.back(); }
+  /* B411T（CÉON 11/03）：從螢幕最左邊往右滑 → 回上一頁。只在「加到主畫面」的 App 開（Safari 自己就有這個手勢，兩個一起會退兩頁） */
+  (function () {
+    var standalone = !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));
+    if (!standalone && !/[?&]edgeback=1/.test(location.search)) return;   // edgeback=1 只給測試用
+    var x0 = null, y0 = 0, t0 = 0;
+    document.addEventListener("touchstart", function (e) { var p = e.touches && e.touches[0]; x0 = (p && p.clientX <= 24 && S.layers.length && !(sheetEl && sheetEl.classList.contains("show"))) ? p.clientX : null; if (x0 != null) { y0 = p.clientY; t0 = Date.now(); } }, { passive: true });
+    document.addEventListener("touchend", function (e) { if (x0 == null) return; var p = e.changedTouches && e.changedTouches[0]; var dx = p ? p.clientX - x0 : 0, dy = p ? Math.abs(p.clientY - y0) : 99; x0 = null; if (dx > 70 && dy < dx * 0.6 && Date.now() - t0 < 800) { hap(8); back(); } }, { passive: true });
+  })();
   function closeAll() { closeSheet(); while (S.layers.length) popLayer(); }
   window.addEventListener("popstate", function (e) {
     closeSheet();
@@ -1328,7 +1336,7 @@ function coverClockKey() {
     while (S.layers.length > want) popLayer();
   });
   function bar(backLabel, center, right) {
-    return '<div class="tk-bar"><button data-act="back"><span class="chev">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled style="opacity:0"') + '>' + (right ? right.icon : "") + '</button></div>';
+    return '<div class="tk-bar"><button data-act="back" class="tk-back" aria-label="返回' + esc(backLabel ? "（" + backLabel + "）" : "") + '"><span class="chev">‹</span>返回</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled style="opacity:0"') + '>' + (right ? right.icon : "") + '</button></div>';
   }
   function renderLayer(name) {
     var el = layerEl(name); if (!el) return;
@@ -2019,7 +2027,7 @@ function coverClockKey() {
     if (S.layers[S.layers.length - 1] === "dcl") back();
   });
   function cx9Bar(t) {
-    return '<div class="cx9-bar"><button type="button" class="cx9-back" data-act="back" aria-label="返回"><span aria-hidden="true">‹</span></button><h1 class="cx9-t">' + esc(t) + '</h1><img class="cx9-logo" src="' + esc(SHOP_TEXT.assets.logo) + '" alt=""></div>';
+    return '<div class="cx9-bar"><button type="button" class="cx9-back tk-back" data-act="back" aria-label="返回"><span class="chev" aria-hidden="true">‹</span>返回</button><h1 class="cx9-t">' + esc(t) + '</h1><img class="cx9-logo" src="' + esc(SHOP_TEXT.assets.logo) + '" alt=""></div>';
   }
   function cx9DetailHTML() {
     var i = cxItem(), si = cxShipInfo(), can = cxCanBuy(i), max = cxMax();
@@ -2326,7 +2334,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function selTier(ev) { if (!ev || !S.buySel) return null; return (ev.tiers || []).filter(function (t) { return t.key === S.buySel; })[0] || null; }
 
   function buyBar(backLabel, center, right) {
-    return '<div class="tk-bar tkb-bar"><button data-act="back"><span class="chev">‹</span>' + esc(backLabel) + '</button><div class="c">' + esc(center) + '</div>' +
+    return '<div class="tk-bar tkb-bar"><button data-act="back" class="tk-back" aria-label="返回' + esc(backLabel ? "（" + backLabel + "）" : "") + '"><span class="chev">‹</span>返回</button><div class="c">' + esc(center) + '</div>' +
       (right || '<button class="r" disabled style="opacity:0"></button>') + '</div>';
   }
   /* B250T：還沒開賣（而且我沒有這場的票）→ 不放日期、地點、價格、福利、須知 */
@@ -2662,7 +2670,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B410T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B411T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3329,8 +3337,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* B359T：付款回來、票還沒出現 → 成功頁先顯示確認中。後台（M3.3 /ticket/order）確認付款才寫「付款已確認」 */
   function doneWaitHTML(dn) {
     var os = S.ost && S.ost.eventId === dn.evId ? S.ost : null, paid = !!(os && os.paid), failed = paid && os.ticket === "failed", spin = dn.pending === "check";
-    if (failed && os.late) return '<div class="tkb"><div class="tk-bar tkb-bar"><button data-act="done-close"><span class="chev">‹</span>SHOP</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div><div class="tkb-ok tkb-wait"><div class="ck">⏳</div><div class="tk-eyebrow" id="tk-paye">Payment received late</div><h2 id="tk-payh">付款超過 3 分鐘，名額已讓給下一位</h2><p id="tk-payn">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</p></div><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button></div>';   // B363T
-    var h = '<div class="tk-bar tkb-bar"><button data-act="done-close"><span class="chev">‹</span>SHOP</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div>';
+    if (failed && os.late) return '<div class="tkb"><div class="tk-bar tkb-bar"><button data-act="done-close" class="tk-back" aria-label="返回（SHOP）"><span class="chev">‹</span>返回</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div><div class="tkb-ok tkb-wait"><div class="ck">⏳</div><div class="tk-eyebrow" id="tk-paye">Payment received late</div><h2 id="tk-payh">付款超過 3 分鐘，名額已讓給下一位</h2><p id="tk-payn">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</p></div><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button></div>';   // B363T
+    var h = '<div class="tk-bar tkb-bar"><button data-act="done-close" class="tk-back" aria-label="返回（SHOP）"><span class="chev">‹</span>返回</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div>';
     h += '<div class="tkb-ok tkb-wait">' + (spin ? '<div class="tk-spin"></div>' : '<div class="ck">⏳</div>') +
       '<div class="tk-eyebrow" id="tk-paye">' + (paid ? "Payment confirmed" : "Checking") + '</div>' +
       '<h2 id="tk-payh">' + (failed ? "付款已確認，票券還在處理" : paid ? (spin ? "付款已確認，票券準備中…" : "付款已確認，票券準備中") : (spin ? "正在確認付款和票券…" : "還在確認中")) + '</h2>' +

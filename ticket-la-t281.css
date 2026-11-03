@@ -664,3 +664,11 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-ev .l small.tk-cnt-out { background:rgba(255,255,255,.12); color:#cfc5b5; }
 .tk-layer[data-layer="pass"] .tk-pager span { white-space:nowrap; font-size:15px; min-width:0; overflow:hidden; text-overflow:ellipsis; }
 .tk-layer[data-layer="pass"] .tk-pager em { white-space:nowrap; margin-left:6px; }
+/* B411T（CÉON 11/03）：返回鍵改成有框的「‹ 返回」，深色底、金框，壓在照片上也看得清楚 */
+.tk-back, .tk-bar button.tk-back, .cx9-bar .cx9-back.tk-back { display:inline-flex !important; align-items:center; justify-content:center; gap:4px; width:auto !important; min-width:0 !important; height:40px !important; min-height:40px !important; padding:0 14px 0 10px !important; border:1.5px solid #d8bc80 !important; border-radius:999px !important; background:#120f0d !important; color:#fff7e6 !important; font:600 16px/1 -apple-system,"PingFang TC","Noto Sans TC",sans-serif !important; letter-spacing:0 !important; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.45); }
+.tk-back .chev, .cx9-bar .cx9-back.tk-back .chev { color:#d8bc80 !important; font-size:24px !important; line-height:1 !important; margin-top:-2px; }
+.tk-back::before, .tk-back::after { content:none !important; display:none !important; }
+.cx9-bar { grid-template-columns:96px 1fr 96px !important; }
+.cx9-bar .cx9-back.tk-back { justify-self:start; }
+.cx9-bar .cx9-logo { justify-self:end; }
+.tk-bar button.tk-back { justify-self:start; flex:0 0 auto; }
