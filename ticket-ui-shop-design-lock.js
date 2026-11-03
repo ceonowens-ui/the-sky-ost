@@ -91,7 +91,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     terms: "演出日前 10 日前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。",   // B352T：CÉON 10/30 採用的退票草稿（文化部規範適用性、截止日算法、例外情況待核實；只放隔離測試候選）   // TODO 退換票條款待 CÉON 定案
   };
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
-  var TMAIL = TKAPI === "test" ? '<div class="tk-hint" style="color:#e07a6a;margin-top:6px">測試後台只寄信到「信箱名＋數字」的地址（例如 name+1@gmail.com），其他信箱收不到門票信和驗證碼。</div>' : "";   // B354T
+  var TMAIL = "";   // B354T 測試後台只寄「信箱名＋數字」的提示 → B402T（CÉON 11/03）：測試後台已開放所有 Email，不再提示
   var BOOT_QS = location.search;   // B354T：開頁時的網址參數（付款回站判斷用，replaceState 之前先記下）   // 測試後台的登入另外存，不混用
   if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.innerHTML = '<span>測試版・不連正式票務</span><button type="button" id="tk-test-reset">重新測試</button>'; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;display:flex;align-items:center;gap:10px;white-space:nowrap;background:#7a1f1f;color:#fff;font:600 14px/1.3 -apple-system,sans-serif;padding:5px 5px 5px 12px;border-radius:0 0 10px 10px"; tb.querySelector("button").style.cssText = "font:700 14px/1 -apple-system,sans-serif;color:#7a1f1f;background:#fff;border:0;border-radius:8px;padding:8px 10px;min-height:34px"; tb.querySelector("button").addEventListener("click", function () { testReset(); }); (document.body || document.documentElement).appendChild(tb); } catch (e) {} }   /* B359T：測試條改一行，加「重新測試」 */
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
@@ -325,12 +325,12 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function meFill(obj, map) { var m = meGet(), n = 0; Object.keys(map).forEach(function (k) { var v = m[map[k]]; if (v) { if (obj[k] !== v) obj[k] = v; n++; } }); return n; }   // map：{ 這頁的欄位: 記住的欄位 }；每一頁打字都會存進來，所以記住的一定是最新的
   function testReset() {   // B359T（只在測試版）：登出票務、清掉付款中的紀錄、換下一個「信箱名＋數字」；票留在測試後台，不刪
     if (TKAPI !== "test") return;
-    var cur = lsGet(K.email) || "", m = /^([^+@\s]+)(?:\+(\d+))?@([^@\s]+)$/.exec(cur), next = m ? m[1] + "+" + ((+m[2] || 0) + 1) + "@" + m[3] : "";
+    var cur = lsGet(K.email) || "", m = /^([^+@\s]+)\+(\d+)@([^@\s]+)$/.exec(cur), next = m ? m[1] + "+" + ((+m[2] || 0) + 1) + "@" + m[3] : "";   // B402T：只有原本就用「＋數字」的人才自動換下一個；一般 Email 重設後留空
     clearSession(); S.email = ""; S.morders = []; S.photopass = []; S.done = null; S.ost = null; S.buy = null; S.mx = null; S.claim = null; S.walletMerch = false;
     ["tk:lastorder", "tk:paying", "tk:pending", "tk225:m"].forEach(function (k) { lsSet(k, null); });
     try { sessionStorage.removeItem("tk225:m"); sessionStorage.removeItem("tk225:bf"); } catch (e) {}
     lsSet(K.email, next || null);
-    closeAll(); render(); toast(next ? "已重設。下一個測試信箱：" + next : "已重設。請輸入新的測試信箱（信箱名＋數字）");
+    closeAll(); render(); toast(next ? "已重設。下一個測試信箱：" + next : "已重設。");
   }
 
   /* ---------- 資料 ---------- */
@@ -476,7 +476,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var em = String(raw || "").trim().toLowerCase().replace(/\s+/g, "");
     if (!em) return { err: "請填寫收票 email" };
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return { err: "email 格式不對，再看一下" };
-    if (TKAPI === "test" && !/\+\d+@/.test(em)) return { err: "測試版請用「信箱名＋數字」，例如 name+1@gmail.com，不然收不到信" };
+    // B402T（CÉON 11/03）：測試版不再要求「信箱名＋數字」，任何 Email 都能收信
     return { v: em };
   }
   var CO_LBL = { "tk-bem": "收票 email", "tk-bnick": "稱呼", "tk-bph": "手機號碼" };
@@ -2596,7 +2596,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B401T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B402T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
