@@ -13,6 +13,8 @@
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
  '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
+ /* B416T：卡包未確認訂單 */
+ '上一筆卡包訂單還沒查到付款':'Your last card-pack order isn’t confirmed yet','重新確認付款 ›':'Check payment again ›',
  /* B414T */
  '這張票已經不在你的票夾（可能已轉讓給朋友）。':'This ticket is no longer in your wallet (it may have been transferred).',
  /* B410T：已轉讓的票 */

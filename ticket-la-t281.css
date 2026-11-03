@@ -679,3 +679,6 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 #cx-shop .cx-success-check { display:grid; place-items:center; width:56px; height:56px; margin:0 auto 12px; border:1px solid #d6b66f; border-radius:50%; color:#f0dca8; font-size:28px; }
 #cx-shop .cx-success .cx9-ln, .tk-layer .merch-success-sound { color:#e8c98c; background:none; border:0; font:inherit; text-decoration:underline; text-underline-offset:3px; min-height:44px; cursor:pointer; }
 @media (prefers-reduced-motion:reduce) { #cx-shop .cx-success { animation:none; } }
+/* B416T：SHOP 卡包下方「重新確認付款」（有未確認的卡包訂單才出現） */
+.sv3-cx-recheck { display:flex; width:100%; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; padding:12px 14px; border:1px solid rgba(216,188,128,.45); border-radius:14px; background:#120f0d; color:#e8dccb; font:500 14px/1.4 -apple-system,"PingFang TC",sans-serif; text-align:left; cursor:pointer; }
+.sv3-cx-recheck b { color:#f0dcaa; font-weight:600; white-space:nowrap; }

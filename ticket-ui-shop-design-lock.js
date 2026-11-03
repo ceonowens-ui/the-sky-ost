@@ -1913,9 +1913,13 @@ function coverClockKey() {
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
       '<div class="sv3-bdm"><h2 class="sv3-block-h">' + esc(SHOP_TEXT.merchTitle) + '</h2>' +
-      (reg.length ? '<p class="sv3-bdm-sub"><span>常駐商品</span></p><div class="sv3-bdm-grid">' + reg.join("") + '</div>' : '') +
+      (reg.length ? '<p class="sv3-bdm-sub"><span>常駐商品</span></p><div class="sv3-bdm-grid">' + reg.join("") + '</div>' + cxRecheckHTML() : '') +
       (bd.length ? '<p class="sv3-bdm-sub sv3-bdm-sub2"><span>生日限定周邊</span>・<span>' + esc(ev.name || "CHANCE") + '</span>' + (mi && mCut(mi) ? '・<span>預購至 ' + esc(mCut(mi)) + '</span>' : '') + '</p><div class="sv3-bdm-grid">' + bd.join("") + '</div><p class="sv3-bdm-note">商品圖片為示意圖。海外寄送、現場領取都在下一步選；買票時也可以直接加購。</p>' : '') +
       '</div></section>';
+  }
+  function cxRecheckHTML() {   // B416T：還有沒確認的卡包訂單（24 小時內）→ 給一個手動重新查詢的入口
+    var p = cxPending(); if (!p || !p.launched) return "";
+    return '<button type="button" class="sv3-cx-recheck" data-act="cx-recheck" aria-label="查詢上一筆卡包訂單的付款狀態"><span>上一筆卡包訂單還沒查到付款</span><b>重新確認付款 ›</b></button>';
   }
   function cxHomeHTML() {
     var bd = bdMerchHTML(); if (bd) return bd;   // B361T
@@ -1969,8 +1973,13 @@ function coverClockKey() {
     cxRender(); requestAnimationFrame(function () { w.classList.add("in"); });
     if (!CX.f.email) CX.f.email = myEmail();
   }
-  var cxReturnRevision = 0, cxResumeSeen = "";
-  function cxClose() { cxReturnRevision++; document.documentElement.classList.remove("tk-resume"); var w = document.getElementById("cx-shop"); if (!w) return; w.classList.remove("in"); setTimeout(function () { if (w.parentNode && !w.classList.contains("in")) w.innerHTML = ""; }, 260); }
+  var cxReturnRevision = 0, cxResumeSeen = "", cxShownPending = null;
+  /* B416T（Codex＋CÉON 11/04）：/shop/status 的 paid:false 只代表「還沒查到付款紀錄」（可能還沒付、綠界通知未到、資料庫慢），不代表取消或失敗。
+     所以：未確認的卡包訂單不刪；使用者關掉「尚未確認」後記 dismissedAt，之後打開 App 不再自動跳；SHOP 卡包下方保留「重新確認付款」入口；只有 paid:true 才刪。保留期限沿用 24 小時。 */
+  function cxMark(p, patch) { ["sessionStorage", "localStorage"].forEach(function (n) { try { var st = window[n], old = JSON.parse(st.getItem("cx:shop") || "null"); if (old && old.d === p.d && old.at === p.at) st.setItem("cx:shop", JSON.stringify(Object.assign(old, patch))); } catch (e) {} }); }
+  function cxClose() { cxReturnRevision++; if (cxShownPending) { cxMark(cxShownPending, { dismissedAt: Date.now() }); cxShownPending = null; }
+    if (document.querySelector(".sv3-cx-recheck") ? !cxPending() : !!cxPending()) { try { render(); } catch (e) {} }   /* 入口跟著待查資料出現／消失 */
+    document.documentElement.classList.remove("tk-resume"); var w = document.getElementById("cx-shop"); if (!w) return; w.classList.remove("in"); setTimeout(function () { if (w.parentNode && !w.classList.contains("in")) w.innerHTML = ""; }, 260); }
   function cxRemember(p) { ["sessionStorage", "localStorage"].forEach(function (n) { try { window[n].setItem("cx:shop", JSON.stringify(p)); } catch (e) {} }); }
   function cxPending() {
     var all = []; ["sessionStorage", "localStorage"].forEach(function (n) { try { var p = JSON.parse(window[n].getItem("cx:shop") || "null"); if (p && p.d && p.at && Date.now() - p.at < 24 * 3600e3 && Date.now() >= p.at) all.push(p); } catch (e) {} });
@@ -2239,6 +2248,7 @@ function coverClockKey() {
   function cxReturn() {
     var p = cxPending(), revision = ++cxReturnRevision;
     if (p) cxResumeSeen = String(p.d) + ":" + String(p.at);
+    cxShownPending = p || null;
     var w = document.getElementById("cx-shop");
     if (!w) { w = document.createElement("div"); w.id = "cx-shop"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true"); document.body.appendChild(w); }
     if (!w.__cxReturn) { w.__cxReturn = true; w.addEventListener("click", cxClick); }
@@ -2248,7 +2258,7 @@ function coverClockKey() {
       w.innerHTML = '<div class="cxs-back" data-cx="close"></div><div class="cxs-sheet cxs-done"><div class="cxs-hd"><span>購買周邊</span><button type="button" data-cx="close" aria-label="關閉">✕</button></div><div class="cxs-body" role="status">' + h + '</div><div class="cxs-foot"><button type="button" class="cxs-cta" data-cx="close">好</button></div></div>';
       requestAnimationFrame(function () { if (live()) w.classList.add("in"); });
     }
-    function unknown(missing) { show('<p class="cxs-big">付款狀態尚未確認</p><p>' + (missing ? '這個裝置找不到剛才的訂單資料。' : '目前無法確認這筆訂單。') + '如果已經付款，請勿重複購買；請查看訂單確認信，或聯絡客服協助。</p>' + (missing ? '' : '<button type="button" class="cx9-ln" data-cx="recheck">重新確認</button>　') + '<a class="cx9-ln" href="mailto:heartbeats0693@gmail.com">聯絡客服</a>'); }
+    function unknown(missing) { show('<p class="cxs-big">付款狀態尚未確認</p><p>' + (missing ? '這個裝置找不到剛才的訂單資料。' : '還沒查到這筆付款。如果你已經付款，可能還在處理中，請稍後再查；關掉後可以在 SHOP 卡包下方按「重新確認付款」。') + '如果已經付款，請勿重複購買；請查看訂單確認信，或聯絡客服協助。</p>' + (missing ? '' : '<button type="button" class="cx9-ln" data-cx="recheck">重新確認</button>　') + '<a class="cx9-ln" href="mailto:heartbeats0693@gmail.com">聯絡客服</a>'); }
     if (!p) return unknown(true);
     show('<p class="cxs-big">確認付款中…</p><p>請稍等，已付款請勿重複購買。</p>');
     var n = 0;
@@ -2260,7 +2270,7 @@ function coverClockKey() {
       fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(p.d), { cache: "no-store", signal: ac ? ac.signal : undefined }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
         if (settled || !live()) return; settled = true; clearTimeout(timer);
         if (j && j.paid === true) {
-          cxForget(p); hap([20, 40, 20]);
+          cxForget(p); cxShownPending = null; hap([20, 40, 20]);
           show('<div class="cx-success"><div class="cx-success-check" aria-hidden="true">✓</div><p class="cxs-big">購買成功</p><p>卡包訂單已確認。' + (j.tradeNo ? '訂單編號 <b>' + esc(j.tradeNo) + '</b>。' : '') + '</p><p>請查看 ' + esc(p.email || "你的 Email") + ' 的訂單確認信；寄出時會再通知你追蹤號碼。</p><button type="button" class="cx9-ln" data-cx="success-sound">播放成功提示音</button></div>');
           merchSuccessSound(); return;
         }
@@ -2272,7 +2282,7 @@ function coverClockKey() {
   function cxResume() {
     if (/[?&](tkbought|tkmerch|tkphoto)=/.test(location.search)) return;
     var p = cxPending(), key = p && String(p.d) + ":" + String(p.at);
-    if (!p || !p.launched || cxResumeSeen === key) return;
+    if (!p || !p.launched || p.dismissedAt || cxResumeSeen === key) return;   // B416T：使用者關掉過就不再自動跳，改由 SHOP 的「重新確認付款」手動查
     var nav = $(C.merchNavSel); if (nav) nav.click();
     cxReturn();
   }
@@ -2742,7 +2752,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=MERCH-QA-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B416T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3467,6 +3477,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "mbuy") { e.stopPropagation(); return merchBuy(b.getAttribute("data-key")); }
     if (act === "shop-buy") { e.stopPropagation(); return cxOpen(); }
     if (act === "cxl-pack") { e.stopPropagation(); return cxOpenPack(); }
+    if (act === "cx-recheck") { e.stopPropagation(); return cxReturn(); }   // B416T
     if (act === "shop-letters") { e.stopPropagation(); return openLayer("dcl"); }   // B374T：SHOP 點信 → 直接開信；返回回到 SHOP（不再先墊一層周邊列表）
     if (act === "cxl-letters") { e.stopPropagation(); return openLayer("dcl"); }
     if (act === "cxd-go") { e.stopPropagation(); if (!cxCanBuy(cxItem())) return; CX.pre = meFill(CX.f, { name: "name", phone: "phone", postal: "postal", addr: "addr" }) > 0; var mc0 = meGet().country; if (mc0 && !CX.pre0 && cxCountries().some(function (c) { return c[0] === mc0; })) CX.f.country = mc0; CX.pre0 = 1; return openLayer("cxc"); }   // B387T：帶入別頁填過的資料
