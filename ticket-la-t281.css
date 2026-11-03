@@ -652,3 +652,15 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-layer[data-layer="pass"] .tk-pager span b { color:#f0dcaa; font-size:17px; }
 .tk-layer[data-layer="pass"] .tk-pager button { width:44px; height:44px; border-radius:50%; border:0; background:#d8bc80; color:#120f0d; font-size:26px; font-weight:700; line-height:1; }
 .tk-layer[data-layer="pass"] .tk-pager button:disabled { background:#2a241f; color:#6f675b; }
+/* B410T：已轉讓的票（灰色、沒有 QR）、轉讓中標籤、票夾卡片上的數量 */
+.tk-layer[data-layer="pass"] .tk-outpass { filter:grayscale(1); opacity:.72; }
+.tk-layer[data-layer="pass"] .tk-outpass .tk-stubbox b { font-size:17px; }
+.tk-layer[data-layer="pass"] .tk-outpass .tk-stubbox span { display:block; margin-top:6px; font-size:14px; }
+.tk-layer[data-layer="pass"] .tk-pager em { font-style:normal; margin-left:8px; padding:2px 8px; border-radius:999px; font-size:13px; background:#3a3430; color:#cfc5b5; }
+.tk-layer[data-layer="pass"] .tk-pager em.p { background:#d8bc80; color:#120f0d; }
+.tk-layer[data-layer="pass"] .tk-pager.is-out span { color:#a39b8e; }
+.tk-ev .l small.tk-cnt-pend, .tk-ev .l small.tk-cnt-out { display:inline-block; margin-left:8px; padding:1px 8px; border-radius:999px; font-size:12px; vertical-align:middle; }
+.tk-ev .l small.tk-cnt-pend { background:#d8bc80; color:#120f0d; }
+.tk-ev .l small.tk-cnt-out { background:rgba(255,255,255,.12); color:#cfc5b5; }
+.tk-layer[data-layer="pass"] .tk-pager span { white-space:nowrap; font-size:15px; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.tk-layer[data-layer="pass"] .tk-pager em { white-space:nowrap; margin-left:6px; }
