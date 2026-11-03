@@ -642,3 +642,7 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-layer button, .tk-layer summary, .tk-layer [role="button"], #sv3-merch [data-act], .sv3-go, #nav button { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; touch-action:manipulation; }
 /* B400T（Codex 驗收 11/03）：購票付款失敗的原因（#tk-bmsg）在米色訂單底上原本淺紅很淡 → 深紅加粗（約 7:1） */
 .tk-layer[data-layer="checkout"] #tk-bmsg.tk-msg:not(.ok) { color:#8f211b; font-size:15px; font-weight:600; line-height:1.5; }
+/* B401T：彈窗裡的小字說明（.tk-box .tk-hint）一直看不到 — test.html 有一條頂部一次性購票提示也叫 .tk-hint（固定定位、opacity 0），
+   把彈窗裡「這筆還沒付款、也不會扣款」「別關掉這個畫面」這些說明全蓋成透明。這裡把彈窗內的還原成一般文字。 */
+.tk-sheet .tk-box .tk-hint { position:static !important; opacity:1 !important; transform:none !important; display:block !important; width:auto !important; min-height:0 !important; max-height:none !important; padding:0 !important; margin:8px 0 0 !important; background:none !important; border:0 !important; box-shadow:none !important; color:rgba(255,255,255,.72) !important; font-size:15px !important; line-height:1.6; text-align:center; }
+.tk-sheet .tk-box .tk-big .tk-hint { margin-top:10px !important; }
