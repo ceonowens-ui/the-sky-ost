@@ -730,7 +730,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function startTransfer(id) {
     api("/ticket/transfer/start", { session: S.session, ticketId: id }).then(function (j) {
       if (!j.ok) return toast(j.message || (j.error === "expired" ? "開演後 2 小時不能轉讓了" : "現在不能轉讓"));
-      S.transfer = { ticketId: id, token: j.token, code: j.code || "", exp: j.exp, url: location.origin + location.pathname + "?transfer=" + encodeURIComponent(j.token) }; hap(15);   // B409T（CÉON 11/03）：後台給的連結指向正式首頁（chance1228.com/），朋友用手機相機掃了會開到正式版、收不到測試票 → 一律用現在這一頁的網址
+      var tt0 = ticketById(id);
+      S.transfer = { ticketId: id, evId: tt0 && tt0.eventId, token: j.token, code: j.code || "", exp: j.exp, url: location.origin + location.pathname + "?transfer=" + encodeURIComponent(j.token) }; hap(15);   // B409T（CÉON 11/03）：後台給的連結指向正式首頁（chance1228.com/），朋友用手機相機掃了會開到正式版、收不到測試票 → 一律用現在這一頁的網址
       openTransferSheet(); loadMine(true).then(render);
     }).catch(function () { toast("連不上伺服器"); });
   }
@@ -758,7 +759,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       if (!S.transfer) return stopPoll();
       loadMine(true).then(function () {
         var still = S.tickets.some(function (t) { return t.id === S.transfer.ticketId; });
-        if (!still) { var id = S.transfer.ticketId; S.transfer = null; stopPoll(); hap([20, 40, 20]); sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Transfer complete</div><h3>票已經是朋友的了</h3><div class="tk-hint">' + esc(id) + ' 已轉出，你這邊的 QR 已失效。</div></div><button class="tk-btn p" data-sact="close">好</button>'); render(); }
+        if (!still) { var id = S.transfer.ticketId, tev = S.transfer.evId; S.transfer = null; stopPoll(); hap([20, 40, 20]);
+          /* B414T（CÉON 11/03）：轉出去之後，票券頁不要停在「找不到這張票」→ 換到同一場下一張還能用的票；沒有了就顯示這張的「已轉讓」灰卡；都沒有就回上一頁 */
+          if (S.layers.indexOf("pass") >= 0 && S.sel === id) { var nx = tev ? ticketsFor(tev)[0] : null, oo = outFor(tev).filter(function (x) { return x.id === id; })[0]; if (nx) S.sel = nx.id; else if (!oo) setTimeout(back, 50); renderLayer("pass"); } sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Transfer complete</div><h3>票已經是朋友的了</h3><div class="tk-hint">' + esc(id) + ' 已轉出，你這邊的 QR 已失效。</div></div><button class="tk-btn p" data-sact="close">好</button>'); render(); }
       });
     }, C.pollMs);
   }
@@ -1475,7 +1478,7 @@ function coverClockKey() {
   function passHTML() {
     var t = ticketById(S.sel);
     var h = bar("我的票", "ENTRY PASS", { act: "share-ev", label: "分享", icon: "⇪" });
-    if (!t) return h + '<div class="tk-empty">找不到這張票，可能已轉讓給朋友。</div>';
+    if (!t) return h + '<div class="tk-empty">這張票已經不在你的票夾（可能已轉讓給朋友）。</div><div class="tk-list"><button data-act="back">返回<span>›</span></button></div>';   // B414T
     var jb = S.justBought; if (jb && jb.id === t.id && Date.now() - jb.at < 90e3) { jb.shownAt = jb.shownAt || Date.now(); h += '<div class="tk-bought' + (Date.now() - jb.shownAt < 1500 ? ' anim' : '') + '"><div class="ck">✓</div><div><b>購買成功</b><span>入場 QR 就在下面，也收進「我的票」了</span>' + (S.ost && S.ost.paid && S.ost.emailed && S.ost.eventId === t.eventId ? '<span>門票信已寄出</span>' : '') + '</div></div>'; }   /* 後台（M3.3）說信送出了才寫 */   // B359T：付款完直接到這張票，上方顯示購買成功（淡入上升，減少動態效果時不動）
     var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {}), k = evKind(ev), live = isLive(t), open = live && qrUnlocked(ev);
     var st = t.status === "used" ? '<span class="tk-st warn">已入場</span>' : (t.status === "refunded" ? '<span class="tk-st bad">已退票</span>' : (t.status === "void" ? '<span class="tk-st bad">已作廢</span>' : (t.expired ? '<span class="tk-st bad">已結束</span>' : '<span class="tk-st">VALID</span>')));
@@ -2672,7 +2675,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B413T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B414T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
