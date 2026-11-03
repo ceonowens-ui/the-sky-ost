@@ -647,8 +647,8 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-sheet .tk-box .tk-hint { position:static !important; opacity:1 !important; transform:none !important; display:block !important; width:auto !important; min-height:0 !important; max-height:none !important; padding:0 !important; margin:8px 0 0 !important; background:none !important; border:0 !important; box-shadow:none !important; color:rgba(255,255,255,.72) !important; font-size:15px !important; line-height:1.6; text-align:center; }
 .tk-sheet .tk-box .tk-big .tk-hint { margin-top:10px !important; }
 /* B407T：同一場有多張票時，票券頁上方的「第 1 / 5 張」切換 */
-.tk-layer[data-layer="pass"] .tk-pager { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:4px 16px 10px; padding:6px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(216,188,128,.28); }
-.tk-layer[data-layer="pass"] .tk-pager span { font-size:15px; color:#f1e7d2; letter-spacing:.02em; }
+.tk-layer[data-layer="pass"] .tk-pager { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:22px 16px 10px; padding:6px; border-radius:999px; background:#120f0d; border:1px solid rgba(216,188,128,.55); box-shadow:0 6px 18px rgba(0,0,0,.45); }   /* B408T（CÉON 11/03）：原本半透明，壓在照片上看不清楚 → 實心深色 */
+.tk-layer[data-layer="pass"] .tk-pager span { font-size:16px; font-weight:600; color:#fff7e6; letter-spacing:.02em; }
 .tk-layer[data-layer="pass"] .tk-pager span b { color:#f0dcaa; font-size:17px; }
-.tk-layer[data-layer="pass"] .tk-pager button { width:44px; height:44px; border-radius:50%; border:0; background:rgba(216,188,128,.16); color:#f0dcaa; font-size:26px; line-height:1; }
-.tk-layer[data-layer="pass"] .tk-pager button:disabled { opacity:.3; }
+.tk-layer[data-layer="pass"] .tk-pager button { width:44px; height:44px; border-radius:50%; border:0; background:#d8bc80; color:#120f0d; font-size:26px; font-weight:700; line-height:1; }
+.tk-layer[data-layer="pass"] .tk-pager button:disabled { background:#2a241f; color:#6f675b; }
