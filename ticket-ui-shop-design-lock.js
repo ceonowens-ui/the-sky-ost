@@ -658,7 +658,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       loadMine(true).then(function () {
         var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
         if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind); }
-        if (++tries >= (S.ost && S.ost.paid ? 8 : 3)) return purchaseSlow(evId, kind);   // B379T：後台沒說已付款就最多等 5 秒
+        if (++tries >= (S.ost && S.ost.paid ? 100 : 3)) return purchaseSlow(evId, kind);   // B379T：後台沒說已付款就最多等 5 秒 → B403T：已付款、票在排隊就最多等 3 分鐘（50 人同時付款時後台一張一張出）
         setTimeout(poll, 1800);
       }).catch(function () { if (++tries >= 8) purchaseSlow(evId, kind); else setTimeout(poll, 1800); });
     })();
@@ -2596,7 +2596,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B402T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B403T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3267,7 +3267,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-ok tkb-wait">' + (spin ? '<div class="tk-spin"></div>' : '<div class="ck">⏳</div>') +
       '<div class="tk-eyebrow" id="tk-paye">' + (paid ? "Payment confirmed" : "Checking") + '</div>' +
       '<h2 id="tk-payh">' + (failed ? "付款已確認，票券還在處理" : paid ? (spin ? "付款已確認，票券準備中…" : "付款已確認，票券準備中") : (spin ? "正在確認付款和票券…" : "還在確認中")) + '</h2>' +
-      '<p id="tk-payn">' + (failed ? "這筆付款已經確認，但出票延遲，主辦會盡快補發到你的票夾和信箱。請不要重新購買。" : spin ? "通常幾秒內就好，別關掉這個畫面。" : paid ? "票券一進來就會出現在票夾。請按「重新確認」，不需要重新購買。" : "票夾裡還沒看到這筆購買的票。") + '</p>' +
+      '<p id="tk-payn">' + (failed ? "這筆付款已經確認，但出票延遲，主辦會盡快補發到你的票夾和信箱。請不要重新購買。" : spin ? (paid ? "付款已經成功。人多的時候票會排隊出，最多一兩分鐘，別關掉這個畫面，也不需要重新購買。" : "通常幾秒內就好，別關掉這個畫面。") : paid ? "票券一進來就會出現在票夾。請按「重新確認」，不需要重新購買。" : "票夾裡還沒看到這筆購買的票。") + '</p>' +
       (!spin && !paid ? '<p>如果綠界已經顯示付款成功，通常一兩分鐘內就會出現。請按「重新確認」，不需要重新購買。</p>' : '') + '</div>';
     if (!spin) h += '<button class="tkb-cta wide" data-act="done-repoll">重新確認 <i>↻</i></button><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button>';
     return '<div class="tkb">' + h + '</div>';
