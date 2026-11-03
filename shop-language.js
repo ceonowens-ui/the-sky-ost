@@ -13,6 +13,9 @@
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
  '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
+ /* B401T：回來先等後台確認付款 */
+ '綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。':'If you already paid on ECPay, this usually takes a few seconds. Please keep this screen open.',
+ '等了 20 秒，後台還沒收到這筆付款。如果綠界已經顯示付款成功，請不要按「不買了」、也不要再付一次：幾分鐘內會收到確認信，到「我的票」就看得到。確定沒付的話，按「重新付款」回到結帳頁，資料都還在。':'After 20 seconds we still have not received this payment. If ECPay already showed “payment successful”, do not tap “Never mind” and do not pay again: a confirmation email arrives within a few minutes and the ticket will appear in My Tickets. If you are sure you did not pay, tap “Pay again” to go back to checkout — your details are still there.',
  /* B379T：沒付款回來 */
  '還沒收到付款':'Payment not received yet','這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。':'This order has not been paid and nothing was charged. To continue, tap “Pay again” to go back to checkout — your details are still there.','重新付款':'Pay again','不買了，回上一頁':'Never mind, go back','商品':'Item',
  /* B378T：UX 第二批 */
