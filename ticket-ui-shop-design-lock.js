@@ -1492,7 +1492,7 @@ function coverClockKey() {
         '<div class="tk-title"><b>' + esc(oev.name || "CHANCE") + '</b><span class="tk-st bad">已轉讓</span></div>' +
         (t.tierName ? '<div class="tk-tierbadge"><span class="bd">' + esc(t.tierName) + '</span>' + (t.seat ? '<span class="sn">終身編號 No.' + esc(t.seat) + '</span>' : '') + '</div>' : '') +
         '<div class="tk-tear"></div><div class="tk-stubbox"><b>這張票已轉讓，不能入場</b><span>轉給 ' + esc(t.to || "朋友") + (when ? '・' + esc(when) : '') + '</span><span>' + esc(t.id) + '</span></div></div></article>';
-      return h + '<div class="tk-list"><button data-act="back">回到我的票<span>›</span></button></div>';
+      return h + '<div class="tk-list"><button data-act="back">返回<span>›</span></button></div>';
     }
     h += '<article class="tk-pass ' + (t.status === "used" ? "used" : (!live ? "dead" : "")) + '"><div class="tk-art" style="' + (open ? 'height:70px' : '') + '"><i>' + k.lab + (ev.code ? ' · ' + esc(ev.code) : '') + '</i><b' + (open ? ' style="font-size:24px"' : '') + '>CHANCE</b></div><div class="tk-body">' +
       '<div class="tk-title"><b>' + esc(ev.name || "CHANCE") + '</b>' + st + '</div>' +
@@ -2670,7 +2670,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B411T-2"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B412T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3357,7 +3357,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "back") return back();
     if (act === "profile") return profileSheet();
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
-    if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); openLayer("wallet"); if (nm) setTimeout(function () { openLayer("pass", { sel: nm.id }); }, 60); return; }
+    if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); if (nm) openLayer("pass", { sel: nm.id }); else openLayer("wallet"); return; }   // B412T（CÉON 11/03）：從 SHOP 直接開票券，返回就回 SHOP（底下不再墊一層「我的票」，不用按兩次）
     if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; S.pre = {};
       var qev = buyEv(), qst = qev && laState(qev);   // B359T：只有一種票、開賣中、還沒買過 → SHOP 直接進結帳（活動說明收在結帳頁上方）
       if (qev && qst.solo && !qst.pre && !qst.own && !qst.soldOut && !qst.notOpen && tierBuyable(qev, qev.tiers[0])) {
