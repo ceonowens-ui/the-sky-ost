@@ -13,6 +13,8 @@
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
  '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
+ /* B405T：取票鑰匙／垃圾信件提示 */
+ '沒收到？看一下垃圾信件（Yahoo、Hotmail 常會放在那裡），或按「重寄」。':'Didn’t get it? Check your spam folder (Yahoo and Hotmail often put it there), or tap “Resend”.',
  /* B403T：已付款、票在排隊 */
  '付款已經成功。人多的時候票會排隊出，最多一兩分鐘，別關掉這個畫面，也不需要重新購買。':'Payment received. When many people buy at once, tickets are issued in turn — up to a minute or two. Keep this screen open; no need to buy again.',
  /* B401T：回來先等後台確認付款 */

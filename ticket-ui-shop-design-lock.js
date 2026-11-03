@@ -352,7 +352,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     api("/ticket/otp", { email: em }).then(function (j) {
       $("#tk-send").disabled = false;
       if (!j.ok) return msg("#tk-lmsg", j.error === "rate" ? "一分鐘內只能寄一次，等一下再按" : "寄不出去，再試一次");
-      msg("#tk-lmsg", "驗證碼已寄到 " + em + "（5 分鐘內有效）", true);
+      msg("#tk-lmsg", "驗證碼已寄到 " + em + "（5 分鐘內有效），沒看到請找垃圾信件", true);
       $("#tk-otpwrap").style.display = "block"; $("#tk-send").style.display = "none"; $("#tk-login-btn").style.display = "block"; $("#tk-otp").focus();
     }).catch(function () { $("#tk-send").disabled = false; msg("#tk-lmsg", "連不上伺服器"); });
   }
@@ -532,6 +532,29 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     payNow();
   }
   /* 付款回來但這支手機還沒登入 → 驗證一次，把票收進票夾（錢已經付了，不擋付款） */
+  /* B405T（CÉON 11/03：Yahoo 把驗證碼放進垃圾信件，付完錢票夾是空的）：在哪支手機付錢，票就直接進那支手機。
+     下單時後台給一把一次性的取票鑰匙（24 小時、用一次）；付款確認後拿它換登入。等滿 20 秒還沒付款 → 「還沒收到付款」；鑰匙不能用 → 退回原本的信箱驗證碼。 */
+  function claimByKey(evId, kind, lo) {
+    var o = { kind: "ticket", evId: evId, startMs: lo.t || Date.now(), no: lo.no, email: lo.email, tier: lo.tier || "", mc: lo.mc || "", mq: lo.mq || 0, amt: lo.amt || 0 };
+    S.confirming = o; reopenBuy("ticket", evId, o.tier, o.mc, o.mq);
+    sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>正在確認付款…</h3><div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
+    var rev = sheetRevision, t0 = Date.now();
+    (function again(first) { setTimeout(function () {
+      if (sheetRevision !== rev || S.confirming !== o) return;
+      api("/ticket/claim-order", { no: lo.no, email: lo.email, key: lo.ck }).then(function (j) { return j || {}; }).catch(function () { return {}; }).then(function (j) {
+        if (sheetRevision !== rev || S.confirming !== o) return;
+        if (j.ok && j.session) {
+          S.confirming = null; setSession(j.session, j.email); hap(20);
+          try { var l2 = JSON.parse(localStorage.getItem("tk:lastorder") || "null"); if (l2 && l2.no === lo.no) { delete l2.ck; localStorage.setItem("tk:lastorder", JSON.stringify(l2)); } localStorage.removeItem("tk:pending"); } catch (e) {}
+          closeSheet(); return awaitPurchase(evId, kind);
+        }
+        if (j.error === "not_paid" && Date.now() - t0 < confirmMs()) return again(false);
+        S.confirming = null;
+        if (j.error === "not_paid") { o.waited = true; return unpaidSheet(o); }
+        claimSheet(evId, kind);   // 鑰匙用過／過期／連不上 → 用信箱驗證碼
+      });
+    }, first ? 0 : CONFIRM_STEP); })(true);
+  }
   function claimSheet(evId, kind) {
     var p = {}; try { p = JSON.parse(localStorage.getItem("tk:pending") || "{}"); } catch (e) {}
     var em = p.email || lsGet(K.email) || "";
@@ -541,6 +564,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       '<div class="tk-hint">付款成功後，' + (kind === "pp" ? "開通通知" : "電子票") + '會寄到 <b>' + esc(maskEmail(em) || "你的信箱") + '</b></div></div>' +
       '<div class="tk-hint" id="tk-cpay"></div>' +
       '<div class="tk-to dim">我們會寄 6 位數驗證碼到同一個信箱，輸入後票就收進這支手機。</div>' +
+      '<div class="tk-to dim">沒收到？看一下垃圾信件（Yahoo、Hotmail 常會放在那裡），或按「重寄」。</div>' +
       '<input class="tk-in" id="tk-cotp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="6 位數驗證碼">' +
       '<div class="tk-msg" id="tk-cmsg"></div>' +
       '<button class="tk-btn p" data-sact="claim-verify">收進票夾</button>' +
@@ -557,7 +581,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (!silent) msg("#tk-cmsg", "寄送中…", true);
     api("/ticket/otp", { email: c.email }).then(function (j) {
       if (!j.ok) return msg("#tk-cmsg", j.error === "rate" ? "一分鐘內只能寄一次，稍等再按" : "寄不出去，再試一次");
-      msg("#tk-cmsg", "驗證碼已寄到 " + maskEmail(c.email), true);
+      msg("#tk-cmsg", "驗證碼已寄到 " + maskEmail(c.email) + "，沒看到請找垃圾信件", true);
     }).catch(function () { msg("#tk-cmsg", "連不上伺服器"); });
   }
   function claimVerify() {
@@ -579,7 +603,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     S.buy.email = em; lsSet(K.email, em); msg("#tk-bmsg", "寄送中…", true);
     api("/ticket/otp", { email: em }).then(function (j) {
       if (!j.ok) return msg("#tk-bmsg", j.error === "rate" ? "一分鐘內只能寄一次，等一下再按" : "寄不出去，再試一次");
-      S.buy.otpSent = true; confirmSheet(); msg("#tk-bmsg", "驗證碼已寄到 " + em, true);
+      S.buy.otpSent = true; confirmSheet(); msg("#tk-bmsg", "驗證碼已寄到 " + em + "，沒看到請找垃圾信件", true);
     }).catch(function () { msg("#tk-bmsg", "連不上伺服器"); });
   }
   function buyVerifyPay() {
@@ -617,7 +641,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.message) { bad(j.message); return; } } catch (e) {} throw 0; }
         testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
-        try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
+        try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, ck: form.getAttribute("data-claim") || "", email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); pmGo(cpb, function () { f.submit(); });
       }).catch(function () { bad("付款頁開不起來，請稍後再試"); });
   }
@@ -638,7 +662,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   function awaitPurchase(evId, kind) {
     try { localStorage.removeItem("tk:paying"); } catch (e) {}
-    if (!loggedIn()) return claimSheet(evId, kind);
+    if (!loggedIn()) { var lc = kind !== "pp" ? lastOrder(evId) : null; return lc && lc.ck && !C.demo ? claimByKey(evId, kind, lc) : claimSheet(evId, kind); }   // B405T：付款的這支手機用取票鑰匙直接收票，不用信箱驗證碼
     var lo = kind !== "pp" ? lastOrder(evId) : null;   // B379T：先問後台這筆付了沒；沒付就直接說「還沒收到付款」，不再轉圈等
     if (lo && !C.demo) return orderStatus(evId).then(function (os) {
       if (os && os.paid === false) return confirmPaid({ kind: "ticket", evId: evId, startMs: lo.t || Date.now(), no: lo.no, email: lo.email, tier: lo.tier || "", mc: lo.mc || "", mq: lo.mq || 0, amt: lo.amt || 0 }, function (os2) { S.ost = os2; awaitRun(evId, kind); });   // B401T：先等後台確認，不馬上說沒付
@@ -658,6 +682,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       loadMine(true).then(function () {
         var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
         if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind); }
+        if (S.ost && S.ost.paid && S.ost.ticket === "failed") return purchaseSlow(evId, kind);   // B405T：出票失敗（含付款太晚、名額已讓出）→ 馬上說原因，不要等 3 分鐘
         if (++tries >= (S.ost && S.ost.paid ? 100 : 3)) return purchaseSlow(evId, kind);   // B379T：後台沒說已付款就最多等 5 秒 → B403T：已付款、票在排隊就最多等 3 分鐘（50 人同時付款時後台一張一張出）
         setTimeout(poll, 1800);
       }).catch(function () { if (++tries >= 8) purchaseSlow(evId, kind); else setTimeout(poll, 1800); });
@@ -2596,7 +2621,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B403T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B405T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
