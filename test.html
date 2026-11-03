@@ -86,7 +86,11 @@ html.sky-opening{background:#0B0A08}
 html.sky-opening::after{content:"正在開啟你的專輯";position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0B0A08;color:#DFCBA8;font:500 16px/1.5 -apple-system,"PingFang TC",sans-serif;letter-spacing:.08em;visibility:visible;z-index:2147483647}
 </style>
 <!-- iPhone 鐵則：viewport-fit=cover 必須有，安全區才會生效 -->
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<!-- B404T（CÉON 11/03 真機）：B400T 拿掉 maximum-scale=1 後，從綠界返回時畫面停在放大的狀態、左右被切掉。
+     加回 maximum-scale=1：iOS 仍可雙指放大（iOS 10 起 Safari 不理會它擋手勢），但每次開頁／返回都回到 1 倍、點欄位不自動放大。
+     user-scalable=no 不加回去。從上一頁快取（bfcache）回來時再把 viewport 設一次，強迫縮回 1 倍。 -->
+<script>(function(){var m=document.querySelector('meta[name="viewport"]');if(!m)return;var c=m.getAttribute("content");function reset(){m.setAttribute("content",c.replace("maximum-scale=1","maximum-scale=1.0"));setTimeout(function(){m.setAttribute("content",c);},60);}window.addEventListener("pageshow",function(e){if(e.persisted)reset();});if(/[?&](tkbought|tkmerch|tkphoto)=/.test(location.search))reset();})();</script>
 <link rel="icon" href="assets/images/icon-32.png">
 <style>html,body{touch-action:manipulation}</style>
 <!-- PWA / iPhone 加入主畫面 -->
@@ -12643,7 +12647,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B403T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B404T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
