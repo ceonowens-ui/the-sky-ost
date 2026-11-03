@@ -1304,6 +1304,7 @@ function coverClockKey() {
     if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
+    if (!S.layers.length) { try { var scm = document.getElementById("screen-merch"); S.shopScroll = { el: scm ? scm.scrollTop : 0, win: window.scrollY || 0 }; } catch (e) {} }   // B415T：記住 SHOP 捲到哪
     S.layers.push(name);
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
     var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
@@ -1323,7 +1324,13 @@ function coverClockKey() {
     if (name === "dcl") document.body.classList.remove("dcl-open");   /* B309T */
     if (name === "cxl") document.body.classList.remove("cxl-open");
     var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 240); }
-    if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); }
+    if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); restoreShopScroll(); }
+  }
+  /* B415T（CÉON 11/03，主畫面 App）：從票券頁返回 SHOP，有時會跳到 SHOP 最上面 → 回來後捲回原本的位置（立刻＋稍後各一次，蓋過 iOS 重排） */
+  function restoreShopScroll() {
+    var p = S.shopScroll; if (!p) return; S.shopScroll = null;
+    var go = function () { try { var scm = document.getElementById("screen-merch"); if (scm && Math.abs(scm.scrollTop - p.el) > 4) scm.scrollTop = p.el; if (Math.abs((window.scrollY || 0) - p.win) > 4) window.scrollTo(0, p.win); } catch (e) {} };
+    go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 360);
   }
   function back() { if (S.layers.length) history.back(); }
   /* B411T（CÉON 11/03）：從螢幕最左邊往右滑 → 回上一頁。只在「加到主畫面」的 App 開（Safari 自己就有這個手勢，兩個一起會退兩頁） */
@@ -2675,7 +2682,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B414T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B415T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
