@@ -756,6 +756,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   function sumHTML() {
     var d = S.sum; if (!d) return "";
+    if (d.kind === "pack") return sumPackHTML(d);
     var en = sxEN(), ev = eventById(d.evId) || buyEvent(d.evId) || {}, evn = ev.name || "CHANCE", rec = sumRec(d), hasT = d.kind === "ticket", part = sumPart(d), waitM = sumWaitM(d);
     var mode = rec ? rec.mode : (d.mode || "pickup"), unit = en ? "" : " 組", rows = "";
     if (hasT) {
@@ -789,6 +790,19 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       '<button type="button" class="tkb-cta ghost wide" data-act="sum-shop">' + (en ? "Back to SHOP" : "回到 SHOP") + '</button>' +
       (part ? '' : '<button type="button" class="merch-success-sound" data-act="merch-success-sound">' + (en ? "Play success sound" : "播放成功提示音") + '</button>') + '</div>';
     return '<div class="tkb tk-sum">' + h + '</div>';
+  }
+  /* 卡包不在「我的票」裡，沒有訂單頁可去：主按鈕是回到 SHOP，訂單編號和確認信才是之後查詢的依據。舊的待查資料沒有商品明細就不猜 */
+  function sumPackHTML(d) {
+    var en = sxEN(), known = d.qty > 0, how = d.how;
+    var sub = how === "pickup" ? (en ? "Pick up at the event" : "現場領取") : how === "tw" ? (en ? "Shipped in Taiwan" : "台灣寄送") : how === "intl" ? (en ? "International shipping" : "海外寄送") : (en ? "Order confirmed" : "訂單已確認");
+    var row = '<div class="tk-sum-row plain"><span class="ic">' + (d.img ? '<img src="' + esc(d.img) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : IC_SUM_G) + '</span><span class="tx"><b>' + esc(d.label || (en ? "Card pack" : "卡包")) + '</b><span>' + esc(sub) + '</span></span>' + (known ? '<em>' + (en ? "× " + d.qty : d.qty + " 包") + '</em>' : '') + '</div>';
+    var next = how === "pickup" ? (en ? "12/27 birthday party · merch desk" : "12/27 生日會當天・周邊服務台領取") : how === "tw" ? (en ? "Ships within 7 working days. We’ll email the tracking number." : "付款後 7 個工作天內寄出，寄出時會通知追蹤號碼") : how === "intl" ? (en ? "Ships by international small packet. We’ll email the tracking number." : "海外 e 小包寄出，寄出時會通知追蹤號碼") : "";
+    var amt = (d.amt ? '<div class="tk-sum-amt"><span>' + (en ? "Order total" : "本筆訂單合計") + '</span><b>' + nt(d.amt) + '</b></div>' : '') + (d.no ? '<div class="tk-sum-amt s"><span>' + (en ? "Order no." : "訂單編號") + '</span><b>' + esc(d.no) + '</b></div>' : '');
+    return '<div class="tkb tk-sum"><div class="tk-sum-hd"><div class="tk-sum-ck" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 15-17"/></svg></div><h2 id="tk-sum-h" tabindex="-1">' + (en ? "Purchase complete" : "購買成功") + '</h2><p>' + (en ? "Your card pack order is confirmed" : "卡包訂單已確認") + '</p></div>' +
+      '<div class="tk-sum-card">' + row + '</div>' + (next ? '<p class="tk-sum-next">' + esc(next) + '</p>' : '') + (amt ? '<div class="tk-sum-sub">' + amt + '</div>' : '') +
+      '<p class="tk-sum-mail">' + (en ? "Confirmation goes to " : "確認信會寄到 ") + esc(maskEmail(d.email)) + (en ? ". Can’t find it? Check spam." : "，沒看到請查垃圾信件") + '</p>' +
+      '<div class="tk-sum-foot"><button type="button" class="tkb-cta wide" data-act="sum-shop">' + (en ? "Back to SHOP" : "回到 SHOP") + ' <i>›</i></button></div>' +
+      '<div class="tk-sum-acts"><button type="button" class="merch-success-sound" data-act="merch-success-sound">' + (en ? "Play success sound" : "播放成功提示音") + '</button></div></div>';
   }
   function sumFx(el) {   // 成功的動畫、聲音、震動，每筆只放一次；票還沒到齊不放
     var d = S.sum; if (!d || d.fx || sumPart(d)) return; d.fx = 1;
@@ -2160,7 +2174,6 @@ function coverClockKey() {
     var a = b.getAttribute("data-cx"), i = cxItem(), max = i.left != null ? Math.min(i.maxQty || 10, i.left) : (i.maxQty || 10);
     if (a === "close") return cxClose();
     if (a === "recheck") return cxReturn();
-    if (a === "success-sound") return merchSuccessSound();
     if (a === "minus") { CX.qty = Math.max(1, CX.qty - 1); return cxRender(); }
     if (a === "plus") { CX.qty = Math.min(max, CX.qty + 1); return cxRender(); }
     if (a === "m-ship") { CX.f.method = "ship"; return cxRender(); }
@@ -2355,7 +2368,7 @@ function coverClockKey() {
         });
       }).then(function (j) {
         if (dead()) throw { gone: 1 };
-        shopPending = { d: j.draftId, email: snap.email, at: Date.now(), launched: true };
+        shopPending = { d: j.draftId, email: snap.email, at: Date.now(), launched: true, nm: i.short || i.name || "", img: i.img || "", qty: snap.qty, how: pick ? "pickup" : (snap.ship.country === "TW" ? "tw" : "intl"), amt: cxTotals().total || 0 };   // B419T：成功摘要要用；只記商品、數量、金額、領取方式，不記地址電話
         var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
         return fetch(SHOP_API + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: snap.email, back: back, name: snap.name }), signal: sig })
           .then(function (r) { if (dead()) throw { gone: 1 }; return r.text().then(function (html) { return { r: r, html: html }; }); });
@@ -2406,9 +2419,10 @@ function coverClockKey() {
       fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(p.d), { cache: "no-store", signal: ac ? ac.signal : undefined }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
         if (settled || !live()) return; settled = true; clearTimeout(timer);
         if (j && j.paid === true) {
-          cxForget(p); cxShownPending = null; hap([20, 40, 20]);
-          show('<div class="cx-success"><div class="cx-success-check" aria-hidden="true">✓</div><p class="cxs-big">購買成功</p><p>卡包訂單已確認。' + (j.tradeNo ? '訂單編號 <b>' + esc(j.tradeNo) + '</b>。' : '') + '</p><p>訂單確認信會寄到 ' + esc(p.email || "你的 Email") + '，沒看到請查垃圾信件；寄出時會再通知你追蹤號碼。</p><button type="button" class="cx9-ln" data-cx="success-sound">播放成功提示音</button></div>');
-          merchSuccessSound(); return;
+          /* B419T（CÉON 11/04）：卡包也用購買成功摘要（C 方案）。動畫、音效、震動由摘要放，一樣停在畫面上等使用者按 */
+          cxForget(p); cxShownPending = null; cxClose();
+          sumLand({ kind: "pack", no: j.tradeNo || "", label: p.nm || "", img: p.img ? asset(p.img) : "", qty: Number(p.qty) || 0, how: p.how || "", amt: Number(p.amt) || 0, email: p.email || "" });
+          return;
         }
         later();
       }).catch(function () { if (settled || !live()) return; settled = true; clearTimeout(timer); later(); });
@@ -2888,7 +2902,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B418T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B419T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
