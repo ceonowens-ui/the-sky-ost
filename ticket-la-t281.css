@@ -682,3 +682,24 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 /* B416T：SHOP 卡包下方「重新確認付款」（有未確認的卡包訂單才出現） */
 .sv3-cx-recheck { display:flex; width:100%; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; padding:12px 14px; border:1px solid rgba(216,188,128,.45); border-radius:14px; background:#120f0d; color:#e8dccb; font:500 14px/1.4 -apple-system,"PingFang TC",sans-serif; text-align:left; cursor:pointer; }
 .sv3-cx-recheck b { color:#f0dcaa; font-weight:600; white-space:nowrap; }
+/* B417T：等票畫面放到畫面中間 */
+.tk-layer[data-layer="done"] .tkb { min-height:100dvh; display:flex; flex-direction:column; box-sizing:border-box; }
+.tk-layer[data-layer="done"] .tkb-wait { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 24px 16vh; }
+.tk-layer[data-layer="done"] .tkb-wait h2, .tk-layer[data-layer="done"] .tkb-wait p { text-align:center; }
+.tk-layer[data-layer="done"] .tkb-cta { flex:none; }
+/* B417T：票進來的全螢幕「購買成功」 */
+#tk-arrive { position:fixed; inset:0; z-index:100001; display:flex; align-items:center; justify-content:center; background:rgba(8,7,6,.94); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); animation:tkArriveIn .25s ease-out both; }
+#tk-arrive.out { animation:tkArriveOut .3s ease-in both; }
+#tk-arrive .tk-arrive-in { display:flex; flex-direction:column; align-items:center; gap:10px; padding:0 28px 8vh; text-align:center; }
+#tk-arrive .tk-arrive-ck { position:relative; width:104px; height:104px; margin-bottom:12px; animation:tkArrivePop .5s cubic-bezier(.2,1.4,.4,1) both; }
+#tk-arrive svg { width:100%; height:100%; fill:none; stroke:#e8c987; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+#tk-arrive circle { stroke-dasharray:151; stroke-dashoffset:151; animation:tkArriveDraw .5s .05s ease-out forwards; }
+#tk-arrive path { stroke-width:3.5; stroke-dasharray:40; stroke-dashoffset:40; animation:tkArriveDraw .3s .42s ease-out forwards; }
+#tk-arrive b { font:500 34px/1.3 "Noto Serif TC","Songti TC",serif; letter-spacing:.08em; color:#f0dcaa; animation:tkArriveUp .45s .4s ease-out both; }
+#tk-arrive span { font-size:17px; line-height:1.5; color:#ddd5c8; animation:tkArriveUp .45s .52s ease-out both; }
+@keyframes tkArriveIn { from { opacity:0 } to { opacity:1 } }
+@keyframes tkArriveOut { from { opacity:1 } to { opacity:0 } }
+@keyframes tkArrivePop { from { transform:scale(.7); opacity:0 } to { transform:scale(1); opacity:1 } }
+@keyframes tkArriveDraw { to { stroke-dashoffset:0 } }
+@keyframes tkArriveUp { from { transform:translateY(12px); opacity:0 } to { transform:translateY(0); opacity:1 } }
+@media (prefers-reduced-motion:reduce) { #tk-arrive, #tk-arrive * { animation:none !important; } #tk-arrive circle, #tk-arrive path { stroke-dashoffset:0; } }

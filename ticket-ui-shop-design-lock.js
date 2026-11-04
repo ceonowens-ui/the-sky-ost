@@ -682,7 +682,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var e = document.getElementById("tk-paye"), h = document.getElementById("tk-payh"), n = document.getElementById("tk-payn"); if (!h) return;   // B359T：確認中改在成功頁（票）或彈窗（PhotoPass）
     if (e) e.textContent = "Payment confirmed";
     if (os.ticket === "failed") { h.textContent = "付款已確認，票券還在處理"; if (n) n.textContent = "我們會盡快補發，不需要重新購買。"; }
-    else h.textContent = kind === "pp" ? "付款已確認，PhotoPass 開通中…" : "付款已確認，票券準備中…";
+    else { h.textContent = kind === "pp" ? "付款已確認，PhotoPass 開通中…" : "付款已確認，票券準備中…"; if (n && kind !== "pp") n.textContent = "付款已經成功。人多的時候票會排隊出，最多一兩分鐘，別關掉這個畫面，也不需要重新購買。"; }   // B417T：原本還留著「通常幾秒內就好」
   }
   function awaitPurchase(evId, kind) {
     try { localStorage.removeItem("tk:paying"); } catch (e) {}
@@ -705,23 +705,35 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       orderStatus(evId).then(function (os) { if (os) { S.ost = os; payingText(kind, os); } });   /* B357T */
       loadMine(true).then(function () {
         var got = kind === "pp" ? (S.photopass.indexOf(evId) >= 0) : (ticketsFor(evId).length > before);
-        if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind); }
+        if (got) { S.layers.forEach(renderLayer); return purchaseDone(evId, kind, kind === "pp" ? 1 : ticketsFor(evId).length - before); }
         if (S.ost && S.ost.paid && S.ost.ticket === "failed") return purchaseSlow(evId, kind);   // B405T：出票失敗（含付款太晚、名額已讓出）→ 馬上說原因，不要等 3 分鐘
         if (++tries >= (S.ost && S.ost.paid ? 100 : 3)) return purchaseSlow(evId, kind);   // B379T：後台沒說已付款就最多等 5 秒 → B403T：已付款、票在排隊就最多等 3 分鐘（50 人同時付款時後台一張一張出）
         setTimeout(poll, 1800);
       }).catch(function () { if (++tries >= 8) purchaseSlow(evId, kind); else setTimeout(poll, 1800); });
     })();
   }
-  function purchaseDone(evId, kind) {
+  /* B417T（CÉON 11/04）：票進來時原本只有頁面最上面一條小橫幅，被狀態列蓋住幾乎看不到 → 全螢幕「購買成功」約 1.7 秒（打勾、金色光點、叮咚、短震），點一下可跳過，淡出後就是票 */
+  function ticketArrive(n) {
+    var old = document.getElementById("tk-arrive"); if (old) old.remove();
+    var en = sxEN(), el = document.createElement("div"); el.id = "tk-arrive"; el.setAttribute("role", "status");
+    el.innerHTML = '<div class="tk-arrive-in"><div class="tk-arrive-ck" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 15-17"/></svg></div><b>' + (en ? "You’re in!" : "購買成功") + '</b><span>' + (en ? (n > 1 ? n + " tickets are in My Tickets" : "Your ticket is in My Tickets") : (n > 1 ? n + " 張票已收進「我的票」" : "票已收進「我的票」")) + '</span></div>';
+    document.body.appendChild(el);
+    var done = false, end = function () { if (done) return; done = true; el.classList.add("out"); setTimeout(function () { el.remove(); }, 320); };
+    el.addEventListener("click", end); setTimeout(end, REDUCED ? 1200 : 1700);
+    try { setTimeout(function () { goldSpark(el.querySelector(".tk-arrive-ck"), 18, 84); }, 260); } catch (e) {}
+    merchSuccessSound();
+  }
+  function purchaseDone(evId, kind, added) {
     hap([20, 40, 20]); var fresh = loadMine(true).then(function () { S.layers.forEach(renderLayer); render(); });
     var ev = buyEvent(evId) || {};
     if (kind === "pp") { sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">PhotoPass</div><h3>PhotoPass 已開通</h3><div class="tk-hint">' + esc(ev.name || "") + '<br>活動後照片整理好會出現在票夾 → 過往 → 這場票根裡。</div></div>' + a2hsHint() + '<button class="tk-btn p" data-sact="close">好</button>'); return; }
     var mineEv = ticketsFor(evId), want = S.buy && S.buy.evId === evId ? S.buy.tier : null;
-    var nt0 = (want && mineEv.filter(function (x) { return x.tier === want; }).slice(-1)[0]) || mineEv.slice(-1)[0];
-    if (nt0) {   // B359T：票開好了 → 直接到「我的票」看這張票（入場 QR），上方短暫顯示「購買成功」
+    var nt0 = (added > 1 && mineEv[0]) || (want && mineEv.filter(function (x) { return x.tier === want; }).slice(-1)[0]) || mineEv.slice(-1)[0];   // B417T：買多張就從第 1 張開始看
+    if (nt0) {   // B359T：票開好了 → 直接看這張票（入場 QR）。B417T：底下不墊「我的票」，返回就回 SHOP（跟 B412T 一致）
       closeSheet(); S.done = null; S.justBought = { id: nt0.id, at: Date.now() };
-      var go = function () { openLayer("wallet"); setTimeout(function () { openLayer("pass", { sel: nt0.id }); }, 60); };
-      fresh.then(function () { if (S.layers.length) { closeAll(); setTimeout(go, 260); } else go(); });   // 等資料更新完再打開，避免重畫打斷「購買成功」動畫
+      ticketArrive(added > 1 ? added : 1);
+      var go = function () { openLayer("pass", { sel: nt0.id }); };
+      fresh.then(function () { var nL = S.layers.length; if (nL) { closeAll(); try { history.go(-nL); } catch (e) {} setTimeout(go, 320); } else go(); });   // 把購買流程的歷史也退掉，之後按一次返回就回 SHOP
       return;
     }
     if (want) { closeSheet(); S.done = { evId: evId, ticketId: null }; openLayer("done"); return; }
@@ -2752,7 +2764,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B416T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B417T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
