@@ -17,6 +17,8 @@
  '上一筆卡包訂單還沒查到付款':'Your last card-pack order isn’t confirmed yet','重新確認付款 ›':'Check payment again ›',
  /* B414T */
  '這張票已經不在你的票夾（可能已轉讓給朋友）。':'This ticket is no longer in your wallet (it may have been transferred).',
+ /* B418T：購買成功摘要 */
+ '付款成功，票券準備中':'Paid — your tickets are being prepared','付款成功，票券準備中…':'Paid — your tickets are being prepared…',
  /* B410T：已轉讓的票 */
  '這張票已轉讓，不能入場':'This ticket was transferred and can’t be used for entry','回到我的票':'Back to my tickets','已轉讓':'Transferred','轉讓中':'Transferring',
  /* B407T：票券頁切換多張 */
@@ -276,6 +278,8 @@
  [/^(.+)・共 (\d+) 張$/,(_,a,n)=>a+' · '+n+' tickets'],
  [/^共 (\d+) 張$/,(_,n)=>n+' tickets'],
  [/^已轉讓 (\d+) 張$/,(_,n)=>n+' transferred'],
+ [/^已入場 (\d+) 張$/,(_,n)=>n+' used'],
+ [/^(.+)・(\d+) 筆訂單$/,(_,a,n)=>translate(a)+' · '+n+' orders'],
  [/^(\d+) 張轉讓中$/,(_,n)=>n+' transferring'],
  [/^你有 (\d+) 張票$/,(_,n)=>'You have '+n+(n==='1'?' ticket':' tickets')],
  [/^剩 (\d+) 張$/,(_,n)=>n+' left'],
