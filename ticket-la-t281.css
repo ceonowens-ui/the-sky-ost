@@ -176,6 +176,7 @@
 #tk-test-banner ~ #tk-layers .tk-layer[data-layer="checkout"] .tk-bar,
 #tk-test-banner ~ #tk-layers .tk-layer[data-layer="done"] .tk-bar,
 #tk-test-banner ~ #tk-layers .tk-layer[data-layer="wallet"] .tk-bar,
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="mcode"] .tk-bar,
 #tk-test-banner ~ #tk-layers .tk-layer[data-layer="pass"] .tk-bar { padding-top:calc(56px + env(safe-area-inset-top)); }
 .tk-layer[data-layer="pass"] .tk-tierbadge .bd,
 .tk-layer[data-layer="pass"] .tk-tierbadge .sn { font-size:15px; line-height:1.4; }
@@ -225,6 +226,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 .tk-layer[data-layer="done"] .tkb-wait .ck { font-size:30px; }
 .tk-layer[data-layer="done"] .tkb-wait h2 { font-size:24px; line-height:1.4; }
 .tk-layer[data-layer="done"] .tkb-wait p { font-size:17px; line-height:1.65; margin:10px 0 0; }
+#tk-test-banner ~ #tk-layers .tk-layer[data-layer="mcode"] > .tk-bar,
 #tk-test-banner ~ #tk-layers .tk-layer[data-layer="pass"] > .tk-bar { height:auto; min-height:60px; }   /* 測試條讓位時返回列跟著變高，不壓到下面的票（shop-edition.css 固定 60px） */
 /* B359T：SHOP 第三區「我的票」（票＋入場 QR、周邊訂單）；票券頁「購買成功」 */
 #sv3-mine .sv3-mine { display:grid; gap:12px; }
@@ -443,7 +445,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 /* B383T（UX 迴圈第 3 回，評審指定三項）：訂單卡第二行數量／領取人／短訂單號，金框由暗到亮（不再整張淡入）；期限膠囊合成一顆；
    黏底提示列尾端「・購買須知」可點；卡包商品頁 🚚🌐🎁 換線條金色圖示；多欄同時錯時捲到第一欄靠上，表單後留白 */
 .tk-mrow .tk-mrow-dt { font-size:14px !important; color:#a39b8e !important; letter-spacing:.01em; }
-.tk-layer[data-layer="wallet"] .tk-mrow em small.tk-mrow-no { margin-top:2px; font-size:12px; color:#8f877b; font-variant-numeric:tabular-nums; }
+.tk-layer[data-layer="wallet"] .tk-mrow em small.tk-mrow-no { margin-top:4px; font-size:15px; font-weight:600; color:#f0dcaa; font-variant-numeric:tabular-nums; }
 @keyframes tkMrowGlow { 0% { border-color:#7a5f32; box-shadow:0 0 0 1px rgba(232,201,135,0); } 55% { border-color:#f3dba0; box-shadow:0 0 0 4px rgba(232,201,135,.22), 0 0 20px rgba(232,201,135,.3); } 100% { border-color:#e8c987; box-shadow:0 0 0 1px rgba(232,201,135,.35); } }
 .tk-mrow.new { animation:tkMrowGlow 1.2s .15s ease-out both; }   /* 只動邊框與光暈，不動透明度（原本 tkBoughtRise 會把整張卡從 0 淡入，中段看起來像變灰） */
 @media (prefers-reduced-motion:reduce) { .tk-mrow.new { animation:none; } }
@@ -751,3 +753,14 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-layer[data-layer="wallet"] .tk-mrow em small.tk-mrow-whole { color:#c9c0b2; }
 /* B420T：英文客人付款前的提醒 */
 .tk-pay-en { margin:12px 0 4px; padding:0 2px; font-size:14px; line-height:1.5; color:#c9c0b2; text-align:center; }
+/* B422T：周邊訂單點開放大，給服務台看 */
+.tk-layer[data-layer="wallet"] .tk-mrow em { text-align:right; }
+.tk-mrow[data-act="m-code"] { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.tk-mrow[data-act="m-code"]:active { background:#191412; }
+.tk-mrow[data-act="m-code"]:focus-visible { outline:2px solid #e8c987; outline-offset:2px; }
+.tk-mcode { margin:14px 0 0; padding:28px 18px 22px; border:1px solid rgba(216,188,128,.34); border-radius:22px; text-align:center; background:radial-gradient(120% 46% at 50% 8%,rgba(150,104,48,.3),transparent 70%),#080706; }
+.tk-mcode .l { font-size:17px; letter-spacing:.1em; color:#c9c0b2; }
+.tk-mcode .c { margin:6px 0 16px; font:600 clamp(44px,15vw,62px)/1.15 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.05em; color:#fff; overflow-wrap:anywhere; }
+.tk-mcode .r { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-top:1px solid rgba(216,188,128,.25); font-size:19px; line-height:1.4; text-align:left; color:#ddd5c8; }
+.tk-mcode .r b { flex:none; max-width:62%; font-weight:600; color:#f0dcaa; text-align:right; overflow-wrap:anywhere; }
+.tk-mcode p { margin:14px 0 0; font-size:16px; line-height:1.5; color:#c9c0b2; }

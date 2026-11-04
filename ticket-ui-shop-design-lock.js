@@ -769,7 +769,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     });
     if (d.pp && S.photopass.indexOf(d.evId) >= 0) rows += '<div class="tk-sum-row plain"><span class="ic">' + IC_SUM_P + '</span><span class="tx"><b>' + (en ? "Birthday wall photo" : "生日牆合照") + '</b><span>' + (en ? "Added" : "已加購") + '</span></span></div>';
     var next = "";
-    if ((d.kind === "merch" || d.mc) && !waitM) next = mode === "ship" ? (en ? "Ships after the event — the tracking number goes to your email" : "活動後寄出，追蹤號碼會寄到你的 Email") : '<b>' + esc(md(ev.startAt)) + '</b> ' + (en ? "Birthday party day · merch desk · give your name and phone" : "生日會當天・周邊服務台・報姓名和手機領取");
+    if ((d.kind === "merch" || d.mc) && !waitM) next = mode === "ship" ? (en ? "Ships after the event — the tracking number goes to your email" : "活動後寄出，追蹤號碼會寄到你的 Email") : '<b>' + esc(md(ev.startAt)) + '</b> ' + (en ? "Birthday party day · merch desk · show your pickup code and name" : "生日會當天・周邊服務台・出示領取碼和姓名領取");
     else if (waitM) next = en ? "Your payment is confirmed. No need to buy again — check Merch Orders in a moment." : "付款已確認，不用重新購買，稍後可到「周邊訂單」查看。";
     var total = (rec && Number(rec.amount)) || d.amt || 0, mp = rec && hasT ? Number(rec.mprice) || 0 : 0, fee = rec && !hasT ? Number(rec.fee) || 0 : 0, sub = "";
     if (total) sub += '<div class="tk-sum-amt"><span>' + (en ? "Order total" : "本筆訂單合計") + '</span><b>' + nt(total) + '</b></div>';
@@ -1456,6 +1456,7 @@ function coverClockKey() {
   function openLayer(name, opts) {
     opts = opts || {};
     if (name === "wallet") S.walletMerch = !!opts.merch;
+    if (name === "mcode") S.mcode = opts.no;
     if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
@@ -1523,6 +1524,7 @@ function coverClockKey() {
       el.innerHTML = mxHTML();
     }
     if (name === "dcl" && !el.querySelector("iframe")) { el.innerHTML = lettersHTML(); document.body.classList.add("dcl-open"); }   /* B309T：只建一次，不重載；開著時先藏「放到主畫面」提示，免得蓋住返回鍵 */
+    if (name === "mcode") el.innerHTML = mCodeHTML();
     if (name === "bought") { var sh = sumHTML(); if (el.__sum !== sh) { el.classList.toggle("sum-still", !!el.__sum); el.__sum = sh; el.innerHTML = sh; } sumFx(el); }
     if (name === "done") { el.innerHTML = doneHTML(); var dq = $("#tkd-qr", el), dd = S.done || {}, dt = ticketById(dd.ticketId) || ticketsFor(dd.evId)[0]; if (dq && dt && dt.qr) drawQR(dq, dt.qr, 240); }
     if (name === "cxd" || name === "cxc") {   /* B279T：02／03 —— 正在輸入時不重畫（避免背景更新把鍵盤收掉、游標跳走） */
@@ -1578,6 +1580,18 @@ function coverClockKey() {
     if (whole) return '<small class="tk-mrow-whole">' + (en ? "Whole order " : "整筆訂單 ") + nt(whole) + '</small>';
     return rp && o.mode !== "ship" ? '<small>' + (en ? "Merch " : "周邊 ") + nt(rp.price * (Number(o.qty) || 1)) + '</small>' : '';
   }
+  /* B422T（CÉON 11/04：只有五十份，不用 QR）：周邊訂單點一下放大，給服務台看。領取碼＝訂單編號後 6 碼，和列表、現場名單同一組 */
+  function mCodeHTML() {
+    var en = sxEN(), o = S.morders.filter(function (x) { return x.tradeNo === S.mcode; })[0];
+    var h = bar(en ? "Merch orders" : "周邊訂單", "ORDER");
+    if (!o) return h + '<div class="tk-empty">' + (en ? "This order can’t be loaded right now. Please try again." : "暫時讀不到這筆訂單，請回上一頁再試一次。") + '</div>';
+    var ship = o.mode === "ship", ev = eventById(o.eventId) || buyEvent(o.eventId) || {}, who = (o.ship && o.ship.name) || o.name || "";
+    var rows = sumItems({ evId: o.eventId }, o).map(function (m) { return '<div class="r"><span>' + esc(m.label) + '</span><b>× ' + esc(m.qty) + '</b></div>'; }).join("");
+    if (who) rows += '<div class="r"><span>' + (ship ? (en ? "Recipient" : "收件人") : (en ? "Pickup name" : "領取人")) + '</span><b>' + esc(who) + '</b></div>';
+    rows += '<div class="r"><span>' + (en ? "Event" : "場次") + '</span><b>' + esc(md(ev.startAt)) + ' <span>' + esc(ev.name || "CHANCE") + '</span></b></div>';
+    return h + '<div class="tk-mcode"><div class="l">' + (ship ? (en ? "Order number" : "訂單編號") : (en ? "Pickup code" : "領取碼")) + '</div><div class="c">' + esc(String(o.tradeNo).slice(-6)) + '</div>' + rows +
+      '<p>' + (ship ? (o.shipped ? (en ? "Shipped. Tracking: " : "已寄出，追蹤號碼：") + esc(o.shipped.tracking) : (en ? "Ships after the event." : "活動後寄出。")) : (en ? "Show this screen at the merch desk." : "到周邊服務台，出示這個畫面領取。")) + '</p></div>';
+  }
   function walletHTML() {
     var h = bar("SHOP", S.walletMerch ? "ORDERS" : "TICKETS", { act: "menu", label: "更多", icon: "···" });
     h += '<div class="tk-hd"' + (S.walletMerch ? ' data-merch-wallet="1"' : '') + '><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票</div></div>';
@@ -1592,7 +1606,7 @@ function coverClockKey() {
         var rp2 = mi2 ? mResolve(mi2, o.code) : null, amt2 = mAmtHTML(o, rp2);   // B381T：訂單卡寫金額（寄送含運費要後台給，沒有就不猜）。B418T：寫清楚是周邊金額還是整筆訂單
         var enR = sxEN(), who2 = o.ship && o.ship.name ? String(o.ship.name).trim() : "", no2 = String(o.tradeNo || "").slice(-6);   // B383T：第二行寫數量、領取人／收件人（後台有給才寫）、短訂單號（tradeNo 後 6 碼）
         var dt2 = ["× " + (Number(o.qty) || 1), who2 ? (o.mode === "ship" ? (enR ? "Recipient " : "收件人 ") : (enR ? "Pickup " : "領取人 ")) + esc(who2) : ""].filter(Boolean).join(enR ? " · " : "・");   // 短訂單號放右欄金額下面，左欄 393px 才不會折行
-        return '<div class="tk-mrow' + (idx === 0 && jm ? ' new' : '') + '">' + (it2 && it2.img ? '<img class="tk-mrow-im" src="' + esc(asset(it2.img)) + '" alt="">' : '') + '<div class="tk-mrow-tx"><b>' + esc(mLbl(o.eventId, o.code)) + '</b><span class="tk-mrow-dt">' + dt2 + '</span><span>' + esc(ev.name || "CHANCE") + '</span><span>' + esc(st) + '</span></div><em>✓ 已付款' + amt2 + (no2 ? '<small class="tk-mrow-no">' + (enR ? "Order " : "訂單 ") + esc(no2) + '</small>' : '') + '</em></div>';
+        return '<div class="tk-mrow' + (idx === 0 && jm ? ' new' : '') + '"' + (o.tradeNo ? ' role="button" tabindex="0" data-act="m-code" data-id="' + esc(o.tradeNo) + '"' : '') + '>' + (it2 && it2.img ? '<img class="tk-mrow-im" src="' + esc(asset(it2.img)) + '" alt="">' : '') + '<div class="tk-mrow-tx"><b>' + esc(mLbl(o.eventId, o.code)) + '</b><span class="tk-mrow-dt">' + dt2 + '</span><span>' + esc(ev.name || "CHANCE") + '</span><span>' + esc(st) + '</span></div><em>✓ 已付款' + amt2 + (no2 ? '<small class="tk-mrow-no">' + (enR ? "Order " : "訂單 ") + esc(no2) + ' ›</small>' : '') + '</em></div>';
       }).join("");
       if (!S.morders.length) h += '<div class="tk-empty">付款與訂單已確認，訂單清單暫時無法載入，請稍後重新查看。</div>';
       return h;
@@ -2895,14 +2909,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var o = S.morders.filter(function (x) { return x.eventId === evId && x.mode !== "ship" && Date.now() - Date.parse(x.paidAt || 0) < 3 * 3600e3; }).slice(-1)[0];
     if (!o) return "";
     var nm = o.code === "s" && mi ? mi.m.items.s.name : mLbl(evId, o.code);
-    return '<div class="tkb-okinfo tkm-ok">🎁<span>已加購 <b>' + esc(nm) + '</b>，' + esc(md(ev.startAt)) + ' 活動當天憑票現場領取' + (o.code === "s" ? "（含一對一 60 秒）" : "") + '。</span></div>';
+    return '<div class="tkb-okinfo tkm-ok">🎁<span>已加購 <b>' + esc(nm) + '</b>，' + esc(md(ev.startAt)) + ' 活動當天到周邊服務台出示領取碼領取' + (o.code === "s" ? "（含一對一 60 秒）" : "") + '。</span></div>';
   }
   /* ---- B225T 精簡購票：單一票種時，第 1 頁就能勾周邊，第 2 頁只確認 ---- */
   S.pre = {};
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B421T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B422T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -2967,7 +2981,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += phoneBlock();
     h += entryCoHTML(ev);   /* B345T */
     h += '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>一次最多買 5 張；票都寄到同一個 Email，可以在 App 裡轉讓給朋友</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
-      '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天憑票現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
+      '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天出示領取碼現場領取</li>' + '</ul><button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></div></div>';
     h += '<div class="tk-hold">按「前往付款」後請在 3 分鐘內完成付款；超過時間，名額會先讓給下一位。</div><div class="tk-msg" id="tk-bmsg"></div>';   // B363T：搶票時只保留 3 分鐘
     h += '<div class="tkb-total"><span>應付金額</span><b>' + nt(coTotal(ev, T, b)) + '</b></div><p class="tkb-fine">前往付款即表示同意 <button class="tkb-lk" data-act="buy-terms">《購票須知》</button></p>';
     h += '</div>';
@@ -3017,7 +3031,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (S.layers.indexOf("mxc") >= 0) mSheet(); else openLayer("mxc");   // B375T：整頁（跟卡包結帳頁同一個版型），不再用彈窗
   }
   function mTermsText(mode, v2) {
-    return "周邊為預購商品，" + (mode === "ship" ? "活動後陸續寄出" : v2 ? "活動當天現場領取（報訂購姓名＋電話）" : "活動當天憑票現場領取") + "。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。" +
+    return "周邊為預購商品，" + (mode === "ship" ? "活動後陸續寄出" : "活動當天現場領取（出示領取碼＋姓名）") + "。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。" +
       (mode === "ship" ? "採中華郵政 e 小包並提供追蹤號碼；寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄；關稅與進口稅由收件人負擔。" : "");
   }
   /* ===== B375T（CÉON 11/01）：生日限定周邊購買頁＝卡包結帳頁的版型 =====
@@ -3081,7 +3095,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       : cx9Row("email", "Email", '<input data-mf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(o.email || "") + '"' + A("email") + '>');
     h += '</div>' +
       '<p class="cx9-err" role="alert"' + (o.err ? '' : ' hidden') + '>' + esc(o.err || "") + '</p>' +
-      '<ul class="cx9-note"><li>' + (pick ? (en ? (v2 ? "On " + esc(day) + ", pick up at the merch desk with your name and phone number." : "Pick up with your ticket on " + esc(day) + ".") : v2 ? esc(day) + " 生日會當天，到周邊服務台報上姓名和手機領取。" : esc(day) + " 生日會當天憑票現場領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
+      '<ul class="cx9-note"><li>' + (pick ? (en ? "On " + esc(day) + ", pick up at the merch desk with your pickup code and name." : esc(day) + " 生日會當天，到周邊服務台出示領取碼和姓名領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
         '<li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p></div></details>' +
       payEnNote() + '<div class="cx9-foot"><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button></div></div>';
@@ -3469,7 +3483,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       ["b", "h", "s"].filter(function (k) { return I[k]; }).map(function (k) { return li('<b>' + esc(I[k].name) + '</b>（' + nt(I[k].price) + '，限量 ' + esc(I[k].cap) + (k === "s" ? " 組" : " 件") + '）：' + esc(I[k].perk)); }).join("") +
       li((mCut(mi) ? '預購至 ' + esc(mCut(mi)) + ' 23:59，截止後開始製作；' : '') + '商品圖為示意圖，實際商品以實物為準。') +
       (mi.m.perPerson ? li('每人各限購 1 份。') : '') + (I.s ? li('同時購買兩件自動套用' + esc(mNm(I.s, 's')) + '價，售完後以單品價計算。') : '') +
-      li('現場領取：活動當天憑票領取（出示 App「我的票」）。') +
+      li('現場領取：活動當天到周邊服務台，出示「我的票 → 周邊訂單」裡的領取碼和姓名。') +
       li('退款：依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款，退貨運費由主辦單位負擔。來信 heartbeats0693@gmail.com，註明購買 Email。') + '</ul>' +
       (mi.m.shipOn ? '<div class="pt">海外寄送</div><ul>' + li('可寄送日本、韓國、港澳、中國大陸、東南亞、歐美、澳紐等 37 個國家／地區，運費依地區計算。') +
         li('採中華郵政 e 小包，活動後陸續寄出並提供追蹤號碼。') + li('寄出後超過 45 天仍未送達或物流顯示遺失，免費重寄一次；地址填寫錯誤或拒收退回需自付重寄運費；物流顯示已投遞恕不補寄。') + li('關稅與進口稅由收件人負擔。') + '</ul>' : '');
@@ -3625,6 +3639,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "open-merch") return openLayer("merch");
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
     if (act === "open-pass") return openLayer("pass", { sel: id });
+    if (act === "m-code") { e.stopPropagation(); if (id) openLayer("mcode", { no: id }); return; }
     if (act === "pass-step") return passStep(Number(b.getAttribute("data-d") || 0));
     if (act === "pass-jump") { if (id && id !== S.sel) { S.sel = id; hap(6); renderLayer("pass"); } return; }
     if (act === "sum-tickets") return sumGo("t");

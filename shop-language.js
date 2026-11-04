@@ -17,6 +17,8 @@
  '上一筆卡包訂單還沒查到付款':'Your last card-pack order isn’t confirmed yet','重新確認付款 ›':'Check payment again ›',
  /* B414T */
  '這張票已經不在你的票夾（可能已轉讓給朋友）。':'This ticket is no longer in your wallet (it may have been transferred).',
+ /* B422T：周邊領取碼 */
+ '周邊為預購商品，活動當天現場領取（出示領取碼＋姓名）。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event with your pickup code and name. Under Taiwan consumer law you can cancel for a full refund by email before receiving it, and request a return within 7 days after receiving it (for event pickup, counted from the event day).','現場領取：活動當天到周邊服務台，出示「我的票 → 周邊訂單」裡的領取碼和姓名。':'Event pickup: at the merch desk on the event day, show the pickup code in My tickets → Merch orders and your name.','周邊於活動當天出示領取碼現場領取':'Merch is picked up at the event with your pickup code',
  /* B421T：一筆最多 5 張 */
  '每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app','每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友。':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app.',
  /* B418T：購買成功摘要 */
