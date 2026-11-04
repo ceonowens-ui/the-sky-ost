@@ -749,3 +749,5 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-tchip.on { border-color:#e8c987; box-shadow:0 0 0 1px #e8c987 inset; background:#231a10; opacity:1; }
 .tk-tchip:focus-visible { outline:2px solid #e8c987; outline-offset:2px; }
 .tk-layer[data-layer="wallet"] .tk-mrow em small.tk-mrow-whole { color:#c9c0b2; }
+/* B420T：英文客人付款前的提醒 */
+.tk-pay-en { margin:12px 0 4px; padding:0 2px; font-size:14px; line-height:1.5; color:#c9c0b2; text-align:center; }
