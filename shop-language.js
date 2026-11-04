@@ -17,6 +17,8 @@
  '上一筆卡包訂單還沒查到付款':'Your last card-pack order isn’t confirmed yet','重新確認付款 ›':'Check payment again ›',
  /* B414T */
  '這張票已經不在你的票夾（可能已轉讓給朋友）。':'This ticket is no longer in your wallet (it may have been transferred).',
+ /* B421T：一筆最多 5 張 */
+ '每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app','每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友。':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app.',
  /* B418T：購買成功摘要 */
  '付款成功，票券準備中':'Paid — your tickets are being prepared','付款成功，票券準備中…':'Paid — your tickets are being prepared…',
  /* B410T：已轉讓的票 */
