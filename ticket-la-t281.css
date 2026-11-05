@@ -786,7 +786,13 @@ body:has(.tk-layer[data-layer="pass"].in) .tk-toast { top:calc(env(safe-area-ins
 .tk-sum-v2 { margin:4px 0 16px; }
 .tk-sum.has-v2 .tk-sum-foot { position:static; background:none; }   /* 底部按鈕不能蓋住 QR */
 .tk-sum.has-v2 { padding-top:calc(env(safe-area-inset-top) + 44px); } .tk-sum.has-v2 .tk-sum-hd { margin-bottom:6px; } .tk-sum.has-v2 .tk-sum-ck { width:38px; height:38px; margin-bottom:4px; } .tk-sum.has-v2 .tk-sum-hd h2 { font-size:22px; line-height:1.2; } .tk-sum.has-v2 .tk-sum-hd p { display:none; }
-.tk-sum-v2 .tk-pager { margin-top:0; } .tk-sum-v2 .tk-pass.tk-v2 { margin-top:6px; }
+.tk-sum-v2 .tk-pager { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:50px; margin:0 auto 10px; padding:0 6px; max-width:420px; border-radius:999px; background:#20201c; border:1px solid #dec898; box-sizing:border-box; }
+.tk-sum-v2 .tk-pager span { flex:1; min-width:0; text-align:center; font-size:16px; font-weight:700; line-height:22px; color:#ede3d0; white-space:nowrap; }
+.tk-sum-v2 .tk-pager span b { color:#dec898; }
+.tk-sum-v2 .tk-pager button { flex:none; width:44px; height:44px; padding:0; border:0; border-radius:50%; background:none; color:#dec898; font-size:24px; line-height:1; }
+.tk-sum-v2 .tk-pager button:disabled { opacity:.3; }
+.tk-paycover { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+.tk-paycover p { margin:0; font-size:17px; color:#ddd5c8; } body:has(.tk-sheet.show) .tk-paycover > * { display:none; } .tk-sum-v2 .tk-pass.tk-v2 { margin-top:6px; }
 .tk-v2z { margin:14px 0 0; padding:18px 16px; border-radius:22px; background:#fff; color:#111; text-align:center; }
 .tk-v2z .bx { position:relative; width:min(100%,380px); max-width:calc(100dvh - 270px); aspect-ratio:1; margin:0 auto; padding:0; background:#fff; }
 .tk-v2z b { display:block; margin-top:10px; font-size:18px; } .tk-v2z span { display:block; margin-top:4px; font:13px ui-monospace,SFMono-Regular,Menlo,monospace; color:#555; overflow-wrap:anywhere; } .tk-v2z p { margin:10px 0 0; font-size:15px; line-height:1.5; color:#333; }

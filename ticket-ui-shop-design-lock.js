@@ -559,9 +559,19 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   /* 付款回來但這支手機還沒登入 → 驗證一次，把票收進票夾（錢已經付了，不擋付款） */
   /* B405T（CÉON 11/03：Yahoo 把驗證碼放進垃圾信件，付完錢票夾是空的）：在哪支手機付錢，票就直接進那支手機。
      下單時後台給一把一次性的取票鑰匙（24 小時、用一次）；付款確認後拿它換登入。等滿 20 秒還沒付款 → 「還沒收到付款」；鑰匙不能用 → 退回原本的信箱驗證碼。 */
+  /* B433T（CÉON 11/05 手機實測）：付款回來還在確認時蓋黑底等待，不先回結帳頁。只有確定沒付款才回結帳頁（座位和資料還在） */
+  var payCoverT = 0;
+  function payCover(on) {
+    var c = document.getElementById("tk-paycover"), root = document.documentElement;
+    clearTimeout(payCoverT);
+    if (!on) { if (c) c.remove(); root.classList.remove("tk-paywait"); return; }
+    root.classList.add("tk-paywait"); goShop();   // SHOP 在黑底下先載好場次，沒付款時才回得去結帳頁
+    if (!c) { c = document.createElement("div"); c.id = "tk-paycover"; c.className = "tk-sum-cover tk-paycover"; c.innerHTML = '<div class="tk-spin"></div><p>' + (sxEN() ? "Confirming your payment…" : "正在確認付款…") + '</p>'; document.body.appendChild(c); }
+    payCoverT = setTimeout(function () { payCover(false); }, 45000);   // 保險：任何情況都不把人關在等待畫面
+  }
   function claimByKey(evId, kind, lo) {
     var o = { kind: "ticket", evId: evId, startMs: lo.t || Date.now(), no: lo.no, email: lo.email, tier: lo.tier || "", mc: lo.mc || "", mq: lo.mq || 0, amt: lo.amt || 0 };
-    S.confirming = o; reopenBuy("ticket", evId, o.tier, o.mc, o.mq);
+    S.confirming = o; payCover(true);
     sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>正在確認付款…</h3><div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
     var rev = sheetRevision, t0 = Date.now();
     (function again(first) { setTimeout(function () {
@@ -588,7 +598,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var p = {}; try { p = JSON.parse(localStorage.getItem("tk:pending") || "{}"); } catch (e) {}
     var em = p.email || lsGet(K.email) || "";
     S.claim = { evId: evId, kind: kind, email: em };
-    openLayer("wallet");
+    openLayer("wallet"); payCover(false);
     sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Almost there</div><h3>最後一步：收進票夾</h3>' +
       '<div class="tk-hint">付款成功後，' + (kind === "pp" ? "開通通知" : "電子票") + '會寄到 <b>' + esc(maskEmail(em) || "你的信箱") + '</b></div></div>' +
       '<div class="tk-hint" id="tk-cpay"></div>' +
@@ -702,8 +712,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   function awaitRun(evId, kind) {
     var prevB = S.done && S.done.evId === evId && S.done.before >= 0 ? S.done.before : -1, sure = prevB >= 0;   // B418T：按「重新確認」時沿用第一次的付款前張數
-    if (kind !== "pp") { closeSheet(); S.ost = null; S.done = { evId: evId, pending: "check", kind: kind }; openLayer("done"); }   // B359T：票的付款確認直接在成功頁，不另外跳彈窗
-    else openLayer("wallet");
+    if (kind !== "pp") { closeSheet(); S.ost = null; S.done = { evId: evId, pending: "check", kind: kind }; openLayer("done"); payCover(false); }   // B359T：票的付款確認直接在成功頁，不另外跳彈窗
+    else { openLayer("wallet"); payCover(false); }
     var before = kind === "pp" ? -1 : ticketsFor(evId).length;
     try { var bf = JSON.parse(sessionStorage.getItem("tk225:bf") || "null"); if (bf && bf.e === evId && kind !== "pp" && Date.now() - bf.at < 3 * 3600e3) { before = Math.min(before, bf.n); sure = true; } sessionStorage.removeItem("tk225:bf"); } catch (e) {}   // B225T：付款通知先到時也能判斷
     if (prevB >= 0) before = Math.min(before, prevB);
@@ -742,8 +752,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function sumWaitM(d) { return d.kind === "ticket" && !!d.mc && !sumRec(d); }
   function sumNew(d) {   // 這筆買到的票：周邊訂單記了票號就照票號，不然取最新的 N 張
     var mine = ticketsFor(d.evId), rec = sumRec(d), ids = rec && rec.ticketIds;
-    if (ids && ids.length) { var by = mine.filter(function (t) { return ids.indexOf(t.id) >= 0; }); if (by.length) return by; }
-    return mine.map(function (t, i) { return { t: t, i: i }; }).sort(function (a, b) { return String(a.t.issuedAt || "").localeCompare(String(b.t.issuedAt || "")) || a.i - b.i; }).slice(-d.have).map(function (x) { return x.t; });
+    if (ids && ids.length) { var by = mine.filter(function (t) { return ids.indexOf(t.id) >= 0; }); if (by.length) return by.sort(seatCmp); }
+    return mine.map(function (t, i) { return { t: t, i: i }; }).sort(function (a, b) { return String(a.t.issuedAt || "").localeCompare(String(b.t.issuedAt || "")) || a.i - b.i; }).slice(-d.have).map(function (x) { return x.t; }).sort(seatCmp);
   }
   function sumItems(d, rec) {   // 周邊一項一行；雙件組算一項
     var mi = mInfo(d.evId), I = mi && mi.m.items, code = rec ? rec.code : (d.code || d.mc), q = Number(rec ? rec.qty : (d.qty || d.mq)) || 1;
@@ -798,6 +808,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     /* 主按鈕貼在畫面底部：買很多項、內容超過一頁時也不用往下滑才找得到 */
     h += '<div class="tk-sum-foot"><button type="button" class="tkb-cta wide" data-act="' + (hasT ? "sum-tickets" : "sum-merch") + '">' + (hasT ? (en ? "View my tickets" : "查看我的票") : (en ? "View merch orders" : "查看周邊訂單")) + ' <i>›</i></button></div>';
     h += '<div class="tk-sum-acts">' + (part || waitM ? '<button type="button" class="tkb-cta ghost wide" data-act="sum-recheck">' + (en ? "Check again" : "重新確認") + ' <i>↻</i></button>' : '') +
+      (hasT && !part && sumCanBuy(d) ? '<button type="button" class="tkb-cta ghost wide" data-act="sum-rebuy">' + (en ? "Buy another ticket" : "再買一張") + '</button>' : '') +
       '<button type="button" class="tkb-cta ghost wide" data-act="sum-shop">' + (en ? "Back to SHOP" : "回到 SHOP") + '</button>' +
       (part ? '' : '<button type="button" class="merch-success-sound" data-act="merch-success-sound">' + (en ? "Play success sound" : "播放成功提示音") + '</button>') + '</div>';
     return '<div class="tkb tk-sum' + (v2h ? ' has-v2' : '') + '">' + h + '</div>';
@@ -837,11 +848,12 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   /* 把購買流程的頁面和歷史都退掉再開新頁，之後按一次返回就回 SHOP；中間用黑底蓋住，看不到 SHOP 閃一下 */
   function landOn(fn) {
-    var cv = document.createElement("div"); cv.className = "tk-sum-cover"; document.body.appendChild(cv);
-    var go = function () { fn(); setTimeout(function () { cv.remove(); }, 200); }, nL = S.layers.length;
+    var cv = document.createElement("div"), root = document.documentElement; cv.className = "tk-sum-cover"; document.body.appendChild(cv); root.classList.add("tk-paywait");   // B433T：換頁的空檔也不跳「已經買過？」
+    var go = function () { try { fn(); } finally { root.classList.remove("tk-paywait"); setTimeout(function () { cv.remove(); }, 200); } }, nL = S.layers.length;
     if (nL) { closeAll(); try { history.go(-nL); } catch (e) {} setTimeout(go, 320); } else go();
   }
   function sumLand(d) { d.tries = 0; landOn(function () { S.sum = d; openLayer("bought"); sumWatch(); var hh = document.getElementById("tk-sum-h"); if (hh) try { hh.focus({ preventScroll: true }); } catch (e) {} }); }
+  function sumCanBuy(d) { var ev = eventById(d.evId) || buyEvent(d.evId); return !!(ev && ev.onSale && ev.productKey && (ev.left == null || ev.left > 0)); }
   function sumGo(where) {
     var d = S.sum; if (!d) return;
     var first = where === "t" ? sumNew(d)[0] : null;
@@ -1474,7 +1486,7 @@ function coverClockKey() {
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     if (!S.layers.length) { try { var scm = document.getElementById("screen-merch"); S.shopScroll = { el: scm ? scm.scrollTop : 0, win: window.scrollY || 0 }; } catch (e) {} }   // B415T：記住 SHOP 捲到哪
-    S.layers.push(name);
+    S.layers.push(name); paidMark();
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
     var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
     document.getElementById("tk-layers").appendChild(el);
@@ -1485,8 +1497,9 @@ function coverClockKey() {
     if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (!awUse() && t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
+  function paidMark() { document.documentElement.classList.toggle("tk-paidpage", S.layers.indexOf("done") >= 0 || S.layers.indexOf("bought") >= 0); }   // B433T：買完的頁面不跳「已經買過？」
   function popLayer() {
-    var name = S.layers.pop(); if (!name) return;
+    var name = S.layers.pop(); if (!name) return; paidMark();
     if (name === "cxc") { CX.att = (CX.att || 0) + 1; CX.busy = false; CX.st = ""; CX.retry = false; }   /* B279T：離開確認訂單＝這次付款嘗試作廢 */
     if (name === "ppstaff") ppsStop();
     if (name === "bought") sumStop();
@@ -1513,7 +1526,7 @@ function coverClockKey() {
   })();
   function closeAll() { closeSheet(); while (S.layers.length) popLayer(); }
   window.addEventListener("popstate", function (e) {
-    closeSheet();
+    closeSheet(); if (document.getElementById("tk-paycover")) payCover(false);   // 只有黑底等待中才收；換頁的返回不要動到「不跳提示」的標記
     var want = (e.state && e.state.tk) || 0;
     while (S.layers.length > want) popLayer();
   });
@@ -2997,7 +3010,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   try { window.CHANCE_TICKETS = { createOrder: createOrder, startPayment: startPayment, awaitIssue: function (e) { awaitPurchase(e, "meet"); } }; } catch (e) {}
 
   /* B217T：一般票可在確認頁勾選「加購生日牆合照」，一次付款（productKey：meet-<場次>-ga-pp，價格由伺服器讀後台） */
-  function coPPAvail(ev, T) { return !!(T && T.key === "ga" && ev && ev.photoPrice > 0 && ev.photoOnSale !== false && !ppOwned(ev.id)); }
+  function coPPAvail(ev, T) { return false; }   // B433T（CÉON 11/06）：結帳不賣生日牆合照
   /* B406T（CÉON 11/03）：不限每人張數，一筆可買 1–5 張；多張票都寄到同一個 Email，可以在 App 裡轉讓給朋友。加購生日牆合照時維持 1 張 */
   var TQ_MAX = 5;
   function tQMax(T) { var l = T && T.left != null ? Number(T.left) : TQ_MAX; return Math.max(1, Math.min(TQ_MAX, l || 1)); }
@@ -3017,6 +3030,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var sr = L.querySelector("[data-tq-row]"); if (sr) sr.innerHTML = '<span>' + esc(T.name) + (tQ(b, T) > 1 ? " ×" + tQ(b, T) : "") + '</span><b>' + nt(Number(T.price) * tQ(b, T)) + '</b>';
     var tb = L.querySelector(".tkb-total b"); if (tb) tb.textContent = nt(coTotal(ev, T, b));
     var cp = L.querySelector('[data-act="co-pay"]'); if (cp && !cp.disabled) cp.innerHTML = "前往付款 " + nt(coTotal(ev, T, b)) + " <i>→</i>";
+    if (L.querySelector("#tkm-pre")) preMToggle("");   // 票變少時，周邊數量跟著降
   }
   function ppAddonHTML(ev, T, b) {
     if (!coPPAvail(ev, T)) return "";
@@ -3093,12 +3107,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* B343T：後台 M2（/ticket/merch 回 v:"m2"）才開「數量（每筆最多 5 組）」與「沒有票也能現場領（姓名＋電話）」；舊後台照舊 1 組、現場領要有票 */
   var MQ_MAX = 5;
   function mV2(evId) { var mi = mInfo(evId); return !!(mi && mi.v === "m2"); }
-  function mQMax(evId, o) { var mi = mInfo(evId); if (!mi) return 1; var I = mi.m.items, c = mSel(o), n = MQ_MAX; ["b", "h"].forEach(function (k) { if ((c === k || c === "bh") && I[k]) n = Math.min(n, Number(I[k].left || 0)); }); return Math.max(1, n); }
+  function mTicketCap(o) { var b = S.buy; return b && b.kind === "meet" && (o === b || o === S.pre) ? Math.max(1, Number(b.tq) || 1) : MQ_MAX; }   // B433T（CÉON 11/06）：買票加購周邊，一張票配一組
+  function mQMax(evId, o) { var mi = mInfo(evId); if (!mi) return 1; var I = mi.m.items, c = mSel(o), n = Math.min(MQ_MAX, mTicketCap(o)); ["b", "h"].forEach(function (k) { if ((c === k || c === "bh") && I[k]) n = Math.min(n, Number(I[k].left || 0)); }); return Math.max(1, n); }
   function mQ(evId, o) { if (!mV2(evId) || !o) return 1; var q = Math.floor(Number(o.mq || 1)); return Math.max(1, Math.min(q, mQMax(evId, o))); }
   function mQtyHTML(evId, o, act, attr) {
     if (!mV2(evId) || !mSel(o)) return "";
     var q = mQ(evId, o), mx = mQMax(evId, o);
-    return '<div class="tkm-qty"><span>數量</span><button type="button" ' + attr + '="' + act + '" data-d="-1" aria-label="減少"' + (q <= 1 ? " disabled" : "") + '>−</button><b>' + q + '</b><button type="button" ' + attr + '="' + act + '" data-d="1" aria-label="增加"' + (q >= mx ? " disabled" : "") + '>＋</button><small>每筆最多 ' + MQ_MAX + ' 組</small></div>';
+    return '<div class="tkm-qty"><span>數量</span><button type="button" ' + attr + '="' + act + '" data-d="-1" aria-label="減少"' + (q <= 1 ? " disabled" : "") + '>−</button><b>' + q + '</b><button type="button" ' + attr + '="' + act + '" data-d="1" aria-label="增加"' + (q >= mx ? " disabled" : "") + '>＋</button><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>';
   }
   function mAddPrice(ev, b) { var mi = ev && mInfo(ev.id); if (!mi || !mi.m.open) return 0; var r = mResolve(mi, mSel(b)); return r ? r.price * mQ(ev.id, b) : 0; }
   function mRows(evId, o, act) {   // act："co-m"（結帳頁 data-act）或 "m-t"（單買彈窗 data-sact）
@@ -3145,7 +3160,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B426T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B433T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3164,9 +3179,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算・剩 ' + esc(it.left) + ' 組</em>' : '') + '</span><small>' + esc(sub) + '</small></span></button>';
     };
     var q = mQ(ev.id, o), qx = mQMax(ev.id, o);
-    var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>每筆最多 ' + MQ_MAX + ' 組</small></div>' : '';
+    var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '';
     return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div>' + row("s") + row("b") + row("h") + qty +
-      '<p class="tkb-fine">商品圖片為示意圖，實際商品以實物為準。</p><p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
+      (S.buy && S.buy.kind === "meet" ? '<p class="tkb-fine">每張票可加購 1 組。</p>' : '') + '<p class="tkb-fine">商品圖片為示意圖，實際商品以實物為準。</p><p class="tkb-fine">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
   }
   function preMToggle(k) {
     var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || (k && mOwned(ev.id, k))) return;
@@ -3305,7 +3320,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var h = '<div class="cx9 cx9-c mx">' + cx9Bar("生日限定周邊") +   // B377T：這頁還在選商品，不叫「確認訂單」
       '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
       (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
-      (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>每筆最多 ' + MQ_MAX + ' 組</small></div>' : '') +
+      (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '') +
       '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + (hasT || v2 ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
@@ -3547,7 +3562,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   var CONFIRM_MS = 20000, CONFIRM_STEP = 2000;
   function confirmMs() { return window.__tkConfirmMs > 0 ? window.__tkConfirmMs : CONFIRM_MS; }   // __tkConfirmMs 只給假後台測試縮短等待
   function confirmPaid(o, onPaid) {
-    S.confirming = o; reopenBuy(o.kind, o.evId, o.tier, o.mc, o.mq);
+    S.confirming = o; payCover(true);
     sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>正在確認付款…</h3><div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
     var rev = sheetRevision, t0 = Date.now();
     (function again() { setTimeout(function () {
@@ -3562,7 +3577,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     }, CONFIRM_STEP); })();
   }
   function unpaidSheet(o) {
-    S.unpaid = o; reopenBuy(o.kind, o.evId, o.tier, o.mc, o.mq);
+    S.unpaid = o; reopenBuy(o.kind, o.evId, o.tier, o.mc, o.mq); payCover(false);
     var hint = o.waited ? '等了 20 秒，後台還沒收到這筆付款。如果綠界已經顯示付款成功，請不要按「不買了」、也不要再付一次：幾分鐘內會收到確認信，到「我的票」就看得到。確定沒付的話，按「重新付款」回到結帳頁，資料都還在。' : '這筆還沒付款，也不會扣款。要繼續買，按「重新付款」回到結帳頁，資料都還在。';
     sheet('<div class="tk-big"><div class="ic">' + IC_CARD + '</div><div class="tk-eyebrow">' + (o.failed ? 'Payment failed' : 'Not paid yet') + '</div><h3>' + (o.failed ? '付款沒有成功' : '還沒收到付款') + '</h3>' + unpaidLine(o) + '<div class="tk-hint">' + (o.failed ? '綠界回覆這筆付款沒有成功，所以不會出票。可以換一張卡再試一次，資料都還在。之前買好的票不受影響。' : hint) + '</div>' + holdHTML(o.startMs) + '</div>' +
       '<button class="tk-btn p" data-sact="unpaid-retry">重新付款</button><button class="tk-btn g" data-sact="unpaid-cancel">不買了，回上一頁</button>');
@@ -3882,6 +3897,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "sum-tickets") return sumGo("t");
     if (act === "sum-merch") return sumGo("m");
     if (act === "sum-shop") { goShop(); back(); return; }
+    if (act === "sum-rebuy") { var rid = S.sum && S.sum.evId; if (rid) landOn(function () { goShop(); buyConfirm(rid); }); return; }
     if (act === "sum-recheck") { sumWatch(true); return; }
     if (act === "open-mine-pass") { e.stopPropagation(); var mt = ticketById(id); openLayer("pass", { sel: awUse() && mt ? (awLive(mt.eventId)[0] || mt).id : id }); return; }   // B359T：SHOP「我的票」→ 票券頁 → B413T（CÉON 11/03）：返回直接回 SHOP，底下不墊「我的票」
     if (act === "open-wallet-merch") { e.stopPropagation(); return openLayer("wallet", { merch: true }); }
@@ -3990,8 +4006,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       if (!pg || !pg.evId) return;
       if (Date.now() - (pg.t || 0) > 30 * 60e3) { try { localStorage.removeItem("tk:paying"); } catch (e) {} return; }
       S.paying = pg;
-      var lo0 = lastOrder(pg.evId); if (pg.kind !== "pp") reopenBuy("ticket", pg.evId, lo0 && lo0.tier, lo0 && lo0.mc, lo0 && lo0.mq);   // B386T：先回到買票結帳頁
-      var askPaid = function () { if (!S.paying) return; sheet('<div class="tk-big"><div class="ic">' + IC_CARD + '</div><div class="tk-eyebrow">Payment</div><h3>剛剛的付款完成了嗎？</h3><div class="tk-hint">綠界如果已經顯示「付款成功」，按下面查看你的票（還沒登入的話會請你輸入信箱收到的驗證碼）。</div>' + holdHTML(pg.t || Date.now()) + '</div><button class="tk-btn p" data-sact="paid-yes">已付款，查看我的票</button><button class="tk-btn g" data-sact="paid-no">還沒付／取消</button>'); };
+      var lo0 = lastOrder(pg.evId); if (pg.kind !== "pp" && lo0 && !C.demo) payCover(true);   // B433T：先等後台回覆，不先回結帳頁
+      var askPaid = function () { if (!S.paying) return; if (pg.kind !== "pp") reopenBuy("ticket", pg.evId, lo0 && lo0.tier, lo0 && lo0.mc, lo0 && lo0.mq); payCover(false); sheet('<div class="tk-big"><div class="ic">' + IC_CARD + '</div><div class="tk-eyebrow">Payment</div><h3>剛剛的付款完成了嗎？</h3><div class="tk-hint">綠界如果已經顯示「付款成功」，按下面查看你的票（還沒登入的話會請你輸入信箱收到的驗證碼）。</div>' + holdHTML(pg.t || Date.now()) + '</div><button class="tk-btn p" data-sact="paid-yes">已付款，查看我的票</button><button class="tk-btn g" data-sact="paid-no">還沒付／取消</button>'); };
       /* B359T：有這筆訂單編號就先問後台；確認已付款就直接進確認／我的票，不用再問「付款完成了嗎」 */
       if (!C.demo && lastOrder(pg.evId)) { orderStatus(pg.evId).then(function (os) { if (S.paying !== pg) return; if (os && os.paid) { S.paying = null; try { localStorage.removeItem("tk:paying"); } catch (e) {} closeSheet(); return awaitPurchase(pg.evId, pg.kind); }
           if (os && os.paid === false) { var lo2 = lastOrder(pg.evId); S.paying = null; return confirmPaid({ kind: "ticket", evId: pg.evId, startMs: pg.t || Date.now(), no: lo2 && lo2.no, email: lo2 && lo2.email, tier: lo2 && lo2.tier || "", mc: lo2 && lo2.mc || "", mq: lo2 && lo2.mq || 0, amt: lo2 && lo2.amt || 0 }, function () { awaitPurchase(pg.evId, pg.kind); }); }   // B379T → B401T：先等後台確認

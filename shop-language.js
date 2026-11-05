@@ -194,6 +194,7 @@
  '現場領取：活動當天憑票領取（出示 App「我的票」）。':'Event pickup: collect on the event day with your ticket (show “My tickets” in the app).','每人各限購 1 份。':'Limit 1 of each per person.',
  '周邊於活動當天憑票現場領取':'Merch is picked up at the event with your ticket',
  /* 選位（CÉON 11/05） */
+ '每張票可加購 1 組。':'You can add 1 set per ticket.','每張票可加購 1 組':'1 set per ticket',
  '對號入座，購票時選位':'Reserved seating · choose your seat when you buy',
  '票面會顯示你的座位，到場依座位入座。':'Your seat is shown on your ticket. Please sit in your assigned seat.',
  '入場與座位':'Entry & seats',

@@ -188,7 +188,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <div class="sub">只在測試場（場次 id 含 test）出現。生日會等正式場次不會有這些按鈕。</div>
     <div class="grid2"><div class="row"><span class="label">批量張數（不寄信）</span><input id="b_count" type="number" value="181" min="1" max="500" /></div><div class="row"><span class="label">從第幾號開始</span><input id="b_from" type="number" value="1" min="1" /></div></div>
     <button class="btn" id="btnBulk" onclick="bulkIssue()">批量發票（不寄信）</button><div class="msg" id="bMsg"></div>
-    <button class="btn danger" id="btnPurge" onclick="purgeTest()">清掉測試場所有票</button><div class="msg" id="pMsg"></div>
+    <button class="btn danger" id="btnPurge" onclick="purgeTest()">清掉測試場所有票</button><button class="btn danger" id="btnPurgeAll" style="margin-top:8px" onclick="purgeAll()">全部測試票重置（含壓測票、座位、周邊訂單）</button><div class="msg" id="pMsg"></div>
   </div>
 
   <div class="card" id="merchCard" style="display:none">
@@ -506,6 +506,24 @@ async function purgeTest() {
   finally { b.disabled = false; lockEvent(false); }
   $("pMsg").innerHTML = j.ok ? (j.more ? '<span class="err">已刪 ' + del + " 張、核銷紀錄 " + logs + " 筆，但還沒清完（試了 " + loops + " 次），請稍後再按一次</span>" : '<span class="ok">已清掉 ' + del + " 張、核銷紀錄 " + logs + " 筆，已售歸 0</span>") : '<span class="err">清除失敗（已刪 ' + del + " 張）：" + esc(j.error === "not_found" ? "後台還沒更新到 M3" : (j.error || "")) + "</span>";
   $("b_from").value = 1; await refresh(); loadRoster();
+}
+
+/* B433T（CÉON 11/06）：測試場和壓測場全部清空，只碰測試 Worker */
+async function purgeAll() {
+  const L = events.filter((e) => /(^|-)test($|-)/.test(e.id) || /^meet-load-/.test(e.id));
+  if (!L.length) return;
+  const v = prompt("這會永久刪掉 " + L.length + " 個測試場次的票、座位、周邊訂單和轉讓紀錄，不能復原。\n確定的話輸入 RESET");
+  if (v == null) return; if (v.trim() !== "RESET") { $("pMsg").innerHTML = '<span class="err">輸入不對，沒有刪除</span>'; return; }
+  const b = $("btnPurgeAll"); b.disabled = true; lockEvent(true); let del = 0, bad = "";
+  try {
+    for (const e of L) {
+      let j, n = 0;
+      do { if (n) await new Promise((r) => setTimeout(r, 800)); $("pMsg").textContent = "清除中：" + e.id + "，已刪 " + del + " 張"; j = await api("/ticket/admin/purge", { eventId: e.id, confirm: e.id }); n++; if (j.ok) del += j.deleted || 0; } while (j.ok && j.more && n < 30);
+      if (!j.ok || j.more) { bad = e.id; break; }
+    }
+  } catch (e) { bad = e.message || "連線失敗"; } finally { b.disabled = false; lockEvent(false); }
+  $("pMsg").innerHTML = bad ? '<span class="err">沒有全部清完（' + esc(bad) + '），已刪 ' + del + ' 張，請再按一次</span>' : '<span class="ok">全部重置完成：刪掉 ' + del + ' 張，座位和已售都歸零</span>';
+  await refresh(); loadRoster(); loadMerch();
 }
 
 if (key()) connect();

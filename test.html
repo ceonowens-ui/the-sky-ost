@@ -19,7 +19,7 @@ var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
 <link rel="preload" as="style" href="ticket-a-wallet-test.css?v=B430T-1">
-<script src="shop-language.js?v=10cb25675c4d"></script>
+<script src="shop-language.js?v=b43349fe5613"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
@@ -2556,7 +2556,7 @@ body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-shee
 .a2-own .a2-or{font:12px Georgia,"Times New Roman",serif;color:#D8C3A0}
 </style>
 <style id="a264-css">/* B264T＋B265T：解鎖成功小卡／播放器小提示／一步一圖教學 */
-html.tk-resume #a2tip,html.tk-resume #__sigBar{display:none !important}   /* B386T：從綠界回來時先不跳「已經買過？用兌換碼」提示 */
+html.tk-resume #a2tip,html.tk-resume #__sigBar,html.tk-paywait #a2tip,html.tk-paidpage #a2tip{display:none !important}   /* B386T：從綠界回來時先不跳「已經買過？用兌換碼」提示 */
 #a2tip{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:114000;max-width:420px;margin:0 auto;background:rgba(20,18,15,.96);border:1px solid #3A3328;border-radius:16px;padding:12px 40px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:a2tipIn .3s ease}
 #a2tip .tip-t{margin:0;font-size:14px;line-height:1.55;color:#F1ECE3}
 #a2tip .tip-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -12649,7 +12649,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B432T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B433T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12833,13 +12833,14 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=2b946cc20408";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=e473e7f0db6c";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   var tkPend = false;   /* B386T：剛從綠界回來（主畫面 App 按 ✕ 會從頭載入，網址沒有 ?tkbought）→ 馬上載 SHOP 模組，回到購買頁 */
   try { var tpg = JSON.parse(localStorage.getItem("tk:paying") || "null"), tpm = JSON.parse(localStorage.getItem("tk225:m") || "null"), cpm = JSON.parse(localStorage.getItem("cx:shop") || "null");
     tkPend = !!(tpg && tpg.evId && Date.now() - (tpg.t || 0) < 30 * 60e3) || !!(tpm && tpm.no && tpm.evId && Date.now() - (tpm.at || 0) < 3 * 3600e3) || !!(cpm && cpm.d && cpm.launched && Date.now() >= cpm.at && Date.now() - cpm.at < 24 * 3600e3); } catch (e) {}
   if (tkPend) { document.documentElement.classList.add("tk-resume"); }
+  if (tkPend || /tkbought|tkphoto/.test(location.search)) { document.documentElement.classList.add("tk-paywait"); setTimeout(function () { document.documentElement.classList.remove("tk-paywait"); }, 45000); }   /* B433T：付款回來到成功頁之前都不跳「已經買過？」 */
   if (tkPend || /tkbought|tkmerch|tkphoto|tkdemo|tktest|staff=|tk=/.test(location.search)) load();
   else window.addEventListener("load", function () { setTimeout(load, 2500); });
 })();
