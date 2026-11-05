@@ -6003,7 +6003,7 @@ window.ALBUM_SWITCH = {
     var photos = GAL.photos || [];
     var scroll = $("gallery-scroll"), dots = $("gallery-dots");
     scroll.innerHTML = photos.map(function (p) {
-      return '<div class="gallery-slide"><img src="' + esc(p.src) + '" alt="">' +
+      return '<div class="gallery-slide"><img src="' + esc(p.src) + '" alt="" loading="lazy" decoding="async">' +
         '<div class="gallery-shade"></div>' +
         (p.caption ? '<div class="gallery-caption">' + esc(p.caption) + '</div>' : "") +
         "</div>";
@@ -7347,7 +7347,7 @@ window.ALBUM_SWITCH = {
         : "";
       return '<div class="pcard">' +
         '<div class="pcard-img">' + (it.badge ? '<span class="pcard-badge">' + esc(it.badge) + '</span>' : '') +
-          (it.image ? '<img src="' + esc(it.image) + '" alt="" decoding="async">' : '') + '</div>' +
+          (it.image ? '<img src="' + esc(it.image) + '" alt="" loading="lazy" decoding="async">' : '') + '</div>' +
         '<div class="pcard-body">' +
           '<div class="pcard-name">' + esc(it.name) + '</div>' +
           '<div class="pcard-desc">' + esc(it.desc || "") + '</div>' +
@@ -7366,7 +7366,7 @@ window.ALBUM_SWITCH = {
           '<div class="prow-name">' + esc(it.name) + '</div>' +
           '<div class="prow-desc">' + esc(it.desc || "") + '</div>' + cta +
         '</div>' +
-        '<div class="prow-img">' + (it.image ? '<img src="' + esc(it.image) + '" alt="" decoding="async">' : '') + '</div>' +
+        '<div class="prow-img">' + (it.image ? '<img src="' + esc(it.image) + '" alt="" loading="lazy" decoding="async">' : '') + '</div>' +
       '</div>';
     }
     var cards = shown.length
@@ -12649,7 +12649,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B431T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B432T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
