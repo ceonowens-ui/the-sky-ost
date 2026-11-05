@@ -32,7 +32,6 @@ var SHOP_TEXT = {
   goTickets: "立即購票",
   goRemind:  "即將開賣 · 提前排隊",
   goSoldOut: "已售完",
-  goMine:    "查看我的票",
   goMerch:   "立即購買",
   assets: {
     portrait:  "shop-assets/portrait.jpg",
@@ -1339,11 +1338,11 @@ document.addEventListener("toggle", function (e) { if (e.target && e.target.clas
 
 function render() {
     if (!body) return;
-    var vt = validTickets(), mine = nextMine(), ups = upcoming(), cab = cabinet();
-    var nextEv = mine ? Object.assign({}, eventById(mine.eventId) || {}, mine.event || {}) : ups[0];
+    var vt = validTickets(), ups = upcoming(), cab = cabinet();
+    var nextEv = ups.filter(function (e) { return !!eventById(e.id); })[0];   /* B434T：購票區只放可購買的活動；已購票一律在「我的票」 */
     var drops = cab.all.filter(function (i) { return !i.owned && i.soon && i.dropAt; }).sort(function (a, b) { return twParse(a.dropAt) - twParse(b.dropAt); });
     var dropLine = drops.length ? drops[0].name.replace(/^THE SKY\s*/, "") + " " + md(drops[0].dropAt) + " 開賣" : "實體與數位特典";
-    patchShopHome(body, referenceCoverHTML(vt, mine, nextEv, cab, dropLine));   /* B314T */
+    patchShopHome(body, referenceCoverHTML(vt, nextEv, cab, dropLine));   /* B314T */
     body.querySelectorAll("#sv3-mine canvas[data-qr]").forEach(function (c) { var v = c.getAttribute("data-qr"); if (c.__qr !== v) { c.__qr = v; drawQR(c, v, 120); } });   /* B359T */
     S.coverClock = coverClockKey();
     S.layers.forEach(function (l) { renderLayer(l); });
@@ -1351,25 +1350,18 @@ function render() {
   /* B200T：SHOP 首頁 v3 樣式，隨 JS 注入 */
   (function(){ if(document.getElementById('sv3-style')) return; var st=document.createElement('style'); st.id='sv3-style'; st.textContent="/* B200T · SHOP 首頁 v3（文字可改；校準 853×1844×0.504→430） */\n#tk-root:has(> .sv3){padding:0}\n.sv3{--sv3-bg:#0B090D;--sv3-ink:#F3EEEA;--sv3-soft:#CFC7D4;--sv3-dim:#9A93A8;--sv3-gold:#E8BF7A;--sv3-gl:rgba(232,191,122,.55);--sv3-gf:rgba(232,191,122,.22);--sv3-pad:5.35%;\n  position:relative;width:100%;margin:0;min-height:100%;background:var(--sv3-bg);color:var(--sv3-ink);\n  font-family:'Noto Sans TC',-apple-system,'PingFang TC',sans-serif;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;\n  padding-bottom:calc(126px + env(safe-area-inset-bottom))}\n.sv3 *{box-sizing:border-box}\n.sv3 button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;text-align:left;padding:0;margin:0;-webkit-tap-highlight-color:transparent}\n.sv3 img{display:block;max-width:100%}\n.sv3 .bd{font-family:'Bodoni Moda','Noto Serif TC',serif;font-weight:400;font-optical-sizing:none;font-variation-settings:\"opsz\" 11}\n.sv3-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}\n.sv3-bg-img{position:absolute;top:-2%;left:-4%;width:112%;height:auto;filter:contrast(1.05) saturate(.9)}\n.sv3-bg-left{position:absolute;inset:0;background:linear-gradient(98deg,rgba(11,9,13,.86) 0%,rgba(11,9,13,.56) 22%,rgba(11,9,13,.1) 46%,transparent 62%)}\n.sv3-bg-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,9,13,.30) 0%,rgba(11,9,13,.08) 14%,rgba(11,9,13,.18) 40%,rgba(11,9,13,.46) 52%,rgba(11,9,13,.78) 63%,rgba(11,9,13,.95) 74%,#0B090D 82%)}\n.sv3-wrap{position:relative;z-index:2;padding:0 var(--sv3-pad)}\n.sv3-cover{position:relative}\n.sv3-cover::before{content:'';float:left;padding-top:123.7%}\n.sv3-cover::after{content:'';display:table;clear:both}\n.sv3-top{padding-top:21px}\n.sv3-brand{font-size:10.5px;letter-spacing:.28em;line-height:1.4;color:var(--sv3-gold);text-transform:uppercase;margin:0 0 9px;white-space:nowrap}\n.sv3-h1{font-family:'Noto Serif TC',serif;font-weight:500;font-size:51px;line-height:1.08;letter-spacing:.08em;color:var(--sv3-gold);white-space:nowrap;margin:0;text-shadow:0 2px 22px rgba(0,0,0,.55)}\n.sv3-sub{font-family:'Noto Serif TC',serif;font-weight:400;font-size:12.5px;letter-spacing:.14em;line-height:1.7;color:var(--sv3-ink);margin:6px 0 0;text-shadow:0 1px 10px rgba(0,0,0,.6)}\n.sv3-side-l{margin-top:6px}\n.sv3-rule{width:1px;height:37px;background:var(--sv3-gl);margin-bottom:9px}\n.sv3-side-en{font-size:8.5px;letter-spacing:.2em;line-height:1.6;color:var(--sv3-gold);text-transform:uppercase}\n.sv3-side-en .dash{display:block;width:10px;height:1px;background:var(--sv3-gl);margin-top:9px}\n.sv3-ts{position:absolute;top:22px;right:0;width:56px;height:56px;z-index:3}\n.sv3-ts img{width:56px;height:56px}\n.sv3-side-zh{position:absolute;top:108px;right:0;width:12px;z-index:3;display:flex;flex-direction:column;align-items:center;font-family:'Noto Serif TC',serif;font-weight:400;font-size:9px;line-height:12px;color:var(--sv3-ink);text-shadow:0 1px 10px rgba(0,0,0,.9)}\n.sv3-side-zh span{display:block;height:12px}\n.sv3-side-zh .vd{width:1px;height:10px;background:var(--sv3-gl);margin:3px 0 5px;display:block}\n.sv3-side-zh .pd{height:12px;position:relative}\n.sv3-side-zh .pd::after{content:'';position:absolute;left:5px;top:6px;width:2px;height:2px;border-radius:50%;background:var(--sv3-ink)}\n.sv3-sig{position:absolute;right:-2px;top:75.8%;width:84px;z-index:3;opacity:.96}\n.sv3-higher{position:absolute;right:3px;top:89.7%;width:40px;z-index:3;font-size:7.5px;letter-spacing:.18em;line-height:1.7;color:var(--sv3-ink);text-align:left;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.85)}\n.sv3-higher::after{content:'';display:block;width:24px;height:1px;background:var(--sv3-gl);margin-top:8px}\n.sv3-sec{position:relative}\n.sv3-sec-hd{display:flex;align-items:center;gap:14px;margin-bottom:13px}\n.sv3-sec-num{font-size:10.5px;letter-spacing:.24em;color:var(--sv3-gold);text-transform:uppercase;white-space:nowrap}\n.sv3-sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--sv3-gl),rgba(232,191,122,.15))}\n.sv3-block{display:block;width:100%;position:relative}\n.sv3-block:active{opacity:.85}\n.sv3-block[disabled]{cursor:default}\n.sv3-grid{display:grid;grid-template-columns:minmax(160px,1fr) min(190px,44%);gap:12px;align-items:start}\n.sv3-block-h{font-family:'Noto Serif TC',serif;font-weight:500;font-size:26px;line-height:1.28;letter-spacing:.03em;color:var(--sv3-ink);margin:0 0 9px;text-shadow:0 2px 14px rgba(0,0,0,.5)}\n.sv3-block-m{font-family:'Noto Sans TC',sans-serif;font-weight:400;font-size:13.5px;line-height:1.7;letter-spacing:0;color:var(--sv3-soft);margin:0}\n.sv3-block-m .num{font-family:'Bodoni Moda',serif;font-weight:400;font-optical-sizing:none;font-variation-settings:\"opsz\" 11;font-size:15px;color:var(--sv3-gold)}\n.sv3-go{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:'Noto Sans TC',sans-serif;font-size:14px;letter-spacing:.04em;color:var(--sv3-gold);padding-bottom:6px;border-bottom:1px solid var(--sv3-gl)}\n.sv3-go i{font-style:normal;font-size:15px}\n.sv3-go.on{animation:sv3glow 2.8s ease-in-out infinite}\n@keyframes sv3glow{0%,100%{text-shadow:none}50%{text-shadow:0 0 14px rgba(232,191,122,.55)}}\n.sv3-ticket{width:100%;transform:rotate(-7deg);transform-origin:60% 40%;filter:drop-shadow(0 12px 22px rgba(0,0,0,.55));margin-top:4px}\n.sv3-ticket svg{width:100%;height:auto;display:block}\n.sv3-merch-grid{grid-template-columns:minmax(160px,1fr) min(190px,44%)}\n#sv3-merch .sv3-sec-hd{margin-bottom:8px}\n#sv3-merch .sv3-block-h{margin-bottom:6px}\n#sv3-merch .sv3-go{margin-top:10px}\n#sv3-merch{padding-bottom:24px}\n.sv3-merch-wrap{position:absolute;right:-6px;top:-72px;width:min(216px,50%);aspect-ratio:567/640;transform:rotate(1.5deg);filter:drop-shadow(0 14px 24px rgba(0,0,0,.55));z-index:1;pointer-events:none}\n.sv3-merch-wrap img{width:100%;height:100%;object-fit:cover;border-radius:3px}\n.sv3-divide{height:1px;background:linear-gradient(90deg,var(--sv3-gf),transparent);margin:10px 0 10px}\n@media (min-width:431px){.sv3-h1{font-size:56px}.sv3-block-h{font-size:29px}.sv3-sub{font-size:13.5px}.sv3-block-m{font-size:14.5px}}\n@media (max-width:399px){.sv3-h1{font-size:46px}.sv3-block-h{font-size:24px}.sv3-sig{width:76px}}\n@media (max-width:359px){.sv3{--sv3-pad:5.6%}.sv3-brand{font-size:9.5px;letter-spacing:.24em}.sv3-h1{font-size:38px}.sv3-sub{font-size:11.5px}.sv3-block-h{font-size:21px}.sv3-block-m{font-size:12.5px}.sv3-grid,.sv3-merch-grid{grid-template-columns:minmax(128px,1fr) min(160px,44%);gap:10px}.sv3-sig{width:64px}.sv3-side-zh{top:100px}}\n@media (prefers-reduced-motion:reduce){.sv3-go.on{animation:none}}\n"; document.head.appendChild(st); })();
 
-function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
+function referenceCoverHTML(vt, ev, cab, dropLine) {
     var proof = /[?&]shopcover=reference(?:&|$)/.test(location.search);
     var stat = S.loading && !S.tickets.length && !S.events.length ? '載入中…' : vt.length ? vt.length + ' 張有效票券' : '還沒有票';
     var eventLine = ev ? md(ev.startAt) + ' · ' + (ev.name || 'CHANCE') : S.loading ? '活動載入中…' : '新活動即將公布';
     var days = ev && startMs(ev) ? String(Math.max(0, Math.ceil((startMs(ev) - Date.now()) / 864e5))) : '—';
     var count = cab.owned.length + ' / ' + cab.all.length + ' 已收藏';
-    var action = mine && isEventDay(ev) ? 'open-now' : 'open-wallet';
     var _tiers = (ev && ev.tiers) || null;
     var _minP = _tiers && _tiers.length ? Math.min.apply(null, _tiers.map(function(t){return +t.price||0;}).filter(function(n){return n>0;})) : (ev && ev.price || 0);
     var _onSale = _tiers && _tiers.length ? _tiers.some(function(t){return t.onSale;}) : (ev && ev.onSale);
     var _soldOut = _tiers && _tiers.length ? _tiers.every(function(t){return t.left===0;}) : false;
-    var _ctaLabel = mine ? ('查看我的票' + (mine.seatNo ? ' · No.' + ('00'+mine.seatNo).slice(-3) : ''))
-                    : _soldOut ? '已售完'
-                    : _onSale ? ('立即購票 · NT$' + (_minP? _minP.toLocaleString('en-US') : '') + ' 起')
-                    : '即將開賣 · 提前排隊';
-    var _ctaAct = mine ? 'open-now' : 'open-buy';
     var T = SHOP_TEXT, A = T.assets;
-    var goLabel = mine ? (T.goMine + (mine.seatNo ? ' · No.' + ('00'+mine.seatNo).slice(-3) : ''))
-                : _soldOut ? T.goSoldOut : _onSale ? T.goTickets : T.goRemind;
+    var goLabel = _soldOut ? T.goSoldOut : _onSale ? T.goTickets : T.goRemind;
     var evName  = ev ? (ev.name || 'CHANCE') : (S.loading ? '載入中…' : '尚未公布活動');
     var evDate  = ev && ev.startAt ? (md(ev.startAt) + '（' + wk(ev.startAt) + '）' + hm(ev.startAt)) : '';
     var evVenue = ev ? (ev.venue || '地點待公布') : '';
@@ -1377,7 +1369,7 @@ function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
     var evCapacity=capacity ? '活動名額 '+capacity+' 席' : '';
     var evPrice = _minP ? '<span class="num">NT$' + _minP.toLocaleString('en-US') + '</span> 起' : '';
     /* B250T：還沒開賣 → 先不放任何介紹，只留「入場票 · N 席」；開賣後自動恢復 */
-    var _pre = !mine && ev && !_onSale && !_soldOut;
+    var _pre = ev && !_onSale && !_soldOut;
     if (_pre) {
       var _cap = ev.capacity || (_tiers || []).reduce(function (a, t) { return a + (+t.cap || 0); }, 0);
       evPrice = ''; // Keep date and venue visible before sales; never disclose presale price.
@@ -1404,9 +1396,9 @@ function referenceCoverHTML(vt, mine, ev, cab, dropLine) {
         '</section>' +
         (ticketsVisible() ? '<section class="sv3-sec" id="sv3-tickets">' +
           '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secTickets) + '</span><i class="sv3-sec-line"></i></div>' +
-          '<button class="sv3-block" data-act="' + _ctaAct + '" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut && !mine ? ' disabled' : '') + '>' +
+          '<button class="sv3-block" data-act="open-buy" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut ? ' disabled' : '') + '>' +
             '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2></div><div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div><p class="sv3-block-m sky-event-facts">' + [evDate ? esc(evDate + ' · 台北時間') : '時間待公布', evVenue ? esc(evVenue) : '', evCapacity ? esc(evCapacity) : '', evPrice].filter(Boolean).join('<br>') + '</p>' +
-            '<span class="sv3-go' + (_onSale && !mine ? ' on' : '') + '">' + esc(goLabel) + ' <i>→</i></span>' +
+            '<span class="sv3-go' + (_onSale ? ' on' : '') + '">' + esc(goLabel) + ' <i>→</i></span>' +
           '</button>' +
         '</section>' +
         '<div class="sv3-divide"></div>' : '') +   /* B310T：票券區塊可隱藏 */
@@ -2764,8 +2756,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function num3(n) { return ("00" + n).slice(-3); }
   function nt(n) { return "NT$" + Number(n || 0).toLocaleString("en-US"); }
   function tierLeft(t) { return t.left != null ? t.left : Math.max(0, (t.cap || 0) - (t.sold || 0)); }
-  function tierOwned(ev, t) { return ticketsFor(ev.id).filter(function (x) { return x.tier === t.key; })[0] || null; }
-  function tierBuyable(ev, t) { return !!(ev.onSale !== false && t.onSale && tierLeft(t) > 0 && !tierOwned(ev, t)); }
+  function tierBuyable(ev, t) { return !!(ev.onSale !== false && t.onSale && tierLeft(t) > 0); }   /* B434T：不限每人張數，買過也照常可買 */
   function buyEv() { return eventById(S.buyEv) || buyEvent(S.buyEv) || upcoming().filter(function (e) { return e.tiers && e.tiers.length; })[0] || null; }
   function selTier(ev) { if (!ev || !S.buySel) return null; return (ev.tiers || []).filter(function (t) { return t.key === S.buySel; })[0] || null; }
 
@@ -2774,7 +2765,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       (right || '<button class="r" disabled style="opacity:0"></button>') + '</div>';
   }
   /* B250T：還沒開賣（而且我沒有這場的票）→ 不放日期、地點、價格、福利、須知 */
-  function preSale(ev) { var ts = (ev && ev.tiers) || []; return !!ev && (ev.onSale === false || !ts.some(function (t) { return t.onSale; })) && !ts.some(function (t) { return tierOwned(ev, t); }) && !ts.every(function (t) { return t.left === 0; }); }
+  function preSale(ev) { var ts = (ev && ev.tiers) || []; return !!ev && (ev.onSale === false || !ts.some(function (t) { return t.onSale; })) && !ts.every(function (t) { return t.left === 0; }); }
   function heroHTML(ev) {
     var T = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
     if (preSale(ev)) return '<div class="tkb-hero"><img src="' + esc(asset(BUY_TEXT.assets.hero)) + '" alt="" decoding="async"><div class="tkb-hero-fade"></div>' +
@@ -2798,8 +2789,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function chipsHTML(t, n) { return '<div class="tkb-chips">' + (t.perks || []).slice(0, n || 3).map(function (p) { return '<span>' + esc(perkShort(p)) + '</span>'; }).join("") + '</div>'; }
   function tierRow(ev, t) {
     if (preSale(ev)) return '<div class="tkb-row off cx-pre"><div class="ib">' + ic(tierIcon(t)) + '</div><div class="mid"><div class="nm">' + esc(t.name) + '</div><div class="meta">' + esc(t.cap || "") + ' 席</div><em>尚未開賣</em></div></div>';
-    var own = tierOwned(ev, t), left = tierLeft(t), ok = tierBuyable(ev, t), sel = S.buySel === t.key && ok;
-    var state = own ? '<em class="own">已擁有 No.' + esc(own.seat || num3(own.seatNo || "")) + '</em>' : left === 0 ? '<em>已售完</em>' : (!t.onSale || ev.onSale === false) ? '<em>尚未開賣</em>' : '';
+    var left = tierLeft(t), ok = tierBuyable(ev, t), sel = S.buySel === t.key && ok;
+    var state = left === 0 ? '<em>已售完</em>' : (!t.onSale || ev.onSale === false) ? '<em>尚未開賣</em>' : '';
     return '<div class="tkb-row' + (sel ? " sel" : "") + (ok ? "" : " off") + (t.key === "vvip" ? " vv" : "") + '" data-act="' + (ok ? "tier-sel" : "tier-info") + '" data-tier="' + esc(t.key) + '" role="radio" aria-checked="' + (sel ? "true" : "false") + '" tabindex="0">' +
       '<div class="ib">' + ic(tierIcon(t)) + '</div>' +
       '<div class="mid"><div class="nm">' + esc(t.name) + (t.key === "vvip" ? '<i class="lim">LIMITED</i>' : '') + '</div>' +
@@ -2815,9 +2806,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<svg viewBox="0 0 28 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9h23M18 2l7 7-7 7"/></svg>';
   }
   function laState(ev) {
-    var ts = ev.tiers || [], own = null;
-    ts.forEach(function (t) { own = own || tierOwned(ev, t); });
-    return { solo: isSolo(ev), own: own, pre: preSale(ev),
+    var ts = ev.tiers || [];
+    return { solo: isSolo(ev), pre: preSale(ev),
       soldOut: !!ts.length && ts.every(function (t) { return tierLeft(t) === 0; }),
       notOpen: !ts.some(function (t) { return t.onSale; }) || ev.onSale === false };
   }
@@ -2838,17 +2828,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function laTicketHTML(ev, st) {
     var ts = ev.tiers || [], t0 = ts[0], T = bt(ev);
     var title = T.ticket || (st.solo && t0 ? t0.name : "入場券");
-    var seat = st.own ? (st.own.seat || num3(st.own.seatNo || "")) : "";
-    var badge = st.own ? '<span class="la-badge ink">已擁有 No.' + esc(seat) + '</span>'
-      : st.soldOut ? '<span class="la-badge mute">已售完</span>'
+    var badge = st.soldOut ? '<span class="la-badge mute">已售完</span>'
       : st.notOpen ? '<span class="la-badge">尚未開賣</span>' : '<span class="la-badge">販售中</span>';
-    var mid = st.own
-      ? '<div class="la-own"><b>No.' + esc(seat) + '</b></div><p class="la-qr-n">入場 QR 在「我的票」</p>'
-      : '<div class="la-qr" role="img" aria-label="示意 QR 圖，不是有效票券">' + LA_QR + '<span class="la-qr-s" aria-hidden="true">SAMPLE</span></div><p class="la-qr-n">示意票券・不可入場</p>';
+    var mid = '<div class="la-qr" role="img" aria-label="示意 QR 圖，不是有效票券">' + LA_QR + '<span class="la-qr-s" aria-hidden="true">SAMPLE</span></div><p class="la-qr-n">示意票券・不可入場</p>';
     var more = st.solo && t0 && !st.pre ? '<div class="la-rule"></div><button type="button" class="la-more" data-act="tier-info" data-tier="' + esc(t0.key) + '">查看票券詳情 ' + laIc("ne") + '</button>' : '';
     return '<section class="la-tks"><i class="la-lscrib" aria-hidden="true"></i><i class="la-frag" aria-hidden="true"></i><i class="la-frag b" aria-hidden="true"></i>' +
       '<div class="la-tk' + (more ? '' : ' nomore') + '" role="group" aria-label="' + esc(title) + '"><h2 class="la-tk-t">' + esc(title) + '</h2><div class="la-tk-st">' + badge + '</div><div class="la-perf" aria-hidden="true"></div>' +
-      mid + '<div class="la-rule"></div><p class="la-how">' + (st.own ? "出示票券入場" : "購買後，出示票券入場") + '</p><p class="la-how2">由工作人員掃碼</p>' + more + '</div>' +
+      mid + '<div class="la-rule"></div><p class="la-how">購買後，出示票券入場</p><p class="la-how2">由工作人員掃碼</p>' + more + '</div>' +
       '<i class="la-palm" aria-hidden="true"></i><i class="la-or" aria-hidden="true"></i></section>';
   }
   function laFootHTML(ev, st) {
@@ -2937,9 +2923,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (preSale(ev)) return;   /* B282T：還沒開賣不公布票種詳情與票價 */
     var t = (ev.tiers || []).filter(function (x) { return x.key === key; })[0]; if (!t) return;
     S.detailTier = key;
-    var ok = tierBuyable(ev, t), own = tierOwned(ev, t);
+    var ok = tierBuyable(ev, t);
     var btn = ok ? '<button class="tk-btn p tkb-pick" data-sact="tier-pick">選擇 ' + esc(t.key === "ga" ? ((ev.tiers || []).length === 1 ? t.name : "一般") : t.key.toUpperCase()) + '</button>'
-      : '<button class="tk-btn g" data-sact="close">' + (own ? "你已擁有這個票種" : tierLeft(t) === 0 ? "已售完" : "尚未開賣") + '</button>';
+      : '<button class="tk-btn g" data-sact="close">' + (tierLeft(t) === 0 ? "已售完" : "尚未開賣") + '</button>';
     sheet('<div class="tkb-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button>' +
       '<div class="hd"><div class="ib">' + ic(tierIcon(t)) + '</div><div><b>' + esc(t.name) + '</b><span>剩 ' + esc(tierLeft(t)) + ' 席 · 編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '</span></div><em>' + nt(t.price) + '</em></div>' +
       '<div class="pt">票種福利</div><ul>' + (t.perks || []).map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' +
