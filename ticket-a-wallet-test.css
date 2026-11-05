@@ -56,34 +56,15 @@ html body .tk-layer.aw-l.aw-l.aw-t { --a-top:calc(env(safe-area-inset-top,0px) +
 .aw .aw-pr { display:flex; width:100%; min-height:48px; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid var(--a-edge); font-size:14px; text-align:left; }
 .aw-pr span { color:var(--a-mut); font-size:13px; white-space:nowrap; }
 .aw .aw-more { display:block; min-height:44px; margin:14px auto 0; padding:0 12px; font-size:13px; color:var(--a-mut); }
-/* 收藏票 */
-.aw .aw-back { position:absolute; left:-4px; top:19px; width:70px; height:42px; border-radius:9px; background:var(--a-sf); color:var(--a-cream); font-size:14px; font-weight:700; white-space:pre; }
-.aw-sk { position:absolute; right:2px; top:31px; font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-size:17px; line-height:20px; color:var(--a-gold); }
-.aw-art { padding-top:89px; }
-.aw-art .tk-pass.tk-v2 { margin-top:0 !important; width:calc(100% - 28px); }
-.aw-al { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px; min-height:46px; }
-.aw-al span { font-size:13px; line-height:18px; color:var(--a-mut); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.aw .aw-ag { flex:none; width:141px; height:46px; border-radius:9px; background:var(--a-gold); color:var(--a-ink); font-size:15px; font-weight:700; white-space:pre; }
-/* 入場碼 */
-.aw-scan { padding-top:78px; }
-.aw-scan .aw-h1 { position:static; font-size:28px; line-height:36px; }
-.aw-qc { position:relative; margin-top:32px; border-radius:15px; overflow:hidden; background:var(--a-cream); color:var(--a-ink); }
-.aw-qb { position:relative; height:89px; overflow:hidden; background:#2b2b2a; }
-.aw-qb img { position:absolute; left:0; top:0; width:100%; height:auto; display:block; max-width:none; transform:translateY(-20%); opacity:.92; }
-.aw-qb::after { content:""; position:absolute; inset:0; background:rgba(20,20,19,.42); }
-.aw-qb b { position:absolute; z-index:2; left:16px; top:18px; font-size:42px; line-height:58px; color:var(--a-white); }
-.aw-qb span { position:absolute; z-index:2; right:22px; left:190px; top:40px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:right; font-size:16px; font-weight:700; line-height:24px; color:var(--a-white); }
-.aw-qt { display:flex; justify-content:space-between; gap:8px; padding:17px 30px 0 18px; font-size:14px; line-height:20px; }
-.aw-qt b { font-weight:700; } .aw-qt span { font:500 14px/20px var(--a-en); color:var(--a-gray); }
-.aw-qr { position:relative; width:220px; height:220px; margin:23px auto 0; background:#fff; }
-.aw-qr canvas { position:absolute; left:16px; top:16px; width:188px; height:188px; display:block; }
-.aw-qs { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; font-size:17px; font-weight:700; color:var(--a-ink); }
-.aw-qs span { font-size:13px; font-weight:400; color:var(--a-gray); }
-.aw-qn { margin-top:16px; text-align:center; font-size:18px; font-weight:700; line-height:26px; }
-.aw-qx { position:relative; height:76px; margin-top:27px; }
-.aw .aw-nx { position:absolute; top:6px; width:104px; height:45px; border-radius:9px; background:var(--a-ink); color:var(--a-cream); font-size:14px; font-weight:700; white-space:pre; }
-.aw .aw-nx.p { left:15px; } .aw .aw-nx.n { right:15px; }
-.aw-qf { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:44px; margin-top:12px; }
-.aw-qf span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; line-height:18px; color:var(--a-mut); }
-.aw .aw-mg { flex:none; min-height:44px; font-size:13px; font-weight:700; color:var(--a-gold); white-space:pre; }
-.aw-note { margin-top:2px; font-size:13px; line-height:1.45; color:var(--a-gold); }
+/* 票券頁：一頁就是票 */
+.aw .aw-back { position:absolute; left:-4px; top:14px; width:70px; height:42px; border-radius:9px; background:var(--a-sf); color:var(--a-cream); font-size:14px; font-weight:700; white-space:pre; z-index:2; }
+.aw-sk { position:absolute; right:2px; top:25px; font-family:'Cormorant Garamond',Georgia,serif; font-weight:600; font-size:17px; line-height:20px; color:var(--a-gold); }
+.aw-pass { padding-top:68px; }
+.tk-layer[data-layer="pass"].aw-l::before, .tk-layer[data-layer="pass"].aw-l::after { display:none !important; }
+html body .aw-pass .tk-pass.tk-v2 { margin:0 auto !important; width:100%; max-width:min(100%,420px,calc((100vh - var(--a-top) - 150px) * 4 / 7)); max-width:min(100%,420px,calc((100dvh - var(--a-top) - 150px) * 4 / 7)); }
+.aw-pg { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:50px; margin:12px auto 0; padding:0 6px; max-width:420px; border-radius:999px; background:var(--a-sf); border:1px solid var(--a-gold); }
+.aw-pg span { flex:1; min-width:0; text-align:center; font-size:16px; font-weight:700; line-height:22px; color:var(--a-cream); white-space:nowrap; }
+.aw .aw-pg button { flex:none; width:44px; height:44px; border-radius:50%; font:500 24px/1 var(--a-en); color:var(--a-gold); }
+.aw .aw-pg button:disabled { opacity:.3; cursor:default; }
+.aw-pass .tk-v2-sub { margin-top:14px; }
+.aw-pass .tk-list { margin-top:14px; }
