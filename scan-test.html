@@ -260,7 +260,7 @@ const PENDING_OP = new Map();
 function opFor(text) { const x = PENDING_OP.get(text); if (x && Date.now() - x.at < 120000) return x.op; const op = newOp(); PENDING_OP.set(text, { op, at: Date.now() }); return op; }
 const REASON = { bad_format: ["不是票", "這個 QR 不是 CHANCE 門票"], not_found: ["查無此票", "票號不存在"], invalid_sig: ["舊碼／已轉讓", "這張票已轉讓，請對方出示新 QR"], bad_sig: ["簽章不符／舊碼", "QR 跟名單對不上，請對方打開 App 出示最新 QR"], void: ["已作廢", "這張票已被作廢"], refunded: ["已退票", "這張票已退票，不能入場"], already_used: ["已入場", "這張票已經掃過"], too_early: ["還沒開放入場", "開演前 3 小時才開放"], expired: ["已失效", "開演後 2 小時票就失效"], forbidden: ["鑰匙不對", "回設定重新輸入 STAFF KEY"], need_confirm: ["請先確認", "核對姓名後按確認放行"], wrong_event: ["不是這個場次", "這張票是別的場次的"] };
 /* 放行／拒絕畫面上的「人」：姓名 · 手機末 4 碼 · 編號 · 遮罩 email */
-function who(x) { if (!x) return ""; const seat = x.seat || (x.sn ? String(x.sn).padStart(3, "0") : ""); return [x.name || x.n || "", (x.p4 ? "手機末 " + x.p4 : ""), (seat ? "No." + seat : ""), x.owner || x.o || ""].filter(Boolean).join(" · "); }
+function who(x) { if (!x) return ""; const seat = x.seat || (x.sn ? String(x.sn).padStart(3, "0") : ""); return [x.seatName || "", x.name || x.n || "", (x.p4 ? "手機末 " + x.p4 : ""), (seat ? "No." + seat : ""), x.owner || x.o || ""].filter(Boolean).join(" · "); }
 
 async function handleCode(text) {
   const p = parse(text);
@@ -370,7 +370,7 @@ function manualPickAt(i) { const x = (manualRender.list || [])[i]; if (x) manual
 function manualAsk(x) {
   manualPick = x; $("manualFind").style.display = "none"; $("manualConfirm").style.display = "block";
   $("mcName").textContent = x.name || (x.legacy ? "（舊後台：查不到姓名）" : "（沒有姓名）");
-  $("mcLine").textContent = [x.p4 ? "手機末 " + x.p4 : "", x.seat ? "No." + x.seat : "", x.owner || ""].filter(Boolean).join(" · ") || "請核對票號與粉絲出示的票";
+  $("mcLine").textContent = [x.seatName || "", x.p4 ? "手機末 " + x.p4 : "", x.seat ? "No." + x.seat : "", x.owner || ""].filter(Boolean).join(" · ") || "請核對票號與粉絲出示的票";
   $("mcId").textContent = x.id; $("mcSt").textContent = ST[x.status] || (x.legacy ? "狀態待伺服器確認" : (x.status || ""));
   const can = x.legacy || x.status === "valid";
   $("mcGo").disabled = !can; $("mcGo").textContent = can ? "確認放行" : ("不能放行（" + (ST[x.status] || x.status) + "）");
