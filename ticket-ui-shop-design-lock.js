@@ -1461,6 +1461,9 @@ function coverClockKey() {
     if (name === "v2qr") S.v2z = opts.id;
     if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
+    if (name === "bart") S.bart = opts.ev;
+    if (name === "bscan") S.bs = { ev: opts.ev, id: opts.id || (bcLive(opts.ev)[0] || {}).id };
+    if (name === "bdetail") S.bd = opts.ev;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     if (!S.layers.length) { try { var scm = document.getElementById("screen-merch"); S.shopScroll = { el: scm ? scm.scrollTop : 0, win: window.scrollY || 0 }; } catch (e) {} }   // B415T：記住 SHOP 捲到哪
     S.layers.push(name);
@@ -1471,7 +1474,7 @@ function coverClockKey() {
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
-    if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
+    if (name === "wallet" || name === "pass" || name === "buy" || /^b(art|scan|detail|orders)$/.test(name)) loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
   function popLayer() {
@@ -1527,6 +1530,11 @@ function coverClockKey() {
     }
     if (name === "dcl" && !el.querySelector("iframe")) { el.innerHTML = lettersHTML(); document.body.classList.add("dcl-open"); }   /* B309T：只建一次，不重載；開著時先藏「放到主畫面」提示，免得蓋住返回鍵 */
     if (name === "mcode") el.innerHTML = mCodeHTML();
+    if (name === "bart") el.innerHTML = bcArtHTML();
+    if (name === "bscan") { el.innerHTML = bcScanHTML(); v2Draw(el); }
+    if (name === "bdetail") el.innerHTML = bcDetailHTML();
+    if (name === "borders") el.innerHTML = bcOrdersHTML(true);
+    if (name === "wallet" || /^b(art|scan|detail|orders)$/.test(name)) { var bcOn = !!el.querySelector(".bc"); el.classList.toggle("bc-l", bcOn); el.classList.toggle("bc-bl", name === "bart"); el.classList.toggle("bc-t", bcOn && !!document.getElementById("tk-test-banner")); }
     if (name === "v2qr") { el.innerHTML = v2ZoomHTML(); v2Draw(el); }
     if (name === "bought") { var sh = sumHTML(); if (el.__sum !== sh) { el.classList.toggle("sum-still", !!el.__sum); el.__sum = sh; el.innerHTML = sh; } v2Draw(el); sumFx(el); }
     if (name === "done") { el.innerHTML = doneHTML(); var dq = $("#tkd-qr", el), dd = S.done || {}, dt = ticketById(dd.ticketId) || ticketsFor(dd.evId)[0]; if (dq && dt && dt.qr) drawQR(dq, dt.qr, 240); v2Draw(el); }
@@ -1595,7 +1603,125 @@ function coverClockKey() {
     return h + '<div class="tk-mcode"><div class="l">' + (ship ? (en ? "Order number" : "訂單編號") : (en ? "Pickup code" : "領取碼")) + '</div><div class="c">' + esc(String(o.tradeNo).slice(-6)) + '</div>' + rows +
       '<p>' + (ship ? (o.shipped ? (en ? "Shipped. Tracking: " : "已寄出，追蹤號碼：") + esc(o.shipped.tracking) : (en ? "Ships after the event." : "活動後寄出。")) : (en ? "Show this screen at the merch desk." : "到周邊服務台，出示這個畫面領取。")) + '</p></div>';
   }
+  /* ---------- B427T（CÉON 11/05）：我的票「演出日曆」B 版，只在 test.html。?tkb=0 看回舊票夾 ----------
+     票、QR、狀態都讀這個帳號的真資料；周邊的付款與領取分開判斷，後台沒給領取紀錄就一律待領取。 */
+  var BC_ART = "shop-assets/b-calendar/portrait-1227.png";
+  var BC_ON = (function () { try { return /\/test\.html$/i.test(location.pathname) && !/[?&]tkb=0\b/.test(location.search) && !C.demo && localStorage.getItem("tk:bcal") !== "0"; } catch (e) { return false; } })();
+  if (BC_ON) { (function () {
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-b-calendar-test.css") + "?v=B427T-1"; document.head.appendChild(l);
+    var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans+TC:wght@400;700&display=swap"; document.head.appendChild(f);
+  })(); }
+  function bcL(zh, en) { return sxEN() ? en : zh; }
+  function bcParts(iso) { var d = tw(iso); return d ? { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate(), w: d.getUTCDay() } : null; }
+  function bcP2(n) { return ("0" + n).slice(-2); }
+  function bcSub(ev) { return String(ev.name || "CHANCE").replace(/^CHANCE\s*/i, "") || String(ev.name || "CHANCE"); }
+  function bcDoor(ev) { return /生日/.test(ev.name || "") || /^meet-load-/.test(ev.id || "") ? (hm(ev.startAt) === "14:30" ? "14:00" : "") : ""; }
+  function bcHasArt(ev) { return v2EvOk(ev.id, ev); }
+  function bcLive(evId) { return ticketsFor(evId).slice().sort(function (a, b) { return (parseInt(a.seat, 10) || 1e9) - (parseInt(b.seat, 10) || 1e9) || String(a.id).localeCompare(String(b.id)); }); }
+  function bcEv(id) { var t = S.tickets.filter(function (x) { return x.eventId === id; })[0]; return Object.assign({ id: id }, eventById(id) || buyEvent(id) || {}, (t && t.event) || {}); }
+  function bcPay(o) { var s = o.status; if (!s || s === "paid") return { c: "paid", n: bcL("已付款", "Paid") }; if (s === "refunded") return { c: "refunded", n: bcL("已退款", "Refunded") }; return { c: "unpaid", n: bcL("未付款", "Not paid") }; }
+  function bcGot(o) { return o.mode === "ship" ? !!o.shipped : !!(o.pickedAt || o.receivedAt); }   // 只認後台明確記錄，付款不算領取
+  function bcPick(o) { var p = bcPay(o); if (p.c !== "paid") return ""; if (o.mode === "ship") return o.shipped ? bcL("已寄出", "Shipped") : bcL("待寄出", "To ship"); return bcGot(o) ? bcL("已領取", "Picked up") : bcL("待領取", "To pick up"); }
+  function bcOrders(evId) { return S.morders.filter(function (o) { return o.eventId === evId; }).sort(function (a, b) { return String(a.paidAt || "").localeCompare(String(b.paidAt || "")); }); }
+  function bcMsum(evId) {
+    var od = bcOrders(evId), g = {}, keys = [];
+    od.forEach(function (o) { var k = o.code + "|" + (bcPick(o) || bcPay(o).n); if (!g[k]) { g[k] = { code: o.code, st: bcPick(o) || bcPay(o).n, q: 0 }; keys.push(k); } g[k].q += Number(o.qty) || 1; });
+    if (!keys.length) return "";
+    var a = g[keys[0]];
+    return mLbl(evId, a.code) + " × " + a.q + (keys.length > 1 ? bcL(" 等 " + keys.length + " 項", " + " + (keys.length - 1) + " more") : "") + "・" + a.st;
+  }
+  function bcNav(on) {
+    return '<button type="button" class="bc-logo" data-act="back" aria-label="' + bcL("返回 SHOP", "Back to SHOP") + '"><i aria-hidden="true">‹</i>THE SKY</button>' +
+      '<button type="button" class="bc-tab t' + (on === "t" ? " on" : "") + '" data-act="' + (on === "bo" ? "b-home" : "wtab") + '" data-w="t">' + bcL("票券", "Tickets") + '</button>' +
+      '<button type="button" class="bc-tab o' + (on !== "t" ? " on" : "") + '" data-act="wtab" data-w="m">' + bcL("周邊訂單", "Orders") + '</button><i class="bc-rule" style="top:62px"></i>';
+  }
+  function bcBack() { return '<button type="button" class="bc-back" data-act="back">' + bcL("‹ 返回", "‹ Back") + '</button>'; }
+  function bcA(cls, x, y, size, txt, right) { return '<div class="bc-a ' + cls + '" style="' + (right ? "right:22px" : "left:" + x + "px") + ';top:' + y + 'px;font-size:' + size + 'px">' + txt + '</div>'; }
+  function bcHomeSec(ev) {
+    var p = bcParts(ev.startAt) || { y: "", m: 0, d: "", w: 0 }, en = sxEN(), N = bcLive(ev.id).length, door = bcDoor(ev), st = hm(ev.startAt), art = bcHasArt(ev), ms = bcMsum(ev.id);
+    var mon = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(" ")[p.m], wkd = en ? "SUN MON TUE WED THU FRI SAT".split(" ")[p.w] : wk(ev.startAt);
+    if (!mInfo(ev.id) && ms) mEnsure(ev.id);
+    var rings = '<i></i><i></i><i></i><i></i>';
+    var disc = '<div class="bc-disc">' + rings + '<div class="bc-face">' + (art ? '<img src="' + esc(asset(BC_ART)) + '" alt="">' : '<b>' + esc(evKind(ev).lab) + '</b>') + '</div></div>';
+    var h = '<section class="bc bc-home" data-ev="' + esc(ev.id) + '"><div class="bc-in">' +
+      bcA("bc-en bc-u", 22, 94, 14, p.y + "   /   " + mon) + bcA("bc-an", 17, 90, 130, esc(p.d)) + bcA("bc-b bc-u", 23, 260, 16, esc(wkd)) +
+      (art ? '<button type="button" class="bc-cov" data-act="b-art" data-ev="' + esc(ev.id) + '" aria-label="' + bcL("看收藏封面", "View cover") + '">' + disc + '<span class="bc-cap">' + bcL("看收藏封面 ↗", "View cover ↗") + '</span></button>' : '<div class="bc-cov">' + disc + '</div>') +
+      '<i class="bc-rule" style="top:320px"></i>' + bcA("bc-an bc-u", 20, 334, 46, "CHANCE") +
+      '<div class="bc-sub"><b>' + esc(bcSub(ev)) + '</b><span>' + esc(ev.venue || "") + '</span></div>';
+    if (door) h += '<i class="bc-tl"></i><i class="bc-dot" style="top:477px"></i><i class="bc-dot" style="top:525px"></i>' + bcA("bc-en", 50, 466, 23, door) + bcA("bc-m", 146, 469, 17, bcL("開始入場", "Doors open")) + bcA("bc-en", 50, 514, 23, esc(st)) + bcA("bc-m", 146, 517, 17, bcL("活動開始", "Starts"));
+    else h += '<i class="bc-dot" style="top:477px"></i>' + bcA("bc-en", 50, 466, 23, esc(st)) + bcA("bc-m", 146, 469, 17, bcL("活動開始", "Starts"));
+    h += '<i class="bc-rule" style="top:585px"></i>';
+    if (ms) h += '<button type="button" class="bc-mrow" data-act="b-detail" data-ev="' + esc(ev.id) + '"><b>' + bcL("周邊領取明細", "Merch pickup") + '</b><span>' + esc(ms) + '</span><i aria-hidden="true">↗</i></button>';
+    var sib = sibsFor(ev.id), pend = sib.filter(function (t) { return t.transferPending && isLive(t); }), oth = sib.filter(function (t) { return !isLive(t); }), cnt = {}, ord = [];
+    oth.forEach(function (t) { var n = tStat(t).n; if (!cnt[n]) { cnt[n] = 0; ord.push(n); } cnt[n]++; });
+    var line = (pend.length ? [bcL(pend.length + " 張轉讓中", pend.length + " transferring")] : []).concat(ord.map(function (n) { return bcL(n + " " + cnt[n] + " 張", n + " " + cnt[n]); })).join("・");
+    return h + '</div><div class="bc-bot">' + bcA("bc-b", 22, 0, 20, bcL("可入場 " + N + " 張", N + " valid ticket" + (N === 1 ? "" : "s"))) + (line ? '<button type="button" class="bc-st" data-act="b-pass" data-id="' + esc((pend[0] || oth[0]).id) + '">' + esc(line) + ' ›</button>' : '') +
+      '<button type="button" class="bc-cta" data-act="b-scan" data-ev="' + esc(ev.id) + '">' + bcL("出示入場碼   ↗", "Show entry code   ↗") + '</button></div></section>';
+  }
+  function bcPastHTML() {
+    var pt = pastTickets(); if (!pt.length) return "";
+    return '<div class="bc bc-past" style="min-height:0"><h3>' + bcL("過往票券", "Past tickets") + '</h3>' + pt.map(function (t) {
+      var ev = t.event || {}, s = t.status === "used" ? bcL("已入場 ", "Used ") + hm(t.usedAt) : tStat(t).n;
+      return '<button type="button" class="bc-pr" data-act="open-pass" data-id="' + esc(t.id) + '"><b>' + esc(ev.name || t.id) + (t.seat ? ' No.' + esc(t.seat) : '') + '</b><span>' + esc(md(ev.startAt)) + '・' + esc(s) + ' ›</span></button>';
+    }).join("") + '</div>';
+  }
+  function bcHomeHTML() {
+    var evs = upcoming().filter(function (ev) { return ticketsFor(ev.id).length; }).sort(function (a, b) { return (bcHasArt(b) ? 1 : 0) - (bcHasArt(a) ? 1 : 0) || (/^meet-load-/.test(a.id) ? 1 : 0) - (/^meet-load-/.test(b.id) ? 1 : 0); }), h = "";   // 生日會排最前，壓測場次排最後
+    if (evs.length) h = evs.map(bcHomeSec).join("").replace('<div class="bc-in">', '<div class="bc-in">' + bcNav("t"));
+    else h = '<section class="bc" style="min-height:0;height:110px">' + bcNav("t") + '<div class="bc-a bc-m" style="left:20px;top:80px;font-size:16px">' + bcL("沒有即將到來的票。", "No upcoming tickets.") + '</div></section>';
+    return h + bcPastHTML() + '<div class="bc bc-foot" style="min-height:0"><button type="button" class="bc-more" data-act="menu">' + bcL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>';
+  }
+  function bcBlock(o) {
+    var mi = mInfo(o.eventId), it = mi && mi.m.items ? mi.m.items[o.code] : null, q = Number(o.qty) || 1, img = sumItems({ evId: o.eventId }, o)[0].img, pay = bcPay(o), pk = bcPick(o), ship = o.mode === "ship";
+    if (!mi) mEnsure(o.eventId);
+    var sets = /一組\s*(\d+)\s*張/.exec((it && it.name) || ""), rp = mi ? mResolve(mi, o.code) : null, price = (rp && rp.price) || (it && it.price) || 0;
+    var desc = [sets ? bcL("每組 " + sets[1] + " 張", sets[1] + " per set") : "", price ? "NT$" + Number(price).toLocaleString("en-US") : ""].filter(Boolean).join("  ·  ");
+    var how = ship ? (o.shipped ? bcL("追蹤號碼 ", "Tracking ") + esc(o.shipped.tracking) : bcL("活動後寄出", "Ships after the event")) : bcL("活動當天現場領取", "Pick up at the event");
+    return '<div class="bc-mb" data-no="' + esc(o.tradeNo || "") + '"><div class="bc-pic">' + (img ? '<img src="' + esc(img) + '" alt="">' : '') + '</div>' +
+      bcA("bc-b bc-nm", 20, 245, 26, esc(mLbl(o.eventId, o.code))) + bcA("bc-b bc-u", 0, 254, 16, "× " + q + bcL(" 組", ""), true) + bcA("bc-m", 21, 289, 14, esc(desc)) + '<i class="bc-rule"></i>' +
+      bcA("bc-m", 21, 357, 15, bcL("付款狀態", "Payment")) + bcA("bc-b", 0, 355, 17, esc(pay.n), true) +
+      (pk ? bcA("bc-m", 21, 407, 15, ship ? bcL("寄送狀態", "Shipping") : bcL("領取狀態", "Pickup")) + bcA("bc-b bc-u", 0, 404, 18, esc(pk), true) : '') +
+      bcA("bc-m", 21, 473, 15, how) + (o.tradeNo && pay.c === "paid" ? '<button type="button" class="bc-code" data-act="m-code" data-id="' + esc(o.tradeNo) + '">' + (ship ? bcL("訂單 ", "Order ") : bcL("領取碼 ", "Code ")) + esc(String(o.tradeNo).slice(-6)) + ' ›</button>' : '') + '</div>';
+  }
+  function bcOrdersHTML(layer) {
+    var ids = [], h = '<section class="bc bc-flow"><div class="bc-hd" style="height:' + (S.morders.length ? 193 : 183) + 'px">' + bcNav(layer ? "bo" : "m") + bcA("bc-b", 20, 90, 32, bcL("周邊訂單", "Merch orders")) + '</div>';
+    S.morders.forEach(function (o) { if (ids.indexOf(o.eventId) < 0) ids.push(o.eventId); });
+    if (!ids.length) h += '<p class="bc-em">' + (S.justBoughtM ? bcL("付款與訂單已確認，訂單清單暫時無法載入，請稍後重新查看。", "Order confirmed. The list can’t load right now.") : bcL("目前沒有周邊訂單", "No merch orders yet")) + '</p>';
+    ids.forEach(function (id, i) { var ev = bcEv(id); h += (i === 0 ? '<div class="bc-a bc-u" style="left:22px;top:149px;font-size:16px">' + esc(ev.name || "CHANCE") + '</div>' : '<p class="bc-ev2">' + esc(ev.name || "CHANCE") + '</p>') + bcOrders(id).map(bcBlock).join(""); });
+    if (layer) h += '<div style="height:40px"></div><button type="button" class="bc-cta s17" data-act="back">' + bcL("‹ 領取明細", "‹ Pickup details") + '</button>';
+    return h + '</section>' + (layer ? '' : '<div class="bc bc-foot" style="min-height:0"><button type="button" class="bc-more" data-act="menu">' + bcL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>');
+  }
+  function bcWalletOk() { return BC_ON && !S.loading && (S.walletMerch ? !!(S.session || unlockCreds()) : upcoming().some(function (ev) { return ticketsFor(ev.id).length; }) || pastTickets().length > 0); }
+  function bcArtHTML() {
+    var ev = bcEv(S.bart), p = bcParts(ev.startAt) || {}, door = bcDoor(ev), st = hm(ev.startAt), N = bcLive(ev.id).length;
+    return '<section class="bc bc-art">' + bcBack() + bcA("bc-en", 0, 28, 12, 'CHANCE   /   ' + bcP2(p.m + 1) + '.' + bcP2(p.d), true) +
+      '<div class="bc-slw"><div class="bc-sl"><img src="' + esc(asset(BC_ART)) + '" alt="CHANCE"><i></i><b class="bc-an">CHANCE</b></div><div class="bc-rest">' +
+      bcA("bc-b", 21, 18, 33, esc(bcSub(ev))) + '<i class="bc-rule2"></i>' + bcA("bc-en", 21, 103, 24, p.y + '.' + bcP2(p.m + 1) + '.' + bcP2(p.d)) + bcA("bc-lt", 21, 146, 16, esc(ev.venue || "")) +
+      bcA("bc-lt", 21, 181, 15, door ? door + bcL(" 入場   /   ", " doors   /   ") + st + bcL(" 開始", " start") : st + bcL(" 開始", " start")) + '</div></div>' +
+      (N ? '<button type="button" class="bc-cta ac" data-act="b-scan" data-ev="' + esc(ev.id) + '">' + bcL("出示入場碼   ↗", "Show entry code   ↗") + '</button>' : '') + '</section>';
+  }
+  function bcScanHTML() {
+    var b = S.bs || {}, ev = bcEv(b.ev), L = bcLive(b.ev), i = L.map(function (x) { return x.id; }).indexOf(b.id); if (i < 0) i = 0; var t = L[i], p = bcParts(ev.startAt) || {};
+    var h = '<section class="bc bc-scan">' + bcBack() + bcA("bc-en bc-u", 0, 30, 13, p.y + '   /   ' + bcP2(p.m + 1) + '.' + bcP2(p.d), true) + bcA("bc-b", 20, 97, 32, bcL("出示入場碼", "Entry code")) + bcA("bc-m", 22, 150, 17, esc(ev.name || "CHANCE"));
+    if (!t) return h + '<div class="bc-a bc-m" style="left:20px;top:209px;font-size:17px">' + bcL("這場沒有可入場的票。", "No valid tickets for this event.") + '</div></section>';
+    b.id = t.id;
+    var s = v2State(t, ev), ok = s.c === "ok";
+    h += '<div class="bc-qb">' + (ok ? '<canvas data-v2="' + esc(t.id) + '" width="476" height="476" role="img" aria-label="' + bcL("入場 QR", "Entry QR") + '"></canvas>' : '<div class="bc-qs">' + esc(s.b) + (s.s ? '<span>' + esc(s.s) + '</span>' : '') + '</div>') + '<div class="bc-qn bc-an">' + (t.seat ? 'No.' + esc(t.seat) : esc(t.id)) + '</div></div>';
+    h += bcA("bc-b bc-u", 20, 584, 24, bcL("第 " + (i + 1) + " 張，共 " + L.length + " 張", "Ticket " + (i + 1) + " of " + L.length));
+    h += bcA("bc-m bc-tid", 20, 632, 14, esc((t.tierName ? t.tierName + "  ·  " : "") + t.id)) + '<button type="button" class="bc-mg" data-act="b-pass" data-id="' + esc(t.id) + '">' + bcL("票券詳情與轉讓 ›", "Details & transfer ›") + '</button>';
+    if (ok && !t.transferPending) h += '<div class="bc-hint">' + bcL("☀︎ 把螢幕亮度調到最亮，掃得更快", "☀︎ Turn brightness up for faster scanning") + '</div>';
+    if (t.transferPending) h += '<div class="bc-note">' + bcL("這張票正在轉讓中，朋友收下後這個入場碼就會失效。", "This ticket is being transferred. The code stops working once accepted.") + '</div>';
+    if (L.length > 1) { h += '<div class="bc-nxw">'; if (i > 0) h += '<button type="button" class="bc-nx p" data-act="b-step" data-d="-1">' + bcL("‹ 上一張", "‹ Previous") + '</button>'; if (i < L.length - 1) h += '<button type="button" class="bc-nx n" data-act="b-step" data-d="1">' + bcL("下一張 ›", "Next ›") + '</button>'; h += '</div>'; }
+    return h + '</section>';
+  }
+  function bcDetailHTML() {
+    var id = S.bd, ev = bcEv(id), od = bcOrders(id);
+    return '<section class="bc bc-flow"><div class="bc-hd" style="height:173px">' + bcBack() + bcA("bc-u", 0, 30, 13, esc(ev.name || "CHANCE"), true) + bcA("bc-b", 20, 91, 32, bcL("周邊領取明細", "Merch pickup")) + '</div>' +
+      (od.length ? od.map(bcBlock).join("") : '<p class="bc-em">' + bcL("目前沒有周邊訂單", "No merch orders yet") + '</p>') +
+      '<div style="height:81px"></div><button type="button" class="bc-cta s17" data-act="b-orders">' + bcL("查看周邊訂單   ↗", "View merch orders   ↗") + '</button></section>';
+  }
   function walletHTML() {
+    if (bcWalletOk()) return S.walletMerch ? bcOrdersHTML(false) : bcHomeHTML();
     var h = bar("SHOP", S.walletMerch ? "ORDERS" : "TICKETS", { act: "menu", label: "更多", icon: "···" });
     h += '<div class="tk-hd"' + (S.walletMerch ? ' data-merch-wallet="1"' : '') + '><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票</div></div>';
     /* B359T：「我的票」一個地方，分「票券」「周邊訂單」兩頁 */
@@ -1708,7 +1834,7 @@ function coverClockKey() {
   }
   function v2Holder() { return '<div class="tk-v2-sub"><span>' + (sxEN() ? "Holder" : "持票人") + '</span><b>' + esc(maskEmail(S.email)) + '</b></div>'; }
   function v2Draw(el) { if (!el) return; el.querySelectorAll("canvas[data-v2]").forEach(function (c) { var t = ticketById(c.getAttribute("data-v2")); if (!t || !t.qr || !isLive(t) || t._out) return; var px = Math.round((c.clientWidth || 0) * (window.devicePixelRatio || 1)); drawQR(c, t.qr, px > 0 ? px / 2 : Number(c.getAttribute("data-size")) || 240); }); }   // 依實際螢幕像素畫，每格都是整數像素，不被縮放糊掉
-  window.addEventListener("resize", function () { ["pass", "bought", "done"].forEach(function (n) { var el = layerEl(n); if (el) v2Draw(el); }); });
+  window.addEventListener("resize", function () { ["pass", "bought", "done", "bscan"].forEach(function (n) { var el = layerEl(n); if (el) v2Draw(el); }); });
   function v2List(evId) { return sibsFor(evId).filter(function (t) { return t.qr && isLive(t) && !t._out; }); }
   function v2ZoomHTML() {
     var en = sxEN(), t = ticketById(S.v2z), h = bar(en ? "My ticket" : "我的票", "ENTRY QR");
@@ -3686,10 +3812,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "done-wallet") { closeAll(); S.tab = "up"; setTimeout(function () { openLayer("wallet"); }, 260); return; }
     if (act === "done-close") { closeAll(); return; }
     if (act === "done-repoll") { var dr = S.done || {}; if (dr.evId) awaitPurchase(dr.evId, dr.kind || "meet"); return; }   // B359T
-    if (act === "wtab") { e.stopPropagation(); S.walletMerch = b.getAttribute("data-w") === "m"; return renderLayer("wallet"); }   // B359T：我的票：票券／周邊訂單
+    if (act === "wtab") { e.stopPropagation(); if (S.layers[S.layers.length - 1] === "borders") return; S.walletMerch = b.getAttribute("data-w") === "m"; return renderLayer("wallet"); }   // B359T：我的票：票券／周邊訂單
     if (act === "open-merch") return openLayer("merch");
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
     if (act === "open-pass") return openLayer("pass", { sel: id });
+    if (act === "b-art") { e.stopPropagation(); return openLayer("bart", { ev: b.getAttribute("data-ev") }); }
+    if (act === "b-scan") { e.stopPropagation(); return openLayer("bscan", { ev: b.getAttribute("data-ev") }); }
+    if (act === "b-step") { e.stopPropagation(); var bL = bcLive(S.bs.ev), bi = bL.map(function (x) { return x.id; }).indexOf(S.bs.id), bn = bL[bi + Number(b.getAttribute("data-d"))]; if (bn) { S.bs.id = bn.id; hap(6); renderLayer("bscan"); } return; }
+    if (act === "b-detail") { e.stopPropagation(); return openLayer("bdetail", { ev: b.getAttribute("data-ev") }); }
+    if (act === "b-orders") { e.stopPropagation(); return openLayer("borders"); }
+    if (act === "b-pass") { e.stopPropagation(); return openLayer("pass", { sel: id }); }
+    if (act === "b-home") { e.stopPropagation(); var bw = S.layers.indexOf("wallet"), bk = bw >= 0 ? S.layers.length - 1 - bw : 0; S.walletMerch = false; if (bw >= 0) renderLayer("wallet"); if (bk > 0) history.go(-bk); return; }
     if (act === "m-code") { e.stopPropagation(); if (id) openLayer("mcode", { no: id }); return; }
     if (act === "pass-step") return passStep(Number(b.getAttribute("data-d") || 0));
     if (act === "v2-zoom") { e.stopPropagation(); if (id) openLayer("v2qr", { id: id }); return; }
