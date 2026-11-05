@@ -1534,7 +1534,7 @@ function coverClockKey() {
     if (name === "bscan") { el.innerHTML = bcScanHTML(); v2Draw(el); }
     if (name === "bdetail") el.innerHTML = bcDetailHTML();
     if (name === "borders") el.innerHTML = bcOrdersHTML(true);
-    if (name === "wallet" || /^b(art|scan|detail|orders)$/.test(name)) { var bcOn = !!el.querySelector(".bc"); el.classList.toggle("bc-l", bcOn); el.classList.toggle("bc-bl", name === "bart"); el.classList.toggle("bc-t", bcOn && !!document.getElementById("tk-test-banner")); }
+    if (name === "wallet" || /^b(art|scan|detail|orders)$/.test(name)) { var bcOn = !!el.querySelector(".bc"); el.classList.toggle("bc-l", bcOn); el.classList.toggle("bc-bl", name === "bart"); el.classList.toggle("bc-t", bcOn && !!document.getElementById("tk-test-banner")); if (bcOn) el.style.setProperty("background", name === "bart" ? "#253abe" : "#f4f3ed", "important"); else el.style.removeProperty("background"); }
     if (name === "v2qr") { el.innerHTML = v2ZoomHTML(); v2Draw(el); }
     if (name === "bought") { var sh = sumHTML(); if (el.__sum !== sh) { el.classList.toggle("sum-still", !!el.__sum); el.__sum = sh; el.innerHTML = sh; } v2Draw(el); sumFx(el); }
     if (name === "done") { el.innerHTML = doneHTML(); var dq = $("#tkd-qr", el), dd = S.done || {}, dt = ticketById(dd.ticketId) || ticketsFor(dd.evId)[0]; if (dq && dt && dt.qr) drawQR(dq, dt.qr, 240); v2Draw(el); }
@@ -1607,8 +1607,11 @@ function coverClockKey() {
      票、QR、狀態都讀這個帳號的真資料；周邊的付款與領取分開判斷，後台沒給領取紀錄就一律待領取。 */
   var BC_ART = "shop-assets/b-calendar/portrait-1227.png";
   var BC_ON = (function () { try { return /\/test\.html$/i.test(location.pathname) && !/[?&]tkb=0\b/.test(location.search) && !C.demo && localStorage.getItem("tk:bcal") !== "0"; } catch (e) { return false; } })();
+  var BC_READY = false;   // B428T：樣式到了才換 B 版。樣式慢或載不到時留在舊票夾，不出現黑底深字的半成品
   if (BC_ON) { (function () {
-    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-b-calendar-test.css") + "?v=B427T-1"; document.head.appendChild(l);
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-b-calendar-test.css") + "?v=B428T-1";
+    l.onload = function () { BC_READY = true; if (S.layers.indexOf("wallet") >= 0) renderLayer("wallet"); };
+    document.head.appendChild(l);
     var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans+TC:wght@400;700&display=swap"; document.head.appendChild(f);
   })(); }
   function bcL(zh, en) { return sxEN() ? en : zh; }
@@ -1691,7 +1694,7 @@ function coverClockKey() {
     if (layer) h += '<div style="height:40px"></div><button type="button" class="bc-cta s17" data-act="back">' + bcL("‹ 領取明細", "‹ Pickup details") + '</button>';
     return h + '</section>' + (layer ? '' : '<div class="bc bc-foot" style="min-height:0"><button type="button" class="bc-more" data-act="menu">' + bcL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>');
   }
-  function bcWalletOk() { return BC_ON && !S.loading && (S.walletMerch ? !!(S.session || unlockCreds()) : upcoming().some(function (ev) { return ticketsFor(ev.id).length; }) || pastTickets().length > 0); }
+  function bcWalletOk() { return BC_ON && BC_READY && !S.loading && (S.walletMerch ? !!(S.session || unlockCreds()) : upcoming().some(function (ev) { return ticketsFor(ev.id).length; }) || pastTickets().length > 0); }
   function bcArtHTML() {
     var ev = bcEv(S.bart), p = bcParts(ev.startAt) || {}, door = bcDoor(ev), st = hm(ev.startAt), N = bcLive(ev.id).length;
     return '<section class="bc bc-art">' + bcBack() + bcA("bc-en", 0, 28, 12, 'CHANCE   /   ' + bcP2(p.m + 1) + '.' + bcP2(p.d), true) +

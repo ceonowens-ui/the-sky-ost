@@ -5,7 +5,7 @@ html body .tk-layer.bc-l.bc-l { --bc-blue:#253abe; --bc-acid:#d6fa71; --bc-paper
 html body .tk-layer.bc-l.bc-l.bc-t { --bc-top:calc(env(safe-area-inset-top,0px) + 48px); }
 html body .tk-layer.bc-l.bc-l.bc-bl { background:var(--bc-blue) !important; }
 .bc, .bc * { box-sizing:border-box; }
-.bc { position:relative; display:flow-root; width:100%; min-height:844px; color:var(--bc-black); font-family:var(--bc-zh); font-weight:400; }
+.bc { position:relative; display:flow-root; width:100%; min-height:844px; background:var(--bc-paper); color:var(--bc-black); font-family:var(--bc-zh); font-weight:400; }
 .bc button { -webkit-appearance:none; appearance:none; margin:0; padding:0; border:0; background:none; color:inherit; font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .bc-a { position:absolute; margin:0; white-space:pre; line-height:normal; }
 .bc-b { font-weight:700; } .bc-m { color:var(--bc-mut); } .bc-u { color:var(--bc-blue); }
