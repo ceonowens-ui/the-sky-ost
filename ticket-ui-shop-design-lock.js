@@ -1403,8 +1403,9 @@ function myHomeHTML() {
         '<button class="sv3-mine-btn" data-act="open-wallet">' + (login ? "打開我的票" : "用 Email 找回") + ' <i>→</i></button>';
     }
     var seenEv = {};   // B413T（CÉON 11/03）：一場有很多張票時，SHOP 只放一張卡、寫「共 N 張」，點進去用上方切換看其他張
-    vt.filter(function (t) { if (seenEv[t.eventId]) return false; seenEv[t.eventId] = 1; return true; }).forEach(function (t) {
-      var nEv = vt.filter(function (x) { return x.eventId === t.eventId; }).length;
+    var evK = function (t) { return AW_ON ? awKey(awEv(t.eventId)) : t.eventId; };   // B429T：同場次跨訂單、跨舊 id 只放一張
+    vt.filter(function (t) { var k = evK(t); if (seenEv[k]) return false; seenEv[k] = 1; return true; }).forEach(function (t) {
+      var nEv = vt.filter(function (x) { return evK(x) === evK(t); }).length;
       var ev = Object.assign({}, eventById(t.eventId) || {}, t.event || {}), qr = t.qr && qrUnlocked(ev);
       h += '<button class="sv3-mine-tk" data-act="open-mine-pass" data-id="' + esc(t.id) + '"><div class="tx"><span class="bd">ENTRY PASS</span><b>' + esc(ev.name || "CHANCE") + '</b><i>' + esc(md(ev.startAt)) + ' ' + esc(hm(ev.startAt)) + (ev.venue ? '・' + esc(ev.venue) : '') + '</i>' +
         (t.tierName ? '<em>' + esc(t.tierName) + (nEv > 1 ? '・共 ' + nEv + ' 張' : (t.seat ? '・No.' + esc(t.seat) : '')) + '</em>' : (nEv > 1 ? '<em>共 ' + nEv + ' 張</em>' : '')) + '<small>' + (nEv > 1 ? '點一下看全部 ' + nEv + ' 張的 QR' : '點一下放大 QR') + '</small></div>' +
@@ -1462,8 +1463,7 @@ function coverClockKey() {
     if (name === "pass") S.sel = opts.sel || S.sel;
     if (name === "detail") S.detail = opts.key;
     if (name === "bart") S.bart = opts.ev;
-    if (name === "bscan") S.bs = { ev: opts.ev, id: opts.id || (bcLive(opts.ev)[0] || {}).id };
-    if (name === "bdetail") S.bd = opts.ev;
+    if (name === "bscan") S.bs = { ev: opts.ev, id: opts.id || (awLive(opts.ev)[0] || {}).id };
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     if (!S.layers.length) { try { var scm = document.getElementById("screen-merch"); S.shopScroll = { el: scm ? scm.scrollTop : 0, win: window.scrollY || 0 }; } catch (e) {} }   // B415T：記住 SHOP 捲到哪
     S.layers.push(name);
@@ -1474,7 +1474,7 @@ function coverClockKey() {
     document.body.classList.add("tk-open");
     requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
-    if (name === "wallet" || name === "pass" || name === "buy" || /^b(art|scan|detail|orders)$/.test(name)) loadMine(true).then(function () { renderLayer(name); });
+    if (name === "wallet" || name === "pass" || name === "buy" || /^b(art|scan)$/.test(name)) loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
   }
   function popLayer() {
@@ -1530,11 +1530,9 @@ function coverClockKey() {
     }
     if (name === "dcl" && !el.querySelector("iframe")) { el.innerHTML = lettersHTML(); document.body.classList.add("dcl-open"); }   /* B309T：只建一次，不重載；開著時先藏「放到主畫面」提示，免得蓋住返回鍵 */
     if (name === "mcode") el.innerHTML = mCodeHTML();
-    if (name === "bart") el.innerHTML = bcArtHTML();
-    if (name === "bscan") { el.innerHTML = bcScanHTML(); v2Draw(el); }
-    if (name === "bdetail") el.innerHTML = bcDetailHTML();
-    if (name === "borders") el.innerHTML = bcOrdersHTML(true);
-    if (name === "wallet" || /^b(art|scan|detail|orders)$/.test(name)) { var bcOn = !!el.querySelector(".bc"); el.classList.toggle("bc-l", bcOn); el.classList.toggle("bc-bl", name === "bart"); el.classList.toggle("bc-t", bcOn && !!document.getElementById("tk-test-banner")); if (bcOn) el.style.setProperty("background", name === "bart" ? "#253abe" : "#f4f3ed", "important"); else el.style.removeProperty("background"); }
+    if (name === "bart") { el.innerHTML = awArtHTML(); v2Draw(el); }
+    if (name === "bscan") { el.innerHTML = awScanHTML(); v2Draw(el); }
+    if (name === "wallet" || /^b(art|scan)$/.test(name)) { var awOn = !!el.querySelector(".aw"); el.classList.toggle("aw-l", awOn); el.classList.toggle("aw-t", awOn && !!document.getElementById("tk-test-banner")); if (awOn) el.style.setProperty("background", "#141413", "important"); else el.style.removeProperty("background"); if (name === "wallet" && awOn) v2Draw(el); }
     if (name === "v2qr") { el.innerHTML = v2ZoomHTML(); v2Draw(el); }
     if (name === "bought") { var sh = sumHTML(); if (el.__sum !== sh) { el.classList.toggle("sum-still", !!el.__sum); el.__sum = sh; el.innerHTML = sh; } v2Draw(el); sumFx(el); }
     if (name === "done") { el.innerHTML = doneHTML(); var dq = $("#tkd-qr", el), dd = S.done || {}, dt = ticketById(dd.ticketId) || ticketsFor(dd.evId)[0]; if (dq && dt && dt.qr) drawQR(dq, dt.qr, 240); v2Draw(el); }
@@ -1603,132 +1601,118 @@ function coverClockKey() {
     return h + '<div class="tk-mcode"><div class="l">' + (ship ? (en ? "Order number" : "訂單編號") : (en ? "Pickup code" : "領取碼")) + '</div><div class="c">' + esc(String(o.tradeNo).slice(-6)) + '</div>' + rows +
       '<p>' + (ship ? (o.shipped ? (en ? "Shipped. Tracking: " : "已寄出，追蹤號碼：") + esc(o.shipped.tracking) : (en ? "Ships after the event." : "活動後寄出。")) : (en ? "Show this screen at the merch desk." : "到周邊服務台，出示這個畫面領取。")) + '</p></div>';
   }
-  /* ---------- B427T（CÉON 11/05）：我的票「演出日曆」B 版，只在 test.html。?tkb=0 看回舊票夾 ----------
-     票、QR、狀態都讀這個帳號的真資料；周邊的付款與領取分開判斷，後台沒給領取紀錄就一律待領取。 */
-  var BC_ART = "shop-assets/b-calendar/portrait-1227.png";
-  var BC_ON = (function () { try { return /\/test\.html$/i.test(location.pathname) && !/[?&]tkb=0\b/.test(location.search) && !C.demo && localStorage.getItem("tk:bcal") !== "0"; } catch (e) { return false; } })();
-  var BC_READY = false;   // B428T：樣式到了才換 B 版。樣式慢或載不到時留在舊票夾，不出現黑底深字的半成品
-  if (BC_ON) { (function () {
-    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-b-calendar-test.css") + "?v=B428T-1";
-    l.onload = function () { BC_READY = true; if (S.layers.indexOf("wallet") >= 0) renderLayer("wallet"); };
+  /* ---------- B429T（CÉON 11/05）：我的票 A 版「黑白膠片票根」，只在 test.html。?tkb=0 看回舊票夾 ----------
+     一個場次一張卡：場次用「名稱＋開演時間＋地點」認，不用訂單或 eventId（壓測每次都開新 id，舊資料也一樣）。
+     只合併顯示；每張票自己的票號、QR、座位、轉讓、核銷狀態都不動。周邊的付款與領取分開判斷，後台沒給領取紀錄就一律待領取。 */
+  var AW_ON = (function () { try { return /\/test\.html$/i.test(location.pathname) && !/[?&]tkb=0\b/.test(location.search) && !C.demo && localStorage.getItem("tk:bcal") !== "0"; } catch (e) { return false; } })();
+  var AW_READY = false;   // 樣式到了才換新版。樣式慢或載不到時留在舊票夾，不出現半成品
+  if (AW_ON) { (function () {
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-a-wallet-test.css") + "?v=B429T-1";
+    l.onload = function () { AW_READY = true; if (S.layers.indexOf("wallet") >= 0) renderLayer("wallet"); };
     document.head.appendChild(l);
     var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans+TC:wght@400;700&display=swap"; document.head.appendChild(f);
   })(); }
-  function bcL(zh, en) { return sxEN() ? en : zh; }
-  function bcParts(iso) { var d = tw(iso); return d ? { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate(), w: d.getUTCDay() } : null; }
-  function bcP2(n) { return ("0" + n).slice(-2); }
-  function bcSub(ev) { return String(ev.name || "CHANCE").replace(/^CHANCE\s*/i, "") || String(ev.name || "CHANCE"); }
-  function bcDoor(ev) { return /生日/.test(ev.name || "") || /^meet-load-/.test(ev.id || "") ? (hm(ev.startAt) === "14:30" ? "14:00" : "") : ""; }
-  function bcHasArt(ev) { return v2EvOk(ev.id, ev); }
-  function bcLive(evId) { return ticketsFor(evId).slice().sort(function (a, b) { return (parseInt(a.seat, 10) || 1e9) - (parseInt(b.seat, 10) || 1e9) || String(a.id).localeCompare(String(b.id)); }); }
-  function bcEv(id) { var t = S.tickets.filter(function (x) { return x.eventId === id; })[0]; return Object.assign({ id: id }, eventById(id) || buyEvent(id) || {}, (t && t.event) || {}); }
-  function bcPay(o) { var s = o.status; if (!s || s === "paid") return { c: "paid", n: bcL("已付款", "Paid") }; if (s === "refunded") return { c: "refunded", n: bcL("已退款", "Refunded") }; return { c: "unpaid", n: bcL("未付款", "Not paid") }; }
-  function bcGot(o) { return o.mode === "ship" ? !!o.shipped : !!(o.pickedAt || o.receivedAt); }   // 只認後台明確記錄，付款不算領取
-  function bcPick(o) { var p = bcPay(o); if (p.c !== "paid") return ""; if (o.mode === "ship") return o.shipped ? bcL("已寄出", "Shipped") : bcL("待寄出", "To ship"); return bcGot(o) ? bcL("已領取", "Picked up") : bcL("待領取", "To pick up"); }
-  function bcOrders(evId) { return S.morders.filter(function (o) { return o.eventId === evId; }).sort(function (a, b) { return String(a.paidAt || "").localeCompare(String(b.paidAt || "")); }); }
-  function bcMsum(evId) {
-    var od = bcOrders(evId), g = {}, keys = [];
-    od.forEach(function (o) { var k = o.code + "|" + (bcPick(o) || bcPay(o).n); if (!g[k]) { g[k] = { code: o.code, st: bcPick(o) || bcPay(o).n, q: 0 }; keys.push(k); } g[k].q += Number(o.qty) || 1; });
-    if (!keys.length) return "";
-    var a = g[keys[0]];
-    return mLbl(evId, a.code) + " × " + a.q + (keys.length > 1 ? bcL(" 等 " + keys.length + " 項", " + " + (keys.length - 1) + " more") : "") + "・" + a.st;
+  function awUse() { return AW_ON && AW_READY; }
+  function awL(zh, en) { return sxEN() ? en : zh; }
+  function awP2(n) { return ("0" + n).slice(-2); }
+  function awParts(iso) { var d = tw(iso); return d ? { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate(), w: d.getUTCDay() } : null; }
+  function awSub(ev) { return String(ev.name || "CHANCE").replace(/^CHANCE\s*/i, "") || String(ev.name || "CHANCE"); }
+  function awDoor(ev) { return (/生日/.test(ev.name || "") || /^meet-load-/.test(ev.id || "")) && hm(ev.startAt) === "14:30" ? "14:00" : ""; }
+  function awEv(id) { var t = S.tickets.filter(function (x) { return x.eventId === id; })[0] || (S.out || []).filter(function (x) { return x.eventId === id && x.event; })[0]; return Object.assign({ id: id }, eventById(id) || {}, (t && t.event) || {}); }
+  function awKey(ev) {
+    var nm = String(ev.name || "").replace(/\s+/g, "").toLowerCase(), ms = Date.parse(ev.startAt || ""), vn = String(ev.venue || "").replace(/\s+/g, "").replace(/[A-Za-z]廳$/, "").toLowerCase();
+    return nm && !isNaN(ms) ? nm + "|" + ms + "|" + vn : "id:" + ev.id;
   }
-  function bcNav(on) {
-    return '<button type="button" class="bc-logo" data-act="back" aria-label="' + bcL("返回 SHOP", "Back to SHOP") + '"><i aria-hidden="true">‹</i>THE SKY</button>' +
-      '<button type="button" class="bc-tab t' + (on === "t" ? " on" : "") + '" data-act="' + (on === "bo" ? "b-home" : "wtab") + '" data-w="t">' + bcL("票券", "Tickets") + '</button>' +
-      '<button type="button" class="bc-tab o' + (on !== "t" ? " on" : "") + '" data-act="wtab" data-w="m">' + bcL("周邊訂單", "Orders") + '</button><i class="bc-rule" style="top:62px"></i>';
+  function awAllIds() { var m = {}; S.events.forEach(function (e) { m[e.id] = 1; }); S.tickets.concat(S.out || [], S.morders || []).forEach(function (x) { if (x.eventId) m[x.eventId] = 1; }); return Object.keys(m); }
+  function awIds(id) { var k = awKey(awEv(id)), a = awAllIds().filter(function (x) { return awKey(awEv(x)) === k; }); if (a.indexOf(id) < 0) a.push(id); return a; }
+  function awUniq(a) { var s = {}; return a.filter(function (t) { if (s[t.id]) return false; s[t.id] = 1; return true; }); }
+  function awOrd(a, b) { return (a.transferPending ? 1 : 0) - (b.transferPending ? 1 : 0) || (parseInt(a.seat, 10) || 1e9) - (parseInt(b.seat, 10) || 1e9) || String(a.id).localeCompare(String(b.id)); }
+  function awLive(id) { var ids = awIds(id); return awUniq(validTickets().filter(function (t) { return ids.indexOf(t.eventId) >= 0; })).sort(awOrd); }
+  function awGroups() {
+    var g = {}, out = [];
+    validTickets().forEach(function (t) { var ev = awEv(t.eventId), k = awKey(ev); if (!g[k]) { g[k] = { key: k, id: t.eventId, ev: ev }; out.push(g[k]); } else if (eventById(t.eventId) && !eventById(g[k].id)) { g[k].id = t.eventId; g[k].ev = ev; } });
+    var rank = function (x) { return v2EvOk(x.id, x.ev) && !/^meet-load-/.test(x.id) ? 0 : /^meet-load-/.test(x.id) ? 2 : 1; };
+    return out.sort(function (a, b) { return rank(a) - rank(b) || String(a.ev.startAt || "").localeCompare(String(b.ev.startAt || "")); });
   }
-  function bcBack() { return '<button type="button" class="bc-back" data-act="back">' + bcL("‹ 返回", "‹ Back") + '</button>'; }
-  function bcA(cls, x, y, size, txt, right) { return '<div class="bc-a ' + cls + '" style="' + (right ? "right:22px" : "left:" + x + "px") + ';top:' + y + 'px;font-size:' + size + 'px">' + txt + '</div>'; }
-  function bcHomeSec(ev) {
-    var p = bcParts(ev.startAt) || { y: "", m: 0, d: "", w: 0 }, en = sxEN(), N = bcLive(ev.id).length, door = bcDoor(ev), st = hm(ev.startAt), art = bcHasArt(ev), ms = bcMsum(ev.id);
-    var mon = "JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split(" ")[p.m], wkd = en ? "SUN MON TUE WED THU FRI SAT".split(" ")[p.w] : wk(ev.startAt);
-    if (!mInfo(ev.id) && ms) mEnsure(ev.id);
-    var rings = '<i></i><i></i><i></i><i></i>';
-    var disc = '<div class="bc-disc">' + rings + '<div class="bc-face">' + (art ? '<img src="' + esc(asset(BC_ART)) + '" alt="">' : '<b>' + esc(evKind(ev).lab) + '</b>') + '</div></div>';
-    var h = '<section class="bc bc-home" data-ev="' + esc(ev.id) + '"><div class="bc-in">' +
-      bcA("bc-en bc-u", 22, 94, 14, p.y + "   /   " + mon) + bcA("bc-an", 17, 90, 130, esc(p.d)) + bcA("bc-b bc-u", 23, 260, 16, esc(wkd)) +
-      (art ? '<button type="button" class="bc-cov" data-act="b-art" data-ev="' + esc(ev.id) + '" aria-label="' + bcL("看收藏封面", "View cover") + '">' + disc + '<span class="bc-cap">' + bcL("看收藏封面 ↗", "View cover ↗") + '</span></button>' : '<div class="bc-cov">' + disc + '</div>') +
-      '<i class="bc-rule" style="top:320px"></i>' + bcA("bc-an bc-u", 20, 334, 46, "CHANCE") +
-      '<div class="bc-sub"><b>' + esc(bcSub(ev)) + '</b><span>' + esc(ev.venue || "") + '</span></div>';
-    if (door) h += '<i class="bc-tl"></i><i class="bc-dot" style="top:477px"></i><i class="bc-dot" style="top:525px"></i>' + bcA("bc-en", 50, 466, 23, door) + bcA("bc-m", 146, 469, 17, bcL("開始入場", "Doors open")) + bcA("bc-en", 50, 514, 23, esc(st)) + bcA("bc-m", 146, 517, 17, bcL("活動開始", "Starts"));
-    else h += '<i class="bc-dot" style="top:477px"></i>' + bcA("bc-en", 50, 466, 23, esc(st)) + bcA("bc-m", 146, 469, 17, bcL("活動開始", "Starts"));
-    h += '<i class="bc-rule" style="top:585px"></i>';
-    if (ms) h += '<button type="button" class="bc-mrow" data-act="b-detail" data-ev="' + esc(ev.id) + '"><b>' + bcL("周邊領取明細", "Merch pickup") + '</b><span>' + esc(ms) + '</span><i aria-hidden="true">↗</i></button>';
-    var sib = sibsFor(ev.id), pend = sib.filter(function (t) { return t.transferPending && isLive(t); }), oth = sib.filter(function (t) { return !isLive(t); }), cnt = {}, ord = [];
+  function awPay(o) { var s = o.status; if (!s || s === "paid") return { c: "paid", n: awL("已付款", "Paid") }; if (s === "refunded") return { c: "refunded", n: awL("已退款", "Refunded") }; return { c: "unpaid", n: awL("未付款", "Not paid") }; }
+  function awPick(o) { if (awPay(o).c !== "paid") return ""; if (o.mode === "ship") return o.shipped ? awL("已寄出", "Shipped") : awL("待寄出", "To ship"); return (o.pickedAt || o.receivedAt) ? awL("已領取", "Picked up") : awL("待領取", "To pick up"); }   // 只認後台明確記錄，付款不算領取
+  function awMerch(id) {
+    var ids = awIds(id), g = {}, out = [];
+    S.morders.filter(function (o) { return ids.indexOf(o.eventId) >= 0; }).forEach(function (o) {
+      if (!mInfo(o.eventId)) mEnsure(o.eventId);
+      var p = awPay(o), k = [o.code, o.mode, p.c, awPick(o)].join("|"), mi = mInfo(o.eventId), it = mi && mi.m.items ? mi.m.items[o.code] : null, q = Number(o.qty) || 1, rp = mi ? mResolve(mi, o.code) : null, unit = (rp && rp.price) || (it && it.price) || 0;
+      if (!g[k]) { g[k] = { label: mLbl(o.eventId, o.code), q: 0, sum: 0, img: sumItems({ evId: o.eventId }, o)[0].img, pay: p.n, pick: awPick(o), ship: o.mode === "ship", set: Number((/一組\s*(\d+)\s*張/.exec((it && it.name) || "") || [])[1]) || 0, tr: [] }; out.push(g[k]); }
+      g[k].q += q; g[k].sum += Number(o.mprice) || unit * q; if (o.shipped && o.shipped.tracking) g[k].tr.push(o.shipped.tracking);
+    });
+    return out;
+  }
+  function awMsum(m) { if (!m.length) return ""; var st = m.map(function (x) { return x.pick || x.pay; }).filter(function (x, i, a) { return a.indexOf(x) === i; }); return m.map(function (x) { return x.label + " × " + x.q; }).join("、") + (st.length === 1 ? "・" + st[0] : ""); }
+  function awHead(on) {
+    return '<div class="aw"><div class="aw-top"><button type="button" class="aw-logo" data-act="back" aria-label="' + awL("返回 SHOP", "Back to SHOP") + '"><i aria-hidden="true">‹</i>THE SKY</button><span class="aw-tw">TICKET WALLET</span><h1 class="aw-h1">' + awL("我的票", "My tickets") + '</h1></div>' +
+      '<div class="aw-seg"><button type="button" class="' + (on === "t" ? "on" : "") + '" data-act="wtab" data-w="t">' + awL("票券", "Tickets") + '</button><button type="button" class="' + (on === "m" ? "on" : "") + '" data-act="wtab" data-w="m">' + awL("周邊訂單", "Merch orders") + '</button></div></div>';
+  }
+  function awCard(g) {
+    var ev = g.ev, p = awParts(ev.startAt) || {}, en = sxEN(), N = awLive(g.id).length, art = v2EvOk(g.id, ev), door = awDoor(ev), st = hm(ev.startAt), m = awMerch(g.id), open = !!(S.awOpen || {})[g.key];
+    var wkd = "SUN MON TUE WED THU FRI SAT".split(" ")[p.w], ph = (art ? '<img src="' + esc(asset(V2_ART)) + '" alt="">' : '') + (art ? '<span class="aw-chip">' + awL("看完整票面 ↗", "Full ticket ↗") + '</span>' : '') + '<b class="aw-big aw-an">CHANCE</b><span class="aw-nm' + (awSub(ev).length > 5 ? ' s' : '') + '">' + esc(awSub(ev)) + '</span>';
+    var h = '<article class="aw-card" data-ev="' + esc(g.id) + '" data-key="' + esc(g.key) + '">' + (art ? '<button type="button" class="aw-ph" data-act="b-art" data-ev="' + esc(g.id) + '" aria-label="' + awL("看收藏票", "View keepsake ticket") + '">' + ph + '</button>' : '<div class="aw-ph">' + ph + '</div>') +
+      '<div class="aw-stub"><span class="aw-yr">' + p.y + '  /  ' + wkd + '</span><b class="aw-dt aw-an">' + awP2(p.m + 1) + '.' + awP2(p.d) + '</b><i class="aw-vl"></i><b class="aw-vn">' + esc(ev.venue || "") + '</b><span class="aw-tm">' + (door ? door + awL(" 入場  ・  ", " doors  ·  ") + st + awL(" 開始", " start") : st + awL(" 開始", " start")) + '</span><i class="aw-hr"></i><b class="aw-cnt">' + awL("可入場 " + N + " 張", N + " valid") + '</b>';
+    var sib = sibsFor(g.id), pend = sib.filter(function (t) { return t.transferPending && isLive(t); }), oth = sib.filter(function (t) { return !isLive(t); }), cnt = {}, ord = [];
     oth.forEach(function (t) { var n = tStat(t).n; if (!cnt[n]) { cnt[n] = 0; ord.push(n); } cnt[n]++; });
-    var line = (pend.length ? [bcL(pend.length + " 張轉讓中", pend.length + " transferring")] : []).concat(ord.map(function (n) { return bcL(n + " " + cnt[n] + " 張", n + " " + cnt[n]); })).join("・");
-    return h + '</div><div class="bc-bot">' + bcA("bc-b", 22, 0, 20, bcL("可入場 " + N + " 張", N + " valid ticket" + (N === 1 ? "" : "s"))) + (line ? '<button type="button" class="bc-st" data-act="b-pass" data-id="' + esc((pend[0] || oth[0]).id) + '">' + esc(line) + ' ›</button>' : '') +
-      '<button type="button" class="bc-cta" data-act="b-scan" data-ev="' + esc(ev.id) + '">' + bcL("出示入場碼   ↗", "Show entry code   ↗") + '</button></div></section>';
+    var line = (pend.length ? [awL(pend.length + " 張轉讓中", pend.length + " transferring")] : []).concat(ord.map(function (n) { return awL(n + " " + cnt[n] + " 張", n + " " + cnt[n]); })).join("・");
+    if (line) h += '<button type="button" class="aw-st" data-act="b-pass" data-id="' + esc((pend[0] || oth[0]).id) + '">' + esc(line) + ' ›</button>';
+    h += '<button type="button" class="aw-go" data-act="b-scan" data-ev="' + esc(g.id) + '">' + awL("出示入場碼 ↗", "Entry code ↗") + '</button></div></article>';
+    if (m.length) {
+      h += '<button type="button" class="aw-mr" data-act="a-mx" data-key="' + esc(g.key) + '" aria-expanded="' + open + '"><b>' + awL("周邊領取明細", "Merch pickup") + '</b><span>' + esc(awMsum(m)) + '</span><i aria-hidden="true">' + (open ? "−" : "＋") + '</i></button>';
+      if (open) h += '<div class="aw-mp">' + m.map(function (x) {
+        var d = [awL(x.q + " 組" + (x.set ? "（" + x.q * x.set + " 張）" : ""), "× " + x.q), x.sum ? "NT$" + x.sum.toLocaleString("en-US") : ""].filter(Boolean).join("  ・  ");
+        var how = x.pick ? x.pick + "  ・  " + (x.ship ? (x.tr.length ? awL("追蹤 ", "Tracking ") + esc(x.tr.join("、")) : awL("活動後寄出", "Ships after the event")) : awL("活動當天現場領取", "Pick up at the event")) : "";
+        return '<div class="aw-mi">' + (x.img ? '<img src="' + esc(x.img) + '" alt="">' : '<i class="im"></i>') + '<b>' + esc(x.label) + '</b><span>' + esc(d) + '</span><em>' + esc(x.pay) + '</em></div>' + (how ? '<div class="aw-pk">' + how + '</div>' : '');
+      }).join("") + '</div>';
+    }
+    return h;
   }
-  function bcPastHTML() {
+  function awPastHTML() {
     var pt = pastTickets(); if (!pt.length) return "";
-    return '<div class="bc bc-past" style="min-height:0"><h3>' + bcL("過往票券", "Past tickets") + '</h3>' + pt.map(function (t) {
-      var ev = t.event || {}, s = t.status === "used" ? bcL("已入場 ", "Used ") + hm(t.usedAt) : tStat(t).n;
-      return '<button type="button" class="bc-pr" data-act="open-pass" data-id="' + esc(t.id) + '"><b>' + esc(ev.name || t.id) + (t.seat ? ' No.' + esc(t.seat) : '') + '</b><span>' + esc(md(ev.startAt)) + '・' + esc(s) + ' ›</span></button>';
+    return '<div class="aw-past"><h3>' + awL("過往票券", "Past tickets") + '</h3>' + pt.map(function (t) {
+      var ev = t.event || {}, s = t.status === "used" ? awL("已入場 ", "Used ") + hm(t.usedAt) : tStat(t).n;
+      return '<button type="button" class="aw-pr" data-act="open-pass" data-id="' + esc(t.id) + '"><b>' + esc(ev.name || t.id) + (t.seat ? ' No.' + esc(t.seat) : '') + '</b><span>' + esc(md(ev.startAt)) + '・' + esc(s) + ' ›</span></button>';
     }).join("") + '</div>';
   }
-  function bcHomeHTML() {
-    var evs = upcoming().filter(function (ev) { return ticketsFor(ev.id).length; }).sort(function (a, b) { return (bcHasArt(b) ? 1 : 0) - (bcHasArt(a) ? 1 : 0) || (/^meet-load-/.test(a.id) ? 1 : 0) - (/^meet-load-/.test(b.id) ? 1 : 0); }), h = "";   // 生日會排最前，壓測場次排最後
-    if (evs.length) h = evs.map(bcHomeSec).join("").replace('<div class="bc-in">', '<div class="bc-in">' + bcNav("t"));
-    else h = '<section class="bc" style="min-height:0;height:110px">' + bcNav("t") + '<div class="bc-a bc-m" style="left:20px;top:80px;font-size:16px">' + bcL("沒有即將到來的票。", "No upcoming tickets.") + '</div></section>';
-    return h + bcPastHTML() + '<div class="bc bc-foot" style="min-height:0"><button type="button" class="bc-more" data-act="menu">' + bcL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>';
+  function awHomeHTML() {
+    var gs = awGroups();
+    return awHead("t") + '<div class="aw">' + (gs.length ? gs.map(awCard).join("") : '<div class="tk-empty">' + awL("沒有即將到來的票。", "No upcoming tickets.") + '</div>') + awPastHTML() + '<button type="button" class="aw-more" data-act="menu">' + awL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>';
   }
-  function bcBlock(o) {
-    var mi = mInfo(o.eventId), it = mi && mi.m.items ? mi.m.items[o.code] : null, q = Number(o.qty) || 1, img = sumItems({ evId: o.eventId }, o)[0].img, pay = bcPay(o), pk = bcPick(o), ship = o.mode === "ship";
-    if (!mi) mEnsure(o.eventId);
-    var sets = /一組\s*(\d+)\s*張/.exec((it && it.name) || ""), rp = mi ? mResolve(mi, o.code) : null, price = (rp && rp.price) || (it && it.price) || 0;
-    var desc = [sets ? bcL("每組 " + sets[1] + " 張", sets[1] + " per set") : "", price ? "NT$" + Number(price).toLocaleString("en-US") : ""].filter(Boolean).join("  ·  ");
-    var how = ship ? (o.shipped ? bcL("追蹤號碼 ", "Tracking ") + esc(o.shipped.tracking) : bcL("活動後寄出", "Ships after the event")) : bcL("活動當天現場領取", "Pick up at the event");
-    return '<div class="bc-mb" data-no="' + esc(o.tradeNo || "") + '"><div class="bc-pic">' + (img ? '<img src="' + esc(img) + '" alt="">' : '') + '</div>' +
-      bcA("bc-b bc-nm", 20, 245, 26, esc(mLbl(o.eventId, o.code))) + bcA("bc-b bc-u", 0, 254, 16, "× " + q + bcL(" 組", ""), true) + bcA("bc-m", 21, 289, 14, esc(desc)) + '<i class="bc-rule"></i>' +
-      bcA("bc-m", 21, 357, 15, bcL("付款狀態", "Payment")) + bcA("bc-b", 0, 355, 17, esc(pay.n), true) +
-      (pk ? bcA("bc-m", 21, 407, 15, ship ? bcL("寄送狀態", "Shipping") : bcL("領取狀態", "Pickup")) + bcA("bc-b bc-u", 0, 404, 18, esc(pk), true) : '') +
-      bcA("bc-m", 21, 473, 15, how) + (o.tradeNo && pay.c === "paid" ? '<button type="button" class="bc-code" data-act="m-code" data-id="' + esc(o.tradeNo) + '">' + (ship ? bcL("訂單 ", "Order ") : bcL("領取碼 ", "Code ")) + esc(String(o.tradeNo).slice(-6)) + ' ›</button>' : '') + '</div>';
+  function awOk() { return awUse() && !S.loading && !S.walletMerch && (validTickets().length > 0 || pastTickets().length > 0); }
+  function awBack() { return '<button type="button" class="aw-back" data-act="back">' + awL("‹ 返回", "‹ Back") + '</button><span class="aw-sk">THE SKY</span>'; }
+  function awArtHTML() {
+    var L = awLive(S.bart), t = L[0], h = '<div class="aw aw-art">' + awBack();
+    if (!t) return h + '<div class="tk-empty">' + awL("這場沒有可入場的票。", "No valid tickets for this event.") + '</div></div>';
+    return h + v2Card(t, v2Ev(t)) + '<div class="aw-al"><span>' + esc((t.tierName || awL("入場票", "Entry ticket")) + (t.seat ? "  ・  No." + t.seat : "")) + '</span><button type="button" class="aw-ag" data-act="b-scan" data-ev="' + esc(S.bart) + '">' + awL("出示入場碼 ↗", "Entry code ↗") + '</button></div></div>';
   }
-  function bcOrdersHTML(layer) {
-    var ids = [], h = '<section class="bc bc-flow"><div class="bc-hd" style="height:' + (S.morders.length ? 193 : 183) + 'px">' + bcNav(layer ? "bo" : "m") + bcA("bc-b", 20, 90, 32, bcL("周邊訂單", "Merch orders")) + '</div>';
-    S.morders.forEach(function (o) { if (ids.indexOf(o.eventId) < 0) ids.push(o.eventId); });
-    if (!ids.length) h += '<p class="bc-em">' + (S.justBoughtM ? bcL("付款與訂單已確認，訂單清單暫時無法載入，請稍後重新查看。", "Order confirmed. The list can’t load right now.") : bcL("目前沒有周邊訂單", "No merch orders yet")) + '</p>';
-    ids.forEach(function (id, i) { var ev = bcEv(id); h += (i === 0 ? '<div class="bc-a bc-u" style="left:22px;top:149px;font-size:16px">' + esc(ev.name || "CHANCE") + '</div>' : '<p class="bc-ev2">' + esc(ev.name || "CHANCE") + '</p>') + bcOrders(id).map(bcBlock).join(""); });
-    if (layer) h += '<div style="height:40px"></div><button type="button" class="bc-cta s17" data-act="back">' + bcL("‹ 領取明細", "‹ Pickup details") + '</button>';
-    return h + '</section>' + (layer ? '' : '<div class="bc bc-foot" style="min-height:0"><button type="button" class="bc-more" data-act="menu">' + bcL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>');
-  }
-  function bcWalletOk() { return BC_ON && BC_READY && !S.loading && (S.walletMerch ? !!(S.session || unlockCreds()) : upcoming().some(function (ev) { return ticketsFor(ev.id).length; }) || pastTickets().length > 0); }
-  function bcArtHTML() {
-    var ev = bcEv(S.bart), p = bcParts(ev.startAt) || {}, door = bcDoor(ev), st = hm(ev.startAt), N = bcLive(ev.id).length;
-    return '<section class="bc bc-art">' + bcBack() + bcA("bc-en", 0, 28, 12, 'CHANCE   /   ' + bcP2(p.m + 1) + '.' + bcP2(p.d), true) +
-      '<div class="bc-slw"><div class="bc-sl"><img src="' + esc(asset(BC_ART)) + '" alt="CHANCE"><i></i><b class="bc-an">CHANCE</b></div><div class="bc-rest">' +
-      bcA("bc-b", 21, 18, 33, esc(bcSub(ev))) + '<i class="bc-rule2"></i>' + bcA("bc-en", 21, 103, 24, p.y + '.' + bcP2(p.m + 1) + '.' + bcP2(p.d)) + bcA("bc-lt", 21, 146, 16, esc(ev.venue || "")) +
-      bcA("bc-lt", 21, 181, 15, door ? door + bcL(" 入場   /   ", " doors   /   ") + st + bcL(" 開始", " start") : st + bcL(" 開始", " start")) + '</div></div>' +
-      (N ? '<button type="button" class="bc-cta ac" data-act="b-scan" data-ev="' + esc(ev.id) + '">' + bcL("出示入場碼   ↗", "Show entry code   ↗") + '</button>' : '') + '</section>';
-  }
-  function bcScanHTML() {
-    var b = S.bs || {}, ev = bcEv(b.ev), L = bcLive(b.ev), i = L.map(function (x) { return x.id; }).indexOf(b.id); if (i < 0) i = 0; var t = L[i], p = bcParts(ev.startAt) || {};
-    var h = '<section class="bc bc-scan">' + bcBack() + bcA("bc-en bc-u", 0, 30, 13, p.y + '   /   ' + bcP2(p.m + 1) + '.' + bcP2(p.d), true) + bcA("bc-b", 20, 97, 32, bcL("出示入場碼", "Entry code")) + bcA("bc-m", 22, 150, 17, esc(ev.name || "CHANCE"));
-    if (!t) return h + '<div class="bc-a bc-m" style="left:20px;top:209px;font-size:17px">' + bcL("這場沒有可入場的票。", "No valid tickets for this event.") + '</div></section>';
+  function awScanHTML() {
+    var b = S.bs || {}, L = awLive(b.ev), i = L.map(function (x) { return x.id; }).indexOf(b.id); if (i < 0) i = 0; var t = L[i], ev = t ? v2Ev(t) : awEv(b.ev), art = v2EvOk(ev.id || b.ev, ev);
+    var h = '<div class="aw aw-scan">' + awBack() + '<h1 class="aw-h1">' + awL("出示入場碼", "Entry code") + '</h1>';
+    if (!t) return h + '<div class="tk-empty">' + awL("這場沒有可入場的票。", "No valid tickets for this event.") + '</div></div>';
     b.id = t.id;
     var s = v2State(t, ev), ok = s.c === "ok";
-    h += '<div class="bc-qb">' + (ok ? '<canvas data-v2="' + esc(t.id) + '" width="476" height="476" role="img" aria-label="' + bcL("入場 QR", "Entry QR") + '"></canvas>' : '<div class="bc-qs">' + esc(s.b) + (s.s ? '<span>' + esc(s.s) + '</span>' : '') + '</div>') + '<div class="bc-qn bc-an">' + (t.seat ? 'No.' + esc(t.seat) : esc(t.id)) + '</div></div>';
-    h += bcA("bc-b bc-u", 20, 584, 24, bcL("第 " + (i + 1) + " 張，共 " + L.length + " 張", "Ticket " + (i + 1) + " of " + L.length));
-    h += bcA("bc-m bc-tid", 20, 632, 14, esc((t.tierName ? t.tierName + "  ·  " : "") + t.id)) + '<button type="button" class="bc-mg" data-act="b-pass" data-id="' + esc(t.id) + '">' + bcL("票券詳情與轉讓 ›", "Details & transfer ›") + '</button>';
-    if (ok && !t.transferPending) h += '<div class="bc-hint">' + bcL("☀︎ 把螢幕亮度調到最亮，掃得更快", "☀︎ Turn brightness up for faster scanning") + '</div>';
-    if (t.transferPending) h += '<div class="bc-note">' + bcL("這張票正在轉讓中，朋友收下後這個入場碼就會失效。", "This ticket is being transferred. The code stops working once accepted.") + '</div>';
-    if (L.length > 1) { h += '<div class="bc-nxw">'; if (i > 0) h += '<button type="button" class="bc-nx p" data-act="b-step" data-d="-1">' + bcL("‹ 上一張", "‹ Previous") + '</button>'; if (i < L.length - 1) h += '<button type="button" class="bc-nx n" data-act="b-step" data-d="1">' + bcL("下一張 ›", "Next ›") + '</button>'; h += '</div>'; }
-    return h + '</section>';
-  }
-  function bcDetailHTML() {
-    var id = S.bd, ev = bcEv(id), od = bcOrders(id);
-    return '<section class="bc bc-flow"><div class="bc-hd" style="height:173px">' + bcBack() + bcA("bc-u", 0, 30, 13, esc(ev.name || "CHANCE"), true) + bcA("bc-b", 20, 91, 32, bcL("周邊領取明細", "Merch pickup")) + '</div>' +
-      (od.length ? od.map(bcBlock).join("") : '<p class="bc-em">' + bcL("目前沒有周邊訂單", "No merch orders yet") + '</p>') +
-      '<div style="height:81px"></div><button type="button" class="bc-cta s17" data-act="b-orders">' + bcL("查看周邊訂單   ↗", "View merch orders   ↗") + '</button></section>';
+    h += '<div class="aw-qc"><div class="aw-qb">' + (art ? '<img src="' + esc(asset(V2_ART)) + '" alt="">' : '') + '<b class="aw-an">CHANCE</b><span>' + esc(awSub(ev)) + '</span></div><div class="aw-qt"><b>' + esc(t.tierName || awL("入場票", "Entry ticket")) + '</b><span>' + (t.seat ? 'No.' + esc(t.seat) : esc(t.id)) + '</span></div>' +
+      '<div class="aw-qr">' + (ok ? '<canvas data-v2="' + esc(t.id) + '" width="376" height="376" role="img" aria-label="' + awL("入場 QR", "Entry QR") + '"></canvas>' : '<div class="aw-qs">' + esc(s.b) + (s.s ? '<span>' + esc(s.s) + '</span>' : '') + '</div>') + '</div>' +
+      '<div class="aw-qn">' + awL("第 " + (i + 1) + " 張，共 " + L.length + " 張", "Ticket " + (i + 1) + " of " + L.length) + '</div><div class="aw-qx">';
+    if (L.length > 1) { if (i > 0) h += '<button type="button" class="aw-nx p" data-act="b-step" data-d="-1">' + awL("‹ 上一張", "‹ Previous") + '</button>'; if (i < L.length - 1) h += '<button type="button" class="aw-nx n" data-act="b-step" data-d="1">' + awL("下一張 ›", "Next ›") + '</button>'; }
+    h += '</div></div><div class="aw-qf"><span>' + esc(t.id) + '</span><button type="button" class="aw-mg" data-act="b-pass" data-id="' + esc(t.id) + '">' + awL("票券詳情與轉讓 ›", "Details & transfer ›") + '</button></div>';
+    if (t.transferPending) h += '<div class="aw-note">' + awL("這張票正在轉讓中，朋友收下後這個入場碼就會失效。", "This ticket is being transferred. The code stops working once accepted.") + '</div>';
+    return h + '</div>';
   }
   function walletHTML() {
-    if (bcWalletOk()) return S.walletMerch ? bcOrdersHTML(false) : bcHomeHTML();
-    var h = bar("SHOP", S.walletMerch ? "ORDERS" : "TICKETS", { act: "menu", label: "更多", icon: "···" });
+    if (awOk()) return awHomeHTML();
+    var h = "";
+    if (awUse() && (S.walletMerch ? !!(S.session || unlockCreds()) : false)) h = awHead("m") + '<div style="height:14px"></div>';
+    else {
+    h = bar("SHOP", S.walletMerch ? "ORDERS" : "TICKETS", { act: "menu", label: "更多", icon: "···" });
     h += '<div class="tk-hd"' + (S.walletMerch ? ' data-merch-wallet="1"' : '') + '><div class="tk-eyebrow">My Wallet</div><div class="tk-h1 tk-serif">我的票</div></div>';
     /* B359T：「我的票」一個地方，分「票券」「周邊訂單」兩頁 */
     h += '<div class="tk-seg tk-wtabs"><button class="' + (S.walletMerch ? "" : "on") + '" data-act="wtab" data-w="t">票券</button><button class="' + (S.walletMerch ? "on" : "") + '" data-act="wtab" data-w="m">周邊訂單</button></div>';
+    }
     if (S.walletMerch && (S.morders.length || (S.justBoughtM && Date.now() - S.justBoughtM.at < 90e3))) {
       var jm = S.justBoughtM; if (!(jm && Date.now() - jm.at < 90e3)) jm = S.justBoughtM = null;   // B418T：「購買成功」改在摘要頁；這裡只留最新那筆的金框
       h += S.morders.slice().sort(function (a, b) { return String(b.paidAt || "").localeCompare(String(a.paidAt || "")); }).map(function (o, idx) {
@@ -1776,7 +1760,10 @@ function coverClockKey() {
 
   /* ---------- 入場票 ---------- */
   /* B418T：同一場的每張票都看得到：能用的在前，已入場／已退票／已作廢、已轉讓在後 */
-  function sibsFor(evId) { return ticketsFor(evId).concat(S.tickets.filter(function (t) { return t.eventId === evId && !isLive(t); }), outFor(evId)); }
+  function sibsFor(evId) {
+    if (AW_ON) { var ids = awIds(evId); return awUniq(awLive(evId).concat(S.tickets.filter(function (t) { return ids.indexOf(t.eventId) >= 0 && !isLive(t); }), ids.reduce(function (a, x) { return a.concat(outFor(x)); }, []))); }
+    return ticketsFor(evId).concat(S.tickets.filter(function (t) { return t.eventId === evId && !isLive(t); }), outFor(evId));
+  }
   function tStat(t) {
     var en = sxEN();
     if (t._out) return { c: "out", n: en ? "Transferred" : "已轉讓" };
@@ -1837,7 +1824,7 @@ function coverClockKey() {
   }
   function v2Holder() { return '<div class="tk-v2-sub"><span>' + (sxEN() ? "Holder" : "持票人") + '</span><b>' + esc(maskEmail(S.email)) + '</b></div>'; }
   function v2Draw(el) { if (!el) return; el.querySelectorAll("canvas[data-v2]").forEach(function (c) { var t = ticketById(c.getAttribute("data-v2")); if (!t || !t.qr || !isLive(t) || t._out) return; var px = Math.round((c.clientWidth || 0) * (window.devicePixelRatio || 1)); drawQR(c, t.qr, px > 0 ? px / 2 : Number(c.getAttribute("data-size")) || 240); }); }   // 依實際螢幕像素畫，每格都是整數像素，不被縮放糊掉
-  window.addEventListener("resize", function () { ["pass", "bought", "done", "bscan"].forEach(function (n) { var el = layerEl(n); if (el) v2Draw(el); }); });
+  window.addEventListener("resize", function () { ["pass", "bought", "done", "bscan", "bart"].forEach(function (n) { var el = layerEl(n); if (el) v2Draw(el); }); });
   function v2List(evId) { return sibsFor(evId).filter(function (t) { return t.qr && isLive(t) && !t._out; }); }
   function v2ZoomHTML() {
     var en = sxEN(), t = ticketById(S.v2z), h = bar(en ? "My ticket" : "我的票", "ENTRY QR");
@@ -3815,17 +3802,15 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "done-wallet") { closeAll(); S.tab = "up"; setTimeout(function () { openLayer("wallet"); }, 260); return; }
     if (act === "done-close") { closeAll(); return; }
     if (act === "done-repoll") { var dr = S.done || {}; if (dr.evId) awaitPurchase(dr.evId, dr.kind || "meet"); return; }   // B359T
-    if (act === "wtab") { e.stopPropagation(); if (S.layers[S.layers.length - 1] === "borders") return; S.walletMerch = b.getAttribute("data-w") === "m"; return renderLayer("wallet"); }   // B359T：我的票：票券／周邊訂單
+    if (act === "wtab") { e.stopPropagation(); S.walletMerch = b.getAttribute("data-w") === "m"; return renderLayer("wallet"); }   // B359T：我的票：票券／周邊訂單
     if (act === "open-merch") return openLayer("merch");
     if (act === "open-detail") return openLayer("detail", { key: b.getAttribute("data-key") });
     if (act === "open-pass") return openLayer("pass", { sel: id });
     if (act === "b-art") { e.stopPropagation(); return openLayer("bart", { ev: b.getAttribute("data-ev") }); }
     if (act === "b-scan") { e.stopPropagation(); return openLayer("bscan", { ev: b.getAttribute("data-ev") }); }
-    if (act === "b-step") { e.stopPropagation(); var bL = bcLive(S.bs.ev), bi = bL.map(function (x) { return x.id; }).indexOf(S.bs.id), bn = bL[bi + Number(b.getAttribute("data-d"))]; if (bn) { S.bs.id = bn.id; hap(6); renderLayer("bscan"); } return; }
-    if (act === "b-detail") { e.stopPropagation(); return openLayer("bdetail", { ev: b.getAttribute("data-ev") }); }
-    if (act === "b-orders") { e.stopPropagation(); return openLayer("borders"); }
+    if (act === "b-step") { e.stopPropagation(); var bL = awLive(S.bs.ev), bi = bL.map(function (x) { return x.id; }).indexOf(S.bs.id), bn = bL[bi + Number(b.getAttribute("data-d"))]; if (bn) { S.bs.id = bn.id; hap(6); renderLayer("bscan"); } return; }
     if (act === "b-pass") { e.stopPropagation(); return openLayer("pass", { sel: id }); }
-    if (act === "b-home") { e.stopPropagation(); var bw = S.layers.indexOf("wallet"), bk = bw >= 0 ? S.layers.length - 1 - bw : 0; S.walletMerch = false; if (bw >= 0) renderLayer("wallet"); if (bk > 0) history.go(-bk); return; }
+    if (act === "a-mx") { e.stopPropagation(); S.awOpen = S.awOpen || {}; var ak = b.getAttribute("data-key"); S.awOpen[ak] = !S.awOpen[ak]; return renderLayer("wallet"); }
     if (act === "m-code") { e.stopPropagation(); if (id) openLayer("mcode", { no: id }); return; }
     if (act === "pass-step") return passStep(Number(b.getAttribute("data-d") || 0));
     if (act === "v2-zoom") { e.stopPropagation(); if (id) openLayer("v2qr", { id: id }); return; }
@@ -3836,7 +3821,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "sum-merch") return sumGo("m");
     if (act === "sum-shop") { goShop(); back(); return; }
     if (act === "sum-recheck") { sumWatch(true); return; }
-    if (act === "open-mine-pass") { e.stopPropagation(); openLayer("pass", { sel: id }); return; }   // B359T：SHOP「我的票」→ 票券頁 → B413T（CÉON 11/03）：返回直接回 SHOP，底下不墊「我的票」
+    if (act === "open-mine-pass") { e.stopPropagation(); var mt = ticketById(id); if (awUse() && mt) openLayer("bscan", { ev: mt.eventId }); else openLayer("pass", { sel: id }); return; }   // B359T：SHOP「我的票」→ 票券頁 → B413T（CÉON 11/03）：返回直接回 SHOP，底下不墊「我的票」
     if (act === "open-wallet-merch") { e.stopPropagation(); return openLayer("wallet", { merch: true }); }
     if (act === "tab") { S.tab = b.getAttribute("data-tab"); renderLayer("wallet"); return; }
     if (act === "eremind") { e.stopPropagation(); var ev = eventById(b.getAttribute("data-ev")); qOpen(ev || { id: b.getAttribute("data-ev") }); return; }
