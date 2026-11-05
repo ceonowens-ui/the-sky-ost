@@ -272,7 +272,7 @@ function go(a,local){ if(ROOM&&!local) tunePost({room:ROOM,css:css(),nav:{id:++N
   if(a==='merch'||a==='mine'){ shop(); setTimeout(function(){ var e=q(a==='merch'?'#sv3-merch':'#sv3-mine'); if(e) e.scrollIntoView({block:'start'}); },500); }
   if(a==='checkout'){ shop(); setTimeout(function(){   /* 示範資料已經有票（活動卡變「查看我的票」）→ 換成測試後台（新訪客，只讀不下單）再打開結帳頁 */
       if(q('.sv3 [data-act="open-now"]')||!q('.sv3 [data-act="open-buy"]')){ if(/tkdemo=1/.test(document.getElementById('src').value)){ PENDING='checkout'; setSrc('test.html?lang='+(/lang=en/.test(document.getElementById('src').value)?'en':'zh')); } return; }
-      click('.sv3 [data-act="open-buy"]'); },500); }
+      click('.sv3 [data-act="open-buy"]'); setTimeout(function(){ click('[data-layer="buy"] [data-act="buy-go"]'); },700); },500); }
   if(a==='msheet'){ shop(); setTimeout(function(){ click('#sv3-merch [data-act="m-open-k"]'); },500); }
   if(a==='wallet'){ shop(); setTimeout(function(){ click('#sv3-mine [data-act="open-wallet"]')||click('[data-act="open-wallet"]'); },500); }
   if(a==='pass'){ shop(); setTimeout(function(){ click('#sv3-mine [data-act="open-mine-pass"]')||click('[data-act="open-now"]'); },500); }

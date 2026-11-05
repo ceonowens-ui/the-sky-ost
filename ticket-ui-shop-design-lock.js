@@ -1677,7 +1677,7 @@ function coverClockKey() {
   })();
   /* B423T（CÉON 11/05）：12/27 生日會入場票改用 V2 黑白膠片票卡。底圖已印好場次資料，所以只給這一場；
      QR、票號、狀態都來自這張票自己的後台資料。?tkv2=0 可在這次開啟時看回舊樣式。 */
-  var V2_ART = "shop-assets/ticket-v2-1227.png", V2_OFF = /[?&]tkv2=0\b/.test(location.search);
+  var V2_ART = "shop-assets/ticket-v2-1227-m3x.png", V2_OFF = /[?&]tkv2=0\b/.test(location.search);
   function v2Ev(t) { return Object.assign({}, eventById(t.eventId) || {}, t.event || {}); }
   function v2EvOk(id, ev) {
     if (V2_OFF || C.demo || !ev || !/^(meet-20261227|meet-test)$/.test(id || "")) return false;   // 示範模式不用真票外觀
@@ -1708,6 +1708,7 @@ function coverClockKey() {
   }
   function v2Holder() { return '<div class="tk-v2-sub"><span>' + (sxEN() ? "Holder" : "持票人") + '</span><b>' + esc(maskEmail(S.email)) + '</b></div>'; }
   function v2Draw(el) { if (!el) return; el.querySelectorAll("canvas[data-v2]").forEach(function (c) { var t = ticketById(c.getAttribute("data-v2")); if (!t || !t.qr || !isLive(t) || t._out) return; var px = Math.round((c.clientWidth || 0) * (window.devicePixelRatio || 1)); drawQR(c, t.qr, px > 0 ? px / 2 : Number(c.getAttribute("data-size")) || 240); }); }   // 依實際螢幕像素畫，每格都是整數像素，不被縮放糊掉
+  window.addEventListener("resize", function () { ["pass", "bought", "done"].forEach(function (n) { var el = layerEl(n); if (el) v2Draw(el); }); });
   function v2List(evId) { return sibsFor(evId).filter(function (t) { return t.qr && isLive(t) && !t._out; }); }
   function v2ZoomHTML() {
     var en = sxEN(), t = ticketById(S.v2z), h = bar(en ? "My ticket" : "我的票", "ENTRY QR");
@@ -2969,7 +2970,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function isSolo(ev) { return !!ev && (ev.tiers || []).length === 1; }
   function preTotal(ev, T) { return Number(T.price) + mAddPrice(ev, S.pre); }
   function mSetMode(ev, o) { var mi = mInfo(ev.id), I = mi && mi.m.items; return !!(o.mb && o.mh && I && I.s && I.s.left > 0 && !mOwned(ev.id, "s")); }
-  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B423T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
+  (function () { if (document.getElementById("la-css")) return; var l = document.createElement("link"); l.id = "la-css"; l.rel = "stylesheet"; l.href = asset("ticket-la-t281.css") + "?v=B425T-1"; document.head.appendChild(l); var st = document.createElement("style"); st.textContent = ".la-tk.nomore{padding-bottom:calc(20 * var(--u))}"; document.head.appendChild(st); })();   /* B281T：票券頁 LA 版樣式（只有本檔載入） */
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
@@ -3668,16 +3669,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
     if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); if (nm) openLayer("pass", { sel: nm.id }); else openLayer("wallet"); return; }   // B412T（CÉON 11/03）：從 SHOP 直接開票券，返回就回 SHOP（底下不再墊一層「我的票」，不用按兩次）
     if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; S.pre = {};
-      var qev = buyEv(), qst = qev && laState(qev);   // B359T：只有一種票、開賣中、還沒買過 → SHOP 直接進結帳（活動說明收在結帳頁上方）
-      if (qev && qst.solo && !qst.pre && !qst.own && !qst.soldOut && !qst.notOpen && tierBuyable(qev, qev.tiers[0])) {
-        S.buySel = qev.tiers[0].key; createOrder(qev.id, S.buySel); S.buy.mb = false; S.buy.mh = false; S.buy.mq = 1;
-        mEnsure(qev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === qev.id) box.outerHTML = mPreRows(qev); });
-        return openLayer("checkout");
-      }
+      /* B424T（CÉON 11/05）：固定先看活動購票頁。原本只有資料載完才直接結帳，所以這頁時有時無 */
       return openLayer("buy"); }
     if (act === "tier-sel") { var tk = b.getAttribute("data-tier"); S.buySel = S.buySel === tk ? null : tk; hap(8); renderLayer("buy"); return; }
     if (act === "tier-info") { e.stopPropagation(); return tierDetailSheet(b.getAttribute("data-tier")); }
-    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; } return openLayer("checkout"); }
+    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; mEnsure(bev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === bev.id) box.outerHTML = mPreRows(bev); }); } return openLayer("checkout"); }
     if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
     if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
     if (act === "buy-remind") { var rev = buyEv(); if (rev) qOpen(rev); return; }
