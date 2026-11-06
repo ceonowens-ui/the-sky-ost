@@ -174,9 +174,9 @@
 .sv3 .sv3-go.sv3-buy small,.la-noir .la-foot .la-cta small,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta small{margin:0;font:inherit;letter-spacing:0}
 .tk-layer[lang=en] .la-noir .la-foot .la-cta,.tk-layer[lang=en] .tkb.co-noir .tkb-foot .tkb-cta{gap:8px;font-size:13px}
 .la-noir .la-foot .la-cta svg,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta i{display:none}
-.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.la-noir .la-foot .la-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active{scale:none;transform:scale(.95)}
-.la-noir .la-foot .la-cta:active::after,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active::after{content:"";position:absolute;inset:-8px}
+.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.sv3 .sv3-go.sv3-buy.is-press,.la-noir .la-foot .la-cta:active,.la-noir .la-foot .la-cta.is-press,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press{scale:none;transform:scale(.95)}
+.la-noir .la-foot .la-cta:active::after,.la-noir .la-foot .la-cta.is-press::after,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active::after,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press::after{content:"";position:absolute;inset:-8px}
 .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm-busy{width:46px!important;display:block}
 .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-spin{border-color:rgba(255,255,255,.25);border-top-color:#f1ebdf}
 .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:#f1ebdf}
-@media (prefers-reduced-motion:reduce){.sv3 .sv3-go.sv3-buy,.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta{transition:none}.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.la-noir .la-foot .la-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.sv3 .sv3-go.sv3-buy,.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta{transition:none}.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.sv3 .sv3-go.sv3-buy.is-press,.la-noir .la-foot .la-cta:active,.la-noir .la-foot .la-cta.is-press,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press{transform:scale(1)}}
