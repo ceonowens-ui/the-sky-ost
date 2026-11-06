@@ -213,6 +213,8 @@
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
+ /* B441T：C 封面、付款 B */
+ '輸入電子信箱':'Enter your email','稱呼':'Name','座位保留中，超過時間要重新選位':'Your seats are held. If time runs out, choose your seats again.','按「前往付款」後座位會保留一段時間；逾時未完成付款，座位會開放給其他人。':'Your seat is held for a limited time after you tap Pay. If you do not pay in time, it goes back on sale.','按「前往付款」後，請留在付款頁完成付款、不要關閉；超過時間要重新選位。':'After you tap Pay, stay on the payment page until it is done. If time runs out, choose your seats again.','座位保留中，還沒完成購買。超過時間要重新選位。':'Held for you. This is not a completed purchase. If time runs out, choose your seats again.',
  /* B438T：購票封面、結帳頁定稿 */
  '讓我們再見面吧':"Let's meet again",'生日會':'Birthday','活動與入場規則  ↗':'Event & entry rules  ↗',
  /* B437T：購票頁重點、付款前購票須知 */
@@ -344,6 +346,9 @@
  [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
  [/^(\d\d:\d\d) 開始$/,(_,a)=>'Starts '+a],
+ [/^按「前往付款」後座位保留 (\d+) 分鐘，請留在付款頁完成付款、不要關閉；超過時間要重新選位。$/,(_,n)=>'Your seat is held for '+n+' minutes after you tap Pay. Stay on the payment page until it is done. If time runs out, choose your seats again.'],
+ [/^按「前往付款」後座位保留 (\d+) 分鐘；逾時未完成付款，座位會開放給其他人。$/,(_,n)=>'Your seat is held for '+n+' minutes after you tap Pay. If you do not pay in time, it goes back on sale.'],
+ [/^座位保留中，還沒完成購買。按「前往付款」後保留 (\d+) 分鐘；超過時間要重新選位。$/,(_,n)=>'Held for you. This is not a completed purchase. After you tap Pay, it is held for '+n+' minutes; if time runs out, choose your seats again.'],
  [/^手機末 4 碼 (\d+)$/,(_,a)=>'Phone ending '+a],
  [/^(.+) 這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Pick another seat you like. No payment was created.'],
  [/^(.+) 這些位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' were just taken. Pick another seat you like. No payment was created.'],
