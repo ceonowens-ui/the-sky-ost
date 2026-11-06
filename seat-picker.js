@@ -47,10 +47,11 @@
   function order(a, b) { var x = a.split("-"), y = b.split("-"); return x[0] - y[0] || x[1] - y[1]; }
 
   function open(o) {
+    var goneTx = function (ids) { var n = ids.map(name).join(o.en ? ", " : "、"), many = ids.length > 1; return o.en ? n + (many ? " were" : " was") + " just taken. Pick another seat you like." : n + (many ? " 這些位置" : " 這個位置") + "剛被選走了，再挑一個喜歡的位置吧。"; };
     if (!document.getElementById("sk-seat-css")) { var st = document.createElement("style"); st.id = "sk-seat-css"; st.textContent = CSS; document.head.appendChild(st); }
     var en = !!o.en, T = en
-      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", on: "Yours", off: "Taken", none: "Tap the seats you want", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", gone: " was just taken", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
-      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", on: "已選", off: "已售出", none: "點選你要的座位", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", gone: " 剛被選走了", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
+      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
+      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
     var own = (o.own || []).slice(), sel = (o.selected || []).slice(), busy = {}, map = null, timer = 0, msgT = 0, closed = false;
     var el = document.createElement("div");
     el.className = "sk-seat" + (document.getElementById("tk-test-banner") ? " sk-tb" : ""); el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", T.title);
@@ -108,7 +109,7 @@
     function setBusy(list) {
       busy = {}; (list || []).forEach(function (k) { if (own.indexOf(k) < 0) busy[k] = 1; });
       var gone = sel.filter(function (k) { return busy[k]; });
-      if (gone.length) { sel = sel.filter(function (k) { return !busy[k]; }); say(gone.map(name).join(en ? ", " : "、") + T.gone); }
+      if (gone.length) { sel = sel.filter(function (k) { return !busy[k]; }); say(goneTx(gone)); }
     }
     var seq = 0;
     function sync() {   // 點選即鎖（CÉON 11/05 定）：每次點選都送後台鎖 2 分鐘；被別人先鎖住的就退掉並提示
@@ -117,7 +118,7 @@
       return o.pick(sel.slice()).then(function (j) {
         if (closed || my !== seq || !j || !j.ok) return;
         var lost = (j.taken || []).filter(function (k) { return sel.indexOf(k) >= 0; });
-        if (lost.length) { sel = sel.filter(function (k) { return lost.indexOf(k) < 0; }); say(lost.map(name).join(en ? ", " : "、") + T.gone); }
+        if (lost.length) { sel = sel.filter(function (k) { return lost.indexOf(k) < 0; }); say(goneTx(lost)); }
         setBusy(j.busy); paint();
       }).catch(function () {});
     }

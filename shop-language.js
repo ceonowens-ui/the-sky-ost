@@ -213,6 +213,14 @@
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
+ /* B436T：購票流程文案 */
+ '這一次，我們見面吧。':'This time, let’s meet.','期待在這一天，和你一起度過。':'We can’t wait to spend this day with you.','這張票，會帶你來到我們見面的地方。':'This ticket brings you to our meeting place.','購票後出示入場碼，由工作人員掃碼':'After purchase, show your entry code for staff to scan',
+ '把這天的回憶，也一起帶回家。':'Take a memory of this day home with you.','票會寄到這裡，記得填一個收得到信的信箱。':'Your ticket goes here. Use an inbox you can check.','當天，我們該怎麼稱呼你？':'What should we call you on the day?','再一步，我們就約好了。':'One more step and we’re all set.',
+ '正在確認付款，請稍等一下。':'Confirming your payment. One moment.','我們正在為你準備這次的相遇。':'We’re getting ready to meet you.','我們正在為你準備這次的相遇。別關掉這個畫面。':'We’re getting ready to meet you. Please keep this screen open.',
+ '沒關係，我們再試一次。':'It’s okay. Let’s try again.','付款尚未完成，請確認後重新付款。這筆不會出票，資料都還在，之前買好的票不受影響。':'Your payment isn’t complete. Please check and pay again. No ticket will be issued for this attempt, your details are saved, and tickets you already bought are not affected.',
+ '我們還在確認這筆付款。':'We’re still confirming this payment.','如果你已經付款，請先不要重複購買，可稍後再查詢。':'If you already paid, please don’t buy again. You can check back later.','也可以按「重新確認」查看最新狀態。':'You can also tap Check again for the latest status.',
+ '如果你已經付款，請先不要重複購買，可稍後到「我的票」查詢，也請不要按「不買了」。確定還沒付款，再按「重新付款」回到結帳頁，資料都還在。':'If you already paid, please don’t buy again, and do not tap “Never mind”. You can check My tickets later. If you’re sure you didn’t pay, tap Pay again to return to checkout. Your details are saved.',
+ '這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。':'This seat was just taken. Pick another seat you like. No payment was created.',
  /* B345T：分批入場、自由選位（CÉON 10/29 17:39） */
  '依購票順序分批入場，自由選位':'Entry in batches by purchase order · Free seating',
  '每批 10 人，進場後自行選擇現場空位。':'10 people per batch. Once inside, pick any open seat.',
@@ -330,6 +338,8 @@
  [/^入場憑 App 票夾的入場 QR，開場前 (\d+) 小時出現，給工作人員掃描即完成入場。$/,(_,h)=>'Enter with the QR code in your App ticket wallet. It appears '+h+' hours before doors open; staff scan it at the entrance.'],
  [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
+ [/^(.+) 這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Pick another seat you like. No payment was created.'],
+ [/^(.+) 這些位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' were just taken. Pick another seat you like. No payment was created.'],
  [/^下一步 (NT\$[\d,]+)$/,(_,p)=>'Next '+p],
  [/^(.+) 還沒開賣。留下 email 拿到排隊號碼，$/,(_,n)=>(D[n]||n)+' is not on sale yet. Leave your email to receive a waitlist number. '],
  [/^同一個 email 只會有一個號碼；(\d+) 席數量有限，收到通知請盡快購買。$/,(_,n)=>'One waitlist number per email. '+n+' seats are available; purchase promptly after receiving your invitation.'],
