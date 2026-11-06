@@ -213,6 +213,9 @@
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
+ /* B437T：購票頁重點、付款前購票須知 */
+ '這張票包含':'This ticket includes','當天還有':'Also on the day','大合照、有獎問答、抽人形看板':'Group photo, prize quiz, and a standee draw','時間':'Time','地點':'Venue','座位':'Seat','名額':'Capacity','開賣':'On sale','14:00 入場・14:30 開始・16:00 結束':'Doors 14:00, starts 14:30, ends 16:00','120 名':'120 people','11/15 12:00（台北時間）開放購票':'On sale 11/15 12:00 (Taipei time)','周邊、退票與完整規則，付款前會請你看過一次。':'You’ll review merch, refunds, and the full rules before you pay.',
+ '依現場引導入場，依票面座位入座。':'Follow on-site guidance to enter, then sit in the seat on your ticket.','你的座位':'Your seat','收票資料':'Ticket details','修改':'Edit','付款前必須點開看過':'Open and review before you pay','看完後到下方勾選同意':'When you’re done, tick the box below','完整購票須知':'Full ticket terms','我已看過並同意購票須知':'I have read and agree to the ticket purchase terms','請先看過購票須知，再勾選同意才能付款。':'Please review the ticket terms, then tick the box to pay.','請勾選同意購票須知，才能付款。':'Please tick the box to agree to the ticket terms before you pay.',
  /* B436T：購票流程文案 */
  '這一次，我們見面吧。':'This time, let’s meet.','期待在這一天，和你一起度過。':'We can’t wait to spend this day with you.','這張票，會帶你來到我們見面的地方。':'This ticket brings you to our meeting place.','購票後出示入場碼，由工作人員掃碼':'After purchase, show your entry code for staff to scan',
  '把這天的回憶，也一起帶回家。':'Take a memory of this day home with you.','票會寄到這裡，記得填一個收得到信的信箱。':'Your ticket goes here. Use an inbox you can check.','當天，我們該怎麼稱呼你？':'What should we call you on the day?','再一步，我們就約好了。':'One more step and we’re all set.',
@@ -338,6 +341,7 @@
  [/^入場憑 App 票夾的入場 QR，開場前 (\d+) 小時出現，給工作人員掃描即完成入場。$/,(_,h)=>'Enter with the QR code in your App ticket wallet. It appears '+h+' hours before doors open; staff scan it at the entrance.'],
  [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
+ [/^手機末 4 碼 (\d+)$/,(_,a)=>'Phone ending '+a],
  [/^(.+) 這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Pick another seat you like. No payment was created.'],
  [/^(.+) 這些位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' were just taken. Pick another seat you like. No payment was created.'],
  [/^下一步 (NT\$[\d,]+)$/,(_,p)=>'Next '+p],
