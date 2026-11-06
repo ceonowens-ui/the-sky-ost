@@ -26,7 +26,6 @@
 .la-cv-in{left:calc(var(--c) * 97)}.la-cv-s{left:calc(var(--c) * 284)}
 .tk-layer[lang=en] .la-cv-sh{font-size:calc(var(--c) * 30)}
 .tk-layer[lang=en] .la-cv-ve{font-size:calc(var(--c) * 19)}
-.la-noir .la-tks{padding-top:calc(var(--c) * 26)}
 .la-noir .la-info{background:none;border-color:rgba(245,239,227,.26)}
 /* 兩頁同款按鈕 */
 .la-noir .la-foot{padding:calc(var(--c) * 10) calc(var(--c) * 16) calc(max(var(--c) * 19,env(safe-area-inset-bottom)));background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 30%)}
@@ -161,3 +160,11 @@
 .tk-layer .tkb.co-noir .ticket-paper .tkb-total{border-top:0}
 .tk-layer .tkb.co-noir .ticket-paper .tk-msg,.tk-layer .tkb.co-noir .ticket-paper .tk-msg *{color:#ff9a8a!important;-webkit-text-fill-color:#ff9a8a}
 .tk-layer .tkb.co-noir .ticket-paper .tk-msg.on{background:rgba(255,154,138,.1)!important;border-color:rgba(255,154,138,.45)!important}
+.la-noir .la-key{margin:calc(var(--c) * 14) calc(var(--c) * 18) calc(var(--c) * 12);padding:0;border-radius:calc(var(--c) * 5)}
+.la-noir .la-key summary{display:flex;align-items:center;justify-content:space-between;min-height:calc(var(--c) * 56);padding:0 calc(var(--c) * 16);list-style:none;cursor:pointer}
+.la-noir .la-key summary::-webkit-details-marker{display:none}
+.la-noir .la-key summary .la-info-h{margin:0;font-size:calc(var(--c) * 18);color:var(--q-cream)}
+.la-noir .la-key summary i{font-style:normal;font-size:calc(var(--c) * 24);line-height:1;color:var(--q-gold);transition:transform .2s}
+.la-noir .la-key[open] summary i{transform:rotate(90deg)}
+.la-noir .la-key>:not(summary){margin-left:calc(var(--c) * 16);margin-right:calc(var(--c) * 16)}
+.la-noir .la-key>:last-child{margin-bottom:calc(var(--c) * 16);padding-bottom:0}
