@@ -2828,9 +2828,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<section class="la-cv" aria-label="' + esc(ev.name || "") + '" style="--img:url(' + esc(asset("shop-assets/generated/ticket-cover-collage.jpg")) + ')">' +
       cells.map(function (c) { return '<i class="la-cv-c' + (c[4] ? ' bw' : '') + '" aria-hidden="true" style="--x:' + c[0] + ';--y:' + c[1] + ';--ox:' + c[2] + ';--oy:' + c[3] + '"></i>'; }).join("") +
       '<div class="la-cv-bd">' + esc(T.title[0]) + '</div><div class="la-cv-sh">生日會</div><div class="la-cv-city">' + esc(T.city) + ', TW</div><div class="la-cv-lm">LET’S\nMEET.</div>' +
-      '<div class="la-cv-ch">' + esc(T.kicker) + '</div><h1 class="la-cv-h">讓我們再見面吧</h1>' + rule(528) +
-      '<div class="la-cv-d">' + mo + '.' + da + '</div><div class="la-cv-y"><span>' + (d ? d.getUTCFullYear() : "") + '</span> · <span>' + esc(wk(ev.startAt)) + '</span></div><p class="la-cv-ve">' + esc(ev.venue || "") + '</p>' + rule(674) +
-      '<div class="la-cv-t">' + esc(k.doors) + '</div><div class="la-cv-in">入場</div><div class="la-cv-t2">' + esc(hm(ev.startAt)) + '</div><div class="la-cv-s">開始</div></section>';
+      '<div class="la-cv-ch">' + esc(T.kicker) + '</div><h1 class="la-cv-h">讓我們再見面吧</h1>' + rule(466) +
+      '<div class="la-cv-dr"><div class="la-cv-d">' + mo + '.' + da + '</div><div class="la-cv-y"><span>' + (d ? d.getUTCFullYear() : "") + '</span> · <span>' + esc(wk(ev.startAt)) + '</span></div></div><p class="la-cv-ve">' + esc(ev.venue || "") + '</p>' + rule(568) +
+      '<div class="la-cv-tr"><div class="la-cv-tp"><div class="la-cv-t">' + esc(k.doors) + '</div><div class="la-cv-in">入場</div></div><div class="la-cv-tp"><div class="la-cv-t2">' + esc(hm(ev.startAt)) + '</div><div class="la-cv-s">' + (sxEN() ? "Starts" : "開始") + '</div></div></div></section>';
   }
   function laHeroHTML(ev) {
     var T = bt(ev), d = tw(ev.startAt), mmdd = d ? (d.getUTCMonth() + 1) + "." + ("0" + d.getUTCDate()).slice(-2) : "";
@@ -3948,7 +3948,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B445T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B446T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta";

@@ -180,3 +180,34 @@
 .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-spin{border-color:rgba(255,255,255,.25);border-top-color:#f1ebdf}
 .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:#f1ebdf}
 @media (prefers-reduced-motion:reduce){.sv3 .sv3-go.sv3-buy,.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta{transition:none}.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.sv3 .sv3-go.sv3-buy.is-press,.la-noir .la-foot .la-cta:active,.la-noir .la-foot .la-cta.is-press,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press{transform:scale(1)}}
+/* B446T：C 封面、付款 B 字級跟 SHOP 同一個讀字比例（390 寬規格）；日期和年份、時間和標籤排在一起 */
+.la-cv{height:calc(var(--c) * 618)}
+.la-cv-bd{top:calc(var(--c) * 38)}
+.la-cv-sh,.tk-layer[lang=en] .la-cv-sh{left:calc(var(--c) * 207);top:calc(var(--c) * 56);font-size:calc(var(--c) * 28)}
+.la-cv-city{top:calc(var(--c) * 96)}
+.la-cv-lm{top:calc(var(--c) * 167);font-size:calc(var(--c) * 20)}
+.la-cv-ch{left:calc(var(--c) * 18);top:calc(var(--c) * 370);font-size:calc(var(--c) * 46)}
+.la-cv-h{left:calc(var(--c) * 18);top:calc(var(--c) * 430);font-size:calc(var(--c) * 20)}
+.la-cv-dr{left:calc(var(--c) * 18);top:calc(var(--c) * 478);display:flex;align-items:baseline;gap:calc(var(--c) * 12)}
+.la-cv-dr>*{position:static}
+.la-cv-d{font-size:calc(var(--c) * 32)}
+.la-cv-y{font-size:calc(var(--c) * 14)}
+.la-cv-ve,.tk-layer[lang=en] .la-cv-ve{top:calc(var(--c) * 526);font-size:calc(var(--c) * 16)}
+.la-cv-tr{left:calc(var(--c) * 18);top:calc(var(--c) * 580);width:calc(var(--c) * 354);display:grid;grid-template-columns:1fr 1fr}
+.la-cv-tp{display:flex;align-items:baseline;gap:calc(var(--c) * 8)}
+.la-cv-t,.la-cv-t2{font-size:calc(var(--c) * 20)}
+.la-cv-in,.la-cv-s{font-size:calc(var(--c) * 14)}
+.tkc-tt .a{font-size:calc(var(--c) * 29)}
+.tkc-tt .b{font-size:calc(var(--c) * 20)}
+.co-noir .tkc-tag{font-size:calc(var(--c) * 14)}
+.tk-layer[data-layer=checkout] .co-noir .tk-seatrow{min-height:calc(var(--c) * 106)}
+.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>span{font-size:calc(var(--c) * 14)}
+.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b,.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b.l3{font-size:calc(var(--c) * 40);line-height:1.2}
+.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>.tk-seatgo{font-size:calc(var(--c) * 14)}
+.co-noir .tk-seatamt>span{font-size:calc(var(--c) * 14)}
+.co-noir .tk-seatamt>b{font-size:calc(var(--c) * 24)}
+.tk-layer[data-layer=checkout] .tkb.co-noir #tkm-pre>.tkb-sec{font-size:calc(var(--c) * 18)!important}
+.tk-layer .co-noir #tkm-pre .mxp-t b{font-size:calc(var(--c) * 15)}
+.tk-layer .co-noir #tkm-pre .mxp-t>span{font-size:calc(var(--c) * 16)}
+.tk-layer[data-layer=checkout] .tkb.co-noir #tkm-pre .tkb-fine,.tk-layer[data-layer=checkout] .tkb.co-noir .tkc-f .tkb-hint,.tk-layer[data-layer=checkout] .tkb.co-noir .tkc-f .tk-ferr{font-size:calc(var(--c) * 14)!important}
+.tk-layer[data-layer=checkout] .tkb.co-noir .ticket-paper .tk-in.tkb-in{font-size:max(16px,calc(var(--c) * 16))!important}
