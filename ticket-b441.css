@@ -168,3 +168,15 @@
 .la-noir .la-key[open] summary i{transform:rotate(90deg)}
 .la-noir .la-key>:not(summary){margin-left:calc(var(--c) * 16);margin-right:calc(var(--c) * 16)}
 .la-noir .la-key>:last-child{margin-bottom:calc(var(--c) * 16);padding-bottom:0}
+/* B443T：SHOP、C 封面、付款 B 同一顆暗灰玻璃膠囊 228×46；按住 95%，放開回原大小 */
+.sv3 .sv3-go.sv3-buy,.la-noir .la-foot .la-cta,.la-noir .la-foot .la-cta.ghost,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.wait{position:relative;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:12px;width:228px;max-width:100%;height:46px;min-height:46px!important;margin:0 auto;padding:0 12px;border:0;border-radius:999px;background:rgba(70,68,66,.66)!important;-webkit-backdrop-filter:blur(14px) saturate(120%);backdrop-filter:blur(14px) saturate(120%);box-shadow:inset 0 .5px 0 rgba(255,255,255,.38),inset 0 0 0 .5px rgba(255,255,255,.12);color:#f1ebdf!important;-webkit-text-fill-color:#f1ebdf;filter:none!important;font:600 15px/1.2 "Noto Sans TC","PingFang TC",sans-serif;letter-spacing:0;white-space:nowrap;text-align:center;scale:none;transform:scale(1);transition:transform 120ms ease-out}
+.sv3 .sv3-go.sv3-buy{margin-top:14px;animation:none}
+.sv3 .sv3-go.sv3-buy small,.la-noir .la-foot .la-cta small,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta small{margin:0;font:inherit;letter-spacing:0}
+.tk-layer[lang=en] .la-noir .la-foot .la-cta,.tk-layer[lang=en] .tkb.co-noir .tkb-foot .tkb-cta{gap:8px;font-size:13px}
+.la-noir .la-foot .la-cta svg,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta i{display:none}
+.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.la-noir .la-foot .la-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active{scale:none;transform:scale(.95)}
+.la-noir .la-foot .la-cta:active::after,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active::after{content:"";position:absolute;inset:-8px}
+.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm-busy{width:46px!important;display:block}
+.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-spin{border-color:rgba(255,255,255,.25);border-top-color:#f1ebdf}
+.tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:#f1ebdf}
+@media (prefers-reduced-motion:reduce){.sv3 .sv3-go.sv3-buy,.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta{transition:none}.sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,.la-noir .la-foot .la-cta:active,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active{transform:scale(1)}}
