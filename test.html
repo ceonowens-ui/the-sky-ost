@@ -2558,6 +2558,7 @@ body.ptr-nav #screen-player.cp-ready button:focus-visible, body.ptr-nav #cm-shee
 <style id="a264-css">/* B264T＋B265T：解鎖成功小卡／播放器小提示／一步一圖教學 */
 html.tk-resume #a2tip,html.tk-resume #__sigBar,html.tk-paywait #a2tip,html.tk-paidpage #a2tip{display:none !important}   /* B386T：從綠界回來時先不跳「已經買過？用兌換碼」提示 */
 #a2tip{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:114000;max-width:420px;margin:0 auto;background:rgba(20,18,15,.96);border:1px solid #3A3328;border-radius:16px;padding:12px 40px 12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:a2tipIn .3s ease}
+#a2tip{touch-action:none;-webkit-user-select:none;user-select:none}
 #a2tip .tip-t{margin:0;font-size:14px;line-height:1.55;color:#F1ECE3}
 #a2tip .tip-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 #a2tip .tip-b[hidden],#a2tip .tip-more[hidden]{display:none}
@@ -7862,14 +7863,6 @@ window.ALBUM_SWITCH = {
     if (k) { cardLogin(k); return; }
     if (cardRec()) cardRenew(false).then(function (ok) { if (ok) cardApply(); });
   }
-  /* CARD1（新按鈕，候選）：Safari 已用卡片登入 → 產生一組 8 位配對碼給「已經裝好的」主畫面 App（它跟 Safari 不共用資料，只能輸入一次） */
-  function cardPairShow() {
-    cardPairNew(function (d) {
-      if (!d || !d.code) { toast(window.SKY_LANG === "en" ? "Couldn't make a pairing code. Try again." : "現在沒辦法產生配對碼，等一下再試"); return; }
-      var cd = d.code.slice(0, 4) + "-" + d.code.slice(4);
-      a2OkOpen({ simple: true, t: cd, s: window.SKY_LANG === "en" ? "Open the home-screen app → OWN → “Enter pairing code”. Valid 10 minutes, one use." : "打開主畫面 App → 在提示列按「輸入配對碼」。10 分鐘內有效、只能用一次。" });
-    });
-  }
   /* B262T：配對 cookie 提早準備。CÉON 10/20 實測：按「放到主畫面」後一兩秒才寫 cookie，接著馬上加主畫面，主畫面 App 沒拿到（後台有發 token、沒有人來換）。
      改成 Safari 只要已解鎖就先準備好 cookie，每 8 分鐘、回到前景時自動更新（token 10 分鐘有效），加主畫面時一定有一顆新鮮的。 */
   /* CARD1：只有卡片登入（沒有原碼）時，配對改用卡片後端的單次 token（10 分鐘）＋自己的 cookie；
@@ -8108,6 +8101,26 @@ window.ALBUM_SWITCH = {
 
   /* ---------- 2. 小提示條（非彈窗，不擋播放） ---------- */
   function a2TipClose() { var t = $("a2tip"); if (t && t.parentNode) t.parentNode.removeChild(t); var sb = document.getElementById("__sigBar"); if (sb) sb.classList.remove("sigbar-wait"); }   /* B307T：提示關了，被藏起來的 SIGNAL 條再出現 */
+  /* B440T（CÉON 11/06）：提示往上滑也能關，跟按叉走同一條路。手指還沒動就不搶按鈕的點擊 */
+  function a2TipSwipe(t) {
+    var y0 = null, pid = null, dy = 0, drag = false, calm = false; try { calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+    var back = function () { t.style.transition = calm ? "none" : "transform .18s ease,opacity .18s ease"; t.style.transform = ""; t.style.opacity = ""; };
+    t.addEventListener("pointerdown", function (e) { if (e.button) return; y0 = e.clientY; pid = e.pointerId; dy = 0; drag = false; t.style.transition = "none"; });
+    t.addEventListener("pointermove", function (e) {
+      if (y0 === null || e.pointerId !== pid) return; dy = Math.min(0, e.clientY - y0);
+      if (!drag && dy > -8) return;
+      if (!drag) { drag = true; try { t.setPointerCapture(pid); } catch (x) {} }
+      t.style.transform = "translateY(" + dy + "px)"; t.style.opacity = String(Math.max(.25, 1 + dy / 160));
+    });
+    var end = function (e) {
+      if (y0 === null || e.pointerId !== pid) return; y0 = null; if (!drag) return;
+      if (dy > -36 || e.type === "pointercancel") { back(); return; }
+      t.style.transition = calm ? "none" : "transform .16s ease,opacity .16s ease"; t.style.transform = "translateY(-140%)"; t.style.opacity = "0";
+      setTimeout(function () { var x = t.querySelector(".tip-x"); if (x && t.parentNode) x.click(); }, calm ? 0 : 160);
+    };
+    t.addEventListener("pointerup", end); t.addEventListener("pointercancel", end);
+    t.addEventListener("click", function (e) { if (drag) { drag = false; if (!e.target.closest(".tip-x") || y0 !== null) { e.stopPropagation(); e.preventDefault(); } } }, true);
+  }
   function a2Tip(kind, opt) {
     opt = opt || {};
     if (document.getElementById("__langBar")) { setTimeout(function () { a2Tip(kind, opt); }, 1500); return false; }   /* B313T：語言提示先，一次只有一個 */
@@ -8139,7 +8152,7 @@ window.ALBUM_SWITCH = {
       btns = '<button type="button" class="pri" data-t="paycheck">再確認一次</button><button type="button" data-t="redeem">輸入兌換碼</button>';
     } else if (kind === "nopair") {
       txt = "已經買過？在這裡輸入一次 email＋兌換碼就能接上，不用重買。";
-      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button>' + (A2.standalone ? '<button type="button" data-t="cpair">輸入配對碼</button>' : '') + '<button type="button" data-t="later">稍後</button>';   /* CARD1（新按鈕，候選）：已裝的主畫面 App 用 Safari 產生的配對碼接上錢包卡 */
+      btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
     } else if (kind === "card") {   /* B278T：錢包卡連結沒辦法自動開啟（原本是底部小字） */
       txt = "這張卡沒辦法自動開啟。輸入一次 email＋兌換碼就能開啟，不用重買。";
       btns = '<button type="button" class="pri" data-t="redeem">用兌換碼開啟</button><button type="button" data-t="later">稍後</button>';
@@ -8157,6 +8170,7 @@ window.ALBUM_SWITCH = {
     t.innerHTML = '<p class="tip-t">' + txt + '</p><div class="tip-b">' + btns + '</div><div class="tip-more" hidden></div>' +
       '<button type="button" class="tip-x" data-t="x" aria-label="關閉">' + A2X + '</button>';
     document.body.appendChild(t);
+    a2TipSwipe(t);
     t.addEventListener("click", function (e) {
       var b = e.target.closest("button[data-t]"); if (!b) return;
       var a = b.getAttribute("data-t");
@@ -8165,8 +8179,6 @@ window.ALBUM_SWITCH = {
       if (a === "install") { var ev = A264.bip; a2TipClose(); if (!ev) { a2TutOpen("tip"); return; }
         try { ev.prompt(); ev.userChoice.then(function (c) { A264.bip = null; if (c && c.outcome === "accepted") { a2st({ done: true, doneAt: Date.now(), via: "bip" }); toast("安裝好之後，從主畫面點 THE SKY"); } }); } catch (x) { a2TutOpen("tip"); } return; }
       if (a === "redeem") { a2TipClose(); a2GoRedeem(); return; }
-      if (a === "cpair") { var pc = ""; try { pc = String(window.prompt(window.SKY_LANG === "en" ? "Enter the 8-character pairing code shown in Safari" : "輸入 Safari 上顯示的 8 位配對碼") || "").replace(/[\s-]/g, "").toUpperCase(); } catch (e) {}
-        if (!/^[A-Z0-9]{8}$/.test(pc)) return; a2TipClose(); cardPairRedeem(pc).then(function (ok) { if (!ok) toast(window.SKY_LANG === "en" ? "That pairing code didn't work. Make a new one in Safari." : "配對碼無效或已過期，請在 Safari 重新產生一組", 4200); }); return; }
       if (a === "retry") { a2TipClose(); try { if (opt.retry) opt.retry(); } catch (x) {} return; }
       if (a === "payhelp") {
         var m = t.querySelector(".tip-more");
@@ -8816,12 +8828,6 @@ window.ALBUM_SWITCH = {
   function a2OwnEntry264() {
     /* B331T（CÉON 10/28 參考圖）：主畫面教學／基本功能介紹／App 使用規則／加入 Apple 錢包／語言 都在固定清單 #own-menu；這裡只接動作、依裝置藏列 */
     ownMenuPaint();
-    var after = $("own-after");
-    if (after && A2.mobile && !A2.standalone && cardRec() && !$("c1-pair")) {   /* CARD1（候選）：沿用，只是改放在清單下方 */
-      var pb = document.createElement("button"); pb.type = "button"; pb.id = "c1-pair"; pb.className = "a2-own a2-sub";
-      pb.textContent = window.SKY_LANG === "en" ? "Pair the home-screen app" : "主畫面 App 接上錢包卡";
-      pb.addEventListener("click", cardPairShow); after.insertBefore(pb, after.firstChild);
-    }
   }
   function ownMenuPaint() {
     var m = $("own-menu"); if (!m) return;
@@ -12649,7 +12655,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B439T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B440T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
