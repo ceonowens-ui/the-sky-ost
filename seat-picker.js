@@ -148,7 +148,7 @@
     el.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-k]"); if (!b) return;
       var k = b.getAttribute("data-k");
-      if (k === "back") { close(); if (o.pick) o.pick([]).catch(function () {}); if (o.onClose) o.onClose(); return; }   // 沒確認就離開 → 放掉點選鎖
+      if (k === "back") { close(); if (o.onClose) o.onClose(); else if (o.pick) o.pick([]).catch(function () {}); return; }   // 沒確認就離開：由呼叫方決定放掉或鎖回原本的位子
       if (k === "tab") return go(b.getAttribute("data-b"));
       if (k === "wheel") return say(T.wheel);
       if (k === "retry") { mapEl.innerHTML = '<div class="sk-state">' + T.load + "</div>"; return pull(true); }
@@ -165,6 +165,7 @@
     document.addEventListener("keydown", onKey); document.addEventListener("visibilitychange", onVis);
     foot(); pull(true);
     timer = setInterval(function () { if (!document.hidden && map) pull(false); }, POLL_MS);
+    return { close: close };
   }
   window.SkySeat = { open: open, name: name };
 })();

@@ -212,6 +212,7 @@
  '綠界回覆這筆付款沒有成功，所以不會出票。可以換一張卡再試一次，資料都還在。之前買好的票不受影響。':'ECPay reported that this payment failed, so no ticket was issued. You can try again with another card — your details are saved. Tickets you already bought are not affected.',
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
+ '選擇座位':'Choose seats','選位後計算':'After you choose seats',
  /* B345T：分批入場、自由選位（CÉON 10/29 17:39） */
  '依購票順序分批入場，自由選位':'Entry in batches by purchase order · Free seating',
  '每批 10 人，進場後自行選擇現場空位。':'10 people per batch. Once inside, pick any open seat.',
@@ -328,6 +329,7 @@
  [/^(所有入場者共享|全票種共享)：(.*)$/,(_,k,l)=>(k==='全票種共享'?'Included with every ticket type: ':'Included for everyone: ')+enList(l)],
  [/^入場憑 App 票夾的入場 QR，開場前 (\d+) 小時出現，給工作人員掃描即完成入場。$/,(_,h)=>'Enter with the QR code in your App ticket wallet. It appears '+h+' hours before doors open; staff scan it at the entrance.'],
  [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
+ [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
  [/^下一步 (NT\$[\d,]+)$/,(_,p)=>'Next '+p],
  [/^(.+) 還沒開賣。留下 email 拿到排隊號碼，$/,(_,n)=>(D[n]||n)+' is not on sale yet. Leave your email to receive a waitlist number. '],
  [/^同一個 email 只會有一個號碼；(\d+) 席數量有限，收到通知請盡快購買。$/,(_,n)=>'One waitlist number per email. '+n+' seats are available; purchase promptly after receiving your invitation.'],
