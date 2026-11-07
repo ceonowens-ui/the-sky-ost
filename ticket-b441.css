@@ -230,7 +230,7 @@ html[data-cta-style] .sv3 .sv3-block:focus-visible .sv3-go.sv3-buy,html[data-cta
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm-busy{display:block;width:50px!important;padding:0!important;border-radius:999px!important}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-spin{border-color:var(--cta-spin);border-top-color:var(--cta-fg)}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:var(--cta-fg)}
-.cta-tip{display:none;margin:0 0 8px;color:#C2B8AB;font:400 14px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
+.cta-tip{display:none;margin:0 0 8px;color:#D9D0C3;font:500 16px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
 html[data-cta-style] .tkb-foot:has(.tkb-cta.wait) .cta-tip{display:block}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 10px)!important}
 @media (prefers-reduced-motion:reduce){html[data-cta-style] .sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,html[data-cta-style] .sv3 .sv3-go.sv3-buy.is-press,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta:active,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.is-press,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press,html[data-cta-style] .sk-seat .sk-ok:not(:disabled):active,html[data-cta-style] .sk-seat .sk-ok.is-press{transform:scale(1)}html[data-cta-style] .sk-seat .sk-ok{transition:none}}
@@ -239,4 +239,7 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){ba
 /* B453T：選位總時限倒數 */
 .co-noir small.tk-seatleft{box-sizing:border-box;display:block;width:max-content;max-width:100%;margin:0;padding:3px 12px;border-radius:999px;background:rgba(218,183,127,.12);font-size:calc(var(--c) * 15);font-weight:600;line-height:1.4;color:#DAB77F!important;font-variant-numeric:tabular-nums}.co-noir small.tk-seatleft:empty{display:none}.co-noir small.tk-seatleft.warn{background:rgba(255,170,100,.18);color:#ffb070!important}
 .tk-payline{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 10px;margin:0 0 8px}
-.tk-nochange{margin:0;color:#C2B8AB;font:400 14px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
+.tk-nochange{margin:0;color:#D9D0C3;font:500 16px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
+/* B454T（CÉON 11/07）：前往付款前的購票須知放大 */
+.tk-layer .tkb.co-noir .tkc-thead small{font-size:calc(var(--c) * 16)!important}
+.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .tk-hold,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .tkc-entry li,.tk-layer .tkb.co-noir .tkc-tbody .tkc-note li,.tk-layer .tkb.co-noir .tkc-tbody .la-info,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .la-info p,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .la-info li,.tk-layer .tkb.co-noir .tkc-full,.tk-layer .tkb.co-noir .tkc-full li,.tk-layer .tkb.co-noir .tkc-full .nt,.tk-layer .tkb.co-noir .tkc-refund{font-size:calc(var(--c) * 17)!important;line-height:1.6!important}

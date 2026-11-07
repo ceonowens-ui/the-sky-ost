@@ -358,7 +358,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 
   /* ---------- 資料 ---------- */
   function noTestTag(e) { if (e && e.name) e.name = String(e.name).replace("（測試場）", ""); return e; }   /* B452T：測試資料的場次名稱不顯示「（測試場）」 */
-  function loadEvents() { return api("/ticket/events").then(function (j) { S.events = ((j && j.events) || []).map(noTestTag); try { qSync(); } catch (e) {} }).catch(function () {}); }
+  function loadEvents() { return api("/ticket/events").then(function (j) { if (!j || !Array.isArray(j.events)) return; S.events = j.events.map(noTestTag); if (!C.demo) try { localStorage.setItem("tk:evs:" + C.api, JSON.stringify({ t: Date.now(), ev: S.events })); } catch (e) {} try { qSync(); } catch (e) {} }).catch(function () {}); }
+  function evCache() { if (C.demo) return; try { var o = JSON.parse(localStorage.getItem("tk:evs:" + C.api) || "null"); if (o && Array.isArray(o.ev) && o.ev.length && Date.now() - o.t < 7 * 864e5) S.events = o.ev; } catch (e) {} }   // B454T：上次看到的活動先顯示，後台回來再更新，不用每次等
   function loadMine(force) {
     if (!S.session) return Promise.resolve();
     if (!force && Date.now() - S.lastFetch < 2500) return Promise.resolve();
@@ -1097,7 +1098,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function evKind(ev) { var n = String(ev && ev.name || ""); if (/生日/.test(n)) return { cls: "gold", lab: "BIRTHDAY", dot: "" }; if (/聽片|THE SKY/i.test(n)) return { cls: "pu", lab: "THE SKY", dot: "pu" }; return { cls: "gold", lab: "MEET", dot: "" }; }
   function refresh(force) {
     if (S.loading) return; S.loading = true; render();
-    ensureSession().then(function () { return Promise.all([loadEvents(), loadMine(force)]); })
+    var seen = JSON.stringify(S.events), evs = loadEvents().then(function () { if (JSON.stringify(S.events) !== seen) render(); });   // B454T：活動一回來就顯示，不等登入和我的票
+    ensureSession().then(function () { return Promise.all([evs, loadMine(force)]); })
       .then(function () { S.loading = false; render(); });
   }
   function isLive(t) { return t.status === "valid" && !t.expired; }
@@ -1400,8 +1402,8 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
         (ticketsVisible() ? '<section class="sv3-sec" id="sv3-tickets">' +
           '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(T.secTickets) + '</span><i class="sv3-sec-line"></i></div>' +
           '<button class="sv3-block" data-act="open-buy" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut ? ' disabled' : '') + '>' +
-            '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2>' + (ev && !_soldOut ? '<p class="sv3-lead">這一次，我們見面吧。</p>' : '') + '</div><div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div><p class="sv3-block-m sky-event-facts">' + [evDate ? esc(evDate + ' · 台北時間') : '時間待公布', evVenue ? esc(evVenue) : '', evCapacity ? esc(evCapacity) : '', evPrice].filter(Boolean).join('<br>') + '</p>' +
-            '<span class="sv3-go sv3-buy' + (_onSale ? ' on' : '') + '">' + esc(goLabel) + (_onSale && _minP ? ' <small>NT$' + _minP.toLocaleString('en-US') + (sxEN() ? ' & up' : ' 起') + '</small>' : '') + '</span>' +   /* B443T：購票按鈕，動作和價格同一行 */
+            '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2>' + (ev && !_soldOut ? '<p class="sv3-lead">這一次，我們見面吧。</p>' : '') + '</div><div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div><p class="sv3-block-m sky-event-facts">' + [evDate ? esc(evDate + ' · 台北時間') : (ev || !S.loading ? '時間待公布' : ''), evVenue ? esc(evVenue) : '', evCapacity ? esc(evCapacity) : '', evPrice].filter(Boolean).join('<br>') + '</p>' +
+            '<span class="sv3-go sv3-buy' + (_onSale ? ' on' : '') + '"' + (!ev && S.loading ? ' style="visibility:hidden"' : '') + '>' + esc(goLabel) + (_onSale && _minP ? ' <small>NT$' + _minP.toLocaleString('en-US') + (sxEN() ? ' & up' : ' 起') + '</small>' : '') + '</span>' +   /* B443T：購票按鈕，動作和價格同一行 */
           '</button>' +
         '</section>' +
         '<div class="sv3-divide"></div>' : '') +   /* B310T：票券區塊可隱藏 */
@@ -2702,7 +2704,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   var ENTRY_SEAT = {
     short: ["對號入座，購票時選位", "票面會顯示你的座位，到場依座位入座。"],
     co: { title: "入場與座位", items: ["座位在購票時選定，票面和門票信都會顯示。", "活動當天憑入場 QR 入場，依票面座位入座。", "轉讓時座位跟著票走；退票後座位會重新開放。", "輪椅席不開放線上選位，請聯繫主辦。"] },
-    terms: { title: "入場與座位安排", items: ["本活動為對號入座，座位於購票時選定，並顯示於票面與門票信。", "按「前往付款」後座位保留 5 分鐘；逾時未完成付款，座位會開放給其他人。", "逾時才完成付款且原座位已被購買時，系統自動改派最近的空位，並於票面與門票信註明；若已無空位，該筆不出票並全額退款。", "轉讓時座位隨票轉移；退票後座位重新開放。", "從第一次點選座位起，請在 5 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。", "付款後不能更換座位。", "輪椅席不開放線上選位，請聯繫主辦。"] }
+    terms: { title: "入場與座位安排", items: ["本活動為對號入座，座位於購票時選定，並顯示於票面與門票信。", "按「前往付款」後座位保留 5 分鐘；逾時未完成付款，座位會開放給其他人。", "逾時才完成付款且原座位已被購買時，系統自動改派最近的空位，並於票面與門票信註明；若已無空位，該筆不出票並全額退款。", "轉讓時座位隨票轉移；退票後座位重新開放。", "從第一次點選座位起，請在 10 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。", "付款後不能更換座位。", "輪椅席不開放線上選位，請聯繫主辦。"] }
   };
   function entryOf(ev) { if (ev && ev.seatMap) return ENTRY_SEAT; return (ev && ENTRY_RULES[ev.id]) || null; }
   function entryStep1HTML(ev) {
@@ -2998,10 +3000,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     S.pickQ = Promise.race([p, new Promise(function (r) { setTimeout(r, 8000); })]).catch(function () {});   // 一筆卡住也不擋後面
     return p;
   }
-  /* B453T（CÉON 11/07）：一次購買從第一次點座位起 5 分鐘內要按前往付款。時間以後台為準，這裡只顯示倒數 */
+  /* B453T（CÉON 11/07）：一次購買從第一次點座位起 10 分鐘內要按前往付款。時間以後台為準，這裡只顯示倒數 */
   function seatLeft() { var p = S.pickLeft; return p ? p.ms - (Date.now() - p.at) : null; }
   function seatExpired() {
-    var b = S.buy, ui = S.seatUI, tx = sxEN() ? "Your 5 minutes ran out and the seats were released. Choose again. You have not been charged." : "選位時間到了，座位已放掉，請重新選位。還沒建立付款，不會扣款。";
+    var b = S.buy, ui = S.seatUI, tx = sxEN() ? "Your 10 minutes ran out and the seats were released. Choose again. You have not been charged." : "選位時間到了，座位已放掉，請重新選位。還沒建立付款，不會扣款。";
     if (S.seatExpiredAt && Date.now() - S.seatExpiredAt < 2000) return; S.seatExpiredAt = Date.now();
     S.pickLeft = null; clearInterval(S.seatKeepT); clearInterval(S.seatClockT);
     if (b) { b.seats = []; b.seatNames = []; b.seatOwn = []; b.tq = 0; seatPick(b.evId, []).catch(function () {}); }
@@ -3990,7 +3992,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B453T-4"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B454T-2"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
@@ -4140,12 +4142,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
 
   /* ---------- 啟動 ---------- */
   function boot() {
-    mount(); render();
+    evCache(); mount(); render();
     var host = $(C.mount);
     if (host) {
       var mo = new MutationObserver(function () { if (host.classList.contains("active")) refresh(false); });
       mo.observe(host, { attributes: true, attributeFilter: ["class"] });
-      if (host.classList.contains("active")) refresh(false);
+      if (host.classList.contains("active")) refresh(false); else loadEvents().then(function () { render(); });   // B454T：還沒進 SHOP 就先抓好
     } else refresh(false);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && S.session) loadMine(true).then(function () { render(); }); });
     /* B354T：從綠界回到 App（主畫面 App 的綠界頁是另一層，關掉後網址沒有 ?tkbought）→ 問一次付款完成了沒 */
