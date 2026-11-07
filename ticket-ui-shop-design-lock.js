@@ -1485,6 +1485,27 @@ function coverClockKey() {
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
     if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (!awUse() && t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
+    if (name === "pass" || name === "v2qr") entryWatch();
+  }
+  /* CÉON 11/07：票券頁開著時定時查狀態。掃碼機放行後，App 不用重開就變成「已入場」，放大的 QR 也會收起來 */
+  var entryWatchT = null;
+  function entryWatch() {
+    clearInterval(entryWatchT);
+    entryWatchT = setInterval(function () {
+      if (document.hidden || !S.session) return;
+      var top = S.layers[S.layers.length - 1];
+      if (top !== "pass" && top !== "v2qr") { clearInterval(entryWatchT); entryWatchT = null; return; }
+      var was = {}, live = false; S.tickets.forEach(function (t) { was[t.id] = t.status; if (t.status === "valid") live = true; });
+      if (!live) { clearInterval(entryWatchT); entryWatchT = null; return; }
+      loadMine(true).then(function () {
+        var used = S.tickets.filter(function (t) { return was[t.id] === "valid" && t.status === "used"; }); if (!used.length) return;
+        var ids = used.map(function (t) { return t.id; }), zoomed = S.layers[S.layers.length - 1] === "v2qr" && ids.indexOf(S.v2z) >= 0;
+        hap([20, 40, 20]); toast(sxEN() ? "✓ Admitted" : "✓ 已入場");
+        if (zoomed) { S.sel = S.v2z; back(); setTimeout(function () { renderLayer("pass"); }, 180); return; }
+        if (S.layers[S.layers.length - 1] === "v2qr") renderLayer("v2qr");
+        if (S.layers.indexOf("pass") >= 0) renderLayer("pass");
+      });
+    }, 5000);
   }
   function paidMark() { document.documentElement.classList.toggle("tk-paidpage", ["done", "bought", "buy", "checkout"].some(function (n) { return S.layers.indexOf(n) >= 0; })); }   // B433T：買完的頁面不跳「已經買過？」；B435T：購票頁、結帳頁也不跳（會蓋住返回和我的票）
   function popLayer() {
