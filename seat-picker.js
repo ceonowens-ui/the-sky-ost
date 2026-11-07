@@ -35,6 +35,7 @@
 .sk-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.1);background:#0f0f10}\
 .sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6}\
 .sk-sel small{font-size:14px;color:#a59d8e}\
+.sk-left{box-sizing:border-box;width:max-content;max-width:100%;margin:0 auto 6px;padding:3px 12px;border-radius:999px;background:rgba(236,198,127,.12);font-size:15px;font-weight:600;line-height:20px;color:#ecc67f;text-align:center;font-variant-numeric:tabular-nums}.sk-left[hidden]{display:none}.sk-left.warn{background:rgba(255,170,100,.18);color:#ffb070}\
 .sk-ok{width:100%;min-height:50px;border:0;border-radius:25px;background:#ecc67f;color:#1d1915;font:inherit;font-size:16px;font-weight:700;cursor:pointer}\
 .sk-ok:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.4);cursor:default}\
 .sk-msg{position:absolute;left:16px;right:16px;bottom:calc(136px + env(safe-area-inset-bottom));padding:10px 14px;border-radius:12px;background:#f3efe6;color:#1d1915;font-size:14px;line-height:1.45;text-align:center;opacity:0;pointer-events:none;transition:opacity .18s}\
@@ -60,12 +61,12 @@
       '<div class="sk-tabs" hidden><button type="button" data-k="tab" data-b="L">' + T.L + '</button><button type="button" data-k="tab" data-b="C" aria-pressed="true">' + T.C + '</button><button type="button" data-k="tab" data-b="R">' + T.R + '</button></div>' +
       '<div class="sk-map"><div class="sk-state">' + T.load + '</div></div>' +
       '<div class="sk-leg"><span><i></i>' + T.free + '</span><span><i class="on"></i>' + T.on + '</span><span><i class="off"></i>' + T.off + '</span><span class="sk-shut" hidden><i class="x"></i>' + T.shut + '</span></div>' +
-      '<div class="sk-foot"><div class="sk-sel" aria-live="polite"></div><button type="button" class="sk-ok" data-k="ok" disabled></button></div><div class="sk-msg" role="status"></div>';
+      '<div class="sk-foot"><div class="sk-left" hidden></div><div class="sk-sel" aria-live="polite"></div><button type="button" class="sk-ok" data-k="ok" disabled></button></div><div class="sk-msg" role="status"></div>';
     document.body.appendChild(el);
-    var mapEl = el.querySelector(".sk-map"), selEl = el.querySelector(".sk-sel"), okEl = el.querySelector(".sk-ok"), msgEl = el.querySelector(".sk-msg"), tabs = el.querySelector(".sk-tabs");
+    var leftEl = el.querySelector(".sk-left"), leftT = 0, mapEl = el.querySelector(".sk-map"), selEl = el.querySelector(".sk-sel"), okEl = el.querySelector(".sk-ok"), msgEl = el.querySelector(".sk-msg"), tabs = el.querySelector(".sk-tabs");
     el.querySelector("h2").focus({ preventScroll: true });
 
-    function say(t) { msgEl.textContent = t; msgEl.classList.add("on"); clearTimeout(msgT); msgT = setTimeout(function () { msgEl.classList.remove("on"); }, 2600); }
+    function say(t, ms) { msgEl.textContent = t; msgEl.classList.add("on"); clearTimeout(msgT); msgT = setTimeout(function () { msgEl.classList.remove("on"); }, ms || 2600); }
     function foot() {
       var n = sel.length;
       selEl.innerHTML = n ? sel.slice().sort(order).map(name).join(en ? ", " : "、") : "<small>" + T.none + "</small>";
@@ -140,8 +141,10 @@
       try { mapEl.scrollTo({ left: x, behavior: now ? "auto" : "smooth" }); } catch (e) { mapEl.scrollLeft = x; }
       tabs.querySelectorAll("button").forEach(function (t) { t.setAttribute("aria-pressed", String(t.getAttribute("data-b") === b)); });
     }
+    /* B453T：選位總時限，時間以後台回的為準 */
+    function tick() { var ms = o.left ? o.left() : null; if (ms == null) { leftEl.hidden = true; return; } var s2 = Math.max(0, Math.ceil(ms / 1000)); leftEl.hidden = false; leftEl.textContent = (en ? "Seats held " : "座位保留中 ") + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); leftEl.classList.toggle("warn", ms <= 60e3); if (ms <= 0 && o.onTimeUp) o.onTimeUp(); }
     function close() {
-      closed = true; clearInterval(timer); clearTimeout(msgT);
+      closed = true; clearInterval(timer); clearInterval(leftT); clearTimeout(msgT);
       document.removeEventListener("keydown", onKey); document.removeEventListener("visibilitychange", onVis);
       el.remove();
     }
@@ -167,7 +170,8 @@
     document.addEventListener("keydown", onKey); document.addEventListener("visibilitychange", onVis);
     foot(); pull(true);
     timer = setInterval(function () { if (!document.hidden && map) pull(false); }, POLL_MS);
-    return { close: close };
+    leftT = setInterval(tick, 1000); tick();
+    return { close: close, expired: function (tx) { sel = []; own = []; paint(); say(tx, 6000); pull(false); tick(); } };
   }
   window.SkySeat = { open: open, name: name };
 })();

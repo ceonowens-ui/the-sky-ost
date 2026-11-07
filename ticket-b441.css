@@ -236,3 +236,7 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){ba
 @media (prefers-reduced-motion:reduce){html[data-cta-style] .sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,html[data-cta-style] .sv3 .sv3-go.sv3-buy.is-press,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta:active,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.is-press,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press,html[data-cta-style] .sk-seat .sk-ok:not(:disabled):active,html[data-cta-style] .sk-seat .sk-ok.is-press{transform:scale(1)}html[data-cta-style] .sk-seat .sk-ok{transition:none}}
 /* B452T：360 以下付款鈕內距是 10px，金額區要跟著貼齊右邊，不然金額會被切掉 */
 @media (max-width:360px){html[data-cta-style=c] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta[data-act="co-pay"] small{margin-right:-10px}}
+/* B453T：選位總時限倒數 */
+.co-noir small.tk-seatleft{box-sizing:border-box;display:block;width:max-content;max-width:100%;margin:0;padding:3px 12px;border-radius:999px;background:rgba(218,183,127,.12);font-size:calc(var(--c) * 15);font-weight:600;line-height:1.4;color:#DAB77F!important;font-variant-numeric:tabular-nums}.co-noir small.tk-seatleft:empty{display:none}.co-noir small.tk-seatleft.warn{background:rgba(255,170,100,.18);color:#ffb070!important}
+.tk-payline{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 10px;margin:0 0 8px}
+.tk-nochange{margin:0;color:#C2B8AB;font:400 14px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
