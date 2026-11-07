@@ -318,6 +318,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 
   /* ---------- 身分 ---------- */
   function unlockCreds() {
+    if (lsGet("tk:loggedout")) return null;   // 按過登出就不用專輯資料自動登回去（CÉON 11/07）；音樂解鎖不受影響
     if (TKAPI === "test") return null;   // B359T：專輯解鎖的帳號不在隔離測試後台；不拿它自動登入或當收票信箱（否則票和周邊會寄到沒有 +數字 的信箱）
     for (var i = 0; i < C.unlockKeys.length; i++) {
       try { var o = JSON.parse(lsGet(C.unlockKeys[i]) || "null"); if (o && o.email && o.code) return { email: String(o.email).trim().toLowerCase(), code: String(o.code).trim() }; } catch (e) {}
@@ -334,7 +335,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       setSession(j.session, j.email); return true;
     }).catch(function () { return false; });
   }
-  function setSession(s, email) { S.session = s; S.email = email; lsSet(K.sess, s); lsSet(K.email, email); }
+  function setSession(s, email) { S.session = s; S.email = email; lsSet(K.sess, s); lsSet(K.email, email); lsSet("tk:loggedout", null); }
   function clearSession() { S.coDraft = null; S.session = null; S.tickets = []; lsSet(K.sess, null); lsSet("tk:phone", null); lsSet("tk:me", null); if (S.buy) S.buy.phone = ""; }   // B347T：登出也清掉記住的手機；B387T：也清掉記住的姓名、地址
   /* B387T（CÉON 11/02）：在任何一頁填過的姓名、手機、地址，其他頁直接帶入，不用再打。只存在這支手機（localStorage），登出就清掉。
      只補空的欄位，不蓋掉這一頁已經填的。 */
@@ -4098,7 +4099,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (a === "m-t" || a === "m-mode" || a === "m-pay" || a === "m-mq") return mSheetAct(a, el);
     if (a === "tier-pick") { S.buySel = S.detailTier; closeSheet(); hap(8); renderLayer("buy"); return; }
     if (a === "showmail") { toast(S.email); return; }
-    if (a === "logout") { clearSession(); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
+    if (a === "logout") { clearSession(); S.email = ""; S.morders = []; S.photopass = []; lsSet(K.email, null); lsSet("tk:loggedout", "1"); closeSheet(); closeAll(); render(); toast("已登出票務"); return; }
     if (a === "m-orders") { closeSheet(); openLayer("wallet", { merch: true }); return; }
     if (a === "openwallet") { closeSheet(); openLayer("wallet"); return; }
     if (a === "add-open") { closeSheet(); setTimeout(function () { addSheet(); }, 220); return; }
