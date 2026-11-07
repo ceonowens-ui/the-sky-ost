@@ -56,7 +56,7 @@
 .co-noir #tk-tq.tq-many{grid-template-columns:1fr}
 .tk-layer[data-layer=checkout] .co-noir .tk-seatrow{display:block!important;box-sizing:border-box;min-height:calc(var(--c) * 131);margin:0;padding:calc(var(--c) * 10) calc(var(--c) * 12);border:0;border-radius:0;background:var(--q-gold)}
 .tk-layer[data-layer=checkout] .co-noir .tk-seatrow>span{display:block;font:400 calc(var(--c) * 15)/1.3 var(--q-sans);color:var(--q-ink)!important}
-.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b{display:block;margin:0;min-width:0;font:400 calc(var(--c) * 72)/1.08 var(--q-disp);color:var(--q-ink)!important;letter-spacing:-.01em;text-align:left;white-space:normal}
+.tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b{display:block;margin:0;min-width:0;font:700 calc(var(--c) * 72)/1.08 ui-monospace,'SF Mono',Menlo,Consolas,monospace;color:var(--q-ink)!important;letter-spacing:-.01em;text-align:left;white-space:normal}
 .tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b span{display:inline-block;white-space:nowrap}
 .tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b.l3{font-size:calc(var(--c) * 58);line-height:1.3}
 .tk-layer[data-layer=checkout] .co-noir .tk-seatrow>b.many{padding:calc(var(--c) * 4) 0;font-size:calc(var(--c) * 40);line-height:1.2}

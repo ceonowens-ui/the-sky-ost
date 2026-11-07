@@ -1452,9 +1452,6 @@ function myHomeHTML() {
       '<circle cx="122" cy="66" r="30" fill="url(#sv3mn)" opacity=".9"/>' +
       '<text x="16" y="38" fill="#EFE7D6" font-family="Bodoni Moda,serif" font-size="15" letter-spacing="2">THE SKY</text>' +
       '<text x="172" y="38" fill="#E8BF7A" font-family="Bodoni Moda,serif" font-size="17" letter-spacing=".5">' + esc(mmdd) + '</text>' +
-      '<text x="172" y="58" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">CHANCE</text>' +
-      '<text x="172" y="70" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">BIRTHDAY</text>' +
-      '<text x="172" y="82" fill="#CFC6B6" font-family="Bodoni Moda,serif" font-size="7.4" letter-spacing=".9">LIVE</text>' +
       '<line x1="172" y1="94" x2="188" y2="94" stroke="#C9A05A" stroke-width=".9"/></svg>';
   }
 
@@ -3992,7 +3989,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B454T-2"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B455T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
