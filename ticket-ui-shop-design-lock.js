@@ -1450,9 +1450,7 @@ function myHomeHTML() {
       '<g mask="url(#sv3notch)"><rect x="1" y="1" width="228" height="134" rx="8" fill="url(#sv3pg)" stroke="#C9A05A" stroke-width="1.1"/><rect x="1" y="1" width="228" height="134" rx="8" filter="url(#sv3paper)" opacity=".85"/></g>' +
       '<line x1="158" y1="10" x2="158" y2="126" stroke="#C9A05A" stroke-width=".9" stroke-dasharray="4 5" opacity=".8"/>' +
       '<circle cx="122" cy="66" r="30" fill="url(#sv3mn)" opacity=".9"/>' +
-      '<text x="16" y="38" fill="#EFE7D6" font-family="Bodoni Moda,serif" font-size="15" letter-spacing="2">THE SKY</text>' +
-      '<text x="172" y="38" fill="#E8BF7A" font-family="Bodoni Moda,serif" font-size="17" letter-spacing=".5">' + esc(mmdd) + '</text>' +
-      '<line x1="172" y1="94" x2="188" y2="94" stroke="#C9A05A" stroke-width=".9"/></svg>';
+      '</svg>';
   }
 
 function coverValue(key,value,reference) {
