@@ -211,12 +211,12 @@
 .tk-layer .co-noir #tkm-pre .mxp-t>span{font-size:calc(var(--c) * 16)}
 .tk-layer[data-layer=checkout] .tkb.co-noir #tkm-pre .tkb-fine,.tk-layer[data-layer=checkout] .tkb.co-noir .tkc-f .tkb-hint,.tk-layer[data-layer=checkout] .tkb.co-noir .tkc-f .tk-ferr{font-size:calc(var(--c) * 14)!important}
 .tk-layer[data-layer=checkout] .tkb.co-noir .ticket-paper .tk-in.tkb-in{font-size:max(16px,calc(var(--c) * 16))!important}
-/* B448T：購票按鈕定稿 C 雙區票根（318×46、圓角 14）；html[data-cta-style] 由 lock.js 設定，預設 c，?ctaStyle=a/b 比較用 */
+/* B448T：購票按鈕定稿 C 雙區票根（330×50、字 16.5、圓角 14）；html[data-cta-style] 由 lock.js 設定，預設 c，?ctaStyle=a/b 比較用 */
 html[data-cta-style=a]{--cta-bg:#EDE2CE;--cta-fg:#201C17;--cta-bd:transparent;--cta-bw:0;--cta-spin:rgba(32,28,23,.25)}
 html[data-cta-style=b]{--cta-bg:#141113;--cta-fg:#F5EFE3;--cta-bd:#BFA376;--cta-bw:1px;--cta-spin:rgba(245,239,227,.25)}
 html[data-cta-style=c]{--cta-bg:#171416;--cta-fg:#F5EFE3;--cta-bd:#756C62;--cta-bw:1px;--cta-spin:rgba(245,239,227,.25);--cta-pay-bg:#DAB77F;--cta-pay-fg:#201C17}
-html[data-cta-style] .sv3 .sv3-go.sv3-buy,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.ghost,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta,html[data-cta-style] .sk-seat .sk-ok{justify-content:space-between;gap:12px;width:min(318px,100%);height:46px;min-height:46px!important;padding:0 18px;border:var(--cta-bw) solid var(--cta-bd);border-radius:14px;background:var(--cta-bg)!important;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;color:var(--cta-fg)!important;-webkit-text-fill-color:var(--cta-fg);font:600 15px/1.2 "CTA Noto TC","Noto Sans TC","PingFang TC",sans-serif}
-html[data-cta-style] #sv3-tickets .sv3-go.sv3-buy{font-size:15px!important}
+html[data-cta-style] .sv3 .sv3-go.sv3-buy,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.ghost,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta,html[data-cta-style] .sk-seat .sk-ok{justify-content:space-between;gap:12px;width:min(330px,100%);height:50px;min-height:50px!important;padding:0 18px;border:var(--cta-bw) solid var(--cta-bd);border-radius:14px;background:var(--cta-bg)!important;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;color:var(--cta-fg)!important;-webkit-text-fill-color:var(--cta-fg);font:600 16.5px/1.2 "CTA Noto TC","Noto Sans TC","PingFang TC",sans-serif}
+html[data-cta-style] #sv3-tickets .sv3-go.sv3-buy{font-size:16.5px!important}
 /* B449T：選位頁確認鈕同一顆 C；沒選位時用 wait 的暗色 */
 html[data-cta-style] .sk-seat .sk-ok{position:relative;box-sizing:border-box;display:flex;align-items:center;margin:0 auto;white-space:nowrap;transform:scale(1);transition:transform 120ms ease-out}
 html[data-cta-style] .sk-seat .sk-ok:disabled{--cta-bg:#171416;--cta-fg:#C2B8AB;--cta-bd:#756C62;--cta-bw:1px}
@@ -227,7 +227,7 @@ html[data-cta-style=c] .sv3 .sv3-go.sv3-buy,html[data-cta-style=c] .tk-layer .tk
 html[data-cta-style=c] .sv3 .sv3-go.sv3-buy small,html[data-cta-style=c] .tk-layer .tkb.la-noir .la-foot .la-cta small,html[data-cta-style=c] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta small,html[data-cta-style=c] .sk-seat .sk-ok small{display:flex;align-items:center;align-self:stretch;margin:0 -18px 0 0;padding:0 12px;background:var(--cta-pay-bg);color:var(--cta-pay-fg);-webkit-text-fill-color:var(--cta-pay-fg)}
 html[data-cta-style] .sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,html[data-cta-style] .sv3 .sv3-go.sv3-buy.is-press,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta:active,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.is-press,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press,html[data-cta-style] .sk-seat .sk-ok:not(:disabled):active,html[data-cta-style] .sk-seat .sk-ok.is-press{transform:scale(.97)}
 html[data-cta-style] .sv3 .sv3-block:focus-visible .sv3-go.sv3-buy,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta:focus-visible,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta:focus-visible,html[data-cta-style] .sk-seat .sk-ok:focus-visible{outline:2px solid #F5EFE3;outline-offset:2px}
-html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm-busy{display:block;width:46px!important;padding:0!important;border-radius:999px!important}
+html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm-busy{display:block;width:50px!important;padding:0!important;border-radius:999px!important}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-spin{border-color:var(--cta-spin);border-top-color:var(--cta-fg)}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:var(--cta-fg)}
 .cta-tip{display:none;margin:0 0 8px;color:#C2B8AB;font:400 14px/1.3 "Noto Sans TC","PingFang TC",sans-serif;text-align:center}
