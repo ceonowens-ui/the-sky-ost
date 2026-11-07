@@ -19,7 +19,7 @@ var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
 <link rel="preload" as="style" href="ticket-a-wallet-test.css?v=B430T-1">
-<script src="shop-language.js?v=11dc0c9d1d87"></script>
+<script src="shop-language.js?v=904c55d3afc8"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
@@ -106,8 +106,8 @@ html.sky-opening::after{content:"正在開啟你的專輯";position:fixed;inset:
 <title>Album App</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="CHANCE">
-<meta property="og:title" content="CHANCE — I'M SORRY">
-<meta property="og:description" content="CÉON 成晞 雙專輯數位體驗 — 播放、歌詞與獨家 FEED。">
+<meta property="og:title" content="CHANCE 生日會｜12.27 微風影城">
+<meta property="og:description" content="這一次，我們見面吧。12.27（日）14:30，微風影城 8 樓 A 廳。線上購票、選位。">
 <meta property="og:url" content="https://chance1228.com/">
 <meta property="og:image" content="https://chance1228.com/assets/images/og.jpg">
 <meta property="og:image:secure_url" content="https://chance1228.com/assets/images/og.jpg">
@@ -116,8 +116,8 @@ html.sky-opening::after{content:"正在開啟你的專輯";position:fixed;inset:
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="CHANCE — I'M SORRY">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CHANCE — I'M SORRY">
-<meta name="twitter:description" content="CÉON 成晞 雙專輯數位體驗 — 播放、歌詞與獨家 FEED。">
+<meta name="twitter:title" content="CHANCE 生日會｜12.27 微風影城">
+<meta name="twitter:description" content="這一次，我們見面吧。12.27（日）14:30，微風影城 8 樓 A 廳。線上購票、選位。">
 <meta name="twitter:image" content="https://chance1228.com/assets/images/og.jpg">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="assets/images/icon-180.png">
 <link rel="manifest" href="manifest-test.webmanifest"><!-- B325T：iPhone 主畫面 App 要有 manifest 才能收推播（只有 test.html 有；沒設 start_url，加入主畫面照舊用當下網址） -->
@@ -3635,8 +3635,11 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
 <body>
 <!-- B321T：打開 App 的開場動畫——最多 2 秒、東西載好就提早進（最少 0.9 秒，避免一閃而過）；點一下可略過；切換分頁不會出現。測試用 ?nosplash=1 關掉 -->
 <style id="sky-splash-css">
-#sky-splash{position:fixed;inset:0;z-index:2147483000;background:#08060C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .45s ease;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#sky-splash{position:fixed;inset:0;z-index:2147483000;background:#08060C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .3s ease .24s;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #sky-splash.out{opacity:0;pointer-events:none}
+/* B452T：字先淡掉，黑底才掀開；不會有開場字和播放頁疊在一起的那一刻 */
+#sky-splash.out .ss-k,#sky-splash.out .ss-t,#sky-splash.out .ss-l{animation:ssOut .22s ease forwards}
+@keyframes ssOut{from{opacity:1;transform:none}to{opacity:0;transform:none}}
 #sky-splash .ss-k{font:500 11px/1 'Bodoni Moda',Didot,'Times New Roman',serif;letter-spacing:.42em;padding-left:.42em;color:rgba(243,238,234,.7);opacity:0;animation:ssIn .7s .05s ease forwards}
 #sky-splash .ss-t{font:italic 600 40px/1.1 'Playfair Display',Georgia,'Times New Roman',serif;letter-spacing:.02em;color:#F3EEEA;opacity:0;transform:translateY(6px);animation:ssIn .8s .15s ease forwards}
 #sky-splash .ss-l{width:120px;height:1px;margin-top:8px;background:rgba(232,191,122,.18);overflow:hidden}
@@ -3653,12 +3656,15 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
   if (skip) { el.parentNode.removeChild(el); return; }
   var t0 = Date.now(), MIN = 900, MAX = 2000, gone = false;
   function go() {
-    if (gone) return; gone = true; el.classList.add("done");
-    setTimeout(function () { el.classList.add("out"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); window.__skySplashOff = Date.now() - t0; }, 480); }, Math.max(0, MIN - (Date.now() - t0)));
+    if (gone) return;
+    if (window.__skyReloading && Date.now() - window.__skyReloading < 6000) { setTimeout(go, 400); return; }   /* B452T：正在換新版，舊版不露出來 */
+    gone = true; el.classList.add("done");
+    setTimeout(function () { el.classList.add("out"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); window.__skySplashOff = Date.now() - t0; }, 560); }, Math.max(0, MIN - (Date.now() - t0)));
   }
   function ready() {
     var f = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    Promise.race([f, new Promise(function (r) { setTimeout(r, 500); })]).then(function () { requestAnimationFrame(function () { requestAnimationFrame(go); }); });
+    var v = window.__skyVerChk || Promise.resolve();   /* B452T：等版本檢查回來（最多 1.5 秒），舊版就在開場畫面後面換掉 */
+    Promise.all([Promise.race([f, new Promise(function (r) { setTimeout(r, 500); })]), Promise.race([v, new Promise(function (r) { setTimeout(r, 1500); })])]).then(function () { requestAnimationFrame(function () { requestAnimationFrame(go); }); });
   }
   if (document.readyState === "complete") ready(); else window.addEventListener("load", ready);
   setTimeout(go, MAX);
@@ -6428,7 +6434,7 @@ window.ALBUM_SWITCH = {
     var locked = isLocked(t);
     $("np-title").textContent = t.title;
     skyPreviewUI();
-    $("np-sub").textContent = "track " + pad2(t.n) + (t.subtitle ? " · " + t.subtitle : "");
+    $("np-sub").textContent = t.subtitle || "";   /* B452T：不顯示「track 01 ·」 */
     /* 進度圓點：config 有 progressDot 就交替顯示角色標籤 */
     var pd = (CFG.theme || {}).progressDot;
     var dot = $("prog-dot");
@@ -12655,7 +12661,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B451T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B452T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -12744,20 +12750,23 @@ window.ALBUM_SWITCH = {
   function mine() { var el = document.getElementById("__build"); var m = el && (el.textContent || "").match(/B(\d+)/); return m ? parseInt(m[1], 10) : 0; }
   var busy = false;
   function check() {
-    var me = mine(); if (!me || busy) return; busy = true;
+    var me = mine(); if (!me || busy) return Promise.resolve(); busy = true;
     var u = "test.html?vchk=" + Date.now();
-    fetch(u, { cache: "no-store", headers: { Range: "bytes=-131072" } })
+    return fetch(u, { cache: "no-store", headers: { Range: "bytes=-131072" } })
       .then(function (r) { return r.text().then(function (t) { return (r.status === 206 && !/id="__build"/.test(t)) ? fetch(u, { cache: "no-store" }).then(function (r2) { return r2.text(); }) : t; }); })
       .then(function (html) {
         busy = false; var m = html.match(/id="__build"[^>]*>B(\d+)/); if (!m) return;
         var server = parseInt(m[1], 10); if (server <= me) return;
         var k = "tk:vreload:" + server; try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, "1"); } catch (e) { return; }
-        location.reload();
+        /* B452T：reload 可能又拿到 10 分鐘內的舊檔，改用帶版本的新網址，一定拿到新版 */
+        window.__skyReloading = Date.now();
+        var q = location.search.replace(/([?&])_v=\d+&?/, "$1").replace(/[?&]$/, "");
+        location.replace(location.pathname + q + (q ? "&" : "?") + "_v=" + server + location.hash);
       })
       .catch(function () { busy = false; });
   }
   window.addEventListener("pageshow", function (e) { if (e.persisted) check(); });   // 從綠界等外部頁「上一頁」回來
-  if (document.readyState === "complete") setTimeout(check, 300); else window.addEventListener("load", function () { setTimeout(check, 300); });   // 開頁（可能拿到快取的舊 HTML）
+  window.__skyVerChk = check();   // 開頁就查（可能拿到快取的舊 HTML）：B452T 不再等頁面載完，開場畫面還蓋著時就換掉
 })();
 
 /* B23 ── Service Worker 註冊 + 「有新內容」更新提示 */
@@ -12839,7 +12848,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=f49145d5fa8e";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=f236cd269ded";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   var tkPend = false;   /* B386T：剛從綠界回來（主畫面 App 按 ✕ 會從頭載入，網址沒有 ?tkbought）→ 馬上載 SHOP 模組，回到購買頁 */

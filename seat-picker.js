@@ -25,12 +25,13 @@
 .sk-s{flex:none;width:calc(var(--sk-c,31px) - 3px);height:calc(var(--sk-h,35px) - 5px);margin:0 1.5px;padding:0;border:1px solid rgba(255,255,255,.34);border-radius:7px 7px 4px 4px;background:none;color:#e9e3d6;font:600 12px/1 -apple-system,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}\
 .sk-s[aria-pressed=true]{background:#ecc67f;border-color:#ecc67f;color:#1d1915}\
 .sk-s:disabled{border-color:transparent;background:rgba(255,255,255,.07);color:rgba(255,255,255,.2);cursor:default}\
+.sk-s.x:disabled{border:1px dashed rgba(255,255,255,.12);background:none;color:transparent}\
 .sk-s.w{width:calc(var(--sk-c,31px) * 2 - 3px);border-style:dashed;border-color:rgba(255,255,255,.2);color:#a59d8e;font-size:15px}\
 .sk-exit{margin:10px 40px 0;text-align:center;font-size:12px;color:#a59d8e;letter-spacing:.2em}\
 .sk-leg{display:flex;gap:14px;justify-content:center;padding:8px 12px 2px;font-size:12px;color:#cfc8ba}\
 .sk-leg span{display:flex;align-items:center;gap:5px}\
 .sk-leg i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.34)}\
-.sk-leg i.on{background:#ecc67f;border-color:#ecc67f}.sk-leg i.off{background:rgba(255,255,255,.1);border-color:transparent}\
+.sk-leg i.on{background:#ecc67f;border-color:#ecc67f}.sk-leg i.off{background:rgba(255,255,255,.1);border-color:transparent}.sk-leg i.x{border:1px dashed rgba(255,255,255,.3)}.sk-leg span[hidden]{display:none}\
 .sk-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.1);background:#0f0f10}\
 .sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6}\
 .sk-sel small{font-size:14px;color:#a59d8e}\
@@ -50,15 +51,15 @@
     var goneTx = function (ids) { var n = ids.map(name).join(o.en ? ", " : "、"), many = ids.length > 1; return o.en ? n + (many ? " were" : " was") + " just taken. Pick another seat you like." : n + (many ? " 這些位置" : " 這個位置") + "剛被選走了，再挑一個喜歡的位置吧。"; };
     if (!document.getElementById("sk-seat-css")) { var st = document.createElement("style"); st.id = "sk-seat-css"; st.textContent = CSS; document.head.appendChild(st); }
     var en = !!o.en, T = en
-      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
-      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
-    var own = (o.own || []).slice(), sel = (o.selected || []).slice(), busy = {}, map = null, timer = 0, msgT = 0, closed = false;
+      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", shut: "Not for sale", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
+      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", shut: "不開放", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
+    var own = (o.own || []).slice(), sel = (o.selected || []).slice(), busy = {}, shut = {}, map = null, timer = 0, msgT = 0, closed = false;
     var el = document.createElement("div");
     el.className = "sk-seat" + (document.getElementById("tk-test-banner") ? " sk-tb" : ""); el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", T.title);
     el.innerHTML = '<div class="sk-top"><button type="button" class="sk-back" data-k="back"><i>‹</i>' + T.back + '</button><h2 tabindex="-1">' + T.title + '</h2><span></span></div>' +
       '<div class="sk-tabs" hidden><button type="button" data-k="tab" data-b="L">' + T.L + '</button><button type="button" data-k="tab" data-b="C" aria-pressed="true">' + T.C + '</button><button type="button" data-k="tab" data-b="R">' + T.R + '</button></div>' +
       '<div class="sk-map"><div class="sk-state">' + T.load + '</div></div>' +
-      '<div class="sk-leg"><span><i></i>' + T.free + '</span><span><i class="on"></i>' + T.on + '</span><span><i class="off"></i>' + T.off + '</span></div>' +
+      '<div class="sk-leg"><span><i></i>' + T.free + '</span><span><i class="on"></i>' + T.on + '</span><span><i class="off"></i>' + T.off + '</span><span class="sk-shut" hidden><i class="x"></i>' + T.shut + '</span></div>' +
       '<div class="sk-foot"><div class="sk-sel" aria-live="polite"></div><button type="button" class="sk-ok" data-k="ok" disabled></button></div><div class="sk-msg" role="status"></div>';
     document.body.appendChild(el);
     var mapEl = el.querySelector(".sk-map"), selEl = el.querySelector(".sk-sel"), okEl = el.querySelector(".sk-ok"), msgEl = el.querySelector(".sk-msg"), tabs = el.querySelector(".sk-tabs");
@@ -72,8 +73,8 @@
       okEl.innerHTML = n ? "<span>" + T.ok + " " + n + (n > 1 ? T.seats : T.seat) + "</span>" + (o.price ? "<small>NT$" + (o.price * n).toLocaleString("en-US") + "</small>" : "") : "<span>" + T.ok + "</span>";   // B449T：動作左、價格右，樣式在 ticket-b441.css
     }
     function seatBtn(id, r, s) {
-      var off = !!busy[id] && sel.indexOf(id) < 0;
-      return '<button type="button" class="sk-s" data-k="seat" data-id="' + id + '" aria-pressed="' + (sel.indexOf(id) >= 0) + '" aria-label="' + name(id) + '"' + (off ? " disabled" : "") + ">" + s + "</button>";
+      var x = !!shut[id], off = x || !!busy[id] && sel.indexOf(id) < 0;   // B452T：前四排不開放，不顯示座位號
+      return '<button type="button" class="sk-s' + (x ? " x" : "") + '" data-k="seat" data-id="' + id + '" aria-pressed="' + (sel.indexOf(id) >= 0) + '" aria-label="' + name(id) + (x ? " " + T.shut : "") + '"' + (off ? " disabled" : "") + ">" + (x ? "" : s) + "</button>";
     }
     function block(r, list, cols) {
       var h = list.map(function (s) { return seatBtn(r + "-" + s, r, s); });
@@ -102,7 +103,7 @@
     function paint() {
       mapEl.querySelectorAll(".sk-s[data-id]").forEach(function (b) {
         var id = b.getAttribute("data-id"), on = sel.indexOf(id) >= 0;
-        b.setAttribute("aria-pressed", String(on)); b.disabled = !!busy[id] && !on;
+        b.setAttribute("aria-pressed", String(on)); b.disabled = !!shut[id] || !!busy[id] && !on;
       });
       foot();
     }
@@ -128,7 +129,7 @@
         if (closed) return;
         if (!j || !j.ok) throw 0;
         setBusy(j.busy);
-        if (first) { map = j; rowName = j.rowName || {}; draw(); go("C", true); } else paint();
+        if (first) { map = j; rowName = j.rowName || {}; (j.closed || []).forEach(function (k) { shut[k] = 1; }); el.querySelector(".sk-shut").hidden = !(j.closed || []).length; draw(); go("C", true); } else paint();
       }).catch(function () {
         if (closed || !first) return;
         mapEl.innerHTML = '<div class="sk-state">' + T.fail + '<button type="button" data-k="retry">' + T.retry + "</button></div>";

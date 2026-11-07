@@ -5,6 +5,8 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B452T：沒登入不能選位 */
+ '登入後才能選位':'Sign in to choose seats','先用 email 登入（沒買過專輯也可以）：':'Sign in with your email first:','登入並選位':'Sign in and choose seats','6 位數驗證碼':'6-digit code','驗證碼不對或過期':'That code is wrong or has expired.','一分鐘內只能寄一次':'You can send one code per minute.','寄不出去':'We could not send the code.','email 格式不對':'Please check your email address.','寄送中…':'Sending…','連不上伺服器，再試一次':'Could not reach the server. Please try again.',
  /* B383T：UX 迴圈第 3 回 */
  '・購買須知':'· Terms',
  /* B382T：UX 迴圈第 2 回 */
@@ -344,6 +346,7 @@
  [/^(所有入場者共享|全票種共享)：(.*)$/,(_,k,l)=>(k==='全票種共享'?'Included with every ticket type: ':'Included for everyone: ')+enList(l)],
  [/^入場憑 App 票夾的入場 QR，開場前 (\d+) 小時出現，給工作人員掃描即完成入場。$/,(_,h)=>'Enter with the QR code in your App ticket wallet. It appears '+h+' hours before doors open; staff scan it at the entrance.'],
  [/^前往付款 (NT\$[\d,]+)$/,(_,p)=>'Continue to payment '+p],
+ [/^驗證碼已寄到 (\S+)（5 分鐘內有效），沒看到請找垃圾信件$/,(_,e)=>'Code sent to '+e+'. It is valid for 5 minutes. Check your spam folder if you do not see it.'],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
  [/^(\d\d:\d\d) 開始$/,(_,a)=>'Starts '+a],
  [/^按「前往付款」後座位保留 (\d+) 分鐘，請留在付款頁完成付款、不要關閉；超過時間要重新選位。$/,(_,n)=>'Your seat is held for '+n+' minutes after you tap Pay. Stay on the payment page until it is done. If time runs out, choose your seats again.'],

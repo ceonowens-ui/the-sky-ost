@@ -216,6 +216,9 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
   <button class="btn" id="btnSeat" style="margin-top:8px;display:none" onclick="moveSeat()">換位</button>
   <button class="btn" style="margin-top:8px" onclick="refundTicket()">退票（釋放席位＋終身編號）</button>
   <button class="btn ghost" onclick="qrSheet.classList.remove('show')">關閉</button></div></div>
+<div class="sheet" id="rfSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Refund</div><h3 style="font-size:20px;margin-top:6px">退票</h3><div id="rfBody" style="margin-top:10px;font-size:14px;line-height:1.7"></div>
+  <button class="btn danger" id="rfGo" style="margin-top:12px" onclick="doRefund()">確認退票</button>
+  <button class="btn ghost" onclick="$('rfSheet').classList.remove('show')">取消</button></div></div>
 
 <script>
 /* 測試專用：只用測試鑰匙，正式鑰匙不會送到測試 Worker */
@@ -300,11 +303,11 @@ async function loadMerch() {
   if (!mCfg) { $("mStats").textContent = "這場沒有設定周邊。"; $("mBody").innerHTML = ""; return; }
   const I = mCfg.items || {};
   $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => esc(mLbl(k)) + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
-    "　·　海外 " + mOrders.filter((o) => o.mode === "ship").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
+    "　·　海外 " + mOrders.filter((o) => o.mode === "ship" && o.status !== "refunded").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
   $("m_sale").value = mCfg.onSale === true ? "true" : "false"; $("m_cut").value = toLocalInput(mCfg.cutoff);
   $("mBody").innerHTML = mOrders.map((o, i) => "<tr><td>" + fmt(o.paidAt) + "</td><td>" + esc(o.email) + "</td><td>" + esc(mLbl(o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + "</td><td>" +
     (o.mode === "ship" ? "寄 " + esc((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場") + "</td><td>" + esc(o.amount) + "</td><td>" +
-    (o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? esc(o.shipped.tracking) : "")) + "</td></tr>").join("");
+    (o.status === "refunded" ? "已退款" : o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? esc(o.shipped.tracking) : "")) + "</td></tr>").join("");
 }
 async function saveMerch() {
   if (!cur) return;
@@ -322,7 +325,7 @@ async function shipOrder(i) {
 function exportMerchCsv() {
   const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
   const rows = [["付款時間", "Email", "稱呼", "品項", "方式", "商品", "運費", "合計", "收件人", "電話", "國家", "郵遞區號", "地址", "城市", "州省", "追蹤號碼", "綠界交易號"]];
-  for (const o of mOrders) { const s = o.ship || {}; rows.push([fmt(o.paidAt), o.email, o.name, mLbl(o.code) + (o.qty > 1 ? " ×" + o.qty : ""), o.mode === "ship" ? "海外寄送" : "現場領取", o.mprice, o.fee, o.amount, s.name, s.phone, s.country, s.postal, s.addr, s.city, s.state, o.shipped ? o.shipped.tracking : "", o.tradeNo]); }
+  for (const o of mOrders) { if (o.status === "refunded") continue; const s = o.ship || {}; rows.push([fmt(o.paidAt), o.email, o.name, mLbl(o.code) + (o.qty > 1 ? " ×" + o.qty : ""), o.mode === "ship" ? "海外寄送" : "現場領取", o.mprice, o.fee, o.amount, s.name, s.phone, s.country, s.postal, s.addr, s.city, s.state, o.shipped ? o.shipped.tracking : "", o.tradeNo]); }
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + rows.map((r) => r.map(q).join(",")).join("\n")], { type: "text/csv" }));
   a.download = "merch-" + (cur ? cur.id : "") + ".csv"; a.click();
 }
@@ -332,7 +335,7 @@ let seatById = {};
 function renderTodo() {
   const open = (typeof failed !== "undefined" ? failed : []).filter((x) => !x.resolved).length;
   const noSeat = cur && cur.seatMap && stats ? stats.tickets.filter((t) => (t.status === "valid" || t.status === "used") && !seatById[t.id]).length : 0;
-  const ship = (typeof mOrders !== "undefined" ? mOrders : []).filter((o) => o.mode === "ship" && !o.shipped).length;
+  const ship = (typeof mOrders !== "undefined" ? mOrders : []).filter((o) => o.mode === "ship" && !o.shipped && o.status !== "refunded").length;
   const rows = [[open, "筆付了錢但沒出票", "補發", "failCard", "moreBox"], [noSeat, "張票還沒有座位", "查票", "listCard", "ticketBox"], [ship, "筆海外周邊還沒寄", "去寄", "merchCard", "moreBox"]].filter((r) => r[0]);
   const n = rows.reduce((s, r) => s + r[0], 0); $("sTodo").textContent = n; $("sTodoBox").className = n ? "has" : "";
   $("todoList").innerHTML = rows.length ? rows.map((r) => '<div class="todo"><span><b>' + r[0] + "</b> " + esc(r[1]) + '</span><button class="btn sm" onclick="goTodo(\'' + r[3] + "','" + r[4] + "')\">" + esc(r[2]) + "</button></div>").join("") : '<div class="todo-ok">目前沒有要處理的事</div>';
@@ -420,11 +423,29 @@ async function frozenRetry(path, body, what) {
 async function moveSeat() { if (!curTicket) return; const v = prompt("換到哪個座位？例如 H12", curTicket.seatName || ""); if (!v) return; const j = await api("/ticket/admin/seat", { ticketId: curTicket.id, seat: v.trim() }); if (j.ok) { alert("已換到 " + j.seatName); openTicket(curTicket.id); } else alert(j.message || "換位失敗"); }
 async function voidTicket() { if (!curTicket || !confirm("確定作廢 " + curTicket.id + "？")) return; const j = await frozenRetry("/ticket/admin/void", { ticketId: curTicket.id }, "作廢"); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else if (!j.cancelled) alert("作廢失敗：" + (j.message || j.error || "")); }
 async function resetTicket() { if (!curTicket) return; const j = await api("/ticket/admin/reset", { ticketId: curTicket.id }); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else alert("復原失敗：" + (j.message || j.error || "")); }
+/* m48（CÉON 11/07）：退票先看同一筆訂單的周邊，預設一起退，畫面算好應退金額。錢一樣到綠界後台手動退 */
+let rf = null;
+const nt = (n) => "NT$" + Number(n || 0).toLocaleString("en-US");
+function rfTotal() {
+  if (!rf) return; const w = $("rfWith"), fee = $("rfNoFee").checked ? 0 : Math.round(rf.ticketPrice * .1), m = w && w.checked ? rf.merch.unit : 0;
+  $("rfSum").innerHTML = "票 " + nt(rf.ticketPrice) + (fee ? " − 手續費 " + nt(fee) : "") + (m ? " ＋ 周邊 " + nt(m) : "") + '<br><b style="font-size:22px;color:#d8bc80">應退 ' + nt(rf.ticketPrice - fee + m) + "</b>";
+}
 async function refundTicket() {
   if (!curTicket) return;
-  if (!confirm("退票 " + curTicket.id + "？\n會釋放席位與終身編號、入場 QR 立刻失效、粉絲可重買。\n⚠️ 錢要另外到綠界後台退刷，這裡不會退款。")) return;
-  const j = await frozenRetry("/ticket/admin/refund", { ticketId: curTicket.id }, "退票");
-  if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); alert(j.already ? "這張已經退過了" : ("已退票。\n請到綠界後台把這筆款退刷給 " + (j.refund && j.refund.email || "粉絲") + "。\n訂單參考：" + (j.refund && j.refund.orderRef || "（手動發的票沒有綠界訂單）"))); }
+  const j = await api("/ticket/admin/refund/preview?ticketId=" + encodeURIComponent(curTicket.id));
+  if (!j.ok) return alert("讀不到這張票的訂單（後台要更新到 m48）：" + (j.error || ""));
+  rf = j; const m = j.merch, lab = (x) => '<label style="display:flex;gap:8px;align-items:center;margin-top:10px">' + x + "</label>";
+  $("rfBody").innerHTML = "<div>" + esc(curTicket.id) + (curTicket.seatName ? " · " + esc(curTicket.seatName) : "") + '</div><div class="tiny">會放回座位與終身編號，入場 QR 立刻失效。</div>' +
+    (m ? '<div style="margin-top:12px">同一筆訂單還有周邊：<b>' + esc(m.label) + "</b>" + (m.email !== curTicket.owner ? "（買家 " + esc(m.email) + "）" : "") + "</div>" + (m.shipped ? '<div class="tiny">周邊已寄出，這裡不能一起退。</div>' :
+      lab('<input type="radio" name="rfM" id="rfWith" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" checked onchange="rfTotal()"> 一起退（退 1 組，' + nt(m.unit) + "）") + lab('<input type="radio" name="rfM" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 只退票，周邊保留')) : "") +
+    lab('<input type="checkbox" id="rfNoFee" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 不收手續費（活動取消等）') + '<div id="rfSum" style="margin-top:12px"></div><div class="tiny" style="margin-top:8px">⚠️ 這裡不會退錢，確認後要到綠界後台退刷這個金額。</div>';
+  rfTotal(); $("rfSheet").classList.add("show");
+}
+async function doRefund() {
+  if (!curTicket || !rf) return;
+  const w = $("rfWith"), money = $("rfSum").querySelector("b").textContent.replace("應退 ", "");
+  $("rfGo").disabled = true; const j = await frozenRetry("/ticket/admin/refund", { ticketId: curTicket.id, merchSets: w && w.checked ? 1 : 0 }, "退票"); $("rfGo").disabled = false;
+  if (j.ok) { $("rfSheet").classList.remove("show"); $("qrSheet").classList.remove("show"); refresh(); loadMerch(); alert(j.already ? "這張已經退過了" : "已退票" + (j.merch ? "，周邊也退了 " + j.merch.sets + " 組" : "") + "。\n請到綠界後台退刷 " + money + " 給 " + (j.refund && j.refund.email || "粉絲") + "。\n訂單參考：" + (j.refund && j.refund.orderRef || "（手動發的票沒有綠界訂單）")); }
   else if (!j.cancelled) alert("退票失敗：" + (j.message || j.error || ""));
 }
 function exportCsv() {

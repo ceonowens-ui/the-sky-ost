@@ -234,3 +234,5 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.pm .pm-ck{color:v
 html[data-cta-style] .tkb-foot:has(.tkb-cta.wait) .cta-tip{display:block}
 html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 10px)!important}
 @media (prefers-reduced-motion:reduce){html[data-cta-style] .sv3 .sv3-block:not([disabled]):active .sv3-go.sv3-buy,html[data-cta-style] .sv3 .sv3-go.sv3-buy.is-press,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta:active,html[data-cta-style] .tk-layer .tkb.la-noir .la-foot .la-cta.is-press,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta:active,html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta.is-press,html[data-cta-style] .sk-seat .sk-ok:not(:disabled):active,html[data-cta-style] .sk-seat .sk-ok.is-press{transform:scale(1)}html[data-cta-style] .sk-seat .sk-ok{transition:none}}
+/* B452T：360 以下付款鈕內距是 10px，金額區要跟著貼齊右邊，不然金額會被切掉 */
+@media (max-width:360px){html[data-cta-style=c] .tk-layer .tkb.co-noir .tkb-foot .tkb-cta[data-act="co-pay"] small{margin-right:-10px}}
