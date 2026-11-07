@@ -348,7 +348,7 @@ async function refresh() {
   const j = await api("/ticket/stats?eventId=" + encodeURIComponent(cur.id));
   if (!j.ok) return;
   stats = j; cur = j.event;
-  const capAll = Number(cur.capacity) || (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0), soldAll = Number(cur.sold) || (cur.tiers || []).reduce((n, t) => n + (Number(t.sold) || 0), 0);
+  const capAll = Number(cur.capacity) || (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0), soldAll = (cur.tiers || []).length ? cur.tiers.reduce((n, t) => n + (Number(t.sold) || 0), 0) : Number(cur.sold) || 0;   /* 有票種時 cur.sold 是「發過幾張」，退票不扣；已賣要看票種 */
   const mf = await api("/ticket/manifest?eventId=" + encodeURIComponent(cur.id)).catch(() => null); seatById = {}; ((mf && mf.tickets) || []).forEach((t) => { if (t.seatName) seatById[t.id] = t.seatName; });
   $("sCap").textContent = capAll || "–"; $("sSold").textContent = soldAll; $("sUsed").textContent = (j.counts.used || 0) + (j.counts.photopass ? "　📸" + j.counts.photopass : ""); $("sLeft").textContent = capAll ? Math.max(0, capAll - soldAll) : "–";
   renderList(); renderTodo();
