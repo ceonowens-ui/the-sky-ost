@@ -3075,6 +3075,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<p class="tkc-refund">' + esc(termsFor(ev).split("；")[0]) + '</p><div class="tk-msg" id="tk-bmsg"></div>';
   }
   function coWaitCls(b) { return b && !b.tOk && !coNoSeat(b) ? " wait" : ""; }
+  /* B447T：?ctaStyle=a/b/c 比較三版購票按鈕。只看這次網址、不存；無參數或亂填＝維持現版，也不多任何 DOM */
+  var CTA_STYLE = (function () { var m = /[?&]ctaStyle=([abc])(?:[&#]|$)/.exec(BOOT_QS); return m ? m[1] : ""; })();
+  if (CTA_STYLE) {
+    document.documentElement.setAttribute("data-cta-style", CTA_STYLE);
+    /* 頁面字型只載 400／700，600 會變 700。另外取 600 的小字集改名，只給這三顆按鈕用，不影響其他字；取不到就退回原字型 */
+    fetch("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@600&display=swap&text=" + encodeURIComponent("立即購票買選擇座位前往付款下一步種尚未開賣提前排隊已售完我的第起／張 ·✓$,&/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"))
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (css) { if (!css) return; var st = document.createElement("style"); st.textContent = css.replace(/font-family:\s*'Noto Sans TC'/g, "font-family:'CTA Noto TC'"); document.head.appendChild(st); })
+      .catch(function () {});
+  }
+  function coTipHTML() { return CTA_STYLE ? '<p class="cta-tip">' + (sxEN() ? "Please read and agree to the ticket terms first" : "請先閱讀並同意購票須知") + '</p>' : ""; }
   function coNeedAgree(b) { var L = layerEl("checkout"); return !!(b && L && L.querySelector('[data-act="co-agree"]') && !b.tOk && !coNoSeat(b)); }
   function coTermsSync() {
     var b = S.buy, L = layerEl("checkout"); if (!b || !L) return;
@@ -3161,7 +3172,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += coFields();
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b);
     h += payEnNote();
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + coTipHTML() + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb">' + h + '</div>';
   }
 
@@ -3323,7 +3334,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b) + '</div>';
     h += '</div>';
     h += payEnNote();
-    h += '<div class="tkb-foot solo"><button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + coTipHTML() + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb' + (red ? ' co-noir' : '') + '">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
@@ -3948,7 +3959,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B446T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B447T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta";
