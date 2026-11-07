@@ -69,7 +69,7 @@
       var n = sel.length;
       selEl.innerHTML = n ? sel.slice().sort(order).map(name).join(en ? ", " : "、") : "<small>" + T.none + "</small>";
       okEl.disabled = !n;
-      okEl.textContent = n ? T.ok + " " + n + (n > 1 ? T.seats : T.seat) + (o.price ? " · NT$" + (o.price * n).toLocaleString("en-US") : "") : T.ok;
+      okEl.innerHTML = n ? "<span>" + T.ok + " " + n + (n > 1 ? T.seats : T.seat) + "</span>" + (o.price ? "<small>NT$" + (o.price * n).toLocaleString("en-US") + "</small>" : "") : "<span>" + T.ok + "</span>";   // B449T：動作左、價格右，樣式在 ticket-b441.css
     }
     function seatBtn(id, r, s) {
       var off = !!busy[id] && sel.indexOf(id) < 0;
