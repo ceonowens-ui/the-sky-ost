@@ -251,3 +251,16 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){ba
 .tk-v2 .tk-v2-side{font-size:max(12px,3cqw)}
 /* B459T：「請先閱讀並同意購票須知」出現時，付款列底色從上緣就不透明，不壓在欄位字上 */
 .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 18px)!important}
+/* B461T（CÉON 11/08，參考 emil skills）：周邊結帳按下去要有感覺；只動 transform／opacity，0.16–0.22 秒 */
+.cx9-qty button,.cx9-mth button{transition:transform 160ms cubic-bezier(.23,1,.32,1);-webkit-tap-highlight-color:transparent}
+.cx9-qty button:not([disabled]):active{transform:scale(.9)}
+.cx9-mth button:not([disabled]):active{transform:scale(.97)}
+.cx9-total .tot b.fx-bump{display:inline-block;animation:fxBump 180ms cubic-bezier(.23,1,.32,1)}
+.mx-set.fx-in,.cx9-form.fx-in{animation:fxIn 220ms cubic-bezier(.23,1,.32,1)}
+@keyframes fxBump{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes fxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cx9-qty button,.cx9-mth button{transition:none}.cx9-total .tot b.fx-bump,.mx-set.fx-in,.cx9-form.fx-in{animation:none}}
+/* B461T：測試版紅條不蓋住信件頁右上的「我的信件」 */
+body:has(#tk-test-banner) .dcl{padding-top:calc(env(safe-area-inset-top) + 44px)}
+/* B462T：從綠界沒付款回來時，周邊結帳頁最上方的說明 */
+.tk-layer .cx9-backnote{margin:4px 0 18px;padding:14px 16px;border:1px solid rgba(232,201,140,.45);border-radius:14px;background:rgba(232,201,140,.08);color:#f1e8d8;font-size:16px;line-height:1.6}

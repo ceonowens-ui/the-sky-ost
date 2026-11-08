@@ -1170,8 +1170,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function mount() {
     if (document.getElementById("tk-root")) return;
     var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
-    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B202T"; document.head.appendChild(design);
-    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B202T';document.head.appendChild(edition);
+    var design = document.createElement("link"); design.rel = "stylesheet"; design.href = C.base + "shop-design.css?v=B461T"; document.head.appendChild(design);
+    var edition = document.createElement('link'); edition.rel='stylesheet';edition.href=C.base+'shop-edition.css?v=B461T';document.head.appendChild(edition);
     root = document.createElement("div"); root.id = "tk-root"; root.className = "tk";
     var host = $(C.mount), before = host && $(C.before, host);
     if (host && before) host.insertBefore(root, before); else (host || document.body).appendChild(root);
@@ -2527,7 +2527,13 @@ function coverClockKey() {
       '<p>購買、退換貨與個資處理，依《購買須知》與《隱私權政策》。</p>' +
       '<p><button type="button" class="cx9-ln" data-open-terms="terms">完整《購買須知》</button>　<button type="button" class="cx9-ln" data-open-terms="privacy">《隱私權政策》</button></p>';
   }
-  function cx9Paint() { var el = layerEl("cxc"); if (el) { var sc = el.scrollTop; el.innerHTML = cx9CheckoutHTML(); el.scrollTop = sc; } }
+  function cx9Paint() { var el = layerEl("cxc"); if (el) { var sc = el.scrollTop, fa = fxSnap(el); el.innerHTML = cx9CheckoutHTML(); el.scrollTop = sc; fxAfter(el, fa); } }
+  /* B461T（CÉON 11/08，參考 emil skills）：周邊結帳重畫後，只對真的變了的地方給一點動態：合計換數字（0.18 秒）、組合提示出現、切到寄送時多出的欄位（0.22 秒） */
+  function fxSnap(el) { if (!el) return null; var t = el.querySelector(".cx9-total .tot b"); return { tot: t ? t.textContent : null, set: !!el.querySelector(".mx-set"), n: el.querySelectorAll(".cx9-form input, .cx9-form select").length }; }
+  function fxAfter(el, a) { if (!el || !a) return; var b = fxSnap(el), add = function (x) { if (x) x.classList.add(x.matches(".cx9-total .tot b") ? "fx-bump" : "fx-in"); };
+    if (a.tot != null && b.tot != null && a.tot !== b.tot) add(el.querySelector(".cx9-total .tot b"));
+    if (!a.set && b.set) add(el.querySelector(".mx-set"));
+    if (b.n > a.n && a.n >= 0) add(el.querySelector(".cx9-form")); }
   function cx9Input(e) {
     var k = e.target.getAttribute && e.target.getAttribute("data-cf"); if (!k) return;
     CX.f[k] = e.target.value;
@@ -3494,7 +3500,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var ctaTxt = busy ? "處理中…" : !r ? "請先選商品" : "前往付款 · " + (total === null ? nt(sub) : nt(total));
     var cut = mCut(mi);
     var h = '<div class="cx9 cx9-c mx">' + cx9Bar("生日限定周邊") +   // B377T：這頁還在選商品，不叫「確認訂單」
-      '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
+      (o.note ? '<p class="cx9-backnote" role="status">' + esc(o.note) + '</p>' : '') + '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
       (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
       (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '') +
       '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
@@ -3521,7 +3527,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       payEnNote() + '<div class="cx9-foot"><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button></div></div>';
     return h;
   }
-  function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop; el.innerHTML = mxHTML(); el.scrollTop = sc; }
+  function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop, fa = fxSnap(el); el.innerHTML = mxHTML(); el.scrollTop = sc; fxAfter(el, fa); }
   function mxPayBtn() { var el = layerEl("mxc"); return el && el.querySelector('[data-mx="pay"]'); }
   function mxFail(m, field) {   // B382T：m 可以是 {欄位: 訊息}（一次標出所有錯的欄位，捲到第一欄）；字串＋欄位名＝只標那一欄；字串沒欄位＝整頁訊息
     var o = S.mx; if (!o) return;
@@ -3651,9 +3657,27 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       if (saved && saved.at === p.at && saved.no === p.no) st.removeItem("tk225:m");
     } catch (e) {} });
   }
+  /* B462T（CÉON 11/08）：從綠界回來、後台說還沒付款 → 馬上回到原本的周邊結帳頁（資料都還在），上方說明一句。
+     綠界通知有時晚幾秒到，所以背景再每 2 秒問一次、最多 20 秒；真的付了就自動跳到購買成功。20 秒後還是沒付，就不再記這筆（名額 3 分鐘後自動讓出） */
+  function mBackUnpaid(p) {
+    closeSheet(); payCover(false);
+    var last = mxLast(p.evId); S.mx = null; mOpen(p.evId);
+    if (S.mx) { if (last && last.code) { S.mx.mb = last.code === "b" || last.code === "bh"; S.mx.mh = last.code === "h" || last.code === "bh"; S.mx.only = /^[bh]$/.test(last.code) ? last.code : null; }
+      S.mx.note = "這筆還沒付款，不會扣款，資料都還在。要買的話再按一次前往付款。如果你剛剛其實已經付款，幾秒內會自動跳到購買成功，請不要再付一次。"; mSheet(); }
+    var t0 = Date.now(), gone = function () { var c = mPending(); return !c || c.at !== p.at || c.no !== p.no; };
+    (function bg() {
+      if (gone()) return;
+      if (Date.now() - t0 > confirmMs()) { mForget(p); if (S.mx) { S.mx.note = ""; mSheet(); } return; }
+      setTimeout(function () {
+        if (gone()) return;
+        api("/ticket/order", { no: p.no, email: p.email }).then(function (j) { if (j && j.ok && j.order && j.order.paid) { o0waited = true; return mAwait(); } bg(); }).catch(bg);
+      }, CONFIRM_STEP);
+    })();
+  }
+  var o0waited = false;
   function mAwait() {
     var p = mPending(); if (!p) return mRecover();
-    var tries = 0, confirmed = false, timer, t0 = Date.now();
+    var tries = 0, confirmed = false, timer, t0 = Date.now(), waitMode = o0waited; o0waited = false;   // B462T：背景確認到「付了」才回來的，照舊等
     sheet('<div class="tk-big tkm-flow"><div class="tk-spin"></div><h3>正在確認付款，請稍等一下。</h3><div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
     var revision = sheetRevision;
     function live() { var current = mPending(); return sheetRevision === revision && current && current.at === p.at && current.no === p.no; }
@@ -3688,6 +3712,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
           if (j.order.merch === "failed") return sheet('<div class="tk-big tkm-flow"><h3>付款已確認，訂單需協助</h3><div class="tk-hint">請勿再次付款。請聯絡客服核對這筆訂單。</div></div><a class="tk-btn p" href="mailto:heartbeats0693@gmail.com">聯絡客服</a><button class="tk-btn g" data-sact="m-orders">查看我的訂單</button><button class="tk-btn g" data-sact="close">關閉</button>');
         }
         if (j && j.ok && j.order && j.order.paid === false) {   // B379T：沒付就直說 → B401T：後台可能還沒收到綠界通知，先每 2 秒再問、最多等 20 秒
+          if (!waitMode) return mBackUnpaid(p);   // B462T（CÉON 11/08）：從綠界沒付款就回來，不再卡在轉圈，直接回到原本的結帳頁；背景再確認
           if (Date.now() - t0 < confirmMs()) { setTimeout(poll, CONFIRM_STEP); return; }
           return unpaidSheet({ kind: "merch", evId: p.evId, startMs: p.at || Date.now(), no: p.no, email: p.email, label: p.label, code: p.code, qty: p.qty, amt: p.amt, waited: true });
         }
@@ -4031,7 +4056,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B459T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B462T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";

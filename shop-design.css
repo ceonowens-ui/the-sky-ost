@@ -64,7 +64,7 @@
 .tk-layer .tk-chapter{display:flex;align-items:center;gap:12px;font:500 12px/1.5 var(--shop-serif);letter-spacing:.27em;color:var(--tkg);margin:24px 0 14px}
 .tk-chapter span{height:1px;background:var(--shop-line);flex:1}
 .tk-archive-ticket{display:grid;grid-template-columns:minmax(0,1fr) 70px;width:100%;padding:0;margin:0 0 15px;border:1px solid var(--shop-line);border-radius:1px;background:#141312 url('shop-assets/paper.svg');color:#f2efe9;text-align:left;position:relative;cursor:pointer;transition:border-color .2s,transform .2s;clip-path:polygon(0 7px,7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px))}
-.tk-archive-ticket:hover{border-color:#f2d49d;transform:translateY(-2px)}
+@media (hover:hover) and (pointer:fine){.tk-archive-ticket:hover{border-color:#f2d49d;transform:translateY(-2px)}}   /* B461T：手機點了不卡在 hover */
 .tk-archive-ticket:before,.tk-archive-ticket:after{content:'';position:absolute;top:12px;bottom:12px;width:8px;background:radial-gradient(circle at 0 7px,#09070b 5px,#bd9d68 5.5px,transparent 6px) 0 0/8px 17px;z-index:1}
 .tk-archive-ticket:before{left:-1px}.tk-archive-ticket:after{right:-1px;transform:rotate(180deg)}
 .tk-ticket-main{padding:17px 14px 20px 19px;position:relative;overflow:hidden;isolation:isolate}
@@ -123,7 +123,7 @@
 .tk-layer .tk-grid>.tk-item:only-child{grid-column:1/-1}
 .tk-layer .tk-grid>.tk-item:only-child .im{aspect-ratio:4/3}
 .tk-layer .tk-item .im img{filter:none;object-fit:cover;transition:transform .4s}
-.tk-product-link:hover .im img{transform:scale(1.035)}
+@media (hover:hover) and (pointer:fine){.tk-product-link:hover .im img{transform:scale(1.035)}}   /* B461T */
 .tk-layer .tk-item .nm{font:500 21px/1.35 var(--shop-serif);padding:12px 10px 6px;margin:0;overflow-wrap:anywhere}
 .tk-layer .tk-item .ds{font-size:12px;line-height:1.6;padding:0 10px 12px;color:#c9bfc9;display:flex;justify-content:space-between}
 .tk-layer .tk-tag{border-radius:2px;font-size:10px;background:#0e0b10d9;color:#f2dfb9;max-width:calc(100% - 16px);left:8px;bottom:8px}
