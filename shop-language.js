@@ -22,7 +22,7 @@
  /* B422T：周邊領取碼 */
  '周邊為預購商品，活動當天現場領取（出示領取碼＋姓名）。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order and picked up at the event with your pickup code and name. Under Taiwan consumer law you can cancel for a full refund by email before receiving it, and request a return within 7 days after receiving it (for event pickup, counted from the event day).','現場領取：活動當天到周邊服務台，出示「我的票 → 周邊訂單」裡的領取碼和姓名。':'Event pickup: at the merch desk on the event day, show the pickup code in My tickets → Merch orders and your name.','周邊於活動當天出示領取碼現場領取':'Merch is picked up at the event with your pickup code',
  /* B421T：一筆最多 5 張 */
- '每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app','每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友。':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app.',
+ '每個帳號這場最多 5 張（含付款中的訂單；轉讓出去的票也算）；票都寄到同一個 Email，可在 App 轉讓給朋友':'Up to 5 tickets per account for this event (unpaid orders and tickets you transfer out count). All tickets go to one email and can be transferred in the app.','每個帳號這場最多 5 張；票都寄到同一個 Email，可以在 App 裡轉讓給朋友':'Up to 5 tickets per account for this event. All tickets go to the same email and can be transferred to friends in the app.','每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app','每筆訂單最多 5 張，不限每人張數；同一筆的票都寄到同一個 Email，可在 App 轉讓給朋友。':'Up to 5 tickets per order, no limit per person. All tickets in an order go to one email and can be transferred in the app.',
  /* B418T：購買成功摘要 */
  '付款成功，票券準備中':'Paid — your tickets are being prepared','付款成功，票券準備中…':'Paid — your tickets are being prepared…',
  /* B410T：已轉讓的票 */
@@ -176,7 +176,7 @@
  '時間：14:00開始入場、14:30活動開始、16:00活動結束':'Time: Doors open 14:00, event starts 14:30, event ends 16:00',
  '11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)':'Tickets go on sale 11/15 at 12:00 (Taipei time) (please come early at 13:20 on the day to collect your items on site)',
  '入場 QR 已在票夾，也寄到你的信箱。':'Your entry QR is in your ticket wallet and was also emailed to you.','。入場 QR 已在票夾，也寄到你的信箱。':'. Your entry QR is in your ticket wallet and was also emailed to you.','入場 QR 也會同時寄到你的信箱。':'Your entry QR will also be emailed to you.','入場憑 App 票夾或門票信裡的入場 QR，給工作人員掃描即完成入場。':'Enter with the QR code in your App ticket wallet or ticket email; staff scan it at the entrance.','・購票成功後，入場 QR 會立即出現在票夾，也會附在門票信裡':'・Right after purchase, your entry QR appears in your ticket wallet and is attached to your ticket email','活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。':'If the event is cancelled, or in other situations not attributable to the buyer, you get a full refund with no fee (the exact terms will follow the official notice).','票券可在票夾「轉讓給朋友」換人。':'You can transfer the ticket to a friend from your ticket wallet.',
- '會依購買姓名+電話方式核對劃消':'We will verify and check you off by the buyer’s name + phone number',
+ '入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對':'Show the QR in your App ticket wallet or ticket email at the door. If your phone can’t show it, give the buyer’s name and the last 4 digits of the phone number.',
  '另販售周邊海報A3一組4張 520元 限量50組*':'Also on sale: A3 poster set (4 posters per set), NT$520, limited to 50 sets*',
  '及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組':'Overseas fans who can’t attend can buy the A3 poster set + No. 6 photo card bundle, NT$980, limited to 30 sets',
  '亞洲寄送+250':'Shipping within Asia +NT$250',
@@ -219,6 +219,8 @@
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
+ /* B459T：開賣前先登入 */
+ '尚未開賣 · 先登入':'Not on sale yet · Sign in first','即將開賣 · 先登入':'Coming soon · Sign in first','先登入，開賣直接選位':'Sign in now, pick seats at launch','已登入 · 開賣直接選位':'Signed in · pick seats at launch','已登入 · 開賣直接選位 ✓':'Signed in · pick seats at launch ✓','先登入':'Sign in','✓ 已登入':'✓ Signed in','開賣前先登入':'Sign in before sales open','已登入':'Signed in','開賣時打開 App 就能直接選位，不用再收驗證碼。':'When sales open, just open the app and pick your seats. No code needed.',
  /* B441T：C 封面、付款 B */
  '輸入電子信箱':'Enter your email','稱呼':'Name','座位保留中，超過時間要重新選位':'Your seats are held. If time runs out, choose your seats again.','按「前往付款」後座位會保留一段時間；逾時未完成付款，座位會開放給其他人。':'Your seat is held for a limited time after you tap Pay. If you do not pay in time, it goes back on sale.','按「前往付款」後，請留在付款頁完成付款、不要關閉；超過時間要重新選位。':'After you tap Pay, stay on the payment page until it is done. If time runs out, choose your seats again.','座位保留中，還沒完成購買。超過時間要重新選位。':'Held for you. This is not a completed purchase. If time runs out, choose your seats again.',
  /* B438T：購票封面、結帳頁定稿 */
@@ -340,10 +342,10 @@
  [/^(.+)，共 (\d+) 席$/,(_,v,n)=>(D[v]||v)+' · '+n+' seats'],
  [/^合照加購限 1 張票，已留下 (\S+)$/,(_,a)=>'The photo add-on is for one ticket, so only '+a+' was kept.'],
  [/^(.+) 剛被選走了，請重新選位。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Please choose again. No payment was created.'],
- [/^演出日前 10 日（(.+)）前可申請退票，酌收票面金額 10% 手續費$/,(_,d)=>'Refunds available until 10 days before the show ('+d+'), with a fee of 10% of the ticket price.'],
- [/^演出日前 10 日前可申請退票，酌收票面金額 10% 手續費$/,()=>'Refunds available until 10 days before the show, with a fee of 10% of the ticket price.'],
- [/^演出日前 10 日(?:（(.+)）)?前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。$/,(_,d)=>'Refunds available until 10 days before the show'+(d?' ('+d+')':'')+', with a fee of 10% of the ticket price. If the event is cancelled or in other situations not attributable to the buyer, you get a full refund with no fee.'],
- [/^演出日前 10 日(?:（(.+)）)?前可申請退票，手續費為票面金額 10%。$/,(_,d)=>'Refunds are available until 10 days before the show'+(d?' ('+d+')':'')+', with a fee of 10% of the ticket price.'],
+ [/^演出日前 20 日（(.+)）前可申請退票，酌收票面金額 10% 手續費$/,(_,d)=>'Refunds available until 20 days before the show ('+d+'), with a fee of 10% of the ticket price.'],
+ [/^演出日前 20 日前可申請退票，酌收票面金額 10% 手續費$/,()=>'Refunds available until 20 days before the show, with a fee of 10% of the ticket price.'],
+ [/^演出日前 20 日(?:（(.+)）)?前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。$/,(_,d)=>'Refunds available until 20 days before the show'+(d?' ('+d+')':'')+', with a fee of 10% of the ticket price. If the event is cancelled or in other situations not attributable to the buyer, you get a full refund with no fee.'],
+ [/^演出日前 20 日(?:（(.+)）)?前可申請退票，手續費為票面金額 10%。$/,(_,d)=>'Refunds are available until 20 days before the show'+(d?' ('+d+')':'')+', with a fee of 10% of the ticket price.'],
  [/^演出日前 20 日(?:（(.+)）)?前可申請退票，手續費為票價 10%；逾期恕不退票，可用票夾「轉讓給朋友」換人。$/,(_,d)=>'Refunds are available until 20 days before the show'+(d?' ('+d+')':'')+', with a 10% fee. After that, no refunds, but you can transfer the ticket to a friend from your ticket wallet.'],
  [/^終身編號依付款完成順序配發（No\.(\d+)–(\d+)）$/,(_,a,b)=>'Lifetime numbers are assigned in order of payment (No.'+a+'–'+b+').'],
  [/^（(NT\$[\d,]+)，編號 (\d+)–(\d+)）：(.*)$/,(_,p,a,b,l)=>' ('+p+', No.'+a+'–'+b+'): '+enList(l)],
@@ -353,8 +355,8 @@
  [/^驗證碼已寄到 (\S+)（5 分鐘內有效），沒看到請找垃圾信件$/,(_,e)=>'Code sent to '+e+'. It is valid for 5 minutes. Check your spam folder if you do not see it.'],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
  [/^(\d\d:\d\d) 開始$/,(_,a)=>'Starts '+a],
- [/^按「前往付款」後座位保留 (\d+) 分鐘，請留在付款頁完成付款、不要關閉；超過時間要重新選位。$/,(_,n)=>'Your seat is held for '+n+' minutes after you tap Pay. Stay on the payment page until it is done. If time runs out, choose your seats again.'],
- [/^按「前往付款」後座位保留 (\d+) 分鐘；逾時未完成付款，座位會開放給其他人。$/,(_,n)=>'Your seat is held for '+n+' minutes after you tap Pay. If you do not pay in time, it goes back on sale.'],
+ [/^從第一次點座位起 10 分鐘內要按「前往付款」（看下方倒數）；按下後請在 (\d+) 分鐘內完成付款，請留在付款頁、不要關閉。超過時間要重新選位。$/,(_,n)=>'Tap Pay within 10 minutes of your first seat tap (see the countdown below). Then finish paying within '+n+' minutes and stay on the payment page. If time runs out, choose your seats again.'],
+ [/^按「前往付款」後，請在 (\d+) 分鐘內完成付款；逾時未完成付款，座位會開放給其他人。$/,(_,n)=>'After you tap Pay, finish paying within '+n+' minutes. If you do not pay in time, your seat goes back on sale.'],
  [/^座位保留中，還沒完成購買。按「前往付款」後保留 (\d+) 分鐘；超過時間要重新選位。$/,(_,n)=>'Held for you. This is not a completed purchase. After you tap Pay, it is held for '+n+' minutes; if time runs out, choose your seats again.'],
  [/^手機末 4 碼 (\d+)$/,(_,a)=>'Phone ending '+a],
  [/^(.+) 這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Pick another seat you like. No payment was created.'],

@@ -243,3 +243,11 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){ba
 /* B454T（CÉON 11/07）：前往付款前的購票須知放大 */
 .tk-layer .tkb.co-noir .tkc-thead small{font-size:calc(var(--c) * 16)!important}
 .tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .tk-hold,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .tkc-entry li,.tk-layer .tkb.co-noir .tkc-tbody .tkc-note li,.tk-layer .tkb.co-noir .tkc-tbody .la-info,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .la-info p,.tk-layer .tkb.co-noir .ticket-paper .tkc-tbody .la-info li,.tk-layer .tkb.co-noir .tkc-full,.tk-layer .tkb.co-noir .tkc-full li,.tk-layer .tkb.co-noir .tkc-full .nt,.tk-layer .tkb.co-noir .tkc-refund{font-size:calc(var(--c) * 17)!important;line-height:1.6!important}
+/* B459T：票面字放大（最小 12px）；票號、輕點放大拿掉，票號留在放大 QR 畫面 */
+.tk-v2 .tk-v2-time{top:89.2%;font-size:max(12px,3.4cqw);line-height:1.2}
+.tk-v2 .tk-v2-meta{top:92.6%;font-size:max(12px,3.4cqw);line-height:1.2}
+.tk-v2 .tk-v2-meta b{font-size:1.15em}
+.tk-v2 .tk-v2-meta span{font-family:inherit;font-size:1em}
+.tk-v2 .tk-v2-side{font-size:max(12px,3cqw)}
+/* B459T：「請先閱讀並同意購票須知」出現時，付款列底色從上緣就不透明，不壓在欄位字上 */
+.tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 18px)!important}

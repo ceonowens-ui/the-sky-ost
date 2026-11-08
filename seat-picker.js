@@ -49,6 +49,7 @@
   function order(a, b) { var x = a.split("-"), y = b.split("-"); return x[0] - y[0] || x[1] - y[1]; }
 
   function open(o) {
+    var acctLeft = null, acctTx = function () { var m = o.perAcct || 5; return o.en ? (acctLeft > 0 ? "Up to " + m + " tickets per account for this event. You can choose " + acctLeft + " more." : "Up to " + m + " tickets per account for this event. You already have " + m + ", including unpaid orders.") : (acctLeft > 0 ? "每個帳號這場最多 " + m + " 張，你還可以選 " + acctLeft + " 張。" : "每個帳號這場最多 " + m + " 張，你已經買滿了（含付款中的訂單）。"); };   // B459T：每個帳號最多 5 張（後台 m57 回 acctLeft）
     var goneTx = function (ids) { var n = ids.map(name).join(o.en ? ", " : "、"), many = ids.length > 1; return o.en ? n + (many ? " were" : " was") + " just taken. Pick another seat you like." : n + (many ? " 這些位置" : " 這個位置") + "剛被選走了，再挑一個喜歡的位置吧。"; };
     if (!document.getElementById("sk-seat-css")) { var st = document.createElement("style"); st.id = "sk-seat-css"; st.textContent = CSS; document.head.appendChild(st); }
     var en = !!o.en, T = en
@@ -121,6 +122,9 @@
         if (closed || my !== seq || !j || !j.ok) return;
         var lost = (j.taken || []).filter(function (k) { return sel.indexOf(k) >= 0; });
         if (lost.length) { sel = sel.filter(function (k) { return lost.indexOf(k) < 0; }); say(goneTx(lost)); }
+        if (j.acctLeft != null) acctLeft = Number(j.acctLeft);
+        var ov = (j.over || []).filter(function (k) { return sel.indexOf(k) >= 0; });
+        if (ov.length) { sel = sel.filter(function (k) { return ov.indexOf(k) < 0; }); say(acctTx(), 4000); }
         setBusy(j.busy); paint();
       }).catch(function () {});
     }
@@ -161,6 +165,7 @@
       if (k === "seat") {
         var id = b.getAttribute("data-id"), i = sel.indexOf(id);
         if (i >= 0) sel.splice(i, 1);
+        else if (acctLeft != null && acctLeft < o.max && sel.length >= acctLeft) return say(acctTx(), 4000);
         else if (sel.length >= o.max) { if (o.max === 1) sel = [id]; else return say(T.max); }
         else sel.push(id);
         try { navigator.vibrate && navigator.vibrate(6); } catch (x) {}

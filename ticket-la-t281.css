@@ -291,7 +291,7 @@ html[lang="en"] .tk-layer[data-layer="pass"] .tk-bar .c { visibility:hidden; }
 /* B373T：字級統一成 iPhone 系統 App 的標準字級（大標 34／商品頁標題 22／品名・價格・按鈕 17 粗／內文 17／次要 15／條款 13／最小 12），
    整區不再用縮放（B371T 的 89%／78%／87% 會把字一起縮到 8–12px），拿掉多餘的小標和說明。CÉON 11/01 同意 */
 /* SHOP 主頁 */
-.sv3 .sv3-sec-num { font-size:12px !important; }
+.sv3 .sv3-sec-num { display:none !important; }   /* B459T：01 / TICKETS、02 / MERCH 小字裝飾英文拿掉（CÉON 不要很小的字） */
 .sv3 .sv3-block-h { font-size:34px !important; line-height:1.2 !important; }
 #sv3-tickets .sv3-block-m { font-size:17px !important; line-height:1.55 !important; }
 #sv3-tickets .sv3-go { font-size:17px !important; font-weight:600 !important; }

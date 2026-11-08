@@ -19,7 +19,7 @@ var p=pref||(navigator.languages&&navigator.languages[0])||navigator.language||"
 window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;document.documentElement.lang=window.SKY_LANG==="en"?"en":"zh-Hant";})();</script>
 <script src="app-i18n-en.js?v=B328T"></script>
 <link rel="preload" as="style" href="ticket-a-wallet-test.css?v=B430T-1">
-<script src="shop-language.js?v=5e44a0d4bfe9"></script>
+<script src="shop-language.js?v=d3a9ac90cc9f"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
 (function () {
   function take() { try { var m = /(?:^#|&)single=(S1-\d{3}-[0-9a-f]{32})/.exec(location.hash); if (!m) return false; localStorage.setItem("chance.single.v1", m[1]); history.replaceState(null, "", location.pathname + location.search); return true; } catch (e) { return false; } }
@@ -12845,10 +12845,42 @@ window.ALBUM_SWITCH = {
 <script src="shop-content.js?v=3" defer></script>
 <script src="shop-content-t314.js?v=B314T" defer></script>
 <script>
+/* B459T（CÉON 11/08）：開賣前 3 天（11/12 00:00–11/15 12:00 台北時間）還沒登入購票的人，打開 App 上方出現一條提醒。
+   點了開 SHOP 的「開賣前先登入」；按 ✕ 後 24 小時內不再出現；已登入就不出現。?nudge=1 可以提前看 */
+(function () {
+  var now = Date.now(), force = /[?&]nudge=1/.test(location.search);
+  if (!force && (now < Date.parse("2026-11-12T00:00:00+08:00") || now >= Date.parse("2026-11-15T12:00:00+08:00"))) return;
+  var ls = function (k) { try { var v = localStorage.getItem(k); return v && v !== "null" ? v : ""; } catch (e) { return ""; } };
+  if (ls("tk:session-test")) return;   // test.html 連測試後台，購票登入記在這個 key
+  if (!force && now - Number(ls("tk:nudge") || 0) < 864e5) return;
+  function show() {
+    if (document.getElementById("tk-nudge")) return;
+    var st = document.createElement("style");
+    st.textContent = "#tk-nudge{position:fixed;z-index:9000;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 12px);max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 16px;border:1px solid rgba(236,198,127,.45);border-radius:16px;background:rgba(18,15,20,.94);box-shadow:0 10px 30px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}#tk-nudge .go{flex:1;min-height:44px;padding:0;border:0;background:none;color:#f4efe6;font:600 16px/1.35 'Noto Sans TC','PingFang TC',sans-serif;text-align:left}#tk-nudge .go b{color:#ecc67f;font-weight:600}#tk-nudge .x{flex:none;width:44px;height:44px;border:0;border-radius:12px;background:none;color:#cfc7ba;font-size:18px}";
+    document.head.appendChild(st);
+    var el = document.createElement("div"); el.id = "tk-nudge"; el.setAttribute("role", "status");
+    el.innerHTML = '<button type="button" class="go">11/15 12:00 開賣，<b>先登入購票帳號 ›</b></button><button type="button" class="x" aria-label="關閉提醒">✕</button>';
+    document.body.appendChild(el);
+    var gone = function () { try { localStorage.setItem("tk:nudge", String(Date.now())); } catch (e) {} el.remove(); };
+    el.querySelector(".x").addEventListener("click", gone);
+    el.querySelector(".go").addEventListener("click", function () {
+      gone();
+      var nav = document.querySelector('.navbtn[data-screen="merch"]'); if (nav) nav.click();   // 進 SHOP（會載入購票模組）
+      var t0 = Date.now(), wait = setInterval(function () {
+        var T = window.CHANCE_TICKETS;
+        if (T && T.preLogin) { clearInterval(wait); T.preLogin(); } else if (Date.now() - t0 > 10000) clearInterval(wait);
+      }, 200);
+    });
+    document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]') && document.getElementById("tk-nudge")) el.remove(); }, true);   // 自己進 SHOP 就收起，不蓋在購票頁上
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", show); else show();
+})();
+</script>
+<script>
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=4d74128216e8";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=c87768a9916f";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   var tkPend = false;   /* B386T：剛從綠界回來（主畫面 App 按 ✕ 會從頭載入，網址沒有 ?tkbought）→ 馬上載 SHOP 模組，回到購買頁 */
