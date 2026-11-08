@@ -219,6 +219,8 @@
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
+ /* B465T：當天須知 */
+ '當天須知':'On the day','當天可以送禮物給成晞，請避免太昂貴的禮物；現場不提供簽名。':'You are welcome to bring gifts for Chance, but please avoid expensive ones. There are no autographs on site.','最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。':'We will take a group photo at the end. There is a quiz with prizes and a draw for a life-size standee; you get one draw number per ticket at entry.','有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。':'If you bought merch, pick it up on site from 13:20 that day, or leave your full name and phone number so a friend can collect it for you.',
  /* B459T：開賣前先登入 */
  '尚未開賣 · 先登入':'Not on sale yet · Sign in first','即將開賣 · 先登入':'Coming soon · Sign in first','先登入，開賣直接選位':'Sign in now, pick seats at launch','已登入 · 開賣直接選位':'Signed in · pick seats at launch','已登入 · 開賣直接選位 ✓':'Signed in · pick seats at launch ✓','先登入':'Sign in','✓ 已登入':'✓ Signed in','開賣前先登入':'Sign in before sales open','已登入':'Signed in','開賣時打開 App 就能直接選位，不用再收驗證碼。':'When sales open, just open the app and pick your seats. No code needed.',
  /* B441T：C 封面、付款 B */

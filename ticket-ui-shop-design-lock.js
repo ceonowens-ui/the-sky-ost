@@ -569,10 +569,19 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     clearTimeout(payCoverT);
     if (!on) { if (c) c.remove(); root.classList.remove("tk-paywait"); return; }
     root.classList.add("tk-paywait"); goShop();   // SHOP 在黑底下先載好場次，沒付款時才回得去結帳頁
-    if (!c) { c = document.createElement("div"); c.id = "tk-paycover"; c.className = "tk-sum-cover tk-paycover"; c.innerHTML = '<div class="tk-spin"></div><p>' + (sxEN() ? "Confirming your payment. One moment." : "正在確認付款，請稍等一下。") + '</p>'; document.body.appendChild(c); }
+    if (!c) { c = document.createElement("div"); c.id = "tk-paycover"; c.className = "tk-sum-cover tk-paycover"; c.innerHTML = '';   /* B465T（CÉON 11/08）：從綠界回來不出現任何確認畫面，只擋住半秒避免畫面閃 */ document.body.appendChild(c); }
     payCoverT = setTimeout(function () { payCover(false); }, 45000);   // 保險：任何情況都不把人關在等待畫面
   }
-  function claimByKey(evId, kind, lo) {
+  function claimByKey(evId, kind, lo, sure) {
+    if (!sure && lo && lo.no && lo.email && !C.demo) {   // B465T：先不出畫面，背景問一次；沒付就直接回結帳頁
+      var q = { kind: "ticket", evId: evId, startMs: lo.t || Date.now(), no: lo.no, email: lo.email, tier: lo.tier || "", mc: lo.mc || "", mq: lo.mq || 0, amt: lo.amt || 0 };
+      S.confirming = q;
+      return api("/ticket/order", { no: lo.no, email: lo.email }).then(function (j) { return j && j.ok && j.order ? j.order : null; }).catch(function () { return null; }).then(function (os) {
+        if (S.confirming !== q) return; S.confirming = null;
+        if (os && os.paid === false && !os.payFailed) return backUnpaid(q, function () { claimByKey(evId, kind, lo, true); });
+        claimByKey(evId, kind, lo, true);
+      });
+    }
     var o = { kind: "ticket", evId: evId, startMs: lo.t || Date.now(), no: lo.no, email: lo.email, tier: lo.tier || "", mc: lo.mc || "", mq: lo.mq || 0, amt: lo.amt || 0 };
     S.confirming = o; payCover(true);
     sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>正在確認付款，請稍等一下。</h3>' + (o.kind === "merch" ? '' : '<div class="tk-hint">我們正在為你準備這次的相遇。</div>') + '<div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
@@ -589,7 +598,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
         if (j.error === "not_paid") return api("/ticket/order", { no: lo.no, email: lo.email }).then(function (r) { return !!(r && r.order && r.order.payFailed); }).catch(function () { return false; }).then(function (pf) {
           if (sheetRevision !== rev || S.confirming !== o) return;
           if (pf) { S.confirming = null; o.failed = true; return unpaidSheet(o); }   // 綠界說失敗：馬上講，不用等 20 秒
-          return backUnpaid(o, function () { claimByKey(evId, kind, lo); });   // B463T：沒付就直接回結帳頁，背景再確認
+          return backUnpaid(o, function () { claimByKey(evId, kind, lo, true); });   // B463T：沒付就直接回結帳頁，背景再確認
         });
         S.confirming = null;
         claimSheet(evId, kind);   // 鑰匙用過／過期／連不上 → 用信箱驗證碼
@@ -2102,9 +2111,11 @@ function coverClockKey() {
     var d = refundBy(ev), tiers = ev.tiers || [];
     var multiT = tiers.some(function (t) { return t.key === "vvip" || t.key === "vip"; });
     var li = function (a) { return '<li>' + a + '</li>'; };
-    return '<div class="pt">活動</div><ul>' + li(esc(ev.name || "") + '｜' + esc(md(ev.startAt)) + '（' + esc(wk(ev.startAt)) + '）' + esc(hm(ev.startAt)) + ' 開始') + li(esc(ev.venue || "") + (ev.capacity ? '，共 ' + esc(ev.capacity) + ' 席' : '')) + '</ul>' +
-      '<div class="pt">票種福利</div><ul>' + (sharedItems(ev).length ? li(shLbl(ev) + '：' + sharedItems(ev).map(esc).join("、")) : '') +
-        tiers.map(function (t) { return li('<b>' + esc(t.name) + '</b>（' + nt(t.price) + '，編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '）：' + (t.perks || []).map(esc).join("、")); }).join("") + '</ul>' +
+    /* B465T（CÉON 11/08）：活動頁已經寫過的（日期、地點、名額、票價、這張票包含什麼）不再重複；多種票種時才列各票種福利 */
+    var day = (bt(ev).info || {}).day || [];
+    return (multiT ? '<div class="pt">票種福利</div><ul>' + (sharedItems(ev).length ? li(shLbl(ev) + '：' + sharedItems(ev).map(esc).join("、")) : '') +
+        tiers.map(function (t) { return li('<b>' + esc(t.name) + '</b>（' + nt(t.price) + '，編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '）：' + (t.perks || []).map(esc).join("、")); }).join("") + '</ul>' : '') +
+      (day.length ? '<div class="pt">當天須知</div><ul>' + day.map(function (x) { return li(esc(x)); }).join("") + '</ul>' : '') +
       '<div class="pt">終身編號</div><ul>' + li('依付款完成順序配發；有人退票時，釋出的號碼由下一位購買者遞補。') + li('終身編號不是座位號碼；編號與福利隨票轉讓，歸新持有人。') + '</ul>' +
       '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li('購票時需填寫稱呼，僅用於本活動（' + (multiT ? '報到與 VVIP 海報署名' : '報到使用') + '）。') + li('購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。') + (multiT ? li('入場順序：VVIP → VIP → 一般，各批次依現場引導入場，' + (seatEv(ev) ? '依票面座位入座。' : '場內自由入座。')) : li(seatEv(ev) ? '依現場引導入場，依票面座位入座。' : '依現場引導入場，場內自由入座。')) + li('入場憑 App 票夾或門票信裡的入場 QR，給工作人員掃描即完成入場。') + '</ul>' + entryTermsHTML(ev) +
       (multiT ? '<div class="pt">合照與照片</div><ul>' + li('VIP／VVIP：與 CHANCE 的合照由官方攝影師拍攝，自己的合格合照成片全數免費下載，無須另行加購；VVIP 的 60 秒一對一已含合照。') + li('合格成片＝經攝影團隊篩選、基本校色的高解析 JPEG，不含 RAW、失焦、閉眼、測試照或重複廢片；不代表延長互動時間或不限拍攝。') + li('全票種：全場大合照與主辦精選活動照免費下載。個人合照只提供給該票券持有人，不會放進共用相簿。') + li('生日牆合照（一般票加購 PhotoPass NT$390）：在現場為 CHANCE 布置的生日牆前與 CHANCE 合照一次，由官方攝影師拍攝，自己的合格成片全數下載；不加購不影響其他福利。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>' : '<div class="pt">合照與照片</div><ul>' + li('生日牆全體合照、全場大合照由官方攝影師拍攝，主辦精選活動照免費下載。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>') +
@@ -2632,7 +2643,16 @@ function coverClockKey() {
   /* 從綠界按上一頁回來（bfcache）：這次付款嘗試作廢、按鈕恢復，資料不清 */
   window.addEventListener("pageshow", function (e) { if (!e.persisted) return; CX.att = (CX.att || 0) + 1; if (CX.busy) { CX.busy = false; CX.retry = true; } cx9Paint(); });
   /* Return only celebrates after the shop backend confirms this specific draft was paid. */
-  function cxReturn() {
+  function cxReturn(sure) {
+    var p0 = cxPending();
+    if (!sure && p0 && p0.d) {   // B465T：先不出「確認付款中」，背景問一次；沒付就直接回確認訂單頁
+      var tag = cxSilent = {};
+      return fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(p0.d), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (j) {
+        if (cxSilent !== tag) return; cxSilent = null;
+        if (j && j.paid === false) return cxBackUnpaid(p0);
+        cxReturn(true);
+      });
+    }
     var p = cxPending(), revision = ++cxReturnRevision;
     if (p) cxResumeSeen = String(p.d) + ":" + String(p.at);
     cxShownPending = p || null;
@@ -2669,7 +2689,7 @@ function coverClockKey() {
     poll();
   }
   /* B464T（CÉON 11/08）：卡包從綠界沒付款回來 → 不卡在「確認付款中」，直接回確認訂單頁，資料都還在。背景再確認 20 秒，付了就跳購買成功 */
-  var cxWaitPaid = false;
+  var cxWaitPaid = false, cxSilent = null;
   function cxBackUnpaid(p) {
     cxShownPending = null; cxClose();
     CX.busy = false; CX.err = ""; CX.note = "這筆還沒付款，不會扣款，資料都還在。要買的話再按一次前往付款。如果剛剛其實已經付款，幾秒內會自動跳到購買成功，請不要再付一次。";
@@ -2680,7 +2700,7 @@ function coverClockKey() {
       if (Date.now() - t0 > confirmMs()) { CX.backTok = null; CX.note = ""; cx9Paint(); return; }
       fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(p.d), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
         if (CX.backTok !== tok) return;
-        if (j && j.paid === true) { CX.backTok = null; CX.note = ""; cxWaitPaid = true; cxReturn(); cxWaitPaid = false; return; }
+        if (j && j.paid === true) { CX.backTok = null; CX.note = ""; cxWaitPaid = true; cxReturn(true); cxWaitPaid = false; return; }
         bg();
       }, bg);
     }, CONFIRM_STEP); })();
@@ -2745,7 +2765,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
         ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 520元 限量50組*", "及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組", "亞洲寄送+250", "其他地區+500", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
         ["*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
-      ] } },
+      ],
+        /* B465T（CÉON 11/08）：完整購票須知只放其他地方沒寫過的事（從上面原文整理） */
+        day: ["當天可以送禮物給成晞，請避免太昂貴的禮物；現場不提供簽名。", "最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。", "有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。"] } },
     _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
     assets: { hero: "shop-assets/buy-hero.jpg", thumb: "shop-assets/buy-thumb.jpg", ticket: "shop-assets/buy-ticket.jpg" },
     note: "※ 現場流程時間以當日公告為準",
@@ -3164,12 +3186,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function coTermsHTML(ev, T, b) {
     var mi = mInfo(ev.id), r = mi ? mResolve(mi, mSel(b)) : null;
     return '<div class="tkc-terms"><button type="button" class="tkc-thead" data-act="co-terms" aria-expanded="' + !!b.tOpen + '" aria-controls="tk-tbody"><span><b>購票須知</b><small data-t-tip>' + (b.tSeen ? '看完後到下方勾選同意' : '付款前必須點開看過') + '</small></span><i aria-hidden="true">›</i></button>' +
-      '<div class="tkc-tbody" id="tk-tbody"' + (b.tOpen ? '' : ' hidden') + '><div class="tk-hold">' + HOLD_TXT(ev) + '</div>' + entryCoHTML(ev) +
-      '<div class="tkb-seat tkc-note">' + ic("star", "bi s") + '<div><b>購買前請注意</b><ul><li>每個帳號這場最多 5 張；票都寄到同一個 Email，可以在 App 裡轉讓給朋友</li><li>' + esc(termsFor(ev).split("；")[0]) + '</li><li>終身編號依付款完成順序配發（No.' + num3(T.numFrom) + '–' + num3(T.numTo) + '）</li>' +
-      '<li data-tkm-note' + (r ? '' : ' hidden') + '>周邊於活動當天出示領取碼現場領取</li></ul></div></div>' + laInfoHTML(ev) +
+      '<div class="tkc-tbody" id="tk-tbody"' + (b.tOpen ? '' : ' hidden') + '>' +   // B465T（CÉON 11/08）：拿掉重複的摘要（保留時間、入場與座位、購買前請注意、生日會資訊原文），只留一份完整須知
       '<div class="tkb-terms tkc-full"><h4>完整購票須知</h4>' + termsBodyHTML(ev) + '</div></div></div>' +
       '<button type="button" class="tkc-agree' + (b.tOk ? ' on' : '') + '" role="checkbox" aria-checked="' + !!b.tOk + '" aria-disabled="' + !b.tSeen + '" data-act="co-agree"><i aria-hidden="true"></i><span>我已看過並同意購票須知</span></button>' +
-      '<p class="tkc-refund">' + esc(termsFor(ev).split("；")[0]) + '</p><div class="tk-msg" id="tk-bmsg"></div>';
+      '<div class="tk-msg" id="tk-bmsg"></div>';   // B465T：退票那句在完整須知裡已經有，勾選下面不再重複
   }
   function coWaitCls(b) { return b && !b.tOk && !coNoSeat(b) ? " wait" : ""; }
   /* B448T：CÉON 定稿 C 雙區票根為預設；?ctaStyle=a/b 仍可比較，只看這次網址、不存；無參數或亂填＝C */
@@ -3692,8 +3712,16 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     })();
   }
   var o0waited = false;
-  function mAwait() {
+  function mAwait(sure) {
     var p = mPending(); if (!p) return mRecover();
+    if (!sure && !o0waited && !C.demo) {   // B465T：先不出轉圈畫面，背景問一次；沒付就直接回結帳頁
+      var tag = S.mSilent = {};
+      return api("/ticket/order", { no: p.no, email: p.email }).then(function (j) { return j; }).catch(function () { return null; }).then(function (j) {
+        if (S.mSilent !== tag) return; S.mSilent = null;
+        if (j && j.ok && j.order && j.order.paid === false) return mBackUnpaid(p);
+        mAwait(true);
+      });
+    }
     var tries = 0, confirmed = false, timer, t0 = Date.now(), waitMode = o0waited; o0waited = false;   // B462T：背景確認到「付了」才回來的，照舊等
     sheet('<div class="tk-big tkm-flow"><div class="tk-spin"></div><h3>正在確認付款，請稍等一下。</h3><div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
     var revision = sheetRevision;
@@ -3780,7 +3808,17 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      確認付了就走成功，等不到才說「還沒收到付款」，並提醒已經付的人不要按「不買了」（會把名額讓出去、變成要退款）。 */
   var CONFIRM_MS = 20000, CONFIRM_STEP = 2000;
   function confirmMs() { return window.__tkConfirmMs > 0 ? window.__tkConfirmMs : CONFIRM_MS; }   // __tkConfirmMs 只給假後台測試縮短等待
-  function confirmPaid(o, onPaid) {
+  function confirmPaid(o, onPaid, sure) {
+    if (!sure && o.kind !== "merch") {   // B465T：先不出畫面，背景問一次；沒付就直接回結帳頁，付了才走原本的確認
+      S.confirming = o;
+      return api("/ticket/order", { no: o.no, email: o.email }).then(function (j) { return j && j.ok && j.order ? j.order : null; }).catch(function () { return null; }).then(function (os) {
+        if (S.confirming !== o) return;
+        if (os && os.paid) { S.confirming = null; return onPaid(os); }
+        if (os && os.payFailed) { S.confirming = null; o.failed = true; return unpaidSheet(o); }
+        if (os) return backUnpaid(o, function () { confirmPaid(o, onPaid, true); });
+        S.confirming = null; confirmPaid(o, onPaid, true);
+      });
+    }
     S.confirming = o; payCover(true);
     sheet('<div class="tk-big"><div class="tk-spin"></div><div class="tk-eyebrow">Checking</div><h3>正在確認付款，請稍等一下。</h3>' + (o.kind === "merch" ? '' : '<div class="tk-hint">我們正在為你準備這次的相遇。</div>') + '<div class="tk-hint">綠界已經付款的話，通常幾秒內就會確認，別關掉這個畫面。</div></div>');
     var rev = sheetRevision, t0 = Date.now();
@@ -3790,7 +3828,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         if (sheetRevision !== rev || S.confirming !== o) return;
         if (os && os.paid) { S.confirming = null; return onPaid(os); }
         if (os && os.payFailed) { S.confirming = null; o.failed = true; return unpaidSheet(o); }   // 綠界說失敗：馬上講，不用等 20 秒
-        if (o.kind !== "merch") return backUnpaid(o, function () { confirmPaid(o, onPaid); });   // B463T：買票沒付就直接回結帳頁，背景再確認
+        if (o.kind !== "merch") return backUnpaid(o, function () { confirmPaid(o, onPaid, true); });   // B463T：買票沒付就直接回結帳頁，背景再確認
         if (Date.now() - t0 >= confirmMs()) { S.confirming = null; o.waited = true; return unpaidSheet(o); }
         again();
       });
