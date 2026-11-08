@@ -264,3 +264,5 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tkb-cta.wait){ba
 body:has(#tk-test-banner) .dcl{padding-top:calc(env(safe-area-inset-top) + 44px)}
 /* B462T：從綠界沒付款回來時，周邊結帳頁最上方的說明 */
 .tk-layer .cx9-backnote{margin:4px 0 18px;padding:14px 16px;border:1px solid rgba(232,201,140,.45);border-radius:14px;background:rgba(232,201,140,.08);color:#f1e8d8;font-size:16px;line-height:1.6}
+/* B463T：買票從綠界沒付款回來時，結帳頁的說明用一般顏色，不用紅色錯誤 */
+.tk-layer[data-layer=checkout] #tk-bmsg.tk-msg.ok,.tk-layer .tkb.co-noir .ticket-paper .tk-msg.ok,.tk-layer .tkb.co-noir .ticket-paper .tk-msg.ok *{color:#f1e8d8!important;-webkit-text-fill-color:#f1e8d8;font-size:16px;line-height:1.6}
