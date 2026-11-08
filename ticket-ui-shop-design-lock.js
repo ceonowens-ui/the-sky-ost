@@ -1374,7 +1374,7 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
     var evVenue = ev ? (ev.venue || '地點待公布') : '';
     var capacity=ev && (ev.capacity || (_tiers || []).reduce(function(a,t){return a+(+t.cap||0);},0));
     var evCapacity=capacity ? '活動名額 '+capacity+' 席' : '';
-    var evPrice = _minP ? '<span class="num">NT$' + _minP.toLocaleString('en-US') + '</span> 起' : '';
+    var evPrice = _minP ? '<span class="num">NT$' + _minP.toLocaleString('en-US') + '</span>' + (_tiers && _tiers.some(function (t) { return +t.price > _minP; }) ? ' 起' : ' ／張') : '';   // B460T：只有一種票價不寫「起」
     /* B250T：還沒開賣 → 先不放任何介紹，只留「入場票 · N 席」；開賣後自動恢復 */
     var _pre = ev && !_onSale && !_soldOut;
     if (_pre) {
