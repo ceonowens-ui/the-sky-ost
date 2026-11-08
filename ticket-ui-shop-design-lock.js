@@ -1483,13 +1483,14 @@ function coverClockKey() {
     if (name === "detail") S.detail = opts.key;
     if (S.layers.indexOf(name) >= 0) { renderLayer(name); return; }
     if (!S.layers.length) { try { var scm = document.getElementById("screen-merch"); S.shopScroll = { el: scm ? scm.scrollTop : 0, win: window.scrollY || 0 }; } catch (e) {} }   // B415T：記住 SHOP 捲到哪
+    var underEl = S.layers.length ? layerEl(S.layers[S.layers.length - 1]) : null;   // B466T：推入時下面那頁往左退
     S.layers.push(name); paidMark();
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
     var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
     document.getElementById("tk-layers").appendChild(el);
     renderLayer(name);
     document.body.classList.add("tk-open");
-    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); if (underEl) underEl.classList.add("under"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
     if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (!awUse() && t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast("☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
@@ -1516,8 +1517,10 @@ function coverClockKey() {
     }, 5000);
   }
   function paidMark() { document.documentElement.classList.toggle("tk-paidpage", ["done", "bought", "buy", "checkout"].some(function (n) { return S.layers.indexOf(n) >= 0; })); }   // B433T：買完的頁面不跳「已經買過？」；B435T：購票頁、結帳頁也不跳（會蓋住返回和我的票）
-  function popLayer() {
+  function popLayer(instant) {
     var name = S.layers.pop(); if (!name) return; paidMark();
+    var newTop = S.layers.length ? layerEl(S.layers[S.layers.length - 1]) : null;   // B466T：下面那頁回到原位
+    if (newTop) { if (instant) { newTop.style.transition = "none"; requestAnimationFrame(function () { newTop.style.transition = ""; }); } newTop.classList.remove("under"); }
     if (name === "cxc") { CX.att = (CX.att || 0) + 1; CX.busy = false; CX.st = ""; CX.retry = false; }   /* B279T：離開確認訂單＝這次付款嘗試作廢 */
     if (name === "ppstaff") ppsStop();
     if (name === "bought") sumStop();
@@ -1525,7 +1528,7 @@ function coverClockKey() {
     if (name === "mxc" && S.mx) { S.mx.att = (S.mx.att || 0) + 1; S.mx.busy = false; }   /* B375T：離開購買頁＝這次付款嘗試作廢 */
     if (name === "dcl") document.body.classList.remove("dcl-open");   /* B309T */
     if (name === "cxl") document.body.classList.remove("cxl-open");
-    var el = layerEl(name); if (el) { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 130); }
+    var el = layerEl(name); if (el) { if (instant) el.remove(); else { el.classList.remove("in"); el.classList.add("out"); setTimeout(function () { el.remove(); }, 320); } }
     if (!S.layers.length) { document.body.classList.remove("tk-open"); render(); restoreShopScroll(); }
   }
   /* B415T（CÉON 11/03，主畫面 App）：從票券頁返回 SHOP，有時會跳到 SHOP 最上面 → 回來後捲回原本的位置（立刻＋稍後各一次，蓋過 iOS 重排） */
@@ -1534,20 +1537,52 @@ function coverClockKey() {
     var go = function () { try { var scm = document.getElementById("screen-merch"); if (scm && Math.abs(scm.scrollTop - p.el) > 4) scm.scrollTop = p.el; if (Math.abs((window.scrollY || 0) - p.win) > 4) window.scrollTo(0, p.win); } catch (e) {} };
     go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 360);
   }
-  function back() { if (S.layers.length) history.back(); }
-  /* B411T（CÉON 11/03）：從螢幕最左邊往右滑 → 回上一頁。只在「加到主畫面」的 App 開（Safari 自己就有這個手勢，兩個一起會退兩頁） */
+  function back() { if (S.layers.length) { S.navBack = Date.now(); history.back(); } }
+  var TK_APP = !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));   // 加到主畫面的 App
+  /* B466T（CÉON 11/08）：左邊緣滑動返回（swipe-back gesture）。頁面跟著手指走，下面那頁從左邊慢慢回來、變亮；
+     放手時滑超過三分之一或甩得夠快就返回，不然彈回原位。只在「加到主畫面」的 App 開（Safari 自己就有這個手勢，兩個一起會退兩頁） */
   (function () {
-    var standalone = !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));
-    if (!standalone && !/[?&]edgeback=1/.test(location.search)) return;   // edgeback=1 只給測試用
-    var x0 = null, y0 = 0, t0 = 0;
-    document.addEventListener("touchstart", function (e) { var p = e.touches && e.touches[0]; x0 = (p && p.clientX <= 24 && S.layers.length && !(sheetEl && sheetEl.classList.contains("show"))) ? p.clientX : null; if (x0 != null) { y0 = p.clientY; t0 = Date.now(); } }, { passive: true });
-    document.addEventListener("touchend", function (e) { if (x0 == null) return; var p = e.changedTouches && e.changedTouches[0]; var dx = p ? p.clientX - x0 : 0, dy = p ? Math.abs(p.clientY - y0) : 99; x0 = null; if (dx > 70 && dy < dx * 0.6 && Date.now() - t0 < 800) { hap(8); back(); } }, { passive: true });
+    if (!TK_APP && !/[?&]edgeback=1/.test(location.search)) return;   // edgeback=1 只給測試用
+    var g = null, EASE = "transform 260ms cubic-bezier(.32,.72,0,1), filter 260ms cubic-bezier(.32,.72,0,1)";
+    var reduce = function () { try { return matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth >= 520; } catch (e) { return false; } };
+    document.addEventListener("touchstart", function (e) {
+      g = null; var p = e.touches && e.touches[0], n = S.layers.length;
+      if (!p || e.touches.length > 1 || p.clientX > 24 || !n || S.seatUI || (sheetEl && sheetEl.classList.contains("show"))) return;
+      var el = layerEl(S.layers[n - 1]); if (!el) return;
+      g = { x0: p.clientX, y0: p.clientY, el: el, under: n > 1 ? layerEl(S.layers[n - 2]) : null, w: innerWidth || 375, on: false, dead: false, pts: [{ x: p.clientX, t: Date.now() }], still: reduce() };
+    }, { passive: true });
+    document.addEventListener("touchmove", function (e) {
+      if (!g || g.dead) return; var p = e.touches[0], dx = p.clientX - g.x0, dy = p.clientY - g.y0;
+      if (!g.on) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g.dead = true; return; } if (dx < 6) return; g.on = true; if (!g.still) { g.el.style.transition = "none"; if (g.under) g.under.style.transition = "none"; } }
+      g.pts.push({ x: p.clientX, t: Date.now() }); if (g.pts.length > 5) g.pts.shift();
+      if (g.still) return;
+      var d = Math.max(0, dx), f = Math.min(1, d / g.w);
+      g.el.style.transform = "translate3d(" + d + "px,0,0)";
+      if (g.under) { g.under.style.transform = "translate3d(" + (-25 * (1 - f)) + "%,0,0)"; g.under.style.filter = "brightness(" + (0.65 + 0.35 * f) + ")"; }
+    }, { passive: true });
+    function end(e, cancel) {
+      var s = g; g = null; if (!s || !s.on) return;
+      var p = e.changedTouches && e.changedTouches[0], x = p ? p.clientX : s.x0, d = Math.max(0, x - s.x0), a = s.pts[0], v = (x - a.x) / Math.max(1, Date.now() - a.t);
+      var go = !cancel && (d > s.w / 3 || (v > 0.45 && d > 24));
+      if (s.still) { if (go) { hap(8); back(); } return; }
+      s.el.style.transition = EASE; if (s.under) s.under.style.transition = EASE;
+      if (go) {
+        s.el.style.transform = "translate3d(100%,0,0)"; if (s.under) { s.under.style.transform = "translate3d(0,0,0)"; s.under.style.filter = "brightness(1)"; }
+        hap(8); back();
+        setTimeout(function () { if (s.under) { s.under.style.transition = ""; s.under.style.transform = ""; s.under.style.filter = ""; } }, 320);
+      } else {
+        s.el.style.transform = ""; if (s.under) { s.under.style.transform = ""; s.under.style.filter = ""; }
+        setTimeout(function () { s.el.style.transition = ""; if (s.under) s.under.style.transition = ""; }, 320);
+      }
+    }
+    document.addEventListener("touchend", function (e) { end(e, false); }, { passive: true });
+    document.addEventListener("touchcancel", function (e) { end(e, true); }, { passive: true });
   })();
   function closeAll() { closeSheet(); while (S.layers.length) popLayer(); }
   window.addEventListener("popstate", function (e) {
     closeSheet(); if (document.getElementById("tk-paycover")) payCover(false);   // 只有黑底等待中才收；換頁的返回不要動到「不跳提示」的標記
-    var want = (e.state && e.state.tk) || 0;
-    while (S.layers.length > want) popLayer();
+    var want = (e.state && e.state.tk) || 0, anim = TK_APP || (S.navBack && Date.now() - S.navBack < 2000); S.navBack = 0;   // B466T
+    while (S.layers.length > want) popLayer(!anim);
   });
   function bar(backLabel, center, right) {
     return '<div class="tk-bar"><button data-act="back" class="tk-back" aria-label="返回' + esc(backLabel ? "（" + backLabel + "）" : "") + '"><span class="chev">‹</span>返回</button><div class="c">' + esc(center) + '</div><button class="r" ' + (right ? 'data-act="' + right.act + '" aria-label="' + esc(right.label) + '"' : 'disabled style="opacity:0"') + '>' + (right ? right.icon : "") + '</button></div>';
@@ -4127,7 +4162,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B463T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B466T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
