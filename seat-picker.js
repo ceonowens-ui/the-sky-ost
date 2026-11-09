@@ -146,7 +146,7 @@
       tabs.querySelectorAll("button").forEach(function (t) { t.setAttribute("aria-pressed", String(t.getAttribute("data-b") === b)); });
     }
     /* B453T：選位總時限，時間以後台回的為準 */
-    function tick() { var ms = o.left ? o.left() : null; if (ms == null) { leftEl.hidden = true; return; } var s2 = Math.max(0, Math.ceil(ms / 1000)); leftEl.hidden = false; leftEl.textContent = (en ? "Seats held " : "座位保留中 ") + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); leftEl.classList.toggle("warn", ms <= 60e3); if (ms <= 0 && o.onTimeUp) o.onTimeUp(); }
+    function tick() { var ms = o.left ? o.left() : null; if (ms == null) { leftEl.hidden = true; return; } var s2 = Math.max(0, Math.ceil(ms / 1000)); leftEl.hidden = false; leftEl.textContent = (en ? "Time to tap Pay " : "選位時間剩 ")   /* B469T（CÉON 11/09）：跟結帳頁同一個名字 */ + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); leftEl.classList.toggle("warn", ms <= 60e3); if (ms <= 0 && o.onTimeUp) o.onTimeUp(); }
     function close() {
       closed = true; clearInterval(timer); clearInterval(leftT); clearTimeout(msgT);
       document.removeEventListener("keydown", onKey); document.removeEventListener("visibilitychange", onVis);
