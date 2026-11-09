@@ -103,7 +103,7 @@
  '我們會盡快補發，不需要重新購買。':"We'll issue it as soon as possible. No need to buy again.",
  '票券一進來就會出現在票夾。請按「重新確認」，不需要重新購買。':'Your ticket will appear in your wallet as soon as it is ready. Tap “Check again” — no need to buy again.',
  '這筆付款已經確認，但出票延遲，主辦會盡快補發到你的票夾和信箱。請不要重新購買。':'Your payment is confirmed but the ticket is delayed. The organizer will issue it to your wallet and email as soon as possible. Please do not buy again.',
- '✓ 付款已確認':'✓ Payment confirmed','還在確認付款；綠界付款成功後，幾秒內會更新。':'Still confirming payment; this updates within seconds after ECPay confirms.','門票信已寄出':'Ticket email sent',
+ '✓ 付款已確認':'✓ Payment confirmed','還在確認付款；綠界付款成功後，幾秒內會更新。':'Still confirming payment; this updates within seconds after ECPay confirms.','門票信已寄出':'Ticket email sent','門票信已寄出，沒看到請查垃圾信件':'Ticket email sent. Can’t find it? Check spam.','門票信會寄到你的信箱，沒看到請查垃圾信件':'Your ticket email is on its way. Can’t find it? Check spam.',
  /* B356T：成功頁（真正的入場 QR）、確認付款中、還在確認中 */
  '購買成功':'Purchase complete','已收進我的票夾':'Saved to your ticket wallet','入場 QR':'Entry QR','入場 QR 準備中…':'Entry QR is being prepared…',
  '查看我的票夾':'Open my ticket wallet','繼續逛周邊':'Keep browsing merch','入場 QR 在票夾裡。':'Your entry QR is in your ticket wallet.',

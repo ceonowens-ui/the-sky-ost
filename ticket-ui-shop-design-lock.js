@@ -752,6 +752,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   var IC_SUM_T = '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h24v5a3 3 0 0 0 0 5v4H4v-4a3 3 0 0 0 0-5z"/><path d="M12 13h8M12 18h8"/></svg>';
   var IC_SUM_G = '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="12" width="22" height="15" rx="2"/><path d="M3.5 12h25M16 12v15"/><path d="M16 12c-3.6 0-6.3-1.6-6.3-3.7S11.8 5 13.3 5.8c1.500.8 2.7 3.5 2.7 6.2zM16 12c3.6 0 6.3-1.6 6.3-3.7S20.2 5 18.7 5.8c-1.500.8-2.7 3.5-2.7 6.2z"/></svg>';
   var IC_SUM_P = '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="24" height="17" rx="3"/><circle cx="16" cy="17.5" r="4.5"/><path d="M11 9l2-3h6l2 3"/></svg>';
+  var IC_SUM_M = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px;flex:none;margin-top:3px"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>';
+  function sumMail(head, en) { return '<p class="tk-sum-mail" style="display:flex;gap:8px;justify-content:center;align-items:flex-start">' + IC_SUM_M + '<span>' + head + (en ? " Can’t find it? Check spam." : "沒看到請查垃圾信件") + '</span></p>'; }   // B472T（CÉON 11/09）：付款成功頁一律提醒查垃圾信件，加信封圖示；買票、周邊、卡包同一句
   function sumDay(evId) { var ev = buyEvent(evId) || eventById(evId), t = ev && tw(ev.startAt); if (!t) return ""; return sxEN() ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][t.getUTCMonth()] + " " + t.getUTCDate() : (t.getUTCMonth() + 1) + " 月 " + t.getUTCDate() + " 日"; }   // 日期跟著場次，不寫死
   function sumOrder(evId) { return (C.demo ? S.demoLo : lastOrder(evId)) || null; }
   function sumTicketData(evId, added, before) {
@@ -818,7 +820,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     h += '<div class="tk-sum-card">' + rows + '</div>';
     if (next) h += '<p class="tk-sum-next">' + next + '</p>';
     if (sub) h += '<div class="tk-sum-sub">' + sub + '</div>';
-    if (mailed) h += '<p class="tk-sum-mail">' + (hasT ? (en ? "Ticket email sent. Can’t find it? Check spam." : "門票信已寄出，沒看到請查垃圾信件") : (en ? "Confirmation email sent. Can’t find it? Check spam." : "確認信已寄出，沒看到請查垃圾信件")) + '</p>';
+    var mto = esc(maskEmail(d.email || myEmail()) || (en ? "your email" : "你的信箱"));
+    h += sumMail(hasT ? (mailed ? (en ? "Ticket email sent." : "門票信已寄出，") : (en ? "Your ticket email goes to " + mto + "." : "門票信會寄到 " + mto + "，")) : (mailed ? (en ? "Confirmation email sent." : "確認信已寄出，") : (en ? "Confirmation goes to " + mto + "." : "確認信會寄到 " + mto + "，")), en);   // B472T：沒確認寄出也提醒（寫「會寄到」）
     /* 主按鈕貼在畫面底部：買很多項、內容超過一頁時也不用往下滑才找得到 */
     h += '<div class="tk-sum-foot"><button type="button" class="tkb-cta wide" data-act="' + (hasT ? "sum-tickets" : "sum-merch") + '">' + (hasT ? (en ? "View my tickets" : "查看我的票") : (en ? "View merch orders" : "查看周邊訂單")) + ' <i>›</i></button></div>';
     h += '<div class="tk-sum-acts">' + (part || waitM ? '<button type="button" class="tkb-cta ghost wide" data-act="sum-recheck">' + (en ? "Check again" : "重新確認") + ' <i>↻</i></button>' : '') +
@@ -836,7 +839,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var amt = (d.amt ? '<div class="tk-sum-amt"><span>' + (en ? "Order total" : "本筆訂單合計") + '</span><b>' + nt(d.amt) + '</b></div>' : '') + (d.no ? '<div class="tk-sum-amt s"><span>' + (en ? "Order no." : "訂單編號") + '</span><b>' + esc(d.no) + '</b></div>' : '');
     return '<div class="tkb tk-sum"><div class="tk-sum-hd"><div class="tk-sum-ck" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 15-17"/></svg></div><h2 id="tk-sum-h" tabindex="-1">' + (en ? "Purchase complete" : "購買成功") + '</h2><p>' + (en ? "Your card pack order is confirmed" : "卡包訂單已確認") + '</p></div>' +
       '<div class="tk-sum-card">' + row + '</div>' + (next ? '<p class="tk-sum-next">' + esc(next) + '</p>' : '') + (amt ? '<div class="tk-sum-sub">' + amt + '</div>' : '') +
-      '<p class="tk-sum-mail">' + (en ? "Confirmation goes to " : "確認信會寄到 ") + esc(maskEmail(d.email)) + (en ? ". Can’t find it? Check spam." : "，沒看到請查垃圾信件") + '</p>' +
+      sumMail(en ? "Confirmation goes to " + esc(maskEmail(d.email)) + "." : "確認信會寄到 " + esc(maskEmail(d.email)) + "，", en) +   // B472T：加信封圖示
       '<div class="tk-sum-foot"><button type="button" class="tkb-cta wide" data-act="sum-shop">' + (en ? "Back to SHOP" : "回到 SHOP") + ' <i>›</i></button></div>' +
       '<div class="tk-sum-acts"><button type="button" class="merch-success-sound" data-act="merch-success-sound">' + (en ? "Play success sound" : "播放成功提示音") + '</button></div></div>';
   }
@@ -4140,7 +4143,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var tierLbl = t ? (t.tier === "ga" ? "GENERAL" : String(t.tier || "").toUpperCase()) : "";
     if (dn.pending) return doneWaitHTML(dn);   // B359T：付款確認中也在這頁
     var h = '<div class="tk-bar tkb-bar"><button disabled style="opacity:0"></button><div class="c">購買成功</div><button class="r" disabled style="opacity:0"></button></div>';
-    h += '<div class="tkb-ok"><div class="ck">' + ic("check", "bi") + '</div><h2>購買成功</h2><p>' + (t && t.tierName ? '<span>' + esc(t.tierName) + '</span>' + (t.seat ? ' · <span>終身編號 No.</span>' + esc(t.seat) : '') + '<br>' : '') + '<span>已收進我的票夾</span>' + (S.ost && S.ost.paid && S.ost.emailed && S.ost.eventId === dn.evId ? '<br><span>門票信已寄出</span>' : '') + '</p></div>';   /* B357T：後台說信已送出才寫 */
+    h += '<div class="tkb-ok"><div class="ck">' + ic("check", "bi") + '</div><h2>購買成功</h2><p>' + (t && t.tierName ? '<span>' + esc(t.tierName) + '</span>' + (t.seat ? ' · <span>終身編號 No.</span>' + esc(t.seat) : '') + '<br>' : '') + '<span>已收進我的票夾</span></p>' + sumMail(S.ost && S.ost.paid && S.ost.emailed && S.ost.eventId === dn.evId ? "門票信已寄出，" : "門票信會寄到你的信箱，", false) + '</div>';   // B472T：查垃圾信件提醒   /* B357T：後台說信已送出才寫 */
     h += movedHTML(dn.evId);
     if (t && v2ok(t, v2Ev(t))) h += '<div class="tk-sum-v2">' + v2Card(t, v2Ev(t)) + '</div>';
     else h += '<div class="tkb-tkt"><div class="im"><img src="' + esc(asset(BUY_TEXT.assets.ticket)) + '" alt=""><div class="fd"></div>' +
