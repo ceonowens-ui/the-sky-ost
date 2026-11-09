@@ -268,9 +268,10 @@ body:has(#tk-test-banner) .dcl{padding-top:calc(env(safe-area-inset-top) + 44px)
 .tk-layer[data-layer=checkout] #tk-bmsg.tk-msg.ok,.tk-layer .tkb.co-noir .ticket-paper .tk-msg.ok,.tk-layer .tkb.co-noir .ticket-paper .tk-msg.ok *{color:#f1e8d8!important;-webkit-text-fill-color:#f1e8d8;font-size:16px;line-height:1.6}
 /* B466T（CÉON 11/08）：換頁用 push／pop 轉場（手機）。新頁從右邊推入，下面那頁往左退 25%、變暗；返回反過來。
    全螢幕的 QR、購買成功、等票頁維持原本淡入；手機開「減少動態效果」也維持淡入
-   B467T（CÉON 11/09）：太快 → 進 0.5 秒、退 0.42 秒，先慢起步再加速再慢停（ease-in-out） */
+   B467T（CÉON 11/09）：太快 → 進 0.5 秒、退 0.42 秒，先慢起步再加速再慢停（ease-in-out）
+   B468T（CÉON 11/09）：滑進來快 0.1 秒 → 0.4 秒；其他不變 */
 @media (max-width:519px) and (prefers-reduced-motion:no-preference){
-#tk-layers .tk-layer{transform:translate3d(100%,0,0);transition:transform 500ms cubic-bezier(.4,0,.2,1),filter 500ms cubic-bezier(.4,0,.2,1);box-shadow:-12px 0 32px rgba(0,0,0,.35)}
+#tk-layers .tk-layer{transform:translate3d(100%,0,0);transition:transform 400ms cubic-bezier(.4,0,.2,1),filter 400ms cubic-bezier(.4,0,.2,1);box-shadow:-12px 0 32px rgba(0,0,0,.35)}
 #tk-layers .tk-layer.in{transform:none}
 #tk-layers .tk-layer.in.under{transform:translate3d(-25%,0,0);filter:brightness(.65)}
 #tk-layers .tk-layer.out{transform:translate3d(100%,0,0);transition-duration:420ms}
