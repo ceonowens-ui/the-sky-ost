@@ -47,7 +47,9 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
 @media print{
   html,body{background:#fff!important;color:#000!important}
   .app{max-width:none;padding:0}
-  .app>*:not(#rosterCard),.sheet{display:none!important}
+  .app>*:not(.v-roster),.sheet,#tkapiBadge,.v-roster .backbar{display:none!important}
+  .v-roster{display:block!important}
+  .v-roster>*:not(#rosterCard){display:none!important}
   #rosterCard{display:block!important;border:0;background:#fff;color:#000;padding:0;margin:0;border-radius:0}
   #rosterCard .noprint,#rosterCard input[type=checkbox]{display:none!important}
   #rosterCard .printhead{display:block!important;font-size:13px;margin:0 0 6px;color:#000}
@@ -62,7 +64,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
 /* Visual-only proposal for B347T. Screen styles do not alter print output. */
 @media screen {
   :root { --muted:#bcb4a8; --line:rgba(231,213,174,.18); }
-  .app { max-width:1120px; padding:calc(22px + env(safe-area-inset-top)) 24px calc(48px + env(safe-area-inset-bottom)); }
+  .app { max-width:640px; padding:calc(22px + env(safe-area-inset-top)) 24px calc(48px + env(safe-area-inset-bottom)); }
   .brand { font-size:23px; color:#e6d0a1; }
   .pill { font-size:13px; color:#e4d1aa; }
   .hero { padding:30px 2px 12px; }
@@ -91,13 +93,6 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
   .sheetbox { width:min(100%,600px); }
   :focus-visible { outline:2px solid #f1d397; outline-offset:3px; }
 }
-@media screen and (min-width:850px) {
-  .app { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; align-content:start; }
-  .app > * { min-width:0; grid-column:1 / -1; }
-  .app > #issueCard { grid-column:1; }
-  .app > #listCard { grid-column:2; }
-  .app > .top { align-self:start; }
-}
 @media screen and (max-width:600px) {
   .app { padding:calc(18px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
   .hero { padding-top:24px; }
@@ -123,42 +118,150 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
   #rosterCard .rwrap td input[type=checkbox] { width:28px; height:28px; }
 }
 
+/* B470T（CÉON 11/09）：手機首頁精簡版。黑、暖米白、金；首頁只放數字、需要處理、現場常用四個入口，其他管理收進下一層 */
+.view{display:none}.view.on{display:block}
+.ic{display:inline-flex;flex:none;color:var(--gold)}.ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.home-head{padding:10px 2px 0}
+.ttl{display:flex;align-items:center;flex-wrap:wrap;gap:12px;font-size:36px!important;font-weight:800;letter-spacing:.02em;margin:6px 0 14px!important;line-height:1.15}
+.tbadge{font-size:16px;font-weight:700;color:var(--gold);border:1.5px solid var(--gold);border-radius:999px;padding:4px 12px;letter-spacing:.06em}
+.evline{display:flex;align-items:center;flex-wrap:wrap;gap:10px;min-height:44px}
+.evline>.ic{width:32px;height:32px}
+.evname{flex:1;min-width:0;font-size:20px;font-weight:700;overflow-wrap:anywhere;padding-left:12px;border-left:1px solid rgba(216,188,128,.35);line-height:1.35}
+#evPick{flex:1;min-width:0}#evPick select{font-size:17px;font-weight:700;background:#141210;border-color:rgba(216,188,128,.35)}
+.net{flex:none;display:inline-flex;align-items:center;gap:7px;font-size:15px;font-weight:700;padding:7px 12px;border-radius:999px;background:rgba(142,196,154,.13);color:#9bd1a6}
+.net i{width:9px;height:9px;border-radius:50%;background:currentColor}
+.net.down{background:rgba(216,143,143,.15);color:#eba3a3}.net.warn{background:rgba(232,190,110,.15);color:#e8c06e}.net.wait{background:rgba(255,255,255,.07);color:var(--muted)}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat3 div{border:1px solid rgba(216,188,128,.28);border-radius:18px;padding:14px 4px 12px;text-align:center;background:linear-gradient(180deg,#1b1915,#100f0d)}
+.stat3 span{display:block;font-size:17px;color:#e6dccb;font-weight:600}
+.stat3 b{display:block;font-size:44px;line-height:1.15;margin-top:4px;font-weight:800;color:#fbf6ec;font-variant-numeric:tabular-nums}
+.stat3 small{display:block;font-size:15px;color:var(--muted)}
+.stale{font-size:15px;line-height:1.5;margin-top:10px}.stale .btn.sm{margin-left:6px}
+.sec{display:flex;align-items:center;gap:10px;font-size:23px;font-weight:800;margin:26px 0 12px;padding-left:12px;border-left:4px solid var(--gold);line-height:1.2}
+.cnt{font-size:17px;font-weight:800;min-width:30px;height:30px;padding:0 9px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(216,143,143,.18);color:#f0b0b0}.cnt[hidden]{display:none}
+.todo2{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#141311;margin-top:10px;color:var(--text);text-decoration:none;font:inherit;font-size:18px;font-weight:650;line-height:1.4;width:100%;text-align:left;cursor:pointer}
+.todo2:first-child{margin-top:0}.todo2 .ic{width:30px;height:30px}.todo2>span:not(.ic){flex:1;min-width:0}.todo2 em{font-style:normal;color:var(--gold);font-size:17px;font-weight:700;white-space:nowrap}
+.todo2.warn{border-color:rgba(232,190,110,.45);background:rgba(232,190,110,.06)}.todo2.warn .ic,.todo2.warn em{color:#e8c06e}
+.todo-ok{font-size:18px;color:var(--good);padding:14px 16px;border:1px solid rgba(142,196,154,.25);border-radius:16px}.todo-wait{font-size:18px;color:var(--muted);padding:14px 16px;border:1px solid var(--line);border-radius:16px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{display:flex;align-items:center;gap:12px;min-height:96px;padding:16px 14px;border:1px solid rgba(216,188,128,.24);border-radius:18px;background:linear-gradient(180deg,#1b1915,#121110);color:var(--text);text-decoration:none;font:inherit;font-size:19px;font-weight:750;line-height:1.3;text-align:left;cursor:pointer;width:100%;-webkit-tap-highlight-color:transparent}
+.tile .ic{width:36px;height:36px}.tile:active,.rowbtn:active,.todo2:active{transform:scale(.98)}
+.rowbtn{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#141311;color:var(--text);text-decoration:none;font:inherit;font-size:18px;font-weight:700;line-height:1.35;text-align:left;cursor:pointer}
+.rowbtn .ic{width:28px;height:28px}.rowbtn>span:not(.ic){flex:1;min-width:0}.rowbtn em{font-style:normal;color:var(--gold);font-size:24px;line-height:1}
+.backbar{display:flex;align-items:center;padding:6px 0 0}.back{display:inline-flex;align-items:center;min-height:48px;color:var(--gold);font-size:18px;font-weight:700;text-decoration:none;padding-right:18px}
+#lq{font-size:18px;min-height:54px}
+.lcard{background:#121110;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:12px;font-size:17px;line-height:1.55}
+.lcard .lt{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:19px;font-weight:750}
+.lcard .lr{color:#e2dbce;overflow-wrap:anywhere}.lcard .btn{margin-top:12px}
+.stp{flex:none;font-size:15px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid currentColor}
+.lcard.paid{border-color:rgba(232,190,110,.45)}.lcard.paid .stp{color:#e8c06e}
+.tips{margin:10px 0 0;padding-left:22px;font-size:16px;line-height:1.7;color:#e2dbce}
+.refwarn{margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(232,190,110,.5);background:rgba(232,190,110,.08);color:#f1d9a6;font-size:16px;line-height:1.6;text-align:left}
+@media (max-width:380px){.ttl{font-size:32px!important}.stat3 b{font-size:38px}.tile{font-size:18px;gap:10px;padding:14px 12px}.tile .ic{width:32px;height:32px}.evname{font-size:18px}}
+
+/* B471T（CÉON 11/09）：首頁搜尋、數字可點、查票和名單合一、看票按鈕依狀態、空位 */
+.hsearch{display:flex;align-items:center;gap:10px;margin-top:16px;padding:0 14px;border:1.5px solid rgba(216,188,128,.45);border-radius:16px;background:#141210}
+.hsearch .ic{width:26px;height:26px}.hsearch input{border:0;background:transparent;font-size:18px;min-height:56px;padding:0}.hsearch input:focus{outline:none}.hsearch:focus-within{border-color:var(--gold)}
+#hRes{margin-top:4px}.homelink{display:block;text-align:center;margin-top:14px;color:var(--gold);font-size:18px;font-weight:700;text-decoration:none;padding:12px}
+.stat3 .st{display:block;color:inherit;text-decoration:none;border:1px solid rgba(216,188,128,.28);border-radius:18px;padding:14px 4px 12px;text-align:center;background:linear-gradient(180deg,#1b1915,#100f0d)}
+.stat3 .st:active{transform:scale(.97)}.stat3 .st.nolink{pointer-events:none}.stat3 .st.nolink span{color:#e6dccb}
+.stat3 .st span{display:block;font-size:17px;color:#e6dccb;font-weight:600}.stat3 .st b{display:block;font-size:44px;line-height:1.15;margin-top:4px;font-weight:800;color:#fbf6ec;font-variant-numeric:tabular-nums}.stat3 .st small{display:block;font-size:15px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chips button{font:inherit;font-size:16px;font-weight:700;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#141311;color:var(--text);cursor:pointer}.chips button.on{background:var(--gold);border-color:var(--gold);color:#17130c}
+@media screen{.printonly{display:none}}
+.danger-more{margin-top:12px;text-align:left;border-top:1px solid var(--line);padding-top:6px}.danger-more summary{font-size:16px!important;color:#e6c0c0!important}
+.seatview .iseat-row b{width:26px;font-size:15px;line-height:32px}.seatview .iseat-row span{width:32px;height:32px}.seatview .iseat-row i{display:block;width:32px;height:32px;border:1.5px solid rgba(216,188,128,.6);border-radius:6px;font-style:normal;font-size:14px;line-height:30px;text-align:center;color:var(--text)}.seatview .iseat-row i.off{background:#242424;border-color:#242424;color:#6e695f}
+.seatkey{font-size:16px!important;margin-top:8px;flex-wrap:wrap}.seatkey i.off{background:#242424;border-color:#242424}.seatkey i.na,.seatview .iseat-row i.na{border:1px dashed rgba(255,255,255,.18);background:none;color:#5e5a53}
+
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top"><div class="brand">CHANCE</div><div class="pill">ADMIN</div></div>
-  <div class="hero"><div class="eyebrow">Box Office</div><h1>票務後台</h1><div class="sub">賣了多少、還剩多少、進場多少、有沒有要處理。<a href="scan-test.html" target="_blank" rel="noopener" style="color:var(--gold,#d9b67c);white-space:nowrap">開掃碼機 ›</a> <a href="#" onclick="staffQr();return false" style="color:var(--gold,#d9b67c);white-space:nowrap;margin-left:8px">給工作人員手機 ›</a></div></div>
+  <section class="view" data-view="login">
+    <div class="home-head"><h1 class="ttl">票務後台</h1></div>
+    <div class="card" id="connCard">
+      <span class="label">後台鑰匙</span>
+      <input id="key" type="password" autocomplete="off" placeholder="輸入後台鑰匙" />
+      <button class="btn primary" onclick="connect()">連線</button>
+      <div class="msg" id="connMsg"></div>
+    </div>
+  </section>
 
-  <div class="card" id="connCard">
-    <div class="grid2" style="align-items:end"><div><span class="label">ADMIN KEY</span><input id="key" type="password" autocomplete="off" placeholder="後台鑰匙" /></div><button class="btn" style="margin:0" onclick="connect()">連線</button></div>
-    <div class="msg" id="connMsg"></div>
-  </div>
-
-  <div class="card" id="evCard" style="display:none">
-    <div id="evPick"><select id="event" onchange="pickEvent()"></select></div>
-    <div class="stat big"><div><b id="sSold">–</b><span>已賣</span></div><div><b id="sLeft">–</b><span>剩餘</span></div><div><b id="sUsed">–</b><span>已入場</span></div><div id="sTodoBox"><b id="sTodo">–</b><span>待處理</span></div></div>
+  <section class="view" data-view="home">
+    <div class="home-head">
+      <h1 class="ttl">票務後台</h1>
+      <div class="evline"><span class="ic" data-ic="cake"></span><div class="evname" id="evName">—</div><div id="evPick" style="display:none"><select id="event" onchange="pickEvent()" aria-label="選場次"></select></div><span class="net wait" id="net"><i></i><span id="netTxt">讀取中…</span></span></div>
+    </div>
+    <div class="hsearch"><span class="ic" data-ic="search"></span><input id="hq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="查姓名、Email、手機、票號、座位" oninput="renderHomeSearch()" onfocus="warmNames()" /></div>
+    <div id="hRes"></div>
+    <div id="homeRest">
+    <div class="stat3"><a class="st" href="#roster"><span>已售 ›</span><b id="sSold">—</b></a><a class="st" id="sLeftLink" href="#seats"><span>剩餘 ›</span><b id="sLeft">—</b></a><a class="st" href="#roster-used"><span>已入場 ›</span><b id="sUsed">—</b><small id="sPP"></small></a></div>
     <b id="sCap" hidden>–</b>
+    <div class="stale" id="sStale"></div>
+    <h2 class="sec">需要處理 <span class="cnt" id="sTodoBox" hidden><b id="sTodo">0</b></span></h2>
+    <div id="todoList"></div>
+    <h2 class="sec">現場常用</h2>
+    <div class="tiles">
+      <a class="tile" href="#roster"><span class="ic" data-ic="people"></span><span>入場名單</span></a>
+      <a class="tile" href="scan-test.html" target="_blank" rel="noopener"><span class="ic" data-ic="scan"></span><span>開啟掃碼器</span></a>
+    </div>
+    <div class="msg" id="homeMsg"></div>
+    <button class="rowbtn" type="button" onclick="staffQr()"><span class="ic" data-ic="phone"></span><span>給工作人員手機開掃碼器</span><em>›</em></button>
+    <a class="rowbtn" href="#more"><span class="ic" data-ic="gear"></span><span>其他管理</span><em>›</em></a>
+    </div>
+  </section>
+
+  <section class="view" data-view="more">
+    <div class="backbar"><a class="back" href="#" onclick="return goBack('#')">‹ 首頁</a></div>
+    <h2 class="sec" style="margin-top:10px">賣票中</h2>
+    <a class="rowbtn" href="#list"><span class="ic" data-ic="card"></span><span>票列表<br>看票、復原、作廢、換位、退票</span><em>›</em></a>
+    <a class="rowbtn" href="#issue"><span class="ic" data-ic="plus"></span><span>手動發票</span><em>›</em></a>
+    <a class="rowbtn" href="#fail"><span class="ic" data-ic="alert"></span><span>付款成功・尚未出票<br>補發</span><em>›</em></a>
+    <a class="rowbtn" href="#merch"><span class="ic" data-ic="box"></span><span>生日限定周邊</span><em>›</em></a>
+    <h2 class="sec">開賣前</h2>
+    <a class="rowbtn" href="#set"><span class="ic" data-ic="gear"></span><span>場次設定</span><em>›</em></a>
+    <a class="rowbtn" href="#test" id="testEntry" style="display:none"><span class="ic" data-ic="flask"></span><span>測試場工具</span><em>›</em></a>
+  </section>
+
+  <section class="view v-roster" data-view="roster">
+    <div class="backbar"><a class="back" href="#" onclick="return goBack('#')">‹ 首頁</a></div>
+    <div class="card" style="margin-top:4px">
+      <h3>入場名單</h3>
+      <input id="nq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="查姓名、Email、手機、票號、座位" oninput="renderNames()" />
+      <div class="chips" id="nChips"><button type="button" data-nf="all" onclick="setNf('all')">全部</button><button type="button" data-nf="valid" onclick="setNf('valid')">未入場</button><button type="button" data-nf="used" onclick="setNf('used')">已入場</button><button type="button" data-nf="noseat" onclick="setNf('noseat')">沒座位</button></div>
+      <div class="msg" id="nMsg"></div>
+    </div>
+    <div id="nRes"></div>
+    <div class="grid2" style="margin-top:14px"><button class="btn" type="button" id="btnBackup" onclick="exportBackup()">匯出備份名單</button><button class="btn" type="button" onclick="printRoster()">列印紙本</button></div>
+    <div class="msg" id="homeMsg2"></div>
+    <div class="card printonly" id="rosterCard">
+    <div class="printhead" id="rPrintHead"></div>
+    <div class="noprint" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">現場名單</h3><button class="btn sm" id="btnRoster" onclick="loadRoster()">下載名單</button></div>
+    <div class="sub noprint">現場備案：依姓名／票號核對、手動勾入場、可下載或列印紙本。勾選會先跳確認，每次都會留核銷紀錄。</div>
+    <div class="msg noprint" id="rInfo"></div>
+    <div class="tools noprint"><select id="rSort" onchange="renderRoster()" style="width:auto;padding:7px 10px;font-size:12px"><option value="no">依編號</option><option value="name">依姓名</option></select><input id="rFilter" placeholder="搜姓名、票號、email、後 4 碼" oninput="renderRoster()" style="flex:1;min-width:140px;padding:8px 10px;font-size:12px" /><button class="btn sm" onclick="exportRosterCsv()">下載 CSV</button><button class="btn sm" onclick="printRoster()">列印</button></div>
+    <div class="rwrap"><table><thead><tr><th>編號</th><th>姓名</th><th>票號</th><th>Email</th><th>手機後4碼</th><th>狀態</th><th>入場</th></tr></thead><tbody id="rBody"></tbody></table></div>
   </div>
-  <div class="card" id="todoCard" style="display:none"><h3>待處理</h3><div id="todoList"></div></div>
-  <details class="more" id="ticketBox"><summary>查票、退票、換位</summary>
-  <div class="card" id="listCard" style="display:none">
+  </section>
+  <section class="view" data-view="seats">
+    <div class="backbar"><a class="back" href="#" onclick="return goBack('#')">‹ 首頁</a></div>
+    <div class="card" style="margin-top:4px">
+      <h3>座位</h3>
+      <div class="msg" id="seatMsg">讀取中…</div>
+      <div class="iseat-wrap seatview" id="seatGrid"></div>
+      <div class="iseat-key seatkey"><span><i></i>空位</span><span><i class="off"></i>已售或保留中</span><span><i class="na"></i>不開放</span></div>
+    </div>
+  </section>
+  <section class="view" data-view="list">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="listCard">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">票列表</h3><div><button class="btn sm" onclick="refresh()">重新整理</button><button class="btn sm" onclick="exportCsv()">匯出 CSV</button></div></div>
     <div class="row"><input id="filter" placeholder="搜 email 或票號" oninput="renderList()" /></div>
     <div style="overflow-x:auto"><table><thead><tr><th>票號</th><th>座位</th><th>持有人</th><th>狀態</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
   </div>
-  </details>
-  <details class="more" id="moreBox"><summary>其他功能</summary>
-  <div class="card" id="setCard" style="display:none"><h3>場次設定</h3><button class="btn primary" id="btnQuick" onclick="quickTest()">⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）</button><details class="row" id="evDetails"><summary>編輯／新增場次</summary>
-      <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
-      <div class="grid2"><div class="row"><span class="label">票號前綴</span><input id="f_code" placeholder="1227" autocapitalize="characters" autocorrect="off" /></div><div class="row"><span class="label">名稱</span><input id="f_name" placeholder="CHANCE 見面會 12/27" /></div></div>
-      <div class="row"><span class="label">開演時間（台北）</span><input id="f_start" type="datetime-local" /></div>
-      <div class="row"><span class="label">場地</span><input id="f_venue" placeholder="微風影城 A 廳" /></div>
-      <div class="grid3"><div class="row"><span class="label">可售張數</span><input id="f_cap" type="number" placeholder="181" /></div><div class="row"><span class="label">票價（0＝不能買）</span><input id="f_price" type="number" placeholder="0" /></div><div class="row"><span class="label">座位</span><select id="f_seat"><option value="">自由入座</option><option value="breeze-a">對號入座（微風 8 樓 A 廳）</option></select></div><div class="row"><span class="label">開賣中</span><select id="f_sale"><option value="true">是</option><option value="false">否（隱藏購買）</option></select></div></div>
-      <div class="grid3"><div class="row"><span class="label">PhotoPass 價格（0＝不賣）</span><input id="f_pprice" type="number" placeholder="0" /></div><div class="row"><span class="label">PhotoPass 開賣</span><select id="f_psale"><option value="true">是</option><option value="false">否</option></select></div><div class="row"><span class="label">綠界商品代號（自動）</span><input id="f_pk" disabled placeholder="meet-…／pp-meet-…" /></div></div>
-      <button class="btn primary" onclick="saveEvent()">儲存場次</button><div class="msg" id="evMsg"></div>
-    </details></div>
-  <div class="card" id="issueCard" style="display:none">
+  </section>
+  <section class="view" data-view="issue">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="issueCard">
     <h3>手動發票</h3>
     <div class="sub">公關票、測試票、補發用。發完會寄信給對方，票直接出現在他的 app。有票種的場次一定要選票種。</div>
     <div class="grid2"><div class="row"><span class="label">Email</span><input id="i_email" type="email" placeholder="fan@example.com" /></div><div class="row"><span class="label">張數</span><input id="i_qty" type="number" value="1" min="1" max="10" /></div></div>
@@ -170,32 +273,19 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_force" style="width:auto" /> 超過可售張數也硬發（公關票用）</label>
     <button class="btn primary" onclick="issue()">發票</button><div class="msg" id="issueMsg"></div>
   </div>
-
-  <div class="card" id="rosterCard" style="display:none">
-    <div class="printhead" id="rPrintHead"></div>
-    <div class="noprint" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">現場名單</h3><button class="btn sm" id="btnRoster" onclick="loadRoster()">下載名單</button></div>
-    <div class="sub noprint">現場備案：依姓名／票號核對、手動勾入場、可下載或列印紙本。勾選會先跳確認，每次都會留核銷紀錄。</div>
-    <div class="msg noprint" id="rInfo"></div>
-    <div class="tools noprint"><select id="rSort" onchange="renderRoster()" style="width:auto;padding:7px 10px;font-size:12px"><option value="no">依編號</option><option value="name">依姓名</option></select><input id="rFilter" placeholder="搜姓名、票號、email、後 4 碼" oninput="renderRoster()" style="flex:1;min-width:140px;padding:8px 10px;font-size:12px" /><button class="btn sm" onclick="exportRosterCsv()">下載 CSV</button><button class="btn sm" onclick="printRoster()">列印</button></div>
-    <div class="rwrap"><table><thead><tr><th>編號</th><th>姓名</th><th>票號</th><th>Email</th><th>手機後4碼</th><th>狀態</th><th>入場</th></tr></thead><tbody id="rBody"></tbody></table></div>
-  </div>
-
-  <div class="card" id="failCard" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">失敗訂單</h3><button class="btn sm" onclick="loadFailed()">重新整理</button></div>
+  </section>
+  <section class="view" data-view="fail">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="failCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">付款成功・尚未出票</h3><button class="btn sm" onclick="loadFailed()">重新整理</button></div>
     <div class="sub">付款成功但系統沒發出票的訂單（所有場次）。按「補發」會用原訂單的票種、姓名、手機發票，並寄確認信。</div>
     <div class="msg" id="fMsg"></div>
     <div style="overflow-x:auto"><table><thead><tr><th>訂單編號</th><th>時間</th><th>Email</th><th>場次</th><th>票種</th><th>姓名</th><th>手機</th><th>金額</th><th>原因</th><th></th></tr></thead><tbody id="fBody"></tbody></table></div>
   </div>
-
-  <div class="card" id="testCard" style="display:none">
-    <h3>測試場工具</h3>
-    <div class="sub">只在測試場（場次 id 含 test）出現。生日會等正式場次不會有這些按鈕。</div>
-    <div class="grid2"><div class="row"><span class="label">批量張數（不寄信）</span><input id="b_count" type="number" value="181" min="1" max="500" /></div><div class="row"><span class="label">從第幾號開始</span><input id="b_from" type="number" value="1" min="1" /></div></div>
-    <button class="btn" id="btnBulk" onclick="bulkIssue()">批量發票（不寄信）</button><div class="msg" id="bMsg"></div>
-    <button class="btn danger" id="btnPurge" onclick="purgeTest()">清掉測試場所有票</button><button class="btn danger" id="btnPurgeAll" style="margin-top:8px" onclick="purgeAll()">全部測試票重置（含壓測票、座位、周邊訂單）</button><div class="msg" id="pMsg"></div>
-  </div>
-
-  <div class="card" id="merchCard" style="display:none">
+  </section>
+  <section class="view" data-view="merch">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="merchCard">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">生日限定周邊</h3><div><button class="btn sm" onclick="loadMerch()">重新整理</button><button class="btn sm" onclick="exportMerchCsv()">匯出 CSV</button></div></div>
     <div id="mStats" class="sub" style="margin:8px 0"></div>
     <div class="grid2"><div class="row"><span class="label">周邊開賣</span><select id="m_sale"><option value="false">否</option><option value="true">是</option></select></div>
@@ -204,20 +294,45 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <div style="overflow-x:auto;margin-top:10px"><table><thead><tr><th>時間</th><th>Email</th><th>品項</th><th>方式</th><th>金額</th><th></th></tr></thead><tbody id="mBody"></tbody></table></div>
     <div class="tiny">「匯出 CSV」含海外收件地址，寄件用；檔案請勿外流。寄出後按「寄出」填中華郵政追蹤號碼，系統會自動寄信通知粉絲。</div>
   </div>
-
-  </details>
+  </section>
+  <section class="view" data-view="set">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="setCard"><h3>場次設定</h3><button class="btn primary" id="btnQuick" onclick="quickTest()">⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）</button><details class="row" id="evDetails"><summary>編輯／新增場次</summary>
+      <div class="row"><span class="label">eventId（英數與 -，建立後不可改）</span><input id="f_id" placeholder="meet-20261227" autocapitalize="off" autocorrect="off" spellcheck="false" /></div>
+      <div class="grid2"><div class="row"><span class="label">票號前綴</span><input id="f_code" placeholder="1227" autocapitalize="characters" autocorrect="off" /></div><div class="row"><span class="label">名稱</span><input id="f_name" placeholder="CHANCE 見面會 12/27" /></div></div>
+      <div class="row"><span class="label">開演時間（台北）</span><input id="f_start" type="datetime-local" /></div>
+      <div class="row"><span class="label">場地</span><input id="f_venue" placeholder="微風影城 A 廳" /></div>
+      <div class="grid3"><div class="row"><span class="label">可售張數</span><input id="f_cap" type="number" placeholder="181" /></div><div class="row"><span class="label">票價（0＝不能買）</span><input id="f_price" type="number" placeholder="0" /></div><div class="row"><span class="label">座位</span><select id="f_seat"><option value="">自由入座</option><option value="breeze-a">對號入座（微風 8 樓 A 廳）</option></select></div><div class="row"><span class="label">開賣中</span><select id="f_sale"><option value="true">是</option><option value="false">否（隱藏購買）</option></select></div></div>
+      <div class="grid3"><div class="row"><span class="label">PhotoPass 價格（0＝不賣）</span><input id="f_pprice" type="number" placeholder="0" /></div><div class="row"><span class="label">PhotoPass 開賣</span><select id="f_psale"><option value="true">是</option><option value="false">否</option></select></div><div class="row"><span class="label">綠界商品代號（自動）</span><input id="f_pk" disabled placeholder="meet-…／pp-meet-…" /></div></div>
+      <button class="btn primary" onclick="saveEvent()">儲存場次</button><div class="msg" id="evMsg"></div>
+    </details></div>
+  </section>
+  <section class="view" data-view="test">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="testCard" style="display:none">
+    <h3>測試場工具</h3>
+    <div class="sub">只在測試場（場次 id 含 test）出現。生日會等正式場次不會有這些按鈕。</div>
+    <div class="grid2"><div class="row"><span class="label">批量張數（不寄信）</span><input id="b_count" type="number" value="181" min="1" max="500" /></div><div class="row"><span class="label">從第幾號開始</span><input id="b_from" type="number" value="1" min="1" /></div></div>
+    <button class="btn" id="btnBulk" onclick="bulkIssue()">批量發票（不寄信）</button><div class="msg" id="bMsg"></div>
+    <button class="btn danger" id="btnPurge" onclick="purgeTest()">清掉測試場所有票</button><button class="btn danger" id="btnPurgeAll" style="margin-top:8px" onclick="purgeAll()">全部測試票重置（含壓測票、座位、周邊訂單）</button><div class="msg" id="pMsg"></div>
+  </div>
+  </section>
 </div>
 
 <div class="sheet" id="staffSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Staff</div><h3 style="margin:6px 0 4px">給工作人員手機</h3><div class="tiny" style="text-align:left">用手機相機掃這個，在 Safari 打開掃碼機。QR 裡沒有鑰匙，現場鑰匙請當面告訴對方。</div><div class="qrwrap"><div class="qrbox"><canvas id="staffQrC" width="240" height="240"></canvas></div></div><button class="btn ghost" onclick="$('staffSheet').classList.remove('show')">關閉</button></div></div>
 <div class="sheet" id="qrSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Ticket</div><h3 id="qrTitle" style="font-size:20px;margin-top:6px">—</h3><div class="sub" id="qrSub"></div>
   <div class="qrwrap"><div class="qrbox"><canvas id="qrCanvas" width="240" height="240"></canvas></div></div><div class="tiny" id="qrText"></div>
   <div class="tiny" id="qrHist" style="text-align:left;margin-top:10px"></div>
-  <div class="grid2" style="margin-top:12px"><button class="btn" id="btnReset" onclick="resetTicket()">復原成未入場</button><button class="btn danger" onclick="voidTicket()">作廢</button></div>
-  <button class="btn" id="btnSeat" style="margin-top:8px;display:none" onclick="moveSeat()">換位</button>
-  <button class="btn" style="margin-top:8px" onclick="refundTicket()">退票（釋放席位＋終身編號）</button>
+  <button class="btn primary" id="btnAdmit" style="margin-top:14px" onclick="admitTicket()">手動放行（先核對本人）</button>
+  <button class="btn primary" id="btnReset" style="margin-top:14px" onclick="resetTicket()">復原成未入場</button>
+  <button class="btn" id="btnSeat" style="margin-top:10px;display:none" onclick="moveSeat()">換位</button>
+  <details class="danger-more" id="qrMore"><summary>更多：作廢、退票</summary>
+    <button class="btn danger" id="btnVoid" onclick="voidTicket()">作廢</button>
+    <button class="btn danger" id="btnRefund" onclick="refundTicket()">退票（釋放席位＋終身編號）</button>
+  </details>
   <button class="btn ghost" onclick="qrSheet.classList.remove('show')">關閉</button></div></div>
 <div class="sheet" id="rfSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Refund</div><h3 style="font-size:20px;margin-top:6px">退票</h3><div id="rfBody" style="margin-top:10px;font-size:14px;line-height:1.7"></div>
-  <button class="btn danger" id="rfGo" style="margin-top:12px" onclick="doRefund()">確認退票</button>
+  <button class="btn danger" id="rfGo" style="margin-top:12px" onclick="doRefund()">確認退票（不會自動退錢）</button>
   <button class="btn ghost" onclick="$('rfSheet').classList.remove('show')">取消</button></div></div>
 
 <script>
@@ -231,9 +346,39 @@ let events = [], cur = null, stats = null, curTicket = null, srv = {};
 $("key").value = localStorage.getItem(KEY_LS) || "";
 if (TKAPI === "test") { const b = document.createElement("div"); b.id = "tkapiBadge"; b.textContent = "測試後台（the-sky-ost-api-test）· 這一頁連不到正式"; b.style.cssText = "position:sticky;top:0;z-index:50;background:#7a1f1f;color:#fff;font:600 13px/1.4 -apple-system,sans-serif;padding:8px 12px;text-align:center"; document.body.prepend(b); document.title = "【測試】" + document.title; }
 async function api(path, body) {
-  const r = await fetch(API + path + (body ? "" : (path.includes("?") ? "&" : "?") + "adminKey=" + encodeURIComponent(key())), body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ adminKey: key(), ...body }) } : {});
-  return r.json();
+  let r, j;
+  try { r = await fetch(API + path + (body ? "" : (path.includes("?") ? "&" : "?") + "adminKey=" + encodeURIComponent(key())), body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ adminKey: key(), ...body }) } : {}); }
+  catch (e) { setNet(false); throw new Error("網路斷了"); }
+  try { j = await r.json(); } catch (e) { setNet(false); throw new Error("後台回應異常（" + r.status + "）"); }
+  setNet(true); return j;
 }
+/* B470T：首頁每個數字都記住來源讀到沒有。wait＝讀取中、ok＝讀到、err＝讀不到；讀不到不顯示成 0 */
+const src = { stats: "wait", manifest: "wait", failed: "wait", merch: "wait" };
+let net = "wait", statsAt = 0, connected = false;
+function setNet(ok) { net = ok ? "ok" : "down"; paintNet(); }
+function paintNet() {
+  const el = $("net"); if (!el) return;
+  const part = net === "ok" && Object.values(src).includes("err"), s = part ? "warn" : net;
+  el.className = "net " + s; $("netTxt").textContent = { ok: "連線正常", warn: "部分讀不到", down: "連線中斷", wait: "讀取中…" }[s];
+}
+const IC = { cake: '<path d="M4 20h16M5 20v-6h14v6M5 16.5c2 1 3-1 4.7 0s3 1 4.6 0 3-1 4.7 0M8 14v-3M12 14v-3M16 14v-3M8 8.5v-.5M12 8.5v-.5M16 8.5v-.5"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.3-4.3"/>', scan: '<path d="M4 8.5V5.5a1.5 1.5 0 0 1 1.5-1.5h3M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3M7 12h10"/>', people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="8.8" r="2.6"/><path d="M17.6 14.4c2.2.4 3.5 2.1 3.9 4.6"/>', download: '<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>', gear: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.9 1.9M16.6 16.6l1.9 1.9M5.5 18.5l1.9-1.9M16.6 7.4l1.9-1.9"/>', card: '<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 14.5h4"/>', seat: '<path d="M7 11V6.5A2.5 2.5 0 0 1 9.5 4h5A2.5 2.5 0 0 1 17 6.5V11M5 11h14v5H5zM7 16v4M17 16v4"/>', box: '<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5zM3.5 7.5 12 12l8.5-4.5M12 12v9"/>', phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>', alert: '<path d="M12 3.5 2.5 20h19zM12 10v4.5M12 17.4v.1"/>', plus: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M12 8v8M8 12h8"/>', flask: '<path d="M9.5 3.5h5M10.5 3.5v6L5 19a1 1 0 0 0 .9 1.5h12.2A1 1 0 0 0 19 19l-5.5-9.5v-6"/>' };
+const svg = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (IC[k] || "") + "</svg>";
+document.querySelectorAll("[data-ic]").forEach((e) => e.innerHTML = svg(e.getAttribute("data-ic")));
+/* 畫面分層：#roster（查票＋入場名單，可帶 -used／-valid／-noseat）、#seats、#more 和其他管理底下的頁；手機左滑返回會回上一頁 */
+const VIEWS = ["home", "roster", "seats", "more", "list", "issue", "fail", "merch", "set", "test"];
+let inApp = false, nf = "all";
+function route() {
+  let v = (location.hash || "").slice(1), mode = "";
+  const m = /^(roster|lookup)(?:-(used|valid|noseat))?$/.exec(v); if (m) { v = "roster"; mode = m[2] || "all"; }
+  if (!connected) v = "login"; else if (!VIEWS.includes(v)) v = "home";
+  document.querySelectorAll(".view").forEach((x) => x.classList.toggle("on", x.getAttribute("data-view") === v));
+  window.scrollTo(0, 0);
+  if (v === "home") { paintStats(); renderTodo(); renderHomeSearch(); }
+  if (v === "roster") openNames(mode);
+  if (v === "seats") loadSeatView();
+}
+window.addEventListener("hashchange", () => { inApp = true; route(); });
+function goBack(fallback) { if (inApp) { history.back(); return false; } location.hash = fallback; return false; }
 async function connect() {
   $("connMsg").textContent = "連線中…";
   try {
@@ -242,15 +387,17 @@ async function connect() {
     localStorage.setItem(KEY_LS, key());
     try { srv = await (await fetch(API + "/ticket/ping")).json(); } catch (e) { srv = {}; }
     events = j.events; $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次' + (srv.rv ? " · 後台 " + esc(srv.rv) : "") + '</span>';
-    ["evCard", "todoCard", "setCard", "issueCard", "listCard", "rosterCard", "failCard", "merchCard"].forEach((id) => $(id).style.display = "block"); $("connCard").style.display = "none"; $("evPick").style.display = events.length > 1 ? "block" : "none"; if (!events.length) $("moreBox").open = true;
+    connected = true; $("evPick").style.display = events.length > 1 ? "block" : "none"; paintEvent(); route(); if (!events.length) location.hash = "#set";
     loadFailed();
     const sel = $("event"); sel.innerHTML = events.length ? '<option value="">— 選場次 —</option>' : '<option value="">（還沒有場次 → 按下面金色按鈕建立）</option>';
     $("btnQuick").style.display = events.find((e) => e.id === "meet-test") ? "none" : "block";
     if (!events.length) $("evDetails").open = true;
     for (const e of events) { const o = document.createElement("option"); o.value = e.id; o.textContent = e.name + " · " + fmt(e.startAt); sel.appendChild(o); }
     const saved = localStorage.getItem("chance-admin-event"); if (saved && events.find((e) => e.id === saved)) { sel.value = saved; pickEvent(); }
+    else if (events.length === 1) { sel.value = events[0].id; pickEvent(); }   /* B470T：只有一個場次時選單是藏起來的，直接選它 */
   } catch (e) { $("connMsg").innerHTML = '<span class="err">' + esc(e.message) + "</span>"; }
 }
+function paintEvent() { $("evName").textContent = cur ? (cur.name || cur.id) + " · " + fmt(cur.startAt) : (events.length ? "請選場次" : "還沒有場次"); $("evName").style.display = events.length > 1 ? "none" : ""; }
 /* 台北時間 M/D HH:mm（不管這台電腦設在哪個時區） */
 function fmt(iso) { if (iso == null || iso === "") return "未設時間"; const d = new Date(iso); if (isNaN(d)) return String(iso); const t = new Date(d.getTime() + 8 * 3600e3); return (t.getUTCMonth() + 1) + "/" + t.getUTCDate() + " " + String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0"); }
 const isTestEv = (e) => !!e && /(^|-)test($|-)/.test(String(e.id || e));
@@ -259,6 +406,7 @@ function toLocalInput(iso) { if (!iso) return ""; const d = new Date(iso); if (i
 function fromLocalInput(v) { return v ? v + ":00+08:00" : null; }
 async function pickEvent() {
   cur = events.find((e) => e.id === $("event").value) || null; localStorage.setItem("chance-admin-event", cur ? cur.id : "");
+  stats = null; seatById = {}; mOrders = []; mCfg = null; src.stats = src.manifest = src.merch = cur ? "wait" : "ok"; paintEvent(); paintStats(); renderTodo();
   fillForm(cur); fillIssue(cur); showTestTools(); roster = null; renderRoster(); await refresh(); loadIssueSeats(); loadMerch(); if (cur) loadRoster();
 }
 function fillIssue(e) {
@@ -269,7 +417,7 @@ function fillIssue(e) {
   const test = isTestEv(e), can = test && srv.rv === "m31", m = $("i_mail"); m.checked = true; m.disabled = !can;
   $("i_mailLbl").textContent = can ? "寄確認信給對方（測試場可以取消，不寄信）" : (test ? "寄確認信給對方（後台還沒更新到 M3.1，一定會寄）" : "寄確認信給對方（正式場次一定寄，不能取消）");
 }
-function showTestTools() { $("testCard").style.display = cur && isTestEv(cur) && cur.id !== "meet-20261227" ? "block" : "none"; }
+function showTestTools() { const on = cur && isTestEv(cur) && cur.id !== "meet-20261227"; $("testCard").style.display = on ? "block" : "none"; $("testEntry").style.display = on ? "" : "none"; }
 function fillForm(e) {
   $("f_id").value = e ? e.id : ""; $("f_id").disabled = !!e; $("f_code").value = e ? (e.code || "") : ""; $("f_name").value = e ? (e.name || "") : ""; $("f_start").value = e ? toLocalInput(e.startAt) : "";
   $("f_venue").value = e ? (e.venue || "") : ""; $("f_cap").value = e ? (e.capacity || "") : ""; $("f_price").value = e ? (e.price || "") : ""; $("f_pk").value = e ? (e.id + "　pp-" + e.id) : ""; $("f_sale").value = e && e.onSale === false ? "false" : "true"; $("f_seat").value = e && e.seatMap || "";
@@ -287,8 +435,8 @@ async function quickTest() {
   const start = new Date(Date.now() + 3600e3).toISOString();
   const j = await api("/ticket/admin/event", { event: { id: "meet-test", code: "TEST", name: "測試場", startAt: start, venue: "測試", capacity: 10, price: 0, productKey: null, onSale: false } });
   b.disabled = false; b.textContent = "⚡ 一鍵建立測試場（1 小時後開演・10 張・不開賣）";
-  if (!j.ok) { $("connMsg").innerHTML = '<span class="err">建立失敗：' + esc(j.error || "") + "</span>"; return; }
-  await connect(); $("event").value = "meet-test"; await pickEvent();
+  if (!j.ok) { $("evMsg").innerHTML = '<span class="err">建立失敗：' + esc(j.error || "") + "</span>"; return; }
+  await connect(); $("event").value = "meet-test"; await pickEvent(); location.hash = "#issue";
   $("i_email").focus(); $("issueMsg").innerHTML = '<span class="ok">測試場建好了 → 填 email 按「發票」</span>';
 }
 
@@ -297,9 +445,11 @@ const MLBL0 = { b: "商品 b", h: "商品 h", s: "組合 s", bh: "b＋h" };
 const mLbl = (k) => { const I = (mCfg && mCfg.items) || {}; if (k === "bh" && I.b && I.h) return (I.b.short || I.b.name) + "＋" + (I.h.short || I.h.name); return (I[k] && (I[k].short || I[k].name)) || MLBL0[k] || k; };
 async function loadMerch() {
   if (!cur) { $("mStats").textContent = ""; $("mBody").innerHTML = ""; return; }
-  const j = await api("/ticket/admin/merch/orders?eventId=" + encodeURIComponent(cur.id));
-  if (!j.ok) { $("mStats").innerHTML = j.error === "not_found" ? '<span class="err">Worker 還沒更新到 v4</span>' : '<span class="err">' + esc(j.error || "讀取失敗") + "</span>"; return; }
-  mOrders = j.orders || []; mCfg = j.merch; renderTodo();
+  const evId = cur.id; let j;
+  try { j = await api("/ticket/admin/merch/orders?eventId=" + encodeURIComponent(evId)); } catch (e) { j = { ok: false, error: e.message }; }
+  if (!cur || cur.id !== evId) return;
+  if (!j.ok) { src.merch = "err"; renderTodo(); paintNet(); $("mStats").innerHTML = j.error === "not_found" ? '<span class="err">Worker 還沒更新到 v4</span>' : '<span class="err">' + esc(j.error || "讀取失敗") + "</span>"; return; }
+  mOrders = j.orders || []; mCfg = j.merch; src.merch = "ok"; renderTodo(); paintNet();
   if (!mCfg) { $("mStats").textContent = "這場沒有設定周邊。"; $("mBody").innerHTML = ""; return; }
   const I = mCfg.items || {};
   $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => esc(mLbl(k)) + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
@@ -331,27 +481,60 @@ function exportMerchCsv() {
 }
 
 let seatById = {};
-/* 待處理：只列要人動手的事。票不多，首頁只看數字和這份清單。 */
+/* 待處理：只列要人動手的事。B470T：有資料才出現；讀不到的來源列成「讀不到」，不當成沒有問題 */
+const isNoSeat = (t) => (t.status === "valid" || t.status === "used") && !seatById[t.id];
 function renderTodo() {
-  const open = (typeof failed !== "undefined" ? failed : []).filter((x) => !x.resolved).length;
-  const noSeat = cur && cur.seatMap && stats ? stats.tickets.filter((t) => (t.status === "valid" || t.status === "used") && !seatById[t.id]).length : 0;
-  const ship = (typeof mOrders !== "undefined" ? mOrders : []).filter((o) => o.mode === "ship" && !o.shipped && o.status !== "refunded").length;
-  const rows = [[open, "筆付了錢但沒出票", "補發", "failCard", "moreBox"], [noSeat, "張票還沒有座位", "查票", "listCard", "ticketBox"], [ship, "筆海外周邊還沒寄", "去寄", "merchCard", "moreBox"]].filter((r) => r[0]);
-  const n = rows.reduce((s, r) => s + r[0], 0); $("sTodo").textContent = n; $("sTodoBox").className = n ? "has" : "";
-  $("todoList").innerHTML = rows.length ? rows.map((r) => '<div class="todo"><span><b>' + r[0] + "</b> " + esc(r[1]) + '</span><button class="btn sm" onclick="goTodo(\'' + r[3] + "','" + r[4] + "')\">" + esc(r[2]) + "</button></div>").join("") : '<div class="todo-ok">目前沒有要處理的事</div>';
+  if (!$("todoList")) return;
+  const rows = [], warn = [], need = ["failed"];
+  if (src.failed === "ok") { const n = failed.filter((x) => !x.resolved).length; if (n) rows.push([n, "筆付款成功・尚未出票", "fail", "card"]); }
+  else if (src.failed === "err") warn.push(["讀不到「付款成功・尚未出票」", "loadFailed()"]);
+  if (cur && cur.seatMap) {
+    need.push("stats", "manifest");
+    if (src.stats === "ok" && src.manifest === "ok") { const n = stats.tickets.filter(isNoSeat).length; if (n) rows.push([n, "張票還沒有座位", "noseat", "seat"]); }
+    else if (src.stats === "err" || src.manifest === "err") warn.push(["讀不到座位資料，不確定有沒有票缺座位", "refresh()"]);
+  }
+  if (cur) {
+    need.push("merch");
+    if (src.merch === "ok") { const n = mOrders.filter((o) => o.mode === "ship" && !o.shipped && o.status !== "refunded").length; if (n) rows.push([n, "筆海外周邊還沒寄", "ship", "box"]); }
+    else if (src.merch === "err") warn.push(["讀不到周邊訂單", "loadMerch()"]);
+  }
+  const n = rows.reduce((s, r) => s + r[0], 0), allOk = need.every((k) => src[k] === "ok");
+  $("sTodo").textContent = n; $("sTodoBox").hidden = !n;
+  $("todoList").innerHTML = rows.map((r) => '<button class="todo2" type="button" onclick="todoGo(\'' + r[2] + '\')"><span class="ic">' + svg(r[3]) + "</span><span>" + r[0] + " " + esc(r[1]) + "</span><em>" + (r[0] === 1 ? { fail: "補發", noseat: "排座位", ship: "去寄" }[r[2]] : "查看") + " ›</em></button>").join("") +
+    warn.map((w) => '<button class="todo2 warn" type="button" onclick="' + w[1] + '"><span class="ic">' + svg("alert") + "</span><span>" + esc(w[0]) + "</span><em>重試 ›</em></button>").join("") +
+    (rows.length || warn.length ? "" : !cur && events.length ? '<div class="todo-wait">先選場次，才看得到座位和周邊要處理的事</div>' : allOk ? '<div class="todo-ok">目前沒有要處理的事</div>' : '<div class="todo-wait">讀取中…</div>');
+}
+/* 只有 1 筆時直接打開那一筆的處理（一樣先確認），多筆才到清單 */
+function todoGo(k) {
+  if (k === "fail") { const L = failed.filter((x) => !x.resolved); location.hash = "#fail"; if (L.length === 1) setTimeout(() => resolveFailed(failed.indexOf(L[0])), 350); return; }
+  if (k === "noseat") { const L = stats ? stats.tickets.filter(isNoSeat) : []; if (L.length === 1) openTicket(L[0].id); else location.hash = "#roster-noseat"; return; }
+  if (k === "ship") { const L = mOrders.filter((o) => o.mode === "ship" && !o.shipped && o.status !== "refunded"); location.hash = "#merch"; if (L.length === 1) setTimeout(() => shipOrder(mOrders.indexOf(L[0])), 350); }
 }
 function staffQr() { new QRious({ element: $("staffQrC"), value: new URL("scan-test.html", location.href).href, size: 240, level: "M", background: "#f3f0e8", foreground: "#111" }); $("staffSheet").classList.add("show"); }
-setInterval(() => { if (cur && !document.hidden) refresh().catch(() => {}); }, 15000);   /* 掃碼機掃進去，這裡 15 秒內跟著更新 */
-function goTodo(id, box) { $(box).open = true; $(id).scrollIntoView({ behavior: "smooth", block: "start" }); }
+let tick = 0;
+setInterval(() => { if (!connected || document.hidden) return; tick++; if (cur) refresh().catch(() => {}); if (tick % 4 === 0) { loadFailed(); if (cur) loadMerch(); } }, 15000);   /* 掃碼機掃進去，這裡 15 秒內跟著更新；付款成功未出票、周邊每 60 秒 */
 async function refresh() {
-  if (!cur) { $("tbody").innerHTML = ""; return; }
-  const j = await api("/ticket/stats?eventId=" + encodeURIComponent(cur.id));
-  if (!j.ok) return;
-  stats = j; cur = j.event;
-  const capAll = Number(cur.capacity) || (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0), soldAll = (cur.tiers || []).length ? cur.tiers.reduce((n, t) => n + (Number(t.sold) || 0), 0) : Number(cur.sold) || 0;   /* 有票種時 cur.sold 是「發過幾張」，退票不扣；已賣要看票種 */
-  const mf = await api("/ticket/manifest?eventId=" + encodeURIComponent(cur.id)).catch(() => null); seatById = {}; ((mf && mf.tickets) || []).forEach((t) => { if (t.seatName) seatById[t.id] = t.seatName; });
-  $("sCap").textContent = capAll || "–"; $("sSold").textContent = soldAll; $("sUsed").textContent = (j.counts.used || 0) + (j.counts.photopass ? "　📸" + j.counts.photopass : ""); $("sLeft").textContent = capAll ? Math.max(0, capAll - soldAll) : "–";
-  renderList(); renderTodo();
+  if (!cur) { $("tbody").innerHTML = ""; paintStats(); renderTodo(); return; }
+  const evId = cur.id; let j, mf;
+  try { j = await api("/ticket/stats?eventId=" + encodeURIComponent(evId)); } catch (e) { j = { ok: false, error: e.message }; }
+  if (!cur || cur.id !== evId) return;
+  if (!j.ok) { src.stats = "err"; paintStats(); renderTodo(); return; }
+  try { mf = await api("/ticket/manifest?eventId=" + encodeURIComponent(evId)); } catch (e) { mf = null; }
+  if (!cur || cur.id !== evId) return;
+  stats = j; cur = j.event; src.stats = "ok"; statsAt = Date.now();
+  if (mf && mf.ok) { seatById = {}; (mf.tickets || []).forEach((t) => { if (t.seatName) seatById[t.id] = t.seatName; }); src.manifest = "ok"; } else src.manifest = "err";
+  paintStats(); renderList(); renderTodo(); if ($("nRes").offsetParent) renderNames(); if ($("hRes").offsetParent) renderHomeSearch();
+}
+/* 已售、剩餘、已入場：只顯示這個場次真的讀到的數字；讀不到就是「—」，讀過但現在讀不到會標出是幾點的資料 */
+function paintStats() {
+  const has = !!(stats && cur && stats.event && stats.event.id === cur.id);
+  if (has) {
+    const capAll = Number(cur.capacity) || (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0), soldAll = (cur.tiers || []).length ? cur.tiers.reduce((n, t) => n + (Number(t.sold) || 0), 0) : Number(cur.sold) || 0;   /* 有票種時 cur.sold 是「發過幾張」，退票不扣；已賣要看票種 */
+    $("sCap").textContent = capAll || "–"; $("sSold").textContent = soldAll; $("sUsed").textContent = stats.counts.used || 0; $("sPP").textContent = stats.counts.photopass ? "📸 " + stats.counts.photopass : ""; $("sLeft").textContent = capAll ? Math.max(0, capAll - soldAll) : "—";
+  } else { ["sSold", "sLeft", "sUsed"].forEach((id) => $(id).textContent = "—"); $("sPP").textContent = ""; }
+  $("sLeftLink").classList.toggle("nolink", !(cur && cur.seatMap)); $("sLeftLink").querySelector("span").textContent = cur && cur.seatMap ? "剩餘 ›" : "剩餘";
+  $("sStale").innerHTML = src.stats !== "err" ? "" : '<span class="err">' + (has ? "現在讀不到最新數字，上面是 " + esc(fmt(new Date(statsAt).toISOString())) + " 的資料" : "讀不到票數，請檢查網路") + '</span><button class="btn sm" onclick="refresh()">重試</button>';
+  paintNet();
 }
 function renderList() {
   if (!stats) return;
@@ -406,7 +589,8 @@ async function openTicket(id) {
   $("btnSeat").style.display = j.ticket.seatId || (cur && cur.seatMap) ? "block" : "none"; $("qrTitle").textContent = id; $("qrSub").textContent = (j.ticket.seatName ? j.ticket.seatName + " · " : "") + (j.ticket.owner || "") + " · " + ({ valid: "有效", used: "已入場 " + fmt(j.ticket.usedAt), void: "作廢", refunded: "已退票" }[j.ticket.status] || "") + " · v" + j.ticket.ver;
   const c = $("qrCanvas"); if (j.ticket.qr) { c.style.display = "block"; new QRious({ element: c, value: j.ticket.qr, size: 240, level: "M", background: "#f3f0e8", foreground: "#111" }); $("qrText").textContent = j.ticket.qr; } else { c.style.display = "none"; $("qrText").textContent = "（" + (j.ticket.status === "used" ? "已入場" : "作廢") + "，無有效 QR）"; }
   $("qrHist").innerHTML = (j.ticket.history || []).map((h) => esc(fmt(h.at) + " · " + h.type + (h.from ? " " + h.from + " → " + h.to : ""))).join("<br>");
-  $("btnReset").style.display = j.ticket.status === "used" ? "block" : "none";
+  $("btnReset").style.display = j.ticket.status === "used" ? "block" : "none"; $("btnAdmit").style.display = j.ticket.status === "valid" ? "block" : "none"; $("qrMore").open = false;
+  $("qrMore").style.display = j.ticket.status === "valid" || j.ticket.status === "used" ? "" : "none";
   $("qrSheet").classList.add("show");
 }
 /* B347T：入場開始後（開演前 3 小時起）退票／作廢，後台回 frozen → 再確認一次，提醒現場重新下載名單 */
@@ -421,8 +605,17 @@ async function frozenRetry(path, body, what) {
 }
 /* 選位：換位後 QR 不變，掃票時查到新座位 */
 async function moveSeat() { if (!curTicket) return; const v = prompt("換到哪個座位？例如 H12", curTicket.seatName || ""); if (!v) return; const j = await api("/ticket/admin/seat", { ticketId: curTicket.id, seat: v.trim() }); if (j.ok) { alert("已換到 " + j.seatName); openTicket(curTicket.id); } else alert(j.message || "換位失敗"); }
+/* 看票畫面的手動放行：和名單勾入場同一個後台動作，先確認本人 */
+const CKR = { already_used: "已經入場過了", void: "已作廢", refunded: "已退票", too_early: "還沒開放入場", expired: "已過入場時間", need_confirm: "後台還沒更新到 M3（需要確認步驟）", not_found: "查無此票", wrong_event: "這張票不是這個場次的" };
+async function admitTicket() {
+  if (!curTicket) return; const id = curTicket.id, r = (roster && roster.tickets.find((x) => x.id === id)) || {};
+  if (!confirm("確認放行 " + (r.n ? r.n + "（" + id + "）" : id) + "？\n" + (curTicket.owner || r.o || "") + (r.p4 ? "　手機末 4 碼 " + r.p4 : "") + "\n請先核對本人。會記錄為後台手動入場。")) return;
+  let j; try { j = await api("/ticket/checkin", { ticketId: id, confirm: true, via: "admin", by: "後台", eventId: curTicket.eventId || (cur && cur.id) }); } catch (e) { j = { ok: false, error: e.message }; }
+  if (j.ok) { $("qrSheet").classList.remove("show"); alert("已放行 " + (r.n || id)); refresh(); loadRoster(); }
+  else alert("沒有放行：" + (CKR[j.reason] || j.reason || j.error || "失敗"));
+}
 async function voidTicket() { if (!curTicket || !confirm("確定作廢 " + curTicket.id + "？")) return; const j = await frozenRetry("/ticket/admin/void", { ticketId: curTicket.id }, "作廢"); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else if (!j.cancelled) alert("作廢失敗：" + (j.message || j.error || "")); }
-async function resetTicket() { if (!curTicket) return; const j = await api("/ticket/admin/reset", { ticketId: curTicket.id }); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else alert("復原失敗：" + (j.message || j.error || "")); }
+async function resetTicket() { if (!curTicket || !confirm("把 " + curTicket.id + " 復原成未入場？\n復原後這張票的 QR 可以再掃一次入場。")) return; const j = await api("/ticket/admin/reset", { ticketId: curTicket.id }); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); loadRoster(); } else alert("復原失敗：" + (j.message || j.error || "")); }
 /* m48（CÉON 11/07）：退票先看同一筆訂單的周邊，預設一起退，畫面算好應退金額。錢一樣到綠界後台手動退 */
 let rf = null;
 const nt = (n) => "NT$" + Number(n || 0).toLocaleString("en-US");
@@ -438,7 +631,7 @@ async function refundTicket() {
   $("rfBody").innerHTML = "<div>" + esc(curTicket.id) + (curTicket.seatName ? " · " + esc(curTicket.seatName) : "") + '</div><div class="tiny">會放回座位與終身編號，入場 QR 立刻失效。</div>' +
     (m ? '<div style="margin-top:12px">同一筆訂單還有周邊：<b>' + esc(m.label) + "</b>" + (m.email !== curTicket.owner ? "（買家 " + esc(m.email) + "）" : "") + "</div>" + (m.shipped ? '<div class="tiny">周邊已寄出，這裡不能一起退。</div>' :
       lab('<input type="radio" name="rfM" id="rfWith" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" checked onchange="rfTotal()"> 一起退（退 1 組，' + nt(m.unit) + "）") + lab('<input type="radio" name="rfM" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 只退票，周邊保留')) : "") +
-    lab('<input type="checkbox" id="rfNoFee" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 不收手續費（活動取消等）') + '<div id="rfSum" style="margin-top:12px"></div><div class="tiny" style="margin-top:8px">⚠️ 這裡不會退錢，確認後要到綠界後台退刷這個金額。</div>';
+    lab('<input type="checkbox" id="rfNoFee" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 不收手續費（活動取消等）') + '<div id="rfSum" style="margin-top:12px"></div><div class="refwarn">按「確認退票」只會讓票失效、放回座位，<b>不會退錢</b>。要另外到綠界後台退刷上面的金額，退刷完成才算退款完成。</div>';
   rfTotal(); $("rfSheet").classList.add("show");
 }
 async function doRefund() {
@@ -468,9 +661,9 @@ async function loadRoster() {
   b.disabled = false; b.textContent = "重新下載名單";
   renderRoster();
 }
-function rosterRows() {
+function rosterRows(all) {
   if (!roster) return [];
-  const f = $("rFilter").value.trim().toLowerCase(), byName = $("rSort").value === "name";
+  const f = all ? "" : $("rFilter").value.trim().toLowerCase(), byName = $("rSort").value === "name";
   return roster.tickets.filter((t) => !f || [t.id, t.n, t.o, t.p4, no3(t.sn), t.seatName].some((x) => String(x || "").toLowerCase().includes(f)))
     .slice().sort((a, b) => byName ? String(a.n || "￿").localeCompare(String(b.n || "￿"), "zh-Hant") || (a.sn || 9e9) - (b.sn || 9e9) : (a.sn || 9e9) - (b.sn || 9e9) || a.id.localeCompare(b.id));
 }
@@ -498,12 +691,91 @@ async function toggleEntry(box) {
   }
   renderRoster(); refresh();
 }
-function exportRosterCsv() {
+function exportRosterCsv(all) {
   if (!roster) return alert("先下載名單");
   const q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"', when = fmt(roster.at);
-  const rows = [["編號", "座位", "姓名", "票號", "Email（遮罩）", "手機後4碼", "狀態", "入場", "名單下載時間（台北）"]].concat(rosterRows().map((t) => [no3(t.sn), t.seatName || "", t.n || "", t.id, t.o || "", t.p4 || "", RST[t.s] || t.s, t.s === "used" ? "是" : "否", when]));
+  const rows = [["編號", "座位", "姓名", "票號", "Email（遮罩）", "手機後4碼", "狀態", "入場", "名單下載時間（台北）"]].concat(rosterRows(all === true).map((t) => [no3(t.sn), t.seatName || "", t.n || "", t.id, t.o || "", t.p4 || "", RST[t.s] || t.s, t.s === "used" ? "是" : "否", when]));
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map((r) => r.map(q).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" }));
   a.download = "roster-" + (cur ? cur.id : "") + "-" + when.replace(/[\/ :]/g, "") + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+}
+/* 查票＋入場名單：票數（stats，含完整 Email、即時狀態）＋名單（manifest，含姓名、手機末 4 碼、編號、座位）＋付款成功未出票，只查這三份現有資料 */
+function lookupData() {
+  const by = {};
+  ((stats && cur && stats.event && stats.event.id === cur.id) ? stats.tickets : []).forEach((t) => by[t.id] = { id: t.id, s: t.status, owner: t.owner });
+  ((roster && roster.tickets) || []).forEach((t) => { const x = by[t.id] || (by[t.id] = { id: t.id, s: t.s, owner: t.o }); x.n = t.n; x.p4 = t.p4; x.sn = t.sn; x.seat = t.seatName; });
+  Object.values(by).forEach((x) => { if (seatById[x.id]) x.seat = seatById[x.id]; });
+  return Object.values(by).sort((a, b) => (a.sn || 9e9) - (b.sn || 9e9) || a.id.localeCompare(b.id));
+}
+const tCard = (t) => '<div class="lcard"><div class="lt"><span>' + esc(t.n || "（沒有姓名）") + '</span><span class="stp st-' + esc(t.s) + '">' + esc(RST[t.s] || t.s) + "</span></div>" +
+  '<div class="lr">座位 ' + esc(t.seat || "未安排") + (t.sn ? " · " + no3(t.sn) : "") + '</div><div class="lr">票號 ' + esc(t.id) + "</div>" +
+  '<div class="lr">' + esc(t.owner || "") + (t.p4 ? " · 手機末 4 碼 " + esc(t.p4) : "") + "</div>" +
+  '<button class="btn" data-tid="' + esc(t.id) + '" onclick="openTicket(this.getAttribute(\'data-tid\'))">看票、放行與操作</button></div>';
+const fCard = (x) => '<div class="lcard paid"><div class="lt"><span>' + esc(x.name || x.email || "") + '</span><span class="stp">付款成功・尚未出票</span></div><div class="lr">訂單 ' + esc(x.tradeNo) + " · " + esc(fmt(x.paidAt || x.ts)) + '</div><div class="lr">' + esc(x.email || "") + (x.phone ? " · " + esc(x.phone) : "") + '</div><button class="btn" onclick="location.hash=\'#fail\';setTimeout(()=>resolveFailed(' + failed.indexOf(x) + '),350)">補發</button></div>';
+/* q：搜尋字（至少 2 個字）。回傳符合的票和付款成功未出票 */
+function search(q0) {
+  const q = String(q0 || "").trim().toLowerCase(); if (q.length < 2) return null;
+  const d = q.replace(/\D/g, ""), last4 = d.length >= 4 ? d.slice(-4) : "", hit = (arr) => arr.some((x) => String(x || "").toLowerCase().includes(q));
+  return { q: String(q0).trim(), L: lookupData().filter((t) => hit([t.id, t.owner, t.n, t.seat, t.sn ? no3(t.sn) : ""]) || (last4 && t.p4 === last4)),
+    F: src.failed === "ok" ? failed.filter((x) => !x.resolved && (hit([x.tradeNo, x.email, x.name, x.phone]) || (last4 && String(x.phone || "").replace(/\D/g, "").endsWith(last4)))) : [] };
+}
+function dataWarn() {
+  const bad = [src.stats === "err" ? "票數" : "", !roster && $("rInfo").querySelector(".err") ? "名單" : "", src.failed === "err" ? "付款成功・尚未出票" : ""].filter(Boolean);
+  return bad.length ? '<span class="err">讀不到' + bad.join("、") + "，結果可能不完整</span>" : "";
+}
+const notFound = (q) => '<div class="lcard"><div class="lt"><span>找不到「' + esc(q) + '」</span></div><ul class="tips"><li>換一個條件再查：Email、手機末 4 碼、票號</li><li>確認現在的場次是「' + esc(cur.name || cur.id) + '」</li><li>對方說已經付款，請看首頁「需要處理」有沒有付款成功・尚未出票</li></ul></div>';
+/* 首頁搜尋：打字就在首頁出結果，清掉就回到首頁 */
+let warmAt = 0;
+function warmNames() { if (cur && Date.now() - warmAt > 30000) { warmAt = Date.now(); Promise.all([refresh(), loadRoster()]).then(renderHomeSearch); } }
+function renderHomeSearch() {
+  const r = cur ? search($("hq").value) : null, box = $("hRes");
+  $("homeRest").style.display = r ? "none" : "";
+  if (!r) { box.innerHTML = $("hq").value.trim() && !cur ? '<div class="msg err">先選場次</div>' : ""; return; }
+  const w = dataWarn();
+  box.innerHTML = (w ? '<div class="msg">' + w + "</div>" : "") + r.F.map(fCard).join("") + r.L.slice(0, 20).map(tCard).join("") +
+    (r.L.length || r.F.length ? "" : notFound(r.q)) + (r.L.length > 20 ? '<a class="homelink" href="#roster">還有 ' + (r.L.length - 20) + " 張，到入場名單看全部 ›</a>" : "");
+}
+/* 入場名單：上面搜尋＋篩選，下面整份名單 */
+async function openNames(mode) {
+  if (mode) setNf(mode, true); renderNames(); if (!cur) return;
+  $("nMsg").textContent = "讀取最新名單中…";
+  await Promise.all([refresh(), loadRoster()]); renderNames();
+}
+function setNf(k, quiet) { nf = (k === "noseat" && !(cur && cur.seatMap)) ? "all" : k; if (!quiet) renderNames(); }
+function renderNames() {
+  const box = $("nRes"), msg = $("nMsg");
+  document.querySelectorAll("#nChips [data-nf]").forEach((b) => { b.classList.toggle("on", b.getAttribute("data-nf") === nf); if (b.getAttribute("data-nf") === "noseat") b.style.display = cur && cur.seatMap ? "" : "none"; });
+  if (!cur) { box.innerHTML = ""; msg.innerHTML = '<span class="err">先回首頁選場次</span>'; return; }
+  const all = lookupData(), q = $("nq").value.trim(), r = search(q);
+  if (nf === "noseat" && (src.stats !== "ok" || src.manifest !== "ok")) { box.innerHTML = ""; msg.innerHTML = src.stats === "err" || src.manifest === "err" ? '<span class="err">讀不到座位資料，請重新整理</span>' : "讀取中…"; return; }
+  const pass = (t) => nf === "all" ? true : nf === "noseat" ? (t.s === "valid" || t.s === "used") && !seatById[t.id] : t.s === nf;
+  const L = (r ? r.L : all).filter(pass), F = r && nf === "all" ? r.F : [];
+  const used = all.filter((t) => t.s === "used").length, valid = all.filter((t) => t.s === "valid").length;
+  const w = dataWarn();
+  msg.innerHTML = "共 " + all.length + " 張 · 已入場 " + used + " · 未入場 " + valid + (roster ? " · 名單 " + esc(fmt(new Date(roster.at).toISOString())) : "") + "<br>" + (q.length === 1 ? "再多打一個字才會開始查" : "這裡列出 " + L.length + " 張" + (F.length ? "、" + F.length + " 筆付款成功・尚未出票" : "")) + (w ? "<br>" + w : "");
+  box.innerHTML = F.map(fCard).join("") + L.slice(0, 200).map(tCard).join("") + (L.length > 200 ? '<div class="sub" style="margin-top:12px">只列前 200 張，請用搜尋縮小範圍。</div>' : "") + (r && !L.length && !F.length ? notFound(q) : "");
+}
+/* 剩餘：看哪些座位還空著（讀線上選位同一份座位表，只看不改） */
+async function loadSeatView() {
+  const g = $("seatGrid"), m = $("seatMsg");
+  if (!cur || !cur.seatMap) { g.innerHTML = ""; m.textContent = "這個場次是自由入座，沒有座位表。"; return; }
+  m.textContent = "讀取中…"; g.innerHTML = "";
+  let map = null; try { map = await readSeats(); } catch (e) { map = null; }
+  if (!map) { m.innerHTML = '<span class="err">讀不到座位表</span> <button class="btn sm" onclick="loadSeatView()">重試</button>'; return; }
+  const busy = new Set(map.busy || []), closed = new Set(map.closed || []), keys = Object.keys(map.rows).sort((a, b) => a - b), max = Math.max(...keys.map((k) => Math.max(...map.rows[k])));
+  let free = 0;
+  g.innerHTML = keys.map((k) => { let h = '<div class="iseat-row"><b>' + esc(map.rowName[k] || k) + "</b>"; for (let n = 1; n <= max; n++) { const id = k + "-" + n; if (!map.rows[k].includes(n)) { h += "<span></span>"; continue; } const c = closed.has(id) ? "na" : busy.has(id) ? "off" : ""; if (!c) free++; h += '<span><i class="' + c + '">' + n + "</i></span>"; } return h + "</div>"; }).join("");
+  const ns = src.stats === "ok" && src.manifest === "ok" ? stats.tickets.filter(isNoSeat).length : 0;
+  m.innerHTML = "現在空著 <b>" + free + "</b> 個開放座位" + (ns ? "，另外有 " + ns + " 張票還沒排座位" : "") + "。別人正在選、還沒付款的位子算保留中。左右滑可以看整排。";
+}
+/* 名單頁「匯出備份名單」：每次先重新下載最新名單，下載失敗就不匯出舊的；整份匯出，不受名單頁搜尋影響 */
+async function exportBackup() {
+  const m = $("homeMsg2"), b = $("btnBackup");
+  if (!cur) { m.innerHTML = '<span class="err">先選場次</span>'; return; }
+  b.disabled = true; m.textContent = "下載最新名單中…";
+  await loadRoster(); b.disabled = false;
+  if (!roster) { m.innerHTML = '<span class="err">名單下載失敗，這次沒有匯出。請檢查網路後再按一次。</span>'; return; }
+  exportRosterCsv(true);
+  m.innerHTML = '<span class="ok">已匯出 ' + roster.tickets.length + " 張的備份名單（" + esc(fmt(new Date(roster.at).toISOString())) + "）</span>";
 }
 function printRoster() { if (!roster) return alert("先下載名單"); renderRoster(); window.print(); }
 
@@ -517,8 +789,8 @@ async function loadFailed() {
     try { j = await api("/ticket/admin/failed" + (cursor ? "?cursor=" + encodeURIComponent(cursor) : "")); } catch (e) { j = { ok: false, error: "network" }; }
     if (!j.ok) break; all = all.concat(j.items || []); cursor = j.cursor || null; pages++;
   } while (cursor && pages < 20);
-  if (!j.ok) { failed = []; $("fBody").innerHTML = ""; $("fMsg").innerHTML = '<span class="err">' + (j.error === "not_found" ? "後台還沒更新到 M3（看不到失敗訂單）" : esc(j.error || "讀取失敗")) + "</span>"; return; }
-  failed = all.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  if (!j.ok) { src.failed = "err"; renderTodo(); paintNet(); $("fBody").innerHTML = ""; $("fMsg").innerHTML = '<span class="err">' + (j.error === "not_found" ? "後台還沒更新到 M3（看不到失敗訂單）" : esc(j.error || "讀取失敗")) + "</span>"; return; }
+  failed = all.sort((a, b) => (a.ts || 0) - (b.ts || 0)); src.failed = "ok"; paintNet();
   const open = failed.filter((x) => !x.resolved).length;
   renderTodo(); $("fMsg").innerHTML = failed.length ? '<span class="' + (open ? "err" : "ok") + '">' + failed.length + " 筆，未處理 " + open + " 筆</span>" : '<span class="ok">沒有失敗訂單</span>';
   $("fBody").innerHTML = failed.map((x, i) => '<tr><td class="mono">' + esc(x.tradeNo) + "</td><td>" + fmt(x.paidAt || x.ts) + '</td><td style="word-break:break-all">' + esc(x.email || "") + "</td><td>" + esc(x.eventId || "") + "</td><td>" + esc(x.tier || "—") + "</td><td>" + esc(x.name || "") + "</td><td>" + esc(x.phone || "") + "</td><td>" + esc(x.amount || "") + "</td><td>" + esc(x.reason || "") + "</td><td>" +
@@ -593,6 +865,7 @@ async function purgeAll() {
   await refresh(); loadRoster(); loadMerch();
 }
 
+route();
 if (key()) connect();
 </script>
 </body></html>
