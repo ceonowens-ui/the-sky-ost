@@ -89,6 +89,16 @@ body{background:#0b0b0b;color:var(--cream)}.app{padding-top:calc(10px + env(safe
 .ovicon{width:clamp(76px,24vw,104px);height:clamp(76px,24vw,104px);display:grid;place-items:center;border-radius:50%;font-size:clamp(46px,15vw,64px);font-weight:800;line-height:1;color:#fff}.good .ovicon{background:#2f9a4c}.warn .ovicon,.bad .ovicon{background:#d43a3a}.stop .ovicon{border-radius:0;background:none;color:#d8bc80}.stop .ovicon svg{width:100%;height:100%;fill:none;stroke:#d8bc80;stroke-width:6;stroke-linejoin:round}
 .ov h2{font-size:clamp(44px,14vw,60px);line-height:1.12;font-weight:800;letter-spacing:0;margin:16px 0 6px;color:var(--cream);text-align:center}.ovsub{font-size:clamp(20px,6vw,25px);font-weight:700;color:#e8dfca;margin:0;text-align:center}.seatbox{display:none;width:100%;max-width:300px;margin-top:16px;padding:10px 12px 12px;border:1px solid rgba(244,236,217,.28);border-radius:14px;background:#141414;text-align:center}.seatbox.show{display:block}.seatbox span{display:block;font-size:17px;color:#d9cfba}.ov .seat{display:block;font:700 clamp(50px,17vw,70px)/1.08 Georgia,serif;font-variant-numeric:lining-nums;margin:2px 0 0;color:var(--cream)}.ov p#ovLine1,.ov p#ovLine2{font-size:16px;line-height:1.45;margin:8px 0 0;color:#d9cfba;text-align:center;opacity:1}.ov p:empty{display:none}.ov .id{margin-top:8px;font:13px/1.4 ui-monospace,Menlo,monospace;color:#9c9589}.ovbtn{width:100%;margin-top:auto;flex:none}.ovgap{height:18px;flex:none}
 @media(max-height:620px){.ovbrand{display:none}.ovicon{width:68px;height:68px;font-size:42px}.ov h2{margin-top:10px}.seatbox{margin-top:10px;padding:6px 12px 8px}}
+/* B474T（CÉON 11/10）：結果畫面底色分三種，站遠一點也一眼看得出來。綠＝可以入場；紅＝已使用、不可入場；黃＝暫停放行（網路中斷、結果未確認、系統異常、練習模式）。版面和字的大小都不變，只換底色和跟著底色要換的顏色 */
+.overlay.good{background:#17713a}.overlay.bad,.overlay.warn{background:#a52222}.overlay.stop{background:#f2c230}
+.overlay.good .ovicon{background:#fff;color:#17713a}.overlay.bad .ovicon,.overlay.warn .ovicon{background:#fff;color:#a52222}.overlay.stop .ovicon{color:#1a1300}.overlay.stop .ovicon svg{stroke:#1a1300}
+.overlay.show .ovbrand{color:rgba(255,255,255,.88)}.overlay.show .ov h2{color:#fff}.overlay.show .ovsub{color:#fff}
+.overlay.show .seatbox{background:rgba(0,0,0,.26);border-color:rgba(255,255,255,.42)}.overlay.show .seatbox span{color:rgba(255,255,255,.9)}.overlay.show .ov .seat{color:#fff}
+.overlay.show .ov p#ovLine1,.overlay.show .ov p#ovLine2{color:rgba(255,255,255,.94)}.overlay.show .ov .id{color:rgba(255,255,255,.78)}
+.overlay.show .ovbtn{background:#f4ecd9;color:#181209;border-color:transparent}
+/* 黃底用深色字（亮黃配白字看不清楚） */
+.overlay.show.stop .ovbrand{color:rgba(26,19,0,.82)}.overlay.show.stop .ov h2,.overlay.show.stop .ovsub{color:#1a1300}.overlay.show.stop .ov p#ovLine1,.overlay.show.stop .ov p#ovLine2{color:rgba(26,19,0,.94)}.overlay.show.stop .ov .id{color:rgba(26,19,0,.72)}
+.overlay.show.stop .seatbox{background:rgba(255,255,255,.4);border-color:rgba(26,19,0,.4)}.overlay.show.stop .seatbox span,.overlay.show.stop .ov .seat{color:#1a1300}.overlay.show.stop .ovbtn{background:#1a1300;color:#fff}
 details.more{margin-top:10px}details.more summary{min-height:48px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);cursor:pointer}
 </style>
 </head>
