@@ -3430,7 +3430,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(evId, k), out = it.left <= 0, on = !!o["m" + k] && !own && !out;
       return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" ' + attr + '="' + act + '" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
         '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
-        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : it.left <= 10 ? "・剩 " + esc(it.left) + " 件" : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
+        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : mStockTx(it, false) ? "・" + esc(mStockTx(it, false)) : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
     var h = row("b") + row("h"), r = mResolve(mi, mSel(o));
     if (mSel(o) === "bh" && r) h += r.code === "s"
@@ -3475,14 +3475,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var it = I[k]; if (!it) return "";
       var own = mOwned(ev.id, k) || (k === "s" && (mOwned(ev.id, "b") || mOwned(ev.id, "h"))), out = it.left <= 0;
       var on = !own && !out && (k === "s" ? sm : (!!o["m" + k] && !sm));
-      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : "";   // B437T：現場領取只在標題講一次
+      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : k !== "s" ? mStockTx(it, false) : "";   // B437T：現場領取只在標題講一次；B481T：其他時候寫「限量 N 組・剩 M 組」
       var pic = it.img || "";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "b" && (!pic || /(?:^|\/)a3-poster-set\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-concept.jpg";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "h" && (!pic || /(?:^|\/)a3-set-no6-card\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-card-concept.jpg";
       // B376T：跟周邊購買頁同一個版型（一件一張卡：圓點、圖、品名、價格另起一行、說明），顏色配票紙
       return '<button type="button" class="mxp-it' + (on ? " on" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '><i aria-hidden="true"></i>' +
         (pic ? '<img src="' + esc(asset(pic)) + '" alt="">' : '') +
-        '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算・剩 ' + esc(it.left) + ' 組</em>' : '') + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span></button>';
+        '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算' + (mStockTx(it, false) ? '・' + esc(mStockTx(it, false)) : '') + '</em>' : '') + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span></button>';
     };
     var q = mQ(ev.id, o), qx = mQMax(ev.id, o);
     var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '';
@@ -3544,7 +3544,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var I = mi.m.items, ks = ["b", "h", "s"].filter(function (k) { return I[k]; }); if (!ks.length) return "";
     var h = '<div class="tkb-sec tkm-sec">生日限定周邊 <small class="tkm-cut">' + (mi.m.open ? (mCut(mi) ? "預購至 " + esc(mCut(mi)) : "預購中") : mi.m.onSale ? "預購已截止" : "即將開賣") + '</small></div><div class="tkm-grid">';
     ks.forEach(function (k) { var it = I[k];
-      h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? "剩 " + esc(it.left) + (k === "s" ? " 組" : " 件") : "已售完") + '</i></div></div>'; });
+      h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? esc(mStockTx(it, false) || "售完為止") : "已售完") + '</i></div></div>'; });
     h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。買票時可在結帳頁直接加購；已經有票或人在海外，可以單獨購買。</div>';
     if (mi.m.open) h += '<button class="tkb-cta ghost wide tkm-open" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 <i>→</i></button>';
     return h;
@@ -3587,13 +3587,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      一整頁：選商品 → 數量 → 取貨方式 → 左標籤右欄位的表單 → 小計／運費／合計 → 底部「前往付款」。訂單、庫存、付款流程跟原本的彈窗一樣。 */
   /* B384T（CÉON 11/02 看過示意圖）：周邊卡片的第二顆膠囊。剩 10 組以下＝紅色「剩 N 組（・至 M/D）」，限量先不顯示；
      否則「限量 N 組・售完為止」或「限量 N 組・至 M/D」。購買頁比較寬（wide）寫完整「預購至 M/D 23:59」。售完回 null（卡片本身寫已售完）。 */
+  /* B481T（CÉON 11/10）：有限量的周邊，所有地方都寫「限量 N 組・剩 M 組」（不再只有剩 10 組以下才寫）；剩 10 組以下仍是紅色 */
+  function mStockTx(it, en) { var cap = Number(it && it.cap) || 0, L = Number(it && it.left); if (!cap || !(L > 0)) return ""; return en ? L + " of " + cap + " left" : "限量 " + cap + " 組・剩 " + L + " 組"; }
   function mPill2(it, cut, en, wide) {
     if (!it || !(it.left > 0)) return null;
     var hot = it.left <= 10, cap = Number(it.cap) > 0;
     var due = cut ? (wide ? (en ? "pre-order until " + cut + " 23:59" : "預購至 " + cut + " 23:59") : (en ? "until " + cut : "至 " + cut)) : "";
+    if (cap) return { t: mStockTx(it, en) + (due ? (en ? " · " : "・") + due : ""), cls: hot ? "hot" : "" };
     if (hot) return { t: (en ? it.left + " left" : "剩 " + it.left + " 組") + (due ? (en ? " · " : "・") + due : ""), cls: "hot" };
-    if (cap && en && !wide) return { t: "Only " + it.cap + (due ? " · " + due : ""), cls: "" };   // 英文半寬卡放不下 while stocks last
-    if (cap) return { t: (en ? "Limited to " + it.cap : "限量 " + it.cap + " 組") + (en ? " · " : "・") + (due || (en ? "while stocks last" : "售完為止")), cls: "" };
     return { t: due ? (en ? due.charAt(0).toUpperCase() + due.slice(1) : due.replace(/^至/, "預購至")) : (en ? "While stocks last" : "售完為止"), cls: "due" };
   }
   function mxHTML() {
@@ -4214,7 +4215,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B480T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B481T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";

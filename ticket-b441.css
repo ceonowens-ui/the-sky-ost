@@ -313,3 +313,10 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tk-seatleft:not(
 .cx9 input,.cx9 select,.cx9 textarea{border:1.5px solid rgba(216,188,128,.72)!important}
 .cx9 input:focus,.cx9 select:focus,.cx9 textarea:focus{border-color:#E6CB95!important;box-shadow:0 0 0 3px rgba(216,188,128,.22)!important;outline:none}
 .cx9 .cx9-row.bad input,.cx9 .cx9-row.bad select,.cx9 .cx9-row.bad textarea{border-color:#ff9a8a!important}
+/* B481T（CÉON 11/10）：所有 email 登入框跟結帳頁同一套——輸入欄 20px＋金框、說明與訊息 14px、按鈕 16.5px。
+   票夾「用 email 找回你的票」（#tk-em／#tk-otp），以及選位前登入、開賣前登入、收轉讓共用的登入框（#tk-em2／#tk-otp2） */
+#tk-em,#tk-otp,#tk-em2,#tk-otp2{font-size:20px!important;line-height:1.3!important;min-height:52px!important;padding:0 14px!important;border:1.5px solid rgba(216,188,128,.72)!important;border-radius:12px!important;background:rgba(216,188,128,.07)!important;box-shadow:none!important}
+#tk-em:focus,#tk-otp:focus,#tk-em2:focus,#tk-otp2:focus{border-color:#E6CB95!important;background:rgba(216,188,128,.12)!important;box-shadow:0 0 0 3px rgba(216,188,128,.22)!important;outline:none}
+#tk-login .tk-login-sum{font-size:17px!important}
+#tk-login .tk-login-hint,.tk-hint:has(+ #tk-em2),#tk-lmsg,#tk-lmsg2{font-size:14px!important;line-height:1.5!important}
+#tk-send,#tk-login-btn,#tk-send2,#tk-login2{font-size:16.5px!important}
