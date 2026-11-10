@@ -3717,6 +3717,16 @@ body.cv-gold #screen-player:not(.cp-immersive) .np-card .np-head{opacity:0;point
 body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主畫面」提示不要蓋在條款／規則視窗上 */
 #terms-sheet .tm-head{border-bottom-color:rgba(217,178,106,.22)}
 #terms-sheet p,#terms-sheet li{color:rgba(255,255,255,.86)}
+/* B484T（CÉON 11/10）：使用規則／購買須知／隱私權政策的字放大成正常大小、全部一致（跟結帳頁同一套：標題 17、內文 15、日期 14） */
+#terms-sheet .tm-doc h3{font:700 17px/1.5 -apple-system,"PingFang TC",system-ui,sans-serif!important;margin:26px 0 10px!important}
+#terms-sheet .tm-doc h3:first-child{margin-top:0!important}
+#terms-sheet .tm-doc p,#terms-sheet .tm-doc li{font:400 15px/1.75 -apple-system,"PingFang TC",system-ui,sans-serif!important}
+#terms-sheet .tm-doc li{margin-bottom:6px}
+#terms-sheet .tm-doc strong,#terms-sheet .tm-doc b{font-weight:600}
+#terms-sheet .tm-doc .tm-kv{font:400 15px/1.75 -apple-system,"PingFang TC",system-ui,sans-serif!important;gap:12px;margin-bottom:4px}
+#terms-sheet .tm-doc .tm-kv span:first-child{width:84px}
+#terms-sheet .tm-doc .tm-kv span:last-child{min-width:0;overflow-wrap:anywhere}
+#terms-sheet .tm-doc .tm-meta{font:400 14px/1.7 -apple-system,"PingFang TC",system-ui,sans-serif!important;margin-top:24px}
 #terms-sheet .tm-kv span:first-child{color:rgba(255,255,255,.55)}
 #terms-sheet .tm-kv span:last-child{color:#fff}
 #terms-sheet .tm-x{color:rgba(255,255,255,.7)}
@@ -4070,8 +4080,8 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
       <button class="tm-x" id="tm-close" aria-label="關閉">&times;</button>
     </div>
     <div class="tm-body">
-      <div class="tm-doc on" id="tm-doc-terms"></div>
-      <div class="tm-doc" id="tm-doc-privacy"></div>
+      <div class="tm-doc on" id="tm-doc-terms" data-no-translate></div>
+      <div class="tm-doc" id="tm-doc-privacy" data-no-translate></div>
       <div class="tm-doc" id="tm-doc-rules" data-no-translate></div>
     </div>
   </div>
@@ -12557,119 +12567,209 @@ window.ALBUM_SWITCH = {
 <!-- B30：購買須知／隱私權政策 -->
 <script>
 (function () {
-  var TERMS_HTML = `<h3>一、賣方資訊</h3>
+  /* B484T（CÉON 11/10）：購買須知／隱私權政策／使用規則重新整理——加上活動門票與實體周邊、補上手機與收件資料、重複的地方拿掉；中英文各一份，不走自動翻譯 */
+  var DOC_EN = window.SKY_LANG === "en";
+  var TERMS_HTML = DOC_EN ? `<h3>1. Seller</h3>
+<div class="tm-kv"><span>Seller</span><span>夏米爾企業社 (Xiamier Enterprise)</span></div>
+<div class="tm-kv"><span>Business ID</span><span>38472654</span></div>
+<div class="tm-kv"><span>Website</span><span>chance1228.com</span></div>
+<div class="tm-kv"><span>Payments</span><span>ECPay (綠界科技股份有限公司)</span></div>
+<div class="tm-kv"><span>Support</span><span>heartbeats0693@gmail.com</span></div>
+<h3>2. What we sell</h3>
+<ul>
+<li><strong>Digital content</strong>: the album 《THE SKY》 (NT$299), All Access (NT$799: the album + SIGNAL channel + all channel videos), and the upgrade (NT$500 for album owners). Streamed in this app; no physical copy and no file download.</li>
+<li><strong>Event tickets</strong>: e.g. the CHANCE birthday event. Date, venue, ticket types, seats and entry rules are shown on the ticket page and in the ticket terms you agree to at checkout.</li>
+<li><strong>Physical merch</strong>: e.g. the A3 poster set and poster set + No. 6 card. Price, quantity limits, pickup or shipping and shipping fees are shown on the merch page.</li>
+</ul>
+<p>Other items (such as the card pack or letters to Chance) follow what their own purchase page says.</p>
+<h3>3. Delivery</h3>
+<ol>
+<li>Digital content: after payment we email a code to the address you bought with. Enter that email + code in this app to unlock.</li>
+<li>Tickets: after payment the ticket appears in "My tickets" and is also emailed to you with its entry QR code.</li>
+<li>Merch: collected at the event or shipped, as you chose at checkout. Shipping time and tracking are explained on the merch page and in your order email.</li>
+<li>Album tracks are released in batches from Aug 28, 2026, planned to finish in Feb 2027; SIGNAL channel updates are planned until Feb 2027. These dates are planned and may change for production or other reasonable causes; changes are announced in the app and are not grounds to cancel or refund.</li>
+</ol>
+<h3>4. Cancellations and refunds</h3>
+<ol>
+<li><strong>Digital content</strong>: under Article 19(1) of the Consumer Protection Act and Article 2(5) of the Guidelines on Reasonable Exceptions to Rescission in Distance Sales, digital content not provided on a physical medium and provided with your prior consent is not covered by the 7-day cooling-off period. You must agree to this before paying. <strong>Once a code is redeemed, it cannot be refunded.</strong> Exceptions, if you contact us within 7 days of finding out: paid but never redeemed and nothing used; a duplicate charge caused by our system; or the content cannot be provided at all for reasons on our side.</li>
+<li><strong>Event tickets</strong>: follow the ticket terms on the ticket page — you can ask for a refund up to 20 days before the event with a 10% fee; if the event is cancelled or something else happens that is not the buyer's fault, you get a full refund with no fee.</li>
+<li><strong>Physical merch</strong>: under Article 19 of the Consumer Protection Act, you may return items without giving a reason within 7 days after you receive them (or collect them at the event). Email us from the address you bought with and include your order number.</li>
+</ol>
+<h3>5. Codes, tickets and accounts</h3>
+<ol>
+<li>Codes and tickets are tied to the email you bought with.</li>
+<li>Codes, tickets and their QR codes are for personal use. Reselling, lending or sharing them publicly is not allowed; if we find abuse we may disable the code or ticket without a refund.</li>
+<li>If you lose a code, email us from the address you bought with and we will resend it.</li>
+</ol>
+<h3>6. Use of content</h3>
+<p>Music, video, photos and text in this app belong to us or our licensors. Buying gives you personal, non-commercial use only. Recording, screen-capturing, downloading, re-uploading or commercial use is not allowed; if this happens we may disable the code without a refund and take legal action.</p>
+<h3>7. Service period</h3>
+<ol>
+<li>Album tracks: from unlocking until the app's service ends. SIGNAL channel: updates until Feb 2027 (planned); existing posts stay viewable until the service ends.</li>
+<li>If we decide to end the service, we will announce it in the app and by email at least 60 days ahead.</li>
+<li>The app runs on third-party cloud services. Outages caused by force majeure or those services will be fixed as fast as we can and are not grounds for a refund.</li>
+</ol>
+<h3>8. Requirements and invoices</h3>
+<p>This is a web app. Use the latest Safari (iOS) or Chrome (Android) with an internet connection; mobile data costs are yours. We issue e-invoices as required by law.</p>
+<h3>9. Disputes and changes</h3>
+<ol>
+<li>We reply to support emails within 3 business days. These terms follow the laws of Taiwan (R.O.C.); the Taiwan Taipei District Court is the court of first instance.</li>
+<li>If we change these terms we will announce it in the app and update the date below. Changes do not apply to past purchases; changes that materially affect what you already bought will also be emailed to you.</li>
+<li>For SIGNAL channel purchases made before Aug 21, 2026 (including the discontinued feed pass), channel updates continue until Jun 2027 as originally announced. Codes for discontinued items remain valid.</li>
+</ol>
+<div class="tm-meta">Updated: November 10, 2026</div>` : `<h3>一、賣方資訊</h3>
 <div class="tm-kv"><span>營業人</span><span>夏米爾企業社</span></div>
 <div class="tm-kv"><span>統一編號</span><span>38472654</span></div>
-<div class="tm-kv"><span>客服信箱</span><span>heartbeats0693@gmail.com</span></div>
 <div class="tm-kv"><span>服務網址</span><span>chance1228.com</span></div>
 <div class="tm-kv"><span>金流</span><span>綠界科技股份有限公司</span></div>
-
+<div class="tm-kv"><span>客服信箱</span><span>heartbeats0693@gmail.com</span></div>
 <h3>二、商品內容</h3>
-<p>本服務銷售之商品均為<strong>非以有形媒介提供之數位內容</strong>，購買後於本 App 內以線上串流／瀏覽方式提供，不提供實體載體、不提供檔案下載。</p>
 <ul>
-<li><strong>數位專輯 NT$299</strong>：專輯《THE SKY》全 10 首曲目之搶先聆聽權，及每日抽卡完整卡池。</li>
-<li><strong>全解鎖 NT$799</strong>：上列全部內容 ＋ SIGNAL 私訊頻道 ＋ 頻道內全部獨家影片（含頻道服務期間內新增者）。</li>
-<li><strong>升級 NT$500</strong>：已購買數位專輯者補付差額，權益等同「全解鎖」。</li>
+<li><strong>數位內容</strong>：數位專輯《THE SKY》NT$299；全解鎖 NT$799（專輯＋SIGNAL 私訊頻道＋頻道內全部影片）；已購買專輯者升級 NT$500。於本 App 內線上串流，不提供實體載體或檔案下載。</li>
+<li><strong>活動門票</strong>：例如 CHANCE 生日會。日期、地點、票種、座位與入場規則，以購票頁與結帳時同意的《購票須知》為準。</li>
+<li><strong>實體周邊</strong>：例如 A3 海報組、A3 海報組＋6 號小卡組合。價格、限購數量、現場領取或寄送方式與運費，以周邊購買頁為準。</li>
 </ul>
-
+<p>其他商品（例如卡包、寫給 Chance 的信），以各自的購買頁說明為準。</p>
 <h3>三、交付方式與時程</h3>
 <ol>
-<li>付款完成後，系統將以電子郵件寄送<strong>兌換碼</strong>至購買時填寫之信箱。於本 App 輸入該信箱與兌換碼即完成解鎖。</li>
-<li>專輯曲目採<strong>分批發行</strong>，自 2026 年 8 月 28 日起陸續於本 App 內首次發行，預定於 2027 年 2 月完成全部曲目發行。</li>
-<li>SIGNAL 私訊頻道之內容更新，預定持續至 <strong>2027 年 2 月</strong>。</li>
-<li><strong>上列時程為預定，時間暫定。</strong>因製作進度、參與人員、不可歸責於本營業人之事由或其他正當理由，本營業人得調整發行與更新時程，並於本 App 內公告。時程調整不構成解除契約或請求退費之事由。</li>
-<li>已解鎖之內容於服務期間內可重複觀看／聆聽，不限次數。</li>
+<li>數位內容：付款完成後，系統寄送兌換碼至購買時填寫的信箱，在本 App 輸入該信箱與兌換碼即完成解鎖。</li>
+<li>活動門票：付款完成後，票券放進 App 的「我的票」，同時寄送含入場 QR 的門票信。</li>
+<li>實體周邊：依結帳時選擇的現場領取或寄送辦理；寄送時間與追蹤方式，以周邊購買頁及訂單信說明為準。</li>
+<li>專輯曲目自 2026 年 8 月 28 日起分批發行，預定 2027 年 2 月完成；SIGNAL 私訊頻道預定更新至 2027 年 2 月。以上為預定時程，因製作進度或其他正當理由得調整，並於 App 內公告；時程調整不構成解除契約或退費的理由。</li>
 </ol>
-
-<h3>四、七日猶豫期之排除與退費</h3>
+<h3>四、退換貨與退費</h3>
 <ol>
-<li>依《消費者保護法》第 19 條第 1 項但書及《通訊交易解除權合理例外情事適用準則》第 2 條第 5 款規定，<strong>非以有形媒介提供之數位內容或一經提供即為完成之線上服務，經消費者事先同意始提供者，不適用七日猶豫期</strong>。</li>
-<li>本服務所有數位商品均屬前項所稱數位內容。購買人於付款前必須勾選同意，表示已知悉並同意於解鎖後不得主張七日猶豫期解除契約。未勾選者無法進入付款流程。</li>
-<li>因此，數位商品<strong>一經兌換解鎖，恕不退費</strong>。</li>
-<li>例外：下列情形購買人得於知悉後 7 日內以客服信箱申請處理——(a) 已付款但<strong>未曾</strong>兌換解鎖且未使用任何付費內容；(b) 因本營業人系統錯誤導致重複扣款；(c) 因本營業人之事由致內容全部無法提供。</li>
+<li><strong>數位內容</strong>：依《消費者保護法》第 19 條第 1 項但書及《通訊交易解除權合理例外情事適用準則》第 2 條第 5 款，非以有形媒介提供、經消費者事先同意始提供的數位內容，不適用七日猶豫期。付款前須勾選同意；<strong>兌換解鎖後恕不退費</strong>。例外：已付款但未曾兌換且未使用任何付費內容、本營業人系統錯誤造成重複扣款、或因本營業人的原因致內容全部無法提供，可於知悉後 7 日內來信申請。</li>
+<li><strong>活動門票</strong>：依購票頁的《購票須知》——演出日前 20 日以前可申請退票，手續費為票面金額 10%；活動取消或有其他不可歸責於消費者的情形，全額退款、不收手續費。</li>
+<li><strong>實體周邊</strong>：依《消費者保護法》第 19 條，自收到商品（或現場領取）的隔天起 7 日內，可不附理由申請退貨退款。請用購買時的 email 來信，註明訂單編號。</li>
 </ol>
-
-<h3>五、兌換碼與帳號規則</h3>
+<h3>五、兌換碼、票券與帳號</h3>
 <ol>
-<li>兌換碼與購買時填寫之電子郵件信箱<strong>綁定</strong>，須兩者相符方可解鎖。</li>
-<li>兌換碼<strong>限個人使用</strong>，不得轉售、出借、公開散布或供多人共用。經發現異常共用或散布者，本營業人得停用該兌換碼且不予退費。</li>
-<li>解鎖狀態記錄於購買人裝置之瀏覽器儲存空間。更換裝置、清除瀏覽器資料或刪除 App 圖示後，請以原信箱與兌換碼重新解鎖；兌換碼請自行妥善保存。</li>
-<li>兌換碼遺失時，請以原購買信箱聯繫客服補發。</li>
+<li>兌換碼與票券都綁定購買時的 email。</li>
+<li>兌換碼、票券與入場 QR 限本人使用，不得轉售、出借或公開散布；發現異常共用或散布，本營業人得停用且不予退費。門票可用 App 內的「轉讓給朋友」換人。</li>
+<li>兌換碼遺失時，請用原購買信箱來信補發。</li>
 </ol>
-
-<h3>六、使用限制</h3>
-<ol>
-<li>本服務提供之音樂、影像、照片、文字及其他內容，著作權均屬本營業人或其授權人所有。購買行為取得者為<strong>個人、非商業之使用權限</strong>，非著作權之讓與或授權。</li>
-<li><strong>禁止</strong>以錄音、錄影、螢幕側錄、下載工具或其他任何方式重製、公開傳輸、散布、上傳至任何平台，或用於商業目的。</li>
-<li>違反前項者，本營業人得停用其兌換碼並不予退費，且保留依法追究之權利。</li>
-</ol>
-
+<h3>六、內容使用限制</h3>
+<p>本 App 的音樂、影像、照片與文字，著作權屬本營業人或授權人所有；購買取得的是個人、非商業的使用權限。禁止錄音、錄影、螢幕側錄、下載、重新上傳或用於商業目的；違反者，本營業人得停用其兌換碼且不予退費，並保留法律追訴權利。</p>
 <h3>七、服務期間與終止</h3>
 <ol>
-<li>專輯曲目部分：自解鎖起至本 App 服務終止為止。</li>
-<li>SIGNAL 私訊頻道部分：內容更新至 2027 年 2 月（時程暫定），期間屆滿後既有內容仍可瀏覽至本 App 服務終止為止。</li>
-<li>本營業人如決定終止本 App 服務，將於<strong>至少 60 日前</strong>於 App 內及購買人登記信箱公告。</li>
-<li>本 App 依賴第三方雲端服務運作，如遇不可抗力或第三方服務中斷，本營業人將儘速修復，該等中斷不構成退費事由。</li>
+<li>專輯曲目：自解鎖起至本 App 服務終止為止。SIGNAL 私訊頻道：更新至 2027 年 2 月（時程暫定），之後既有內容仍可瀏覽至服務終止。</li>
+<li>本營業人如決定終止本 App 服務，將於至少 60 日前於 App 內及購買人信箱公告。</li>
+<li>本 App 依賴第三方雲端服務運作；如遇不可抗力或第三方服務中斷，將儘速修復，該等中斷不構成退費理由。</li>
 </ol>
-
 <h3>八、系統需求與發票</h3>
-<p>本服務為網頁應用程式（PWA），建議使用最新版 Safari（iOS）或 Chrome（Android）並保持網路連線。串流播放產生之行動數據費用由使用者自行負擔。本營業人依法開立電子發票。</p>
-
-<h3>九、客服與爭議處理</h3>
-<p>客服信箱 heartbeats0693@gmail.com，將於 3 個工作日內回覆。本須知以中華民國法律為準據法，因本服務所生爭議，以<strong>臺灣臺北地方法院</strong>為第一審管轄法院。</p>
-
-<h3>十、修改與生效</h3>
+<p>本服務為網頁應用程式，建議使用最新版 Safari（iOS）或 Chrome（Android）並保持網路連線；行動數據費用由使用者自行負擔。本營業人依法開立電子發票。</p>
+<h3>九、客服、爭議與修改</h3>
 <ol>
-<li>本營業人得修改本須知，修改後將於 App 內公告並更新版本日期。修改不溯及已完成之購買；如修改重大影響購買人既有權益，將另以電子郵件通知。</li>
-<li>本須知自 <strong>2026 年 8 月 21 日</strong>起適用。於本日之前購買 SIGNAL 私訊頻道者（含已停售之 feed-pass 方案），其頻道更新期間依原公告至 2027 年 6 月，<strong>不因本次修訂而縮短</strong>。</li>
-<li>已停售之商品（SIGNAL 頻道單購、單支影片）所核發之兌換碼永久有效。</li>
+<li>客服來信於 3 個工作日內回覆。本須知以中華民國法律為準據法，爭議以臺灣臺北地方法院為第一審管轄法院。</li>
+<li>本須知修改時，將於 App 內公告並更新下方日期；修改不溯及已完成的購買，重大影響既有權益者另以 email 通知。</li>
+<li>2026 年 8 月 21 日以前購買 SIGNAL 私訊頻道者（含已停售的 feed-pass 方案），頻道更新依原公告至 2027 年 6 月；已停售商品的兌換碼永久有效。</li>
 </ol>
-<div class="tm-meta">版本日期：2026 年 8 月 21 日</div>`;
-  var PRIVACY_HTML = `<p>依《個人資料保護法》第 8 條規定告知如下。</p>
-
+<div class="tm-meta">版本日期：2026 年 11 月 10 日</div>`;
+  var PRIVACY_HTML = DOC_EN ? `<p>This notice is given under Article 8 of Taiwan's Personal Data Protection Act.</p>
+<h3>1. Who collects your data</h3>
+<p>夏米爾企業社 (Xiamier Enterprise), Business ID 38472654.</p>
+<h3>2. Why we collect it</h3>
+<ol>
+<li>Processing orders and payments (code 090: consumer and customer management and service)</li>
+<li>Issuing, emailing and checking codes (code 148: online shopping and other e-commerce services)</li>
+<li>Issuing tickets, ticket transfers and entry checks at events</li>
+<li>Handing over or shipping physical merch</li>
+<li>Managing digital content licences and preventing misuse</li>
+<li>Customer service, disputes and refunds</li>
+<li>Records we must keep or report by law</li>
+</ol>
+<h3>3. What we collect</h3>
+<ol>
+<li><strong>Email address</strong> (required: it is how you unlock content and find your tickets)</li>
+<li><strong>Name and mobile number</strong> (when you buy event tickets or merch: for entry checks and to contact you)</li>
+<li><strong>Delivery details</strong> (only if you choose shipping: recipient, address, postcode, country and phone)</li>
+<li><strong>Purchase records</strong> (items, amounts, order numbers, times)</li>
+<li><strong>Ticket and entry records</strong> (seat, ticket number, transfers, entry time)</li>
+<li><strong>Notification subscription</strong> (only if you turn notifications on)</li>
+<li>Card details are collected and processed by ECPay; we never see or store them.</li>
+</ol>
+<h3>4. How long, where, by whom, how</h3>
+<div class="tm-kv"><span>How long</span><span>From collection until the service ends or the legal retention period ends</span></div>
+<div class="tm-kv"><span>Where</span><span>Taiwan, and the countries where the processors below run their servers (including outside Taiwan)</span></div>
+<div class="tm-kv"><span>By whom</span><span>Us; ECPay (payments); Cloudflare, Inc. (data storage and hosting); Resend, Inc. (email); the courier or Chunghwa Post when merch is shipped; and authorities with legal powers to investigate</span></div>
+<div class="tm-kv"><span>How</span><span>Electronic files, over the internet and by email</span></div>
+<p>The cloud and email providers' servers are outside Taiwan, so your data is transferred abroad for processing. By completing a purchase you acknowledge this.</p>
+<h3>5. Your rights</h3>
+<p>Under Article 3 of the Act you may ask to view, copy, add to, correct, stop the collection or use of, or delete your personal data. Email heartbeats0693@gmail.com from the address you bought with; we will handle it within 15 days (extendable by 15 days with notice). A reasonable fee may apply as allowed by law.</p>
+<h3>6. If you don't provide data</h3>
+<p>Without an email address we cannot complete a purchase or send codes and tickets. Without a name and mobile number we cannot sell event tickets or merch; without delivery details we cannot ship.</p>
+<h3>7. Security and browser storage</h3>
+<p>We use HTTPS across the site and access controls; no internet transfer is perfectly secure. The app uses your browser's local storage for unlock status, sign-in, card collection progress and playback preferences; this stays on your device, and your email and code are only sent to us to check access when you unlock or play paid content.</p>
+<h3>8. Minors</h3>
+<p>Buyers under 18 need consent from a parent or legal guardian.</p>
+<div class="tm-meta">Updated: November 10, 2026</div>` : `<p>依《個人資料保護法》第 8 條規定告知如下。</p>
 <h3>一、蒐集機構</h3>
 <p>夏米爾企業社（統一編號 38472654）</p>
-
 <h3>二、蒐集目的</h3>
 <ol>
 <li>訂單處理與金流交易（代號 090 消費者、客戶管理與服務）</li>
-<li>兌換碼之核發、寄送與驗證（代號 148 網路購物及其他電子商務服務）</li>
+<li>兌換碼的核發、寄送與驗證（代號 148 網路購物及其他電子商務服務）</li>
+<li>活動票券的發行、轉讓與現場入場核對</li>
+<li>實體周邊的領取與寄送</li>
 <li>數位內容授權管理與防盜用</li>
 <li>客戶服務、爭議處理與退費作業</li>
-<li>依法令規定之保存與申報</li>
+<li>依法令規定的保存與申報</li>
 </ol>
-
 <h3>三、個人資料類別</h3>
 <ol>
-<li><strong>電子郵件信箱</strong>（必要，作為解鎖憑證）</li>
+<li><strong>電子郵件信箱</strong>（必要，作為解鎖與找回票券的憑證）</li>
+<li><strong>姓名與手機號碼</strong>（購買活動門票或周邊時蒐集，供現場核對與聯繫）</li>
+<li><strong>收件資料</strong>（僅選擇寄送時：收件人、地址、郵遞區號、國家、電話）</li>
 <li><strong>購買紀錄</strong>（商品、金額、訂單編號、時間）</li>
-<li><strong>姓名</strong>（僅於購買實體活動票券時蒐集，供入場核對）</li>
-<li>信用卡資訊<strong>由綠界科技直接蒐集與處理，本營業人不接觸、不儲存</strong></li>
+<li><strong>票券與入場紀錄</strong>（座位、票號、轉讓紀錄、入場時間）</li>
+<li><strong>通知訂閱資料</strong>（僅在你開啟新動態通知時）</li>
+<li>信用卡資訊由綠界科技直接蒐集與處理，本營業人不接觸、不儲存。</li>
 </ol>
-
 <h3>四、利用期間、地區、對象及方式</h3>
 <div class="tm-kv"><span>期間</span><span>自蒐集日起至本服務終止或法定保存期間屆滿為止</span></div>
 <div class="tm-kv"><span>地區</span><span>中華民國，及下列受託處理者伺服器所在地（含境外）</span></div>
-<div class="tm-kv"><span>對象</span><span>本營業人；綠界科技（金流）、Cloudflare, Inc.（資料儲存與網站服務）、Resend, Inc.（電子郵件寄送）；及依法有調查權之機關</span></div>
+<div class="tm-kv"><span>對象</span><span>本營業人；綠界科技（金流）；Cloudflare, Inc.（資料儲存與網站服務）；Resend, Inc.（電子郵件寄送）；寄送周邊時的物流業者或中華郵政；及依法有調查權的機關</span></div>
 <div class="tm-kv"><span>方式</span><span>電子檔案，透過網際網路及電子郵件為之</span></div>
-<p style="margin-top:10px"><strong>國際傳輸告知：</strong>本服務使用之雲端與郵件服務商伺服器位於境外，您的電子郵件信箱與購買紀錄將傳輸至境外處理。您完成購買即表示知悉此情形。</p>
-
-<h3>五、您的權利</h3>
-<p>您得依《個人資料保護法》第 3 條，就本營業人保有之您的個人資料，請求查詢或閱覽、製給複製本、補充或更正、停止蒐集處理利用、刪除。</p>
-<p>行使方式：以原購買信箱寄信至 heartbeats0693@gmail.com，本營業人將於收受後 15 日內處理（必要時得延長 15 日並通知）。依法得酌收必要成本費用。</p>
-
-<h3>六、不提供個人資料之影響</h3>
-<p>電子郵件信箱為核發與驗證兌換碼之必要資料。<strong>未提供者，將無法完成購買、無法收取兌換碼，亦無法解鎖已購買之內容。</strong></p>
-
-<h3>七、資料安全</h3>
-<p>本營業人採取合理之技術與管理措施保護您的個人資料，包含全站 HTTPS 加密傳輸與存取權限控管。惟網際網路傳輸無法保證絕對安全。</p>
-
-<h3>八、瀏覽器儲存</h3>
-<p>本 App 使用瀏覽器本機儲存（localStorage）記錄您的解鎖狀態、抽卡收藏進度與播放偏好。<strong>該等資料僅儲存於您的裝置。</strong>其中的信箱與兌換碼，僅於您播放付費內容或進行解鎖驗證時，會傳送至本營業人伺服器核對您的購買權限，不作其他用途。清除瀏覽器資料將導致解鎖狀態消失，需以信箱與兌換碼重新解鎖。本 App <strong>不使用</strong>第三方廣告追蹤 Cookie。</p>
-
-<h3>九、未成年人</h3>
+<p>本服務使用的雲端與郵件服務商伺服器位於境外，你的個人資料將傳輸至境外處理；完成購買即表示知悉此情形。</p>
+<h3>五、你的權利</h3>
+<p>你可依《個人資料保護法》第 3 條，請求查詢或閱覽、製給複製本、補充或更正、停止蒐集處理利用、或刪除你的個人資料。請以原購買信箱寄信至 heartbeats0693@gmail.com，本營業人將於收到後 15 日內處理（必要時得延長 15 日並通知）；依法得酌收必要成本費用。</p>
+<h3>六、不提供個人資料的影響</h3>
+<p>未提供電子郵件信箱，將無法完成購買、收取兌換碼或票券；未提供姓名與手機號碼，無法購買活動門票與周邊；未提供收件資料，無法寄送商品。</p>
+<h3>七、資料安全與瀏覽器儲存</h3>
+<p>本營業人採取合理的技術與管理措施保護你的個人資料，包含全站 HTTPS 加密傳輸與存取權限控管；但網際網路傳輸無法保證絕對安全。本 App 使用瀏覽器本機儲存，記錄你的解鎖狀態、登入狀態、抽卡收藏進度與播放偏好，資料只存在你的裝置；其中的信箱與兌換碼，只在你解鎖或播放付費內容時傳送至本營業人伺服器驗證。</p>
+<h3>八、未成年人</h3>
 <p>未滿 18 歲者購買本服務，應經法定代理人同意。</p>
-<div class="tm-meta">版本日期：2026 年 8 月 21 日</div>`;
+<div class="tm-meta">版本日期：2026 年 11 月 10 日</div>`;
+  var RULES_HTML = DOC_EN ? `<h3>1. Your album</h3>
+<p>Your code never expires. On any phone or computer, enter the email you bought with + your code (OWN → "Purchased? Enter your code"). New phone or cleared data? Just enter them again — no need to buy again. The Home Screen app and Safari keep separate data, so you may need to enter them once in each.</p>
+<h3>2. Your tickets</h3>
+<p>Tickets you buy appear in SHOP → "My tickets" and are emailed to you. On a new phone, sign in with the same email and code to see them. At the door, show the QR code in the app or the email; if your phone can't show it, give your name and the last 4 digits of your mobile number. Each ticket admits once. To give a ticket to a friend, use "Transfer to a friend" in My tickets.</p>
+<h3>3. For you only</h3>
+<p>Your code, your Apple Wallet card and your ticket QR code are your keys. Please don't post, forward, resell or share them — a shared QR code can be used by someone else first.</p>
+<h3>4. For personal enjoyment</h3>
+<p>Songs, lyrics, videos and SIGNAL posts are for the buyer's personal enjoyment. Please don't record, download, re-share, distribute or use them commercially.</p>
+<h3>5. Comments</h3>
+<p>Please be kind. Harassment, discrimination, personal attacks, ads, or posting other people's personal information may be removed.</p>
+<h3>6. Notifications</h3>
+<p>On iPhone, only the app opened from your Home Screen can receive notifications. To turn them off: Settings → Notifications → THE SKY.</p>
+<h3>7. Need help?</h3>
+<p>Email heartbeats0693@gmail.com from the address you bought with. Purchases, refunds and personal data follow the <b class="tm-link" data-open-terms="terms">Purchase Terms</b> and <b class="tm-link" data-open-terms="privacy">Privacy Policy</b>.</p>
+<div class="tm-meta">Updated: November 10, 2026</div>` : `<h3>一、你的專輯</h3>
+<p>兌換碼永久有效。在任何手機或電腦，用購買時的 email＋兌換碼就能開啟（OWN →「已購買？輸入兌換碼」）。換手機或清除瀏覽器資料，重新輸入一次即可，不用重買。主畫面 App 和 Safari 的資料是分開的，兩邊可能各要輸入一次。</p>
+<h3>二、你的門票</h3>
+<p>買到的票會放在 SHOP →「我的票」，同時寄一封門票信到你的信箱。換手機時，用同一個 email 收驗證碼登入就看得到。入場時出示 App 或門票信裡的 QR；手機無法顯示時，報購買姓名＋手機後 4 碼核對。一張票只能入場一次。要把票給朋友，用「我的票」裡的「轉讓給朋友」。</p>
+<h3>三、只限本人使用</h3>
+<p>兌換碼、Apple 錢包卡和入場 QR，都等於你的鑰匙。請勿公開、轉傳、轉售或分享給他人；QR 被別人先拿去入場，就無法再用。</p>
+<h3>四、內容僅供個人欣賞</h3>
+<p>歌曲、歌詞、影片與 SIGNAL 頻道內容，僅供購買者個人欣賞；請勿錄製、下載後轉傳、公開散布，或用於商業用途。</p>
+<h3>五、留言與互動</h3>
+<p>請友善留言。騷擾、歧視、人身攻擊、廣告，或洩漏他人個人資料的內容，可能會被移除。</p>
+<h3>六、新動態通知</h3>
+<p>iPhone 只有從主畫面打開的 App 收得到通知。要關掉，可到 iPhone「設定 → 通知 → THE SKY」。</p>
+<h3>七、需要協助</h3>
+<p>請用購買時的 email 寄信到 heartbeats0693@gmail.com。購買、退款與個人資料，依 <b class="tm-link" data-open-terms="terms">《購買須知》</b> 與 <b class="tm-link" data-open-terms="privacy">《隱私權政策》</b> 辦理。</p>
+<div class="tm-meta">版本日期：2026 年 11 月 10 日</div>`;
   var sheet = document.getElementById("terms-sheet");
   if (!sheet) return;
   document.body.appendChild(sheet);   /* 脫離 app 容器堆疊脈絡，確保蓋過浮動按鈕 */
@@ -12677,37 +12777,7 @@ window.ALBUM_SWITCH = {
   document.getElementById("tm-doc-privacy").innerHTML = PRIVACY_HTML;
   /* B331T：App 使用規則（CÉON 10/28 選「Claude 擬新頁，看過再推」）；中英文各一份，不走自動翻譯 */
   var RULES_EN_ON = window.SKY_LANG === "en";
-  document.getElementById("tm-doc-rules").innerHTML = RULES_EN_ON ? `<h3>1. Your album</h3>
-<p>Your code <strong>never expires</strong>. On any phone or computer, open the album with the email you bought with + your code (OWN → "Purchased? Enter your code").</p>
-<h3>2. New phone or cleared browser data</h3>
-<p>Just enter your email + code again — <strong>no need to buy again</strong>. The Home Screen app and Safari keep separate data; if the Home Screen app doesn't unlock the first time, enter them once.</p>
-<h3>3. Your code and Wallet card are for you only</h3>
-<p>Your code, your Apple Wallet card and the link on the card are the keys to your album. Please don't post, forward, resell or share them.</p>
-<h3>4. For personal listening only</h3>
-<p>Songs, lyrics, videos and SIGNAL posts are for the buyer's personal enjoyment. Please don't record or download and re-share them, distribute them publicly, or use them commercially.</p>
-<h3>5. Comments</h3>
-<p>Please be kind. Harassment, discrimination, personal attacks, ads, or posting other people's personal information may be removed.</p>
-<h3>6. Notifications</h3>
-<p>On iPhone, only the app opened from your Home Screen can receive notifications. To turn them off: Settings → Notifications → THE SKY.</p>
-<h3>7. Need help?</h3>
-<p>Email heartbeats0693@gmail.com (夏米爾企業社). Please write from the email you bought with so we can look up your order.</p>
-<p>Purchases, refunds and personal data follow the <b class="tm-link" data-open-terms="terms">Purchase Terms</b> and <b class="tm-link" data-open-terms="privacy">Privacy Policy</b>.</p>
-<div class="tm-meta">Updated: October 28, 2026</div>` : `<h3>一、你的專輯</h3>
-<p>購買後收到的兌換碼<strong>永久有效</strong>。在任何手機或電腦，用購買時的 email＋兌換碼就能開啟（OWN →「已購買？輸入兌換碼」）。</p>
-<h3>二、換手機或清除瀏覽器資料</h3>
-<p>重新輸入一次 email＋兌換碼即可，<strong>不用重買</strong>。主畫面 App 和 Safari 的資料是分開的；第一次從主畫面打開如果沒有自動解鎖，也是輸入一次就好。</p>
-<h3>三、兌換碼與錢包卡只限本人使用</h3>
-<p>兌換碼、Apple 錢包卡和卡片上的連結，都等於你的專輯鑰匙。請勿公開、轉傳、轉售或分享給他人。</p>
-<h3>四、內容僅供個人欣賞</h3>
-<p>歌曲、歌詞、影片與 SIGNAL 頻道內容，僅供購買者個人欣賞；請勿錄製或下載後轉傳、公開散布，或用於商業用途。</p>
-<h3>五、留言與互動</h3>
-<p>請友善留言。騷擾、歧視、人身攻擊、廣告，或洩漏他人個人資料的內容，可能會被移除。</p>
-<h3>六、新動態通知</h3>
-<p>iPhone 只有從主畫面打開的 App 收得到通知。要關掉，可到 iPhone「設定 → 通知 → THE SKY」。</p>
-<h3>七、需要協助</h3>
-<p>客服信箱 heartbeats0693@gmail.com（夏米爾企業社）。請用購買時的 email 來信，方便查詢。</p>
-<p>購買、退款與個人資料，依 <b class="tm-link" data-open-terms="terms">《購買須知》</b> 與 <b class="tm-link" data-open-terms="privacy">《隱私權政策》</b> 辦理。</p>
-<div class="tm-meta">版本日期：2026 年 10 月 28 日</div>`;
+  document.getElementById("tm-doc-rules").innerHTML = RULES_HTML;
   document.getElementById("tm-title").textContent = RULES_EN_ON ? "App Rules" : "App 使用規則";
   document.getElementById("tm-tab-rules").textContent = RULES_EN_ON ? "Rules" : "使用規則";
 
@@ -12747,7 +12817,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B483T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B484T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
