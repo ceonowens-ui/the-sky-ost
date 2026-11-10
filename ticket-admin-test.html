@@ -172,6 +172,21 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
 .seatview .iseat-row b{width:26px;font-size:15px;line-height:32px}.seatview .iseat-row span{width:32px;height:32px}.seatview .iseat-row i{display:block;width:32px;height:32px;border:1.5px solid rgba(216,188,128,.6);border-radius:6px;font-style:normal;font-size:14px;line-height:30px;text-align:center;color:var(--text)}.seatview .iseat-row i.off{background:#242424;border-color:#242424;color:#6e695f}
 .seatkey{font-size:16px!important;margin-top:8px;flex-wrap:wrap}.seatkey i.off{background:#242424;border-color:#242424}.seatkey i.na,.seatview .iseat-row i.na{border:1px dashed rgba(255,255,255,.18);background:none;color:#5e5a53}
 
+/* B486T（CÉON 11/10）：畫面不再忽大忽小。連點兩下不放大、橫放不自動變大字；舊頁面的字和新首頁對齊（最小 15）；座位格放大 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+@media screen{
+  table{font-size:16px}th{font-size:15px}.mono{font-size:15px}
+  .sub,.note,.msg,.tiny,.warnbox{font-size:16px}.label{font-size:16px}.btn.sm{font-size:16px}
+  #issueCard label[style]{font-size:16px!important}
+  .iseat-row{gap:4px;margin-bottom:4px}.iseat-row b{width:24px;font-size:15px;line-height:34px}.iseat-row span{width:34px;height:34px}
+  .iseat-row button{width:34px;height:34px;font-size:15px;border-radius:6px}
+  .iseat-row button.na{border:1px dashed rgba(255,255,255,.18);background:none;color:#5e5a53;cursor:not-allowed}
+  .iseat-key{font-size:16px;flex-wrap:wrap;gap:8px 14px}.iseat-key i{width:16px;height:16px}.iseat-key i.na{border:1px dashed rgba(255,255,255,.18);background:none}
+  th,.btn.sm,#listCard td:nth-child(2),#listCard td:nth-child(4),#failCard td,#merchCard td{white-space:nowrap}#listCard td:nth-child(3){min-width:150px}#failCard td:nth-child(3){white-space:normal;min-width:170px}   /* 表格不把字擠成一個字一行，太寬就左右滑 */
+  #listCard td:last-child,#failCard td:last-child,#merchCard td:last-child{position:sticky;right:0;background:#121110;box-shadow:-10px 0 10px -6px rgba(0,0,0,.6)}   /* 表格左右滑時，最右邊的按鈕一直看得到 */
+  .seatview .iseat-row b{width:24px;line-height:34px}.seatview .iseat-row span{width:34px;height:34px}.seatview .iseat-row i{width:34px;height:34px;font-size:15px;line-height:32px}
+}
+
 </style>
 </head>
 <body>
@@ -248,7 +263,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
       <h3>座位</h3>
       <div class="msg" id="seatMsg">讀取中…</div>
       <div class="iseat-wrap seatview" id="seatGrid"></div>
-      <div class="iseat-key seatkey"><span><i></i>空位</span><span><i class="off"></i>已售或保留中</span><span><i class="na"></i>不開放</span></div>
+      <div class="iseat-key seatkey"><span><i></i>空位</span><span><i class="off"></i>已售或保留中</span><span><i class="na"></i>記者保留，不開放</span></div>
     </div>
   </section>
   <section class="view" data-view="list">
@@ -266,7 +281,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <div class="sub">公關票、測試票、補發用。發完會寄信給對方，票直接出現在他的 app。有票種的場次一定要選票種。</div>
     <div class="grid2"><div class="row"><span class="label">Email</span><input id="i_email" type="email" placeholder="fan@example.com" /></div><div class="row"><span class="label">張數</span><input id="i_qty" type="number" value="1" min="1" max="10" /></div></div>
     <div class="row"><span class="label">票種</span><select id="i_tier"></select></div>
-    <div class="row" id="i_seatBox" style="display:none"><span class="label">座位（和線上選位同一份座位表）</span><div class="iseat-wrap" id="i_seatGrid"></div><div class="iseat-key"><span><i></i>可選</span><span><i class="on"></i>已選</span><span><i class="off"></i>已售或保留中</span></div><div class="msg" id="i_seatMsg">點座位選位，張數會跟著變。</div></div>
+    <div class="row" id="i_seatBox" style="display:none"><span class="label">座位（和線上選位同一份座位表）</span><div class="iseat-wrap" id="i_seatGrid"></div><div class="iseat-key"><span><i></i>可選</span><span><i class="on"></i>已選</span><span><i class="off"></i>已售或保留中</span><span><i class="na"></i>記者保留，不開放</span></div><div class="msg" id="i_seatMsg">點座位選位，張數會跟著變。</div></div>
     <div class="grid2"><div class="row"><span class="label">姓名（現場核對用）</span><input id="i_name" maxlength="40" placeholder="王小明" /></div><div class="row"><span class="label">手機</span><input id="i_phone" type="tel" inputmode="tel" maxlength="20" placeholder="0912345678" /></div></div>
     <div class="row"><span class="label">備註（選填）</span><input id="i_note" placeholder="公關票 / 測試" /></div>
     <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_mail" style="width:auto" checked /> <span id="i_mailLbl">寄確認信給對方（只有測試場可以不寄）</span></label>
@@ -319,8 +334,8 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
   </section>
 </div>
 
-<div class="sheet" id="staffSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Staff</div><h3 style="margin:6px 0 4px">給工作人員手機</h3><div class="tiny" style="text-align:left">用手機相機掃這個，在 Safari 打開掃碼機。QR 裡沒有鑰匙，現場鑰匙請當面告訴對方。</div><div class="qrwrap"><div class="qrbox"><canvas id="staffQrC" width="240" height="240"></canvas></div></div><button class="btn ghost" onclick="$('staffSheet').classList.remove('show')">關閉</button></div></div>
-<div class="sheet" id="qrSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Ticket</div><h3 id="qrTitle" style="font-size:20px;margin-top:6px">—</h3><div class="sub" id="qrSub"></div>
+<div class="sheet" id="staffSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><h3 style="margin:6px 0 4px">給工作人員手機</h3><div class="tiny" style="text-align:left">用手機相機掃這個，在 Safari 打開掃碼機。QR 裡沒有鑰匙，現場鑰匙請當面告訴對方。</div><div class="qrwrap"><div class="qrbox"><canvas id="staffQrC" width="240" height="240"></canvas></div></div><button class="btn ghost" onclick="$('staffSheet').classList.remove('show')">關閉</button></div></div>
+<div class="sheet" id="qrSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><h3 id="qrTitle" style="font-size:20px;margin-top:6px">—</h3><div class="sub" id="qrSub"></div>
   <div class="qrwrap"><div class="qrbox"><canvas id="qrCanvas" width="240" height="240"></canvas></div></div><div class="tiny" id="qrText"></div>
   <div class="tiny" id="qrHist" style="text-align:left;margin-top:10px"></div>
   <button class="btn primary" id="btnAdmit" style="margin-top:14px" onclick="admitTicket()">手動放行（先核對本人）</button>
@@ -331,7 +346,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <button class="btn danger" id="btnRefund" onclick="refundTicket()">退票（釋放席位＋終身編號）</button>
   </details>
   <button class="btn ghost" onclick="qrSheet.classList.remove('show')">關閉</button></div></div>
-<div class="sheet" id="rfSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><div class="eyebrow">Refund</div><h3 style="font-size:20px;margin-top:6px">退票</h3><div id="rfBody" style="margin-top:10px;font-size:14px;line-height:1.7"></div>
+<div class="sheet" id="rfSheet" onclick="if(event.target===this)this.classList.remove('show')"><div class="sheetbox"><h3 style="font-size:20px;margin-top:6px">退票</h3><div id="rfBody" style="margin-top:10px;font-size:16px;line-height:1.7"></div>
   <button class="btn danger" id="rfGo" style="margin-top:12px" onclick="doRefund()">確認退票（不會自動退錢）</button>
   <button class="btn ghost" onclick="$('rfSheet').classList.remove('show')">取消</button></div></div>
 
@@ -342,7 +357,9 @@ const API = "https://the-sky-ost-api-test.anthonywen0693.workers.dev";
 const KEY_LS = "chance-admin-key-test";
 const $ = (id) => document.getElementById(id);
 const key = () => $("key").value.trim();
-let events = [], cur = null, stats = null, curTicket = null, srv = {};
+/* B486T：名單、搜尋結果、待處理、表格每 15 秒會更新一次；內容沒變就不重畫，畫面不會閃 */
+["nRes", "hRes", "todoList", "tbody", "fBody", "mBody"].forEach((id) => { const el = $(id), d = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML"); let last = null; if (!el || !d) return; Object.defineProperty(el, "innerHTML", { configurable: true, get() { return d.get.call(el); }, set(h) { h = String(h); if (h === last) return; last = h; d.set.call(el, h); } }); });
+let events = [], allEvents = [], cur = null, stats = null, curTicket = null, srv = {};
 $("key").value = localStorage.getItem(KEY_LS) || "";
 if (TKAPI === "test") { const b = document.createElement("div"); b.id = "tkapiBadge"; b.textContent = "測試後台（the-sky-ost-api-test）· 這一頁連不到正式"; b.style.cssText = "position:sticky;top:0;z-index:50;background:#7a1f1f;color:#fff;font:600 13px/1.4 -apple-system,sans-serif;padding:8px 12px;text-align:center"; document.body.prepend(b); document.title = "【測試】" + document.title; }
 async function api(path, body) {
@@ -384,8 +401,9 @@ document.querySelectorAll("[data-ic]").forEach((e) => e.innerHTML = svg(e.getAtt
 /* 畫面分層：#roster（查票＋入場名單，可帶 -used／-valid／-noseat）、#seats、#more 和其他管理底下的頁；手機左滑返回會回上一頁 */
 const VIEWS = ["home", "roster", "seats", "more", "list", "issue", "fail", "merch", "set", "test"];
 let inApp = false, nf = "all";
-function route() {
+function route(y) {
   let v = (location.hash || "").slice(1), mode = "";
+  document.querySelectorAll(".sheet.show").forEach((x) => x.classList.remove("show"));   /* B486T：換頁時彈出視窗一起關 */
   const m = /^(roster|lookup)(?:-(used|valid|noseat))?$/.exec(v); if (m) { v = "roster"; mode = m[2] || "all"; }
   if (!connected) v = "login"; else if (!VIEWS.includes(v)) v = "home";
   document.querySelectorAll(".view").forEach((x) => x.classList.toggle("on", x.getAttribute("data-view") === v));
@@ -393,8 +411,17 @@ function route() {
   if (v === "home") { paintStats(); renderTodo(); renderHomeSearch(); }
   if (v === "roster") openNames(mode);
   if (v === "seats") loadSeatView();
+  if (y) requestAnimationFrame(() => window.scrollTo(0, y));
 }
-window.addEventListener("hashchange", () => { inApp = true; route(); });
+/* B486T：返回上一頁時回到剛才滑到的位置（往前進新的一頁才回到最上面） */
+try { history.scrollRestoration = "manual"; } catch (e) {}
+const scrollPos = {}, trail = [location.hash || "#"];
+window.addEventListener("hashchange", (e) => {
+  inApp = true; const from = "#" + (String(e.oldURL || "").split("#")[1] || ""), to = location.hash || "#";
+  scrollPos[from] = window.scrollY;
+  const back = trail.length > 1 && trail[trail.length - 2] === to; if (back) trail.pop(); else trail.push(to);
+  route(back ? scrollPos[to] || 0 : 0);
+});
 function goBack(fallback) { if (inApp) { history.back(); return false; } location.hash = fallback; return false; }
 async function connect() {
   $("connMsg").textContent = "連線中…";
@@ -403,7 +430,8 @@ async function connect() {
     if (!j.ok) throw new Error(j.error === "forbidden" ? "鑰匙不對" : j.error);
     localStorage.setItem(KEY_LS, key());
     try { srv = await (await fetch(API + "/ticket/ping")).json(); } catch (e) { srv = {}; }
-    events = j.events; $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次' + (srv.rv ? " · 後台 " + esc(srv.rv) : "") + '</span>';
+    allEvents = j.events || []; events = allEvents.filter((e) => !/^meet-load-/.test(e.id));   /* B486T：壓測場次不列進選單 */
+    $("connMsg").innerHTML = '<span class="ok">已連線 · ' + events.length + ' 個場次' + (srv.rv ? " · 後台 " + esc(srv.rv) : "") + '</span>';
     connected = true; $("evPick").style.display = events.length > 1 ? "block" : "none"; paintEvent(); route(); if (!events.length) location.hash = "#set";
     loadFailed();
     const sel = $("event"); sel.innerHTML = events.length ? '<option value="">— 選場次 —</option>' : '<option value="">（還沒有場次 → 按下面金色按鈕建立）</option>';
@@ -529,7 +557,7 @@ function todoGo(k) {
 }
 function staffQr() { new QRious({ element: $("staffQrC"), value: new URL("scan-test.html", location.href).href, size: 240, level: "M", background: "#f3f0e8", foreground: "#111" }); $("staffSheet").classList.add("show"); }
 let tick = 0;
-setInterval(() => { if (!connected || document.hidden) return; tick++; if (cur) refresh().catch(() => {}); if (tick % 4 === 0) { loadFailed(); if (cur) loadMerch(); } }, 15000);   /* 掃碼機掃進去，這裡 15 秒內跟著更新；付款成功未出票、周邊每 60 秒 */
+setInterval(() => { if (!connected || document.hidden) return; tick++; if (cur) refresh().catch(() => {}); if (tick % 4 === 0) { loadFailed(true); if (cur) loadMerch(); } }, 15000);   /* 掃碼機掃進去，這裡 15 秒內跟著更新；付款成功未出票、周邊每 60 秒 */
 async function refresh() {
   if (!cur) { $("tbody").innerHTML = ""; paintStats(); renderTodo(); return; }
   const evId = cur.id; let j, mf;
@@ -572,8 +600,9 @@ async function loadIssueSeats(keep) {
 }
 function paintIssueSeats() {
   const g = $("i_seatGrid"); if (!issueMap) { g.innerHTML = ""; $("i_seatMsg").innerHTML = '<span class="err">讀不到座位表，請按重新整理</span>'; return; }
-  const busy = new Set(issueMap.busy || []), keys = Object.keys(issueMap.rows).sort((a, b) => a - b), max = Math.max(...keys.map((k) => Math.max(...issueMap.rows[k])));
-  g.innerHTML = keys.map((k) => { let h = '<div class="iseat-row"><b>' + esc(issueMap.rowName[k] || k) + "</b>"; for (let n = 1; n <= max; n++) { const id = k + "-" + n; h += issueMap.rows[k].includes(n) ? '<button type="button" data-seat="' + id + '" class="' + (issueSel.includes(id) ? "on" : "") + '"' + (busy.has(id) ? " disabled" : "") + ">" + n + "</button>" : "<span></span>"; } return h + "</div>"; }).join("");
+  const busy = new Set(issueMap.busy || []), shut = new Set(issueMap.closed || []), keys = Object.keys(issueMap.rows).sort((a, b) => a - b), max = Math.max(...keys.map((k) => Math.max(...issueMap.rows[k])));
+  issueSel = issueSel.filter((id) => !shut.has(id));   /* B486T：A–D 排記者保留，不開放，這裡不能選 */
+  g.innerHTML = keys.map((k) => { let h = '<div class="iseat-row"><b>' + esc(issueMap.rowName[k] || k) + "</b>"; for (let n = 1; n <= max; n++) { const id = k + "-" + n; h += issueMap.rows[k].includes(n) ? (shut.has(id) ? '<button type="button" class="na" disabled>' + n + "</button>" : '<button type="button" data-seat="' + id + '" class="' + (issueSel.includes(id) ? "on" : "") + '"' + (busy.has(id) ? " disabled" : "") + ">" + n + "</button>") : "<span></span>"; } return h + "</div>"; }).join("");
   $("i_seatMsg").textContent = issueSel.length ? "已選 " + issueSel.map(seatLabel).join("、") + "（" + issueSel.length + " 張）" : "點座位選位，張數會跟著變。";
 }
 document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-seat]"); if (!b) return; const id = b.getAttribute("data-seat"), i = issueSel.indexOf(id); if (i >= 0) issueSel.splice(i, 1); else issueSel.push(id); if (issueSel.length) $("i_qty").value = issueSel.length; paintIssueSeats(); });
@@ -804,8 +833,8 @@ function printRoster() { if (!roster) return alert("先下載名單"); renderRos
 
 /* ===== O1：失敗訂單（清單 9） ===== */
 let failed = [];
-async function loadFailed() {
-  $("fMsg").textContent = "讀取中…";
+async function loadFailed(quiet) {
+  if (!quiet) $("fMsg").textContent = "讀取中…";
   /* B347T：M3.1 分頁（每頁 100 筆，帶 cursor 叫下一頁；最多 20 頁） */
   let j, all = [], cursor = null, pages = 0;
   do {
@@ -872,7 +901,7 @@ async function purgeTest() {
 
 /* B433T（CÉON 11/06）：測試場和壓測場全部清空，只碰測試 Worker */
 async function purgeAll() {
-  const L = events.filter((e) => /(^|-)test($|-)/.test(e.id) || /^meet-load-/.test(e.id));
+  const L = allEvents.filter((e) => /(^|-)test($|-)/.test(e.id) || /^meet-load-/.test(e.id));
   if (!L.length) return;
   const v = prompt("這會永久刪掉 " + L.length + " 個測試場次的票、座位、周邊訂單和轉讓紀錄，不能復原。\n確定的話輸入 RESET");
   if (v == null) return; if (v.trim() !== "RESET") { $("pMsg").innerHTML = '<span class="err">輸入不對，沒有刪除</span>'; return; }
