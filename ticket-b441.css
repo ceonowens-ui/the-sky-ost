@@ -281,3 +281,5 @@ body:has(#tk-test-banner) .dcl{padding-top:calc(env(safe-area-inset-top) + 44px)
 #tk-layers .tk-layer[data-layer=v2qr].in>*,#tk-layers .tk-layer[data-layer=bought].in>*,#tk-layers .tk-layer[data-layer=done].in>*{opacity:1}
 #tk-layers .tk-layer[data-layer=v2qr].out>*,#tk-layers .tk-layer[data-layer=bought].out>*,#tk-layers .tk-layer[data-layer=done].out>*{opacity:0;transition-duration:.12s}
 }
+/* B473T：結帳頁底部有倒數時，底色從最上面 10px 就不透明（跟還沒勾同意時一樣）。原本要到 26% 才不透明，倒數膠囊剛好在透明那一段，後面的「收票資料／信箱」會透出來疊在一起 */
+html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tk-seatleft:not(:empty)){background:linear-gradient(rgba(11,9,13,0),var(--q-bg) 10px)!important}

@@ -271,7 +271,7 @@ label input[type=checkbox]{-webkit-appearance:checkbox;appearance:auto;width:18p
     <div class="row"><span class="label">備註（選填）</span><input id="i_note" placeholder="公關票 / 測試" /></div>
     <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_mail" style="width:auto" checked /> <span id="i_mailLbl">寄確認信給對方（只有測試場可以不寄）</span></label>
     <label style="display:flex;gap:8px;align-items:center;font-size:12px;color:#c6c0b5;margin-top:10px"><input type="checkbox" id="i_force" style="width:auto" /> 超過可售張數也硬發（公關票用）</label>
-    <button class="btn primary" onclick="issue()">發票</button><div class="msg" id="issueMsg"></div>
+    <button class="btn primary" id="btnIssue" onclick="issue()">發票</button><div class="msg" id="issueMsg"></div>
   </div>
   </section>
   <section class="view" data-view="fail">
@@ -347,11 +347,28 @@ $("key").value = localStorage.getItem(KEY_LS) || "";
 if (TKAPI === "test") { const b = document.createElement("div"); b.id = "tkapiBadge"; b.textContent = "測試後台（the-sky-ost-api-test）· 這一頁連不到正式"; b.style.cssText = "position:sticky;top:0;z-index:50;background:#7a1f1f;color:#fff;font:600 13px/1.4 -apple-system,sans-serif;padding:8px 12px;text-align:center"; document.body.prepend(b); document.title = "【測試】" + document.title; }
 async function api(path, body) {
   let r, j;
-  try { r = await fetch(API + path + (body ? "" : (path.includes("?") ? "&" : "?") + "adminKey=" + encodeURIComponent(key())), body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ adminKey: key(), ...body }) } : {}); }
-  catch (e) { setNet(false); throw new Error("網路斷了"); }
-  try { j = await r.json(); } catch (e) { setNet(false); throw new Error("後台回應異常（" + r.status + "）"); }
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 25000);   /* B473T：25 秒沒回應就中斷，不會一直停在「…中」 */
+  try { r = await fetch(API + path + (body ? "" : (path.includes("?") ? "&" : "?") + "adminKey=" + encodeURIComponent(key())), body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ adminKey: key(), ...body }), signal: ctl.signal } : { signal: ctl.signal }); }
+  catch (e) { setNet(false); const er = new Error("網路斷了"); er.write = !!body; throw er; }
+  finally { clearTimeout(tm); }
+  try { j = await r.json(); } catch (e) { setNet(false); const er = new Error("後台回應異常（" + r.status + "）"); er.write = !!body; throw er; }
   setNet(true); return j;
 }
+/* B473T：按了會改到票的按鈕（發票、補發、作廢、退票、換位、復原、存場次、寄出）時，如果網路斷了或後台沒回應，
+   以前畫面什麼都不說，或一直停在「發票中…」，退票按鈕還會整個鎖死。現在統一講清楚，並把卡住的地方放開。
+   這種時候後台可能已經做完，所以提醒先重新整理看結果，不要直接再按一次。 */
+let readWarnAt = 0;
+window.addEventListener("unhandledrejection", (e) => {
+  const er = e && e.reason, m = er && er.message || "";
+  if (!/網路斷了|後台回應異常/.test(m)) return;
+  e.preventDefault && e.preventDefault();
+  const g = $("rfGo"); if (g) g.disabled = false;
+  const ib = $("btnIssue"); if (ib) ib.disabled = false; issuing = false;
+  ["issueMsg", "fMsg"].forEach((id) => { const x = $(id); if (x && /中…$/.test(x.textContent || "")) x.innerHTML = '<span class="err">' + esc(m) + (er.write ? "，不確定有沒有成功。請先重新整理看結果，不要直接再按一次。" : "，請再試一次。") + "</span>"; });
+  if (er.write) return alert(m + "，剛剛那個動作不確定有沒有成功。\n\n請先重新整理，看這張票或這筆訂單現在的狀態，再決定要不要再按一次。");
+  if (Date.now() - readWarnAt > 30000) { readWarnAt = Date.now(); alert(m + "，讀不到資料。請確認網路後再按一次。"); }   /* 只是讀資料：30 秒內最多提醒一次 */
+});
+let issuing = false;
 /* B470T：首頁每個數字都記住來源讀到沒有。wait＝讀取中、ok＝讀到、err＝讀不到；讀不到不顯示成 0 */
 const src = { stats: "wait", manifest: "wait", failed: "wait", merch: "wait" };
 let net = "wait", statsAt = 0, connected = false;
@@ -529,7 +546,7 @@ async function refresh() {
 function paintStats() {
   const has = !!(stats && cur && stats.event && stats.event.id === cur.id);
   if (has) {
-    const capAll = Number(cur.capacity) || (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0), soldAll = (cur.tiers || []).length ? cur.tiers.reduce((n, t) => n + (Number(t.sold) || 0), 0) : Number(cur.sold) || 0;   /* 有票種時 cur.sold 是「發過幾張」，退票不扣；已賣要看票種 */
+    const capAll = (cur.tiers || []).reduce((n, t) => n + (Number(t.cap) || 0), 0) || Number(cur.capacity) || 0, soldAll = (cur.tiers || []).length ? cur.tiers.reduce((n, t) => n + (Number(t.sold) || 0), 0) : Number(cur.sold) || 0;   /* 有票種時 cur.sold 是「發過幾張」，退票不扣；已賣要看票種 */
     $("sCap").textContent = capAll || "–"; $("sSold").textContent = soldAll; $("sUsed").textContent = stats.counts.used || 0; $("sPP").textContent = stats.counts.photopass ? "📸 " + stats.counts.photopass : ""; $("sLeft").textContent = capAll ? Math.max(0, capAll - soldAll) : "—";
   } else { ["sSold", "sLeft", "sUsed"].forEach((id) => $(id).textContent = "—"); $("sPP").textContent = ""; }
   $("sLeftLink").classList.toggle("nolink", !(cur && cur.seatMap)); $("sLeftLink").querySelector("span").textContent = cur && cur.seatMap ? "剩餘 ›" : "剩餘";
@@ -561,6 +578,11 @@ function paintIssueSeats() {
 }
 document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-seat]"); if (!b) return; const id = b.getAttribute("data-seat"), i = issueSel.indexOf(id); if (i >= 0) issueSel.splice(i, 1); else issueSel.push(id); if (issueSel.length) $("i_qty").value = issueSel.length; paintIssueSeats(); });
 async function issue() {
+  if (issuing) return;   /* B473T：送出中再按不會發第二次 */
+  issuing = true; $("btnIssue").disabled = true;
+  try { return await issue0(); } finally { issuing = false; $("btnIssue").disabled = false; }
+}
+async function issue0() {
   const email = $("i_email").value.trim(), qty = Number($("i_qty").value || 1);
   if (!cur) return $("issueMsg").innerHTML = '<span class="err">先選場次</span>';
   if (!email) return $("issueMsg").innerHTML = '<span class="err">要有 email</span>';
@@ -614,7 +636,7 @@ async function admitTicket() {
   if (j.ok) { $("qrSheet").classList.remove("show"); alert("已放行 " + (r.n || id)); refresh(); loadRoster(); }
   else alert("沒有放行：" + (CKR[j.reason] || j.reason || j.error || "失敗"));
 }
-async function voidTicket() { if (!curTicket || !confirm("確定作廢 " + curTicket.id + "？")) return; const j = await frozenRetry("/ticket/admin/void", { ticketId: curTicket.id }, "作廢"); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else if (!j.cancelled) alert("作廢失敗：" + (j.message || j.error || "")); }
+async function voidTicket() { if (!curTicket || !confirm("確定作廢 " + curTicket.id + "？\n\n這張票會立刻失效，座位會放回去賣。\n作廢不會退錢，也不會寄信通知對方。")) return; const j = await frozenRetry("/ticket/admin/void", { ticketId: curTicket.id }, "作廢"); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); } else if (!j.cancelled) alert("作廢失敗：" + (j.message || j.error || "")); }
 async function resetTicket() { if (!curTicket || !confirm("把 " + curTicket.id + " 復原成未入場？\n復原後這張票的 QR 可以再掃一次入場。")) return; const j = await api("/ticket/admin/reset", { ticketId: curTicket.id }); if (j.ok) { $("qrSheet").classList.remove("show"); refresh(); loadRoster(); } else alert("復原失敗：" + (j.message || j.error || "")); }
 /* m48（CÉON 11/07）：退票先看同一筆訂單的周邊，預設一起退，畫面算好應退金額。錢一樣到綠界後台手動退 */
 let rf = null;
@@ -637,8 +659,9 @@ async function refundTicket() {
 async function doRefund() {
   if (!curTicket || !rf) return;
   const w = $("rfWith"), money = $("rfSum").querySelector("b").textContent.replace("應退 ", "");
-  $("rfGo").disabled = true; const j = await frozenRetry("/ticket/admin/refund", { ticketId: curTicket.id, merchSets: w && w.checked ? 1 : 0 }, "退票"); $("rfGo").disabled = false;
-  if (j.ok) { $("rfSheet").classList.remove("show"); $("qrSheet").classList.remove("show"); refresh(); loadMerch(); alert(j.already ? "這張已經退過了" : "已退票" + (j.merch ? "，周邊也退了 " + j.merch.sets + " 組" : "") + "。\n請到綠界後台退刷 " + money + " 給 " + (j.refund && j.refund.email || "粉絲") + "。\n訂單參考：" + (j.refund && j.refund.orderRef || "（手動發的票沒有綠界訂單）")); }
+  let j; $("rfGo").disabled = true; try { j = await frozenRetry("/ticket/admin/refund", { ticketId: curTicket.id, merchSets: w && w.checked ? 1 : 0 }, "退票"); } finally { $("rfGo").disabled = false; }
+  if (j.ok) { $("rfSheet").classList.remove("show"); $("qrSheet").classList.remove("show"); refresh(); loadMerch(); const oref = j.refund && j.refund.orderRef, noOrd = !oref || oref === "manual" || oref === "bulk";   /* B473T：手動發的票沒有綠界訂單 */
+    alert(j.already ? "這張已經退過了" : "已退票" + (j.merch ? "，周邊也退了 " + j.merch.sets + " 組" : "") + "。\n" + (noOrd ? "這張是手動發的票，沒有綠界訂單。如果當初有另外收錢，請照你自己的紀錄退給 " + (j.refund && j.refund.email || "粉絲") + "。" : "請到綠界後台退刷 " + money + " 給 " + (j.refund && j.refund.email || "粉絲") + "。\n訂單參考：" + oref)); }
   else if (!j.cancelled) alert("退票失敗：" + (j.message || j.error || ""));
 }
 function exportCsv() {

@@ -372,6 +372,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function drawQR(canvas, value, size) { if (!canvas || !window.QRious) return; new QRious({ element: canvas, value: value, size: size * 2, level: "M", background: "#fff", foreground: "#111" }); }
   function msg(sel, t, ok) { var m = $(sel); if (m) { m.textContent = t || ""; m.className = "tk-msg" + (ok ? " ok" : ""); } }
   function sendOtp() {
+    if ($("#tk-send") && $("#tk-send").disabled) return;   /* B473T：寄送中不重複寄 */
     var em = ($("#tk-em").value || "").trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return msg("#tk-lmsg", "email 格式不對");
     lsSet(K.email, em); $("#tk-send").disabled = true; msg("#tk-lmsg", "寄送中…", true);
@@ -692,7 +693,9 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.error === "need_login") { bad(j.message); seatRelogin(); return; } if (j && j.error === "pick_expired") { bad(j.message); seatExpired(); return; } if (j && j.message) { bad(String(j.message).replace("你選的座位剛被別人選走了，請重新選位。", "這個位置剛被選走了，再挑一個喜歡的位置吧。")); return; } } catch (e) {} throw 0; }
-        testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none"; try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
+        testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
+        S.pickLeft = null; S.pickPay = false; clearInterval(S.seatClockT); BOOT_QS = "";   /* B473T：後台已經改成「付款保留」，舊的 10 分鐘倒數要停掉。不停的話，這一頁如果沒被關掉（主畫面 App、Safari 往回），回來時舊倒數歸零會跳「時間到，座位已放掉」，連已經付款的人都會看到。BOOT_QS 清掉：這一頁之前是從綠界回來開的，再去付一次、按 ✕ 回來時才會再問一次付款結果 */
+        try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
         try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, hold: seatHold(ev), seats: pp ? null : b.seats || null, seatNames: pp ? null : b.seatNames || null, ck: form.getAttribute("data-claim") || "", email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", tq: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]), pp: !!(!pp && !mc && b.pp), mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); pmGo(cpb, function () { f.submit(); });
       }).catch(function () { bad("付款頁開不起來，請稍後再試"); });
@@ -979,7 +982,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 
   /* ---------- 轉讓（別人給我）?transfer=TOKEN ---------- */
   function loginPartHTML(label) {
-    return '<div class="tk-hint" style="margin-top:14px">先用 email 登入（沒買過專輯也可以）：</div><input class="tk-in" id="tk-em2" type="email" inputmode="email" autocomplete="email" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"><div id="tk-otp2wrap" style="display:none"><input class="tk-in" id="tk-otp2" inputmode="numeric" maxlength="6" placeholder="6 位數驗證碼"></div><div class="tk-msg" id="tk-lmsg2"></div><button class="tk-btn p" id="tk-send2" data-sact="otp2">寄驗證碼給我</button><button class="tk-btn p" id="tk-login2" data-sact="login2" style="display:none">' + esc(label || "登入") + '</button>';
+    return '<div class="tk-hint" style="margin-top:14px">先用 email 登入（沒買過專輯也可以）：</div><input class="tk-in" id="tk-em2" type="email" inputmode="email" autocomplete="email" enterkeyhint="send" placeholder="你的 email" value="' + esc(lsGet(K.email) || "") + '"><div id="tk-otp2wrap" style="display:none"><input class="tk-in" id="tk-otp2" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" enterkeyhint="go" maxlength="6" placeholder="6 位數驗證碼"></div><div class="tk-msg" id="tk-lmsg2"></div><button class="tk-btn p" id="tk-send2" data-sact="otp2">寄驗證碼給我</button><button class="tk-btn p" id="tk-login2" data-sact="login2" style="display:none">' + esc(label || "登入") + '</button>';
   }
   // token（掃連結）或 code（6 碼）都走這裡
   function handleIncoming(token, code) {
@@ -997,23 +1000,37 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       });
     }).catch(function () { toast("連不上伺服器"); });
   }
-  function bindLogin2(onDone) {
-    $("#tk-send2").addEventListener("click", function () {
+  function bindLogin2(onDone) {   /* B473T：鍵盤的「前往／傳送」可以送出（以前只能點按鈕，按鈕常被鍵盤擋住）；寄送中、驗證中不能連按（連按會寄兩次，第二封讓第一封失效）；打滿 6 碼自動登入。選位登入、開賣前登入、取票、收轉讓共用這一個 */
+    var sending = false, logging = false;
+    var send = function () {
+      if (sending) return;
       var em = ($("#tk-em2").value || "").trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return msg("#tk-lmsg2", "email 格式不對");
-      lsSet(K.email, em); msg("#tk-lmsg2", "寄送中…", true);
+      lsSet(K.email, em); msg("#tk-lmsg2", "寄送中…", true); sending = true; $("#tk-send2").disabled = true;
+      var done = function () { sending = false; var x = $("#tk-send2"); if (x) x.disabled = false; };
       api("/ticket/otp", { email: em }).then(function (j) {
+        done();
         if (!j.ok || j.sent === false) return msg("#tk-lmsg2", j.error === "rate" ? "一分鐘內只能寄一次" : "寄不出去");
         msg("#tk-lmsg2", "驗證碼已寄到 " + em + "（5 分鐘內有效），沒看到請找垃圾信件", true); $("#tk-otp2wrap").style.display = "block"; $("#tk-send2").style.display = "none"; $("#tk-login2").style.display = "block"; $("#tk-otp2").focus();
-      }).catch(function () { msg("#tk-lmsg2", "連不上伺服器，再試一次"); });
-    });
-    $("#tk-login2").addEventListener("click", function () {
+      }).catch(function () { done(); msg("#tk-lmsg2", "連不上伺服器，再試一次"); });
+    };
+    var login = function () {
+      if (logging) return;
       var em = ($("#tk-em2").value || "").trim().toLowerCase(), otp = ($("#tk-otp2").value || "").trim();
+      if (!/^\d{6}$/.test(otp)) return msg("#tk-lmsg2", "請輸入 6 位數驗證碼");
+      logging = true; $("#tk-login2").disabled = true; msg("#tk-lmsg2", "驗證中…", true);
+      var done = function () { logging = false; var x = $("#tk-login2"); if (x) x.disabled = false; };
       api("/ticket/login", { email: em, otp: otp }).then(function (j) {
+        done();
         if (!j.ok) return msg("#tk-lmsg2", "驗證碼不對或過期");
         setSession(j.session, j.email); hap(20); if (onDone) onDone();
-      }).catch(function () { msg("#tk-lmsg2", "連不上伺服器，再試一次"); });
-    });
+      }).catch(function () { done(); msg("#tk-lmsg2", "連不上伺服器，再試一次"); });
+    };
+    $("#tk-send2").addEventListener("click", send);
+    $("#tk-login2").addEventListener("click", login);
+    $("#tk-em2").addEventListener("keydown", function (e) { if (e.key !== "Enter" || e.isComposing) return; e.preventDefault(); if ($("#tk-otp2wrap").style.display === "block") $("#tk-otp2").focus(); else send(); });
+    $("#tk-otp2").addEventListener("keydown", function (e) { if (e.key !== "Enter") return; e.preventDefault(); login(); });
+    $("#tk-otp2").addEventListener("input", function () { if (/^\d{6}$/.test((this.value || "").trim())) login(); });
   }
   function acceptIncoming(pt) {
     if (!pt || !S.session) return;
@@ -1193,8 +1210,13 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     lay.addEventListener("click", onClick);
     lay.addEventListener("submit", function (e) { e.preventDefault(); });
     document.addEventListener("keydown", shopKeys);
+    document.addEventListener("keydown", function (e) {   /* B473T：票夾的「用 email 找回你的票」也一樣，鍵盤的前往／完成可以送出 */
+      if (e.key !== "Enter" || e.isComposing || !e.target) return;
+      if (e.target.id === "tk-em") { e.preventDefault(); var w = $("#tk-otpwrap"); if (w && w.style.display === "block") { var o = $("#tk-otp"); if (o) o.focus(); } else sendOtp(); }
+      else if (e.target.id === "tk-otp") { e.preventDefault(); doLogin(); }
+    });
     document.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter" || !e.target || !e.target.closest || !e.target.closest(".tk-layer[data-layer=checkout]")) return;
+      if (e.key !== "Enter" || e.isComposing || e.keyCode === 229 || !e.target || !e.target.closest || !e.target.closest(".tk-layer[data-layer=checkout]")) return;   /* B473T：中文輸入法選字時按的 Enter 不算，不然名字打到一半就被送去付款 */
       if (e.target.id === "tk-bem") { e.preventDefault(); var n = $("#tk-bnick"); if (n) n.focus(); }
       else if (e.target.id === "tk-bnick") { e.preventDefault(); startPayment(); }
     });
@@ -1598,7 +1620,12 @@ function coverClockKey() {
     if (name === "merch") el.innerHTML = merchHTML();
     if (name === "detail") el.innerHTML = detailHTML();
     if (name === "buy") { el.innerHTML = buyHTML(); el.classList.toggle("la-on", !!el.querySelector(".la")); laShape(el); }   /* B281T */
-    if (name === "checkout") el.innerHTML = checkoutHTML();
+    if (name === "checkout") {   /* B473T：切到別的 App 或螢幕鎖住再回來會重畫這頁。以前打到一半的姓名會被清空、鍵盤被收掉；現在正在輸入就不重畫，要重畫也先把欄位記下來 */
+      var cae = document.activeElement;
+      if (el.innerHTML && cae && el.contains(cae) && /^(INPUT|SELECT|TEXTAREA)$/.test(cae.tagName)) return;
+      if (S.buy && el.innerHTML) { var cn = el.querySelector("#tk-bnick"), cp = el.querySelector("#tk-bph"); if (cn && cn.value) S.buy.nick = cn.value; if (cp && cp.value) S.buy.phone = cp.value; }
+      el.innerHTML = checkoutHTML();
+    }
     if (name === "cxl") { el.innerHTML = cxListHTML(); document.body.classList.add("cxl-open"); }   /* B309T */
     if (name === "mxc") {   /* B375T：生日周邊購買頁；正在輸入時不重畫 */
       var mae = document.activeElement;
@@ -2673,7 +2700,7 @@ function coverClockKey() {
         clearTimeout(tmo);
         if (!cxRealPayOk(form)) throw { http: 1, msg: "已取消，沒有付款。" };
         var fm = document.importNode(form, true); fm.style.display = "none"; document.body.appendChild(fm);
-        var pb = layerEl("cxc"); pmGo(pb && pb.querySelector('[data-cx="pay"]'), function () { if (shopPending && shopPending.d) cxRemember(shopPending); fm.submit(); });
+        var pb = layerEl("cxc"); pmGo(pb && pb.querySelector('[data-cx="pay"]'), function () { if (shopPending && shopPending.d) cxRemember(shopPending); BOOT_QS = ""; fm.submit(); });   /* B473T：同買票 */
       }).catch(function (er) {
         clearTimeout(tmo);
         if (dead() || (er && er.gone)) return;
@@ -3106,7 +3133,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var h = L.querySelector(".tk-seathint span"), t = L.querySelector("#tk-tbody .tk-hold"), f = L.querySelector(".tkc-full");
     if (h) h.textContent = seatHintTx(ev, en); if (t) t.textContent = HOLD_TXT(ev); if (f) f.innerHTML = '<h4>完整購票須知</h4>' + termsBodyHTML(ev);
   }
-  function seatHintTx(ev, en) { var n = seatHold(ev); return en ? "Held for you. This is not a completed purchase. Tap Pay before the countdown ends" + (n ? ", then finish paying within " + n + " minutes" : "") + ". If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前按「前往付款」" + (n ? "，按下後 " + n + " 分鐘內完成付款" : "") + "；超過時間要重新選位。付款後不能更換座位。"; }   // B469T（CÉON 11/09）：「付款後不能更換座位」從底部移到座位這裡；底部只留倒數和付款按鈕，「請先閱讀並同意」上面勾選處已經有
+  function seatHintTx(ev, en) { var n = seatHold(ev);
+    if (S.pickPay) return en ? "Held for you. This is not a completed purchase. Finish paying before the countdown ends; pressing Pay again does not add time. If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前完成付款，再按一次付款不會多給時間；超過時間要重新選位。付款後不能更換座位。";   /* B473T：沒付款回來是接著原本的付款時間倒數，不能再寫「按下後 5 分鐘內完成付款」 */
+    return en ? "Held for you. This is not a completed purchase. Tap Pay before the countdown ends" + (n ? ", then finish paying within " + n + " minutes" : "") + ". If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前按「前往付款」" + (n ? "，按下後 " + n + " 分鐘內完成付款" : "") + "；超過時間要重新選位。付款後不能更換座位。"; }   // B469T（CÉON 11/09）：「付款後不能更換座位」從底部移到座位這裡；底部只留倒數和付款按鈕，「請先閱讀並同意」上面勾選處已經有
   function seatRowHTML(b, T) {
     var ss = seatsOf(b), en = sxEN(), ev = buyEvent(b.evId) || buyEv(), nm = b.seatNames || ss, q = ss.length, tick = T ? Number(T.price) * Math.max(1, q) : 0, tot = T && q ? coTotal(ev, T, b) : 0;
     var amt = T ? '<div class="tk-seatamt"><span><span>' + esc(T.name) + '</span>' + (q ? ' × ' + q : '') + '</span><b>' + nt(tick) + (q ? '' : '／張') + '</b>' + (tot > tick ? '<small><span>加購</span> ' + nt(tot - tick) + '</small><small class="tt"><span>合計</span> ' + nt(tot) + '</small>' : '') + '</div>' : '';
@@ -3115,12 +3144,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   function seatLoad(cb) {
     if (window.SkySeat) return cb();
-    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S9"; sc.onload = cb; sc.onerror = function () { msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
+    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S10"; sc.onload = cb; sc.onerror = function () { S.seatOpening = false; if (sc.parentNode) sc.parentNode.removeChild(sc); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
   }
   /* 點選即鎖（CÉON 11/05 定）：座位圖裡點到就送後台鎖 2 分鐘。token 只在這個分頁有效；結帳頁每 45 秒續鎖，離開結帳頁就放掉 */
   var PICK_TOK = (function () { var t = ""; try { t = sessionStorage.getItem("tk:pick") || ""; } catch (e) {} if (!/^[A-Za-z0-9_-]{8,40}$/.test(t)) { t = "p" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { sessionStorage.setItem("tk:pick", t); } catch (e) {} } return t; })();
   function seatPick(evId, ids) {   // B435T：一次送一筆、照順序送。手機網路慢時連點座位，較舊的那筆晚到會蓋掉新的
-    var go = function () { return fetch(C.api + "/ticket/seats/pick", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ event: evId, token: PICK_TOK, seats: ids, session: S.session || undefined, fresh: !S.pickLeft }) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "need_login") seatRelogin(); if (j && j.leftMs != null) S.pickLeft = { ms: Number(j.leftMs), at: Date.now() }; if (j && j.error === "pick_expired") seatExpired(); return j; }); };
+    var go = function () { return fetch(C.api + "/ticket/seats/pick", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ event: evId, token: PICK_TOK, seats: ids, session: S.session || undefined, fresh: !S.pickLeft }) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "need_login") seatRelogin(); if (j && j.leftMs != null) { S.pickLeft = { ms: Number(j.leftMs), at: Date.now() }; if (!!j.pay !== !!S.pickPay) { S.pickPay = !!j.pay; try { coHoldSync(); } catch (e) {} } } if (j && j.error === "pick_expired") seatExpired(); return j; }); };
     var p = (S.pickQ || Promise.resolve()).then(go, go);
     S.pickQ = Promise.race([p, new Promise(function (r) { setTimeout(r, 8000); })]).catch(function () {});   // 一筆卡住也不擋後面
     return p;
@@ -3130,7 +3159,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function seatExpired() {
     var b = S.buy, ui = S.seatUI, tx = sxEN() ? "Your 10 minutes ran out and the seats were released. Choose again. You have not been charged." : "選位時間到了，座位已放掉，請重新選位。還沒建立付款，不會扣款。";
     if (S.seatExpiredAt && Date.now() - S.seatExpiredAt < 2000) return; S.seatExpiredAt = Date.now();
-    S.pickLeft = null; clearInterval(S.seatKeepT); clearInterval(S.seatClockT);
+    S.pickLeft = null; S.pickPay = false; clearInterval(S.seatKeepT); clearInterval(S.seatClockT);
     if (b) { b.seats = []; b.seatNames = []; b.seatOwn = []; b.tq = 0; seatPick(b.evId, []).catch(function () {}); }
     if (ui) return ui.expired(tx);
     toast(tx); if (b && $(".tk-seatrow")) { coTQ(0); msg("#tk-bmsg", tx); seatOpen(); }
@@ -3186,10 +3215,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     });
   }
   function seatOpen() {
+    if (S.seatUI || S.seatOpening) return;   /* B473T：座位圖已經開著、或正在載入，就不再開第二層（疊兩層時，上面那層按確認後，下面那層會留在畫面上，用它自己的選位繼續續鎖，看起來像點了卻沒選到） */
     var b = S.buy; if (!b) return; var ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; if (!T) return;
     if (seatEv(ev) && !S.session) return seatGate(ev, seatOpen);
+    S.seatOpening = true; setTimeout(function () { S.seatOpening = false; }, 12000);   /* 載入失敗也不會永遠鎖住 */
     seatLoad(function () {
+      S.seatOpening = false;
       if (S.buy !== b || S.layers.indexOf("checkout") < 0) return;   // 座位圖程式載入時人已經離開結帳頁
+      if (S.seatUI) return;
       S.seatUI = SkySeat.open({ en: sxEN(), max: b.pp ? 1 : tQMax(T), price: Number(T.price), selected: seatsOf(b), own: b.seatOwn || [],
         load: function () { return fetch(C.api + "/ticket/seats?event=" + encodeURIComponent(ev.id) + "&token=" + encodeURIComponent(PICK_TOK), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return seatCfgSet(ev.id, j); }); },
         pick: function (ids) { return seatPick(ev.id, ids); },
@@ -3212,7 +3245,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (S.buy && S.buy.kind === "meet" && seatEv(buyEvent(S.buy.evId) || buyEv()) && !seatsOf(S.buy).length) return seatOpen();
     if (coNeedAgree(S.buy)) return coAgreeAsk();   // B437T：沒點開、沒勾就不能付款
     S.coNote = "";
-    if (loggedIn()) { if (!nickOk()) return; var b = $('[data-act="co-pay"]'); if (b) pmBusy(b); payNow(); }   // B385T：按鈕縮成圓形轉圈
+    if (loggedIn()) { var b = $('[data-act="co-pay"]'); if (b && b.classList.contains("pm-busy")) return;   /* B473T：已經在送出了，鍵盤再按一次「完成」不會建第二筆付款 */ if (!nickOk()) return; if (b) pmBusy(b); payNow(); }   // B385T：按鈕縮成圓形轉圈
     else buyPayEmail(false);
   }
   /* paymentWebhook / issueTicket：伺服器端（Worker 收綠界通知 → 發票寄信），前端不寫死付款結果，只用 awaitPurchase 輪詢票夾 */
@@ -3711,7 +3744,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
           if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) return reset(jj.message); } catch (e) {} throw 0; }
           testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
           try { var mp = mPending(); var mn = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (mp && mn) { mp.no = mn; mRemember(mp); } } catch (e) {}
-          clearTimeout(payTimer); document.body.appendChild(f); pmGo(mxPayBtn(), function () { f.submit(); });
+          clearTimeout(payTimer); BOOT_QS = ""; document.body.appendChild(f); pmGo(mxPayBtn(), function () { f.submit(); });   /* B473T：同買票 */
         }).catch(function () { reset("付款頁開不起來，請稍後再試"); });
     }).catch(function () { reset("連不上伺服器"); });
   }
@@ -4171,7 +4204,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B468T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B473T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";

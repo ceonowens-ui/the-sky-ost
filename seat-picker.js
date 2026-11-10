@@ -175,7 +175,7 @@
     document.addEventListener("keydown", onKey); document.addEventListener("visibilitychange", onVis);
     foot(); pull(true);
     timer = setInterval(function () { if (!document.hidden && map) pull(false); }, POLL_MS);
-    leftT = setInterval(tick, 1000); tick();
+    leftT = setInterval(tick, 1000); setTimeout(tick, 0);   /* B473T：晚一拍再檢查倒數。直接檢查的話，舊倒數剛好歸零時會在座位圖還沒開好前就再開一張，兩張疊在一起 */
     return { close: close, expired: function (tx) { sel = []; own = []; paint(); say(tx, 6000); pull(false); tick(); } };
   }
   window.SkySeat = { open: open, name: name };

@@ -6,7 +6,7 @@
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
  /* B452T：沒登入不能選位 */
- '登入後才能選位':'Sign in to choose seats','先用 email 登入（沒買過專輯也可以）：':'Sign in with your email first:','登入並選位':'Sign in and choose seats','6 位數驗證碼':'6-digit code','驗證碼不對或過期':'That code is wrong or has expired.','一分鐘內只能寄一次':'You can send one code per minute.','寄不出去':'We could not send the code.','email 格式不對':'Please check your email address.','寄送中…':'Sending…','連不上伺服器，再試一次':'Could not reach the server. Please try again.',
+ '登入後才能選位':'Sign in to choose seats','先用 email 登入（沒買過專輯也可以）：':'Sign in with your email first:','登入並選位':'Sign in and choose seats','6 位數驗證碼':'6-digit code','驗證碼不對或過期':'That code is wrong or has expired.','一分鐘內只能寄一次':'You can send one code per minute.','寄不出去':'We could not send the code.','email 格式不對':'Please check your email address.','寄送中…':'Sending…','驗證中…':'Checking…','請輸入 6 位數驗證碼':'Enter the 6-digit code.','連不上伺服器，再試一次':'Could not reach the server. Please try again.',
  /* B383T：UX 迴圈第 3 回 */
  '・購買須知':'· Terms',
  /* B382T：UX 迴圈第 2 回 */
