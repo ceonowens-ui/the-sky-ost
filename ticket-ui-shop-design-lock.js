@@ -1411,6 +1411,9 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
     var evPrice = _minP ? '<span class="num">NT$' + _minP.toLocaleString('en-US') + '</span>' + (_tiers && _tiers.some(function (t) { return +t.price > _minP; }) ? ' 起' : ' ／張') : '';   // B460T：只有一種票價不寫「起」
     /* B250T：還沒開賣 → 先不放任何介紹，只留「入場票 · N 席」；開賣後自動恢復 */
     var _pre = ev && !_onSale && !_soldOut;
+    /* B475T（CÉON 11/10）：12/27 生日會的 SHOP 背景換成生日會海報，跟舊照片一樣滿版、同樣位置。
+       海報下方「CHANCE 生日會／日期／地點」那段裁掉不用，文字照舊。舊照片留著，別的場次照舊用。 */
+    var _bg = ev && v2EvOk(ev.id, ev) ? BDAY_POSTER : A.portrait;
     if (_pre) {
       var _cap = ev.capacity || (_tiers || []).reduce(function (a, t) { return a + (+t.cap || 0); }, 0);
       evPrice = ''; // Keep date and venue visible before sales; never disclose presale price.
@@ -1425,7 +1428,7 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
     }).join('');
     var merchSub = esc(count) + (dropLine ? '<br>' + esc(dropLine) : '');
     return '<div class="sv3">' +
-      '<div class="sv3-bg"><img class="sv3-bg-img" width="900" height="1350" decoding="async" src="' + esc(A.portrait) + '" alt=""><div class="sv3-bg-left"></div><div class="sv3-bg-fade"></div></div>' +
+      '<div class="sv3-bg"><img class="sv3-bg-img" width="900" height="1350" decoding="async" src="' + esc(_bg) + '" alt=""><div class="sv3-bg-left"></div><div class="sv3-bg-fade"></div></div>' +
       '<div class="sv3-wrap">' +
         '<section class="sv3-cover">' +
           '<header class="sv3-top"><div class="sv3-brand bd">' + esc(T.brand) + '</div><h1 class="sv3-h1">' + esc(T.title) + '</h1><p class="sv3-sub">' + esc(T.subtitle) + '</p></header>' +
@@ -1892,7 +1895,8 @@ function coverClockKey() {
   })();
   /* B423T（CÉON 11/05）：12/27 生日會入場票改用 V2 黑白膠片票卡。底圖已印好場次資料，所以只給這一場；
      QR、票號、狀態都來自這張票自己的後台資料。?tkv2=0 可在這次開啟時看回舊樣式。 */
-  var V2_ART = "shop-assets/ticket-v2-1227-m3x.png", V2_OFF = /[?&]tkv2=0\b/.test(location.search);
+  /* B475T（CÉON 11/10）：票面換成生日會海報（下方加一條放座位和編號）。舊的黑白膠片票面留著：要換回去，把下一行改回 "shop-assets/ticket-v2-1227-m3x.png"，並把 V2B 改成 false */
+  var V2_ART = "shop-assets/bday-1227/ticket-art.webp", V2B = true, BDAY_POSTER = asset("shop-assets/bday-1227/poster-shop-full.webp"), V2_OFF = /[?&]tkv2=0\b/.test(location.search);
   function v2Ev(t) { return Object.assign({}, eventById(t.eventId) || {}, t.event || {}); }
   function v2EvOk(id, ev) {
     if (V2_OFF || C.demo || !ev || !/^(meet-20261227|meet-test|meet-load-[a-z0-9]+)$/.test(id || "")) return false;   // 示範模式不用真票外觀
@@ -1916,8 +1920,8 @@ function coverClockKey() {
     var en = sxEN(), st = v2State(t, ev), ok = st.c === "ok", tier = t.tierName || (en ? "Entry ticket" : "入場票");
     var box = ok ? '<button type="button" class="tk-v2-qr" data-act="v2-zoom" data-id="' + esc(t.id) + '" aria-label="' + (en ? "Enlarge entry QR" : "放大入場 QR") + '"><canvas data-v2="' + esc(t.id) + '" width="480" height="480"></canvas></button>'
       : '<div class="tk-v2-st ' + st.c + '"><b>' + esc(st.b) + '</b>' + (st.s ? '<span>' + esc(st.s) + '</span>' : '') + '</div>';
-    return '<article class="tk-pass tk-v2 is-' + st.c + '"><img class="tk-v2-art" src="' + esc(asset(V2_ART)) + '" alt="CHANCE ' + (en ? "Birthday Party ticket" : "生日會票券") + '">' + box +
-      (hm(ev.startAt) === "14:30" ? '<div class="tk-v2-time">' + (en ? "Doors 14:00 · Starts 14:30" : "14:00 入場・14:30 開始") + '</div>' : '') +
+    return '<article class="tk-pass tk-v2' + (V2B ? ' tk-v2b' : '') + ' is-' + st.c + '"><img class="tk-v2-art" src="' + esc(asset(V2_ART)) + '" alt="CHANCE ' + (en ? "Birthday Party ticket" : "生日會票券") + '">' + box +
+      (!V2B && hm(ev.startAt) === "14:30" ? '<div class="tk-v2-time">' + (en ? "Doors 14:00 · Starts 14:30" : "14:00 入場・14:30 開始") + '</div>' : '') +
       (t.seatId ? '<div class="tk-v2-meta has-seat"><b class="tk-v2-seat">' + esc(seatTag(t)) + '</b>' + (t.seat ? '<span>No.' + esc(t.seat) + '</span>' : '') + '</div>' : '<div class="tk-v2-meta"><b>' + esc(tier) + (t.seat ? ' · No.' + esc(t.seat) : '') + '</b></div>') +
       '<div class="tk-v2-side">' + (/^meet-(test$|load-)/.test(t.eventId || "") ? '<em>' + (en ? "TEST TICKET" : "測試票") + '</em>' : '') + '</div></article>';
   }
@@ -4204,7 +4208,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B473T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B475T-2"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
