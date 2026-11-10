@@ -1338,7 +1338,7 @@ function sxHomeHTML(mine, ev) {
     '<p>' + esc(en ? "Full purchase terms and privacy policy are linked at the bottom of this page." : "完整《購買須知》與《隱私權政策》在本頁最下方。") + '</p>' +
   '</div></details>';
   return '<div class="sx" data-no-translate>' +
-    '<header class="sx-top"><h1 class="sx-h1">' + esc(sxT(C.title) || "SHOP") + '</h1><button type="button" class="sx-acct" data-act="profile" aria-label="' + (en ? "Account & my tickets" : "帳號與我的票") + '"><img src="' + esc(SHOP_TEXT.assets.logo) + '" alt=""></button></header>' +
+    '<header class="sx-top"><h1 class="sx-h1">' + esc(sxT(C.title) || "SHOP") + '</h1>' + acctBtnHTML("sx-acct", en) + '</header>' +
     out.join("") + info +
   '</div>';
 }
@@ -1433,7 +1433,7 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
         '<section class="sv3-cover">' +
           '<header class="sv3-top"><div class="sv3-brand bd">' + esc(T.brand) + '</div><h1 class="sv3-h1">' + esc(T.title) + '</h1><p class="sv3-sub">' + esc(T.subtitle) + '</p></header>' +
           '<div class="sv3-side-l" aria-hidden="true"><div class="sv3-rule" style="visibility:hidden"></div><div class="sv3-side-en bd">' + T.sideEn.map(esc).join('<br>') + '</div></div>' +
-          '<button class="sv3-ts" data-act="profile" aria-label="帳號"><img src="' + esc(A.logo) + '" alt="T｜S"></button>' +
+           acctBtnHTML("sv3-ts", sxEN()) +   /* B476T：原本是 T｜S 標誌，換成文字入口 */
           '<img class="sv3-sig" src="' + esc(A.signature) + '" alt="The Sky">' +
           '<div class="sv3-higher bd">' + T.higher.map(esc).join('<br>') + '</div>' +
         '</section>' +
@@ -2034,9 +2034,15 @@ function coverClockKey() {
   }
 
   /* ---------- 選單／說明／小動作 ---------- */
+  /* B476T（CÉON 11/10）：SHOP 右上角帳號入口改成文字＋細底線。沒登入寫「登入／查票」，點了直接到我的票的登入畫面；
+     登入了寫「我的帳戶」，點了開帳號小視窗（多一顆「我的票」）。只有專輯兌換資料的人，點下去先自動換成票務登入 */
+  function acctIn() { return !!(S.session || lsGet(K.sess) || unlockCreds()); }
+  function acctLbl(en) { return acctIn() ? (en ? "My account" : "我的帳戶") : (en ? "Sign in / Tickets" : "登入／查票"); }
+  function acctBtnHTML(cls, en) { return '<button type="button" class="' + cls + ' tk-acct" data-act="profile">' + esc(acctLbl(en)) + '</button>'; }
+  function acctOpen() { ensureSession().then(function (ok) { if (ok) { if (!S.email) S.email = lsGet(K.email) || ""; return profileSheet(); } openLayer("wallet"); setTimeout(function () { var d = $("#tk-login"); if (d && !d.open) { d.open = true; try { d.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} } }, 450); }); }   // 沒登入：直接打開「用 email 找回你的票」，不用再點一次
   function profileSheet() {
     sheet('<div class="tk-eyebrow">Account</div><h3>' + (S.email ? esc(maskEmail(S.email)) : "尚未登入票務") + '</h3><div class="tk-hint">票綁在這個 email 上，換手機用同一個 email 登入就看得到。</div>' +
-      '<div class="tk-menu" style="margin-top:14px">' + (S.email ? '<button data-sact="showmail">顯示完整 email</button><button class="danger" data-sact="logout">登出票務</button>' : '<button data-sact="openwallet">登入看票</button>') + '<button data-sact="close">關閉</button></div>');
+      '<div class="tk-menu" style="margin-top:14px">' + (S.email ? '<button data-sact="openwallet">我的票</button><button data-sact="showmail">顯示完整 email</button><button class="danger" data-sact="logout">登出票務</button>' : '<button data-sact="openwallet">登入看票</button>') + '<button data-sact="close">關閉</button></div>');
   }
   /* ========== B210T 工作人員：PhotoPass 拍照掃碼紀錄 ==========
    * 掃粉絲票根的「拍照用 QR」→ 記下時間 → 活動後照片依拍攝時間自動配對。沒網路也能掃（存手機，恢復連線自動上傳）。 */
@@ -4208,7 +4214,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B475T-2"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B476T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
@@ -4229,7 +4235,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "noop") return;
     if (act === "merch-success-sound") { e.stopPropagation(); merchSuccessSound(); return; }
     if (act === "back") return back();
-    if (act === "profile") return profileSheet();
+    if (act === "profile") return acctOpen();
     if (act === "open-wallet") { S.tab = "up"; return openLayer("wallet"); }
     if (act === "open-now") { e.stopPropagation(); var nm = nextMine(); if (nm) openLayer("pass", { sel: nm.id }); else openLayer("wallet"); return; }   // B412T（CÉON 11/03）：從 SHOP 直接開票券，返回就回 SHOP（底下不再墊一層「我的票」，不用按兩次）
     if (act === "open-buy") { e.stopPropagation(); S.buyEv = b.getAttribute("data-ev") || S.buyEv || null; S.buySel = null; S.pre = {};
