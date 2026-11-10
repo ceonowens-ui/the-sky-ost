@@ -1335,7 +1335,7 @@ function sxHomeHTML(mine, ev) {
     (si2.over ? '<p>' + esc(en ? "International: " + si2.over.replace("海外運費 ", "") + " shipping via Chunghwa Post ePacket." : "海外：" + si2.over.replace("海外運費 ", "運費 ") + "，以中華郵政國際 e 小包寄出。") + '</p>' : '') +
     (si2.pick ? '<p>' + esc(en ? "Event pickup: free, collect in person at the merch desk on Dec 27 with your order number and name." : "生日會現場領取：免運，12/27 當天到周邊服務台報訂單編號與姓名領取。") + '</p>' : '') +
     '<p>' + esc(en ? "All prices in New Taiwan dollars (TWD). Prices, shipping and quantity limits are shown again before payment." : "價格皆為新台幣。付款前會再列一次金額、運費與數量限制。") + '</p>' +
-    '<p>' + esc(en ? "Full purchase terms and privacy policy are linked at the bottom of this page." : "完整《購買須知》與《隱私權政策》在本頁最下方。") + '</p>' +
+    '<p>' + (en ? 'Full <button type="button" class="cx9-ln" data-open-terms="terms">purchase terms</button> and <button type="button" class="cx9-ln" data-open-terms="privacy">privacy policy</button>.' : '完整<button type="button" class="cx9-ln" data-open-terms="terms">《購買須知》</button>與<button type="button" class="cx9-ln" data-open-terms="privacy">《隱私權政策》</button>，點一下就能看（也在 OWN →「更多設定」→「使用規則」）。') + '</p>' +   // B483T：SHOP 最下方的購買須知／隱私權政策拿掉了，這裡改成直接點開
   '</div></details>';
   return '<div class="sx" data-no-translate>' +
     '<header class="sx-top"><h1 class="sx-h1">' + esc(sxT(C.title) || "SHOP") + '</h1>' + acctBtnHTML("sx-acct", en) + '</header>' +
@@ -1566,7 +1566,15 @@ function coverClockKey() {
     var go = function () { try { var scm = document.getElementById("screen-merch"); if (scm && Math.abs(scm.scrollTop - p.el) > 4) scm.scrollTop = p.el; if (Math.abs((window.scrollY || 0) - p.win) > 4) window.scrollTo(0, p.win); } catch (e) {} };
     go(); requestAnimationFrame(go); setTimeout(go, 120); setTimeout(go, 360);
   }
-  function back() { if (S.layers.length) { S.navBack = Date.now(); history.back(); } }
+  function back(force) { if (!force && coBackToSeats()) return; if (S.layers.length) { S.navBack = Date.now(); history.back(); } }
+  /* B482T（CÉON 11/10）：結帳頁按返回（或左邊緣滑回）＝回到上一步「選座位」，位子保留、照原本的倒數；
+     在這個座位圖再按返回，才回到生日會那頁（位子放掉）。「更換座位」打開的座位圖按返回，照舊回到結帳頁 */
+  function coBackSeatsOK() {
+    if (S.layers[S.layers.length - 1] !== "checkout" || S.seatUI || S.seatOpening || sheetEl && sheetEl.classList.contains("show")) return false;
+    var b = S.buy, ev = b && (buyEvent(b.evId) || buyEv());
+    return !!(b && ev && seatEv(ev) && seatsOf(b).length && !b.pp);
+  }
+  function coBackToSeats() { if (!coBackSeatsOK()) return false; seatOpen(true); return true; }
   var TK_APP = !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));   // 加到主畫面的 App
   /* B466T（CÉON 11/08）：左邊緣滑動返回（swipe-back gesture）。頁面跟著手指走，下面那頁從左邊慢慢回來、變亮；
      放手時滑超過三分之一或甩得夠快就返回，不然彈回原位。只在「加到主畫面」的 App 開（Safari 自己就有這個手勢，兩個一起會退兩頁） */
@@ -1595,6 +1603,11 @@ function coverClockKey() {
       var go = !cancel && (d > s.w / 3 || (v > 0.45 && d > 24));
       if (s.still) { if (go) { hap(8); back(); } return; }
       s.el.style.transition = EASE; if (s.under) s.under.style.transition = EASE;
+      if (go && coBackSeatsOK()) {   // B482T：結帳頁滑回＝回到選座位：這頁彈回原位，座位圖從上面打開
+        s.el.style.transform = ""; if (s.under) { s.under.style.transform = ""; s.under.style.filter = ""; }
+        setTimeout(function () { s.el.style.transition = ""; if (s.under) s.under.style.transition = ""; }, 380);
+        hap(8); back(); return;
+      }
       if (go) {
         s.el.style.transform = "translate3d(100%,0,0)"; if (s.under) { s.under.style.transform = "translate3d(0,0,0)"; s.under.style.filter = "brightness(1)"; }
         hap(8); back();
@@ -2197,8 +2210,7 @@ function coverClockKey() {
       (multiT ? '<div class="pt">合照與照片</div><ul>' + li('VIP／VVIP：與 CHANCE 的合照由官方攝影師拍攝，自己的合格合照成片全數免費下載，無須另行加購；VVIP 的 60 秒一對一已含合照。') + li('合格成片＝經攝影團隊篩選、基本校色的高解析 JPEG，不含 RAW、失焦、閉眼、測試照或重複廢片；不代表延長互動時間或不限拍攝。') + li('全票種：全場大合照與主辦精選活動照免費下載。個人合照只提供給該票券持有人，不會放進共用相簿。') + li('生日牆合照（一般票加購 PhotoPass NT$390）：在現場為 CHANCE 布置的生日牆前與 CHANCE 合照一次，由官方攝影師拍攝，自己的合格成片全數下載；不加購不影響其他福利。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>' : '<div class="pt">合照與照片</div><ul>' + li('生日牆全體合照、全場大合照由官方攝影師拍攝，主辦精選活動照免費下載。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>') +
       (multiT ? '<div class="pt">海報署名（VVIP）</div><ul>' + li('購票時填寫的稱呼，就是 CHANCE 在海報上署名使用的名字，請確認寫法。') + li('票券轉讓後，新持有人請於活動前來信 heartbeats0693@gmail.com 更新稱呼。') + '</ul>' : '') + mTermsHTML(ev) +
       '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票面金額 10%。') + li('活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。') + li('票券可在票夾「轉讓給朋友」換人。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li('退票申請：來信 heartbeats0693@gmail.com，註明購票 Email 與票號。') + '</ul>' +
-      '<div class="pt">主辦單位</div><ul>' + li('名稱：微風廣場實業股份有限公司') + li('統一編號：89477962') + li('代表人：黃瑞姸') + li('地址：臺北市松山區復興南路1段39號') + '</ul>' +   /* B469T（CÉON 11/09）：主辦是微風，夏米爾企業社是售票代辦 */
-      '<div class="pt">售票代辦</div><ul>' + li('名稱：夏米爾企業社') + li('負責人：張紫瑩') + li('客服信箱：heartbeats0693@gmail.com') + li('地址：臺北市中正區懷寧街76號') + '</ul>' +
+      '<div class="pt">主辦單位</div><ul>' + li('名稱：微風廣場實業股份有限公司') + li('統一編號：89477962') + li('代表人：黃瑞姸') + li('地址：臺北市松山區復興南路1段39號') + '</ul>' +   /* B469T（CÉON 11/09）：主辦是微風；B483T（CÉON 11/10）：「售票代辦」那段不放，只寫主辦單位（客服信箱在上面退票那條） */
       '<div class="nt">' + esc(BUY_TEXT.note) + '</div>';
   }
   function rulesSheet() {
@@ -3224,8 +3236,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var l = openLayer("checkout"); seatOpen(); return l;
     });
   }
-  function seatOpen() {
-    if (S.seatUI || S.seatOpening) return;   /* B473T：座位圖已經開著、或正在載入，就不再開第二層（疊兩層時，上面那層按確認後，下面那層會留在畫面上，用它自己的選位繼續續鎖，看起來像點了卻沒選到） */
+  function seatOpen(fromBack) {
+    if (S.seatUI || S.seatOpening) return;
+    S.seatBackOut = fromBack === true;   // B482T：記下這次座位圖是不是從結帳頁「返回」打開的   /* B473T：座位圖已經開著、或正在載入，就不再開第二層（疊兩層時，上面那層按確認後，下面那層會留在畫面上，用它自己的選位繼續續鎖，看起來像點了卻沒選到） */
     var b = S.buy; if (!b) return; var ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; if (!T) return;
     if (seatEv(ev) && !S.session) return seatGate(ev, seatOpen);
     S.seatOpening = true; setTimeout(function () { S.seatOpening = false; }, 12000);   /* 載入失敗也不會永遠鎖住 */
@@ -3237,9 +3250,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         load: function () { return fetch(C.api + "/ticket/seats?event=" + encodeURIComponent(ev.id) + "&token=" + encodeURIComponent(PICK_TOK), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return seatCfgSet(ev.id, j); }); },
         pick: function (ids) { return seatPick(ev.id, ids); },
         left: seatLeft, onTimeUp: function () { seatExpired(); },
-        onDone: function (ss, nm) { S.seatUI = null; if (S.buy !== b) return; b.seats = ss; b.seatNames = nm; b.tq = ss.length; msg("#tk-bmsg", ""); coTQ(0); seatKeep(ev.id); seatSync(ev.id); },   // B435T：確認當下再核對一次，點完馬上按確認時，後台的回覆不會漏掉
+        onDone: function (ss, nm) { S.seatUI = null; S.seatBackOut = false; if (S.buy !== b) return; b.seats = ss; b.seatNames = nm; b.tq = ss.length; msg("#tk-bmsg", ""); coTQ(0); seatKeep(ev.id); seatSync(ev.id); },   // B435T：確認當下再核對一次，點完馬上按確認時，後台的回覆不會漏掉
         /* B435T（CÉON 11/06）：座位圖按返回。沒選過位子就回到上一頁，不留下「尚未選位卻顯示一張票」的結帳頁；更換時返回，原本的位子要鎖回來 */
-        onClose: function () { S.seatUI = null; if (S.buy === b && seatsOf(b).length) { seatSync(ev.id); seatKeep(ev.id); return; } seatPick(ev.id, []).catch(function () {}); if (S.layers[S.layers.length - 1] === "checkout") back(); } });
+        onClose: function () { S.seatUI = null;
+          if (S.seatBackOut) { S.seatBackOut = false; if (S.layers[S.layers.length - 1] === "checkout") back(true); return; }   // B482T：從結帳頁按返回來的座位圖，再按返回＝回到生日會那頁（離開結帳頁時位子會放掉）
+          if (S.buy === b && seatsOf(b).length) { seatSync(ev.id); seatKeep(ev.id); return; } seatPick(ev.id, []).catch(function () {}); if (S.layers[S.layers.length - 1] === "checkout") back(); } });
     });
   }
   function coLeave() {   // B435T：離開結帳頁：座位圖一起關、位子馬上放掉（不等下一次續鎖），填好的資料留給下次進來
