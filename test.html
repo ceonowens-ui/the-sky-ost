@@ -3650,6 +3650,10 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
 @keyframes ssIn{to{opacity:1;transform:none}}
 @keyframes ssBar{to{transform:scaleX(1)}}
 @media (prefers-reduced-motion:reduce){#sky-splash .ss-k,#sky-splash .ss-t{animation:none;opacity:1;transform:none}#sky-splash .ss-l i{animation:none;transform:scaleX(1)}#sky-splash{transition-duration:.2s}}
+/* B477T：C 版開場影片（3 秒）。整張照比例放進畫面（不拉長、不裁臉和 CHANCE／THE SKY），上下留黑邊，上下緣淡進黑底 */
+#sky-splash.vid{background:#010101}
+#sky-splash.vid .ss-k,#sky-splash.vid .ss-t,#sky-splash.vid .ss-l{display:none}
+#sky-splash .ss-m{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,56.25vh);width:min(100vw,56.25dvh);height:auto;aspect-ratio:9/16;max-width:100%;object-fit:contain;display:block;background:transparent;pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 6%,#000 94%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 6%,#000 94%,transparent 100%)}
 </style>
 <div id="sky-splash" aria-hidden="true"><div class="ss-k">CHANCE</div><div class="ss-t">THE SKY</div><div class="ss-l"><i></i></div></div>
 <script>(function () {
@@ -3663,15 +3667,66 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
     if (gone) return;
     if (window.__skyReloading && Date.now() - window.__skyReloading < 6000) { setTimeout(go, 400); return; }   /* B452T：正在換新版，舊版不露出來 */
     gone = true; el.classList.add("done");
+    try { clearVid(); if (media && media.pause && mode === "video" && !media.ended) media.pause(); } catch (e) {}   /* B477T：略過時影片停在當格，跟著淡出 */
     setTimeout(function () { el.classList.add("out"); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); window.__skySplashOff = Date.now() - t0; }, 560); }, Math.max(0, MIN - (Date.now() - t0)));
   }
   function ready() {
     var f = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
     var v = window.__skyVerChk || Promise.resolve();   /* B452T：等版本檢查回來（最多 1.5 秒），舊版就在開場畫面後面換掉 */
-    Promise.all([Promise.race([f, new Promise(function (r) { setTimeout(r, 500); })]), Promise.race([v, new Promise(function (r) { setTimeout(r, 1500); })])]).then(function () { requestAnimationFrame(function () { requestAnimationFrame(go); }); });
+    Promise.all([Promise.race([f, new Promise(function (r) { setTimeout(r, 500); })]), Promise.race([v, new Promise(function (r) { setTimeout(r, 1500); })])]).then(function () { requestAnimationFrame(function () { requestAnimationFrame(readyGo); }); });
   }
+  /* B477T：開場改成 C 版影片（靜音、手機內播放）。正常播完就進 App；影片載不到、自動播放被擋（例如省電模式）、
+     2 秒內沒開始播、播到一半卡住，都改成停在最後一格約 1 秒再進；連最後一格都載不到就照原本的字幕開場。點一下隨時略過。
+     從綠界回來、系統設定「減少動態效果」不播影片 */
+  var VID = "intro-assets/chance-c-signal-3s.mp4", END = "intro-assets/chance-c-end.jpg";
+  var rm = false; try { rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+  var mode = "text", isReady = false, vidT = [], media = null;
+  function later(fn, ms) { vidT.push(setTimeout(fn, ms)); }
+  function clearVid() { vidT.forEach(clearTimeout); vidT = []; }
+  function still(why) {          /* 影片不行 → 最後一格 */
+    if (gone || mode === "still" || mode === "text") return;
+    mode = "still"; clearVid(); window.__skyIntro = why;
+    var old = media; media = null;
+    var img = new Image(); img.className = "ss-m"; img.alt = ""; img.decoding = "async";
+    var shown = false;
+    img.onload = function () { if (gone || shown) return; shown = true; if (old && old.parentNode) old.parentNode.removeChild(old); later(go, 1000); };
+    img.onerror = function () { if (gone || shown) return; shown = true; if (old && old.parentNode) old.parentNode.removeChild(old); toText(); };
+    img.src = END; el.appendChild(img); media = img;
+    later(function () { if (!shown) { shown = true; toText(); } }, 1500);
+  }
+  function toText() {            /* 最後一格也不行 → 原本的字幕開場 */
+    if (gone) return;
+    mode = "text"; clearVid(); el.classList.remove("vid");
+    if (media && media.parentNode) media.parentNode.removeChild(media); media = null;
+    if (isReady) later(go, MIN); else later(go, MAX);
+  }
+  if (!ret) {
+    var v = document.createElement("video");
+    var can = false; try { can = !!(v.canPlayType && v.canPlayType("video/mp4")); } catch (e) {}
+    if (can) {
+      el.classList.add("vid"); mode = "video"; media = v;
+      v.className = "ss-m"; v.muted = true; v.defaultMuted = true; v.playsInline = true; v.autoplay = !rm; v.preload = "auto";
+      v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.setAttribute("disablepictureinpicture", ""); v.setAttribute("aria-hidden", "true");
+      if (rm) { still("reduced-motion"); }
+      else {
+        var started = false;
+        v.addEventListener("playing", function () {
+          if (started || mode !== "video") return; started = true; clearVid();
+          var left = Math.max(0, ((v.duration || 3) - (v.currentTime || 0))) * 1000;
+          later(function () { if (mode === "video") still("stalled"); }, left + 1200);   /* 中途卡住 */
+        });
+        v.addEventListener("ended", function () { if (mode === "video") { window.__skyIntro = "ended"; go(); } });
+        v.addEventListener("error", function () { still("error"); });
+        v.src = VID; el.appendChild(v);
+        try { var p = v.play(); if (p && p.catch) p.catch(function () { if (!started) still("blocked"); }); } catch (e) { still("blocked"); }
+        later(function () { if (!started) still("timeout"); }, 2000);   /* 2 秒內沒開始播 */
+      }
+    }
+  }
+  function readyGo() { isReady = true; if (mode === "text") go(); }   /* 影片模式：等影片播完，不提早收 */
   if (document.readyState === "complete") ready(); else window.addEventListener("load", ready);
-  setTimeout(go, MAX);
+  if (mode === "text") setTimeout(go, MAX);
+  setTimeout(go, 8000);   /* 不論哪種情況，最多 8 秒一定進 App */
   el.addEventListener("click", go);
   if (ret) window.__skySplashGo = go;   /* B469T：購票模組蓋上自己的等待底、或結果頁出來時叫它 */
 })();</script>
@@ -12666,7 +12721,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B458T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B477T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
