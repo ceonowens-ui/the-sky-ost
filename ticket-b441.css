@@ -306,3 +306,10 @@ html[data-cta-style] .tk-layer .tkb.co-noir .tkb-foot.solo:has(.tk-seatleft:not(
 .sv3 .sv3-ts.tk-acct{top:28px;right:0}
 .sv3 .sv3-ts.tk-acct:active,.sx-acct.tk-acct:active{opacity:.7}
 
+/* B480T（CÉON 11/10）：要填的欄位加金色框，一眼看得出這裡要填。結帳頁的姓名、手機（沒登入時的收票 Email 也一樣）；單買周邊的收件／領取欄位同一套 */
+.tk-layer .tkb.co-noir .tkc-f .tk-in.tkb-in{min-height:52px!important;padding:0 14px!important;border:1.5px solid rgba(216,188,128,.72)!important;border-radius:12px!important;background:rgba(216,188,128,.07)!important;box-shadow:none!important}
+.tk-layer .tkb.co-noir .tkc-f .tk-in.tkb-in:focus{border-color:#E6CB95!important;background:rgba(216,188,128,.12)!important;box-shadow:0 0 0 3px rgba(216,188,128,.22)!important;outline:none}
+.tk-layer .tkb.co-noir .tkc-f .tk-in.tkb-in.err{border-color:#ff9a8a!important;box-shadow:none!important}
+.cx9 input,.cx9 select,.cx9 textarea{border:1.5px solid rgba(216,188,128,.72)!important}
+.cx9 input:focus,.cx9 select:focus,.cx9 textarea:focus{border-color:#E6CB95!important;box-shadow:0 0 0 3px rgba(216,188,128,.22)!important;outline:none}
+.cx9 .cx9-row.bad input,.cx9 .cx9-row.bad select,.cx9 .cx9-row.bad textarea{border-color:#ff9a8a!important}

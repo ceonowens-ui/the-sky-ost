@@ -224,7 +224,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 .tk-tiny{font-size:10px;color:var(--tkm);word-break:break-all;line-height:1.5;text-align:center}\
 .tk-big{text-align:center;padding:26px 0 8px}.tk-big .ic{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;font-size:30px;border:1px solid rgba(216,188,128,.42);color:#efd9a9}.tk-big .ic.ok{border-color:rgba(155,209,166,.4);color:#9bd1a6;background:rgba(155,209,166,.07)}\
 .tk-menu{display:flex;flex-direction:column;gap:2px}.tk-menu button{text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.08);color:var(--tkt);font:inherit;font-size:16px;padding:16px 4px;min-height:52px;cursor:pointer}.tk-menu button.danger{color:#e7a3a3}.tk-menu button:first-child{border-top:0}\
-.tk-toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1418;border:1px solid rgba(216,188,128,.3);color:var(--tkt);padding:10px 16px;border-radius:999px;font-size:12px;z-index:100001;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}.tk-toast.in{opacity:1}\
+.tk-toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1418;border:1px solid rgba(216,188,128,.3);color:var(--tkt);padding:12px 20px;border-radius:999px;font-size:16px;z-index:100001;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}.tk-toast.in{opacity:1}\
 .tk-cd{display:flex;gap:6px;margin-top:14px}.tk-cd div{background:rgba(0,0,0,.35);border:1px solid rgba(216,188,128,.28);border-radius:10px;padding:6px 8px;text-align:center;min-width:48px}.tk-cd b{display:block;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.tk-cd span{font-size:9px;color:#b9ad97;letter-spacing:.1em}\
 .tk-ent .st2{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}\
 .tk-seg{display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:4px;margin:6px 0 4px}.tk-seg button{flex:1;border:0;background:none;color:rgba(255,255,255,.55);font:inherit;font-size:14px;padding:10px 0;border-radius:9px;cursor:pointer;min-height:40px}.tk-seg button.on{background:rgba(216,188,128,.18);color:#f4e4c1;font-weight:600}\
@@ -2041,7 +2041,7 @@ function coverClockKey() {
   function acctBtnHTML(cls, en) { return '<button type="button" class="' + cls + ' tk-acct" data-act="profile">' + esc(acctLbl(en)) + '</button>'; }
   function acctOpen() { ensureSession().then(function (ok) { if (ok) { if (!S.email) S.email = lsGet(K.email) || ""; return profileSheet(); } openLayer("wallet"); setTimeout(function () { var d = $("#tk-login"); if (d && !d.open) { d.open = true; try { d.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} } }, 450); }); }   // 沒登入：直接打開「用 email 找回你的票」，不用再點一次
   function profileSheet() {
-    sheet('<div class="tk-eyebrow">Account</div><h3>' + (S.email ? esc(maskEmail(S.email)) : "尚未登入票務") + '</h3><div class="tk-hint">票綁在這個 email 上，換手機用同一個 email 登入就看得到。</div>' +
+    sheet('<h3>' + (S.email ? esc(maskEmail(S.email)) : "尚未登入票務") + '</h3><div class="tk-hint" style="font-size:17px!important;line-height:1.6">票綁在這個 email 上。在別的裝置用同一個 email 登入，也看得到你的票。</div>' +
       '<div class="tk-menu" style="margin-top:14px">' + (S.email ? '<button data-sact="openwallet">我的票</button><button data-sact="showmail">顯示完整 email</button><button class="danger" data-sact="logout">登出票務</button>' : '<button data-sact="openwallet">登入看票</button>') + '<button data-sact="close">關閉</button></div>');
   }
   /* ========== B210T 工作人員：PhotoPass 拍照掃碼紀錄 ==========
@@ -4214,7 +4214,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return '<div class="tkb">' + h + '</div>';
   }
 
-  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B476T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
+  (function () { if (document.getElementById("b438-css")) return; var l = document.createElement("link"); l.id = "b438-css"; l.rel = "stylesheet"; l.href = asset("ticket-b441.css") + "?v=B480T-1"; document.head.appendChild(l); var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..500&family=Inter:wght@400;700&family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@500&display=swap"; document.head.appendChild(f); })();   /* B441T：C 封面、付款 B 定稿視覺 */
   /* B444T：手機按住時 :active 不一定成立，三顆購票按鈕另外掛 is-press；只改外觀，不攔事件 */
   (function () {
     var on = null, SEL = ".sv3-block:not([disabled]),.la-noir .la-foot .la-cta,.tk-layer .tkb.co-noir .tkb-foot .tkb-cta,.sk-seat .sk-ok";
