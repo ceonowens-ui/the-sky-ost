@@ -305,7 +305,7 @@
       setStatusHTML("");
       body.innerHTML = '<div class="lsa-done" style="display:flex;flex-direction:column;gap:10px">' +
         '<h3 tabindex="-1">你的信，已送達<br>Chance 的專屬信箱。</h3>' + readBy +
-        '<p class="lsa-note">送達代表信箱已接收，不代表已讀。Chance 本人讀完後會另外顯示。</p>' +
+        '<p class="lsa-note">你的信已經放進 Chance 的信箱，他會親自打開、讀完。讀完的那一刻，「我的信件」會告訴你，也會寄信通知你。</p>' +
         (net.demo ? '<span class="lsa-demo"><em>DEMO</em>模擬送達 · 沒有真的寄出</span>' : '') +
         '<div class="lsa-row"><button type="button" class="lsa-btn primary" data-act="view">查看信件</button></div></div>';
       body.querySelector('[data-act="view"]').onclick = function () { if (opts.onViewLetter) opts.onViewLetter(); };
