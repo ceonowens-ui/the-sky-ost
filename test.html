@@ -2248,7 +2248,7 @@ body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 #screen-mood.sgl-locked .feed-tabs{ display:none !important; }
 #screen-mood.sgl-locked #feed-body{ position:absolute; inset:0; padding:0; margin:0; }
 #screen-mood.sgl-locked .sgl-bg{ position:absolute; inset:0; z-index:0; pointer-events:none;
-  background:#080809 url("assets/images/signal/feed-bday-1227.jpg?v=1") no-repeat;
+  background:#080809 url("assets/images/signal/feed-bday-1227-full.jpg?v=1") no-repeat;
   background-size:var(--sg-img-size, 111% auto);
   background-position:calc(50% + var(--sg-img-x, 0px)) var(--sg-img-y, 0px); }
 #screen-mood.sgl-locked .sgl-bg::after{ content:""; position:absolute; inset:0;
@@ -2281,11 +2281,17 @@ body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
   #screen-mood.sgl-locked .sgl-btn{ animation:none; background:#897149; }
 }
 
-/* B491T（CÉON 11/11）：FEED 未解鎖頁換成 12/27 生日會海報（3:4）。整張海報放在標題列下方、Unlock 上方的空間裡（contain），不裁切、不被按鈕蓋住；海報下方不需要漸層 */
-#screen-mood.sgl-locked .sgl-bg{ inset:auto 0 auto 0; top:calc(env(safe-area-inset-top, 0px) + 56px);
-  bottom:calc(var(--sgl-navspace, calc(env(safe-area-inset-bottom, 0px) + 74px)) + var(--sg-btn-gap, 88px) + var(--sg-btn-h, 36px) + 16px);
-  background-size:contain !important; background-position:center top !important; }
+/* B492T（CÉON 11/11）：FEED 未解鎖頁換成直式長海報，滿版鋪滿整個畫面（cover，寬度貼齊）。
+   海報上方是空的紅底、下方漸暗到黑，所以往上收一點（垂直 28%），讓日期、地點、時間落在 Unlock 按鈕上方；海報本身已漸暗，不另加漸層 */
+#screen-mood.sgl-locked .sgl-bg{ background-size:cover !important; background-position:center 28% !important; }
 #screen-mood.sgl-locked .sgl-bg::after{ display:none; }
+/* B493T（CÉON 11/11 選 Figma B 款「酒紅絲絨金邊」）：Unlock 配生日海報 —— 外圈保留流光，但改成金色；裡面酒紅漸層、米金字、兩側金色星光；外面一圈淡金光暈 */
+#screen-mood.sgl-locked .sgl-btn{
+  background:conic-gradient(from var(--sgl-a), #B8904F 0deg, #B8904F 290deg, #E9CC8E 318deg, #FFF3D6 346deg, #B8904F 358deg, #B8904F 360deg);
+  box-shadow:0 0 18px rgba(232,194,122,.35), 0 8px 20px rgba(26,2,5,.6); }
+#screen-mood.sgl-locked .sgl-btn .sgl-in{ background:linear-gradient(180deg, #9A1E2B 0%, #5C0A14 100%); color:#F7E8C8; letter-spacing:.14em; gap:12px; }
+#screen-mood.sgl-locked .sgl-btn .sgl-in::before, #screen-mood.sgl-locked .sgl-btn .sgl-in::after{ content:"\2726"; font-size:16px; letter-spacing:0; color:#EBCB8B; line-height:1; }
+@media (prefers-reduced-motion: reduce){ #screen-mood.sgl-locked .sgl-btn{ background:#C9A46A; } }
 </style>
 <style id="cp-apple-lyrics">
 /* B230T：同步歌詞 Apple Music 式 —— 只有正在唱的那句清楚，其他句依距離變暗＋模糊。只作用在有時間戳的行（.cp-line[data-time]）。 */
@@ -12872,7 +12878,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B491T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B493T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
