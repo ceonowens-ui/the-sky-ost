@@ -5,12 +5,14 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B494T：英文版補字 */
+ '你已購買':'Purchased',
  /* B452T：沒登入不能選位 */
  '登入後才能選位':'Sign in to choose seats','先用 email 登入（沒買過專輯也可以）：':'Sign in with your email first:','登入並選位':'Sign in and choose seats','6 位數驗證碼':'6-digit code','驗證碼不對或過期':'That code is wrong or has expired.','一分鐘內只能寄一次':'You can send one code per minute.','寄不出去':'We could not send the code.','email 格式不對':'Please check your email address.','寄送中…':'Sending…','驗證中…':'Checking…','請輸入 6 位數驗證碼':'Enter the 6-digit code.','連不上伺服器，再試一次':'Could not reach the server. Please try again.',
  /* B383T：UX 迴圈第 3 回 */
  '・購買須知':'· Terms',
  /* B382T：UX 迴圈第 2 回 */
- '售完為止':'While stocks last','推薦・獨家 6 號小卡':'Top pick · No.6 card','推薦・只在這裡拿得到的 6 號小卡':'Top pick · No.6 card only here','含國碼，如 +852…':'With country code, e.g. +852…','付款後 7 個工作天內寄出・台灣免運':'Ships within 7 business days of payment · free shipping in Taiwan','海外 e 小包寄出・附追蹤號碼':'Ships by international ePacket · tracking included','12/27 生日會當天・周邊服務台領取・免運':'Pick up at the merch desk on 12/27 · free','購買、退換貨與個資處理，依《購買須知》與《隱私權政策》。':'Purchases, refunds and personal data follow the Purchase Terms and Privacy Policy.',
+ '售完為止':'While stocks last','推薦・獨家 6 號小卡':'Top pick · No. 6 card','推薦・只在這裡拿得到的 6 號小卡':'Top pick · No. 6 card only here','含國碼，如 +852…':'With country code, e.g. +852…','付款後 7 個工作天內寄出・台灣免運':'Ships within 7 business days of payment · free shipping in Taiwan','海外 e 小包寄出・附追蹤號碼':'Ships by international ePacket · tracking included','12/27 生日會當天・周邊服務台領取・免運':'Pick up at the merch desk on 12/27 · free','購買、退換貨與個資處理，依《購買須知》與《隱私權政策》。':'Purchases, refunds and personal data follow the Purchase Terms and Privacy Policy.',
  /* B381T：UX 迴圈第 1 回 */
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
@@ -43,7 +45,7 @@
  /* B378T：UX 第二批 */
  '已帶入購票時的資料，可以改':'Filled from your ticket purchase — you can change it','放大圖片':'Zoom image','點一下關閉':'Tap to close','訂單已收進「我的票」，確認信稍後寄到':'Saved to My tickets — a confirmation email is on its way','・活動後寄出，寄出會寄追蹤號碼給你':' · Ships after the event; we will email the tracking number','到周邊服務台報姓名和手機領取':'pick up at the merch desk with your name and phone','保留時間已過。還沒付款的話，請重新購買一次。':'The hold has expired. If you have not paid, please buy again.',
  /* B377T：UX 檢查第一批 */
- '推薦':'Recommended','6 號小卡只隨組合':'No.6 card only in the set','A3 海報組 ＋ 6 號小卡（小卡只隨組合）':'A3 poster set + No.6 card (card only in the set)','現場領取・免運':'Event pickup · free','綠界 ECPay 安全付款・信用卡':'Secure payment by ECPay · credit card',
+ '推薦':'Recommended','6 號小卡只隨組合':'No. 6 card only in the set','A3 海報組 ＋ 6 號小卡（小卡只隨組合）':'A3 poster set + No. 6 card (card only in the set)','現場領取・免運':'Event pickup · free','綠界 ECPay 安全付款・信用卡':'Secure payment by ECPay · credit card',
  /* B375T：生日周邊購買頁（卡包結帳頁版型） */
  '泰國':'Thailand','菲律賓':'Philippines','越南':'Vietnam','印尼':'Indonesia','墨西哥':'Mexico','巴西':'Brazil','阿根廷':'Argentina','智利':'Chile','南非':'South Africa','德國':'Germany','義大利':'Italy','西班牙':'Spain','荷蘭':'Netherlands','比利時':'Belgium','瑞士':'Switzerland','奧地利':'Austria','瑞典':'Sweden','挪威':'Norway','丹麥':'Denmark','芬蘭':'Finland','愛爾蘭':'Ireland','葡萄牙':'Portugal','波蘭':'Poland','捷克':'Czechia','紐西蘭':'New Zealand',
  '選擇商品':'Choose items','請選擇':'Select','選地區後顯示':'Shown after you pick a region','請選寄送地區':'Please choose a shipping region','請先選商品':'Please choose an item first','找不到登入的 email，請重新登入':'We could not find your sign-in email — please sign in again',
@@ -171,7 +173,7 @@
  /* B337T：生日會資訊（CÉON 10/29 13:21 原文 → 英文逐行對照；中文原文一字不改） */
  '生日會資訊':'Birthday Party Info',
  '地點：微風影城8樓A廳':'Venue: Breeze Cinemas, Hall A, 8F',
- '票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)':'Ticket: NT$1,880 (includes a HI FIVE on the way out, a No. 6 photo card, and one random A3 poster)',
+ '票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)':'Ticket: NT$1,880 (includes a hi-five on the way out, a No. 6 photo card, and one random A3 poster)',
  '座位名額：120名':'Seats: 120',
  '時間：14:00開始入場、14:30活動開始、16:00活動結束':'Time: Doors open 14:00, event starts 14:30, event ends 16:00',
  '11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)':'Tickets go on sale 11/15 at 12:00 (Taipei time) (please come early at 13:20 on the day to collect your items on site)',
@@ -181,11 +183,11 @@
  '海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）':'Overseas-only bundle: NT$1,280, includes a No. 6 photo card and an A3 poster set (4 posters), limited to 30 sets (no event entry)',
  '運費另計：亞洲區250元／海外區500元':'Shipping extra: Asia NT$250 / other regions NT$500',
  '亦可以備註留下全名跟電話在12/27現場領取時請人代領':'You can also leave your full name and phone number in the order note and have someone pick up for you on site on 12/27',
- '離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名':'HI FIVE on the way out: gifts for Chance are welcome, but no special requests for photos, videos or autographs',
+ '離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名':'Hi-five on the way out: gifts for Chance are welcome, but no special requests for photos, videos or autographs',
  '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
  /* B342T：買票＋生日周邊加購（A3 海報組／A3 海報組＋6號小卡）、單買周邊・海外寄送 */
  '加購生日限定周邊':'Birthday merch add-ons','生日限定周邊':'Birthday merch','生日限定周邊（預購）':'Birthday merch (pre-order)','選填・活動當天現場領取':'Optional · pick up at the event','活動當天現場領取':'Pick up at the event','預購中':'Pre-order open','預購已截止':'Pre-orders closed',
- 'A3 海報組（一組 4 張）':'A3 poster set (4 posters)','A3 海報組':'A3 poster set','A3 海報組＋6號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組＋6號小卡':'A3 poster set + No. 6 photo card','A3 海報組＋A3 海報組＋6號小卡':'A3 poster set + A3 poster set & No. 6 photo card',
+ 'A3 海報組（一組 4 張）':'A3 poster set (4 posters)','A3 海報組':'A3 poster set','A3 海報組＋6號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組＋6號小卡':'A3 poster set + No. 6 photo card','A3 海報組＋A3 海報組＋6號小卡':'A3 poster set · Poster + No. 6 card bundle',
  '海外無法到場也可寄送':'Can be shipped if you can’t attend','人在海外，或已經有票想加買？':'Overseas, or already have a ticket?','單買周邊・海外寄送 ›':'Buy merch only · ship overseas ›','單買周邊・海外寄送':'Buy merch only · ship overseas',
  '需持有這場門票':'Requires a ticket to this event','海外寄送':'Ship overseas','運費依地區計算':'Shipping fee by region','Email（訂單確認信寄到這裡）':'Email (your order confirmation goes here)',
  '亞洲':'Asia','中國大陸':'Mainland China','歐洲':'Europe','大洋洲':'Oceania','加拿大・中南美・非洲':'Canada · Latin America · Africa','美國':'USA',
@@ -204,26 +206,26 @@
  '轉讓時座位跟著票走；退票後座位會重新開放。':'Your seat moves with the ticket if you transfer it. Refunded seats go back on sale.',
  '輪椅席不開放線上選位，請聯繫主辦。':'Wheelchair seats are not sold online. Please contact the organizer.',
  '本活動為對號入座，座位於購票時選定，並顯示於票面與門票信。':'This event has reserved seating. You choose your seat when you buy, and it appears on your ticket and in your ticket email.',
- '按「前往付款」後座位保留 5 分鐘；逾時未完成付款，座位會開放給其他人。':'Your seat is held for 5 minutes after you tap Pay. If you do not pay in time, it goes back on sale.',
+ '按「前往付款」後座位保留 5 分鐘；逾時未完成付款，座位會開放給其他人。':'Your seat is held for 5 minutes after you tap Continue to payment. If you do not pay in time, it goes back on sale.',
  '逾時才完成付款且原座位已被購買時，系統自動改派最近的空位，並於票面與門票信註明；若已無空位，該筆不出票並全額退款。':'If you pay after the hold ends and your seat has been sold, you are moved to the nearest open seat, noted on your ticket and in your email. If no seat is left, no ticket is issued and you get a full refund.',
  '轉讓時座位隨票轉移；退票後座位重新開放。':'Your seat moves with the ticket if you transfer it. Refunded seats go back on sale.',
- '從第一次點選座位起，請在 10 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。':'You have 10 minutes from your first seat tap to tap Pay. Until then you can change seats, but changing does not restart the clock. If time runs out, your seats are released, you are not charged, and you can choose again.',
+ '從第一次點選座位起，請在 10 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。':'You have 10 minutes from your first seat tap to tap Continue to payment. Until then you can change seats, but changing does not restart the clock. If time runs out, your seats are released, you are not charged, and you can choose again.',
  '付款後不能更換座位。':'Seats can’t be changed after payment.',
  '付款後不能更換座位':'Seats can’t be changed after payment',
  '選位時間到了，座位已放掉，請重新選位。還沒建立付款，不會扣款。':'Your 10 minutes ran out and the seats were released. Choose again. You have not been charged.',
- '按「前往付款」後座位保留 5 分鐘，請留在付款頁完成付款、不要關閉；超過時間，座位會開放給其他人。':'Your seat is held for 5 minutes after you tap Pay. Stay on the payment page until it is done. After that it goes back on sale.',
+ '按「前往付款」後座位保留 5 分鐘，請留在付款頁完成付款、不要關閉；超過時間，座位會開放給其他人。':'Your seat is held for 5 minutes after you tap Continue to payment. Stay on the payment page until it is done. After that it goes back on sale.',
  '最後的票正在別人的付款保留中，沒付款的話 5 分鐘內會釋出，可以稍後再試。還沒建立付款，不會扣款。':'The last tickets are being held for other buyers. Any unpaid ones are released within 5 minutes, so please try again soon. No payment was created.',
  '付款沒有成功':'Payment failed',
  '綠界回覆這筆付款沒有成功，所以不會出票。可以換一張卡再試一次，資料都還在。之前買好的票不受影響。':'ECPay reported that this payment failed, so no ticket was issued. You can try again with another card — your details are saved. Tickets you already bought are not affected.',
  '付款超過保留時間，已沒有空位可以改派':'Your payment arrived after the hold ended, and no seat is left to move you to',
- '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
+ '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Continue to payment.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
  /* B465T：當天須知 */
- '當天須知':'On the day','離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。':'At the HI FIVE on the way out you are welcome to give Chance a gift, but there are no special requests for photos, videos or autographs.','最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。':'We will take a group photo at the end. There is a quiz with prizes and a draw for a life-size standee; you get one draw number per ticket at entry.','有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。':'If you bought merch, pick it up on site from 13:20 that day, or leave your full name and phone number so a friend can collect it for you.',
+ '當天須知':'On the day','離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。':'At the hi-five on the way out you are welcome to give Chance a gift, but there are no special requests for photos, videos or autographs.','最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。':'We will take a group photo at the end. There is a quiz with prizes and a draw for a life-size standee; you get one draw number per ticket at entry.','有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。':'If you bought merch, pick it up on site from 13:20 that day, or leave your full name and phone number so a friend can collect it for you.',
  /* B459T：開賣前先登入 */
  '尚未開賣 · 先登入':'Not on sale yet · Sign in first','即將開賣 · 先登入':'Coming soon · Sign in first','先登入，開賣直接選位':'Sign in now, pick seats at launch','已登入 · 開賣直接選位':'Signed in · pick seats at launch','已登入 · 開賣直接選位 ✓':'Signed in · pick seats at launch ✓','先登入':'Sign in','✓ 已登入':'✓ Signed in','開賣前先登入':'Sign in before sales open','已登入':'Signed in','開賣時打開 App 就能直接選位，不用再收驗證碼。':'When sales open, just open the app and pick your seats. No code needed.',
  /* B441T：C 封面、付款 B */
- '輸入電子信箱':'Enter your email','稱呼':'Name','座位保留中，超過時間要重新選位':'Your seats are held. If time runs out, choose your seats again.','按「前往付款」後座位會保留一段時間；逾時未完成付款，座位會開放給其他人。':'Your seat is held for a limited time after you tap Pay. If you do not pay in time, it goes back on sale.','按「前往付款」後，請留在付款頁完成付款、不要關閉；超過時間要重新選位。':'After you tap Pay, stay on the payment page until it is done. If time runs out, choose your seats again.','座位保留中，還沒完成購買。超過時間要重新選位。':'Held for you. This is not a completed purchase. If time runs out, choose your seats again.',
+ '輸入電子信箱':'Enter your email','稱呼':'Name','座位保留中，超過時間要重新選位':'Your seats are held. If time runs out, choose your seats again.','按「前往付款」後座位會保留一段時間；逾時未完成付款，座位會開放給其他人。':'Your seat is held for a limited time after you tap Continue to payment. If you do not pay in time, it goes back on sale.','按「前往付款」後，請留在付款頁完成付款、不要關閉；超過時間要重新選位。':'After you tap Continue to payment, stay on the payment page until it is done. If time runs out, choose your seats again.','座位保留中，還沒完成購買。超過時間要重新選位。':'Held for you. This is not a completed purchase. If time runs out, choose your seats again.',
  /* B438T：購票封面、結帳頁定稿 */
  '讓我們再見面吧':"Let's meet again",'生日會':'Birthday','活動與入場規則  ↗':'Event & entry rules  ↗',
  /* B437T：購票頁重點、付款前購票須知 */
@@ -252,7 +254,7 @@
  '部分座位可能因無障礙需求、攝影、工作人員或場地安排而保留，請依現場標示與工作人員引導入座。':'Some seats may be reserved for accessibility needs, filming, staff or venue arrangements. Please follow the signs and the staff’s directions when taking a seat.',
  /* B346T：門票手機（現場核對） */
  '現場核對用（姓名＋手機後 4 碼），不會公開':'Used only for check-in at the event (name + last 4 digits). Never shown publicly.',
- '例如：0912345678':'e.g. 0912345678 or +81 90 1234 5678', '請填寫手機號碼':'Please enter your mobile number.','手機號碼格式不對，再看一下':'That mobile number doesn’t look right. Please check it.',
+ '例如：0912345678':'09… or +country code', '請填寫手機號碼':'Please enter your mobile number.','手機號碼格式不對，再看一下':'That mobile number doesn’t look right. Please check it.',
  '購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。':'A mobile number is required when buying. It is used only for check-in at this event (name + last 4 digits).',
  /* B343T：數量、免票現場領取（姓名＋電話） */
  '每筆最多 5 組':'Up to 5 per order','寄送':'Ship','台灣・亞洲 NT$250／其他 NT$500':'Taiwan & Asia NT$250 / elsewhere NT$500','領取人資料（現場核對用）':'Pickup details (checked at the event)','領取人姓名':'Name for pickup','手機號碼':'Mobile number','請填領取人姓名和手機（現場核對用）':'Please enter the pickup name and mobile number (checked at the event).','減少':'Decrease','增加':'Increase',
@@ -262,7 +264,7 @@
  '每個帳號這場最多 5 張（含付款中的訂單；轉讓出去的票也算）；票都寄到同一個 Email，可在 App 轉讓給朋友。':'Up to 5 tickets per account for this event (unpaid orders and tickets you transfer out count). All tickets go to one email and can be transferred in the app.',
  '電話（含國碼）':'Phone (with country code)','地址（街道、門牌、樓層）':'Address (street, number, floor)','城市':'City','州／省（沒有可空白）':'State / province (optional)','郵遞區號（香港、澳門免填）':'Postal code (not needed for Hong Kong / Macau)','例如：小晞、Amy':'e.g. Amy','6 位數驗證碼':'6-digit code','例如 K7X 2M9':'e.g. K7X 2M9',
  /* B341T：票種福利（後台與 test.html 一致） */
- '離場HI FIVE':'HI FIVE on the way out','6號小卡':'No. 6 photo card','隨機A3海報一張':'One random A3 poster',
+ '離場HI FIVE':'Hi-five on the way out','6號小卡':'No. 6 photo card','隨機A3海報一張':'One random A3 poster',
  /* 場地若在後台改成 8 樓 A 廳：英文跟著換 */
  '微風影城8樓A廳':'Breeze Cinemas · Hall A, 8F','微風影城 8 樓 A 廳':'Breeze Cinemas · Hall A, 8F','微風影城8樓A廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei','微風影城 8 樓 A 廳 · 台北':'Breeze Cinemas · Hall A, 8F, Taipei',
  };
@@ -360,9 +362,9 @@
  [/^驗證碼已寄到 (\S+)（5 分鐘內有效），沒看到請找垃圾信件$/,(_,e)=>'Code sent to '+e+'. It is valid for 5 minutes. Check your spam folder if you do not see it.'],
  [/^(NT\$[\d,]+)／張$/,(_,p)=>p+' each'],
  [/^(\d\d:\d\d) 開始$/,(_,a)=>'Starts '+a],
- [/^從第一次點座位起 10 分鐘內要按「前往付款」（看下方倒數）；按下後請在 (\d+) 分鐘內完成付款，請留在付款頁、不要關閉。超過時間要重新選位。$/,(_,n)=>'Tap Pay within 10 minutes of your first seat tap (see the countdown below). Then finish paying within '+n+' minutes and stay on the payment page. If time runs out, choose your seats again.'],
- [/^按「前往付款」後，請在 (\d+) 分鐘內完成付款；逾時未完成付款，座位會開放給其他人。$/,(_,n)=>'After you tap Pay, finish paying within '+n+' minutes. If you do not pay in time, your seat goes back on sale.'],
- [/^座位保留中，還沒完成購買。按「前往付款」後保留 (\d+) 分鐘；超過時間要重新選位。$/,(_,n)=>'Held for you. This is not a completed purchase. After you tap Pay, it is held for '+n+' minutes; if time runs out, choose your seats again.'],
+ [/^從第一次點座位起 10 分鐘內要按「前往付款」（看下方倒數）；按下後請在 (\d+) 分鐘內完成付款，請留在付款頁、不要關閉。超過時間要重新選位。$/,(_,n)=>'Tap Continue to payment within 10 minutes of your first seat tap (see the countdown below). Then finish paying within '+n+' minutes and stay on the payment page. If time runs out, choose your seats again.'],
+ [/^按「前往付款」後，請在 (\d+) 分鐘內完成付款；逾時未完成付款，座位會開放給其他人。$/,(_,n)=>'After you tap Continue to payment, finish paying within '+n+' minutes. If you do not pay in time, your seat goes back on sale.'],
+ [/^座位保留中，還沒完成購買。按「前往付款」後保留 (\d+) 分鐘；超過時間要重新選位。$/,(_,n)=>'Held for you. This is not a completed purchase. After you tap Continue to payment, it is held for '+n+' minutes; if time runs out, choose your seats again.'],
  [/^手機末 4 碼 (\d+)$/,(_,a)=>'Phone ending '+a],
  [/^(.+) 這個位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' was just taken. Pick another seat you like. No payment was created.'],
  [/^(.+) 這些位置剛被選走了，再挑一個喜歡的位置吧。還沒建立付款，不會扣款。$/,(_,a)=>a+' were just taken. Pick another seat you like. No payment was created.'],
