@@ -472,6 +472,58 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function nickInput(cls) { var v = (S.buy && S.buy.nick) || lsGet("tk:nick") || ""; return '<input class="tk-in' + (cls ? " " + cls : "") + '" id="tk-bnick" type="text" maxlength="20" aria-required="true" autocomplete="name" enterkeyhint="done" placeholder="例如：王小明" value="' + esc(v) + '">'; }
   /* B346T：門票要手機（現場用「姓名＋手機後 4 碼」核對；後台 M3 起必填） */
   function phoneInput() { var v = (S.buy && S.buy.phone) || lsGet("tk:phone") || meGet().phone || ""; return '<input class="tk-in tkb-in" id="tk-bph" type="tel" inputmode="tel" aria-required="true" maxlength="20" autocomplete="tel" enterkeyhint="done" placeholder="例如：0912345678" value="' + esc(v) + '">'; }
+
+  /* B496T（CÉON 11/11）：電子發票（夏米爾企業社開立）。預設寄到購票 Email；也可以存手機條碼、打統一編號、捐贈。門票結帳和周邊結帳共用同一套 */
+  function invGetSaved() { try { var x = JSON.parse(localStorage.getItem("tk:inv") || "null"); return x && x.t ? x : { t: "mail" }; } catch (e) { return { t: "mail" }; } }
+  function invOpts(t) {
+    var en = sxEN(), opt = function (v, zh, e2) { return '<option value="' + v + '"' + (t === v ? ' selected' : '') + '>' + (en ? e2 : zh) + '</option>'; };
+    return opt("mail", "寄到 Email", "Email") + opt("bar", "手機條碼", "Mobile barcode") + opt("ubn", "公司統編", "Company tax ID") + opt("love", "捐贈發票", "Donate");
+  }
+  function invPh(t) { var en = sxEN(); return t === "bar" ? (en ? "e.g. /ABC1234" : "例如：/ABC1234") : t === "ubn" ? (en ? "8-digit tax ID" : "8 碼統一編號") : t === "love" ? (en ? "3–7 digit code" : "3 到 7 碼捐贈碼") : ""; }
+  function invLbl(t) { var en = sxEN(); return t === "bar" ? (en ? "Mobile barcode" : "手機條碼") : t === "ubn" ? (en ? "Tax ID" : "統一編號") : (en ? "Donation code" : "捐贈碼"); }
+  function invHint(t) {
+    var en = sxEN();
+    return t === "bar" ? (en ? "Starts with /, 8 characters in total." : "/ 開頭，共 8 碼。") : t === "ubn" ? (en ? "The e-invoice is emailed to you." : "電子發票會寄到你的 Email。") : t === "love" ? (en ? "Enter the charity’s donation code." : "填受贈單位的捐贈碼。") : (en ? "Issued by Xiamier Enterprise and emailed to you after payment." : "付款後由夏米爾企業社開立，寄到你的 Email。");
+  }
+  function invCheck(x) {   // 回傳 { inv } 或 { err }
+    var t = x && x.t || "mail", v = String(x && x.v || "").trim(), en = sxEN();
+    if (t === "bar") { v = v.toUpperCase(); if (!/^\/[0-9A-Z+\-.]{7}$/.test(v)) return { err: en ? "Mobile barcode starts with / and has 8 characters" : "手機條碼是 / 開頭、共 8 碼" }; return { inv: { t: t, v: v } }; }
+    if (t === "ubn") { if (!/^\d{8}$/.test(v)) return { err: en ? "Tax ID is 8 digits" : "統一編號是 8 碼數字" }; return { inv: { t: t, v: v, n: String(x.n || "").trim().slice(0, 60) } }; }
+    if (t === "love") { if (!/^\d{3,7}$/.test(v)) return { err: en ? "Donation code is 3–7 digits" : "捐贈碼是 3 到 7 碼數字" }; return { inv: { t: t, v: v } }; }
+    return { inv: { t: "mail" } };
+  }
+  CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
+  function invSave(inv) { try { localStorage.setItem("tk:inv", JSON.stringify(inv)); } catch (e) {} }
+  function invBlock() {   // 門票結帳頁
+    var x = S.inv || invGetSaved(), t = x.t || "mail";
+    return '<div class="tk-inv" data-inv><label class="tkb-sec" for="tk-inv-t">' + (sxEN() ? "E-invoice" : "電子發票") + '</label>' +
+      '<select class="tk-in tkb-in" id="tk-inv-t">' + invOpts(t) + '</select>' +
+      '<input class="tk-in tkb-in" id="tk-inv-v" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" aria-label="' + esc(invLbl(t)) + '" placeholder="' + esc(invPh(t)) + '" value="' + esc(t !== "mail" ? x.v || "" : "") + '"' + (t === "mail" ? ' hidden' : '') + '>' +
+      '<input class="tk-in tkb-in" id="tk-inv-n" autocomplete="organization" maxlength="60" aria-label="' + (sxEN() ? "Company name" : "公司抬頭") + '" placeholder="' + (sxEN() ? "Company name (optional)" : "公司抬頭（可不填）") + '" value="' + esc(t === "ubn" ? x.n || "" : "") + '"' + (t === "ubn" ? '' : ' hidden') + '>' +
+      '<div class="tkb-hint" id="tk-inv-h">' + esc(invHint(t)) + '</div></div>';
+  }
+  document.addEventListener("change", function (e) {
+    var sel = e.target; if (!sel || sel.id !== "tk-inv-t") return;
+    var box = sel.closest("[data-inv]"); if (!box) return;
+    var t = sel.value, v = box.querySelector("#tk-inv-v"), n = box.querySelector("#tk-inv-n"), h = box.querySelector("#tk-inv-h"), er = box.querySelector(".tk-ferr");
+    if (er) er.remove(); v.classList.remove("err"); v.removeAttribute("aria-invalid");
+    v.hidden = t === "mail"; v.value = ""; v.placeholder = invPh(t); v.setAttribute("aria-label", invLbl(t)); v.inputMode = t === "bar" ? "text" : "numeric";
+    n.hidden = t !== "ubn"; n.value = ""; if (h) h.textContent = invHint(t);
+    S.inv = { t: t };
+  }, true);
+  document.addEventListener("input", function (e) {   // 打字就記下來：結帳頁重畫時發票欄不會被清掉
+    var el = e.target; if (!el || (el.id !== "tk-inv-v" && el.id !== "tk-inv-n")) return;
+    var box = el.closest("[data-inv]"), sel = box && box.querySelector("#tk-inv-t"); if (!sel) return;
+    if (!S.inv || S.inv.t !== sel.value) S.inv = { t: sel.value };
+    S.inv[el.id === "tk-inv-v" ? "v" : "n"] = el.value;
+  }, true);
+  function invRead() {   // 門票結帳：讀發票欄，錯了標在欄位下面
+    var box = document.querySelector(".tk-layer.in [data-inv]") || document.querySelector("[data-inv]"); if (!box) return { inv: { t: "mail" } };
+    var vEl = box.querySelector("#tk-inv-v"), r = invCheck({ t: box.querySelector("#tk-inv-t").value, v: vEl.value, n: box.querySelector("#tk-inv-n").value });
+    var old = box.querySelector(".tk-ferr"); if (old) old.remove(); vEl.classList.remove("err");
+    if (r.err) { fieldErr(vEl, r.err, true); return { err: r.err, el: vEl }; }
+    S.inv = r.inv; invSave(r.inv); return r;
+  }
   function phoneBlock() { return '<label class="tkb-sec" for="tk-bph">手機號碼</label>' + phoneInput() + '<div class="tkb-hint">現場核對用（姓名＋手機後 4 碼），不會公開</div>'; }
   function fieldErr(el, text, quiet) {
     if (!el) { msg("#tk-bmsg", text); return false; }
@@ -524,6 +576,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       var f = bad[0].el; try { f.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} setTimeout(function () { f.focus(); }, 250);
       return null;
     }
+    if (S.buy && S.buy.kind !== "pp" && $("#tk-bph")) { var ir = invRead(); if (ir.err) { msg("#tk-bmsg", (sxEN() ? "Please fix: " : "請修正：") + (sxEN() ? "E-invoice" : "電子發票")); try { ir.el.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} setTimeout(function () { ir.el.focus(); }, 250); return null; } }   // B496T
     var m = $("#tk-bmsg"); if (m && /要修正|請修正/.test(m.textContent)) { m.textContent = ""; m.className = "tk-msg"; }
     return val;
   }
@@ -687,7 +740,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       return;
     }
     var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);   // 回到目前這頁（不帶個資）
-    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, pickToken: pp ? undefined : PICK_TOK, session: pp ? undefined : S.session || undefined, seats: pp ? undefined : b.seats, qty: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]), email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" , lang: sxEN() ? "en" : "" }) })
+    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, pickToken: pp ? undefined : PICK_TOK, session: pp ? undefined : S.session || undefined, seats: pp ? undefined : b.seats, qty: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]), email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" , lang: sxEN() ? "en" : "", inv: pp ? undefined : (S.inv || invGetSaved()) }) })
       .then(function (r) { return r.text(); })
       .then(function (html) {
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
@@ -3389,7 +3442,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var logged = loggedIn(), em = logged ? myEmail() : ((S.coDraft && S.coDraft.email) || lsGet(K.email) || ""), T = selTierOf(), f = function (h) { return red ? '<div class="tkc-f">' + h + '</div>' : h; };
     return coWhoHTML(f(logged ? '<div class="tkb-mail">' + ic("check", "bi s") + '<span>票會寄到 <b>' + esc(maskEmail(myEmail())) + '</b>，也會存進票夾</span></div>' :
       '<label class="tkb-sec" for="tk-bem">收票 Email</label><input class="tk-in tkb-in" id="tk-bem" type="email" aria-required="true" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="' + (red ? '輸入電子信箱' : '你的 email') + '" value="' + esc(em) + '"><div class="tkb-hint">票會寄到這裡，記得填一個收得到信的信箱。</div>' + TMAIL) +
-      f('<label class="tkb-sec" for="tk-bnick">' + (red ? '真實姓名' : '你的真實姓名') + '</label>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>') + f(phoneBlock()), em);
+      f('<label class="tkb-sec" for="tk-bnick">' + (red ? '真實姓名' : '你的真實姓名') + '</label>' + nickInput("tkb-in") + '<div class="tkb-hint">' + esc(nickHint(T)) + '</div>') + f(phoneBlock()), em) + f(invBlock());   // B496T：發票欄不收進「收票資料」，每次都看得到
   }
   function selTierOf() { var b = S.buy || {}, ev = buyEvent(b.evId) || buyEv(); return ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; }
   function checkoutHTML() {
@@ -3677,10 +3730,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       cx9Row("addr", "地址", '<textarea data-mf="addr" rows="2" autocomplete="street-address" maxlength="160" placeholder="' + (sh.country && !tw ? "街道、門牌、樓層、城市" : "請輸入詳細地址") + '"' + A("addr") + '>' + esc(sh.addr || "") + '</textarea>');
     h += loggedIn() ? cx9Row("email", "Email", '<span class="mx-ro">' + esc(maskEmail(myEmail())) + '</span>')
       : cx9Row("email", "Email", '<input data-mf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(o.email || "") + '"' + A("email") + '>');
+    { var ix = o.inv || (o.inv = invGetSaved()), it2 = ix.t || "mail";   // B496T：電子發票
+      h += cx9Row("inv-t", en ? "E-invoice" : "電子發票", '<select data-mf="inv-t"' + A("inv-t") + '>' + invOpts(it2) + '</select>');
+      if (it2 !== "mail") h += cx9Row("inv-v", invLbl(it2), '<input data-mf="inv-v" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" inputmode="' + (it2 === "bar" ? "text" : "numeric") + '" placeholder="' + esc(invPh(it2)) + '" value="' + esc(ix.v || "") + '"' + A("inv-v") + '>');
+      if (it2 === "ubn") h += cx9Row("inv-n", en ? "Company name" : "公司抬頭", '<input data-mf="inv-n" autocomplete="organization" maxlength="60" placeholder="' + (en ? "Optional" : "可不填") + '" value="' + esc(ix.n || "") + '"' + A("inv-n") + '>'); }
     h += '</div>' +
       '<p class="cx9-err" role="alert"' + (o.err ? '' : ' hidden') + '>' + esc(o.err || "") + '</p>' +
       '<ul class="cx9-note"><li>' + (pick ? (en ? "On " + esc(day) + ", pick up at the merch desk with your pickup code and name." : esc(day) + " 生日會當天，到周邊服務台出示領取碼和姓名領取。") : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
-        '<li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li></ul>' +
+        '<li>收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</li><li>' + esc(invHint((o.inv && o.inv.t) || "mail")) + '</li></ul>' +
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p></div></details>' +
       payEnNote() + '<div class="cx9-foot"><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button></div></div>';
     return h;
@@ -3726,6 +3783,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mxInput(e) {
     var o = S.mx, k = e.target.getAttribute && e.target.getAttribute("data-mf"); if (!o || !k) return;
     var v = e.target.value;
+    if (k.indexOf("inv-") === 0) {   // B496T：電子發票欄
+      o.inv = o.inv || invGetSaved(); o.inv[k.slice(4)] = v;
+      if (o.bad && o.bad["inv-v"]) { delete o.bad["inv-v"]; e.target.removeAttribute("aria-invalid"); cx9RowOK(e.target); }
+      if (k === "inv-t" && e.type === "change") { o.inv = { t: v }; o.err = ""; mSheet(); }
+      return;
+    }
     if (k === "email") o.email = v.trim().toLowerCase(); else if (k.indexOf("pk-") === 0) { o.pk = o.pk || {}; o.pk[k.slice(3)] = v; } else o.ship[k] = v;
     var mk = k.replace(/^pk-/, ""); if (/^(name|phone|postal|addr|country)$/.test(mk)) { var pt = {}; pt[mk] = v; meSet(pt); }   // B387T：記住，別頁帶入
     if (o.bad && o.bad[k]) { delete o.bad[k]; e.target.removeAttribute("aria-invalid"); cx9RowOK(e.target); }   // B382T：這一欄開始改就把紅框和說明拿掉
@@ -3763,6 +3826,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     }
     if (!loggedIn()) { c = emailCheck(email); if (c.err) bad.email = c.err; else email = String(email).trim().toLowerCase(); }
     else if (!email) return mxFail("找不到登入的 email，請重新登入");   // 登入的 email 由後台給，格式後台已檢查
+    var ivr = invCheck(o.inv || invGetSaved()); if (ivr.err) bad["inv-v"] = ivr.err; else invSave(ivr.inv);   // B496T：電子發票
     if (Object.keys(bad).length) return mxFail(bad);   // B382T：一次標出所有錯的欄位
     lsSet(K.email, email);
     try { localStorage.setItem("tk:mxlast", JSON.stringify({ evId: o.evId, code: code, qty: mQ(o.evId, o), mode: o.mode, ship: o.ship, pk: o.pk || {}, at: Date.now() })); } catch (e) {}   // B379T：回來重新付款時資料還在
@@ -3781,7 +3845,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now(), qty: qn, amt: Number(j.amount || j.total) || (rsv ? rsv.price * qn + fee0 : 0) }); } catch (e) {}
       if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, ship, body.qty || 1); pmDone(mxPayBtn(), function () { o.busy = false; mAwait(); }); return; }   // B378T：示範也走同一條「落在訂單卡」的路
       var back2 = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
-      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back2, name: "", lang: sxEN() ? "en" : "" }) })
+      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back2, name: "", lang: sxEN() ? "en" : "", inv: ivr.inv }) })
         .then(function (r) { return r.text(); })
         .then(function (html) {
           if (!currentAttempt()) return;
