@@ -17,6 +17,9 @@
  '按「前往付款」後名額保留 3 分鐘，逾時讓給下一位':'After you tap Pay, your spot is held for 3 minutes — then it goes to the next person','門票':'Ticket',
  /* B387T：別頁填過的資料帶入 */
  '已帶入你之前填過的資料，可以改':'Filled in from what you entered before — you can change it',
+ '已帶入你之前填過的資料，Email 以外都可以改':'Filled in from what you entered before — you can change everything except the email',
+ /* B499T：登入帳號的 Email 不能改 */
+ '這是你登入的帳號，不能改。要換 Email，請先登出，再用另一個 Email 登入。':'This is the account you’re signed in with, so it can’t be changed. To use a different email, sign out and sign in with that email.',
  /* B416T：卡包未確認訂單 */
  '上一筆卡包訂單還沒查到付款':'Your last card-pack order isn’t confirmed yet','重新確認付款 ›':'Check payment again ›',
  /* B414T */
