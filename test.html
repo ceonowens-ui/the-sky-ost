@@ -93,6 +93,10 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
   var skip = false; try { skip = /[?&]nosplash=1\b/.test(location.search) || !!window.__SKY_NOSPLASH; } catch (e) {}
   if (skip) { el.parentNode.removeChild(el); return; }
   var ret = /[?&](tkbought|tkmerch|tkphoto)=/.test(location.search);   /* B469T（CÉON 11/09）：從綠界回來不播開場（不出 CHANCE／THE SKY），只留同色底擋住載入，結果一出來就收 */
+  /* B498T（CÉON 11/11）：主畫面 App 去綠界付款，回來時 iPhone 會把 App 從頭打開、網址沒有 ?tkbought，以前會照常播開場影片（手放頭上那段）再跳到票。
+     改成也看手機裡「剛去付款」的紀錄（跟下面購票模組的 tkPend 同一份：門票／周邊 tk:paying、tk225:m，卡包 cx:shop），30 分鐘內有就當作付款回來：不播開場，只留黑底 */
+  if (!ret) { try { var pNow = Date.now(), pA = JSON.parse(localStorage.getItem("tk:paying") || "null"), pB = JSON.parse(localStorage.getItem("tk225:m") || "null"), pC = JSON.parse(localStorage.getItem("cx:shop") || "null");
+    ret = !!(pA && pA.evId && pNow - (pA.t || 0) < 30 * 60e3) || !!(pB && pB.no && pB.evId && pNow - (pB.at || 0) < 30 * 60e3) || !!(pC && pC.d && pC.launched && pNow >= pC.at && pNow - pC.at < 30 * 60e3); } catch (e) {} }
   if (ret) el.classList.add("ret");
   var t0 = Date.now(), MIN = ret ? 0 : 900, MAX = 2000, gone = false;
   function go() {
@@ -12878,7 +12882,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B497T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B498T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
