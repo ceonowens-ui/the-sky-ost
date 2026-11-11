@@ -166,7 +166,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 .tk-div{display:flex;align-items:center;gap:12px;margin:26px 0 4px;font-family:var(--font-label,serif);font-size:11px;letter-spacing:.3em;color:rgba(216,188,128,.75)}.tk-div:before,.tk-div:after{content:'';flex:1;height:1px;background:rgba(216,188,128,.2)}\
 #nav-wrap{transition:transform .22s ease,opacity .22s ease}body.tk-open #nav-wrap{transform:translateY(130%);opacity:0;pointer-events:none}\
 .tk-layer{position:fixed;inset:0;z-index:99990;background:radial-gradient(circle at 50% -10%,var(--bg-top,#2a0e13),transparent 45%),var(--bg,#0b0709);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px calc(40px + env(safe-area-inset-bottom));pointer-events:none}.tk-layer>*{opacity:0;transition:opacity .2s ease}\
-.tk-layer.in{pointer-events:auto}.tk-layer.in>*{opacity:1}.tk-layer.out>*{opacity:0;transition-duration:.12s}\
+.tk-layer.in{pointer-events:auto}.tk-layer.hold{visibility:hidden}.tk-layer.in>*{opacity:1}.tk-layer.out>*{opacity:0;transition-duration:.12s}\
 @media (prefers-reduced-motion:reduce){.tk-layer>*,#nav-wrap,.tk-ent{transition:none}}\
 .tk-bar{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 0 10px;margin:0 -16px 6px;padding-left:12px;padding-right:12px;background:linear-gradient(var(--bg,#0b0709) 70%,transparent)}\
 .tk-bar button{background:none;border:0;color:#fff;font:inherit;font-size:15px;min-height:44px;min-width:44px;display:flex;align-items:center;gap:6px;cursor:pointer;padding:0 4px}\
@@ -359,7 +359,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
 
   /* ---------- 資料 ---------- */
   function noTestTag(e) { if (e && e.name) e.name = String(e.name).replace("（測試場）", ""); return e; }   /* B452T：測試資料的場次名稱不顯示「（測試場）」 */
-  function loadEvents() { return api("/ticket/events").then(function (j) { if (!j || !Array.isArray(j.events)) return; S.events = j.events.map(noTestTag); if (!C.demo) try { localStorage.setItem("tk:evs:" + C.api, JSON.stringify({ t: Date.now(), ev: S.events })); } catch (e) {} try { qSync(); } catch (e) {} }).catch(function () {}); }
+  function loadEvents() { return api("/ticket/events").then(function (j) { if (!j || !Array.isArray(j.events)) return; S.events = j.events.map(noTestTag); try { if (S.events.some(seatEv)) seatLoad(function () {}, true); } catch (e) {} if (!C.demo) try { localStorage.setItem("tk:evs:" + C.api, JSON.stringify({ t: Date.now(), ev: S.events })); } catch (e) {} try { qSync(); } catch (e) {} }).catch(function () {}); }
   function evCache() { if (C.demo) return; try { var o = JSON.parse(localStorage.getItem("tk:evs:" + C.api) || "null"); if (o && Array.isArray(o.ev) && o.ev.length && Date.now() - o.t < 7 * 864e5) S.events = o.ev; } catch (e) {} }   // B454T：上次看到的活動先顯示，後台回來再更新，不用每次等
   function loadMine(force) {
     if (!S.session) return Promise.resolve();
@@ -1555,6 +1555,8 @@ function coverClockKey() {
 
   /* ---------- 分層導覽 ---------- */
   function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
+  function layerReveal(el) { if (!el || !el.classList.contains("hold")) return; el.classList.remove("hold"); var u = el._under; el._under = null; requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); if (u) u.classList.add("under"); }); }); }   // B500T
+  function coReveal() { layerReveal(layerEl("checkout")); }
   function openLayer(name, opts) {
     opts = opts || {};
     if (name === "wallet") S.walletMerch = !!opts.merch;
@@ -1571,7 +1573,8 @@ function coverClockKey() {
     document.getElementById("tk-layers").appendChild(el);
     renderLayer(name);
     document.body.classList.add("tk-open");
-    requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); if (underEl) underEl.classList.add("under"); }); });
+    if (opts.hold) { el.classList.add("hold"); el._under = underEl; setTimeout(function () { layerReveal(el); }, 5000); }   // B500T：先進座位圖的話，結帳頁先藏著，座位圖蓋上去才出現（不會先閃結帳頁）；5 秒保底
+    else requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); if (underEl) underEl.classList.add("under"); }); });
     if (name === "wallet") { try { loadScan(); } catch (e) {} }   // 進票夾先把相機元件載好，按「相機」時才來得及在手勢內開相機
     if (name === "wallet" || name === "pass" || name === "buy") loadMine(true).then(function () { renderLayer(name); });
     if (name === "pass") { var t = ticketById(S.sel); if (!awUse() && t && t.event && qrUnlocked(t.event) && isLive(t)) setTimeout(function () { toast(sxEN() ? "☀︎ Turn your screen brightness all the way up to scan faster" : "☀︎ 把螢幕亮度調到最亮，掃得更快"); }, 400); }
@@ -3237,9 +3240,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var cls = q > 1 ? 'many' : q ? (String(nm[0]).length > 2 ? 'l3' : '') : 'none', sep = en ? ", " : "、";
     return '<div id="tk-tq"' + (q > 1 ? ' class="tq-many"' : '') + '><div class="tkm-qty tk-seatrow"><span>' + (en ? "Seats" : "你的座位") + '</span><b class="' + cls + '">' + (q ? nm.map(function (x, i) { return '<span>' + esc(x) + (i < nm.length - 1 ? sep : '') + '</span>'; }).join("") : (en ? "Not chosen yet" : "尚未選位")) + '</b><button type="button" class="tk-seatgo" data-act="co-seat">' + (q ? (en ? "Change" : "更換座位") : (en ? "Choose" : "選位")) + '</button></div>' + amt + (q ? '<small class="tk-seathint"><b>' + (en ? "We hope you’ll see this day from this seat." : "期待你從這個位置，看見今天。") + '</b><span>' + esc(seatHintTx(ev, en)) + '</span></small>' : '') + '</div>';
   }
-  function seatLoad(cb) {
+  var seatLoadQ = null;   // B500T：生日會頁先載好座位圖程式；同時叫好幾次只載一份
+  function seatLoad(cb, quiet) {
     if (window.SkySeat) return cb();
-    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S10"; sc.onload = cb; sc.onerror = function () { S.seatOpening = false; if (sc.parentNode) sc.parentNode.removeChild(sc); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
+    if (seatLoadQ) return void seatLoadQ.push(cb);
+    seatLoadQ = [cb];
+    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S10";
+    sc.onload = function () { var q = seatLoadQ || []; seatLoadQ = null; q.forEach(function (f) { try { f(); } catch (e) {} }); };
+    sc.onerror = function () { var q = seatLoadQ || []; seatLoadQ = null; if (sc.parentNode) sc.parentNode.removeChild(sc); if (q.length === 1 && quiet) return; S.seatOpening = false; coReveal(); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
   }
   /* 點選即鎖（CÉON 11/05 定）：座位圖裡點到就送後台鎖 2 分鐘。token 只在這個分頁有效；結帳頁每 45 秒續鎖，離開結帳頁就放掉 */
   var PICK_TOK = (function () { var t = ""; try { t = sessionStorage.getItem("tk:pick") || ""; } catch (e) {} if (!/^[A-Za-z0-9_-]{8,40}$/.test(t)) { t = "p" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { sessionStorage.setItem("tk:pick", t); } catch (e) {} } return t; })();
@@ -3306,19 +3314,20 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!T) return openLayer("buy");   // 多票種：先到購票頁選票種
     return seatGate(ev, function () {
       createOrder(ev.id, T); if (isSolo(ev)) { S.buy.mb = false; S.buy.mh = false; S.buy.mq = 1; }
-      var l = openLayer("checkout"); seatOpen(); return l;
+      var l = openLayer("checkout", { hold: true }); seatOpen(); return l;   // B500T：直接進座位圖
     });
   }
   function seatOpen(fromBack) {
     if (S.seatUI || S.seatOpening) return;
     S.seatBackOut = fromBack === true;   // B482T：記下這次座位圖是不是從結帳頁「返回」打開的   /* B473T：座位圖已經開著、或正在載入，就不再開第二層（疊兩層時，上面那層按確認後，下面那層會留在畫面上，用它自己的選位繼續續鎖，看起來像點了卻沒選到） */
-    var b = S.buy; if (!b) return; var ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; if (!T) return;
-    if (seatEv(ev) && !S.session) return seatGate(ev, seatOpen);
+    var b = S.buy; if (!b) return coReveal(); var ev = buyEvent(b.evId) || buyEv(), T = ev && (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]; if (!T) return coReveal();
+    if (seatEv(ev) && !S.session) { coReveal(); return seatGate(ev, seatOpen); }
     S.seatOpening = true; setTimeout(function () { S.seatOpening = false; }, 12000);   /* 載入失敗也不會永遠鎖住 */
     seatLoad(function () {
       S.seatOpening = false;
       if (S.buy !== b || S.layers.indexOf("checkout") < 0) return;   // 座位圖程式載入時人已經離開結帳頁
-      if (S.seatUI) return;
+      if (S.seatUI) return coReveal();
+      setTimeout(coReveal, 250);   // B500T：座位圖蓋上去之後，結帳頁才在下面就位
       S.seatUI = SkySeat.open({ en: sxEN(), max: b.pp ? 1 : tQMax(T), price: Number(T.price), selected: seatsOf(b), own: b.seatOwn || [],
         load: function () { return fetch(C.api + "/ticket/seats?event=" + encodeURIComponent(ev.id) + "&token=" + encodeURIComponent(PICK_TOK), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return seatCfgSet(ev.id, j); }); },
         pick: function (ids) { return seatPick(ev.id, ids); },
@@ -4352,7 +4361,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       return openLayer("buy"); }
     if (act === "tier-sel") { var tk = b.getAttribute("data-tier"); S.buySel = S.buySel === tk ? null : tk; hap(8); renderLayer("buy"); return; }
     if (act === "tier-info") { e.stopPropagation(); return tierDetailSheet(b.getAttribute("data-tier")); }
-    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; return seatGate(bev, function () { createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; mEnsure(bev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === bev.id) box.outerHTML = mPreRows(bev); }); } var goL = openLayer("checkout"); if (seatEv(bev)) seatOpen(); return goL; }); }
+    if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; return seatGate(bev, function () { createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; mEnsure(bev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === bev.id) box.outerHTML = mPreRows(bev); }); } var goL = openLayer("checkout", seatEv(bev) ? { hold: true } : null); if (seatEv(bev)) seatOpen(); return goL; /* B500T：直接進座位圖 */ }); }
     if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
     if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
     if (act === "buy-remind") { var rev = buyEv(); if (rev) preLogin(rev); return; }
