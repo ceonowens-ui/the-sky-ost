@@ -854,7 +854,7 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
    (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
    '<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
    (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+box+
-   (holdDiff?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
+   (holdDiff&&!(REAL&&ov.myHold.order.status!=="confirming")?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
    ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>':'')+
    (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'
      :(blocked?'':'<button class="btn btn-gold" id="confirm" type="button"'+(reserving?' disabled aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>確認名額中':'確認付款並寄出 · NT$'+(per?per.price:99))+'</button><p class="small" style="text-align:center">按下後會先保留名額 '+(per?per.holdMin:10)+' 分鐘，再前往付款。</p>'))+
@@ -864,7 +864,18 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   $("edit").onclick=function(){lastErr=null;stack.pop();setRoute({name:"compose",param:d.id});render();window.scrollTo(0,0)};
   $("rules").onclick=function(){rulesSheet(ov.period)};
   var consent=$("consent"),action=$("confirm")||$("resume");if(consent&&action){action.disabled=true;consent.onchange=function(){action.disabled=!consent.checked||reserving}};
-  if($("resume"))$("resume").onclick=function(){API.status(ov.myHold.orderId).then(function(r){if(r.view)openPay(r.view)})};
+  var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
+  if($("resume"))$("resume").onclick=function(){
+    if(REAL&&holdDiff&&ov.myHold.order.status!=="confirming"){   /* B502T（CÉON 11/11）：還沒進綠界付款前改過內容 → 換成現在這一版再付款（名額、倒數不變） */
+      if(!$("consent")||!$("consent").checked)return;$("resume").disabled=true;
+      API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},d.reserveKey||(d.reserveKey=uid("RK"))).then(function(r){
+        if(r.ok&&r.view){CL.active={orderId:r.view.order.id,draftId:d.id};cSave();render();openPay(r.view);return}
+        lastErr=r.err==="content"?"信件內容不符合字數限制。":"暫時無法確認名額，請稍後再試。你的草稿仍在。";render();
+      },function(){lastErr="暫時無法確認名額，請稍後再試。你的草稿仍在。";render()});
+      return;
+    }
+    API.status(ov.myHold.orderId).then(function(r){if(r.view)openPay(r.view)});
+  };
   if($("confirm"))$("confirm").onclick=function(){
     if(reserving||!$("consent")||!$("consent").checked)return;reserving=true;lastErr=null;$("confirm").disabled=true;$("confirm").innerHTML='<span class="spin"></span>確認名額中';
     var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();
