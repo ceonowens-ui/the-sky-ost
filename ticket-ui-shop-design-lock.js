@@ -3801,10 +3801,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (a === "m-mq") { o.mq = Math.max(1, Math.min(mQ(o.evId, o) + Number(el.getAttribute("data-d") || 0), mQMax(o.evId, o))); hap(6); return mSheet(); }
     if (a === "m-pay") return mPay(el);
   }
-  function testPaymentForm(form) {
+  function testPaymentForm(form) {   // B497T（CÉON 11/11）：測試站暫時開放真付款（30 元真實測試），仍只准綠界的付款頁；測完要改回只准 payment-stage
     if (!form) throw new Error("missing_payment_form");
     var action = new URL(form.getAttribute("action") || "", location.href);
-    if (TKAPI === "test" && (action.origin !== "https://payment-stage.ecpay.com.tw" || action.pathname !== "/Cashier/AioCheckOut/V5" || String(form.getAttribute("method") || "get").toLowerCase() !== "post")) throw new Error("test_payment_only");
+    if (TKAPI === "test" && (["https://payment-stage.ecpay.com.tw", "https://payment.ecpay.com.tw"].indexOf(action.origin) < 0 || action.pathname !== "/Cashier/AioCheckOut/V5" || String(form.getAttribute("method") || "get").toLowerCase() !== "post")) throw new Error("test_payment_only");
     return form;
   }
   function mPay(btn) {
