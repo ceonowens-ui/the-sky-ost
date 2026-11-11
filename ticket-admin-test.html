@@ -202,6 +202,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
 }
 @media (max-width:380px){.tile{font-size:17px;min-height:104px}.tile .ic{width:30px;height:30px}}
 
+/* B488T：已領取的卡片變暗、狀態金色 */
+.lcard.picked{opacity:.78;border-color:rgba(216,188,128,.35)}.lcard.picked .pkcode b{color:#bfae8a}
+
 </style>
 </head>
 <body>
@@ -279,6 +282,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <h3>周邊領取</h3>
       <input id="pq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="查領取碼、姓名、Email" oninput="renderPickup()" />
       <div class="sub" style="margin-top:10px">請粉絲出示「我的票 → 周邊訂單」裡的領取碼（訂單編號後 6 碼），核對姓名後交付。</div>
+      <div class="chips" id="pChips"><button type="button" data-pf="all" onclick="setPf('all')">全部</button><button type="button" data-pf="todo" onclick="setPf('todo')">未領</button><button type="button" data-pf="done" onclick="setPf('done')">已領</button></div>
       <div class="msg" id="pMsg2"></div>
     </div>
     <div id="pRes"></div>
@@ -528,7 +532,7 @@ async function loadMerch() {
     "　·　海外 " + mOrders.filter((o) => o.mode === "ship" && o.status !== "refunded").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
   $("m_sale").value = mCfg.onSale === true ? "true" : "false"; $("m_cut").value = toLocalInput(mCfg.cutoff);
   $("mBody").innerHTML = mOrders.map((o, i) => '<tr><td class="mono">' + esc(pcode(o)) + "</td><td>" + esc(pname(o)) + "</td><td>" + esc(mLbl(o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + "</td><td>" +
-    (o.mode === "ship" ? "寄 " + esc((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場") + '</td><td style="white-space:normal;min-width:170px;overflow-wrap:anywhere">' + esc(o.email) + "</td><td>" + fmt(o.paidAt) + "</td><td>" + esc(o.amount) + "</td><td>" +
+    (o.mode === "ship" ? "寄 " + esc((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場" + (o.pickedAt ? " ✓已領" : "")) + '</td><td style="white-space:normal;min-width:170px;overflow-wrap:anywhere">' + esc(o.email) + "</td><td>" + fmt(o.paidAt) + "</td><td>" + esc(o.amount) + "</td><td>" +
     (o.status === "refunded" ? "已退款" : o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? esc(o.shipped.tracking) : "")) + "</td></tr>").join("");
 }
 async function saveMerch() {
@@ -707,7 +711,7 @@ async function refundTicket() {
   if (!j.ok) return alert("讀不到這張票的訂單（後台要更新到 m48）：" + (j.error || ""));
   rf = j; const m = j.merch, lab = (x) => '<label style="display:flex;gap:8px;align-items:center;margin-top:10px">' + x + "</label>";
   $("rfBody").innerHTML = "<div>" + esc(curTicket.id) + (curTicket.seatName ? " · " + esc(curTicket.seatName) : "") + '</div><div class="tiny">會放回座位與終身編號，入場 QR 立刻失效。</div>' +
-    (m ? '<div style="margin-top:12px">同一筆訂單還有周邊：<b>' + esc(m.label) + "</b>" + (m.email !== curTicket.owner ? "（買家 " + esc(m.email) + "）" : "") + "</div>" + (m.shipped ? '<div class="tiny">周邊已寄出，這裡不能一起退。</div>' :
+    (m ? '<div style="margin-top:12px">同一筆訂單還有周邊：<b>' + esc(m.label) + "</b>" + (m.email !== curTicket.owner ? "（買家 " + esc(m.email) + "）" : "") + "</div>" + (m.shipped || m.picked ? '<div class="tiny">' + (m.picked ? "周邊已經在現場領走了" : "周邊已寄出") + '，這裡不能一起退。</div>' :
       lab('<input type="radio" name="rfM" id="rfWith" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" checked onchange="rfTotal()"> 一起退（退 1 組，' + nt(m.unit) + "）") + lab('<input type="radio" name="rfM" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 只退票，周邊保留')) : "") +
     lab('<input type="checkbox" id="rfNoFee" style="flex:none;width:20px;height:20px;min-height:0;margin:0;padding:0;-webkit-appearance:auto;appearance:auto;accent-color:#d8bc80" onchange="rfTotal()"> 不收手續費（活動取消等）') + '<div id="rfSum" style="margin-top:12px"></div><div class="refwarn">按「確認退票」只會讓票失效、放回座位，<b>不會退錢</b>。要另外到綠界後台退刷上面的金額，退刷完成才算退款完成。</div>';
   rfTotal(); $("rfSheet").classList.add("show");
@@ -843,19 +847,39 @@ function pickHit(o, q0) {
   const q = String(q0 || "").trim().toLowerCase(); if (!q) return true;
   return [pcode(o), o.tradeNo, pname(o), o.email].some((x) => String(x || "").toLowerCase().includes(q));
 }
-const pCard = (o) => '<div class="lcard pk"><div class="lt"><span>' + esc(pname(o) || "（沒有姓名）") + '</span><span class="stp st-valid">已付款・現場領取</span></div>' +
+/* m60：後台有 pickup 才出現「已領取」按鈕；舊後台照舊只能查 */
+const canPick = () => !!(srv && srv.pickup);
+const pCard = (o) => { const i = mOrders.indexOf(o), done = !!o.pickedAt;
+  return '<div class="lcard pk' + (done ? " picked" : "") + '"><div class="lt"><span>' + esc(pname(o) || "（沒有姓名）") + '</span><span class="stp ' + (done ? "st-used" : "st-valid") + '">' + (done ? "已領取 " + esc(fmt(o.pickedAt)) : "未領取") + "</span></div>" +
   '<div class="pkcode">領取碼 <b>' + esc(pcode(o)) + "</b></div>" +
   '<div class="lr">' + esc(mLbl(o.code)) + " × " + esc(o.qty || 1) + "</div>" +
   '<div class="lr">' + esc(o.email || "") + "</div>" +
-  '<div class="lr">訂單 ' + esc(o.tradeNo || "") + " · " + esc(fmt(o.paidAt)) + "</div></div>";
+  '<div class="lr">訂單 ' + esc(o.tradeNo || "") + " · " + esc(fmt(o.paidAt)) + "</div>" +
+  (canPick() ? (done ? '<button class="btn ghost" type="button" onclick="pickOrder(' + i + ',true)">按錯了，改回未領取</button>' : '<button class="btn primary" type="button" onclick="pickOrder(' + i + ')">已交付，標記已領取</button>') : "") + "</div>"; };
+let pf = "all", picking = false;
+function setPf(k) { pf = k; renderPickup(); }
+/* 已領取：先確認；已經領過的不會被覆蓋，會顯示第一次領的時間 */
+async function pickOrder(i, undo) {
+  const o = mOrders[i]; if (!o || picking) return;
+  const what = esc(mLbl(o.code)) + " × " + (o.qty || 1);
+  if (!confirm(undo ? "把 " + (pname(o) || o.email) + " 的周邊改回「未領取」？\n領取碼 " + pcode(o) : "確認已交付給 " + (pname(o) || o.email) + "？\n領取碼 " + pcode(o) + "\n" + mLbl(o.code) + " × " + (o.qty || 1) + "\n\n請先核對領取碼和姓名。")) return;
+  picking = true; let j;
+  try { j = await api("/ticket/admin/merch/pickup", { email: o.email, eventId: o.eventId, tradeNo: o.tradeNo, by: "後台", ...(undo ? { undo: true } : {}) }); } catch (e) { j = { ok: false, error: e.message }; } finally { picking = false; }
+  if (j.ok && j.already) alert("這筆已經領過了：" + fmt(j.pickedAt) + "。\n請不要再交付一次。");
+  else if (!j.ok) alert((undo ? "沒有改回：" : "沒有標記：") + ({ refunded: "這筆已退款", ship_order: "這筆是海外寄送", not_found: "找不到這筆訂單", forbidden: "鑰匙不對，請重新連線" }[j.error] || j.error || "失敗") + (j.write || /網路|後台回應/.test(j.error || "") ? "\n請先重新整理，看這筆現在的狀態。" : ""));
+  await loadMerch(); renderPickup();
+}
 async function openPickup() { renderPickup(); if (!cur) return; $("pMsg2").textContent = "讀取最新周邊訂單中…"; await loadMerch(); renderPickup(); }
 function renderPickup() {
   const box = $("pRes"), msg = $("pMsg2");
   if (!cur) { box.innerHTML = ""; msg.innerHTML = '<span class="err">先回首頁選場次</span>'; return; }
   if (src.merch === "err") { box.innerHTML = ""; msg.innerHTML = '<span class="err">讀不到周邊訂單</span> <button class="btn sm" onclick="openPickup()">重試</button>'; return; }
   if (src.merch !== "ok") { msg.textContent = "讀取中…"; return; }
-  const all = pickRows(), q = $("pq").value.trim(), L = all.filter((o) => pickHit(o, q));
-  msg.innerHTML = "現場領取共 " + all.length + " 筆" + (q ? "，符合 " + L.length + " 筆" : "") + "<br>目前後台沒有「已領取」紀錄，請在交付時自己留意同一個碼有沒有領過。";
+  document.querySelectorAll("#pChips [data-pf]").forEach((b) => { b.classList.toggle("on", b.getAttribute("data-pf") === pf); b.style.display = canPick() ? "" : "none"; });
+  const all = pickRows(), q = $("pq").value.trim(), done = all.filter((o) => o.pickedAt).length;
+  const L = all.filter((o) => pickHit(o, q) && (!canPick() || pf === "all" || (pf === "done") === !!o.pickedAt));
+  msg.innerHTML = "現場領取共 " + all.length + " 筆" + (canPick() ? " · 已領 " + done + " · 未領 " + (all.length - done) : "") + (q || pf !== "all" ? "，這裡列出 " + L.length + " 筆" : "") +
+    (canPick() ? "" : "<br>測試後台還沒更新，還不能記錄已領取，請在交付時自己留意同一個碼有沒有領過。");
   box.innerHTML = L.slice(0, 200).map(pCard).join("") + (q && !L.length ? '<div class="lcard"><div class="lt"><span>找不到「' + esc(q) + '」</span></div><ul class="tips"><li>請粉絲打開「我的票 → 周邊訂單」，點那一筆看領取碼</li><li>也可以用購買時的 Email 或姓名查</li><li>確認現在的場次是「' + esc(cur.name || cur.id) + '」</li></ul></div>' : "");
 }
 /* 剩餘：看哪些座位還空著（讀線上選位同一份座位表，只看不改） */
