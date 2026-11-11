@@ -4124,6 +4124,16 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mTermsHTML(ev) {
     var mi = mInfo(ev.id); if (!mi) return "";
     var I = mi.m.items, li = function (a) { return '<li>' + a + '</li>'; };
+    if (sxEN()) {   /* B495T（CÉON 11/11）：英文 App 的周邊與海外寄送須知整段英文（原本只有部分句子有英文） */
+      return '<div class="pt">Birthday merch (pre-order)</div><ul>' +
+        ["b", "h", "s"].filter(function (k) { return I[k]; }).map(function (k) { return li('<b>' + esc(sxTr(I[k].name)) + '</b> (' + nt(I[k].price) + ', limited to ' + esc(I[k].cap) + (k === "s" ? " sets" : " pcs") + '): ' + esc(sxTr(I[k].perk))); }).join("") +
+        li((mCut(mi) ? 'Pre-order until ' + esc(mCut(mi)) + ' 23:59; production starts after that. ' : '') + 'Images are illustrative. The actual product may vary.') +
+        (mi.m.perPerson ? li('Limit 1 per person for each item.') : '') + (I.s ? li('Buying both items applies the ' + esc(sxTr(mNm(I.s, 's'))) + ' price automatically; once it sells out, single-item prices apply.') : '') +
+        li('Event pickup: at the merch desk on the event day, show the pickup code in My tickets → Merch orders and your name.') +
+        li('Refunds: under Taiwan’s Consumer Protection Act, you can cancel by email for a full refund any time before you receive the item. Within 7 days of receiving it (for event pickup, from the event day) you can return it for a refund; the organizer pays return shipping. Email heartbeats0693@gmail.com with your purchase email.') + '</ul>' +
+        (mi.m.shipOn ? '<div class="pt">Ship overseas</div><ul>' + li('We ship to 37 countries / regions, including Japan, Korea, Hong Kong, Macau, mainland China, Southeast Asia, Europe, the Americas, Australia and New Zealand. Shipping depends on the destination.') +
+          li('Sent by Chunghwa Post ePacket after the event, with a tracking number.') + li('If it has not arrived 45 days after shipping, or tracking shows it lost, we resend once for free. If the address was wrong or the parcel was refused and returned, you pay the resend shipping. No resend once tracking shows it was delivered.') + li('Customs duties and import taxes are paid by the recipient.') + '</ul>' : '');
+    }
     return '<div class="pt">生日限定周邊（預購）</div><ul>' +
       ["b", "h", "s"].filter(function (k) { return I[k]; }).map(function (k) { return li('<b>' + esc(I[k].name) + '</b>（' + nt(I[k].price) + '，限量 ' + esc(I[k].cap) + (k === "s" ? " 組" : " 件") + '）：' + esc(I[k].perk)); }).join("") +
       li((mCut(mi) ? '預購至 ' + esc(mCut(mi)) + ' 23:59，截止後開始製作；' : '') + '商品圖為示意圖，實際商品以實物為準。') +
