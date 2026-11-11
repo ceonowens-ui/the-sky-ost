@@ -177,12 +177,11 @@
  '11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)':'Tickets go on sale 11/15 at 12:00 (Taipei time) (please come early at 13:20 on the day to collect your items on site)',
  '入場 QR 已在票夾，也寄到你的信箱。':'Your entry QR is in your ticket wallet and was also emailed to you.','。入場 QR 已在票夾，也寄到你的信箱。':'. Your entry QR is in your ticket wallet and was also emailed to you.','入場 QR 也會同時寄到你的信箱。':'Your entry QR will also be emailed to you.','入場憑 App 票夾或門票信裡的入場 QR，給工作人員掃描即完成入場。':'Enter with the QR code in your App ticket wallet or ticket email; staff scan it at the entrance.','・購票成功後，入場 QR 會立即出現在票夾，也會附在門票信裡':'・Right after purchase, your entry QR appears in your ticket wallet and is attached to your ticket email','活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。':'If the event is cancelled, or in other situations not attributable to the buyer, you get a full refund with no fee (the exact terms will follow the official notice).','票券可在票夾「轉讓給朋友」換人。':'You can transfer the ticket to a friend from your ticket wallet.',
  '入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對':'Show the QR in your App ticket wallet or ticket email at the door. If your phone can’t show it, give the buyer’s name and the last 4 digits of the phone number.',
- '另販售周邊海報A3一組4張 520元 限量50組*':'Also on sale: A3 poster set (4 posters per set), NT$520, limited to 50 sets*',
- '及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組':'Overseas fans who can’t attend can buy the A3 poster set + No. 6 photo card bundle, NT$980, limited to 30 sets',
- '亞洲寄送+250':'Shipping within Asia +NT$250',
- '其他地區+500':'Other regions +NT$500',
+ '另販售周邊海報A3一組4張 880元 限量100組':'Also on sale: A3 poster set (4 posters per set), NT$880, limited to 100 sets',
+ '海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）':'Overseas-only bundle: NT$1,280, includes a No. 6 photo card and an A3 poster set (4 posters), limited to 30 sets (no event entry)',
+ '運費另計：亞洲區250元／海外區500元':'Shipping extra: Asia NT$250 / other regions NT$500',
  '亦可以備註留下全名跟電話在12/27現場領取時請人代領':'You can also leave your full name and phone number in the order note and have someone pick up for you on site on 12/27',
- '*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名':'*Gifts for Chance are welcome on the day, but please avoid overly expensive items. No on-site autographs.',
+ '離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名':'HI FIVE on the way out: gifts for Chance are welcome, but no special requests for photos, videos or autographs',
  '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
  /* B342T：買票＋生日周邊加購（A3 海報組／A3 海報組＋6號小卡）、單買周邊・海外寄送 */
  '加購生日限定周邊':'Birthday merch add-ons','生日限定周邊':'Birthday merch','生日限定周邊（預購）':'Birthday merch (pre-order)','選填・活動當天現場領取':'Optional · pick up at the event','活動當天現場領取':'Pick up at the event','預購中':'Pre-order open','預購已截止':'Pre-orders closed',
@@ -220,7 +219,7 @@
  '已先為你鎖住 2 分鐘；按「前往付款」後保留 5 分鐘。':'Locked for you for 2 minutes; held for 5 minutes after you tap Pay.',
  '選擇座位':'Choose seats','選位後計算':'After you choose seats',
  /* B465T：當天須知 */
- '當天須知':'On the day','當天可以送禮物給成晞，請避免太昂貴的禮物；現場不提供簽名。':'You are welcome to bring gifts for Chance, but please avoid expensive ones. There are no autographs on site.','最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。':'We will take a group photo at the end. There is a quiz with prizes and a draw for a life-size standee; you get one draw number per ticket at entry.','有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。':'If you bought merch, pick it up on site from 13:20 that day, or leave your full name and phone number so a friend can collect it for you.',
+ '當天須知':'On the day','離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。':'At the HI FIVE on the way out you are welcome to give Chance a gift, but there are no special requests for photos, videos or autographs.','最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。':'We will take a group photo at the end. There is a quiz with prizes and a draw for a life-size standee; you get one draw number per ticket at entry.','有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。':'If you bought merch, pick it up on site from 13:20 that day, or leave your full name and phone number so a friend can collect it for you.',
  /* B459T：開賣前先登入 */
  '尚未開賣 · 先登入':'Not on sale yet · Sign in first','即將開賣 · 先登入':'Coming soon · Sign in first','先登入，開賣直接選位':'Sign in now, pick seats at launch','已登入 · 開賣直接選位':'Signed in · pick seats at launch','已登入 · 開賣直接選位 ✓':'Signed in · pick seats at launch ✓','先登入':'Sign in','✓ 已登入':'✓ Signed in','開賣前先登入':'Sign in before sales open','已登入':'Signed in','開賣時打開 App 就能直接選位，不用再收驗證碼。':'When sales open, just open the app and pick your seats. No code needed.',
  /* B441T：C 封面、付款 B */
@@ -373,6 +372,11 @@
  [/^你是第 (\d+) 位$/,(_,n)=>'Your waitlist number: '+n],
  [/^NT\$(.+) \/ 包$/,(_,n)=>'NT$'+n+' / pack'],
  [/^台灣免運・海外 (.+)$/,(_,n)=>'Free in Taiwan · International '+n],
+  /* B490T：卡包台灣運費 80（後台給的金額） */
+  [/^台灣運費 (NT\$[\d,]+)$/,(_,n)=>'Taiwan shipping '+n],
+  [/^· 台灣運費 (NT\$[\d,]+)$/,(_,n)=>'· Taiwan shipping '+n],
+  [/^台灣運費 (NT\$[\d,]+)・海外 (.+)$/,(_,a,b)=>'Taiwan shipping '+a+' · International '+b],
+  [/^付款後 7 個工作天內寄出・台灣運費 (NT\$[\d,]+)$/,(_,n)=>'Ships within 7 business days of payment · Taiwan shipping '+n],
  [/^：海外運費 (NT\$[\d,–]+)（(\d+) 個國家／地區）。以中華郵政國際 e 小包寄出，寄出會再寄信給你追蹤號碼。$/,(_,fee,n)=>': '+fee+' shipping to '+n+' destinations via Chunghwa Post international ePacket. Tracking details will be emailed after dispatch.'],
  [/^：(.+)・免運。12\/27 CHANCE 生日會當天，到周邊服務台報上訂單編號與姓名領取（需本人到場）。$/,(_,label)=>': '+(D[label]||label)+'. Free pickup in person at the merch desk on Dec 27. Provide your order number and name.'],
  [/^活動名額 (\d+) 席$/,(_,n)=>'Capacity: '+n+' seats'],

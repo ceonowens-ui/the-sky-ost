@@ -1323,7 +1323,7 @@ function sxHomeHTML(mine, ev) {
     if (kind === "pack") {
       cxLoad();
       var i = cxItem(), can = cxCanBuy(i), si = cxShipInfo();
-      var line = sxT(c.line) || [si.tw ? (en ? "Free shipping in Taiwan" : "台灣免運") : "", si.over ? (en ? si.over.replace("海外運費", "International") : si.over.replace("海外運費", "海外")) : ""].filter(Boolean).join(" · ");
+      var line = sxT(c.line) || [si.tw ? (en ? (si.tw === "台灣免運" ? "Free shipping in Taiwan" : si.tw.replace("台灣運費", "Taiwan shipping")) : si.tw) : "", si.over ? (en ? si.over.replace("海外運費", "International") : si.over.replace("海外運費", "海外")) : ""].filter(Boolean).join(" · ");
       out.push(sxCard({ kind: "pack", img: c.img || i.img || CX_FALLBACK.img, contain: true, act: "cxl-pack", name: sxT(c.name) || sxTr(i.short || i.name), line: line,
         status: !CX.items ? (en ? "Loading…" : "載入中…") : i.soldOut ? (en ? "Sold out" : "已售完") : can ? (en ? "On sale" : "販售中") : (en ? "Coming soon" : "即將開賣"),
         stCls: i.soldOut ? "off" : can ? "ok" : "pre", price: CX.items ? cxNT(i.price) : "", cta: can ? (sxT(c.cta) || (en ? "Buy" : "購買")) : (en ? "View details" : "查看商品"), ghost: !can }));
@@ -2364,13 +2364,13 @@ function coverClockKey() {
   function cxCountries() { return (CX.ship && CX.ship.countries) || [["TW", "台灣", "tw"]]; }
   function cxFee(code) {
     var c = cxCountries().filter(function (x) { return x[0] === code; })[0]; if (!c) return null;
-    var z = CX.ship && CX.ship.zones && CX.ship.zones[c[2]]; return c[2] === "tw" ? 0 : (z ? Number(z.fee || 0) : null);
+    var z = CX.ship && CX.ship.zones && CX.ship.zones[c[2]]; return z ? Number(z.fee || 0) : (c[2] === "tw" ? 0 : null);   /* B490T：台灣運費也照後台（卡包台灣 80） */
   }
   function cxShipInfo() {   /* B279T：運費說明全部從 /shop/items 的 ship 算，不寫死 */
     var zs = (CX.ship && CX.ship.zones) || {}, fees = [];
     Object.keys(zs).forEach(function (k) { if (k !== "tw" && zs[k] && fees.indexOf(Number(zs[k].fee || 0)) < 0) fees.push(Number(zs[k].fee || 0)); });
     fees.sort(function (a, b) { return a - b; });
-    var tw = zs.tw && Number(zs.tw.fee || 0) === 0;
+    var twFee = zs.tw ? Number(zs.tw.fee || 0) : null, tw = twFee === null ? "" : twFee === 0 ? "台灣免運" : "台灣運費 " + cxNT(twFee);
     var over = !fees.length ? "" : fees.length === 1 ? "海外運費 " + cxNT(fees[0]) : "海外運費 " + cxNT(fees[0]) + "–" + cxNT(fees[fees.length - 1]);
     var nOver = cxCountries().filter(function (c) { return c[2] !== "tw"; }).length;
     return { tw: tw, over: over, nOver: nOver, pick: cxPickOK() ? ((CX.ship.pickup.label || "生日會現場領取") + "・免運") : "" };
@@ -2384,7 +2384,7 @@ function coverClockKey() {
     };
     var reg = [];
     cxLoad();   // 卡包資料（the-sky-shop）
-    var ci = cxItem(); if (ci) { var can = cxCanBuy(ci); reg.push(card("cxl-pack", "", ci.img || CX_FALLBACK.img, ci.short || ci.name, ci.price ? cxNT(ci.price) : "", ci.soldOut ? "" : can ? "台灣免運" : "敬請期待", "", ci.soldOut)); }
+    var ci = cxItem(); if (ci) { var can = cxCanBuy(ci); reg.push(card("cxl-pack", "", ci.img || CX_FALLBACK.img, ci.short || ci.name, ci.price ? cxNT(ci.price) : "", ci.soldOut ? "" : can ? cxShipInfo().tw : "敬請期待", "", ci.soldOut)); }
     if (lettersVisible() && SHOP_HOME_LETTERS) { var LF = SHOP_HOME_LETTERS; reg.push(card("shop-letters", "", LF.img, LF.title, "", LF.desc, LF.line, false)); }
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
@@ -2420,7 +2420,7 @@ function coverClockKey() {
         '<button class="ltf-more" data-act="shop-buy">看全部周邊（卡包、信） <i>→</i></button>' +
       '</section>';
     }
-    var sub = esc(F.title || i.short || i.name) + '<br>' + (F.line ? esc(F.line) : (i.soldOut ? '已售完' : can ? '<span class="num">' + cxNT(i.price) + '</span> · 台灣免運' : '敬請期待'));
+    var sub = esc(F.title || i.short || i.name) + '<br>' + (F.line ? esc(F.line) : (i.soldOut ? '已售完' : can ? '<span class="num">' + cxNT(i.price) + '</span> · ' + esc(cxShipInfo().tw) : '敬請期待'));
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
       '<button class="sv3-block" data-act="shop-buy">' +
@@ -2474,14 +2474,14 @@ function coverClockKey() {
   function cxRender(msg) {
     var w = document.getElementById("cx-shop"); if (!w) return;
     var i = cxItem(), t = cxTotals(), f = CX.f, pick = cxIsPick(), tw = f.country === "TW", max = i.left != null ? Math.min(i.maxQty || 10, i.left) : (i.maxQty || 10);
-    var opts = cxCountries().map(function (c) { var fee = c[2] === "tw" ? "免運" : "運費 " + cxNT((CX.ship.zones[c[2]] || {}).fee); return '<option value="' + esc(c[0]) + '"' + (c[0] === f.country ? " selected" : "") + '>' + esc(c[1]) + "・" + fee + "</option>"; }).join("");
+    var opts = cxCountries().map(function (c) { var f0 = cxFee(c[0]), fee = f0 === 0 ? "免運" : "運費 " + cxNT(f0); return '<option value="' + esc(c[0]) + '"' + (c[0] === f.country ? " selected" : "") + '>' + esc(c[1]) + "・" + fee + "</option>"; }).join("");
     w.innerHTML = '<div class="cxs-back" data-cx="close"></div><div class="cxs-sheet">' +
       '<div class="cxs-hd"><span>購買周邊</span><button type="button" data-cx="close" aria-label="關閉">✕</button></div>' +
       '<div class="cxs-body">' +
         '<div class="cxs-prod"><img src="' + esc(i.img) + '" alt=""><div><b>' + esc(i.short || i.name) + '</b><small>' + esc(i.name) + '</small><em>' + cxNT(i.price) + ' / 包</em></div></div>' +
         '<div class="cxs-sec">數量</div><div class="cxs-qty"><button type="button" data-cx="minus" aria-label="減少"' + (CX.qty <= 1 ? " disabled" : "") + '>−</button><b aria-live="polite">' + CX.qty + '</b><button type="button" data-cx="plus" aria-label="增加"' + (CX.qty >= max ? " disabled" : "") + '>＋</button><small>一次最多 ' + max + ' 包</small></div>' +
         (cxPickOK() ? '<div class="cxs-sec">取貨方式</div><div class="cxs-mth" role="radiogroup" aria-label="取貨方式">' +
-          '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"><b>寄送</b><small>台灣免運・海外 ' + cxNT(((CX.ship.zones || {}).asia || {}).fee) + '</small></button>' +
+          '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"><b>寄送</b><small>' + esc(cxShipInfo().tw) + '・海外 ' + cxNT(((CX.ship.zones || {}).asia || {}).fee) + '</small></button>' +
           '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-cx="m-pick"><b>生日會現場領取</b><small>12/27 當天領・免運</small></button></div>' : '') +
         '<div class="cxs-sec">' + (pick ? "領取人資料" : "寄送資料") + '</div>' +
         (pick ? '' : '<label class="cxs-f"><span>寄送地區</span><select data-cf="country" aria-label="寄送地區">' + opts + '</select></label>') +
@@ -2541,7 +2541,7 @@ function coverClockKey() {
   var LT_ENV = '<svg viewBox="20 130 280 190" aria-hidden="true"><defs><linearGradient id="cxl-rose" x2=".8" y2="1"><stop stop-color="#ebc4cb"/><stop offset=".5" stop-color="#dbacb8"/><stop offset="1" stop-color="#bf8b9b"/></linearGradient><linearGradient id="cxl-flap" x2="0" y2="1"><stop stop-color="#f4dce0"/><stop offset="1" stop-color="#d4a7b4"/></linearGradient><linearGradient id="cxl-gold"><stop stop-color="#a87d57"/><stop offset=".46" stop-color="#f1dba8"/><stop offset="1" stop-color="#be9768"/></linearGradient></defs><rect x="30" y="145" width="260" height="158" rx="7" fill="#b98192" stroke="#d4aa97"/><path d="M30 151L160 226L290 151V295Q290 303 282 303H38Q30 303 30 295Z" fill="url(#cxl-rose)" stroke="#d5b497"/><path d="M32 299L126 218M288 299L194 218" fill="none" stroke="#ac7280" opacity=".6"/><path d="M31 147H289L171 237Q160 246 149 237Z" fill="url(#cxl-flap)" stroke="#ddbbb1" stroke-width=".8"/><circle cx="160" cy="235" r="21" fill="url(#cxl-gold)" stroke="#f9e6b8"/><path transform="translate(160 235) scale(.6)" d="M0 -18Q2 -2 16 0Q2 2 0 18Q-2 2 -16 0Q-2 -2 0 -18Z" fill="#fff4da"/></svg>';
   function cxListHTML() {
     var i = cxItem(), can = cxCanBuy(i);
-    var packLine = i.soldOut ? '已售完' : can ? cxNT(i.price) + ' <small>· 台灣免運</small>' : '<small>敬請期待</small>';
+    var packLine = i.soldOut ? '已售完' : can ? cxNT(i.price) + ' <small>· ' + esc(cxShipInfo().tw) + '</small>' : '<small>敬請期待</small>';
     return '<div class="cx9 cxl">' + cx9Bar("購買周邊") +
       '<h2 class="cxl-h">購買周邊</h2><p class="cxl-s">CHANCE 官方周邊，數量有限。</p>' +
       '<button type="button" class="cxl-item cxl-letter" data-act="cxl-letters"><span class="cxl-txt"><span class="cxl-tag">每月限量 · 數位</span>' +
@@ -2574,10 +2574,10 @@ function coverClockKey() {
       '<div class="cx9-eb">CHANCE COLLECTION / VOL.01</div>' +
       '<h2 class="cx9-name">' + esc(i.short || i.name) + '</h2>' + (rest ? '<p class="cx9-sub">' + esc(rest) + '</p>' : '') +
       '<p class="cx9-price">' + cxNT(i.price) + '<small> / 包</small></p>' +
-      '<ul class="cx9-ship">' + (si.tw ? li('<span class="ic" aria-hidden="true">' + IC_TRUCK + '</span>台灣免運') : '') + (si.over ? li('<span class="ic" aria-hidden="true">' + IC_GLOBE + '</span>' + esc(si.over)) : '') + (si.pick ? li('<span class="ic" aria-hidden="true">' + IC_GIFT + '</span>' + esc(si.pick)) : '') + '</ul>' +   // B383T：emoji 換成線條金色圖示（跟付款底板的金卡同一套）
+      '<ul class="cx9-ship">' + (si.tw ? li('<span class="ic" aria-hidden="true">' + IC_TRUCK + '</span>' + esc(si.tw)) : '') + (si.over ? li('<span class="ic" aria-hidden="true">' + IC_GLOBE + '</span>' + esc(si.over)) : '') + (si.pick ? li('<span class="ic" aria-hidden="true">' + IC_GIFT + '</span>' + esc(si.pick)) : '') + '</ul>' +   // B383T：emoji 換成線條金色圖示（跟付款底板的金卡同一套）
       // B377T（CÉON 11/02）：三個摺疊合成一塊直接看得到的說明，不用點；卡包在別處賣過，不另外解釋商品
       '<div class="cx9-info">' +
-        (si.tw ? '<p><b>台灣免運</b>・付款後 7 個工作天內寄出，寄出會再寄信給你追蹤號碼。</p>' : '') +
+        (si.tw ? '<p><b>' + esc(si.tw) + '</b>・付款後 7 個工作天內寄出，寄出會再寄信給你追蹤號碼。</p>' : '') +
         (si.over ? '<p><b>海外</b>・' + esc(si.over) + '，中華郵政國際 e 小包，附追蹤號碼。</p>' : '') +
         (si.pick ? '<p><b>現場領取</b>・' + esc(si.pick) + '，12/27 生日會當天到周邊服務台報訂單編號與姓名（需本人到場）。</p>' : '') +
         '<p>每筆訂單最多 ' + max + ' 包。收件資料要修改或退換貨，請來信 heartbeats0693@gmail.com。</p>' +
@@ -2592,7 +2592,7 @@ function coverClockKey() {
     var i = cxItem(), t = cxTotals(), f = CX.f, pick = cxIsPick(), tw = f.country === "TW", max = cxMax(), busy = !!CX.busy;
     CX.qty = Math.max(1, Math.min(CX.qty || 1, max));
     t = cxTotals();
-    var opts = cxCountries().map(function (c) { var fee = c[2] === "tw" ? "免運" : "運費 " + cxNT(((CX.ship && CX.ship.zones) || {})[c[2]] ? CX.ship.zones[c[2]].fee : 0); return '<option value="' + esc(c[0]) + '"' + (c[0] === f.country ? " selected" : "") + '>' + esc(c[1]) + "・" + fee + "</option>"; }).join("");
+    var opts = cxCountries().map(function (c) { var f0 = cxFee(c[0]), fee = f0 === 0 ? "免運" : "運費 " + cxNT(f0 || 0); return '<option value="' + esc(c[0]) + '"' + (c[0] === f.country ? " selected" : "") + '>' + esc(c[1]) + "・" + fee + "</option>"; }).join("");
     var inv = CX.bad || {};
     var A = function (k) { return (inv[k] ? ' aria-invalid="true" aria-describedby="cx9fe-' + k + '"' : '') + (CX9_REQ[k] ? ' aria-required="true"' : '') + (busy ? ' disabled' : ''); };   /* B399T：錯誤說明綁欄位、必填標給旁白 */   /* 送出處理中：欄位鎖住，返回可取消 */
     var si = cxShipInfo(); cx9FE = CX.bad || {}; var en9 = sxEN();
@@ -2602,10 +2602,10 @@ function coverClockKey() {
         '<div class="cx9-qtyrow"><span>數量</span><div class="cx9-qty"><button type="button" data-cx="minus" aria-label="減少一包"' + (CX.qty <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + CX.qty + '</output><button type="button" data-cx="plus" aria-label="增加一包"' + (CX.qty >= max || busy ? " disabled" : "") + '>＋</button></div>' +
         '<small>一次最多 ' + max + ' 包</small></div>' +
       (cxPickOK() ? '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
-        '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (si.tw ? "台灣免運" : "") + (si.over ? (si.tw ? "・" : "") + esc(si.over.replace("海外運費 ", "海外 ")) : "") + '</small></span></button>' +
+        '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-cx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (si.tw || "") + (si.over ? (si.tw ? "・" : "") + esc(si.over.replace("海外運費 ", "海外 ")) : "") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-cx="m-pick"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>12/27 生日會・免運</small></span></button></div>' : '') +
       '<div class="cx9-total"><div><span>商品小計</span><b>' + cxNT(t.sub) + '</b></div><div><span>運費</span><b>' + (t.fee === null ? "—" : t.fee ? cxNT(t.fee) : "免運") + '</b></div><div class="tot"><span>合計</span><b>' + (t.total === null ? "—" : cxNT(t.total)) + '</b></div></div>' +   // B381T：合計卡搬到商品／取貨方式下方，跟周邊購買頁一致
-      '<div class="cx9-hold cx9-hold-b">' + (pick ? "12/27 生日會當天・周邊服務台領取・免運" : tw ? "付款後 7 個工作天內寄出・台灣免運" : "海外 e 小包寄出・附追蹤號碼") + '<button type="button" class="cx9-hold-ln" data-cx="terms">・購買須知</button></div>' +   // B396T：從付款列搬到合計下面，付款列只留按鈕
+      '<div class="cx9-hold cx9-hold-b">' + (pick ? "12/27 生日會當天・周邊服務台領取・免運" : tw ? "付款後 7 個工作天內寄出・" + cxShipInfo().tw : "海外 e 小包寄出・附追蹤號碼") + '<button type="button" class="cx9-hold-ln" data-cx="terms">・購買須知</button></div>' +   // B396T：從付款列搬到合計下面，付款列只留按鈕
       '<h3 class="cx9-h3">' + (pick ? "領取人資料" : "寄送資料") + (CX.pre ? '<small class="cx9-pre">已帶入你之前填過的資料，可以改</small>' : '') + '</h3><div class="cx9-form">' +
         (pick ? '' : cx9Row("country", "寄送地區", '<select data-cf="country"' + A("country") + '>' + opts + '</select>')) +
         cx9Row("name", pick ? "姓名" : "收件人姓名", '<input data-cf="name" autocomplete="name" maxlength="60" placeholder="' + (pick ? "現場核對用" : "請輸入收件人姓名") + '" value="' + esc(f.name) + '"' + A("name") + '>') +
@@ -2853,11 +2853,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11/15 12:00（台北時間）開放購票" },
         groups: [
         ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
-        ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 520元 限量50組*", "及開放海外無法到場粉絲購買A3海報組及6號小卡組合 980元 限量30組", "亞洲寄送+250", "其他地區+500", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
-        ["*當日可送禮物給成晞請避免贈送過於昂貴之商品,不接受現場簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
+        ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
+        ["離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ],
         /* B465T（CÉON 11/08）：完整購票須知只放其他地方沒寫過的事（從上面原文整理） */
-        day: ["當天可以送禮物給成晞，請避免太昂貴的禮物；現場不提供簽名。", "最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。", "有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。"] } },
+        day: ["離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。", "最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。", "有買周邊的人，當天 13:20 起可以到現場領取；也可以留下全名和電話，請朋友代領。"] } },
     _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
     assets: { hero: "shop-assets/buy-hero.jpg", thumb: "shop-assets/buy-thumb.jpg", ticket: "shop-assets/buy-ticket.jpg" },
     note: "※ 現場流程時間以當日公告為準",
@@ -4131,7 +4131,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return ev;
   }
   function demoCfg() {
-    if (!DMCFG) DMCFG = {"open": true, "onSale": true, "cutoff": null, "perPerson": 0, "setSave": 0, "shipOn": true, "items": {"b": {"name": "A3 海報組（一組 4 張）", "short": "A3 海報組", "price": 520, "cap": 50, "left": 47, "perk": "活動當天現場領取", "img": "shop-assets/merch-1227/a3-poster-set.jpg"}, "h": {"name": "A3 海報組＋6號小卡組合", "short": "A3 海報組＋6號小卡", "price": 980, "cap": 30, "left": 27, "perk": "海外無法到場也可寄送", "img": "shop-assets/merch-1227/a3-set-no6-card.jpg"}}};   /* B369T：示範周邊＝你上傳的 A3 海報組／組合（跟測試後台一樣） */
+    if (!DMCFG) DMCFG = {"open": true, "onSale": true, "cutoff": null, "perPerson": 0, "setSave": 0, "shipOn": true, "items": {"b": {"name": "A3 海報組（一組 4 張）", "short": "A3 海報組", "price": 880, "cap": 100, "left": 97, "perk": "活動當天現場領取", "img": "shop-assets/merch-1227/a3-poster-set.jpg"}, "h": {"name": "A3 海報組＋6號小卡組合", "short": "A3 海報組＋6號小卡", "price": 1280, "cap": 30, "left": 27, "perk": "海外無法到場也可寄送", "img": "shop-assets/merch-1227/a3-set-no6-card.jpg"}}};   /* B369T：示範周邊＝你上傳的 A3 海報組／組合（跟測試後台一樣） */
     return DMCFG;
   }
   var DSHIP = {"zones": {"tw": {"label": "台灣", "b": 250, "h": 250, "s": 250, "bh": 250}, "asia": {"label": "亞洲", "b": 250, "h": 250, "s": 250, "bh": 250}, "cn": {"label": "中國大陸", "b": 250, "h": 250, "s": 250, "bh": 250}, "eu": {"label": "歐洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "oc": {"label": "大洋洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "am": {"label": "加拿大・中南美・非洲", "b": 500, "h": 500, "s": 500, "bh": 500}, "us": {"label": "美國", "b": 500, "h": 500, "s": 500, "bh": 500}}, "countries": [["TW", "台灣", "tw"], ["JP", "日本", "asia"], ["KR", "韓國", "asia"], ["HK", "香港", "asia"], ["MO", "澳門", "asia"], ["CN", "中國大陸", "cn"], ["SG", "新加坡", "asia"], ["MY", "馬來西亞", "asia"], ["TH", "泰國", "asia"], ["PH", "菲律賓", "asia"], ["VN", "越南", "asia"], ["ID", "印尼", "asia"], ["US", "美國", "us"], ["CA", "加拿大", "am"], ["MX", "墨西哥", "am"], ["BR", "巴西", "am"], ["AR", "阿根廷", "am"], ["CL", "智利", "am"], ["ZA", "南非", "am"], ["GB", "英國", "eu"], ["FR", "法國", "eu"], ["DE", "德國", "eu"], ["IT", "義大利", "eu"], ["ES", "西班牙", "eu"], ["NL", "荷蘭", "eu"], ["BE", "比利時", "eu"], ["CH", "瑞士", "eu"], ["AT", "奧地利", "eu"], ["SE", "瑞典", "eu"], ["NO", "挪威", "eu"], ["DK", "丹麥", "eu"], ["FI", "芬蘭", "eu"], ["IE", "愛爾蘭", "eu"], ["PT", "葡萄牙", "eu"], ["PL", "波蘭", "eu"], ["CZ", "捷克", "eu"], ["AU", "澳洲", "oc"], ["NZ", "紐西蘭", "oc"]]};   /* B369T：運費、國家跟測試後台一樣 */
