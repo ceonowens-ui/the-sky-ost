@@ -1124,6 +1124,76 @@ $("demoOpen").onclick=function(){
   });
 };
 
+/* ═════════ B501T（CÉON 11/11）：真的收信（?real=1）════════
+   網址帶 real=1 時，上面的「模擬後端」全部不用，改接測試後台 /letters/*（名額、付款、送達、已讀完、回覆都以後台為準）。
+   粉絲：用 App 的登入（同一個帳號）；Chance：?role=chance，用 Chance 專屬密碼；團隊：?role=team，用管理密碼（看不到正文）。 */
+var QS=new URLSearchParams(location.search);
+var REAL=QS.get("real")==="1";
+if(REAL){
+  var RAPI=(function(){var a=QS.get("api")||"";return /^https:\/\/[a-z0-9.-]+\.workers\.dev$/.test(a)?a:"https://the-sky-ost-api-test.anthonywen0693.workers.dev"})();
+  var SK=/^tk:session(-test)?$/.test(QS.get("sk")||"")?QS.get("sk"):"tk:session-test";
+  var ROLE=QS.get("role")==="chance"?"chance":QS.get("role")==="team"?"team":"fan";
+  var lsRaw=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
+  var sess=function(){return lsRaw(SK)||""};
+  var myMail=function(){return lsRaw("tk:email")||""};
+  var KEYS="dc:key:"+ROLE;
+  var keyGet=function(){try{return sessionStorage.getItem(KEYS)||""}catch(e){return""}};
+  var keySet=function(v){try{v?sessionStorage.setItem(KEYS,v):sessionStorage.removeItem(KEYS)}catch(e){}};
+  SIM={role:ROLE==="fan"?(sess()?"fan":"guest"):ROLE,pay:"ok",deliver:"ok",clock:0,saveFail:false};
+  simSave=function(){};
+  USER.fan={id:myMail()||"me",name:myMail()||"已登入"};
+  CKEY="dearchance:real-v1:client";CL=readLS(CKEY)||{drafts:{},route:null,active:null,flown:{}};storageOK=writeLS(CKEY,CL);
+  var post=function(p,body,text){return fetch(RAPI+p,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body||{})}).then(function(r){return text?r.text():r.json()})};
+  var withS=function(o){o=o||{};o.session=sess()||undefined;return o};
+  var withK=function(o){o=o||{};o.key=keyGet();return o};
+  var forbid=function(r){if(r&&r.err==="forbidden"&&ROLE!=="fan"){keySet("");setTimeout(keySheet,50)}return r};
+  var syncClock=function(r){if(r&&r.now)SIM.clock=r.now-Date.now();return r};
+  API={
+    overview:function(){return post("/letters/overview",withS()).then(syncClock)},
+    reserve:function(u,draft,key){return post("/letters/reserve",withS({draft:draft,key:key}))},
+    pay:function(u,orderId){
+      var en=document.documentElement.lang==="en";
+      return post("/letters/pay",withS({orderId:orderId,lang:en?"en":"",back:"test.html"}),true).then(function(t){
+        var j=null;try{j=JSON.parse(t)}catch(e){}
+        if(j)return j;
+        var form=new DOMParser().parseFromString(t,"text/html").querySelector("form");
+        var act=form&&new URL(form.getAttribute("action")||"",location.href);
+        if(!form||["https://payment-stage.ecpay.com.tw","https://payment.ecpay.com.tw"].indexOf(act.origin)<0||act.pathname!=="/Cashier/AioCheckOut/V5"||String(form.getAttribute("method")||"").toLowerCase()!=="post")return{err:"payform"};   /* 跟購票同一條：只准綠界付款頁 */
+        try{localStorage.setItem("dc:paying",JSON.stringify({o:orderId,t:Date.now()}))}catch(e){}
+        var f=document.importNode(form,true);f.style.display="none";f.target="_top";document.body.appendChild(f);f.submit();
+        return new Promise(function(){});   /* 頁面會換到綠界 */
+      });
+    },
+    status:function(orderId){return post("/letters/status",withS({orderId:orderId})).then(function(r){if(r&&r.view&&r.view.order&&(r.view.order.letterId||r.view.order.status!=="confirming")){try{var d=JSON.parse(localStorage.getItem("dc:paying")||"null");if(d&&d.o===orderId)localStorage.removeItem("dc:paying")}catch(e){}}return r})},
+    myItems:function(){return post("/letters/mine",withS())},
+    inbox:function(){return post("/letters/inbox",withK()).then(forbid)},
+    markRead:function(u,id){return post("/letters/read",withK({letterId:id})).then(forbid)},
+    reply:function(u,id,text){return post("/letters/reply",withK({letterId:id,text:text})).then(forbid)},
+    dashboard:function(){return post("/letters/dash",withK()).then(forbid).then(syncClock)},
+    updatePeriod:function(u,pid,patch){return post("/letters/period",withK({pid:pid,patch:patch})).then(forbid)},
+    createNext:function(){return post("/letters/next",withK()).then(forbid)},
+    refundDone:function(u,orderId){return post("/letters/refunded",withK({orderId:orderId})).then(forbid)},
+    _fill:function(){return Promise.resolve({})},_grabLast:function(){return Promise.resolve({})},_clearOthers:function(){return Promise.resolve({})},_expireMine:function(){return Promise.resolve({})},_redeliverCallbacks:function(){return Promise.resolve({done:0})}
+  };
+  loginSheet=function(){
+    if(EMBED){try{parent.postMessage({dc:"login"},location.origin)}catch(e){}return}
+    toast("請先在 App 登入，再回來寄信");
+  };
+  window.addEventListener("message",function(e){
+    if(e.origin!==location.origin||!e.data||e.data.dc!=="session")return;
+    USER.fan={id:myMail()||"me",name:myMail()||"已登入"};SIM.role=sess()?"fan":"guest";render();
+  });
+  var keyOpen=false;
+  var keySheet=function(){
+    if(keyOpen)return;keyOpen=true;   /* 同時只開一個輸入密碼的畫面 */
+    var ch=ROLE==="chance";
+    sheet('<div class="grab"></div><h2>'+(ch?"Chance 的信箱":"收信後台")+'</h2><p class="small">'+(ch?"輸入 Chance 專屬密碼。只存在這個分頁，關掉就要重新輸入。":"輸入管理密碼。團隊看不到信的內容和署名。")+'</p><input id="dckey" type="password" autocomplete="off" style="width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line,#444);background:transparent;color:inherit"><button class="btn btn-gold" id="dckeyok" type="button">進入</button>',
+      function(close){$("dckeyok").onclick=function(){var v=$("dckey").value.trim();if(!v)return;keySet(v);keyOpen=false;close();goHome()};setTimeout(function(){try{$("dckey").focus()}catch(e){}},80)});
+  };
+  if(ROLE!=="fan"&&!keyGet())setTimeout(keySheet,60);
+  try{$("demoOpen").style.display="none"}catch(e){}
+}
+
 /* ═════════ render ═════════ */
 var renderSeq=0;
 var ALLOWED={fan:["shop","product","compose","preview","ritual","mailbox","letter"],guest:["shop","product","compose","preview","mailbox"],chance:["inbox","cletter"],team:["admin","inbox"]};
