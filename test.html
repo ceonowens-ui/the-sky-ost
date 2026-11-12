@@ -1708,16 +1708,17 @@ body.sgc-open #feed-back{visibility:hidden}
 body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 @media (max-width:340px){.sgr-cap{right:76px;left:14px}.sgr-b{width:58px}.sgr-txt{font-size:15px;-webkit-line-clamp:5}}
 @media (prefers-reduced-motion:reduce){.sgr{scroll-behavior:auto}.sgc-panel,.sgc-dim{transition:none}.sgr-like.pop svg{animation:none}}
-/* B508T：FEED 改版（CÉON 11/12 選 1＋2）——純文字貼文放大置中、雙擊愛心、留言有頭像／按讚／置頂標記／快速表情 */
+/* B508T：FEED 改版（CÉON 11/12 選 1＋2）——雙擊愛心、留言有頭像／按讚／置頂標記／快速表情 */
 .sgr-it{-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-touch-callout:none}
-.sgr-it.k-text .sgr-quote{display:none}
-.sgr-it.k-text .sgr-cap{top:calc(env(safe-area-inset-top) + 64px);left:26px;right:84px;display:flex;flex-direction:column;justify-content:center}
-.sgr-it.k-text .sgr-who{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.sgr-ava{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,191,122,.5);flex:none}
-.sgr-it.k-text .sgr-txt{font-size:25px;line-height:1.6;letter-spacing:.02em;-webkit-line-clamp:9}
-.sgr-it.k-text .sgr-txt.m{font-size:21px;-webkit-line-clamp:11}
-.sgr-it.k-text .sgr-txt.l{font-size:18px;line-height:1.65;-webkit-line-clamp:13}
-.sgr-it.k-text .sgr-meta{margin-top:16px;font-size:14px}
+/* B509T（CÉON 11/12：字不要放正中間，照 IG／TikTok）：所有貼文的字都在左下角；有照片／影片的只露兩行，按「更多」往上展開、可捲動，再按收起 */
+.sgr-who{display:flex;align-items:center;gap:9px}
+.sgr-ava{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,191,122,.5);flex:none}
+.sgr-it.k-photo .sgr-txt,.sgr-it.k-video .sgr-txt{-webkit-line-clamp:2}
+.sgr-more{display:none;align-items:center;min-height:44px;margin:-6px 0 -10px -10px;padding:0 10px;border:0;background:none;color:rgba(243,238,234,.8);font:500 15px/1 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.6);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sgr-it.long .sgr-more,.sgr-it.open .sgr-more{display:inline-flex}
+.sgr-it.open .sgr-txt{display:block;-webkit-line-clamp:unset;max-height:46vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.sgr-shade{transition:background-color .2s}
+.sgr-it.open .sgr-shade{background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,.4) 25%,rgba(0,0,0,.82) 55%,rgba(0,0,0,.94) 100%)}
 .sgr-pop{position:absolute;z-index:4;width:104px;height:104px;margin:-52px 0 0 -52px;pointer-events:none;color:#E8BF7A;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55));animation:sgrheart .85s cubic-bezier(.2,.8,.2,1) forwards}
 .sgr-pop svg{width:100%;height:100%;fill:currentColor;display:block}
 @keyframes sgrheart{0%{transform:scale(.2) rotate(-10deg);opacity:0}18%{transform:scale(1.18) rotate(-10deg);opacity:1}32%{transform:scale(.94) rotate(-10deg)}46%{transform:scale(1) rotate(-10deg);opacity:1}100%{transform:translateY(-52px) scale(1.08) rotate(-10deg);opacity:0}}
@@ -1733,7 +1734,7 @@ img.sgc-av{border:1px solid rgba(232,191,122,.55)}
 .sgc-emo{display:flex;gap:2px;margin:8px 12px 0;flex:none}
 .sgc-emo button{flex:1;min-height:44px;padding:0;border:0;background:none;border-radius:12px;font-size:26px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sgc-emo button:active{transform:scale(.86);background:rgba(255,255,255,.06)}
-@media (max-width:340px){.sgr-it.k-text .sgr-cap{left:18px;right:74px}.sgr-it.k-text .sgr-txt{font-size:22px}.sgr-it.k-text .sgr-txt.m{font-size:19px}.sgr-it.k-text .sgr-txt.l{font-size:17px}.sgc-emo button{font-size:23px}}
+@media (max-width:340px){.sgc-emo button{font-size:23px}}
 @media (prefers-reduced-motion:reduce){.sgr-pop{animation-duration:.5s}.sgc-lk.pop svg{animation:none}}
 /* B313T：介面語言 */
 .lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
@@ -10584,7 +10585,7 @@ window.ALBUM_SWITCH = {
     return '<section class="sgr-it k-' + kind + '" data-i="' + i + '" data-rid="' + esc(it.rid) + '" aria-roledescription="' + sgrL("訊息", "post") + '" aria-label="' + sgrL("第 " + (i + 1) + " 則，共 " + n + " 則", "Post " + (i + 1) + " of " + n) + '">' +
       '<div class="sgr-bg">' + bg + '</div><div class="sgr-shade"></div>' +
       (kind === "text" || kind === "voice" ? '<div class="sgr-quote" aria-hidden="true">' + (kind === "voice" ? '<img src="assets/images/avatar.jpg" alt="">' : '”') + '</div>' : '') +
-      '<div class="sgr-cap">' + voice + '<b class="sgr-who">' + (kind === "text" ? '<img class="sgr-ava" src="assets/images/avatar.jpg" alt="">' : '') + 'CHANCE</b>' + (txt ? '<p class="sgr-txt' + (kind === "text" ? (txt.length > 110 ? ' l' : txt.length > 48 ? ' m' : '') : '') + '">' + esc(txt) + '</p>' : '') +   /* B508T：純文字貼文＝頭像＋大字，放在畫面中間 */
+      '<div class="sgr-cap">' + voice + '<b class="sgr-who"><img class="sgr-ava" src="assets/images/avatar.jpg" alt="">CHANCE</b>' + (txt ? '<p class="sgr-txt">' + esc(txt) + '</p><button type="button" class="sgr-more" data-sgr="more" aria-expanded="false">' + sgrL("更多", "more") + '</button>' : '') +   /* B509T：照 IG／TikTok——頭像＋名字＋左下角說明，太長按「更多」 */
         '<div class="sgr-meta">' + esc(it.day || "") + ' · ' + sgrL("私訊頻道", "Private channel") + '</div></div>' +
       '<div class="sgr-act">' + sgrActHTML(it) + '</div>' +
     '</section>';
@@ -10618,12 +10619,18 @@ window.ALBUM_SWITCH = {
     var el = sgrEl(i); if (!el) return;
     var im = el.querySelector("img.sgr-img[data-src]");
     if (im) { im.onerror = function () { el.classList.add("noimg"); im.remove(); }; im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); }
+    var tx = el.querySelector(".sgr-txt"); if (tx && !el.classList.contains("open")) el.classList.toggle("long", tx.scrollHeight > tx.clientHeight + 2);   /* B509T：字被截掉才出現「更多」 */
+  }
+  function sgrMore(el, open) {
+    var tx = el.querySelector(".sgr-txt"), b = el.querySelector(".sgr-more"); if (!tx || !b) return;
+    el.classList.toggle("open", open); b.setAttribute("aria-expanded", String(open)); b.textContent = open ? sgrL("收起", "less") : sgrL("更多", "more");
+    if (!open) tx.scrollTop = 0;
   }
   function sgrOnScroll(force) {
     var root = $("sgr"); if (!root) return;
     var h = root.clientHeight || 1, i = Math.round(root.scrollTop / h);
     if (i === SGR.idx && !force) return;
-    if (SGR.idx >= 0) sgrPauseIn(sgrEl(SGR.idx));
+    if (SGR.idx >= 0) { sgrPauseIn(sgrEl(SGR.idx)); if (i !== SGR.idx) { var pe = sgrEl(SGR.idx); if (pe && pe.classList.contains("open")) sgrMore(pe, false); } }   /* B509T：滑走就收起 */
     if (i !== SGR.idx && SGR.idx >= 0) SGR.up = "";   /* 換到別則：上一則的「手動暫停」不再記 */
     SGR.idx = i; var it = SGR.items[i]; SGR.rid = it ? it.rid : SGR.rid;
     sgrWarm(i); sgrWarm(i + 1); sgrAutoVideo();
@@ -10737,6 +10744,7 @@ window.ALBUM_SWITCH = {
     if (!it) return;
     if (what === "like") { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) { nb.classList.add("pop"); nb.focus({ preventScroll: true }); } return; }
     if (what === "comment") { sgcOpen(it, b); return; }
+    if (what === "more") { sgrMore(el, !el.classList.contains("open")); try { hap(6); } catch (er) {} return; }
     if (what === "support") { hap(8); if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
     if (what === "voice") { sgrVoice(b); return; }
     if (what === "video") { sgrVideo(el); return; }
@@ -13013,7 +13021,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B508T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B509T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
