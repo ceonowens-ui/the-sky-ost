@@ -769,7 +769,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.error === "need_login") { bad(j.message); seatRelogin(); return; } if (j && j.error === "pick_expired") { bad(j.message); seatExpired(); return; } if (j && j.error === "prev_paid") { prevPaidTicket(b, j, email); return; }   /* B518T */ if (j && j.message) { bad(String(j.message).replace("你選的座位剛被別人選走了，請重新選位。", "這個位置剛被選走了，再挑一個喜歡的位置吧。")); return; } } catch (e) {} throw 0; }
         testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
-        S.pickLeft = null; S.pickPay = false; clearInterval(S.seatClockT); BOOT_QS = "";   /* B473T：後台已經改成「付款保留」，舊的 10 分鐘倒數要停掉。不停的話，這一頁如果沒被關掉（主畫面 App、Safari 往回），回來時舊倒數歸零會跳「時間到，座位已放掉」，連已經付款的人都會看到。BOOT_QS 清掉：這一頁之前是從綠界回來開的，再去付一次、按 ✕ 回來時才會再問一次付款結果 */
+        S.pickLeft = null; S.pickPay = false; S.payGone = true; clearInterval(S.seatClockT); BOOT_QS = ""; if (sxEN()) { try { coHoldSync(); } catch (eH) {} }   /* B473T：後台已經改成「付款保留」，舊的 10 分鐘倒數要停掉。不停的話，這一頁如果沒被關掉（主畫面 App、Safari 往回），回來時舊倒數歸零會跳「時間到，座位已放掉」，連已經付款的人都會看到。BOOT_QS 清掉：這一頁之前是從綠界回來開的，再去付一次、按 ✕ 回來時才會再問一次付款結果 */
         try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
         try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, hold: seatHold(ev), seats: pp ? null : b.seats || null, seatNames: pp ? null : b.seatNames || null, ck: form.getAttribute("data-claim") || "", email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", tq: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]), pp: !!(!pp && !mc && b.pp), mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); pmGo(cpb, function () { f.submit(); });
@@ -3337,7 +3337,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (h) h.textContent = seatHintTx(ev, en); if (t) t.textContent = HOLD_TXT(ev); if (f) f.innerHTML = '<h4>完整購票須知</h4>' + termsBodyHTML(ev);
   }
   function seatHintTx(ev, en) { var n = seatHold(ev);
-    if (S.pickPay) return en ? "Held for you. This is not a completed purchase. Finish paying before the countdown ends; pressing Pay again does not add time. If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前完成付款，再按一次付款不會多給時間；超過時間要重新選位。付款後不能更換座位。";   /* B473T：沒付款回來是接著原本的付款時間倒數，不能再寫「按下後 5 分鐘內完成付款」 */
+    if (S.pickPay || (en && S.payGone)) return en ? "Held for you. This is not a completed purchase. Finish paying before the countdown ends; pressing Pay again does not add time. If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前完成付款，再按一次付款不會多給時間；超過時間要重新選位。付款後不能更換座位。";   /* B473T：沒付款回來是接著原本的付款時間倒數，不能再寫「按下後 5 分鐘內完成付款」 */
     return en ? "Held for you. This is not a completed purchase. Tap Pay before the countdown ends" + (n ? ", then finish paying within " + n + " minutes" : "") + ". If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前按「前往付款」" + (n ? "，按下後 " + n + " 分鐘內完成付款" : "") + "；超過時間要重新選位。付款後不能更換座位。"; }   // B469T（CÉON 11/09）：「付款後不能更換座位」從底部移到座位這裡；底部只留倒數和付款按鈕，「請先閱讀並同意」上面勾選處已經有
   function seatRowHTML(b, T) {
     var ss = seatsOf(b), en = sxEN(), ev = buyEvent(b.evId) || buyEv(), nm = b.seatNames || ss, q = ss.length, tick = T ? Number(T.price) * Math.max(1, q) : 0, tot = T && q ? coTotal(ev, T, b) : 0;
@@ -3357,7 +3357,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* 點選即鎖（CÉON 11/05 定）：座位圖裡點到就送後台鎖 2 分鐘。token 只在這個分頁有效；結帳頁每 45 秒續鎖，離開結帳頁就放掉 */
   var PICK_TOK = (function () { var t = ""; try { t = sessionStorage.getItem("tk:pick") || ""; } catch (e) {} if (!/^[A-Za-z0-9_-]{8,40}$/.test(t)) { t = "p" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { sessionStorage.setItem("tk:pick", t); } catch (e) {} } return t; })();
   function seatPick(evId, ids) {   // B435T：一次送一筆、照順序送。手機網路慢時連點座位，較舊的那筆晚到會蓋掉新的
-    var go = function () { return fetch(C.api + "/ticket/seats/pick", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ event: evId, token: PICK_TOK, seats: ids, session: S.session || undefined, fresh: !S.pickLeft }) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "need_login") seatRelogin(); if (j && j.leftMs != null) { S.pickLeft = { ms: Number(j.leftMs), at: Date.now() }; if (!!j.pay !== !!S.pickPay) { S.pickPay = !!j.pay; try { coHoldSync(); } catch (e) {} } } if (j && j.error === "pick_expired") seatExpired(); return j; }); };
+    var go = function () { return fetch(C.api + "/ticket/seats/pick", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ event: evId, token: PICK_TOK, seats: ids, session: S.session || undefined, fresh: !S.pickLeft }) }).then(function (r) { return r.json(); }).then(function (j) { if (j && j.error === "need_login") seatRelogin(); if (j && j.leftMs != null) { S.pickLeft = { ms: Number(j.leftMs), at: Date.now() }; if (!j.pay) S.payGone = false; if (!!j.pay !== !!S.pickPay) { S.pickPay = !!j.pay; try { coHoldSync(); } catch (e) {} } } if (j && j.error === "pick_expired") seatExpired(); return j; }); };
     var p = (S.pickQ || Promise.resolve()).then(go, go);
     S.pickQ = Promise.race([p, new Promise(function (r) { setTimeout(r, 8000); })]).catch(function () {});   // 一筆卡住也不擋後面
     return p;
@@ -3367,7 +3367,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function seatExpired() {
     var b = S.buy, ui = S.seatUI, tx = sxEN() ? "Your 10 minutes ran out and the seats were released. Choose again. You have not been charged." : "選位時間到了，座位已放掉，請重新選位。還沒建立付款，不會扣款。";
     if (S.seatExpiredAt && Date.now() - S.seatExpiredAt < 2000) return; S.seatExpiredAt = Date.now();
-    S.pickLeft = null; S.pickPay = false; clearInterval(S.seatKeepT); clearInterval(S.seatClockT); coNoteLost();
+    S.pickLeft = null; S.pickPay = false; S.payGone = false; clearInterval(S.seatKeepT); clearInterval(S.seatClockT); coNoteLost();
     if (b) { b.seats = []; b.seatNames = []; b.seatOwn = []; b.tq = 0; seatPick(b.evId, []).catch(function () {}); }
     if (ui) return ui.expired(tx);
     toast(tx); if (b && $(".tk-seatrow")) { coTQ(0); msg("#tk-bmsg", tx); seatOpen(); }
@@ -4623,7 +4623,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var pg = null; try { pg = JSON.parse(localStorage.getItem("tk:paying") || "null"); } catch (e) {}
       if (!pg || !pg.evId) return;
       if (Date.now() - (pg.t || 0) > 30 * 60e3) { try { localStorage.removeItem("tk:paying"); } catch (e) {} return; }
-      S.paying = pg;
+      S.paying = pg; S.payGone = true;
       var lo0 = lastOrder(pg.evId); if (pg.kind !== "pp" && lo0 && !C.demo) payCover(true);   // B433T：先等後台回覆，不先回結帳頁
       var askPaid = function () { if (!S.paying) return; if (pg.kind !== "pp") { reopenBuy("ticket", pg.evId, lo0 && lo0.tier, lo0 && lo0.mc, lo0 && lo0.mq); coUnbusy(pg.evId); } payCover(false); sheet('<div class="tk-big"><div class="ic">' + IC_CARD + '</div><div class="tk-eyebrow">Payment</div><h3>剛剛的付款完成了嗎？</h3><div class="tk-hint">綠界如果已經顯示「付款成功」，按下面查看你的票（還沒登入的話會請你輸入信箱收到的驗證碼）。</div>' + holdHTML(pg.t || Date.now()) + '</div><button class="tk-btn p" data-sact="paid-yes">已付款，查看我的票</button><button class="tk-btn g" data-sact="paid-no">還沒付／取消</button>'); };
       /* B359T：有這筆訂單編號就先問後台；確認已付款就直接進確認／我的票，不用再問「付款完成了嗎」 */
