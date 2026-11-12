@@ -89,6 +89,13 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
 </style>
 <div id="sky-splash" aria-hidden="true"><img class="ss-bg" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAABAAAAAQBPJcTWAAAAYElEQVR4nO3PwQnAMADEsB50/5kzRB4iYE1gb9v3sl8H3GpAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAO7IiAQFcP2hvAAAAAElFTkSuQmCC"><div class="ss-k">CHANCE</div><div class="ss-t">THE SKY</div><div class="ss-l"><i></i></div></div>
 <script>(function () {
+  /* B522T（CÉON 11/12：重新打開 App 沒有開場影片）：人已經在這一頁看過「付款回來」了（從綠界按上一頁回來、或切回 App）→ 把那筆付款紀錄記成看過，
+     下次重新打開 App 就照常播開場。只有「App 被整個重開、第一眼就是付款回來」那一次才不播 */
+  function paySeen() { try { var g = function (k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }, a = g("tk:paying"), b = g("tk225:m"), c = g("cx:shop"), d = g("dc:paying");
+    var n = Math.max(a && a.evId ? Number(a.t) || 0 : 0, b && b.no ? Number(b.at) || 0 : 0, c && c.d && c.launched ? Number(c.at) || 0 : 0, d && d.o ? Number(d.t) || 0 : 0);
+    if (n > Number(localStorage.getItem("pay:retseen") || 0)) localStorage.setItem("pay:retseen", String(n)); } catch (e) {} }
+  window.addEventListener("pageshow", function (e) { if (e.persisted) paySeen(); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) paySeen(); });
   var el = document.getElementById("sky-splash"); if (!el) return;
   var skip = false; try { skip = /[?&]nosplash=1\b/.test(location.search) || !!window.__SKY_NOSPLASH; } catch (e) {}
   if (skip) { el.parentNode.removeChild(el); return; }
@@ -13153,7 +13160,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B521T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B522T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
