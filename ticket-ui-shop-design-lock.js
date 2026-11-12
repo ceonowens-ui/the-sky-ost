@@ -73,6 +73,13 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
  * ===================================================================== */
 (function () {
   "use strict";
+  /* B528T（mobile-native：在 iPhone 模擬器實測，iPhone Safari 從綠界按上一頁回來，結帳頁的捲動位置會被歸零〔離開時 484、回來 0〕，桌機 Chrome 不會）
+     英文版：離開時記住結帳頁捲到哪，回來第一時間放回去。這段要最早登記，才會在其他「回來就重畫」的程式之前跑 */
+  (function () {
+    var keep = null, co = function () { return document.querySelector('.tk-layer[data-layer="checkout"]'); };
+    window.addEventListener("pagehide", function () { if (window.SKY_LANG !== "en") return; var L = co(); keep = L && L.scrollTop > 0 ? L.scrollTop : null; });
+    window.addEventListener("pageshow", function (e) { if (!e.persisted || keep == null || window.SKY_LANG !== "en") { keep = null; return; } var L = co(), y = keep; keep = null; if (L && L.scrollTop < 2) { L.scrollTop = y; requestAnimationFrame(function () { if (L.isConnected && L.scrollTop < 2) L.scrollTop = y; }); } });
+  })();
   /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。
      B353T：CÉON 10/30——這支 JS 只有 test.html 載入，預設改成連測試 Worker；要連正式後台才需要開一次 ?tkapi=prod */
   var TKAPI = "test"; // This independent candidate cannot switch to production.
@@ -643,7 +650,10 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function payCover(on) {
     var c = document.getElementById("tk-paycover"), root = document.documentElement;
     clearTimeout(payCoverT);
-    if (!on) { if (c) c.remove(); root.classList.remove("tk-paywait"); return; }
+    if (!on) { if (c) c.remove(); root.classList.remove("tk-paywait"); Array.prototype.forEach.call(document.querySelectorAll('[data-pcwait]'), function (x) { x.disabled = false; x.removeAttribute("data-pcwait"); }); return; }
+    /* B528T（mobile-native：手機上回來的頁面要跟離開時一樣，不蓋黑底）：英文版結帳頁已經在畫面上時，不蓋全黑等待，只先鎖住付款按鈕，問完後台再放開 */
+    var coL = sxEN() ? layerEl("checkout") : null;
+    if (coL && !c && coL.getBoundingClientRect().height > 0 && getComputedStyle(coL).display !== "none") { root.classList.add("tk-paywait"); var pbw = coL.querySelector('[data-act="co-pay"]'); if (pbw && !pbw.disabled) { pbw.disabled = true; pbw.setAttribute("data-pcwait", "1"); } payCoverT = setTimeout(function () { payCover(false); }, 45000); return; }
     root.classList.add("tk-paywait"); goShop();   // SHOP 在黑底下先載好場次，沒付款時才回得去結帳頁
     if (window.__skySplashGo) window.__skySplashGo();   // B469T：等待底已經蓋上，開場畫面可以收了
     if (!c) { c = document.createElement("div"); c.id = "tk-paycover"; c.className = "tk-sum-cover tk-paycover"; c.innerHTML = '';   /* B465T（CÉON 11/08）：從綠界回來不出現任何確認畫面，只擋住半秒避免畫面閃 */ document.body.appendChild(c); }
@@ -1729,7 +1739,13 @@ function coverClockKey() {
       var cae = document.activeElement;
       if (el.innerHTML && cae && el.contains(cae) && /^(INPUT|SELECT|TEXTAREA)$/.test(cae.tagName)) return;
       if (S.buy && el.innerHTML) { var cn = el.querySelector("#tk-bnick"), cp = el.querySelector("#tk-bph"); if (cn && cn.value) S.buy.nick = cn.value; if (cp && cp.value) S.buy.phone = cp.value; }
+      /* B528T（mobile-native：回來的頁面要停在離開時的位置）：英文版重畫結帳頁時記住捲到哪、畫完放回去，上方多出提示也不讓下面的內容跳 */
+      var keepY = null;
+      var KY_SEL = [".tkc-ev", ".tk-seatamt", ".tk-seathint", ".tkc-fields", ".tkc-who", ".tkc-f", ".tkc-after", ".tkm-sum", ".tkb-total", ".tkc-terms", ".tkc-agree", ".tk-pay-en"];
+      if (sxEN() && el.innerHTML) { var sc0 = el.scrollTop > 0 ? el : el.querySelector(".tkb"); if (sc0 && sc0.scrollTop > 0) { var mid = sc0.getBoundingClientRect().top + sc0.clientHeight / 2, best = null; KY_SEL.forEach(function (q) { var n = el.querySelector(q); if (!n) return; var t = n.getBoundingClientRect().top, d = Math.abs(t - mid); if (!best || d < best.d) best = { q: q, t: t, d: d }; }); if (best) keepY = { st: sc0.scrollTop, q: best.q, top: best.t, inner: sc0 !== el }; } }   /* 對準畫面中間最近的那一塊，不是對準早就捲出畫面的票卡頂 */
       el.innerHTML = checkoutHTML();
+      if (keepY) { try { if (window.SkyShopLanguage && window.SkyShopLanguage.apply) window.SkyShopLanguage.apply(); } catch (eL) {} }   /* 先換成英文（英文比較長）再對位置，不然翻譯晚一步又把下面推下去 */
+      if (keepY) { var sc1 = keepY.inner ? el.querySelector(".tkb") : el, an1 = el.querySelector(keepY.q); if (sc1 && an1) { sc1.scrollTop = keepY.st; sc1.scrollTop += an1.getBoundingClientRect().top - keepY.top; } }
     }
     if (name === "cxl") { el.innerHTML = cxListHTML(); document.body.classList.add("cxl-open"); }   /* B309T */
     if (name === "mxc") {   /* B375T：生日周邊購買頁；正在輸入時不重畫 */
