@@ -2845,6 +2845,7 @@ function coverClockKey() {
         if (dead()) throw { gone: 1 };
         if (!o.r.ok) {   /* 開綠界那一步不是 2xx：就算內容裡有表單也不送出 */
           var je = null; try { je = JSON.parse(o.html); } catch (e) {}
+          if (o.r.status === 409 && je && je.error === "prev_paid") throw { prev: 1, msg: je.message, d: je.draftId };   /* B519T：卡包後台（s6 起）說「剛剛那筆其實付成功了」→ 不再付，直接去購買成功 */
           if (o.r.status >= 400 && o.r.status < 500 && je && je.message) throw { http: 1, msg: je.message };
           throw { net: 1 };
         }
@@ -2857,6 +2858,7 @@ function coverClockKey() {
       }).catch(function (er) {
         clearTimeout(tmo);
         if (dead() || (er && er.gone)) return;
+        if (er && er.prev) { CX.busy = false; if (er.d && shopPending) { shopPending.d = er.d; shopPending.launched = true; cxRemember(shopPending); } try { toast(er.msg || "你剛剛那筆已經付款成功，不用再付一次。"); } catch (e2) {} try { cx9Paint(); } catch (e3) {} cxPaidGo(); return; }   /* B519T */
         fail(er && er.http ? "http" : "net", er && er.msg);
       });
   }
@@ -2870,7 +2872,7 @@ function coverClockKey() {
     var ac = window.AbortController ? new AbortController() : null;
     return new Promise(function (res) {
       var t = setTimeout(function () { try { if (ac) ac.abort(); } catch (e) {} res(null); }, ms || 6000);
-      fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(d), { cache: "no-store", signal: ac ? ac.signal : undefined }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (j) { clearTimeout(t); res(j); });
+      fetch(SHOP_API + "/shop/status?d=" + encodeURIComponent(d) + "&q=1", { cache: "no-store", signal: ac ? ac.signal : undefined })   /* B519T：q=1＝人已經回來了，請卡包後台（s6 起）沒紀錄就直接問綠界；舊後台會忽略 */.then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (j) { clearTimeout(t); res(j); });
     });
   }
   function cxPrefill(p) {   // 跟「立即購買」同一套：帶入別頁填過的姓名、手機、地址；數量、取貨方式、Email 用這筆訂單記的

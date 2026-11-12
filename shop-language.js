@@ -327,7 +327,7 @@
  '寫給 Chance 的信':'A letter to Chance','寫一封信':'Write a letter','看全部周邊（卡包、信）':'All merch (card pack, letters)',
  '每月只收二十封，月底前他會親自讀完。':'Only 20 letters a month. He reads every one himself by month’s end.',
  '每月只收二十封，月底前親自讀完。':'Only 20 letters a month, read by Chance himself by month’s end.',
- 'NT$99 · 每人每月一封':'NT$99 · One letter per person each month', 'NT$30 · 每人每月一封':'NT$30 · One letter per person each month','CHANCE 官方周邊，數量有限。':'Official CHANCE merch. Limited quantities.',
+ 'NT$99 · 每人每月一封':'NT$99 · One letter per person each month', '最後幾包有人正在結帳，請幾分鐘後再試':'The last few packs are being checked out by someone else. Please try again in a few minutes.', 'NT$30 · 每人每月一封':'NT$30 · One letter per person each month','CHANCE 官方周邊，數量有限。':'Official CHANCE merch. Limited quantities.',
  '每月限量 · 數位':'Monthly limit · Digital','／封':'/ letter','模擬付款 · 不會收費':'Demo checkout · No charge'
  });
  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK={'日':'Sun','一':'Mon','二':'Tue','三':'Wed','四':'Thu','五':'Fri','六':'Sat'};
