@@ -2960,8 +2960,15 @@ function coverClockKey() {
       });
     }, Date.now() - t0 < 20000 ? CONFIRM_STEP : 5000); })();   // 前 20 秒每 2 秒問一次，之後每 5 秒
   }
+  function payNewest() {   /* B521T：四種付款（門票 tk／周邊 m／卡包 cx／寫信 dc）裡，最後一次去付的是哪一種 */
+    var g = function (k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
+    var a = g("tk:paying"), b = g("tk225:m"), c = g("cx:shop"), d = g("dc:paying");
+    var L = [["tk", a && a.evId ? Number(a.t) || 0 : 0], ["m", b && b.no ? Number(b.at) || 0 : 0], ["cx", c && c.d && c.launched ? Number(c.at) || 0 : 0], ["dc", d && d.o ? Number(d.t) || 0 : 0]].sort(function (x, y) { return y[1] - x[1]; });
+    return L[0][1] ? L[0][0] : "";
+  }
   function cxResume() {
     if (/[?&](tkbought|tkmerch|tkphoto|dcback|dcopen)=/.test(location.search)) return;
+    var nw0 = payNewest(); if (nw0 && nw0 !== "cx") return;   /* B521T：最後一次去付的不是卡包 → 不接手 */
     var p = cxPending(), key = p && String(p.d) + ":" + String(p.at);
     if (!p || !p.launched || p.dismissedAt || cxResumeSeen === key) return;   // B416T：使用者關掉過就不再自動跳，改由 SHOP 的「重新確認付款」手動查
     if (p.bouncedAt) {   // B518T（C2）：這筆已經帶回確認訂單頁一次了 → 之後回到 App 只在背景問一次，確定付了才跳出來，不再把人拉回結帳頁
@@ -4606,8 +4613,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     /* B354T：從綠界回到 App（主畫面 App 的綠界頁是另一層，關掉後網址沒有 ?tkbought）→ 問一次付款完成了沒 */
     function resumePaying() {
       if (/[?&](tkbought|tkphoto|tkmerch|dcback|dcopen)=/.test(BOOT_QS) || S.paying) return;
+      /* B521T（CÉON 11/12：去付卡包沒付，回來卻跳到買票頁）：手機裡可能同時留著好幾種「剛去付款」的紀錄，回來只接「最後一次去付的那一種」 */
+      var nw = payNewest(); if (nw === "cx" || nw === "dc") return;
       var merchPending = mPending();
-      if (merchPending && merchPending.no) {
+      if (merchPending && merchPending.no && nw !== "tk") {
         if (S.merchResumed === merchPending.no || (sheetEl && sheetEl.classList.contains("show"))) return;
         S.merchResumed = merchPending.no; reopenBuy("merch", merchPending.evId); mAwait(); return;   // B386T：先回到周邊購買頁
       }

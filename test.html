@@ -96,7 +96,10 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
   /* B498T（CÉON 11/11）：主畫面 App 去綠界付款，回來時 iPhone 會把 App 從頭打開、網址沒有 ?tkbought，以前會照常播開場影片（手放頭上那段）再跳到票。
      改成也看手機裡「剛去付款」的紀錄（跟下面購票模組的 tkPend 同一份：門票／周邊 tk:paying、tk225:m，卡包 cx:shop），30 分鐘內有就當作付款回來：不播開場，只留黑底 */
   if (!ret) { try { var pNow = Date.now(), pA = JSON.parse(localStorage.getItem("tk:paying") || "null"), pB = JSON.parse(localStorage.getItem("tk225:m") || "null"), pC = JSON.parse(localStorage.getItem("cx:shop") || "null"), pD = JSON.parse(localStorage.getItem("dc:paying") || "null");
-    ret = !!(pA && pA.evId && pNow - (pA.t || 0) < 30 * 60e3) || !!(pB && pB.no && pB.evId && pNow - (pB.at || 0) < 30 * 60e3) || !!(pC && pC.d && pC.launched && pNow >= pC.at && pNow - pC.at < 30 * 60e3) || !!(pD && pD.o && pNow - (pD.t || 0) < 30 * 60e3); } catch (e) {} }   /* B501T：寫信 dc:paying 也算 */
+    ret = !!(pA && pA.evId && pNow - (pA.t || 0) < 30 * 60e3) || !!(pB && pB.no && pB.evId && pNow - (pB.at || 0) < 30 * 60e3) || !!(pC && pC.d && pC.launched && pNow >= pC.at && pNow - pC.at < 30 * 60e3) || !!(pD && pD.o && pNow - (pD.t || 0) < 30 * 60e3);
+    /* B521T（CÉON 11/12：開場影片不見了）：同一筆「剛去付款」的紀錄只當一次付款回來。看過一次之後再打開 App，就照常播開場（以前 30 分鐘內每次打開都不播） */
+    if (ret) { var pNew = Math.max(pA && pA.evId ? Number(pA.t) || 0 : 0, pB && pB.no ? Number(pB.at) || 0 : 0, pC && pC.d && pC.launched ? Number(pC.at) || 0 : 0, pD && pD.o ? Number(pD.t) || 0 : 0), pSeen = Number(localStorage.getItem("pay:retseen") || 0); if (pNew <= pSeen) ret = false; else localStorage.setItem("pay:retseen", String(pNew)); }
+    } catch (e) {} }   /* B501T：寫信 dc:paying 也算 */
   if (ret) el.classList.add("ret");
   var t0 = Date.now(), MIN = ret ? 0 : 900, MAX = 2000, gone = false;
   function go() {
@@ -13150,7 +13153,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B520T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B521T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13369,7 +13372,7 @@ window.ALBUM_SWITCH = {
 /* B223V：票務 JS（214KB）改成「進 SHOP 才載」。ticket-ui-shop.js 自己會檢查 readyState，晚載也能正常初始化。 */
 (function () {
   var done = false;
-  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=b0019186f987";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
+  function load() { if (done) return; done = true; var s = document.createElement("script"); s.src = "ticket-ui-shop-design-lock.js?v=1e917b9b2ad6";   /* B314T：SHOP 首頁精簡（t309 留著不動，回復改回這行） */   /* B309T：周邊列表＋寫給 Chance 的信（隱藏，?letters=1 預覽） */ s.onerror = function () { var h = document.getElementById("b318-shop-old-hide"); if (h) h.remove(); };   /* B318T：模組載不到（離線）才退回舊列表，不讓 SHOP 空白 */ document.body.appendChild(s); }
   document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest('.navbtn[data-screen="merch"]')) load(); }, true);
   document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#nav")) load(); }, { capture: true, passive: true });   /* B318T：一碰分頁島就先開始載 SHOP 模組，手指放開前就在下載 */
   var tkPend = false;   /* B386T：剛從綠界回來（主畫面 App 按 ✕ 會從頭載入，網址沒有 ?tkbought）→ 馬上載 SHOP 模組，回到購買頁 */
