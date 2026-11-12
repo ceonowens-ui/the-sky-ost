@@ -89,6 +89,7 @@
     "送達代表信箱已接收，不代表已讀。Chance 本人讀完後會另外顯示。": "Delivered means the mailbox received it, not that it’s been read. You’ll see when Chance has read it.",
     "你的信已經放進 Chance 的信箱，他會親自打開、讀完。讀完的那一刻，「我的信件」會告訴你，也會寄信通知你。": "Your letter is now in Chance’s mailbox. He’ll open it and read it himself. The moment he finishes, My letters will show it, and we’ll email you.",
     "Chance 回信給你了": "Chance wrote back to you",
+    "這個月的信已經寄出。": "This month’s letter has been sent.", "這封是草稿，還沒寄出。": "This is a draft. It hasn’t been sent.", "查看這個月寄出的信": "View the letter sent this month", "先寫下個月的信": "Write next month’s letter", "付款時會寄出你最後確認的內容。": "Paying sends the version you last confirmed.",
     "模擬送達 · 沒有真的寄出": "Simulated delivery · Nothing was actually sent", "查看信件": "View letter", "你的信已送達 Chance 的專屬信箱": "Your letter has arrived in Chance’s private mailbox",
     "已回覆": "Replied", "Chance 已讀完": "Read by Chance", "收信規則待處理": "Under review", "已送達，等待 Chance 閱讀": "Delivered · waiting for Chance to read",
     "退款處理中": "Refund in progress", "退款完成": "Refunded", "已付款，寄送處理中": "Paid · sending", "付款結果確認中": "Confirming payment", "名額保留中，等待付款": "Spot held · awaiting payment", "失敗": "Failed",
@@ -129,6 +130,8 @@
     [/^名額保留到 (.+)，到期未付款會釋放。$/, function (m) { return "Spot held until " + m[1] + ". It’s released if unpaid."; }],
     [/^名額保留到 (.+)，可以再試一次。$/, function (m) { return "Spot held until " + m[1] + ". You can try again."; }],
     [/^名額保留到 (.+)$/, function (m) { return "Spot held until " + m[1]; }],
+    [/^保留到 (.+)。改完回到確認頁再按一次，付款時就會寄出新的內容。$/, function (m) { return "Held until " + m[1] + ". After editing, confirm again on the review page and the new version is what gets sent."; }],
+    [/^保留到 (.+)。付款時會寄出你最後確認的內容。$/, function (m) { return "Reserved until " + m[1] + ". Paying sends the version you last confirmed."; }],
     [/^保留到 (.+)$/, function (m) { return "Held until " + m[1]; }],
     [/^你在 (.+) 保留名額時，內容已固定為：$/, function (m) { return "When you reserved on " + m[1] + ", the letter was locked as:"; }],
     [/^若要寄出現在這個版本，請等保留於 (.+) 到期後重新確認。$/, function (m) { return "To send this version instead, wait until the hold ends at " + m[1] + " and confirm again."; }],
@@ -139,7 +142,10 @@
     [/^親自閱讀期限 (.+)$/, function (m) { return "Read by " + m[1]; }],
     [/^草稿 · (.+)$/, function (m) { return "Draft · " + m[1]; }],
     [/^Chance 的回覆 · (.+)$/, function (m) { return "Chance’s reply · " + m[1]; }],
-    [/^期限 (.+)$/, function (m) { return "Due " + m[1]; }]
+    [/^期限 (.+)$/, function (m) { return "Due " + m[1]; }],
+    [/^現在寫的會先存成草稿，(.+?) ?開放後可以寄出。$/, function (m) { return "What you write now is saved as a draft. You can send it once the next round opens on " + m[1] + "."; }],
+    [/^這個月的信已經寄出（每人每月 (\d+) 封）。(.+?) ?開放後，回到這裡就能寄出這封。$/, function (m) { return "This month’s letter has already been sent (" + m[1] + " per person each month). Come back here to send this one once the next round opens on " + m[2] + "."; }],
+    [/^每人每月限寄 (\d+) 封。下一封 (.+?) ?開放。$/, function (m) { return m[1] + " letter(s) per person each month. The next round opens on " + m[2] + "."; }]
   ];
   function tr(raw) {
     var t = String(raw).trim(); if (!t || !/[㐀-鿿]/.test(t)) return raw;
@@ -727,10 +733,15 @@ function top(){
 function headline(per){return"每月，只收"+zh(per?per.capacity:20)+"封心意。"}
 function promise(per){return"每一封成功寄出的信，Chance 都會在 "+(per?fmtDay(per.readBy):"當月底")+" 前親自讀完。不一定逐一回覆，但你寫下的話，他會認真看見。"}
 function nextLine(ov){return ov.next?'<span>下一期 '+monthName(ov.next.id)+'，於 '+fmtMD(ov.next.openAt)+' 開放。</span>':''}
-function stateBox(ov){
+/* B504T（CÉON 11/12）：這個月已經寄滿（每人上限）＝ sentOut。先講清楚，不讓人寫完整封才發現不能寄 */
+function sentOut(ov){return ov.sentOut!=null?!!ov.sentOut:!!ov.myLetter}
+function nextOpenTxt(ov){if(ov.next)return fmtDay(ov.next.openAt);var per=ov.period;if(!per)return"下個月 1 日";var m=+String(per.id).split("-")[1]+1;if(m>12)m=1;return m+" 月 1 日"}
+function holdEditable(h){return typeof REAL!=="undefined"&&REAL&&h&&h.order&&h.order.status!=="confirming"}
+function stateBox(ov,ctx){
   var per=ov.period,st=ov.state;
-  if(ov.myLetter)return'<div class="state"><b>你本月的心意，已經寄出。</b><span>每人每月限寄一封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看我的信</button></div></div>';
-  if(ov.myHold)return'<div class="state"><b>你有一個保留中的名額</b><span>保留到 '+fmtMD(ov.myHold.expiresAt)+'。付款會寄出保留當下的內容。</span><div class="row"><button class="btn btn-gold" type="button" data-resume="'+ov.myHold.orderId+'">繼續付款</button></div></div>';
+  if(sentOut(ov)&&ctx==="draft")return'<div class="state"><b>這封是草稿，還沒寄出。</b><span>這個月的信已經寄出（每人每月 '+(per?per.perUser:1)+' 封）。'+nextOpenTxt(ov)+'開放後，回到這裡就能寄出這封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看這個月寄出的信</button></div></div>';
+  if(sentOut(ov))return'<div class="state"><b>你本月的心意，已經寄出。</b><span>每人每月限寄 '+(per?per.perUser:1)+' 封。下一封 '+nextOpenTxt(ov)+'開放。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看我的信</button></div></div>';
+  if(ov.myHold)return'<div class="state"><b>你有一個保留中的名額</b><span>保留到 '+fmtMD(ov.myHold.expiresAt)+'。'+(holdEditable(ov.myHold)?'付款時會寄出你最後確認的內容。':'付款會寄出保留當下的內容。')+'</span><div class="row"><button class="btn btn-gold" type="button" data-resume="'+ov.myHold.orderId+'">繼續付款</button></div></div>';
   if(st==="noperiod")return'<div class="state info"><b>本期尚未開放收信</b><span>草稿可以先寫，會保留在此裝置。</span></div>';
   if(st==="notopen")return'<div class="state info"><b>本期尚未開放收信</b><span>'+monthName(per.id)+'將於 '+fmtMD(per.openAt)+' 開放。可以先寫草稿，不收費、不占名額。</span></div>';
   if(st==="closed")return'<div class="state info"><b>本期收信已結束。</b>'+nextLine(ov)+'<span>草稿會保留，但不會自動寄出、不會自動扣款，也不會自動取得下期名額。</span></div>';
@@ -786,7 +797,7 @@ V.product={load:function(){return API.overview(me())},view:function(ov){
  return '<section class="screen letter-entry"><div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
  '<div class="entry-copy"><div class="en">Dear Chance</div><h1>有些話，<br>只想寫給你。</h1><p class="lead">把想說的話，留在這封信裡。</p></div>'+stateBox(ov)+
  '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 數位信箋</span></div>'+
- (ov.myLetter?'':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?'寫一封信':'先寫草稿')+'</button>')+
+ (sentOut(ov)?'<button class="btn btn-ghost" id="write" type="button">先寫下個月的信</button>':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?'寫一封信':'先寫草稿')+'</button>')+
  '<button class="btn btn-text" id="rules" type="button">收信說明</button></div></section>'},
  wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
 
@@ -824,7 +835,8 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
   var hold=ov.myHold&&ov.myHold.draftId===d.id?ov.myHold:null;
   return'<section class="screen">'+
 
-   (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。</span></div>':'')+
+   (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>'+(holdEditable(hold)?'保留到 '+fmtMD(hold.expiresAt)+'。改完回到確認頁再按一次，付款時就會寄出新的內容。':'付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。')+'</span></div>'
+    :sentOut(ov)?'<div class="state info"><b>這個月的信已經寄出。</b><span>現在寫的會先存成草稿，'+nextOpenTxt(ov)+'開放後可以寄出。</span></div>':'')+
    '<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
     '<div class="salute" aria-hidden="true">Dear Chance,</div><label class="sr" for="body">信件正文，寫給 CHANCE</label>'+
     '<textarea class="body-ta" id="body" rows="7" placeholder="從一句最想說的話開始…" autocomplete="off" spellcheck="false"></textarea>'+
@@ -857,7 +869,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
 /* ═════════ 粉絲：完整預覽 → 確認名額與付款 ═════════ */
 V.preview={load:function(){return API.overview(me())},view:function(ov){
   var d=CL.drafts[R.param];if(!d)return V.missing.view();
-  var per=ov.period,box=ov.myHold?"":stateBox(ov),blocked=!!box;
+  var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box;
   var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
   return'<section class="screen"><h2>把心意，寄給 Chance。</h2><details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
    (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
@@ -998,7 +1010,7 @@ function fanStatus(v){
   return["失敗","warn"];
 }
 var mtab="sent";
-V.mailbox={load:function(){return API.myItems(me())},view:function(r){
+V.mailbox={load:function(){return Promise.all([API.myItems(me()),API.overview(me())]).then(function(a){a[0].ov=a[1];return a[0]})},view:function(r){
   if(R.param)mtab=R.param;
   var items=r.items||[],drafts=Object.keys(CL.drafts).map(function(k){return CL.drafts[k]}).filter(function(d){return d.body||d.sig}).sort(function(a,b){return b.updated-a.updated});
   var replies=items.filter(function(v){return v.letter&&v.letter.reply});
@@ -1007,7 +1019,7 @@ V.mailbox={load:function(){return API.myItems(me())},view:function(r){
     return'<button class="item" type="button" data-order="'+v.order.id+'"><div class="h"><span>'+monthName(v.order.periodId)+' · '+fmtFull(v.letter?v.letter.sentAt:v.order.createdAt)+'</span><span class="tag '+s[1]+'">'+s[0]+'</span></div><div class="s">'+esc(summary(snap,60))+'</div>'+(v.letter&&!v.letter.readAt?'<div class="small">親自閱讀期限 '+fmtMD(v.letter.readBy)+'</div>':'')+'</button>'}).join(""):'<div class="empty">還沒有寄出的信。</div>';
   if(mtab==="draft")list=drafts.length?drafts.map(function(d){return'<button class="item" type="button" data-draft="'+d.id+'"><div class="h"><span>草稿 · '+fmtFull(d.updated)+'</span><span class="tag info">僅存於此裝置</span></div><div class="s">'+esc(summary(d.body,60)||"（只有署名）")+'</div></button>'}).join(""):'<div class="empty">沒有草稿。</div>';
   if(mtab==="reply")list=replies.length?replies.map(function(v){return'<button class="item" type="button" data-order="'+v.order.id+'"><div class="h"><span>Chance 的回覆 · '+fmtFull(v.letter.reply.at)+'</span><span class="tag read">已回覆</span></div><div class="s">'+esc(summary(v.letter.reply.text,60))+'</div></button>'}).join(""):'<div class="empty">尚未收到回信。若有新回信，會出現在這裡。\n寄信不保證獲得回覆。</div>';
-  return'<section class="screen"><h1>收藏那些，\n認真說過的話。</h1><div class="tabs" role="tablist">'+keys.map(function(k,i){return'<button class="tab" role="tab" type="button" data-tab="'+k+'" aria-selected="'+(mtab===k)+'">'+names[i]+'<small>'+counts[i]+'</small></button>'}).join("")+'</div><div class="list" role="tabpanel">'+list+'</div><button class="btn btn-gold" id="again" type="button">再寫一封信</button></section>'},
+  return'<section class="screen"><h1>收藏那些，\n認真說過的話。</h1><div class="tabs" role="tablist">'+keys.map(function(k,i){return'<button class="tab" role="tab" type="button" data-tab="'+k+'" aria-selected="'+(mtab===k)+'">'+names[i]+'<small>'+counts[i]+'</small></button>'}).join("")+'</div><div class="list" role="tabpanel">'+list+'</div><button class="btn btn-gold" id="again" type="button">'+(r.ov&&sentOut(r.ov)?'先寫下個月的信':'再寫一封信')+'</button></section>'},
  wire:function(){
   document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){mtab=b.dataset.tab;R.param=mtab;setRoute(R);render()}});
   document.querySelectorAll("[data-order]").forEach(function(b){b.onclick=function(){go("letter",b.dataset.order)}});
@@ -1169,7 +1181,11 @@ if(REAL){
   var forbid=function(r){if(r&&r.err==="forbidden"&&ROLE!=="fan"){keySet("");setTimeout(keySheet,50)}return r};
   var syncClock=function(r){if(r&&r.now)SIM.clock=r.now-Date.now();return r};
   API={
-    overview:function(){return post("/letters/overview",withS()).then(syncClock)},
+    overview:function(){return post("/letters/overview",withS()).then(syncClock).then(function(r){
+      if(!r||!r.myLetter){if(r)r.sentOut=false;return r}
+      var lim=r.period?r.period.perUser:1;if(!(lim>1)){r.sentOut=true;return r}
+      return post("/letters/mine",withS()).then(function(m){var n=(m.items||[]).filter(function(v){return v.letter&&v.order.periodId===r.period.id}).length;r.sentOut=n>=lim;return r},function(){r.sentOut=true;return r});   /* 每人上限 >1：算這個月已寄幾封 */
+    })},
     reserve:function(u,draft,key){return post("/letters/reserve",withS({draft:draft,key:key}))},
     pay:function(u,orderId){
       var en=document.documentElement.lang==="en";
