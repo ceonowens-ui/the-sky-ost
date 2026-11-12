@@ -1639,11 +1639,11 @@ body { background: #08060C !important; }
 /* B316T：SIGNAL 是獨立頁——在 FEED 裡音樂一律不播、不出現迷你播放器（NAV 島保留）；浮動提示等離開 FEED 再出現；左上角「返回」回到進來前的分頁 */
 body.sky-feed #mini-player.mini-player,body.sky-feed #a2tip,body.sky-feed #a2mini,body.sky-feed #a2guide,body.sky-feed #__sigBar,body.sky-feed #__updBar,body.sky-feed #__restartTip,body.sky-feed #__langBar{display:none!important}
 #feed-back{position:fixed;z-index:60;left:max(6px,env(safe-area-inset-left));top:calc(env(safe-area-inset-top) + 3px);height:44px;min-width:44px;padding:0 12px 0 4px;display:none;align-items:center;gap:1px;border:0;background:none;color:rgba(243,238,234,.78);font:500 14px/1 'Noto Sans TC',-apple-system,sans-serif;letter-spacing:.04em;text-shadow:0 1px 8px rgba(0,0,0,.6);cursor:pointer;-webkit-tap-highlight-color:transparent}
-body.sky-feed #feed-back{display:flex}
+body.sky-feed #feed-back{display:none}   /* B508T：FEED 是分頁，下面有導覽列，不需要「返回」 */
 #feed-back svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #feed-back:active{opacity:.6}
 #feed-back:focus-visible{outline:2px solid #D8C3A0;outline-offset:2px;border-radius:10px}
-body.sky-feed .sgr-top h1{margin-left:70px}
+body.sky-feed .sgr-top h1{margin-left:0}
 body.sgc-open #feed-back{visibility:hidden}
 .sgr-top.dim h1{opacity:.55}
 .sgr-load{pointer-events:auto;margin-top:8px}
@@ -1671,7 +1671,7 @@ body.sgc-open #feed-back{visibility:hidden}
 @keyframes sgcs{to{transform:rotate(360deg)}}
 .sgc-ul{list-style:none;margin:0;padding:0 0 8px}
 .sgc-li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.sgc-h{display:flex;align-items:baseline;gap:8px;font-size:13px;color:#A39B8E}.sgc-h b{color:#E9DCC4;font-weight:600;font-size:14px}.sgc-h time{margin-left:auto}
+.sgc-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;font-size:13px;color:#A39B8E}.sgc-h b{color:#E9DCC4;font-weight:600;font-size:14px}
 .sgc-h .me{font-size:11px;padding:1px 6px;border-radius:6px;background:rgba(232,191,122,.16);color:#E8BF7A}
 .sgc-li.artist .sgc-h b{color:#E8BF7A}
 .sgc-li p{margin:4px 0 0;font-size:15px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
@@ -1708,6 +1708,33 @@ body.sgc-open #feed-back{visibility:hidden}
 body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 @media (max-width:340px){.sgr-cap{right:76px;left:14px}.sgr-b{width:58px}.sgr-txt{font-size:15px;-webkit-line-clamp:5}}
 @media (prefers-reduced-motion:reduce){.sgr{scroll-behavior:auto}.sgc-panel,.sgc-dim{transition:none}.sgr-like.pop svg{animation:none}}
+/* B508T：FEED 改版（CÉON 11/12 選 1＋2）——純文字貼文放大置中、雙擊愛心、留言有頭像／按讚／置頂標記／快速表情 */
+.sgr-it{-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-touch-callout:none}
+.sgr-it.k-text .sgr-quote{display:none}
+.sgr-it.k-text .sgr-cap{top:calc(env(safe-area-inset-top) + 64px);left:26px;right:84px;display:flex;flex-direction:column;justify-content:center}
+.sgr-it.k-text .sgr-who{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sgr-ava{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(232,191,122,.5);flex:none}
+.sgr-it.k-text .sgr-txt{font-size:25px;line-height:1.6;letter-spacing:.02em;-webkit-line-clamp:9}
+.sgr-it.k-text .sgr-txt.m{font-size:21px;-webkit-line-clamp:11}
+.sgr-it.k-text .sgr-txt.l{font-size:18px;line-height:1.65;-webkit-line-clamp:13}
+.sgr-it.k-text .sgr-meta{margin-top:16px;font-size:14px}
+.sgr-pop{position:absolute;z-index:4;width:104px;height:104px;margin:-52px 0 0 -52px;pointer-events:none;color:#E8BF7A;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55));animation:sgrheart .85s cubic-bezier(.2,.8,.2,1) forwards}
+.sgr-pop svg{width:100%;height:100%;fill:currentColor;display:block}
+@keyframes sgrheart{0%{transform:scale(.2) rotate(-10deg);opacity:0}18%{transform:scale(1.18) rotate(-10deg);opacity:1}32%{transform:scale(.94) rotate(-10deg)}46%{transform:scale(1) rotate(-10deg);opacity:1}100%{transform:translateY(-52px) scale(1.08) rotate(-10deg);opacity:0}}
+.sgc-li{display:flex;align-items:flex-start;gap:12px}
+.sgc-b{flex:1;min-width:0}
+.sgc-av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;object-fit:cover;color:#F3EEEA;font:600 16px/1 'Noto Sans TC',-apple-system,sans-serif;margin-top:2px}
+img.sgc-av{border:1px solid rgba(232,191,122,.55)}
+.sgc-pin{display:inline-flex;align-items:center;font-size:13px;line-height:1.3;padding:1px 8px;border-radius:999px;border:1px solid rgba(232,191,122,.5);color:#E8BF7A}
+.sgc-lk{flex:none;min-width:44px;min-height:48px;margin:-2px -10px 0 0;padding:4px 0;border:0;background:none;color:#A39B8E;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:500 13px/1 'Noto Sans TC',-apple-system,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sgc-lk svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
+.sgc-lk.on{color:#E8BF7A}.sgc-lk.on svg{fill:currentColor}
+.sgc-lk.pop svg{animation:sgrpop .35s ease}
+.sgc-emo{display:flex;gap:2px;margin:8px 12px 0;flex:none}
+.sgc-emo button{flex:1;min-height:44px;padding:0;border:0;background:none;border-radius:12px;font-size:26px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sgc-emo button:active{transform:scale(.86);background:rgba(255,255,255,.06)}
+@media (max-width:340px){.sgr-it.k-text .sgr-cap{left:18px;right:74px}.sgr-it.k-text .sgr-txt{font-size:22px}.sgr-it.k-text .sgr-txt.m{font-size:19px}.sgr-it.k-text .sgr-txt.l{font-size:17px}.sgc-emo button{font-size:23px}}
+@media (prefers-reduced-motion:reduce){.sgr-pop{animation-duration:.5s}.sgc-lk.pop svg{animation:none}}
 /* B313T：介面語言 */
 .lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
 .lang-row .lr-t{display:flex;align-items:center;gap:8px;font-size:14px;color:#E9DCC4;letter-spacing:.04em}
@@ -10557,7 +10584,7 @@ window.ALBUM_SWITCH = {
     return '<section class="sgr-it k-' + kind + '" data-i="' + i + '" data-rid="' + esc(it.rid) + '" aria-roledescription="' + sgrL("訊息", "post") + '" aria-label="' + sgrL("第 " + (i + 1) + " 則，共 " + n + " 則", "Post " + (i + 1) + " of " + n) + '">' +
       '<div class="sgr-bg">' + bg + '</div><div class="sgr-shade"></div>' +
       (kind === "text" || kind === "voice" ? '<div class="sgr-quote" aria-hidden="true">' + (kind === "voice" ? '<img src="assets/images/avatar.jpg" alt="">' : '”') + '</div>' : '') +
-      '<div class="sgr-cap">' + voice + '<b class="sgr-who">CHANCE</b>' + (txt ? '<p class="sgr-txt">' + esc(txt) + '</p>' : '') +
+      '<div class="sgr-cap">' + voice + '<b class="sgr-who">' + (kind === "text" ? '<img class="sgr-ava" src="assets/images/avatar.jpg" alt="">' : '') + 'CHANCE</b>' + (txt ? '<p class="sgr-txt' + (kind === "text" ? (txt.length > 110 ? ' l' : txt.length > 48 ? ' m' : '') : '') + '">' + esc(txt) + '</p>' : '') +   /* B508T：純文字貼文＝頭像＋大字，放在畫面中間 */
         '<div class="sgr-meta">' + esc(it.day || "") + ' · ' + sgrL("私訊頻道", "Private channel") + '</div></div>' +
       '<div class="sgr-act">' + sgrActHTML(it) + '</div>' +
     '</section>';
@@ -10600,6 +10627,7 @@ window.ALBUM_SWITCH = {
     if (i !== SGR.idx && SGR.idx >= 0) SGR.up = "";   /* 換到別則：上一則的「手動暫停」不再記 */
     SGR.idx = i; var it = SGR.items[i]; SGR.rid = it ? it.rid : SGR.rid;
     sgrWarm(i); sgrWarm(i + 1); sgrAutoVideo();
+    clearTimeout(SGR.pk); SGR.pk = setTimeout(function () { var cur = SGR.items[SGR.idx]; if (cur && state.screen === "mood") sgcPeek(cur); }, 500);   /* B508T：停在這則半秒 → 留言圖示顯示留言數 */
     var top = $("sgr-top"); if (top) top.classList.toggle("dim", i > 0);
   }
   function sgrPauseIn(el) {
@@ -10714,8 +10742,33 @@ window.ALBUM_SWITCH = {
     if (what === "video") { sgrVideo(el); return; }
     if (what === "sound") { sgrSound(el); return; }
   });
-  $("feed-body").addEventListener("click", function (e) {   /* 點影片畫面本身也能暫停／播放 */
-    var v = e.target.closest && e.target.closest("#sgr video.sgr-vid"); if (v) sgrVideo(v.closest(".sgr-it"));
+  /* B508T：雙擊畫面＝喜歡（只會加，不會收回，跟 IG 一樣）；單擊影片照舊暫停／播放／開聲音 */
+  var SGR_TAP = { t: 0, x: 0, y: 0, el: null, pre: null };
+  function sgrHeart(el, x, y) {
+    var it = SGR.items[+el.getAttribute("data-i")]; if (!it) return;
+    var r = el.getBoundingClientRect(), h = document.createElement("span");
+    h.className = "sgr-pop"; h.setAttribute("aria-hidden", "true"); h.innerHTML = TIP_HEART;
+    h.style.left = (x - r.left) + "px"; h.style.top = (y - r.top) + "px";
+    el.appendChild(h); setTimeout(function () { if (h.parentNode) h.parentNode.removeChild(h); }, 900);
+    if (!sgrLiked(it.rid)) { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) nb.classList.add("pop"); }
+    else { try { hap(8); } catch (e) {} }
+  }
+  $("feed-body").addEventListener("click", function (e) {
+    var el = e.target.closest && e.target.closest("#sgr .sgr-it[data-rid]"); if (!el) return;
+    if (e.target.closest("[data-sgr],button,a")) { SGR_TAP.t = 0; return; }
+    var now = Date.now(), v = e.target.closest("video.sgr-vid");
+    if (SGR_TAP.el === el && now - SGR_TAP.t < 320 && Math.abs(e.clientX - SGR_TAP.x) < 44 && Math.abs(e.clientY - SGR_TAP.y) < 44) {
+      SGR_TAP.t = 0;
+      var pre = SGR_TAP.pre;
+      if (v && pre) {   /* 第一下動到影片（停／播／開聲音）→ 第二下把影片還原成雙擊前的樣子 */
+        v.muted = pre.muted; SGR.snd = pre.snd; SGR.up = pre.up;
+        if (pre.paused && !v.paused) v.pause(); else if (!pre.paused && v.paused) { try { var pp = v.play(); if (pp && pp.catch) pp.catch(function () {}); } catch (er) {} }
+        sgrSndPaint(el, v);
+      }
+      sgrHeart(el, e.clientX, e.clientY); return;
+    }
+    SGR_TAP = { t: now, x: e.clientX, y: e.clientY, el: el, pre: v ? { paused: v.paused, muted: v.muted, snd: SGR.snd, up: SGR.up } : null };
+    if (v) sgrVideo(el);   /* 點影片畫面本身也能暫停／播放 */
   });
   /* ── 留言面板（從底部滑出）── */
   function sgcEl() { return $("sgc"); }
@@ -10736,10 +10789,55 @@ window.ALBUM_SWITCH = {
   function tipFor(tid) { return tipAll().filter(function (t) { return t.tid === tid; }); }
   function tipToday() { var d = new Date(); d.setHours(0, 0, 0, 0); return tipAll().reduce(function (n, t) { return n + (Number(t.createdAt) >= d.getTime() ? Number(t.amt) || 0 : 0); }, 0); }
   var TIP_SEEN = /[?&]tipseen=1\b/.test(location.search);   /* 測試鉤子：看「CHANCE 看到了」長什麼樣 */
+  /* B508T：留言有頭像（Chance＝照片；粉絲＝名字第一個字＋固定底色）、置頂標記、每則可以按喜歡（既有 /comments/like） */
+  var SGC_TONES = ["#5a4636", "#3f4a5a", "#4f3f5a", "#3f5a4c", "#5a3f48", "#585038"];
+  function sgcAva(m) {
+    if (m.isArtist) return '<img class="sgc-av" src="assets/images/avatar.jpg" alt="">';
+    var nm = String(m.userName || sgrL("粉絲", "Fan")), ch = (Array.from ? Array.from(nm)[0] : nm.charAt(0)) || "?", h = 0;
+    for (var i = 0; i < nm.length; i++) h = (h * 31 + nm.charCodeAt(i)) % 9973;
+    return '<span class="sgc-av" aria-hidden="true" style="background:' + SGC_TONES[h % SGC_TONES.length] + '">' + esc(ch.toUpperCase()) + '</span>';
+  }
+  function sgcLkHTML(m) {
+    var n = Number(m.likes) || 0;
+    return '<button type="button" class="sgc-lk' + (m.liked ? ' on' : '') + '" data-lk="' + esc(m.id) + '" aria-pressed="' + !!m.liked + '" aria-label="' + sgrL("喜歡這則留言", "Like this comment") + (n ? (sgrEN() ? ", " : "，") + n : "") + '">' + TIP_HEART + '<span>' + (n || "") + '</span></button>';
+  }
+  function sgcTop(m) { return m.isPinned || m.isArtist ? 1 : 0; }
+  function sgcSort(items) { return (items || []).slice().sort(function (a, b) { return sgcTop(b) - sgcTop(a) || Number(b.createdAt || 0) - Number(a.createdAt || 0); }); }
   function sgcLiHTML(m) {
     var sup = !!m.sup;
-    return '<li class="sgc-li' + (m.isArtist ? ' artist' : '') + (sup ? ' sup' : '') + (m.fresh ? ' new' : '') + '"><div class="sgc-h"><b>' + esc(m.isArtist ? "CHANCE" : (m.userName || sgrL("粉絲", "Fan"))) + '</b>' + (m.mine ? '<span class="me">' + sgrL("你", "You") + '</span>' : '') + (sup ? '<span class="sgc-tag">' + TIP_STAR + sgrL("應援", "Support") + '</span>' : '') + '<time>' + esc(sgcAgo(m.createdAt)) + '</time></div><p>' + esc(m.body || "") + '</p>' +
-      (sup && (m.seen || TIP_SEEN) ? '<div class="sgc-seen">' + TIP_HEART + sgrL("CHANCE 看到了", "CHANCE saw this") + '</div>' : '') + '</li>';
+    return '<li class="sgc-li' + (m.isArtist ? ' artist' : '') + (sup ? ' sup' : '') + (m.fresh ? ' new' : '') + '">' + sgcAva(m) + '<div class="sgc-b"><div class="sgc-h"><b>' + esc(m.isArtist ? "CHANCE" : (m.userName || sgrL("粉絲", "Fan"))) + '</b>' + (m.mine ? '<span class="me">' + sgrL("你", "You") + '</span>' : '') + (sup ? '<span class="sgc-tag">' + TIP_STAR + sgrL("應援", "Support") + '</span>' : '') + (!sup && sgcTop(m) ? '<span class="sgc-pin">' + sgrL("置頂", "Pinned") + '</span>' : '') + '<time>' + esc(sgcAgo(m.createdAt)) + '</time></div><p>' + esc(m.body || "") + '</p>' +
+      (sup && (m.seen || TIP_SEEN) ? '<div class="sgc-seen">' + TIP_HEART + sgrL("CHANCE 看到了", "CHANCE saw this") + '</div>' : '') + '</div>' + (!sup && m.id ? sgcLkHTML(m) : '') + '</li>';
+  }
+  function sgcLike(w, id) {
+    var it = w.__it, tid = sgrTrack(it.rid), c = SGR.cm[tid], note = w.querySelector(".sgc-note");
+    var m = c && c.items ? c.items.filter(function (x) { return x.id === id; })[0] : null; if (!m || m.__lk) return;
+    var fp = feedPassInfo();
+    if (!fp.unlocked || !fp.email || !(fp.code || fp.card)) { note.textContent = sgrL("解鎖 SIGNAL 後才能按喜歡", "Unlock SIGNAL to like comments"); note.classList.add("bad"); return; }
+    var paint = function (pop) { var b = w.querySelector('.sgc-lk[data-lk="' + id + '"]'); if (!b) return; b.classList.toggle("on", !!m.liked); b.setAttribute("aria-pressed", String(!!m.liked)); b.querySelector("span").textContent = m.likes || ""; if (pop) { b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); } };
+    var flip = function () { m.liked = !m.liked; m.likes = Math.max(0, (Number(m.likes) || 0) + (m.liked ? 1 : -1)); };
+    flip(); paint(m.liked); try { hap(m.liked ? 12 : 8); } catch (e) {}   /* 先在畫面上反應，失敗再改回來 */
+    m.__lk = true;
+    (fp.card ? gwPost("comments/like", { album: SGR_ALBUM, track: tid, id: id }) :
+    fetch(CFG.api.workerBaseUrl + "/comments/like", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: fp.email, code: fp.code, album: SGR_ALBUM, track: tid, id: id }) }))
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (!j || !j.ok || !j.item) throw 0; m.likes = j.item.likes; m.liked = j.item.liked; paint(false); })
+      .catch(function () { flip(); paint(false); note.textContent = sgrL("沒有按成功，請再試一次", "That didn't go through — try again"); note.classList.add("bad"); })
+      .then(function () { m.__lk = false; });
+  }
+  function sgcPeek(it) {   /* 只讀：先把這則的留言數抓回來（留言圖示顯示數字；之後打開留言也不用等） */
+    var tid = sgrTrack(it.rid), c = SGR.cm[tid]; SGR.pkq = SGR.pkq || {};
+    if (!tid || SGR.pkq[tid] || (c && (c.loading || (!c.err && Date.now() - (c.at || 0) < 300000)))) return;
+    SGR.pkq[tid] = 1;
+    var fp = feedPassInfo(), ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
+    fetch(CFG.api.workerBaseUrl + "/comments/list?album=" + SGR_ALBUM + "&track=" + encodeURIComponent(tid) + (fp.email ? "&email=" + encodeURIComponent(fp.email) : ""), { cache: "no-store", signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return; var now = SGR.cm[tid]; if (now && now.loading) return;   /* 留言面板自己正在載入 → 以它為準 */
+        var items = sgcSort(d.items || []); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() };
+        sgrPaintActs(it.rid); var w = sgcEl(); if (w && w.__it && sgrTrack(w.__it.rid) === tid) sgcPaint();
+      })
+      .catch(function () {})
+      .then(function () { clearTimeout(tm); delete SGR.pkq[tid]; });
   }
   function sgcListHTML(c, tid) {
     var tips = tid && TIP_OPEN ? tipFor(tid).map(function (t) { return { id: t.id, body: t.body, userName: t.name, createdAt: t.createdAt, mine: true, sup: true, seen: t.seen, fresh: t.fresh }; }) : [];
@@ -10749,7 +10847,7 @@ window.ALBUM_SWITCH = {
     if (!items.length && !tips.length) return '<div class="sgc-empty"><p class="t">' + sgrL("還沒有留言", "No comments yet") + '</p><p>' + sgrL("想對 Chance 說什麼？", "Anything to tell Chance?") + '</p></div>';
     if (!tips.length) return '<ul class="sgc-ul">' + items.map(sgcLiHTML).join("") + '</ul>';
     tips.sort(function (a, b) { return Number(b.createdAt) - Number(a.createdAt); });
-    var pin = tips.slice(0, 3), rest = tips.slice(3).concat(items).sort(function (a, b) { return Number(b.isArtist || 0) - Number(a.isArtist || 0) || Number(b.createdAt || 0) - Number(a.createdAt || 0); });
+    var pin = tips.slice(0, 3), rest = sgcSort(tips.slice(3).concat(items));
     return '<div class="sgc-pin-hd">' + TIP_STAR + sgrL("應援置頂 · 最新 " + pin.length + " 則", "Supporters pinned · latest " + pin.length) + '</div><ul class="sgc-ul">' + pin.map(sgcLiHTML).join("") + '</ul>' +
       (rest.length ? '<p class="sgc-rest">' + sgrL("所有留言", "All comments") + '</p><ul class="sgc-ul">' + rest.map(sgcLiHTML).join("") + '</ul>' : '');
   }
@@ -10770,10 +10868,11 @@ window.ALBUM_SWITCH = {
     var lctl = window.AbortController ? new AbortController() : null, ltm = setTimeout(function () { if (lctl) lctl.abort(); }, 12000);   /* B327T：12 秒（含 body）沒回 → 顯示「重試」 */
     fetch(CFG.api.workerBaseUrl + "/comments/list?album=" + SGR_ALBUM + "&track=" + encodeURIComponent(tid) + (fp.email ? "&email=" + encodeURIComponent(fp.email) : ""), { cache: "no-store", signal: lctl ? lctl.signal : undefined })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (d) { if (!mine()) return; if (!d || !d.ok) throw 0; var items = (d.items || []).slice().sort(function (a, b) { return Number(b.isArtist) - Number(a.isArtist) || Number(b.createdAt || 0) - Number(a.createdAt || 0); }); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() }; })
+      .then(function (d) { if (!mine()) return; if (!d || !d.ok) throw 0; var items = sgcSort(d.items || []); SGR.cm[tid] = { items: items, count: d.count || items.length, at: Date.now() }; })
       .catch(function () { if (mine()) SGR.cm[tid] = { err: true, items: [], count: 0 }; })
       .then(function () { clearTimeout(ltm); sgcPaint(); sgrPaintActs(it.rid); });
   }
+  var SGC_EMO = ["❤️", "🥹", "😂", "👏", "🔥", "😭"];   /* B508T：點一下加進輸入框（不直接送出——每則貼文每小時只能留 5 則） */
   function sgcOpen(it, from) {
     if (sgcEl()) sgcClose(true);
     var w = document.createElement("div"); w.id = "sgc"; w.className = "sgc"; w.setAttribute("data-no-translate", "");
@@ -10784,6 +10883,7 @@ window.ALBUM_SWITCH = {
       '<div class="sgc-list"></div>' +
       (TIP_OPEN ? '<div class="sgc-tipbar" hidden><div class="sgc-amts" role="group" aria-label="' + sgrL("應援金額", "Support amount") + '">' + TIP_AMTS.map(function (a, i) { return '<button type="button" class="sgc-amt" data-a="' + a + '" aria-pressed="' + (i === 0) + '">NT$' + a + '</button>'; }).join("") + '</div>' +
         '<p class="sgc-tip-s"><b>' + sgrL("金額不會公開", "Amounts are never shown") + '</b>' + sgrL(" · 所有應援留言同一種金色，最新三則置頂 · 預覽中，結帳尚未開放、不會扣款", " · every supporter comment is the same gold; the latest three are pinned · preview only, checkout isn't open and nothing is charged") + '</p></div>' : '') +
+      '<div class="sgc-emo" role="group" aria-label="' + sgrL("快速表情", "Quick emoji") + '">' + SGC_EMO.map(function (e) { return '<button type="button" data-e="' + e + '" aria-label="' + sgrL("加上 ", "Add ") + e + '">' + e + '</button>'; }).join("") + '</div>' +   /* B508T */
       '<form class="sgc-form' + (TIP_OPEN ? ' has-chip' : '') + '" novalidate>' + (TIP_OPEN ? '<button type="button" class="sgc-chip" aria-pressed="false" aria-describedby="sgc-note">' + TIP_STAR + sgrL("應援", "Support") + '</button>' : '') + '<label class="sr" for="sgc-in">' + sgrL("留言內容", "Your comment") + '</label><textarea id="sgc-in" rows="1" maxlength="300" placeholder="' + sgrL("留下你的話…", "Say something…") + '" enterkeyhint="send"></textarea><button type="submit" class="sgc-send" aria-label="' + sgrL("送出留言", "Post comment") + '" disabled>' + SGR_ICON.up + '</button></form>' +
       '<p class="sgc-note" id="sgc-note" role="status">' + sgrL("公開留言 · 顯示為「" + (nick || "粉絲") + "」", "Public comment · shown as “" + (nick || "Fan") + "”") + ' <button type="button" class="sgc-nick" data-no-translate>' + sgrL("改名", "Change") + '</button></p>' +
     '</div>';
@@ -10799,7 +10899,15 @@ window.ALBUM_SWITCH = {
     ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!send.disabled) w.querySelector("form").requestSubmit ? w.querySelector("form").requestSubmit() : sgcPost(w); } });
     w.querySelector("form").addEventListener("submit", function (e) { e.preventDefault(); if (TIP_OPEN && w.__sup) tipSend(w); else sgcPost(w); });
     if (TIP_OPEN) tipWire(w);
-    w.addEventListener("click", function (e) { if (e.target.closest("[data-x]")) sgcClose(false); });
+    w.addEventListener("click", function (e) {
+      if (e.target.closest("[data-x]")) { sgcClose(false); return; }
+      var lk = e.target.closest(".sgc-lk"); if (lk) { sgcLike(w, lk.getAttribute("data-lk")); return; }
+      var em = e.target.closest(".sgc-emo button"); if (em) {
+        var add = em.getAttribute("data-e"); if ((ta.value + add).length > 300) return;
+        ta.value += add; ta.dispatchEvent(new Event("input")); try { hap(6); } catch (er) {}
+      }
+    });
+    w.querySelector(".sgc-emo").addEventListener("pointerdown", function (e) { if (e.target.closest("button")) e.preventDefault(); });   /* 鍵盤開著時點表情，鍵盤不收 */
     w.addEventListener("keydown", function (e) {
       if (e.key === "Escape") { e.preventDefault(); if (TIP_OPEN && w.__sup) { w.__sup = false; tipSync(w); return; } sgcClose(false); return; }
       if (e.key === "Tab") { var f = Array.prototype.filter.call(w.querySelectorAll("button:not([disabled]),textarea"), function (x) { return !x.closest("[hidden]"); }); if (!f.length) return; var a = f[0], z = f[f.length - 1];
@@ -10863,7 +10971,7 @@ window.ALBUM_SWITCH = {
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { s: r.status, d: d }; }); })
       .then(function (x) {
         if (x.s === 200 && x.d && x.d.ok && x.d.item) {
-          var c = SGR.cm[tid] || { items: [], count: 0 }; c.items = [x.d.item].concat(c.items.filter(function (m) { return m.id !== x.d.item.id; })); c.count = x.d.count || c.items.length; c.at = Date.now(); c.loading = false; c.err = false; SGR.cm[tid] = c;
+          var c = SGR.cm[tid] || { items: [], count: 0 }; c.items = sgcSort([x.d.item].concat(c.items.filter(function (m) { return m.id !== x.d.item.id; }))); c.count = x.d.count || c.items.length; c.at = Date.now(); c.loading = false; c.err = false; SGR.cm[tid] = c;
           var same = ta.isConnected && ta.value === snap.raw;
           if (same) { ta.value = ""; ta.style.height = "auto"; }
           if (SGR.draft && SGR.draft.gen === snap.gen && SGR.draft.v === snap.raw) SGR.draft = null;
@@ -12905,7 +13013,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B507T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B508T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
