@@ -3374,7 +3374,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   function seatClock() {
     var ms = seatLeft(), b = S.buy, el = $(".tk-seatleft"), en = sxEN();
-    if (ms == null || !b || !seatsOf(b).length || S.seatUI) { if (el) el.textContent = ""; return; }
+    if (ms == null || !b || !seatsOf(b).length || S.seatUI) { if (el) el.textContent = (en && ms == null && b && seatsOf(b).length && !S.seatUI && S.payGone) ? "Time left to pay …" : ""; return; }   /* B527T（core-web-vitals：CLS 預留空間）：英文版付款回來等新時間時，這一行不收起來 */
     if (ms <= 0) { seatExpired(); return; }
     var s2 = Math.ceil(ms / 1000); if (el) { el.textContent = (en ? "Time left to pay " : "選位時間剩 ") + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); el.classList.toggle("warn", ms <= 60e3); }
   }
@@ -3576,7 +3576,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += coFields();
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b);
     h += payEnNote();
-    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft"></small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (sxEN() && S.payGone ? "Time left to pay …" : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb">' + h + '</div>';
   }
 
@@ -3738,7 +3738,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b) + '</div>';
     h += '</div>';
     h += payEnNote();
-    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft"></small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (sxEN() && S.payGone ? "Time left to pay …" : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb' + (red ? ' co-noir' : '') + '">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
@@ -4666,6 +4666,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     }
     var mbuy = /[?&]tkbought=([a-z0-9-]+)/.exec(location.search), mpho = /[?&]tkphoto=([a-z0-9-]+)/.exec(location.search);
     if (mbuy || mpho) {
+      if (mbuy) S.payGone = true;   /* B527T：從綠界「返回商店」回來＝剛建過付款（英文版倒數那行先留著位置） */
       try { history.replaceState(null, "", location.pathname + (C.demo ? "?tkdemo=1" : "")); } catch (e) {}
       var nb2 = $(C.merchNavSel); if (nb2) setTimeout(function () { nb2.click(); }, 300);
       if (mbuy && mPending() && mPending().evId === mbuy[1]) { ensureSession().then(function () { render(); setTimeout(mAwait, 500); }); return; }
