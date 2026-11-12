@@ -35,7 +35,7 @@
     "設計預覽 · 不會收費或寄送": "Design preview · No charge, nothing is sent", "測試面板": "Test panel",
     "寫信": "Write", "預覽": "Preview", "寄出": "Send", "我的信件": "My letters", "回到周邊": "Back to shop", "返回": "Back",
     "有些話，": "Some words,", "只想寫給你。": "just for you.", "把想說的話，留在這封信裡。": "Leave what you want to say in this letter.",
-    "／封 · 數位信箋": "/ letter · Digital stationery", "寫一封信": "Write a letter", "先寫草稿": "Start a draft", "收信說明": "How it works",
+    "／封 · 數位信箋": "/ letter · Digital stationery", "寫一封信": "Write a letter", "先寫草稿": "Start a draft", "收信說明": "How it works", "每人每月": "Per person / month",
     "相遇信箋主視覺": "Dear Chance stationery artwork",
     "你本月的心意，已經寄出。": "Your letter for this month has been sent.", "每人每月限寄一封。": "One letter per person per month.", "查看我的信": "View my letter",
     "你有一個保留中的名額": "You have a reserved spot", "繼續付款": "Continue to payment",
@@ -143,6 +143,10 @@
     [/^草稿 · (.+)$/, function (m) { return "Draft · " + m[1]; }],
     [/^Chance 的回覆 · (.+)$/, function (m) { return "Chance’s reply · " + m[1]; }],
     [/^期限 (.+)$/, function (m) { return "Due " + m[1]; }],
+    [/^每人每月只能寄 (\d+) 封。現在寫的會先存成草稿，(.+?) ?開放後才能付款寄出。$/, function (m) { return "Each person can send " + m[1] + " letter(s) a month. What you write now is saved as a draft; you can pay and send it once the next round opens on " + m[2] + "."; }],
+    [/^你這個月已經寄了 (\d+) 封，每人每月只能寄 \d+ 封。(.+?) ?開放後，回到這裡就能付款寄出這封。$/, function (m) { return "You've already sent " + m[1] + " letter(s) this month, the monthly limit per person. Come back when the next round opens on " + m[2] + " to pay and send this one."; }],
+    [/^／封 · 每人每月 (\d+) 封$/, function (m) { return "/ letter · " + m[1] + " per person each month"; }],
+    [/^(\d+) 封$/, function (m) { return m[1] + (m[1] === "1" ? " letter" : " letters"); }],
     [/^現在寫的會先存成草稿，(.+?) ?開放後可以寄出。$/, function (m) { return "What you write now is saved as a draft. You can send it once the next round opens on " + m[1] + "."; }],
     [/^這個月的信已經寄出（每人每月 (\d+) 封）。(.+?) ?開放後，回到這裡就能寄出這封。$/, function (m) { return "This month’s letter has already been sent (" + m[1] + " per person each month). Come back here to send this one once the next round opens on " + m[2] + "."; }],
     [/^每人每月限寄 (\d+) 封。下一封 (.+?) ?開放。$/, function (m) { return m[1] + " letter(s) per person each month. The next round opens on " + m[2] + "."; }]
@@ -739,7 +743,7 @@ function nextOpenTxt(ov){if(ov.next)return fmtDay(ov.next.openAt);var per=ov.per
 function holdEditable(h){return typeof REAL!=="undefined"&&REAL&&h&&h.order&&h.order.status!=="confirming"}
 function stateBox(ov,ctx){
   var per=ov.period,st=ov.state;
-  if(sentOut(ov)&&ctx==="draft")return'<div class="state"><b>這封是草稿，還沒寄出。</b><span>這個月的信已經寄出（每人每月 '+(per?per.perUser:1)+' 封）。'+nextOpenTxt(ov)+'開放後，回到這裡就能寄出這封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看這個月寄出的信</button></div></div>';
+  if(sentOut(ov)&&ctx==="draft")return'<div class="state"><b>這封是草稿，還沒寄出。</b><span>你這個月已經寄了 '+(per?per.perUser:1)+' 封，每人每月只能寄 '+(per?per.perUser:1)+' 封。'+nextOpenTxt(ov)+'開放後，回到這裡就能付款寄出這封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看這個月寄出的信</button></div></div>';
   if(sentOut(ov))return'<div class="state"><b>你本月的心意，已經寄出。</b><span>每人每月限寄 '+(per?per.perUser:1)+' 封。下一封 '+nextOpenTxt(ov)+'開放。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看我的信</button></div></div>';
   if(ov.myHold)return'<div class="state"><b>你有一個保留中的名額</b><span>保留到 '+fmtMD(ov.myHold.expiresAt)+'。'+(holdEditable(ov.myHold)?'付款時會寄出你最後確認的內容。':'付款會寄出保留當下的內容。')+'</span><div class="row"><button class="btn btn-gold" type="button" data-resume="'+ov.myHold.orderId+'">繼續付款</button></div></div>';
   if(st==="noperiod")return'<div class="state info"><b>本期尚未開放收信</b><span>草稿可以先寫，會保留在此裝置。</span></div>';
@@ -788,7 +792,7 @@ V.shop={load:function(){return API.overview(me())},view:function(ov){
    '<div class="shop-head"><div class="eyebrow">Merch · 第三件周邊</div><div class="t">THE SKY COLLECTION</div><p class="small">原有的聽片會票與製作寫真不動，這頁只示範新加入的信箋商品卡。</p></div>'+
    '<article class="pcard"><div class="pcard-img"><span class="badge">'+(per?monthName(per.id)+" · 限量收信":"每月限量收信")+'</span><img src="'+ENC_URI+'" alt="黑金鉤手與金屬星芒插畫"></div>'+
     '<div class="pcard-body"><div class="pcard-name">'+esc(headline(per))+'</div><div class="pcard-desc">'+esc(promise(per))+'</div>'+meterHTML(ov)+
-    '<div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月限一封</span></div>'+
+    '<div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月 '+(per?per.perUser:1)+' 封</span></div>'+
     '<button class="btn btn-gold" id="toProduct" type="button">看看這份心意</button></div></article>'+
    (draftN?'<p class="small" style="text-align:center">你有 '+draftN+' 封草稿保留在此裝置。</p>':'')+'</section>'},
  wire:function(){$("toProduct").onclick=function(){go("product")}}};
@@ -796,7 +800,7 @@ V.product={load:function(){return API.overview(me())},view:function(ov){
  var per=ov.period;
  return '<section class="screen letter-entry"><div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
  '<div class="entry-copy"><div class="en">Dear Chance</div><h1>有些話，<br>只想寫給你。</h1><p class="lead">把想說的話，留在這封信裡。</p></div>'+stateBox(ov)+
- '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 數位信箋</span></div>'+
+ '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月 '+(per?per.perUser:1)+' 封</span></div>'+   /* B514T（CÉON 11/12）：一開始就寫清楚每個月能寄幾封 */
  (sentOut(ov)?'<button class="btn btn-ghost" id="write" type="button">先寫下個月的信</button>':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?'寫一封信':'先寫草稿')+'</button>')+
  '<button class="btn btn-text" id="rules" type="button">收信說明</button></div></section>'},
  wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
@@ -836,7 +840,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
   return'<section class="screen">'+
 
    (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>'+(holdEditable(hold)?'保留到 '+fmtMD(hold.expiresAt)+'。改完回到確認頁再按一次，付款時就會寄出新的內容。':'付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。')+'</span></div>'
-    :sentOut(ov)?'<div class="state info"><b>這個月的信已經寄出。</b><span>現在寫的會先存成草稿，'+nextOpenTxt(ov)+'開放後可以寄出。</span></div>':'')+
+    :sentOut(ov)?'<div class="state info"><b>這個月的信已經寄出。</b><span>每人每月只能寄 '+(ov.period?ov.period.perUser:1)+' 封。現在寫的會先存成草稿，'+nextOpenTxt(ov)+'開放後才能付款寄出。</span></div>':'')+
    '<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
     '<div class="salute" aria-hidden="true">Dear Chance,</div><label class="sr" for="body">信件正文，寫給 CHANCE</label>'+
     '<textarea class="body-ta" id="body" rows="7" placeholder="從一句最想說的話開始…" autocomplete="off" spellcheck="false"></textarea>'+
@@ -871,10 +875,10 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   var d=CL.drafts[R.param];if(!d)return V.missing.view();
   var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box;
   var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
-  return'<section class="screen"><h2>把心意，寄給 Chance。</h2><details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
-   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
-   '<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
-   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+box+
+  return'<section class="screen"><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+'<details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
+   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>每人每月</span><b>'+per.perUser+' 封</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
+   (blocked?'':'<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>')+   /* B514T：不能寄的時候，提示放最上面（不用滑到底才知道） */
+   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+(blocked?'':box)+
    (holdDiff&&!(REAL&&ov.myHold.order.status!=="confirming")?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
    ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>':'')+
    (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'

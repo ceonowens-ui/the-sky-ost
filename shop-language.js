@@ -332,6 +332,8 @@
  const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
  /* B335T：票夾數量句 */
+ [/^NT\$(\d+) · 每人每月 (\d+) 封$/,(_,a,n)=>'NT$'+a+' · '+n+' letters per person each month'],
+ [/^NT\$(\d+) · 每人每月一封$/,(_,a)=>'NT$'+a+' · One letter per person each month'],
  [/^點一下看全部 (\d+) 張的 QR$/,(_,n)=>'Tap to see all '+n+' QR codes'],
  [/^(.+)・共 (\d+) 張$/,(_,a,n)=>a+' · '+n+' tickets'],
  [/^共 (\d+) 張$/,(_,n)=>n+' tickets'],
