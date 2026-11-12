@@ -1097,13 +1097,19 @@ V.admin={load:function(){return API.dashboard(me())},view:function(r){
     r.dupRefunds.map(function(d){return'<div class="state err"><b>'+esc(d.orderId)+' · 重複付款</b><span>交易 '+esc(d.txn)+' 需要退款。</span></div>'}).join("")+'</section>':'';
   return'<section class="screen"><h1>收信後台</h1><p class="small">團隊只看名額、訂單與閱讀紀錄，看不到信件正文。「我已讀完」只能由 Chance 本人帳號按。</p>'+
    '<div class="state err"><b>正式上線前待確認（阻擋項目）</b><span>內容規則與不符規則的處理、退款政策、逾期未讀的延期通知與補償方式。</span></div>'+
-   blocks+'<button class="btn btn-ghost" id="next" type="button">設定下一期（預設 1 日開放、10 日截止）</button>'+ref+'</section>'},
+   blocks+'<button class="btn btn-ghost" id="next" type="button">設定下一期（預設 1 日開放、10 日截止）</button>'+ref+
+   (typeof REAL!=="undefined"&&REAL?'<div class="state err" style="margin-top:22px"><b>清除所有信件（只有測試站）</b><span>把所有寫信資料清掉：信、訂單、名額。價格、每人上限等設定會保留，發票紀錄不刪。清掉之後救不回來。</span><div class="row"><button class="btn btn-ghost" id="purge" type="button">清除所有信件</button></div></div>':'')+'</section>'},
  wire:function(){
   document.querySelectorAll("[data-save]").forEach(function(b){b.onclick=function(){var id=b.dataset.save,k=id.replace("-","");
     var patch={capacity:+$("cap"+k).value,price:+$("price"+k).value,perUser:+$("per"+k).value,holdMin:+$("hold"+k).value,paused:$("pause"+k).checked};
     API.updatePeriod(me(),id,patch).then(function(x){if(x.err==="capacity"){toast("名額不能低於已寄出加保留中的 "+x.min+" 封，未儲存");render();return}toast("已儲存 "+monthName(id)+" 設定");render()})}});
   document.querySelectorAll("[data-refund]").forEach(function(b){b.onclick=function(){API.refundDone(me(),b.dataset.refund).then(function(){render()})}});
   $("next").onclick=function(){API.createNext(me()).then(function(x){toast("已建立 "+monthName(x.period.id));render()})};
+  if($("purge"))$("purge").onclick=function(){   /* B505T（CÉON 11/12）：測試用清除，要輸入 RESET 才會刪 */
+    sheet('<div class="grab"></div><h2>確定清除所有信件？</h2><p class="small">信、訂單、名額都會清掉，救不回來。確定的話輸入 RESET。</p><input id="pgk" type="text" autocomplete="off" autocapitalize="characters" style="width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line,#444);background:transparent;color:inherit"><button class="btn btn-gold" id="pgok" type="button">清除</button><button class="btn btn-ghost" id="cancel" type="button">取消</button>',
+      function(close){$("cancel").onclick=close;$("pgok").onclick=function(){var v=$("pgk").value.trim();if(v!=="RESET"){toast("輸入不對，沒有清除");return}$("pgok").disabled=true;
+        API.purge(me()).then(function(x){close();if(x&&x.ok){CL.active=null;cSave();toast("已清除 "+x.letters+" 封信");render()}else toast("清除失敗："+((x&&x.err)||"請稍後再試"))},function(){close();toast("清除失敗，請稍後再試")})}});
+  };
  }};
 V.missing={view:function(){return'<section class="screen"><div class="empty">找不到這封信，可能已被重設。</div><button class="btn btn-ghost" id="hm" type="button">回到首頁</button></section>'},wire:function(){$("hm").onclick=goHome}};
 
@@ -1209,6 +1215,7 @@ if(REAL){
     updatePeriod:function(u,pid,patch){return post("/letters/period",withK({pid:pid,patch:patch})).then(forbid)},
     createNext:function(){return post("/letters/next",withK()).then(forbid)},
     refundDone:function(u,orderId){return post("/letters/refunded",withK({orderId:orderId})).then(forbid)},
+    purge:function(){return post("/letters/purge",withK({confirm:"RESET"})).then(forbid)},
     _fill:function(){return Promise.resolve({})},_grabLast:function(){return Promise.resolve({})},_clearOthers:function(){return Promise.resolve({})},_expireMine:function(){return Promise.resolve({})},_redeliverCallbacks:function(){return Promise.resolve({done:0})}
   };
   loginSheet=function(){
