@@ -10586,7 +10586,7 @@ window.ALBUM_SWITCH = {
     var cn = c && c.count ? c.count : 0;
     return '<button type="button" class="sgr-b sgr-like' + (on ? ' on' : '') + '" data-sgr="like" aria-pressed="' + on + '" aria-label="' + sgrL("喜歡", "Like") + (n ? (sgrEN() ? ", " : "，") + n : "") + '">' + SGR_ICON.paw + '<span>' + (n || sgrL("喜歡", "Like")) + '</span></button>' +   /* B510T：照 TikTok——圖示下面一行，有數字顯示數字 */
       '<button type="button" class="sgr-b sgr-cm" data-sgr="comment" aria-haspopup="dialog" aria-label="' + sgrL("留言", "Comments") + (cn ? (sgrEN() ? ", " : "，") + cn : "") + '">' + SGR_ICON.ghost + '<span>' + (cn || sgrL("留言", "Comment")) + '</span></button>' +
-      '<button type="button" class="sgr-b sgr-sup" data-sgr="support" aria-label="' + (TIP_OPEN ? sgrL("支持：應援這則", "Support this post") : sgrL("支持：前往 SHOP", "Support: go to SHOP")) + '">' + SGR_ICON.bag + '<span>' + sgrL("支持", "Support") + '</span></button>';
+      '<button type="button" class="sgr-b sgr-sup" data-sgr="support" aria-label="' + (TIP_OPEN ? sgrL("支持：應援這則", "Support this post") : sgrL("支持", "Support")) + '">' + SGR_ICON.bag + '<span>' + sgrL("支持", "Support") + '</span></button>';
   }
   /* B319T：影片右上角喇叭（看得出有沒有聲音、點一下切換）＋下載中轉圈（不是假裝變快，只是讓人知道在載） */
   var SGR_SND = {
@@ -10800,7 +10800,8 @@ window.ALBUM_SWITCH = {
     if (what === "comment") { sgcOpen(it, b); return; }
     if (what === "more") { if (el.classList.contains("long") || el.classList.contains("open")) { sgrMore(el, !el.classList.contains("open")); try { hap(6); } catch (er) {} } return; }
     if (what === "support") { hap(8); b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); sgrCoins();
-      if (!TIP_OPEN) { sgrPauseAll(); clearTimeout(SGR.supT); SGR.supT = setTimeout(function () { if (state.screen === "mood") go("merch"); }, 480); return; }   /* B512T：先讓錢袋搖完、金幣開始掉，再去 SHOP（金幣會繼續掉完） */
+      sgrSfx("coin");
+      if (!TIP_OPEN) return;   /* B513T（CÉON 11/12）：支持＝金幣掉下來＋金幣聲，不再跳到 SHOP */
       if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
     if (what === "voice") { sgrVoice(b); return; }
     if (what === "video") { sgrVideo(el); return; }
@@ -10818,7 +10819,48 @@ window.ALBUM_SWITCH = {
     '<g fill="#F0DCA8"><path class="sp" d="M22 34l5 13 13 5-13 5-5 13-5-13-13-5 13-5z"/><path class="sp" d="M180 16l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path class="sp" d="M186 150l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>' +
     '<g fill="#F7A9B4"><path class="sp" d="M20 122c-6-5-12-10-12-16a6.500 6.500 0 0 1 12-3 6.500 6.500 0 0 1 12 3c0 6-6 11-12 16z"/><path class="sp" d="M184 96c-5-4-9-8-9-12a5 5 0 0 1 9-2.500 5 5 0 0 1 9 2.500c0 4-4 8-9 12z"/></g>' +
     '</svg>';
+  /* B513T（CÉON 11/12：按下去要有音效）：不用音檔，手機當場合成——腳掌＝小狗「汪」一聲，支持＝金幣叮噹。音量小、不會停掉正在播的影片 */
+  var SGR_AC = null;
+  function sgrAC() {
+    try {
+      if (!SGR_AC) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return null; SGR_AC = new C(); }
+      if (SGR_AC.state === "suspended") SGR_AC.resume();
+      return SGR_AC;
+    } catch (e) { return null; }
+  }
+  function sgrSfx(kind) {
+    var ac = sgrAC(); if (!ac) return;
+    try {
+      var t0 = ac.currentTime + 0.01, out = ac.createGain(); out.gain.value = 0.5; out.connect(ac.destination);
+      if (kind === "bark") {   /* 小狗：鋸齒波往上再往下滑＋兩個母音共鳴（像「啊」），前面一點氣音 */
+        var o = ac.createOscillator(), g = ac.createGain(), f1 = ac.createBiquadFilter(), f2 = ac.createBiquadFilter(), mix = ac.createGain();
+        o.type = "sawtooth";
+        o.frequency.setValueAtTime(560, t0); o.frequency.linearRampToValueAtTime(980, t0 + 0.03); o.frequency.exponentialRampToValueAtTime(430, t0 + 0.14);
+        f1.type = "bandpass"; f1.frequency.value = 1050; f1.Q.value = 4; f2.type = "bandpass"; f2.frequency.value = 2300; f2.Q.value = 5;
+        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.9, t0 + 0.008); g.gain.setValueAtTime(0.9, t0 + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.17);
+        o.connect(g); g.connect(f1); g.connect(f2); f1.connect(mix); f2.connect(mix); mix.gain.value = 1.4; mix.connect(out);
+        o.start(t0); o.stop(t0 + 0.2);
+        var len = Math.floor(ac.sampleRate * 0.04), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        var n = ac.createBufferSource(), nf = ac.createBiquadFilter(), ng = ac.createGain();
+        n.buffer = buf; nf.type = "highpass"; nf.frequency.value = 1800; ng.gain.value = 0.18;
+        n.connect(nf); nf.connect(ng); ng.connect(out); n.start(t0);
+        return;
+      }
+      if (kind === "coin") {   /* 金幣：「叮—噹」兩個音，再撒幾聲小小的叮 */
+        var ding = function (freq, at, dur, vol) {
+          var o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain();
+          o.type = "triangle"; o.frequency.value = freq; o2.type = "sine"; o2.frequency.value = freq * 2.01;
+          g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+          o.connect(g); o2.connect(g); g.connect(out); o.start(at); o2.start(at); o.stop(at + dur + 0.02); o2.stop(at + dur + 0.02);
+        };
+        ding(988, t0, 0.12, 0.35); ding(1319, t0 + 0.08, 0.5, 0.35);
+        for (var k = 0; k < 6; k++) ding(1800 + Math.random() * 1400, t0 + 0.25 + k * 0.11 + Math.random() * 0.05, 0.18, 0.07);
+      }
+    } catch (e) {}
+  }
   function sgrPawPop(el, x, y) {   /* 豆皮手掌從 (x, y) 下方伸上來 */
+    sgrSfx("bark");   /* B513T：手掌出來就「汪」一聲（按鈕、雙擊都一樣） */
     var r = el.getBoundingClientRect(), h = document.createElement("span");
     h.className = "sgr-pop"; h.setAttribute("aria-hidden", "true"); h.innerHTML = SGR_PAWPIC;
     h.style.left = Math.max(82, Math.min(r.width - 150, x - r.left)) + "px"; h.style.top = Math.max(150, y - r.top) + "px";
@@ -13108,7 +13150,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B512T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B513T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
