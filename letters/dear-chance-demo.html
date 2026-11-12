@@ -934,11 +934,11 @@ function openPay(view){
      '<div class="stack">'+(expired?'':'<button class="btn btn-gold" id="pay" type="button"'+(busy?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>')+
      (DEMO_UI?'<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>':'')+
      (expired?'<button class="btn btn-gold" id="again" type="button">回到預覽，重新確認名額</button>':'')+
-     '<button class="btn btn-ghost" id="cancel" type="button"'+(busy?' disabled':'')+'>先不付款</button></div>';
+     '<button class="btn btn-ghost" id="cancel" type="button">先不付款</button></div>';   /* B517T（CÉON 11/12）：「先不付款」永遠可以按 */
   },function(close0,repaint){
     function close(){clearInterval(cdT);clearInterval(pollT);close0()}
     function wire(){
-      $("cancel").onclick=function(){if(busy)return;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
+      $("cancel").onclick=function(){busy=false;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
       if($("pay"))$("pay").onclick=function(){
         if(busy)return;busy=true;msg="";repaint();wire();started=Date.now();
         API.pay(me(),o.id,SIM.pay,SIM.deliver).then(function(r){
@@ -946,6 +946,7 @@ function openPay(view){
           if(r.err==="checking"){busy=false;o=r.view.order;h=r.view.hold;msg='<div class="state info" role="status"><b>還在確認上一筆付款。</b><span>請過幾秒再按一次，避免重複付款。</span></div>';repaint();wire();return}   /* B516T */
           clearInterval(pollT);pollT=setInterval(poll,700);
         });
+        setTimeout(function(){if(busy&&!document.hidden&&RT.payBack)RT.payBack()},10000);   /* B517T：10 秒後人還在這一頁（沒去成綠界，或回來了卻沒收到通知）→ 不要一直轉圈 */
       };
       if($("again"))$("again").onclick=function(){close();CL.active=null;cSave();render()};
     }
@@ -969,7 +970,7 @@ function openPay(view){
       msg='<div class="state info" role="status"><b>正在確認剛剛的付款…</b><span>綠界的結果回來之前，請先不要再付一次。</span></div>';repaint();wire();if($("pay"))$("pay").disabled=true;
       function chk(){
         if(!document.getElementById("pay")){clearInterval(pollT);return}
-        API.status(o.id).then(function(r){
+        API.status(o.id,true).then(function(r){   /* B517T：人已經回來了 → 請後台馬上問綠界（約 1 秒），沒付就立刻可以再付 */
           if(!r.view||!document.getElementById("pay"))return;o=r.view.order;h=r.view.hold;
           if(o.status==="paid"||o.status==="refund_pending"||o.letterId){close();go("ritual",o.id);return}
           if(o.status==="confirming"&&Date.now()-t0<45000)return;   /* 後台約 20 秒內會跟綠界核對完 */
@@ -984,7 +985,8 @@ function openPay(view){
     cdT=setInterval(function(){var el=$("cd");if(!el){clearInterval(cdT);return}var left=h.expiresAt-now();el.textContent=mmss(left);if(left<=0&&!busy){clearInterval(cdT);refresh()}},1000);
   });
 }
-window.addEventListener("pageshow",function(e){if(e.persisted&&RT.payBack)setTimeout(RT.payBack,300)});   /* B515T：從綠界按上一頁回來 */
+window.addEventListener("pageshow",function(e){if(e.persisted&&RT.payBack)setTimeout(RT.payBack,300)});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&RT.payBack)setTimeout(RT.payBack,300)});   /* B517T：切回 App 也一樣 */   /* B515T：從綠界按上一頁回來 */
 
 /* ═════════ 粉絲：寄出儀式（交易狀態只看後端，動畫不決定結果） ═════════ */
 function reducedMotion(){try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}}
@@ -1232,7 +1234,7 @@ if(REAL){
         return new Promise(function(){});   /* 頁面會換到綠界 */
       });
     },
-    status:function(orderId){return post("/letters/status",withS({orderId:orderId})).then(function(r){if(r&&r.view&&r.view.order&&(r.view.order.letterId||r.view.order.status!=="confirming")){try{var d=JSON.parse(localStorage.getItem("dc:paying")||"null");if(d&&d.o===orderId)localStorage.removeItem("dc:paying")}catch(e){}}return r})},
+    status:function(orderId,back){return post("/letters/status",withS(back?{orderId:orderId,back:1}:{orderId:orderId})).then(function(r){if(r&&r.view&&r.view.order&&(r.view.order.letterId||r.view.order.status!=="confirming")){try{var d=JSON.parse(localStorage.getItem("dc:paying")||"null");if(d&&d.o===orderId)localStorage.removeItem("dc:paying")}catch(e){}}return r})},
     myItems:function(){return post("/letters/mine",withS())},
     inbox:function(){return post("/letters/inbox",withK()).then(forbid)},
     markRead:function(u,id){return post("/letters/read",withK({letterId:id})).then(forbid)},
