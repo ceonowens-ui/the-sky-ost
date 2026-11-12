@@ -1734,9 +1734,17 @@ body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 .sgc-note{font-size:14px}
 .sgr-shade{transition:background-color .2s}
 .sgr-it.open .sgr-shade{background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,.4) 25%,rgba(0,0,0,.82) 55%,rgba(0,0,0,.94) 100%)}
-.sgr-pop{position:absolute;z-index:4;width:104px;height:104px;margin:-52px 0 0 -52px;pointer-events:none;color:#E8BF7A;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55));animation:sgrheart .85s cubic-bezier(.2,.8,.2,1) forwards}
-.sgr-pop svg{width:100%;height:100%;fill:currentColor;display:block}
-@keyframes sgrheart{0%{transform:scale(.2) rotate(-10deg);opacity:0}18%{transform:scale(1.18) rotate(-10deg);opacity:1}32%{transform:scale(.94) rotate(-10deg)}46%{transform:scale(1) rotate(-10deg);opacity:1}100%{transform:translateY(-52px) scale(1.08) rotate(-10deg);opacity:0}}
+/* B511T（CÉON 11/12：腳印要有豆皮的可愛動畫）：按喜歡／雙擊 → 豆皮的手掌從下面伸上來擊掌、搖兩下再縮回去；腳印按鈕彈一下＋金點散開。手掌目前是程式畫的替身（SGR_PAWPIC），之後換成插畫只要換那一段 */
+.sgr-pop{position:absolute;z-index:4;width:150px;height:195px;margin:-125px 0 0 -75px;pointer-events:none;transform-origin:50% 100%;filter:drop-shadow(0 6px 16px rgba(0,0,0,.45));animation:sgrpaw 1.2s cubic-bezier(.2,.8,.2,1) forwards}
+.sgr-pop svg{width:100%;height:100%;display:block;overflow:visible;-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 97%);mask-image:linear-gradient(180deg,#000 72%,transparent 97%)}   /* 手臂下緣淡出，不會看到切口 */
+.sgr-pop .sp{transform-box:fill-box;transform-origin:center;animation:sgrspk 1.2s ease forwards}
+@keyframes sgrpaw{0%{transform:translateY(90px) scale(.5) rotate(-10deg);opacity:0}15%{transform:translateY(-12px) scale(1.1) rotate(9deg);opacity:1}28%{transform:translateY(0) scale(1) rotate(-9deg)}41%{transform:rotate(7deg)}54%{transform:rotate(-4deg)}66%{transform:rotate(0);opacity:1}78%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(70px) scale(.85);opacity:0}}
+@keyframes sgrspk{0%,12%{transform:scale(0);opacity:0}30%{transform:scale(1.25);opacity:1}45%{transform:scale(.9)}60%,78%{transform:scale(1);opacity:1}100%{transform:scale(.6);opacity:0}}
+.sgr-b{position:relative}
+.sgr-dot{position:absolute;left:50%;top:23px;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:#F0DCA8;pointer-events:none;opacity:0;animation:sgrdot .6s ease-out forwards}
+@keyframes sgrdot{0%{transform:rotate(var(--a)) translateY(-16px) scale(.4);opacity:1}100%{transform:rotate(var(--a)) translateY(-44px) scale(1);opacity:0}}
+.sgr-like.pop svg{animation:sgrpop2 .5s cubic-bezier(.3,1.7,.5,1)}
+@keyframes sgrpop2{0%{transform:scale(.7) rotate(-14deg)}55%{transform:scale(1.28) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
 .sgc-li{display:flex;align-items:flex-start;gap:12px}
 .sgc-b{flex:1;min-width:0}
 .sgc-av{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;object-fit:cover;color:#F3EEEA;font:600 18px/1 'Noto Sans TC',-apple-system,sans-serif;margin-top:2px}
@@ -1750,7 +1758,7 @@ img.sgc-av{border:1px solid rgba(232,191,122,.55)}
 .sgc-emo button{flex:1;min-height:48px;padding:0;border:0;background:none;border-radius:12px;font-size:30px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sgc-emo button:active{transform:scale(.86);background:rgba(255,255,255,.06)}
 @media (max-width:340px){.sgc-emo button{font-size:25px}.sgr-it .sgr-txt{font-size:16px}.sgr-b svg{width:34px;height:34px}}
-@media (prefers-reduced-motion:reduce){.sgr-pop{animation-duration:.5s}.sgc-lk.pop svg{animation:none}}
+@media (prefers-reduced-motion:reduce){.sgr-pop,.sgr-pop .sp{animation-duration:.6s}.sgr-dot{display:none}.sgc-lk.pop svg{animation:none}}
 /* B313T：介面語言 */
 .lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
 .lang-row .lr-t{display:flex;align-items:center;gap:8px;font-size:14px;color:#E9DCC4;letter-spacing:.04em}
@@ -10775,7 +10783,13 @@ window.ALBUM_SWITCH = {
     var what = b.getAttribute("data-sgr"), el = b.closest(".sgr-it"), it = el && SGR.items[+el.getAttribute("data-i")];
     if (what === "top") { $("sgr").scrollTo({ top: 0, behavior: "smooth" }); return; }
     if (!it) return;
-    if (what === "like") { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) { nb.classList.add("pop"); nb.focus({ preventScroll: true }); } return; }
+    if (what === "like") {
+      var wasOn = sgrLiked(it.rid), br = b.getBoundingClientRect(); sendReact(it.rid, "heart"); sgrPaintActs(it.rid);
+      var nb = el.querySelector(".sgr-like"); if (nb) nb.focus({ preventScroll: true });
+      if (!wasOn && sgrLiked(it.rid)) { sgrLikeFx(el); sgrPawPop(el, br.left - 70, br.top + 40); }   /* B511T：按下喜歡 → 豆皮手掌在按鈕左邊伸上來 */
+      else if (nb) nb.classList.add("pop");
+      return;
+    }
     if (what === "comment") { sgcOpen(it, b); return; }
     if (what === "more") { if (el.classList.contains("long") || el.classList.contains("open")) { sgrMore(el, !el.classList.contains("open")); try { hap(6); } catch (er) {} } return; }
     if (what === "support") { hap(8); if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
@@ -10785,13 +10799,32 @@ window.ALBUM_SWITCH = {
   });
   /* B508T：雙擊畫面＝喜歡（只會加，不會收回，跟 IG 一樣）；單擊影片照舊暫停／播放／開聲音 */
   var SGR_TAP = { t: 0, x: 0, y: 0, el: null, pre: null };
+  /* 豆皮手掌（替身，程式畫的）：奶茶色的毛、粉紅肉球、旁邊金色星星和小愛心 */
+  var SGR_PAWPIC = '<svg viewBox="0 0 200 260" aria-hidden="true">' +
+    '<g fill="#F6E6CB" stroke="#8A5A3A" stroke-width="9" stroke-linejoin="round"><path d="M66 266V150q0-26 34-26t34 26v116z"/><ellipse cx="100" cy="112" rx="62" ry="54"/><circle cx="50" cy="80" r="21"/><circle cx="83" cy="58" r="23"/><circle cx="117" cy="58" r="23"/><circle cx="150" cy="80" r="21"/></g>' +
+    '<g fill="#F6E6CB"><path d="M66 266V150q0-26 34-26t34 26v116z"/><ellipse cx="100" cy="112" rx="62" ry="54"/><circle cx="50" cy="80" r="21"/><circle cx="83" cy="58" r="23"/><circle cx="117" cy="58" r="23"/><circle cx="150" cy="80" r="21"/></g>' +
+    '<path d="M70 200q30 12 60 0" fill="none" stroke="#E9D2AE" stroke-width="5" stroke-linecap="round"/><path d="M70 230q30 12 60 0" fill="none" stroke="#E9D2AE" stroke-width="5" stroke-linecap="round"/>' +
+    '<g fill="#F7A9B4"><path d="M100 96c12 0 18 9 24 16 7 8 11 16 4 24-6 7-17 3-28 3s-22 4-28-3c-7-8-3-16 4-24 6-7 12-16 24-16z"/><ellipse cx="50" cy="80" rx="10" ry="12"/><ellipse cx="83" cy="58" rx="11" ry="13"/><ellipse cx="117" cy="58" rx="11" ry="13"/><ellipse cx="150" cy="80" rx="10" ry="12"/></g>' +
+    '<g fill="#fff" opacity=".55"><ellipse cx="90" cy="108" rx="7" ry="4"/><ellipse cx="79" cy="52" rx="4" ry="3"/><ellipse cx="113" cy="52" rx="4" ry="3"/></g>' +
+    '<g fill="#F0DCA8"><path class="sp" d="M22 34l5 13 13 5-13 5-5 13-5-13-13-5 13-5z"/><path class="sp" d="M180 16l4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/><path class="sp" d="M186 150l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>' +
+    '<g fill="#F7A9B4"><path class="sp" d="M20 122c-6-5-12-10-12-16a6.500 6.500 0 0 1 12-3 6.500 6.500 0 0 1 12 3c0 6-6 11-12 16z"/><path class="sp" d="M184 96c-5-4-9-8-9-12a5 5 0 0 1 9-2.500 5 5 0 0 1 9 2.500c0 4-4 8-9 12z"/></g>' +
+    '</svg>';
+  function sgrPawPop(el, x, y) {   /* 豆皮手掌從 (x, y) 下方伸上來 */
+    var r = el.getBoundingClientRect(), h = document.createElement("span");
+    h.className = "sgr-pop"; h.setAttribute("aria-hidden", "true"); h.innerHTML = SGR_PAWPIC;
+    h.style.left = Math.max(82, Math.min(r.width - 150, x - r.left)) + "px"; h.style.top = Math.max(150, y - r.top) + "px";
+    el.appendChild(h); setTimeout(function () { if (h.parentNode) h.parentNode.removeChild(h); }, 1250);
+  }
+  function sgrLikeFx(el) {   /* 腳印按鈕：彈一下＋金點散開（按鈕剛被重畫過，要對新的那顆做） */
+    var nb = el.querySelector(".sgr-like"); if (!nb) return;
+    nb.classList.add("pop");
+    for (var i = 0; i < 6; i++) { var d = document.createElement("i"); d.className = "sgr-dot"; d.style.setProperty("--a", (i * 60) + "deg"); nb.appendChild(d); }
+    setTimeout(function () { Array.prototype.forEach.call(nb.querySelectorAll(".sgr-dot"), function (d) { d.remove(); }); }, 700);
+  }
   function sgrHeart(el, x, y) {
     var it = SGR.items[+el.getAttribute("data-i")]; if (!it) return;
-    var r = el.getBoundingClientRect(), h = document.createElement("span");
-    h.className = "sgr-pop"; h.setAttribute("aria-hidden", "true"); h.innerHTML = TIP_HEART;
-    h.style.left = (x - r.left) + "px"; h.style.top = (y - r.top) + "px";
-    el.appendChild(h); setTimeout(function () { if (h.parentNode) h.parentNode.removeChild(h); }, 900);
-    if (!sgrLiked(it.rid)) { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); var nb = el.querySelector(".sgr-like"); if (nb) nb.classList.add("pop"); }
+    sgrPawPop(el, x, y);
+    if (!sgrLiked(it.rid)) { sendReact(it.rid, "heart"); sgrPaintActs(it.rid); sgrLikeFx(el); }
     else { try { hap(8); } catch (e) {} }
   }
   $("feed-body").addEventListener("click", function (e) {
@@ -13054,7 +13087,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B510T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B511T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
