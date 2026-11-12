@@ -5,6 +5,10 @@
  const preferred=forced||(navigator.languages&&navigator.languages[0])||navigator.language||'zh-TW';
  const en=window.SKY_LANG?window.SKY_LANG==='en':!/^zh(?:-|$)/i.test(preferred);   /* B294T：跟全 App 同一個判斷 */
  const D={
+ /* B518T：付款回來的提示（座位有變動、卡包還沒查到付款、上一筆其實已付款） */
+ '這筆還沒付款，不會扣款，填的資料都還在，但座位有變動，請重新選位再付款。如果剛剛其實已經付款，幾秒內會自動跳到購買成功，請不要再付一次。':'You haven’t paid, so you won’t be charged. Your details are still here, but your seats have changed — please choose seats again before paying. If you actually just paid, this will switch to your tickets in a few seconds. Please don’t pay twice.',
+ '還沒查到這筆的付款紀錄。如果你已經付款，這裡會自己跳到購買成功，請不要再付一次；如果還沒付款，再按一次前往付款就可以。':'We haven’t found a payment for this order yet. If you already paid, this page will switch to your order by itself — please don’t pay again. If you haven’t paid, just tap Pay again.',
+ '你剛剛那筆已經付款成功，不用再付一次。':'Your last payment already went through — no need to pay again.',
  /* B494T：英文版補字 */
  '你已購買':'Purchased',
  /* B452T：沒登入不能選位 */
