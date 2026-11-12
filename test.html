@@ -1744,6 +1744,13 @@ body.sgc-open #__sigBar,body.sgc-open #a2tip{display:none !important}
 .sgr-dot{position:absolute;left:50%;top:23px;width:7px;height:7px;margin:-3.5px;border-radius:50%;background:#F0DCA8;pointer-events:none;opacity:0;animation:sgrdot .6s ease-out forwards}
 @keyframes sgrdot{0%{transform:rotate(var(--a)) translateY(-16px) scale(.4);opacity:1}100%{transform:rotate(var(--a)) translateY(-44px) scale(1);opacity:0}}
 .sgr-like.pop svg{animation:sgrpop2 .5s cubic-bezier(.3,1.7,.5,1)}
+/* B512T（CÉON 11/12：支持＝錢掉下來；留言照常）：錢袋搖一下，金幣從畫面上方掉下來（蓋在整個畫面上，換到 SHOP 也繼續掉完） */
+.sgr-sup.shake svg{animation:sgrbag .55s ease}
+@keyframes sgrbag{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg) scale(1.1)}35%{transform:rotate(12deg) scale(1.1)}55%{transform:rotate(-8deg)}75%{transform:rotate(5deg)}}
+.sgr-rain{position:fixed;inset:0;z-index:99990;pointer-events:none;overflow:hidden}
+.sgr-coin{position:absolute;top:-60px;width:var(--s);height:var(--s);filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));animation:sgrcoin var(--t) cubic-bezier(.45,.05,.9,.6) var(--d) forwards}
+.sgr-coin svg{width:100%;height:100%;display:block}
+@keyframes sgrcoin{0%{transform:translate3d(0,0,0) rotateZ(0) rotateY(0)}100%{transform:translate3d(var(--x),calc(100vh + 120px),0) rotateZ(var(--r)) rotateY(720deg)}}
 @keyframes sgrpop2{0%{transform:scale(.7) rotate(-14deg)}55%{transform:scale(1.28) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
 .sgc-li{display:flex;align-items:flex-start;gap:12px}
 .sgc-b{flex:1;min-width:0}
@@ -1758,7 +1765,7 @@ img.sgc-av{border:1px solid rgba(232,191,122,.55)}
 .sgc-emo button{flex:1;min-height:48px;padding:0;border:0;background:none;border-radius:12px;font-size:30px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sgc-emo button:active{transform:scale(.86);background:rgba(255,255,255,.06)}
 @media (max-width:340px){.sgc-emo button{font-size:25px}.sgr-it .sgr-txt{font-size:16px}.sgr-b svg{width:34px;height:34px}}
-@media (prefers-reduced-motion:reduce){.sgr-pop,.sgr-pop .sp{animation-duration:.6s}.sgr-dot{display:none}.sgc-lk.pop svg{animation:none}}
+@media (prefers-reduced-motion:reduce){.sgr-pop,.sgr-pop .sp{animation-duration:.6s}.sgr-dot,.sgr-rain{display:none}.sgr-sup.shake svg{animation:none}.sgc-lk.pop svg{animation:none}}
 /* B313T：介面語言 */
 .lang-row{margin:26px 18px 6px;padding:14px 16px;border:1px solid rgba(217,178,106,.28);border-radius:18px;background:rgba(20,16,12,.55);display:flex;flex-direction:column;gap:10px}
 .lang-row .lr-t{display:flex;align-items:center;gap:8px;font-size:14px;color:#E9DCC4;letter-spacing:.04em}
@@ -10792,7 +10799,9 @@ window.ALBUM_SWITCH = {
     }
     if (what === "comment") { sgcOpen(it, b); return; }
     if (what === "more") { if (el.classList.contains("long") || el.classList.contains("open")) { sgrMore(el, !el.classList.contains("open")); try { hap(6); } catch (er) {} } return; }
-    if (what === "support") { hap(8); if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
+    if (what === "support") { hap(8); b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); sgrCoins();
+      if (!TIP_OPEN) { sgrPauseAll(); clearTimeout(SGR.supT); SGR.supT = setTimeout(function () { if (state.screen === "mood") go("merch"); }, 480); return; }   /* B512T：先讓錢袋搖完、金幣開始掉，再去 SHOP（金幣會繼續掉完） */
+      if (TIP_OPEN) { sgcOpen(it, b); var tw = sgcEl(); if (tw && tw.querySelector(".sgc-chip")) { tw.__sup = true; tipSync(tw); } return; } sgrPauseAll(); go("merch"); return; }   /* B322T：應援開放（?tip=1）時「支持」＝打開留言＋應援金額；關著維持去 SHOP */
     if (what === "voice") { sgrVoice(b); return; }
     if (what === "video") { sgrVideo(el); return; }
     if (what === "sound") { sgrSound(el); return; }
@@ -10820,6 +10829,18 @@ window.ALBUM_SWITCH = {
     nb.classList.add("pop");
     for (var i = 0; i < 6; i++) { var d = document.createElement("i"); d.className = "sgr-dot"; d.style.setProperty("--a", (i * 60) + "deg"); nb.appendChild(d); }
     setTimeout(function () { Array.prototype.forEach.call(nb.querySelectorAll(".sgr-dot"), function (d) { d.remove(); }); }, 700);
+  }
+  var SGR_COIN = '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#E9C46A" stroke="#B8862B" stroke-width="2.5"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="#F7E7B8" stroke-width="1.5"/><path d="M19.500 12.600c-.8-1-2-1.600-3.500-1.600-2 0-3.500 1-3.500 2.600s1.500 2.200 3.500 2.600 3.600 1 3.600 2.700-1.600 2.600-3.600 2.600c-1.500 0-2.800-.5-3.600-1.600M16 9v2m0 10v2" fill="none" stroke="#8A5A14" stroke-width="2" stroke-linecap="round"/></svg>';
+  function sgrCoins() {   /* 金幣雨：18 枚，大小、位置、快慢都不一樣，約兩秒掉完 */
+    var old = document.getElementById("sgr-rain"); if (old) old.remove();
+    var w = document.createElement("div"); w.id = "sgr-rain"; w.className = "sgr-rain"; w.setAttribute("aria-hidden", "true");
+    var h = "";
+    for (var i = 0; i < 18; i++) {
+      var s = 26 + Math.round(Math.random() * 20), l = Math.round(2 + (i / 18) * 90 + Math.random() * 6), d = (Math.random() * .55).toFixed(2), t = (1 + Math.random() * .6).toFixed(2), x = Math.round(Math.random() * 60 - 30), r = Math.round(Math.random() * 720 - 360);
+      h += '<i class="sgr-coin" style="left:' + l + '%;--s:' + s + 'px;--d:' + d + 's;--t:' + t + 's;--x:' + x + 'px;--r:' + r + 'deg">' + SGR_COIN + '</i>';
+    }
+    w.innerHTML = h; document.body.appendChild(w);
+    setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 2400);
   }
   function sgrHeart(el, x, y) {
     var it = SGR.items[+el.getAttribute("data-i")]; if (!it) return;
@@ -13087,7 +13108,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B511T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B512T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
