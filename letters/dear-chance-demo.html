@@ -418,9 +418,12 @@ th{color:var(--muted);font-weight:500;background:rgba(36,34,41,.6)}
 .panel.cur{border-color:rgba(212,183,126,.5)}
 .panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
+.sheet .pay-actions{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));margin:0 -4px;padding:12px 4px calc(env(safe-area-inset-bottom,0px) + 56px);background:linear-gradient(180deg,rgba(20,19,24,0),#141318 14px)}   /* B520T：付款和「先不付款」永遠看得到、離螢幕底有一段距離，不用捲 */
+.sheet-x{position:absolute;right:10px;top:10px;width:48px;height:48px;border:0;background:none;color:var(--text,#EDE6D8);font-size:22px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
+.sheet button{touch-action:manipulation}
 .scrim{position:fixed;inset:0;z-index:50;background:rgba(5,5,8,.66);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease both}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;background:linear-gradient(180deg,#1E1D24,#141318);border:1px solid var(--border);border-bottom:0;border-radius:24px 24px 0 0;
+.sheet{position:relative;width:100%;max-width:440px;max-height:86vh;overflow:auto;overscroll-behavior:contain;background:linear-gradient(180deg,#1E1D24,#141318);border:1px solid var(--border);border-bottom:0;border-radius:24px 24px 0 0;
   padding:10px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:16px;animation:up .28s cubic-bezier(.2,.8,.2,1) both}
 @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
 .grab{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin:2px auto 0}
@@ -925,20 +928,20 @@ function openPay(view){
   var o=view.order,h=view.hold,per=view.period,busy=false,msg="",cdT=null,pollT=null,started=0,gone=false;
   sheet(function(){
     var expired=gone||(!busy&&h.status!=="active"&&h.status!=="verifying"&&o.status!=="paid");   /* B516T：後台說過期就一定當過期 */
-    return'<div class="grab"></div><h2>名額已為你保留</h2>'+
+    return'<div class="grab"></div><button class="sheet-x" id="cancelX" type="button" aria-label="關閉">✕</button><h2>名額已為你保留</h2>'+   /* B520T（CÉON 11/12：手機上「先不付款」按不到）：右上角多一個關閉；最下面的按鈕往上墊高，不貼著螢幕底 */
      '<div class="cd"><span class="small" style="color:var(--text)">保留到 '+fmtMD(h.expiresAt)+'<br><span style="color:var(--muted)">時間以伺服器為準</span></span><b id="cd">'+(expired?"00:00":mmss(h.expiresAt-now()))+'</b></div>'+
      '<span class="small">將寄出的是你剛剛預覽、已固定的內容：</span><div class="snap">'+esc(summary(h.snap.body,120))+'</div>'+
      '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(o.readBy)+' 前</b></li><li><span>金額</span><b class="num">NT$'+o.amount+'</b></li></ul>'+
      (expired?'':'<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>')+   /* B516T：過期時不顯示付款說明，免得看起來像還能付 */
      '<div id="payMsg">'+msg+'</div>'+
-     '<div class="stack">'+(expired?'':'<button class="btn btn-gold" id="pay" type="button"'+(busy?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>')+
+     '<div class="stack pay-actions">'+(expired?'':'<button class="btn btn-gold" id="pay" type="button"'+(busy?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>')+
      (DEMO_UI?'<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>':'')+
      (expired?'<button class="btn btn-gold" id="again" type="button">回到預覽，重新確認名額</button>':'')+
      '<button class="btn btn-ghost" id="cancel" type="button">先不付款</button></div>';   /* B517T（CÉON 11/12）：「先不付款」永遠可以按 */
   },function(close0,repaint){
     function close(){clearInterval(cdT);clearInterval(pollT);close0()}
     function wire(){
-      $("cancel").onclick=function(){busy=false;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
+      $("cancel").onclick=$("cancelX").onclick=function(){busy=false;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
       if($("pay"))$("pay").onclick=function(){
         if(busy)return;busy=true;msg="";repaint();wire();started=Date.now();
         API.pay(me(),o.id,SIM.pay,SIM.deliver).then(function(r){
