@@ -2634,7 +2634,7 @@ function coverClockKey() {
         if (!j || !j.ok) return fail((j && j.message) || "無法建立訂單，請稍後再試");
         try { sessionStorage.setItem("cx:shop", JSON.stringify({ d: j.draftId, email: email, at: Date.now() })); } catch (e) {}
         var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
-        return fetch(SHOP_API + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back, name: f.name }) })
+        return fetch(SHOP_API + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, back: back, name: f.name, lang: window.SKY_LANG === "en" ? "en" : "" }) })
           .then(function (r) { return r.text(); }).then(function (html) {
             var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
             if (!form) { try { var jj = JSON.parse(html); if (jj && jj.message) return fail(jj.message); } catch (e) {} throw 0; }
@@ -2839,7 +2839,7 @@ function coverClockKey() {
         if (dead()) throw { gone: 1 };
         shopPending = { d: j.draftId, email: snap.email, at: Date.now(), launched: true, nm: i.short || i.name || "", img: i.img || "", qty: snap.qty, how: pick ? "pickup" : (snap.ship.country === "TW" ? "tw" : "intl"), amt: cxTotals().total || 0 };   // B419T：成功摘要要用；只記商品、數量、金額、領取方式，不記地址電話
         var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
-        return fetch(SHOP_API + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: snap.email, back: back, name: snap.name }), signal: sig })
+        return fetch(SHOP_API + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: snap.email, back: back, name: snap.name, lang: window.SKY_LANG === "en" ? "en" : "" }), signal: sig })
           .then(function (r) { if (dead()) throw { gone: 1 }; return r.text().then(function (html) { return { r: r, html: html }; }); });
       }).then(function (o) {
         if (dead()) throw { gone: 1 };
