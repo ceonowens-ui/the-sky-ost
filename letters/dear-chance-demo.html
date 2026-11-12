@@ -76,7 +76,7 @@
     "名額已為你保留": "Your spot is reserved", "時間以伺服器為準": "Server time applies", "將寄出的是你剛剛預覽、已固定的內容：": "This is the locked version you just previewed:",
     "訂單": "Order", "金額": "Amount",
     "付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。": "After payment, the letter you previewed will be sent.\nIt can’t be edited or withdrawn. Replies aren’t guaranteed.",
-    "付款處理中": "Processing payment…", "DEMO 模擬付款 · 不會收費": "DEMO payment · No charge", "回到預覽，重新確認名額": "Back to preview to confirm again", "先不付款": "Not now",
+    "付款處理中": "Processing payment…", "正在確認剛剛的付款…": "Checking your last payment…", "綠界的結果回來之前，請先不要再付一次。": "Please don’t pay again until the result comes back.", "付款沒有完成。": "Payment wasn’t completed.", "DEMO 模擬付款 · 不會收費": "DEMO payment · No charge", "回到預覽，重新確認名額": "Back to preview to confirm again", "先不付款": "Not now",
     "保留時間已到，名額已釋放。": "Your hold expired and the spot was released.", "你的草稿仍在。": "Your draft is still here.", "尚未付款。": "Not paid yet.", "付款沒有完成。": "Payment didn’t go through.", "付款沒有完成": "Payment didn’t go through", "尚未付款": "Not paid yet",
     "保留已到期，名額已釋放。你的草稿仍在。": "Your hold expired and the spot was released. Your draft is still here.",
     "這封信沒有寄出": "This letter wasn’t sent", "正在確認付款結果…請勿重複付款": "Confirming your payment… Please don’t pay again.",
@@ -147,6 +147,7 @@
     [/^你這個月已經寄了 (\d+) 封，每人每月只能寄 \d+ 封。(.+?) ?開放後，回到這裡就能付款寄出這封。$/, function (m) { return "You've already sent " + m[1] + " letter(s) this month, the monthly limit per person. Come back when the next round opens on " + m[2] + " to pay and send this one."; }],
     [/^／封 · 每人每月 (\d+) 封$/, function (m) { return "/ letter · " + m[1] + " per person each month"; }],
     [/^(\d+) 封$/, function (m) { return m[1] + (m[1] === "1" ? " letter" : " letters"); }],
+    [/^這封信還沒寄出，名額保留到 (.+)，可以再付一次。$/, function (m) { return "Your letter hasn’t been sent. Your spot is held until " + m[1] + " — you can pay again."; }],
     [/^現在寫的會先存成草稿，(.+?) ?開放後可以寄出。$/, function (m) { return "What you write now is saved as a draft. You can send it once the next round opens on " + m[1] + "."; }],
     [/^這個月的信已經寄出（每人每月 (\d+) 封）。(.+?) ?開放後，回到這裡就能寄出這封。$/, function (m) { return "This month’s letter has already been sent (" + m[1] + " per person each month). Come back here to send this one once the next round opens on " + m[2] + "."; }],
     [/^每人每月限寄 (\d+) 封。下一封 (.+?) ?開放。$/, function (m) { return m[1] + " letter(s) per person each month. The next round opens on " + m[2] + "."; }]
@@ -959,10 +960,30 @@ function openPay(view){
         }
       });
     }
+    /* B515T（CÉON 11/12：付款失敗退回來卡在「付款處理中」）：跟購票、周邊同一套——從綠界按上一頁回來（畫面是還原的、沒有重新整理）
+       → 按鈕先不轉圈，問後台這筆付了沒：付了就進寄出畫面；沒付就說「付款沒有完成」，名額還在就能再付一次 */
+    RT.payBack=function(){
+      if(!busy||!document.getElementById("pay"))return;
+      busy=false;clearInterval(pollT);var t0=Date.now();
+      msg='<div class="state info" role="status"><b>正在確認剛剛的付款…</b><span>綠界的結果回來之前，請先不要再付一次。</span></div>';repaint();wire();$("pay").disabled=true;
+      function chk(){
+        if(!document.getElementById("pay")){clearInterval(pollT);return}
+        API.status(o.id).then(function(r){
+          if(!r.view||!document.getElementById("pay"))return;o=r.view.order;h=r.view.hold;
+          if(o.status==="paid"||o.status==="refund_pending"||o.letterId){close();go("ritual",o.id);return}
+          if(o.status==="confirming"&&Date.now()-t0<45000)return;   /* 後台約 20 秒內會跟綠界核對完 */
+          clearInterval(pollT);var live=h.status==="active";
+          msg='<div class="state err" role="alert"><b>付款沒有完成。</b><span>'+(live?"這封信還沒寄出，名額保留到 "+fmtMD(h.expiresAt)+"，可以再付一次。":"保留時間已到，名額已釋放。你的草稿仍在。")+'</span></div>';
+          repaint();wire();if(!live)$("pay").disabled=true;say("付款沒有完成");
+        });
+      }
+      chk();pollT=setInterval(chk,1500);
+    };
     wire();
     cdT=setInterval(function(){var el=$("cd");if(!el){clearInterval(cdT);return}var left=h.expiresAt-now();el.textContent=mmss(left);if(left<=0&&!busy){clearInterval(cdT);refresh()}},1000);
   });
 }
+window.addEventListener("pageshow",function(e){if(e.persisted&&RT.payBack)setTimeout(RT.payBack,300)});   /* B515T：從綠界按上一頁回來 */
 
 /* ═════════ 粉絲：寄出儀式（交易狀態只看後端，動畫不決定結果） ═════════ */
 function reducedMotion(){try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}}
@@ -1227,6 +1248,7 @@ if(REAL){
     toast("請先在 App 登入，再回來寄信");
   };
   window.addEventListener("message",function(e){
+    if(e.origin===location.origin&&e.data&&e.data.dc==="payback"){if(RT.payBack)RT.payBack();return}   /* B515T：外層 App 說「剛從綠界回來」 */
     if(e.origin!==location.origin||!e.data||e.data.dc!=="session")return;
     USER.fan={id:myMail()||"me",name:myMail()||"已登入"};SIM.role=sess()?"fan":"guest";render();
   });
