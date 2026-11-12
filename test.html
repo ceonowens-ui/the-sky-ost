@@ -3780,6 +3780,17 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
 .tk-layer[data-layer=checkout] .ticket-paper .tkm-qty b{color:#211b16!important}
 .tk-layer[data-layer=checkout] .ticket-paper .tkm-qty small{color:#554b3d!important}
 </style>
+<script>/* B506T（CÉON 11/12）：Microsoft Clarity 使用行為分析（只有測試站 chance1228.com；自動測試 navigator.webdriver、?noclarity=1、本機都不載入）。
+   個資遮住：票夾、票券、QR、收票／領取資料、帳戶 Email、登入框、寫信頁都加 data-clarity-mask（輸入框 Clarity 本來就遮）。 */
+(function () { try {
+  if (navigator.webdriver || /[?&]noclarity=1/.test(location.search) || !/(^|\.)chance1228\.com$/.test(location.hostname)) return;
+  (function (c, l, a, r, i, t, y) { c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); }; t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i; y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y); })(window, document, "clarity", "script", "zcan6fcwjg");
+  var SEL = '.tk-layer[data-layer="wallet"],.tk-layer[data-layer="pass"],.tk-layer[data-layer="v2qr"],.tk-layer[data-layer="mcode"],.tk-layer[data-layer="dcl"],.tkc-who,.tkb-mail,.mx-ro,.tk-to,.cx9-form,.tkb-in,#tk-sheet,.tk-sheet,canvas,.tk-qr,.dcl';
+  function mask(root) { try { (root.querySelectorAll ? root.querySelectorAll(SEL) : []).forEach(function (el) { if (!el.hasAttribute("data-clarity-mask")) el.setAttribute("data-clarity-mask", "true"); }); if (root.matches && root.matches(SEL)) root.setAttribute("data-clarity-mask", "true"); } catch (e) {} }
+  function start() { mask(document); new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) mask(n); }); }); }).observe(document.documentElement, { childList: true, subtree: true }); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+} catch (e) {} })();
+</script>
 </head>
 <body>
 <script>/* B223V：登記所有 new Audio() 實例（只登記，不改行為），供迷你播放列讀播放狀態 */
@@ -12882,7 +12893,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B505T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B506T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
