@@ -76,7 +76,7 @@
     "名額已為你保留": "Your spot is reserved", "時間以伺服器為準": "Server time applies", "將寄出的是你剛剛預覽、已固定的內容：": "This is the locked version you just previewed:",
     "訂單": "Order", "金額": "Amount",
     "付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。": "After payment, the letter you previewed will be sent.\nIt can’t be edited or withdrawn. Replies aren’t guaranteed.",
-    "付款處理中": "Processing payment…", "正在確認剛剛的付款…": "Checking your last payment…", "綠界的結果回來之前，請先不要再付一次。": "Please don’t pay again until the result comes back.", "付款沒有完成。": "Payment wasn’t completed.", "DEMO 模擬付款 · 不會收費": "DEMO payment · No charge", "回到預覽，重新確認名額": "Back to preview to confirm again", "先不付款": "Not now",
+    "付款處理中": "Processing payment…", "正在確認剛剛的付款…": "Checking your last payment…", "綠界的結果回來之前，請先不要再付一次。": "Please don’t pay again until the result comes back.", "付款沒有完成。": "Payment wasn’t completed.", "這封信還沒寄出，可以再付一次。": "Your letter hasn’t been sent. You can pay again.", "還在確認上一筆付款。": "Still checking your last payment.", "請過幾秒再按一次，避免重複付款。": "Please try again in a few seconds so you aren’t charged twice.", "你的草稿仍在。按下面回到預覽，重新確認名額就能再寄。": "Your draft is still here. Go back to the preview and confirm a spot again to send it.", "保留時間已到，名額已釋放。你的草稿仍在。按下面回到預覽，重新確認名額就能再寄。": "The hold has ended and the spot was released. Your draft is still here — go back to the preview and confirm a spot again to send it.", "DEMO 模擬付款 · 不會收費": "DEMO payment · No charge", "回到預覽，重新確認名額": "Back to preview to confirm again", "先不付款": "Not now",
     "保留時間已到，名額已釋放。": "Your hold expired and the spot was released.", "你的草稿仍在。": "Your draft is still here.", "尚未付款。": "Not paid yet.", "付款沒有完成。": "Payment didn’t go through.", "付款沒有完成": "Payment didn’t go through", "尚未付款": "Not paid yet",
     "保留已到期，名額已釋放。你的草稿仍在。": "Your hold expired and the spot was released. Your draft is still here.",
     "這封信沒有寄出": "This letter wasn’t sent", "正在確認付款結果…請勿重複付款": "Confirming your payment… Please don’t pay again.",
@@ -922,27 +922,28 @@ function loginSheet(){
 
 /* 付款 sheet：保留期限以後端為準，內容已固定 */
 function openPay(view){
-  var o=view.order,h=view.hold,per=view.period,busy=false,msg="",cdT=null,pollT=null,started=0;
+  var o=view.order,h=view.hold,per=view.period,busy=false,msg="",cdT=null,pollT=null,started=0,gone=false;
   sheet(function(){
-    var expired=!busy&&h.status!=="active"&&h.status!=="verifying"&&o.status!=="paid";
+    var expired=gone||(!busy&&h.status!=="active"&&h.status!=="verifying"&&o.status!=="paid");   /* B516T：後台說過期就一定當過期 */
     return'<div class="grab"></div><h2>名額已為你保留</h2>'+
      '<div class="cd"><span class="small" style="color:var(--text)">保留到 '+fmtMD(h.expiresAt)+'<br><span style="color:var(--muted)">時間以伺服器為準</span></span><b id="cd">'+(expired?"00:00":mmss(h.expiresAt-now()))+'</b></div>'+
      '<span class="small">將寄出的是你剛剛預覽、已固定的內容：</span><div class="snap">'+esc(summary(h.snap.body,120))+'</div>'+
      '<ul class="facts"><li><span>訂單</span><b>'+esc(o.id)+'</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(o.readBy)+' 前</b></li><li><span>金額</span><b class="num">NT$'+o.amount+'</b></li></ul>'+
-     '<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>'+
+     (expired?'':'<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>')+   /* B516T：過期時不顯示付款說明，免得看起來像還能付 */
      '<div id="payMsg">'+msg+'</div>'+
-     '<div class="stack"><button class="btn btn-gold" id="pay" type="button"'+(busy||expired?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>'+
+     '<div class="stack">'+(expired?'':'<button class="btn btn-gold" id="pay" type="button"'+(busy?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>')+
      (DEMO_UI?'<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>':'')+
-     (expired?'<button class="btn btn-ghost" id="again" type="button">回到預覽，重新確認名額</button>':'')+
+     (expired?'<button class="btn btn-gold" id="again" type="button">回到預覽，重新確認名額</button>':'')+
      '<button class="btn btn-ghost" id="cancel" type="button"'+(busy?' disabled':'')+'>先不付款</button></div>';
   },function(close0,repaint){
     function close(){clearInterval(cdT);clearInterval(pollT);close0()}
     function wire(){
       $("cancel").onclick=function(){if(busy)return;close();render();if(h.status==="active")toast("名額保留到 "+fmtMD(h.expiresAt)+"，到期未付款會釋放。")};
-      $("pay").onclick=function(){
+      if($("pay"))$("pay").onclick=function(){
         if(busy)return;busy=true;msg="";repaint();wire();started=Date.now();
         API.pay(me(),o.id,SIM.pay,SIM.deliver).then(function(r){
-          if(r.err==="expired"){busy=false;o=r.view.order;h=r.view.hold;msg='<div class="state err"><b>保留時間已到，名額已釋放。</b><span>你的草稿仍在。</span></div>';repaint();wire();return}
+          if(r.err==="expired"){busy=false;gone=true;o=r.view.order;h=r.view.hold;msg='<div class="state err"><b>保留時間已到，名額已釋放。</b><span>你的草稿仍在。按下面回到預覽，重新確認名額就能再寄。</span></div>';repaint();wire();return}
+          if(r.err==="checking"){busy=false;o=r.view.order;h=r.view.hold;msg='<div class="state info" role="status"><b>還在確認上一筆付款。</b><span>請過幾秒再按一次，避免重複付款。</span></div>';repaint();wire();return}   /* B516T */
           clearInterval(pollT);pollT=setInterval(poll,700);
         });
       };
@@ -954,8 +955,8 @@ function openPay(view){
         if(!r.view||!document.getElementById("pay"))return;o=r.view.order;h=r.view.hold;
         if(o.status==="paid"||o.status==="refund_pending"||o.letterId||(o.status==="confirming"&&Date.now()-started>2600)){close();go("ritual",o.id);return}
         if(o.status==="cancelled"||o.status==="failed"){
-          clearInterval(pollT);busy=false;var live=h.status==="active";
-          msg='<div class="state err" role="alert"><b>'+(o.status==="cancelled"?"尚未付款。":"付款沒有完成。")+'</b><span>'+(live?"名額保留到 "+fmtMD(h.expiresAt)+"，可以再試一次。":"保留已到期，名額已釋放。你的草稿仍在。")+'</span></div>';
+          clearInterval(pollT);busy=false;var live=h.status==="active"||h.status==="verifying";   /* B516T：付款沒成功回來，保留還在等結果＝可以再付（後台會再給 2 分鐘） */
+          msg='<div class="state err" role="alert"><b>'+(o.status==="cancelled"?"尚未付款。":"付款沒有完成。")+'</b><span>'+(live?"這封信還沒寄出，可以再付一次。":"保留已到期，名額已釋放。你的草稿仍在。")+'</span></div>';
           repaint();wire();say(o.status==="cancelled"?"尚未付款":"付款沒有完成");
         }
       });
@@ -965,16 +966,16 @@ function openPay(view){
     RT.payBack=function(){
       if(!busy||!document.getElementById("pay"))return;
       busy=false;clearInterval(pollT);var t0=Date.now();
-      msg='<div class="state info" role="status"><b>正在確認剛剛的付款…</b><span>綠界的結果回來之前，請先不要再付一次。</span></div>';repaint();wire();$("pay").disabled=true;
+      msg='<div class="state info" role="status"><b>正在確認剛剛的付款…</b><span>綠界的結果回來之前，請先不要再付一次。</span></div>';repaint();wire();if($("pay"))$("pay").disabled=true;
       function chk(){
         if(!document.getElementById("pay")){clearInterval(pollT);return}
         API.status(o.id).then(function(r){
           if(!r.view||!document.getElementById("pay"))return;o=r.view.order;h=r.view.hold;
           if(o.status==="paid"||o.status==="refund_pending"||o.letterId){close();go("ritual",o.id);return}
           if(o.status==="confirming"&&Date.now()-t0<45000)return;   /* 後台約 20 秒內會跟綠界核對完 */
-          clearInterval(pollT);var live=h.status==="active";
-          msg='<div class="state err" role="alert"><b>付款沒有完成。</b><span>'+(live?"這封信還沒寄出，名額保留到 "+fmtMD(h.expiresAt)+"，可以再付一次。":"保留時間已到，名額已釋放。你的草稿仍在。")+'</span></div>';
-          repaint();wire();if(!live)$("pay").disabled=true;say("付款沒有完成");
+          clearInterval(pollT);var live=h.status==="active"||h.status==="verifying";gone=!live;   /* B516T：同上 */
+          msg='<div class="state err" role="alert"><b>付款沒有完成。</b><span>'+(live?"這封信還沒寄出，可以再付一次。":"保留時間已到，名額已釋放。你的草稿仍在。按下面回到預覽，重新確認名額就能再寄。")+'</span></div>';
+          repaint();wire();say("付款沒有完成");
         });
       }
       chk();pollT=setInterval(chk,1500);
