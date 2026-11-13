@@ -1,0 +1,97 @@
+name: 影片下載 App 打包
+
+on:
+  push:
+    branches: [claude/sweet-clarke-vw0ihl]
+    paths:
+      - tools/video-downloader/desktop/**
+      - .github/workflows/video-downloader.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            deno: deno-aarch64-apple-darwin.zip
+            asset: 影片下載-Mac-M晶片.zip
+          - os: macos-15-intel
+            deno: deno-x86_64-apple-darwin.zip
+            asset: 影片下載-Mac-Intel.zip
+          - os: windows-latest
+            deno: deno-x86_64-pc-windows-msvc.zip
+            asset: 影片下載-Windows.exe
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: tools/video-downloader/desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 安裝工具
+        run: python -m pip install -U "yt-dlp[default]" imageio-ffmpeg certifi pyinstaller
+      - name: 下載 deno（YouTube 需要）
+        run: |
+          curl -sSL -o deno.zip "https://github.com/denoland/deno/releases/latest/download/${{ matrix.deno }}"
+          unzip -o deno.zip && rm deno.zip
+      - name: 打包
+        run: |
+          DENO=deno; [ "$RUNNER_OS" = Windows ] && DENO=deno.exe
+          if [ "$RUNNER_OS" = macOS ]; then MODE=--onedir; else MODE=--onefile; fi
+          pyinstaller --noconfirm --windowed $MODE --name VideoDownloader \
+            --osx-bundle-identifier com.chance1228.videodownloader \
+            --add-binary "$DENO:." \
+            --collect-all yt_dlp --collect-all yt_dlp_ejs --collect-all imageio_ffmpeg --collect-data certifi \
+            downloader_app.py
+      - name: 自我測試（真的去 YouTube / IG 下載）
+        continue-on-error: true
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then BIN=dist/VideoDownloader.app/Contents/MacOS/VideoDownloader; else BIN=dist/VideoDownloader.exe; fi
+          "$BIN" --selftest selftest.txt \
+            "https://www.youtube.com/watch?v=jNQXAC9IVRw" \
+            "https://www.instagram.com/reel/DBfRk8nPNfg/" ; echo "exit=$?"
+          cat selftest.txt || echo "沒有測試結果"
+      - name: 整理檔案
+        run: |
+          mkdir -p ../out
+          if [ "$RUNNER_OS" = macOS ]; then
+            mv dist/VideoDownloader.app "dist/影片下載.app"
+            ditto -c -k --keepParent "dist/影片下載.app" "../out/${{ matrix.asset }}"
+          else
+            cp dist/VideoDownloader.exe "../out/${{ matrix.asset }}"
+          fi
+          ls -la ../out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}
+          path: tools/video-downloader/out/*
+
+  release:
+    needs: build
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: video-downloader
+          name: 影片下載 App
+          target_commitish: ${{ github.sha }}
+          make_latest: false
+          files: out/*
+          body: |
+            貼上 YouTube / IG 影片網址就下載。什麼都不用裝。
+            - Mac（2020 年後的 Mac 大多是 M 晶片）：下載「影片下載-Mac-M晶片.zip」
+            - 舊 Mac（Intel）：下載「影片下載-Mac-Intel.zip」
+            - Windows：下載「影片下載-Windows.exe」
