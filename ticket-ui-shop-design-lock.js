@@ -308,7 +308,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   var DEMO = (function () {
     var now = Date.now();
     var ev = [{ id: "meet-20261227", code: "1227", name: "CHANCE 生日會", startAt: (/[?&]tkopen=1/.test(location.search) ? new Date(now + 3600e3).toISOString() : "2026-12-27T14:30:00+08:00"), venue: "微風影城8樓A廳", capacity: 120, sold: 4, left: 116, tiers: [   /* B369T：示範資料改成跟現在的生日會一樣（一種票 NT$1,880、120 席），Tuner 看到的才是真的樣子 */
-                { key: "ga", name: "入場票", price: 1880, cap: 120, sold: 4, left: 116, numFrom: 1, numTo: 120, perks: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20261227" },
+                { key: "ga", name: "入場票", price: 1880, cap: 120, sold: 4, left: 116, numFrom: 1, numTo: 120, perks: ["離場HI FIVE", "6號小卡"], productKey: "meet-20261227-ga", onSale: true } ], productKey: "meet-20261227", onSale: true, photoPrice: 0, photoOnSale: false, ppKey: "pp-meet-20261227" },
               { id: "meet-20270213", code: "0213", name: "THE SKY 專輯聽片會", startAt: "2027-02-13T13:00:00+08:00", venue: "微風影城 A 廳", capacity: 181, sold: 81, left: 100, tiers: [
                 { key: "vvip", name: "VVIP 守護席", price: 2800, cap: 35, sold: 6, left: 29, numFrom: 1, numTo: 35, perks: ["一對一 60 秒（含合照，官方攝影師拍攝）", "親簽海報＋署名（寫上你的稱呼）", "照片免費（自己的合格合照成片全數下載）", "最先入場"], productKey: "meet-20270213-vvip", onSale: true },
                 { key: "vip", name: "VIP", price: 1800, cap: 65, sold: 20, left: 45, numFrom: 36, numTo: 100, perks: ["1:1 官方合照", "親簽海報", "照片免費（自己的合格合照成片全數下載）", "第二批入場"], productKey: "meet-20270213-vip", onSale: true },
@@ -3050,7 +3050,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         /* B437T（CÉON 11/06）：購票頁只放重點，順序照買票的人想知道的：得到什麼 → 什麼時候、在哪 → 名額。原文 groups 一字不動，放進付款前的購票須知 */
         key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11/15 12:00（台北時間）開放購票" },
         groups: [
-        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
+        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
         ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "入場出示 App 票夾或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "亦可以備註留下全名跟電話在12/27現場領取時請人代領"],
         ["離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ],
@@ -3652,7 +3652,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(evId, k), out = it.left <= 0, on = !!o["m" + k] && !own && !out;
       return '<button type="button" class="tkb-addon tkm-row' + (on ? " on" : "") + (own || out ? " off" : "") + '" ' + attr + '="' + act + '" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '>' +
         '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
-        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : mStockTx(it, false) ? "・" + esc(mStockTx(it, false)) : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
+        '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : mStockTx(it, sxEN()) ? "・" + esc(mStockTx(it, sxEN())) : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
     var h = row("b") + (act === "co-m" && TK_ADDON_B_ONLY ? "" : row("h")), r = mResolve(mi, act === "co-m" ? tkSel(o) : mSel(o));
     if ((act === "co-m" ? tkSel(o) : mSel(o)) === "bh" && r) h += r.code === "s"
@@ -3697,14 +3697,14 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var it = I[k]; if (!it) return "";
       var own = mOwned(ev.id, k) || (k === "s" && (mOwned(ev.id, "b") || mOwned(ev.id, "h"))), out = it.left <= 0;
       var on = !own && !out && (k === "s" ? sm : (!!o["m" + k] && !sm));
-      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : k !== "s" ? mStockTx(it, false) : "";   // B437T：現場領取只在標題講一次；B481T：其他時候寫「限量 N 組・剩 M 組」
+      var sub = own ? "你已購買" : out ? "已售完" : (k !== "s" && sm) ? "已包含在雙件組" : k !== "s" ? mStockTx(it, sxEN()) : "";   // B437T：現場領取只在標題講一次；B481T：其他時候寫「限量 N 組・剩 M 組」
       var pic = it.img || "";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "b" && (!pic || /(?:^|\/)a3-poster-set\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-concept.jpg";
       if ((ev.id === "meet-20261227" || ev.id === "meet-test") && k === "h" && (!pic || /(?:^|\/)a3-set-no6-card\.jpg(?:\?.*)?$/.test(pic))) pic = "shop-assets/merch-1227/poster-card-concept.jpg";
       // B376T：跟周邊購買頁同一個版型（一件一張卡：圓點、圖、品名、價格另起一行、說明），顏色配票紙
       return '<button type="button" class="mxp-it' + (on ? " on" : "") + '" data-act="pre-m" data-k="' + k + '" aria-pressed="' + on + '"' + (own || out ? " disabled" : "") + '><i aria-hidden="true"></i>' +
         (pic ? '<img src="' + esc(asset(pic)) + '" alt="">' : '') +
-        '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算' + (mStockTx(it, false) ? '・' + esc(mStockTx(it, false)) : '') + '</em>' : '') + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span></button>';
+        '<span class="mxp-t"><b>' + esc(k === "s" ? (it.short || it.name) : it.name) + '</b><span>＋' + nt(it.price) + (k === "s" && !out ? '<em>★ 最划算' + (mStockTx(it, sxEN()) ? '・' + esc(mStockTx(it, sxEN())) : '') + '</em>' : '') + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span></button>';
     };
     var q = mQ(ev.id, o), qx = mQMax(ev.id, o);
     var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '';
@@ -3767,7 +3767,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var I = mi.m.items, ks = ["b", "h", "s"].filter(function (k) { return I[k]; }); if (!ks.length) return "";
     var h = '<div class="tkb-sec tkm-sec">生日限定周邊 <small class="tkm-cut">' + (mi.m.open ? (mCut(mi) ? "預購至 " + esc(mCut(mi)) : "預購中") : mi.m.onSale ? "預購已截止" : "即將開賣") + '</small></div><div class="tkm-grid">';
     ks.forEach(function (k) { var it = I[k];
-      h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? esc(mStockTx(it, false) || "售完為止") : "已售完") + '</i></div></div>'; });
+      h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? esc(mStockTx(it, sxEN()) || "售完為止") : "已售完") + '</i></div></div>'; });
     h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。買票時可在結帳頁加購 A3 海報組；A3 海報組＋6 號小卡組合限寄送到台灣以外的地區。</div>';
     if (mi.m.open) h += '<button class="tkb-cta ghost wide tkm-open" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 <i>→</i></button>';
     return h;
@@ -3811,13 +3811,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* B384T（CÉON 11/02 看過示意圖）：周邊卡片的第二顆膠囊。剩 10 組以下＝紅色「剩 N 組（・至 M/D）」，限量先不顯示；
      否則「限量 N 組・售完為止」或「限量 N 組・至 M/D」。購買頁比較寬（wide）寫完整「預購至 M/D 23:59」。售完回 null（卡片本身寫已售完）。 */
   /* B481T（CÉON 11/10）：有限量的周邊，所有地方都寫「限量 N 組・剩 M 組」（不再只有剩 10 組以下才寫）；剩 10 組以下仍是紅色 */
-  function mStockTx(it, en) { var cap = Number(it && it.cap) || 0, L = Number(it && it.left); if (!cap || !(L > 0)) return ""; return en ? L + " of " + cap + " left" : "限量 " + cap + " 組・剩 " + L + " 組"; }
+  function mStockTx(it, en) { var cap = Number(it && it.cap) || 0, L = Number(it && it.left); if (!cap || !(L > 0)) return ""; return en ? "Limited to " + cap + " sets · " + L + " sets left" : "限量 " + cap + " 組・剩 " + L + " 組"; }   /* B532T（CÉON）：英文照中文逐字翻 */
   function mPill2(it, cut, en, wide) {
     if (!it || !(it.left > 0)) return null;
     var hot = it.left <= 10, cap = Number(it.cap) > 0;
     var due = cut ? (wide ? (en ? "pre-order until " + cut + " 23:59" : "預購至 " + cut + " 23:59") : (en ? "until " + cut : "至 " + cut)) : "";
     if (cap) return { t: mStockTx(it, en) + (due ? (en ? " · " : "・") + due : ""), cls: hot ? "hot" : "" };
-    if (hot) return { t: (en ? it.left + " left" : "剩 " + it.left + " 組") + (due ? (en ? " · " : "・") + due : ""), cls: "hot" };
+    if (hot) return { t: (en ? it.left + " sets left" : "剩 " + it.left + " 組") + (due ? (en ? " · " : "・") + due : ""), cls: "hot" };
     return { t: due ? (en ? due.charAt(0).toUpperCase() + due.slice(1) : due.replace(/^至/, "預購至")) : (en ? "While stocks last" : "售完為止"), cls: "due" };
   }
   function mxHTML() {
@@ -4361,7 +4361,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function dT() {   // demo 預先擁有的票：tkppt=1 時跟著 PPT 版變入場票
     return /[?&]tkppt=1/.test(location.search)
       ? { tier: "ga", name: "入場票", perks: ["完整生日活動入場・發餐", "第一支 MV 首播・嘉賓演出", "生日牆全體合照・全場大合照", "散場擊掌送客", "現場抽獎資格（5 位：手鍊／帽T）"] }
-      : { tier: "ga", name: "入場票", perks: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"] };   // B369T：跟現在的生日會一樣
+      : { tier: "ga", name: "入場票", perks: ["離場HI FIVE", "6號小卡"] };   // B369T：跟現在的生日會一樣
   }
   var DMO = [], DMCFG = null;
   function demoPPT(ev) {

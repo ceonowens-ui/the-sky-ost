@@ -181,7 +181,7 @@
  /* B337T：生日會資訊（CÉON 10/29 13:21 原文 → 英文逐行對照；中文原文一字不改） */
  '生日會資訊':'Birthday Party Info',
  '地點：微風影城8樓A廳':'Venue: Breeze Cinemas, Hall A, 8F',
- '票價：1,880元(含離場HI FIVE、6號小卡、隨機A3海報一張)':'Ticket: NT$1,880 (includes a hi-five on the way out, a No. 6 photo card, and one random A3 poster)',
+ '票價：1,880元(含離場HI FIVE、6號小卡)':'Ticket: NT$1,880 (includes a hi-five on the way out and a No. 6 photo card)',
  '座位名額：120名':'Seats: 120',
  '時間：14:00開始入場、14:30活動開始、16:00活動結束':'Time: Doors open 14:00, event starts 14:30, event ends 16:00',
  '11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)':'Tickets go on sale 11/15 at 12:00 (Taipei time) (please come early at 13:20 on the day to collect your items on site)',
