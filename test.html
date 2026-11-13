@@ -367,7 +367,9 @@ html, body {
 
 /* ---- 分頁 screen ---------------------------------------------------- */
 .screen { position: absolute; inset: 0; display: none; overflow-y: auto;
-          -webkit-overflow-scrolling: touch; }
+          -webkit-overflow-scrolling: touch;
+          overflow-x: hidden; overscroll-behavior-x: none; scrollbar-width: none; }   /* B547T（CÉON 11/13）：手指往左滑時右邊出現一條白色長條（iPhone 的捲動條）→ 分頁不能左右拖、捲動條不顯示 */
+.screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
 .screen.active { display: block; }
 .screen-sub { background: radial-gradient(120% 60% at 50% 0%, var(--bg-top), var(--bg) 70%);
               padding: 62px 0 calc(96px + env(safe-area-inset-bottom)); }
@@ -13160,7 +13162,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B546T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B547T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
