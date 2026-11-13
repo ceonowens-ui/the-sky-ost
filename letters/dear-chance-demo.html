@@ -843,7 +843,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
   var hold=ov.myHold&&ov.myHold.draftId===d.id?ov.myHold:null;
   return'<section class="screen">'+
 
-   (hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>'+(holdEditable(hold)?'保留到 '+fmtMD(hold.expiresAt)+'。改完回到確認頁再按一次，付款時就會寄出新的內容。':'付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。')+'</span></div>'
+   (false&&hold?'<div class="state info"><b>這封信有一個保留中的名額</b><span>'+(holdEditable(hold)?'保留到 '+fmtMD(hold.expiresAt)+'。改完回到確認頁再按一次，付款時就會寄出新的內容。':'付款會寄出保留當下的版本，現在的修改不會改變那筆訂單。保留到 '+fmtMD(hold.expiresAt)+'。')+'</span></div>'
     :sentOut(ov)?'<div class="state info"><b>這個月的信已經寄出。</b><span>每人每月只能寄 '+(ov.period?ov.period.perUser:1)+' 封。現在寫的會先存成草稿，'+nextOpenTxt(ov)+'開放後才能付款寄出。</span></div>':'')+
    '<div class="paper"><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><div class="mast" aria-hidden="true">DEAR CHANCE</div>'+
     '<div class="salute" aria-hidden="true">Dear Chance,</div><label class="sr" for="body">信件正文，寫給 CHANCE</label>'+
@@ -916,16 +916,20 @@ function payReturn(){
   if(!CL.active||SIM.role!=="fan"||RT.retBusy)return;
   var pg=null;try{pg=JSON.parse(localStorage.getItem("dc:paying")||"null")}catch(e){}
   if(!pg||pg.o!==CL.active.orderId||Date.now()-(pg.t||0)>30*60e3)return;
-  RT.retBusy=true;reserving=false;var oid=CL.active.orderId,did=CL.active.draftId,t0=Date.now();
+  RT.retBusy=true;reserving=false;var oid=CL.active.orderId,did=CL.active.draftId,t0=Date.now(),R0=R;
+  var moved=function(){return R!==R0&&!(R&&R0&&R.name===R0.name&&R.param===R0.param)};   /* B539T：等結果的時候人已經按了返回、去了別頁 → 不要再把他拉回來 */
   (function chk(){
     API.status(oid,true).then(function(x){
       var o=x&&x.view&&x.view.order;
-      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
+      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}var bw2=RT.bootWait;RT.bootWait=false;if(!bw2&&moved()&&R&&R.name!=="preview"){toast("付款完成，信已寄出");return}stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
       if(o&&o.status==="confirming"&&Date.now()-t0<45000){setTimeout(chk,1500);return}
       RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}
       if(!x||!x.view||x.view.hold.status!=="active"){CL.active=null;cSave()}
-      RT.payNote=true;lastErr=null;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:home()});render();window.scrollTo(0,0);say("付款沒有完成，草稿還在");
-    },function(){RT.retBusy=false})})();
+      lastErr=null;
+      var bw=RT.bootWait;RT.bootWait=false;
+      if(!bw&&(moved()||(R&&R.name==="preview"&&R.param===did))){toast("付款沒有完成，草稿還在");say("付款沒有完成，草稿還在");return}   /* B539T：已經在預覽頁（或人走開了）→ 只跳一個提示，不重畫、不捲動，畫面不跳 */
+      RT.payNote=true;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:home()});render();say("付款沒有完成，草稿還在");
+    },function(){RT.retBusy=false;if(RT.bootWait){RT.bootWait=false;render()}})})();
 }
 RT.payBack=payReturn;
 function loginSheet(){
@@ -1315,7 +1319,7 @@ document.addEventListener("visibilitychange",function(){
   var r=CL.route;if(r&&(r.name==="preview"||r.name==="compose")&&r.param&&!CL.drafts[r.param]){r=null;CL.route=null;cSave()}   /* B536T：草稿已寄出或不在了 → 回首頁，不停在「找不到這封信」 */
   if(CL.active&&SIM.role==="fan"){
     API.status(CL.active.orderId).then(function(x){var o=x.view&&x.view.order;
-      if(o&&o.status==="confirming"){R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};render();payReturn();return}   /* B536T：去過綠界還沒結果 → 問綠界，沒付就回預覽 */
+      if(o&&o.status==="confirming"){R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};top();$("view").innerHTML='<section class="screen"><p class="small" style="text-align:center;margin-top:40px">正在確認付款…</p></section>';RT.bootWait=true;payReturn();if(!RT.retBusy){RT.bootWait=false;render()}return}   /* B539T：先不畫預覽，問到結果才畫，畫面不跳 */   /* B536T：去過綠界還沒結果 → 問綠界，沒付就回預覽 */
       if(o&&(o.letterId||["paid","refund_pending"].indexOf(o.status)>-1)){stack=[{name:home()}];R={name:"ritual",param:o.id}}
       else{if(!o||x.view.hold.status!=="active"){CL.active=null;cSave()}R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};if(R.name!==home())stack=[{name:home()}]}
       render()});
