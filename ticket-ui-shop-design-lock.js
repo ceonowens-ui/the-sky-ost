@@ -3621,7 +3621,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!evId || S.mm[evId] || S.mmTried[evId]) return;
     S.mmTried[evId] = 1;
     api("/ticket/merch?eventId=" + encodeURIComponent(evId)).then(function (j) {
-      if (j && j.ok && j.merch) { S.mm[evId] = { m: j.merch, ship: j.ship, v: j.v || "" }; if (cb) cb(); else S.layers.forEach(renderLayer); if (S.mineMerchWait) { S.mineMerchWait = 0; render(); } }   // B360T：SHOP「我的票」區的周邊訂單
+      if (j && j.ok && j.merch) { S.mm[evId] = { m: j.merch, ship: j.ship, v: j.v || "", ppt: !!j.posterPerTicket }; if (cb) cb(); else S.layers.forEach(renderLayer); if (S.mineMerchWait) { S.mineMerchWait = 0; render(); } }   // B360T：SHOP「我的票」區的周邊訂單
     }).catch(function () {});
   }
   function mLoadMine() {
@@ -3639,14 +3639,32 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (code === "bh") return I.b && I.h ? { code: "bh", price: I.b.price + I.h.price, label: mNm(I.b, "b") + "＋" + mNm(I.h, "h") } : null;
     var it = I[code]; return it ? { code: code, price: it.price, label: it.short || it.name } : null;
   }
-  function mOwned(evId, k) { return S.morders.some(function (o) { return o.eventId === evId && o.items && o.items[k]; }); }
+  /* B551T（CÉON 11/13，粉絲測試）：以前買過一次某樣周邊，那一項就整個變灰「你已購買」，但後台沒有每人限購（perPerson 0）。
+     → 只有後台真的設了「每人限購」才擋。A3 海報組改成「一張票一組」，見 mPosterRoom */
+  function mOwned(evId, k) { var mi = mInfo(evId); if (!mi || !(Number(mi.m.perPerson) > 0)) return false; return S.morders.some(function (o) { return o.eventId === evId && o.items && o.items[k]; }); }
+  /* B551T：SHOP 單買 A3 海報組＝要有門票，可買組數＝持有的票（有效＋已入場）－已買過的海報組（含跟票加購、不含已退）。
+     沒登入看不到票 → 回 null，讓後台判斷（m72 會擋並說明）。跟票一起加購不用這個（一張票一組，在結帳頁算） */
+  function mPosterRoom(evId) {
+    var mi = mInfo(evId); if (!mi || !mi.ppt || !loggedIn()) return null;
+    var tk = S.tickets.filter(function (t) { return t.eventId === evId && (t.status === "valid" || t.status === "used"); }).length;
+    var got = 0; S.morders.forEach(function (o) { if (o.eventId === evId && o.status !== "refunded" && o.items && o.items.b) got += Number(o.items.b) || 0; });
+    return { tickets: tk, bought: got, left: Math.max(0, tk - got) };
+  }
+  function mPosterTx(rm, en) {
+    if (!rm) return en ? "Ticket holders only · 1 set per ticket" : "有門票才能買・每張票 1 組";
+    if (rm.tickets < 1) return en ? "Ticket holders only · 1 set per ticket" : "有門票才能買・每張票 1 組";
+    if (rm.left < 1) return en ? (rm.tickets > 1 ? "All " + rm.tickets + " of your tickets already have a set" : "Your ticket already has a set") : (rm.tickets > 1 ? "你的 " + rm.tickets + " 張票都已買過（每張票 1 組）" : "你的票已經買過 1 組（每張票 1 組）");
+    return en ? "You can buy " + rm.left + " more (1 set per ticket)" : "你還可以買 " + rm.left + " 組（每張票 1 組）";
+  }
   function mCut(mi) { var d = mi && mi.m.cutoff ? tw(mi.m.cutoff) : null; return d ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
   function mCodeFor(ev, b) { var mi = ev && mInfo(ev.id); return mi && mi.m.open && b ? tkSel(b) : ""; }
   /* B343T：後台 M2（/ticket/merch 回 v:"m2"）才開「數量（每筆最多 5 組）」與「沒有票也能現場領（姓名＋電話）」；舊後台照舊 1 組、現場領要有票 */
   var MQ_MAX = 5;
   function mV2(evId) { var mi = mInfo(evId); return !!(mi && mi.v === "m2"); }
   function mTicketCap(o) { var b = S.buy; return b && b.kind === "meet" && (o === b || o === S.pre) ? Math.max(1, Number(b.tq) || 1) : MQ_MAX; }   // B433T（CÉON 11/06）：買票加購周邊，一張票配一組
-  function mQMax(evId, o) { var mi = mInfo(evId); if (!mi) return 1; var I = mi.m.items, c = mSel(o), n = Math.min(MQ_MAX, mTicketCap(o)); ["b", "h"].forEach(function (k) { if ((c === k || c === "bh") && I[k]) n = Math.min(n, Number(I[k].left || 0)); }); return Math.max(1, n); }
+  function mQMax(evId, o) { var mi = mInfo(evId); if (!mi) return 1; var I = mi.m.items, c = mSel(o), n = Math.min(MQ_MAX, mTicketCap(o));
+    if (o && o === S.mx && c === "b") { var rm0 = mPosterRoom(evId); if (rm0) n = Math.min(n, Math.max(1, rm0.left)); }   /* B551T */
+    ["b", "h"].forEach(function (k) { if ((c === k || c === "bh") && I[k]) n = Math.min(n, Number(I[k].left || 0)); }); return Math.max(1, n); }
   function mQ(evId, o) { if (!mV2(evId) || !o) return 1; var q = Math.floor(Number(o.mq || 1)); return Math.max(1, Math.min(q, mQMax(evId, o))); }
   function mQtyHTML(evId, o, act, attr) {
     if (!mV2(evId) || !mSel(o)) return "";
@@ -3839,17 +3857,20 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var ovs = !!o.mh;   /* B531T：選了含 6 號小卡的組合 → 只能寄送、寄送地區不能是台灣 */
     if (ovs) { o.mode = "ship"; o.ship = o.ship || {}; if (o.ship.country === "TW") o.ship.country = ""; }
     if (o.mode === "ship" && !ovs && !(o.ship || {}).country) { var cs0 = (mi.ship && mi.ship.countries) || []; o.ship = o.ship || {}; o.ship.country = cs0.some(function (x) { return x[0] === "TW"; }) ? "TW" : (cs0[0] ? cs0[0][0] : ""); }   // B381T：寄送預設台灣（跟卡包一致），運費和合計一進來就看得到
+    var rmT = mPosterRoom(o.evId); if (rmT && rmT.left < 1 && o.mb) o.mb = false;   /* B551T：海報組已經買滿 → 先取消選取，下面的價格和按鈕才不會算進去 */
     var pick = o.mode === "pickup", r = mResolve(mi, mSel(o)), q = mQ(o.evId, o), mx = mQMax(o.evId, o), sh = o.ship, z = null, fee = pick ? 0 : null;
     if (!pick && sh.country) { var cc = mi.ship.countries.filter(function (x) { return x[0] === sh.country; })[0]; z = cc ? mi.ship.zones[cc[2]] : null; if (z) fee = Number(z[r ? r.code : "b"] || 0); }
     var sub = r ? r.price * q : 0, total = r && fee !== null ? sub + fee : null, day = md(ev.startAt), en = sxEN();
     var A = function (k) { return (o.bad && o.bad[k] ? ' aria-invalid="true" aria-describedby="cx9fe-' + k + '"' : '') + (CX9_REQ[k] ? ' aria-required="true"' : '') + (busy ? ' disabled' : ''); }; cx9FE = o.bad || {};   /* B399T：同上 */
     var item = function (k, solo) {   // solo：只有這一個商品，不用選，直接顯示
       var it = I[k]; if (!it) return "";
-      var own = mOwned(o.evId, k), out = !(it.left > 0), on = solo ? !own && !out : !!o["m" + k] && !own && !out;
+      var rmb = k === "b" ? mPosterRoom(o.evId) : null, noRoom = !!(rmb && rmb.left < 1);   // B551T
+      var own = mOwned(o.evId, k) || noRoom, out = !(it.left > 0), on = solo ? !own && !out : !!o["m" + k] && !own && !out;
+      if (noRoom && o["m" + k]) o["m" + k] = false;
       if (solo && on && !o["m" + k]) o["m" + k] = true;
       // B377T：單選（圓點＝只能選一個）；標籤：推薦、限量 N 組、剩 N；組合寫清楚「6 號小卡只隨組合」
       var tags = (k === "h" ? '<i class="mx-tag rec">' + (en ? "Overseas shipping only" : "限寄送台灣以外") + '</i>' : '') + (function () { var p2 = own ? null : mPill2(it, mCut(mi), en, true); return p2 ? '<i class="mx-tag' + (p2.cls ? " " + p2.cls : "") + '">' + esc(p2.t) + '</i>' : ''; })();   // B384T：推薦＋一顆（剩 ≤10 紅色「剩 N 組・預購至…」，否則「限量 N 組・售完為止／預購至…」）   // B381T：期限也放在商品卡上（原本只在小標旁）；B382T：推薦膠囊帶理由；後台沒給 cutoff 就寫「售完為止」，不自己編日期；B383T：有 cutoff 時期限與售完為止合成一顆
-      var sub = own ? "你已購買" : out ? "已售完" : k === "h" ? "A3 海報組 ＋ 6 號小卡・限寄送到台灣以外的地區" : esc(it.perk || "");
+      var sub = out ? "已售完" : k === "b" && mInfo(o.evId) && mInfo(o.evId).ppt ? esc(mPosterTx(rmb, en)) : own ? "你已購買" : k === "h" ? "A3 海報組 ＋ 6 號小卡・限寄送到台灣以外的地區" : esc(it.perk || "");
       if (solo) return '<div class="cx9-sum1 mx-it solo' + (on ? " on" : "") + '" data-k="' + k + '">' + (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></div>';
       return '<button type="button" role="radio" aria-checked="' + on + '" class="cx9-sum1 mx-it' + (on ? " on" : "") + '" data-mx="item" data-k="' + k + '"' + (own || out || busy ? " disabled" : "") + '><i aria-hidden="true"></i>' +
         (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></button>';
@@ -3861,7 +3882,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var h = '<div class="cx9 cx9-c mx">' + cx9Bar("生日限定周邊") +   // B377T：這頁還在選商品，不叫「確認訂單」
       (o.note ? '<p class="cx9-backnote" role="status">' + esc(o.note) + '</p>' : '') + '<h3 class="cx9-h3">' + (o.only ? "商品" : "選擇商品") + '</h3>' + (o.only && I[o.only] ? item(o.only, true) : item("b") + item("h")) +
       (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
-      (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '') +
+      (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : (r && r.code === "b" && mInfo(o.evId) && mInfo(o.evId).ppt) ? (en ? '1 set per ticket' : '每張票 1 組') : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '') +
       '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
         '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + ((hasT || v2) && !ovs ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (ovs ? (en ? "Not for this set (overseas only)" : "這個組合限寄送台灣以外") : v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
@@ -3906,7 +3927,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var b = e.target.closest && e.target.closest("[data-mx]"), o = S.mx; if (!b || b.disabled || !o) return;
     var a = b.getAttribute("data-mx");
     if (a === "zoom") { e.stopPropagation(); return mxZoom(b.getAttribute("data-k")); }   // B378T：點圖放大，不影響選擇
-    if (a === "item") { var k = b.getAttribute("data-k"); if (mOwned(o.evId, k)) return; o.mb = k === "b"; o.mh = k === "h"; o.err = ""; o.bad = null; hap(8); mSheet(); var L5 = layerEl("mxc"); dotPop(L5 && L5.querySelector('.mx-it.on[data-k="' + k + '"] > i')); return; }   // B377T：單選
+    if (a === "item") { var k = b.getAttribute("data-k"); if (mOwned(o.evId, k)) return; if (k === "b") { var rmx = mPosterRoom(o.evId); if (rmx && rmx.left < 1) return; } o.mb = k === "b"; o.mh = k === "h"; o.err = ""; o.bad = null; hap(8); mSheet(); var L5 = layerEl("mxc"); dotPop(L5 && L5.querySelector('.mx-it.on[data-k="' + k + '"] > i')); return; }   // B377T：單選
     if (a === "minus" || a === "plus") { o.mq = Math.max(1, Math.min(mQ(o.evId, o) + (a === "plus" ? 1 : -1), mQMax(o.evId, o))); hap(6); return mSheet(); }
     if (a === "m-pick" || a === "m-ship") { var was = o.mode; o.mode = a === "m-pick" ? "pickup" : "ship"; o.err = ""; o.bad = null; mSheet(); if (was !== o.mode) { hap(8); var L4 = layerEl("mxc"); dotPop(L4 && L4.querySelector(".cx9-mth .on > i")); } return; }   // B385T：圓點彈一下
     if (a === "terms") return cx9OpenAcc(layerEl("mxc"));   // B383T：提示列尾端「購買須知」→ 展開下方摺疊並捲過去
