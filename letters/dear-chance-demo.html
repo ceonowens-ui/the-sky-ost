@@ -442,6 +442,29 @@ th{color:var(--muted);font-weight:500;background:rgba(36,34,41,.6)}
 .rules .pending{color:var(--danger)}
 
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;max-width:min(92vw,400px);padding:12px 16px;border-radius:14px;background:#2A2830;border:1px solid var(--border);font-size:14.5px;line-height:1.5;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:up .25s ease both}
+/* B543T：付款按鈕動畫（跟購票、周邊、卡包同一套）：長條縮成圓圈轉圈 → 成功畫 ✓／沒付或失敗長回原本的按鈕 */
+.pm{position:relative;overflow:hidden}
+.pm .pm-t{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:opacity .15s}
+.pm .pm-spin,.pm .pm-ck{position:absolute;inset:0;margin:auto;width:26px;height:26px;opacity:0;transition:opacity .2s;color:#17130b}
+.pm .pm-spin{border:2.5px solid rgba(23,19,11,.25);border-top-color:#17130b;border-radius:50%}
+.pm.pm-busy{width:52px;height:52px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:999px!important;margin-left:auto!important;margin-right:auto!important;align-self:center;display:block}
+.pm.pm-busy,.pm.pm-busy[disabled]{background:linear-gradient(90deg,#b8964f,#d6b66f 52%,#f0dca8)!important;color:#17130b!important;opacity:1!important;box-shadow:none}
+.pm.pm-busy .pm-t{opacity:0}
+.pm.pm-busy .pm-spin{opacity:1;animation:pmRot .8s linear infinite}
+.pm.pm-in{animation:pmShrink .38s cubic-bezier(.65,0,.35,1) both}
+.pm.pm-done .pm-spin{opacity:0;animation:none}
+.pm.pm-done .pm-ck{opacity:1}
+.pm .pm-ck path{stroke-dasharray:24;stroke-dashoffset:24}
+.pm.pm-done .pm-ck path{animation:pmDraw .35s .05s ease-out forwards}
+.pm.pm-out,.pm.pm-back{white-space:nowrap;margin-left:auto!important;margin-right:auto!important;align-self:center}   /* 長回來的時候從中間往兩邊長，字不換行 */
+.pm.pm-out{animation:pmGrow .38s cubic-bezier(.65,0,.35,1) both}
+.pm.pm-back{animation:pmGrow .38s cubic-bezier(.65,0,.35,1) both,pmShake .42s .38s}
+@keyframes pmShrink{from{width:100%}to{width:52px}}
+@keyframes pmGrow{from{width:52px}to{width:100%}}
+@keyframes pmRot{to{transform:rotate(360deg)}}
+@keyframes pmDraw{to{stroke-dashoffset:0}}
+@keyframes pmShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@media(prefers-reduced-motion:reduce){.pm.pm-in,.pm.pm-out,.pm.pm-back,.pm.pm-busy .pm-spin{animation:none!important}.pm.pm-done .pm-ck path{animation:none;stroke-dashoffset:0}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 @media (prefers-reduced-motion:reduce){
@@ -886,7 +909,7 @@ function openSend(d,note){
     RT.sendOpening=false;if(RT.sendClose)return;
     var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box,price=ov.myHold?ov.myHold.order.amount:(per?per.price:99);
     sheet('<div class="grab"></div><button class="sheet-x" data-p="x" type="button" aria-label="關閉">✕</button><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
-      '<div id="sendMsg">'+(note&&!blocked?'<div class="state err" role="alert"><b>付款沒有完成，草稿還在。</b><span>再按一次「付款並寄出」就好。</span></div>':'')+'</div>'+
+      '<div id="sendMsg">'+''+'</div>'+
       (per?'<ul class="facts"><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>價格</span><b><span class="num">NT$'+price+'</span><span style="font-weight:400;color:var(--muted)"> ・每人每月 '+per.perUser+' 封</span></b></li></ul>':'')+
       (blocked?'':'<p class="warn">付款成功後，會寄出這封信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
         '<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label>')+
@@ -902,7 +925,7 @@ function openSend(d,note){
       var consent=$("consent"),btn=$("send");if(!consent||!btn)return;
       consent.onchange=function(){btn.disabled=!consent.checked||reserving};
       var errs={full:"本月名額已滿，草稿已保存。",closed:"本期收信已結束，草稿已保存。",notopen:"本期尚未開放收信，草稿已保存。",already:"你本月的心意已經寄出，草稿已保存。",paused:"本期暫停收新信，草稿已保存。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信，草稿已保存。",checking:"還在確認上一筆付款，請過幾秒再按一次。",payform:"暫時無法前往付款，請再按一次。"};
-      function fail(code){var m=errs[code]||"暫時無法前往付款，請再按一次。你的草稿仍在。";var box2=$("sendMsg");if(box2)box2.innerHTML='<div class="state err" role="alert"><b>'+esc(m)+'</b></div>';sendReset();say(m)}
+      function fail(code){var m=errs[code]||"暫時無法前往付款，請再按一次。你的草稿仍在。";var box2=$("sendMsg");if(box2)box2.innerHTML='<div class="state err" role="alert"><b>'+esc(m)+'</b></div>';sendReset(true);say(m)}
       function reserve(fresh){if(fresh)d.reserveKey=null;var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();return API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key)}
       function pay(r,tries){
         if(done)return;
@@ -911,11 +934,11 @@ function openSend(d,note){
         API.pay(me(),r.view.order.id,SIM.pay,SIM.deliver).then(function(x){
           if(x&&x.err==="expired"&&!tries)return reserve(true).then(function(r2){pay(r2,1)},function(){fail()});   /* 保留過期了：自動重新保留一次再付 */
           if(x&&x.err)return fail(x.err);
-          if(x&&x.ok&&x.view){shut();go("ritual",x.view.order.id);return}   /* 已付過，或 Demo 模擬付款 → 寄出畫面 */
+          if(x&&x.ok&&x.view){pmDone(btn,function(){shut();go("ritual",x.view.order.id)});return}   /* 已付過，或 Demo 模擬付款 → 寄出畫面 */
         },function(){fail()});
       }
       btn.onclick=function(){
-        if(reserving||!consent.checked)return;reserving=true;var box2=$("sendMsg");if(box2)box2.innerHTML="";btn.disabled=true;btn.innerHTML='<span class="spin"></span>前往付款中';
+        if(reserving||!consent.checked)return;reserving=true;var box2=$("sendMsg");if(box2)box2.innerHTML="";pmBusy(btn);
         reserve(false).then(function(r){pay(r,0)},function(){fail()});
       };
     });
@@ -931,19 +954,24 @@ function payReturn(){
   (function chk(){
     API.status(oid,true).then(function(x){
       var o=x&&x.view&&x.view.order;
-      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}var bw2=RT.bootWait;RT.bootWait=false;if(!bw2&&moved()){toast("付款完成，信已寄出");return}if(RT.sendClose)RT.sendClose();stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
+      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}var bw2=RT.bootWait;RT.bootWait=false;if(!bw2&&moved()){toast("付款完成，信已寄出");return}pmDone($("send"),function(){if(RT.sendClose)RT.sendClose();stack=[{name:home()}];setRoute({name:"ritual",param:oid});render()});return}   /* B543T：卡片還開著 → 圓圈裡畫 ✓ 再進寄出畫面 */
       if(o&&o.status==="confirming"&&Date.now()-t0<45000){setTimeout(chk,1500);return}
       RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}
       if(!x||!x.view||x.view.hold.status!=="active"){CL.active=null;cSave()}
       lastErr=null;
       var bw=RT.bootWait;RT.bootWait=false;
-      if(!bw){sendReset();toast("付款沒有完成，草稿還在");say("付款沒有完成，草稿還在");return}   /* B539T：已經在預覽頁（或人走開了）→ 只跳一個提示，不重畫、不捲動，畫面不跳 */
-      stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"compose",param:did}:{name:home()});render();if(CL.drafts[did])openSend(CL.drafts[did],true);say("付款沒有完成，草稿還在");   /* 整頁重新載入後回來：回寫信頁，卡片再滑上來 */
+      if(!bw){sendReset();return}   /* B539T：已經在預覽頁（或人走開了）→ 只跳一個提示，不重畫、不捲動，畫面不跳 */
+      stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"compose",param:did}:{name:home()});render();if(CL.drafts[did])openSend(CL.drafts[did]);   /* 整頁重新載入後回來：回寫信頁，卡片再滑上來 */
     },function(){RT.retBusy=false;if(RT.bootWait){RT.bootWait=false;render()}else sendReset()})})();
 }
 RT.payBack=payReturn;
 /* B540T（CÉON 11/13 錄影：從綠界回來整頁暗一下再亮、勾選被清掉）：回來時不重畫預覽頁，只把按鈕原地恢復（勾選留著） */
-function sendReset(){reserving=false;var b=$("send"),c=$("consent");if(!b)return;b.removeAttribute("aria-busy");if(b.dataset.label)b.textContent=b.dataset.label;b.disabled=!(c&&c.checked)}
+/* B543T：付款按鈕跟其他付款頁一樣——按下縮成圓圈轉圈；沒付回來長回原本的按鈕（不晃、不跳提示）；真的出錯才晃一下 */
+var PM_IN='<span class="pm-spin" aria-hidden="true"></span><svg class="pm-ck" viewBox="0 0 26 26" aria-hidden="true"><path d="M6 13.5l4.5 4.5L20 8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function pmBusy(b){if(!b||b.classList.contains("pm-busy"))return;clearTimeout(b.__pmT);b.innerHTML='<span class="pm-t">'+esc(b.dataset.label||b.textContent)+'</span>'+PM_IN;b.classList.remove("pm-back","pm-out","pm-done");b.classList.add("pm","pm-busy","pm-in");b.disabled=true;b.setAttribute("aria-busy","true")}
+function pmDone(b,then){if(b&&b.classList.contains("pm-busy"))b.classList.add("pm-done");setTimeout(function(){if(then)then()},b&&b.classList.contains("pm-busy")&&!reducedMotion()?420:0)}
+function sendReset(shake){reserving=false;var b=$("send"),c=$("consent");if(!b)return;var was=b.classList.contains("pm-busy");b.classList.remove("pm-busy","pm-in","pm-done");b.removeAttribute("aria-busy");if(b.dataset.label)b.textContent=b.dataset.label;b.disabled=!(c&&c.checked);
+  if(was){b.classList.add("pm",shake?"pm-back":"pm-out");clearTimeout(b.__pmT);b.__pmT=setTimeout(function(){b.classList.remove("pm-back","pm-out")},900)}}
 function loginSheet(){
   sheet('<div class="grab"></div><h2>登入後才能寄出</h2><p class="small">寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。</p><button class="btn btn-gold" id="lg" type="button">'+(DEMO_UI?'以 Email 登入（Demo）':'以 Email 登入')+'</button><button class="btn btn-ghost" id="cancel" type="button">先不要</button>',
    function(close){$("lg").onclick=function(){SIM.role="fan";simSave();close();render();toast(DEMO_UI?"已登入（Demo）":"已登入")};$("cancel").onclick=close});
