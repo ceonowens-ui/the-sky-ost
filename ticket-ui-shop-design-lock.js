@@ -99,7 +99,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
   var TMAIL = "";   // B354T 測試後台只寄「信箱名＋數字」的提示 → B402T（CÉON 11/03）：測試後台已開放所有 Email，不再提示
   var BOOT_QS = location.search;   // B354T：開頁時的網址參數（付款回站判斷用，replaceState 之前先記下）   // 測試後台的登入另外存，不混用
-  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.innerHTML = '<span>測試版・不連正式票務</span><button type="button" id="tk-test-reset">重新測試</button>'; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;display:flex;align-items:center;gap:10px;white-space:nowrap;background:#7a1f1f;color:#fff;font:600 14px/1.3 -apple-system,sans-serif;padding:5px 5px 5px 12px;border-radius:0 0 10px 10px"; tb.querySelector("button").style.cssText = "font:700 14px/1 -apple-system,sans-serif;color:#7a1f1f;background:#fff;border:0;border-radius:8px;padding:8px 10px;min-height:34px"; tb.querySelector("button").addEventListener("click", function () { testReset(); }); (document.body || document.documentElement).appendChild(tb); } catch (e) {} }   /* B359T：測試條改一行，加「重新測試」 */
+  if (TKAPI === "test") { try { var tb = document.createElement("div"); tb.id = "tk-test-banner"; tb.innerHTML = '<span>測試版・不連正式票務</span><button type="button" id="tk-test-reset">重新測試</button>'; tb.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:env(safe-area-inset-top,0);z-index:99999;display:flex;align-items:center;gap:10px;white-space:nowrap;background:#7a1f1f;color:#fff;font:600 14px/1.3 -apple-system,sans-serif;padding:5px 5px 5px 12px;border-radius:0 0 10px 10px;pointer-events:none"; tb.querySelector("button").style.cssText = "font:700 14px/1 -apple-system,sans-serif;color:#7a1f1f;background:#fff;border:0;border-radius:8px;padding:8px 10px;min-height:34px;pointer-events:auto";   /* B552T：測試條的字不擋點擊（窄手機上會蓋到返回鍵右邊），只有「重新測試」按得到 */ tb.querySelector("button").addEventListener("click", function () { testReset(); }); (document.body || document.documentElement).appendChild(tb); } catch (e) {} }   /* B359T：測試條改一行，加「重新測試」 */
   var S = { session: null, email: "", tickets: [], events: [], photopass: [], loading: false, lastFetch: 0, pollTimer: null, cdTimer: null, transfer: null,
             layers: [], sel: null, tab: "up", detail: null, addTab: "cam" };
 
@@ -1723,9 +1723,15 @@ function coverClockKey() {
     document.addEventListener("touchcancel", function (e) { end(e, true); }, { passive: true });
   })();
   function closeAll() { closeSheet(); while (S.layers.length) popLayer(); }
+  /* B552T（粉絲回報 11/13：周邊購買頁「‹ 返回」一直按不到）：頁面重新載入過（App 更新版本、付款回來、iPhone 把背景的 App 重新整理）以後，
+     瀏覽紀錄裡還留著舊的「第 1 層」，新開的頁又記一個「第 1 層」；按返回只退回到舊的那一個，程式以為還在第 1 層，頁面就不關，按幾下都一樣。
+     → (1) 一載入就把目前這一筆標成「最底層」；(2) 我們自己的返回鍵／滑動返回，就算紀錄沒對上，也一定關掉最上面那一頁。 */
+  try { if (history.state && history.state.tk) history.replaceState(null, ""); } catch (e) {}
   window.addEventListener("popstate", function (e) {
     closeSheet(); if (document.getElementById("tk-paycover")) payCover(false);   // 只有黑底等待中才收；換頁的返回不要動到「不跳提示」的標記
-    var want = (e.state && e.state.tk) || 0, anim = TK_APP || (S.navBack && Date.now() - S.navBack < 2000); S.navBack = 0;   // B466T
+    var mine = !!(S.navBack && Date.now() - S.navBack < 2000);
+    var want = (e.state && e.state.tk) || 0, anim = TK_APP || mine; S.navBack = 0;   // B466T
+    if (mine && S.layers.length && want >= S.layers.length) want = S.layers.length - 1;   // B552T
     while (S.layers.length > want) popLayer(!anim);
   });
   function bar(backLabel, center, right) {
