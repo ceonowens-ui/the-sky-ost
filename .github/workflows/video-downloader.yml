@@ -58,6 +58,10 @@ jobs:
           # 1) 公開範例影片：證明打包後的 App 能連 HTTPS、下載、存檔（一定要過）
           "$BIN" --selftest local.txt "https://www.w3schools.com/html/mov_bbb.mp4"; LOCAL=$?
           cat local.txt
+          # 1b) VP9 → H.264 轉檔（避免「下載下來只有聲音」）
+          "$BIN" --converttest convert.txt; CONV=$?
+          cat convert.txt || echo "沒有轉檔結果"
+          [ $CONV -ne 0 ] && LOCAL=1
           # 2) 真的去 YouTube / IG（GitHub 的機房常被擋，只看結果、不影響打包）
           "$BIN" --selftest selftest.txt \
             "https://www.youtube.com/watch?v=jNQXAC9IVRw" \

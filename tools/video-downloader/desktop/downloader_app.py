@@ -112,8 +112,9 @@ def base_opts(progress=None):
     ff = ffmpeg_path()
     opts = {
         "outtmpl": str(DOWNLOADS / "%(title).80s [%(id)s].%(ext)s"),
-        # 優先 H.264 + AAC 的 mp4：iPhone、剪輯軟體都能直接用
-        "format": "bv*[vcodec^=avc]+ba[ext=m4a]/bv*[ext=mp4]+ba[ext=m4a]/bv*+ba/b" if ff else "b[ext=mp4]/b",
+        # 一定要有畫面：影片軌 + 聲音軌合併，或本來就有畫面+聲音的檔案。優先 H.264
+        "format": "bv*+ba/b[vcodec!=none]/b" if ff else "b[vcodec!=none][ext=mp4]/b[vcodec!=none]/b",
+        "format_sort": ["vcodec:h264", "acodec:aac", "res", "fps"],
         "merge_output_format": "mp4",
         "noplaylist": True,
         "windowsfilenames": True,
@@ -150,10 +151,83 @@ def site_name(url):
 BROWSERS = ["chrome", "safari", "edge", "firefox", "brave"] if sys.platform == "darwin" else ["chrome", "edge", "firefox", "brave"]
 
 
+NO_WINDOW = {"creationflags": 0x08000000} if os.name == "nt" else {}  # Windows 不跳出黑色視窗
+
+
+def streams(path):
+    """回傳 (影片格式, 有沒有聲音)。例如 ("h264", True)；沒有畫面時影片格式是 None。"""
+    ff = ffmpeg_path()
+    if not ff:
+        return "unknown", True
+    r = subprocess.run([ff, "-hide_banner", "-i", path], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", **NO_WINDOW)
+    video = None
+    audio = False
+    for line in r.stderr.splitlines():
+        if "Stream #" not in line:
+            continue
+        if "Video:" in line and "attached pic" not in line and video is None:
+            video = line.split("Video:", 1)[1].strip().split()[0].strip(",")
+        elif "Audio:" in line:
+            audio = True
+    return video, audio
+
+
+def to_h264(path, status=None):
+    """把不是 H.264 的影片轉成 H.264 + AAC 的 mp4（所有電腦、手機、剪輯軟體都能開）。"""
+    if status:
+        status("轉成通用的 mp4 格式中…（影片越長越久）")
+    src = Path(path)
+    out = src.with_name(src.stem + ".converting.mp4")
+    ff = ffmpeg_path()
+    base = [ff, "-y", "-hide_banner", "-loglevel", "error", "-i", str(src), "-map", "0:v:0", "-map", "0:a:0?",
+            "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart"]
+    encoders = [["-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p"]]
+    if sys.platform == "darwin":
+        encoders.append(["-c:v", "h264_videotoolbox", "-b:v", "8M", "-pix_fmt", "yuv420p"])
+    last = ""
+    for enc in encoders:
+        r = subprocess.run(base + enc + [str(out)], capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", **NO_WINDOW)
+        if r.returncode == 0 and out.exists() and out.stat().st_size > 0:
+            final = src.with_suffix(".mp4")
+            src.unlink()
+            out.replace(final)
+            return str(final)
+        last = r.stderr[-300:]
+        out.unlink(missing_ok=True)
+    raise RuntimeError("轉檔失敗：" + last)
+
+
 def download(url, progress=None, status=None):
+    """下載並確認是「有畫面、所有地方都能播」的 mp4。"""
+    path = _download(url, progress, status)
+    video, _ = streams(path)
+    if video is None:
+        # 只抓到聲音 → 改抓「本來就有畫面+聲音」的版本
+        Path(path).unlink(missing_ok=True)
+        if status:
+            status("只抓到聲音，改抓有畫面的版本…")
+        try:
+            path = _download(url, progress, status, fmt="b[vcodec!=none]/bv*")
+        except Exception:
+            raise RuntimeError("NO_VIDEO")
+        video, _ = streams(path)
+        if video is None:
+            Path(path).unlink(missing_ok=True)
+            raise RuntimeError("NO_VIDEO")
+    if video not in ("h264", "unknown") or not path.lower().endswith(".mp4"):
+        path = to_h264(path, status)
+    return path
+
+
+def _download(url, progress=None, status=None, fmt=None):
     """回傳下載好的檔案路徑。IG / YouTube 要登入時，自動借用瀏覽器裡已登入的帳號再試一次。"""
     def run(extra):
-        with yt_dlp.YoutubeDL({**base_opts(progress), **extra}) as ydl:
+        opts = base_opts(progress)
+        if fmt:
+            opts["format"] = fmt
+        with yt_dlp.YoutubeDL({**opts, **extra}) as ydl:
             info = ydl.extract_info(url, download=True)
         if info.get("entries"):
             info = next(e for e in info["entries"] if e)
@@ -180,6 +254,10 @@ def download(url, progress=None, status=None):
 def friendly_error(e):
     msg = str(e)
     low = msg.lower()
+    if msg == "NO_VIDEO":
+        return "這個網址只有聲音、沒有影片畫面（可能是圖片貼文配音樂）。"
+    if msg.startswith("轉檔失敗"):
+        return "影片下載好了，但轉成通用格式時失敗。請截圖給開發者。"
     if "instagram" in low and needs_login(msg):
         return "IG 要登入才能看這支影片。\n請先用 Chrome 或 Safari 登入 IG，再按一次下載。"
     if "private" in low:
@@ -213,13 +291,33 @@ def selftest(out_file, urls):
         try:
             p = download(u)
             size = os.path.getsize(p) if p and os.path.exists(p) else 0
-            lines.append(f"OK   {u} -> {os.path.basename(p or '')} ({size} bytes)")
-            ok = ok and size > 0
+            video, audio = streams(p)
+            good = size > 0 and video == "h264" and p.endswith(".mp4")
+            lines.append(f"{'OK  ' if good else 'BAD '} {u} -> {os.path.basename(p or '')} "
+                         f"({size} bytes, video={video}, audio={audio})")
+            ok = ok and good
         except Exception as e:
             lines.append(f"FAIL {u} -> {str(e)[:400]}")
             ok = False
     Path(out_file).write_text("\n".join(lines) + "\n", encoding="utf-8")
     return 0 if ok else 1
+
+
+def converttest(out_file):
+    """不用網路：做一支 VP9 影片，確認打包好的 ffmpeg 能轉成 H.264。"""
+    work = DATA / "converttest"
+    work.mkdir(exist_ok=True)
+    src = work / "vp9.webm"
+    ff = ffmpeg_path()
+    subprocess.run([ff, "-y", "-loglevel", "error", "-f", "lavfi", "-i", "testsrc=size=640x360:rate=25",
+                    "-f", "lavfi", "-i", "sine=frequency=440", "-t", "2", "-c:v", "libvpx-vp9", "-c:a", "libopus",
+                    str(src)], check=True, **NO_WINDOW)
+    before = streams(str(src))
+    out = to_h264(str(src))
+    after = streams(out)
+    good = after == ("h264", True)
+    Path(out_file).write_text(f"{'OK' if good else 'BAD'} convert {before} -> {after}\n", encoding="utf-8")
+    return 0 if good else 1
 
 
 # ---------- 視窗 ----------
@@ -261,7 +359,7 @@ def gui():
             status_var.set("✗ " + friendly_error(err))
         else:
             last["path"] = path
-            status_var.set("✓ 完成！已存到「下載」資料夾")
+            status_var.set("✓ 完成！影片已存到「下載」資料夾")
             url_var.set("")
             reveal(path)
 
@@ -310,6 +408,8 @@ def gui():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == "--converttest":
+        sys.exit(converttest(sys.argv[2]))
     if len(sys.argv) >= 3 and sys.argv[1] == "--selftest":
         sys.exit(selftest(sys.argv[2], sys.argv[3:]))
     gui()
