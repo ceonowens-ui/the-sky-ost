@@ -944,14 +944,15 @@ function openPay(view,opt){
      (expired?'':'<p class="warn">付款成功後，將寄出目前預覽的信件。\n寄出後不能編輯或撤回。不保證逐一回覆。</p>')+
      '<div class="stack pay-actions">'+(expired?'<button class="btn btn-gold" data-p="again" type="button">回到預覽，重新確認名額</button>':'<button class="btn btn-gold" data-p="pay" type="button"'+(busy?' disabled':'')+'>'+(busy?'<span class="spin"></span>付款處理中':'前往付款 · NT$'+o.amount)+'</button>')+
      (DEMO_UI?'<p class="small" style="text-align:center">DEMO 模擬付款 · 不會收費</p>':'')+
-     (cameBack&&!busy?'<button class="btn btn-ghost" data-p="cancel" type="button">先不付款</button>':'')+'</div>';
+     '</div>';   /* B533T（CÉON 11/13）：拿掉「先不付款」，要離開就按右上角 ✕ 收回 */
   },function(close0,repaint,sh){
     var Q=function(k){return sh.querySelector('[data-p="'+k+'"]')};
     var closed=false;function close(){closed=true;clearInterval(cdT);clearInterval(pollT);if(RT.payClose===close)RT.payClose=null;close0()}
     RT.payClose=close;
     function again(m,g){close();API.status(o.id).then(function(r){if(r.view)openPay(r.view,{back:true,msg:m,gone:g})})}   /* 結果出來 → 整個視窗重開 */
     function wire(){
-      Q("x").onclick=function(){busy=false;close()};   /* ✕：關掉，回到剛剛的預覽 */
+      var xb=Q("x");xb.onclick=function(){busy=false;close()};   /* ✕：關掉，回到剛剛的預覽 */
+      xb.addEventListener("touchend",function(e){e.preventDefault();busy=false;close()},{passive:false});   /* B533T：iPhone 上視窗還在捲動時，第一下點擊常被拿去「停住捲動」而不觸發 click；手指放開就直接收回 */
       if(Q("cancel"))Q("cancel").onclick=function(){busy=false;close();stack=[];setRoute({name:home()});render();window.scrollTo(0,0);if(h.status==="active"||h.status==="verifying")toast("這封信還沒寄出，草稿還在。")};   /* 先不付款：回到信箋第一頁 */
       if(Q("again"))Q("again").onclick=function(){close();CL.active=null;cSave();render()};
       if(Q("pay"))Q("pay").onclick=function(){
