@@ -883,7 +883,7 @@ V.preview={load:function(){return API.overview(me())},view:function(ov){
   return'<section class="screen"><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
    (RT.payNote&&!blocked?'<div class="state err" role="alert"><b>付款沒有完成，草稿還在。</b><span>再按一次「付款並寄出」就好。</span></div>':'')+
    '<details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
-   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>每人每月</span><b>'+per.perUser+' 封</b></li><li><span>價格</span><b class="num">NT$'+price+'</b></li></ul>':'')+
+   (per?'<ul class="facts"><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>價格</span><b class="num">NT$'+price+' · 每人每月 '+per.perUser+' 封</b></li></ul>':'')+   /* B537T（CÉON 11/13）：只留三項重點 */
    (blocked?'':'<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>')+
    (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+
    (blocked?'':'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>'+
