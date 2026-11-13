@@ -419,6 +419,7 @@ th{color:var(--muted);font-weight:500;background:rgba(36,34,41,.6)}
 .panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
 .sheet .pay-actions{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));margin:0 -4px;padding:12px 4px calc(env(safe-area-inset-bottom,0px) + 56px);background:linear-gradient(180deg,rgba(20,19,24,0),#141318 14px)}   /* B520T：付款和「先不付款」永遠看得到、離螢幕底有一段距離，不用捲 */
+.sheet.send-sheet{animation:sendUp .32s cubic-bezier(.2,.8,.2,1) both!important}.sheet.send-sheet{color:var(--text,#EDE6D8);color-scheme:dark}body[data-route="compose"] .sheet.send-sheet .btn-gold{background:var(--gold-grad);color:#1D1608;box-shadow:0 10px 26px rgba(212,183,126,.22),inset 0 1px 0 rgba(255,255,255,.4)}.toast{color:var(--text,#EDE6D8)}body[data-route="compose"] .sheet .state,body[data-route="compose"] .sheet .state b{color:var(--text,#EDE6D8)}@keyframes sendUp{from{transform:translateY(100%)}to{transform:none}}@media(prefers-reduced-motion:reduce){.sheet.send-sheet{animation:none!important}}
 .sheet-x{position:absolute;right:10px;top:10px;width:48px;height:48px;border:0;background:none;color:var(--text,#EDE6D8);font-size:22px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:2}
 .sheet button{touch-action:manipulation}
 .scrim{position:fixed;inset:0;z-index:50;background:rgba(5,5,8,.66);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease both}
@@ -862,7 +863,7 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
     var ce=$("count");ce.className="count"+(over?" over":"");ce.textContent=over?("超過 "+(n-MAX_BODY)+" 字 · "+n+" / 1,000"):(n.toLocaleString()+" / 1,000 字");
     $("sigErr").hidden=!sover;$("sigErr").textContent=sover?"署名最多 20 字，目前 "+sn+" 字。":"";
     $("toPreview").disabled=empty||over||sover;
-    $("note").textContent=empty?"寫下正文後就能預覽。":"預覽後才會確認名額與付款。";
+    $("note").textContent=empty?"寫下正文後就能寄出。":"下一步才會確認名額與付款。";
   }
   function onIn(){ED.body=ta.value;ED.sig=sg.value;ED.dirty=true;grow();if(!ED.composing)validate();scheduleSave()}
   [ta,sg].forEach(function(el){el.addEventListener("input",onIn);el.addEventListener("compositionstart",function(){ED.composing=true});
@@ -870,47 +871,56 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
     el.addEventListener("focus",function(){setTimeout(function(){el.scrollIntoView({block:"center",behavior:"smooth"})},300)})});
   sg.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();sg.blur()}});
   $("retry").onclick=function(){if(saveDraft())toast("已儲存在此裝置")};$("copy").onclick=function(){copyText(ED.body)};
-  $("toPreview").onclick=function(){clearTimeout(saveT);ED.body=ta.value;ED.sig=sg.value;if(!ED.body.trim()||glen(ED.body)>MAX_BODY||glen(ED.sig)>MAX_SIG)return;if(ED.dirty&&!saveDraft())return;go("preview",ED.id)};
+  $("toPreview").onclick=function(){clearTimeout(saveT);ED.body=ta.value;ED.sig=sg.value;if(!ED.body.trim()||glen(ED.body)>MAX_BODY||glen(ED.sig)>MAX_SIG)return;if(ED.dirty&&!saveDraft())return;openSend(CL.drafts[ED.id])};
   grow();validate();paintSave();
  }};
 
 /* ═════════ 粉絲：完整預覽 → 確認名額與付款 ═════════ */
-/* B536T（CÉON 11/13：寫信流程改成最簡單）：預覽頁只有一個勾選和一顆「付款並寄出」，按下直接到綠界。
-   沒有付款視窗、沒有「繼續付款」「返回修改」；要改信按左上角返回。名額保留、再付一次接上同一筆，都在後台默默處理。 */
-V.preview={load:function(){return API.overview(me())},view:function(ov){
-  var d=CL.drafts[R.param];if(!d)return V.missing.view();
-  var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box,price=ov.myHold?ov.myHold.order.amount:(per?per.price:99);
-  return'<section class="screen"><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
-   (RT.payNote&&!blocked?'<div class="state err" role="alert"><b>付款沒有完成，草稿還在。</b><span>再按一次「付款並寄出」就好。</span></div>':'')+
-   '<details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
-   (per?'<ul class="facts"><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>價格</span><b><span class="num">NT$'+price+'</span><span style="font-weight:400;color:var(--muted)"> ・每人每月 '+per.perUser+' 封</span></b></li></ul>':'')+   /* B537T（CÉON 11/13）：只留三項重點 */
-   (blocked?'':'<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>')+
-   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+
-   (blocked?'':'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>'+
-     '<button class="btn btn-gold" id="send" type="button" data-label="付款並寄出 · NT$'+price+'" disabled'+(reserving?' aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>前往付款中':'付款並寄出 · NT$'+price)+'</button>')+
-   (blocked?'<button class="btn btn-text" id="rules" type="button">查看收信規則</button>':'')+'</section>'},
- wire:function(ov){
-  bindState();var d=CL.drafts[R.param];if(!d)return V.missing.wire();
-  if($("rules"))$("rules").onclick=function(){rulesSheet(ov.period)};
-  var consent=$("consent"),btn=$("send");if(!consent||!btn)return;
-  consent.onchange=function(){btn.disabled=!consent.checked||reserving};
-  var errs={full:"本月名額已滿，草稿已保存。",closed:"本期收信已結束，草稿已保存。",notopen:"本期尚未開放收信，草稿已保存。",already:"你本月的心意已經寄出，草稿已保存。",paused:"本期暫停收新信，草稿已保存。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信，草稿已保存。",checking:"還在確認上一筆付款，請過幾秒再按一次。",payform:"暫時無法前往付款，請再按一次。"};
-  function fail(code){reserving=false;lastErr=errs[code]||"暫時無法前往付款，請再按一次。你的草稿仍在。";render();say(lastErr)}
-  function reserve(fresh){if(fresh)d.reserveKey=null;var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();return API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key)}
-  function pay(r,tries){
-    if(!r||!r.ok){if(r&&r.err==="login"){reserving=false;render();loginSheet();return}d.reserveKey=null;cSave();return fail(r&&r.err)}
-    CL.active={orderId:r.view.order.id,draftId:d.id};cSave();
-    API.pay(me(),r.view.order.id,SIM.pay,SIM.deliver).then(function(x){
-      if(x&&x.err==="expired"&&!tries)return reserve(true).then(function(r2){pay(r2,1)},function(){fail()});   /* 保留過期了：自動重新保留一次再付 */
-      if(x&&x.err)return fail(x.err);
-      if(x&&x.ok&&x.view){reserving=false;go("ritual",x.view.order.id);return}   /* 已付過，或 Demo 模擬付款 → 寄出畫面 */
-    },function(){fail()});
-  }
-  btn.onclick=function(){
-    if(reserving||!consent.checked)return;reserving=true;lastErr=null;RT.payNote=false;btn.disabled=true;btn.innerHTML='<span class="spin"></span>前往付款中';
-    reserve(false).then(function(r){pay(r,0)},function(){fail()});
-  };
- }};
+/* B542T（CÉON 11/13：不要換頁、不要「查看完整信件」）：寫完信按「下一步」，同一頁從下面滑上來一張卡片：
+   收信期別、可用名額、價格、勾選、「付款並寄出」。按 ✕ 或卡片外面就收回去，後面就是信紙，可以直接改。沒有預覽頁了。 */
+V.preview={load:function(){return Promise.resolve(null)},view:function(){return'<section class="screen"></section>'},
+ wire:function(){var id=R.param;stack=[{name:home()}];setRoute(CL.drafts[id]?{name:"compose",param:id}:{name:home()});render()}};   /* 舊的預覽網址 → 回寫信頁 */
+function openSend(d,note){
+  if(!d||RT.sendOpening||RT.sendClose)return;RT.sendOpening=true;lastErr=null;
+  API.overview(me()).then(function(ov){
+    RT.sendOpening=false;if(RT.sendClose)return;
+    var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box,price=ov.myHold?ov.myHold.order.amount:(per?per.price:99);
+    sheet('<div class="grab"></div><button class="sheet-x" data-p="x" type="button" aria-label="關閉">✕</button><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
+      '<div id="sendMsg">'+(note&&!blocked?'<div class="state err" role="alert"><b>付款沒有完成，草稿還在。</b><span>再按一次「付款並寄出」就好。</span></div>':'')+'</div>'+
+      (per?'<ul class="facts"><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>價格</span><b><span class="num">NT$'+price+'</span><span style="font-weight:400;color:var(--muted)"> ・每人每月 '+per.perUser+' 封</span></b></li></ul>':'')+
+      (blocked?'':'<p class="warn">付款成功後，會寄出這封信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>'+
+        '<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label>')+
+      '<button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>'+
+      (blocked?'':'<button class="btn btn-gold" id="send" type="button" data-label="付款並寄出 · NT$'+price+'" disabled>付款並寄出 · NT$'+price+'</button>'),
+    function(close,repaint,sh){
+      sh.classList.add("send-sheet");
+      var done=false;function shut(){if(done)return;done=true;if(RT.sendClose===shut)RT.sendClose=null;reserving=false;close()}
+      RT.sendClose=shut;
+      sh.querySelector('[data-p="x"]').onclick=shut;
+      $("rules").onclick=function(){rulesSheet(ov.period)};
+      sh.querySelectorAll("[data-open-order]").forEach(function(b){b.onclick=function(){shut();go("letter",b.dataset.openOrder)}});
+      var consent=$("consent"),btn=$("send");if(!consent||!btn)return;
+      consent.onchange=function(){btn.disabled=!consent.checked||reserving};
+      var errs={full:"本月名額已滿，草稿已保存。",closed:"本期收信已結束，草稿已保存。",notopen:"本期尚未開放收信，草稿已保存。",already:"你本月的心意已經寄出，草稿已保存。",paused:"本期暫停收新信，草稿已保存。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信，草稿已保存。",checking:"還在確認上一筆付款，請過幾秒再按一次。",payform:"暫時無法前往付款，請再按一次。"};
+      function fail(code){var m=errs[code]||"暫時無法前往付款，請再按一次。你的草稿仍在。";var box2=$("sendMsg");if(box2)box2.innerHTML='<div class="state err" role="alert"><b>'+esc(m)+'</b></div>';sendReset();say(m)}
+      function reserve(fresh){if(fresh)d.reserveKey=null;var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();return API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key)}
+      function pay(r,tries){
+        if(done)return;
+        if(!r||!r.ok){if(r&&r.err==="login"){shut();loginSheet();return}d.reserveKey=null;cSave();return fail(r&&r.err)}
+        CL.active={orderId:r.view.order.id,draftId:d.id};cSave();
+        API.pay(me(),r.view.order.id,SIM.pay,SIM.deliver).then(function(x){
+          if(x&&x.err==="expired"&&!tries)return reserve(true).then(function(r2){pay(r2,1)},function(){fail()});   /* 保留過期了：自動重新保留一次再付 */
+          if(x&&x.err)return fail(x.err);
+          if(x&&x.ok&&x.view){shut();go("ritual",x.view.order.id);return}   /* 已付過，或 Demo 模擬付款 → 寄出畫面 */
+        },function(){fail()});
+      }
+      btn.onclick=function(){
+        if(reserving||!consent.checked)return;reserving=true;var box2=$("sendMsg");if(box2)box2.innerHTML="";btn.disabled=true;btn.innerHTML='<span class="spin"></span>前往付款中';
+        reserve(false).then(function(r){pay(r,0)},function(){fail()});
+      };
+    });
+  },function(){RT.sendOpening=false;toast("暫時連不上服務，請再按一次。你的草稿仍在。")});
+}
 /* B536T：從綠界回來（上一頁、返回商店、切回 App）：問後台這筆付了沒。付了→寄出畫面；沒付→回到預覽頁，草稿還在 */
 function payReturn(){
   if(!CL.active||SIM.role!=="fan"||RT.retBusy)return;
@@ -921,14 +931,14 @@ function payReturn(){
   (function chk(){
     API.status(oid,true).then(function(x){
       var o=x&&x.view&&x.view.order;
-      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}var bw2=RT.bootWait;RT.bootWait=false;if(!bw2&&moved()&&R&&R.name!=="preview"){toast("付款完成，信已寄出");return}stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
+      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}var bw2=RT.bootWait;RT.bootWait=false;if(!bw2&&moved()){toast("付款完成，信已寄出");return}if(RT.sendClose)RT.sendClose();stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
       if(o&&o.status==="confirming"&&Date.now()-t0<45000){setTimeout(chk,1500);return}
       RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}
       if(!x||!x.view||x.view.hold.status!=="active"){CL.active=null;cSave()}
       lastErr=null;
       var bw=RT.bootWait;RT.bootWait=false;
-      if(!bw&&(moved()||(R&&R.name==="preview"&&R.param===did))){sendReset();toast("付款沒有完成，草稿還在");say("付款沒有完成，草稿還在");return}   /* B539T：已經在預覽頁（或人走開了）→ 只跳一個提示，不重畫、不捲動，畫面不跳 */
-      RT.payNote=true;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:home()});render();say("付款沒有完成，草稿還在");
+      if(!bw){sendReset();toast("付款沒有完成，草稿還在");say("付款沒有完成，草稿還在");return}   /* B539T：已經在預覽頁（或人走開了）→ 只跳一個提示，不重畫、不捲動，畫面不跳 */
+      stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"compose",param:did}:{name:home()});render();if(CL.drafts[did])openSend(CL.drafts[did],true);say("付款沒有完成，草稿還在");   /* 整頁重新載入後回來：回寫信頁，卡片再滑上來 */
     },function(){RT.retBusy=false;if(RT.bootWait){RT.bootWait=false;render()}else sendReset()})})();
 }
 RT.payBack=payReturn;
@@ -1014,7 +1024,7 @@ function openPay(view,opt){
       if(left<=0&&!busy){clearInterval(cdT);API.status(o.id).then(function(r){if(closed||!r.view)return;o=r.view.order;h=r.view.hold;repaint();wire()})}},1000);
   });
 }
-window.addEventListener("pageshow",function(e){if(e.persisted&&RT.payBack)setTimeout(function(){RT.payBack();if(R&&R.name==="preview"&&!RT.retBusy)sendReset()},300)});
+window.addEventListener("pageshow",function(e){if(e.persisted&&RT.payBack)setTimeout(function(){RT.payBack();if($("send")&&!RT.retBusy)sendReset()},300)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&RT.payBack)setTimeout(RT.payBack,300)});   /* B517T：切回 App 也一樣 */   /* B515T：從綠界按上一頁回來 */
 
 /* ═════════ 粉絲：寄出儀式（交易狀態只看後端，動畫不決定結果） ═════════ */
@@ -1039,7 +1049,7 @@ V.ritual={load:function(){return API.status(R.param)},view:function(r){
   function after(){ /* 單一完成入口：使用動畫模組的「查看信件」。 */ }
   var anim=LetterSendAnimation.create($("lsaHost"),{letter:{body:snap.body,signature:snap.sig},resume:seen,skipToDone:!!CL.flown[oid],
     onVisualComplete:function(){CL.flown[oid]=1;cSave();after();say("你的信已送達 Chance 的專屬信箱")},
-    onRetry:function(){var did=v0.hold&&v0.hold.draftId;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:"mailbox",param:"sent"});render()},
+    onRetry:function(){var did=v0.hold&&v0.hold.draftId;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"compose",param:did}:{name:"mailbox",param:"sent"});render()},
     onHelp:function(){toast(DEMO_UI?"Demo：這裡會開客服，帶入訂單編號 "+oid:"如需協助，請來信 heartbeats0693@gmail.com，並附上訂單編號 "+oid)},
     onViewLetter:function(){go("letter",oid)}});
   RT.anim=anim;
@@ -1314,13 +1324,14 @@ function render(){
 window.addEventListener("pagehide",function(){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}});
 document.addEventListener("visibilitychange",function(){
   if(document.hidden){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}return}
-  if(R&&R.name==="preview"&&$("send")){}   /* B540T：預覽頁回到前景不重畫（重畫會整頁淡入一次＝閃） */
+  if($("send")){}   /* B540T：預覽頁回到前景不重畫（重畫會整頁淡入一次＝閃） */
   else if(R&&!document.querySelector(".scrim")&&["ritual","preview","mailbox","product","shop"].indexOf(R.name)>-1)render();   /* 回到前景：重新向後端查狀態 */
   payReturn();   /* B536T：從綠界切回來也問一次付款結果 */
-  if(R&&R.name==="preview"&&!RT.retBusy)sendReset();   /* 沒有要問的付款 → 按鈕直接恢復，不要一直轉圈 */
+  if($("send")&&!RT.retBusy)sendReset();   /* 沒有要問的付款 → 按鈕直接恢復，不要一直轉圈 */
 });
 (function boot(){
-  var r=CL.route;if(r&&(r.name==="preview"||r.name==="compose")&&r.param&&!CL.drafts[r.param]){r=null;CL.route=null;cSave()}   /* B536T：草稿已寄出或不在了 → 回首頁，不停在「找不到這封信」 */
+  var r=CL.route;if(r&&r.name==="preview"){r={name:"compose",param:r.param};CL.route=r}   /* B542T：沒有預覽頁了 */
+  if(r&&(r.name==="preview"||r.name==="compose")&&r.param&&!CL.drafts[r.param]){r=null;CL.route=null;cSave()}   /* B536T：草稿已寄出或不在了 → 回首頁，不停在「找不到這封信」 */
   if(CL.active&&SIM.role==="fan"){
     API.status(CL.active.orderId).then(function(x){var o=x.view&&x.view.order;
       if(o&&o.status==="confirming"){R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};top();$("view").innerHTML='<section class="screen"><p class="small" style="text-align:center;margin-top:40px">正在確認付款…</p></section>';RT.bootWait=true;payReturn();if(!RT.retBusy){RT.bootWait=false;render()}return}   /* B539T：先不畫預覽，問到結果才畫，畫面不跳 */   /* B536T：去過綠界還沒結果 → 問綠界，沒付就回預覽 */
