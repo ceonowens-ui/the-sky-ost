@@ -2512,8 +2512,8 @@ function coverClockKey() {
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
     if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
-      var en2 = sxEN(), cut2 = mCut(mi), tg = [k === "h" ? { t: en2 ? "Top pick · No.6 card" : "推薦・獨家 6 號小卡", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
-      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? "6 號小卡只隨組合" : (it.perk || ""), tg, !(it.left > 0))); }); }
+      var en2 = sxEN(), cut2 = mCut(mi), tg = [k === "h" ? { t: en2 ? "Overseas shipping only" : "限寄送台灣以外", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
+      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? "限寄送到台灣以外的地區" : (it.perk || ""), tg, !(it.left > 0))); }); }
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
@@ -3310,7 +3310,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-list" role="radiogroup" aria-label="選擇票種">' + tiers.map(function (t) { return tierRow(ev, t); }).join("") + '</div>';
     var T0 = selTier(ev), solo = isSolo(ev) && !!T0;
     if (!solo && !_pre) h += '<p class="tkb-fine">' + esc(BUY_TEXT.limitNote) + '　·　' + esc(termsFor(ev)) + '　<button class="tkb-lk" data-act="buy-terms">完整購票須知 ›</button></p>';
-    if (!_pre) h += solo ? (TK_NO_MERCH ? "" : mPreRows(ev)) : mBuySection(ev);
+    if (!_pre) h += solo ? mPreRows(ev) : mBuySection(ev);
     var T = selTier(ev), anyBuy = tiers.some(function (t) { return tierBuyable(ev, t); }), notOpen = !tiers.some(function (t) { return t.onSale; }) || ev.onSale === false;
     var foot;
     if (T && solo) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>合計</span><b>' + nt(preTotal(ev, T)) + '</b></div><button class="tkb-cta" data-act="buy-go">下一步 <i>→</i></button>';
@@ -3619,9 +3619,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return api("/ticket/merch/mine", { session: S.session }).then(function (j) { if (j && j.ok) S.morders = j.orders || []; }).catch(function () {});
   }
   function mSel(o) { return o && o.mb && o.mh ? "bh" : o && o.mb ? "b" : o && o.mh ? "h" : ""; }
-  /* B530T（CÉON 11/13，合作方確認）：1,880 元門票已含 6 號小卡，購票結帳頁不再加購生日周邊；要買周邊到 SHOP 單獨買。改回只要把這行改成 false */
-  var TK_NO_MERCH = true;
-  function tkSel(b) { return TK_NO_MERCH ? "" : mSel(b); }
+  /* B531T（CÉON 11/13，合作方確認）：1,880 元門票已含 6 號小卡 → 購票結帳頁只留加購「A3 海報組」（現場領、每張票 1 組）；「A3 海報組＋6 號小卡組合」限海外，只在 SHOP 單買、寄送地區不是台灣才能買 */
+  var TK_ADDON_B_ONLY = true;
+  function tkSel(b) { return TK_ADDON_B_ONLY ? (b && b.mb ? "b" : "") : mSel(b); }
   function mResolve(mi, code) {   // 跟伺服器同一套：兩件都選且雙件組有貨 → 雙件組
     if (!mi || !code) return null;
     var I = mi.m.items;
@@ -3654,8 +3654,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         '<i class="bx">' + (on ? "✓" : "") + '</i>' + (it.img ? '<img class="tkm-im" src="' + esc(asset(it.img)) + '" alt="">' : '') +
         '<span class="tx"><b>' + esc(it.name) + '</b><small>' + esc(it.perk) + (own ? "・你已購買" : out ? "・已售完" : mStockTx(it, false) ? "・" + esc(mStockTx(it, false)) : "") + '</small></span><em>＋' + nt(it.price) + '</em></button>';
     };
-    var h = row("b") + row("h"), r = mResolve(mi, mSel(o));
-    if (mSel(o) === "bh" && r) h += r.code === "s"
+    var h = row("b") + (act === "co-m" && TK_ADDON_B_ONLY ? "" : row("h")), r = mResolve(mi, act === "co-m" ? tkSel(o) : mSel(o));
+    if ((act === "co-m" ? tkSel(o) : mSel(o)) === "bh" && r) h += r.code === "s"
       ? '<div class="tkm-set">✨ 兩件一起買，自動變成 <b>雙件組 ' + nt(I.s.price) + '</b>（省 ' + nt(mi.m.setSave) + '，多一對一 60 秒）・剩 ' + esc(I.s.left) + ' 組</div>'
       : '<div class="tkm-set dim">雙件組已售完，兩件以單品價計算</div>';
     else if (I.s && I.s.left > 0 && !mOwned(evId, "s")) h += '<div class="tkm-hint">同時勾選手鍊＋帽T，自動套用雙件組 ' + nt(I.s.price) + '（省 ' + nt(mi.m.setSave) + '・含一對一 60 秒）</div>';
@@ -3663,7 +3663,6 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   /* ---- 結帳頁加購 ---- */
   function mAddonHTML(ev, T, b) {
-    if (TK_NO_MERCH) return "";
     var mi = ev && mInfo(ev.id); if (!mi) { mEnsure(ev && ev.id); return ""; }
     if (!mi.m.open) return "";
     return '<div id="tkm-co"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">' + (mCut(mi) ? '預購至 ' + esc(mCut(mi)) + '・' : '') + '活動當天現場領取</small></div><p class="tkm-lead">把這天的回憶，也一起帶回家。</p>' + mRows(ev.id, b || {}, "co-m") + '</div>';
@@ -3693,7 +3692,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function mPreRows(ev) {
     var mi = mInfo(ev.id); if (!mi) { mEnsure(ev.id); return '<div id="tkm-pre"></div>'; }
     if (!mi.m.open) return '<div id="tkm-pre">' + mBuySection(ev) + '</div>';
-    var I = mi.m.items, o = S.pre, sm = mSetMode(ev, o);
+    var I = mi.m.items, o = S.pre; if (TK_ADDON_B_ONLY) o.mh = false; var sm = mSetMode(ev, o);
     var row = function (k) {
       var it = I[k]; if (!it) return "";
       var own = mOwned(ev.id, k) || (k === "s" && (mOwned(ev.id, "b") || mOwned(ev.id, "h"))), out = it.left <= 0;
@@ -3709,11 +3708,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     };
     var q = mQ(ev.id, o), qx = mQMax(ev.id, o);
     var qty = mV2(ev.id) && mSel(o) ? '<div class="mxp-qty"><span>數量</span><div class="mxp-step"><button type="button" data-act="pre-mq" data-d="-1" aria-label="減少一組"' + (q <= 1 ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-act="pre-mq" data-d="1" aria-label="增加一組"' + (q >= qx ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '';
-    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div><p class="tkm-lead">把這天的回憶，也一起帶回家。</p>' + row("s") + row("b") + row("h") + qty +
-      '<p class="tkb-fine">' + (S.buy && S.buy.kind === "meet" ? '<span>每張票可加購 1 組。</span> ' : '') + '<span>商品圖片為示意圖，實際商品以實物為準。</span></p><p class="tkb-fine tkm-ship">人在海外，或已經有票想加買？<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
+    return '<div id="tkm-pre"><div class="tkb-sec">加購生日限定周邊 <small class="tkm-cut">選填・活動當天現場領取</small></div><p class="tkm-lead">把這天的回憶，也一起帶回家。</p>' + (TK_ADDON_B_ONLY ? row("b") : row("s") + row("b") + row("h")) + qty +
+      '<p class="tkb-fine">' + (S.buy && S.buy.kind === "meet" ? '<span>每張票可加購 1 組。</span> ' : '') + '<span>商品圖片為示意圖，實際商品以實物為準。</span></p><p class="tkb-fine tkm-ship">' + (TK_ADDON_B_ONLY ? '人在海外想買 A3 海報組＋6 號小卡組合，或已經有票想加買？' : '人在海外，或已經有票想加買？') + '<button class="tkb-lk" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 ›</button></p></div>';
   }
   function preMToggle(k) {
     var ev = buyEv(), mi = ev && mInfo(ev.id); if (!mi || (k && mOwned(ev.id, k))) return;
+    if (TK_ADDON_B_ONLY && k && k !== "b") return;
     var o = S.pre, sm = mSetMode(ev, o);
     if (!k) {}   /* B343T：只重畫（數量） */
     else if (k === "s") { o.mb = o.mh = !sm; }
@@ -3751,7 +3751,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="ticket-paper">';
     h += tQtyHTML(T, b);   // B406T；選位場次是座位大卡
     h += ppAddonHTML(ev, T, b);
-    if (!TK_NO_MERCH) h += mPreRows(ev);
+    h += mPreRows(ev);
     h += '<div class="tkc-fields">' + coFields(red) + '</div>';
     h += '<div class="tkc-after"><div class="tkb-sec">訂單明細</div><div class="tkm-sum tkc-sum"><span data-tq-row style="display:contents">' + coSumRow(T, b) + '</span>' +
       (r ? '<span>' + esc(r.code === "s" ? mi.m.items.s.name : r.label) + (mQ(ev.id, b) > 1 ? " ×" + mQ(ev.id, b) : "") + '</span><b>' + nt(r.price * mQ(ev.id, b)) + '</b>' : '') + '</div>';
@@ -3768,7 +3768,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var h = '<div class="tkb-sec tkm-sec">生日限定周邊 <small class="tkm-cut">' + (mi.m.open ? (mCut(mi) ? "預購至 " + esc(mCut(mi)) : "預購中") : mi.m.onSale ? "預購已截止" : "即將開賣") + '</small></div><div class="tkm-grid">';
     ks.forEach(function (k) { var it = I[k];
       h += '<div class="tkm-card">' + (it.img ? '<img src="' + esc(asset(it.img)) + '" alt="" loading="lazy">' : '') + '<div class="c"><b>' + esc(it.name) + '</b><span>' + esc(it.perk) + '</span><em>' + nt(it.price) + '</em><i>' + (it.left > 0 ? esc(mStockTx(it, false) || "售完為止") : "已售完") + '</i></div></div>'; });
-    h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。生日周邊在這裡單獨購買，購票時不另外加購。</div>';
+    h += '</div><div class="tkm-note">商品圖為示意圖，實際商品以實物為準。買票時可在結帳頁加購 A3 海報組；A3 海報組＋6 號小卡組合限寄送到台灣以外的地區。</div>';
     if (mi.m.open) h += '<button class="tkb-cta ghost wide tkm-open" data-act="m-open" data-ev="' + esc(ev.id) + '">單買周邊・海外寄送 <i>→</i></button>';
     return h;
   }
@@ -3826,7 +3826,9 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (!mi) return '<div class="cx9 cx9-c mx">' + cx9Bar("確認訂單") + '<p class="cx9-st">載入中…</p></div>';
     var hasT = loggedIn() && ticketsFor(o.evId).length > 0, v2 = mV2(o.evId), I = mi.m.items, busy = !!o.busy;
     if (o.mode === "pickup" && !hasT && !v2) o.mode = "ship";
-    if (o.mode === "ship" && !(o.ship || {}).country) { var cs0 = (mi.ship && mi.ship.countries) || []; o.ship = o.ship || {}; o.ship.country = cs0.some(function (x) { return x[0] === "TW"; }) ? "TW" : (cs0[0] ? cs0[0][0] : ""); }   // B381T：寄送預設台灣（跟卡包一致），運費和合計一進來就看得到
+    var ovs = !!o.mh;   /* B531T：選了含 6 號小卡的組合 → 只能寄送、寄送地區不能是台灣 */
+    if (ovs) { o.mode = "ship"; o.ship = o.ship || {}; if (o.ship.country === "TW") o.ship.country = ""; }
+    if (o.mode === "ship" && !ovs && !(o.ship || {}).country) { var cs0 = (mi.ship && mi.ship.countries) || []; o.ship = o.ship || {}; o.ship.country = cs0.some(function (x) { return x[0] === "TW"; }) ? "TW" : (cs0[0] ? cs0[0][0] : ""); }   // B381T：寄送預設台灣（跟卡包一致），運費和合計一進來就看得到
     var pick = o.mode === "pickup", r = mResolve(mi, mSel(o)), q = mQ(o.evId, o), mx = mQMax(o.evId, o), sh = o.ship, z = null, fee = pick ? 0 : null;
     if (!pick && sh.country) { var cc = mi.ship.countries.filter(function (x) { return x[0] === sh.country; })[0]; z = cc ? mi.ship.zones[cc[2]] : null; if (z) fee = Number(z[r ? r.code : "b"] || 0); }
     var sub = r ? r.price * q : 0, total = r && fee !== null ? sub + fee : null, day = md(ev.startAt), en = sxEN();
@@ -3836,13 +3838,13 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       var own = mOwned(o.evId, k), out = !(it.left > 0), on = solo ? !own && !out : !!o["m" + k] && !own && !out;
       if (solo && on && !o["m" + k]) o["m" + k] = true;
       // B377T：單選（圓點＝只能選一個）；標籤：推薦、限量 N 組、剩 N；組合寫清楚「6 號小卡只隨組合」
-      var tags = (k === "h" ? '<i class="mx-tag rec">' + (en ? "Top pick · No.6 card only here" : "推薦・只在這裡拿得到的 6 號小卡") + '</i>' : '') + (function () { var p2 = own ? null : mPill2(it, mCut(mi), en, true); return p2 ? '<i class="mx-tag' + (p2.cls ? " " + p2.cls : "") + '">' + esc(p2.t) + '</i>' : ''; })();   // B384T：推薦＋一顆（剩 ≤10 紅色「剩 N 組・預購至…」，否則「限量 N 組・售完為止／預購至…」）   // B381T：期限也放在商品卡上（原本只在小標旁）；B382T：推薦膠囊帶理由；後台沒給 cutoff 就寫「售完為止」，不自己編日期；B383T：有 cutoff 時期限與售完為止合成一顆
-      var sub = own ? "你已購買" : out ? "已售完" : k === "h" ? "A3 海報組 ＋ 6 號小卡（小卡只隨組合）" : esc(it.perk || "");
+      var tags = (k === "h" ? '<i class="mx-tag rec">' + (en ? "Overseas shipping only" : "限寄送台灣以外") + '</i>' : '') + (function () { var p2 = own ? null : mPill2(it, mCut(mi), en, true); return p2 ? '<i class="mx-tag' + (p2.cls ? " " + p2.cls : "") + '">' + esc(p2.t) + '</i>' : ''; })();   // B384T：推薦＋一顆（剩 ≤10 紅色「剩 N 組・預購至…」，否則「限量 N 組・售完為止／預購至…」）   // B381T：期限也放在商品卡上（原本只在小標旁）；B382T：推薦膠囊帶理由；後台沒給 cutoff 就寫「售完為止」，不自己編日期；B383T：有 cutoff 時期限與售完為止合成一顆
+      var sub = own ? "你已購買" : out ? "已售完" : k === "h" ? "A3 海報組 ＋ 6 號小卡・限寄送到台灣以外的地區" : esc(it.perk || "");
       if (solo) return '<div class="cx9-sum1 mx-it solo' + (on ? " on" : "") + '" data-k="' + k + '">' + (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></div>';
       return '<button type="button" role="radio" aria-checked="' + on + '" class="cx9-sum1 mx-it' + (on ? " on" : "") + '" data-mx="item" data-k="' + k + '"' + (own || out || busy ? " disabled" : "") + '><i aria-hidden="true"></i>' +
         (it.img ? '<span class="mx-pic" data-mx="zoom" data-k="' + k + '" role="button" aria-label="放大圖片"><img src="' + esc(asset(it.img)) + '" alt=""><i>⤢</i></span>' : '') + '<span class="cx9-sum1-t"><b>' + esc(it.name) + '</b><span>' + nt(it.price) + '</span>' + (tags ? '<span class="mx-tags">' + tags + '</span>' : '') + '<small>' + sub + '</small></span></button>';
     };
-    var opts = mi.ship.countries.map(function (c) { var zz = mi.ship.zones[c[2]] || {}; return '<option value="' + esc(c[0]) + '"' + (c[0] === sh.country ? " selected" : "") + '>' + esc(sxTr(c[1])) + (en ? " · Shipping " : "・運費 ") + nt(zz[r ? r.code : "b"] || 0) + '</option>'; }).join("");
+    var opts = (ovs && !sh.country ? '<option value="" selected disabled>' + (en ? "Choose a destination" : "請選擇寄送地區") + '</option>' : '') + mi.ship.countries.map(function (c) { var zz = mi.ship.zones[c[2]] || {}; if (ovs && c[0] === "TW") return ""; return '<option value="' + esc(c[0]) + '"' + (c[0] === sh.country ? " selected" : "") + '>' + esc(sxTr(c[1])) + (en ? " · Shipping " : "・運費 ") + nt(zz[r ? r.code : "b"] || 0) + '</option>'; }).join("");
     var tw = sh.country === "TW", noPostal = !sh.country || tw || ["HK", "MO"].indexOf(sh.country) >= 0;
     var ctaTxt = busy ? "處理中…" : !r ? "請先選商品" : "前往付款 · " + (total === null ? nt(sub) : nt(total));
     var cut = mCut(mi);
@@ -3851,7 +3853,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       (r && r.code === "s" ? '<p class="mx-set">兩件一起買，自動變成 <b>' + esc(I.s.name) + ' ' + nt(I.s.price) + '</b></p>' : '') +
       (v2 && r ? '<div class="mx-qty"><span>數量</span><div class="cx9-qty"><button type="button" data-mx="minus" aria-label="減少一組"' + (q <= 1 || busy ? " disabled" : "") + '>−</button><output aria-live="polite" aria-label="數量">' + q + '</output><button type="button" data-mx="plus" aria-label="增加一組"' + (q >= mx || busy ? " disabled" : "") + '>＋</button></div><small>' + (mTicketCap(o) < 99 && S.buy && (o === S.buy || o === S.pre) ? '每張票可加購 1 組' : '每筆最多 ' + MQ_MAX + ' 組') + '</small></div>' : '') +
       '<h3 class="cx9-h3">取貨方式</h3><div class="cx9-mth" role="radiogroup" aria-label="取貨方式">' +
-        '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + (hasT || v2 ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
+        '<button type="button" role="radio" aria-checked="' + pick + '" class="' + (pick ? "on" : "") + '" data-mx="m-pick"' + ((hasT || v2) && !ovs ? "" : " disabled") + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>現場領取</b><small>' + (ovs ? (en ? "Not for this set (overseas only)" : "這個組合限寄送台灣以外") : v2 || hasT ? esc(day) + (en ? " · Free" : " 當天・免運") : "需持有這場門票") + '</small></span></button>' +
         '<button type="button" role="radio" aria-checked="' + !pick + '" class="' + (pick ? "" : "on") + '" data-mx="m-ship"' + (busy ? " disabled" : "") + '><i aria-hidden="true"></i><span><b>寄送</b><small>' + (v2 ? (en ? "From NT$250" : "運費 NT$250 起") : "運費依地區計算") + '</small></span></button></div>' +
       (pick ? '<div class="cx9-total"><div class="tot"><span>合計<small>現場領取・免運</small></span><b>' + (r ? nt(sub) : "—") + '</b></div></div>'   // B377T：現場領取永遠免運，一行就好；B381T：合計卡搬到取貨方式正下方
         : '<div class="cx9-total"><div><span>商品小計</span><b>' + (r ? nt(sub) : "—") + '</b></div><div><span>運費</span><b>' + (fee === null ? "選地區後顯示" : nt(fee)) + '</b></div><div class="tot"><span>合計</span><b>' + (total === null ? "—" : nt(total)) + '</b></div></div>') +
@@ -3953,6 +3955,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       if (!String(pk.name || "").trim()) bad["pk-name"] = "請填姓名（現場核對用）";
       c = phoneCheck(pk.phone); if (c.err) bad["pk-phone"] = c.err;
     }
+    if (code !== "b" && (o.mode !== "ship" || sh.country === "TW")) bad.country = "A3 海報組＋6 號小卡組合限寄送到台灣以外的地區";   // B531T：跟後台 m71 同一條
     if (o.mode === "ship") {
       if (!sh.country) bad.country = "請選寄送地區";
       if (!String(sh.name || "").trim()) bad.name = "請填收件人姓名";
