@@ -5,9 +5,9 @@
 
 | 你的電腦 | 下載這個 |
 |---|---|
-| Mac（2020 年後買的，大多是這個） | `影片下載-Mac-M晶片.zip` |
-| 比較舊的 Mac（Intel） | `影片下載-Mac-Intel.zip` |
-| Windows | `影片下載-Windows.exe` |
+| Mac（2020 年後買的，大多是這個） | `VideoDownloader-Mac-M-chip.zip` |
+| 比較舊的 Mac（Intel） | `VideoDownloader-Mac-Intel.zip` |
+| Windows | `VideoDownloader-Windows.exe` |
 
 > 不知道 Mac 是哪種？左上角  →「關於這台 Mac」，看到「晶片 Apple M…」就是 M 晶片。
 
@@ -20,7 +20,7 @@
 3. 打開「系統設定」→「隱私權與安全性」→ 拉到最下面 → 按「強制打開」→ 輸入密碼。
 
 **Windows**
-1. 雙擊 `影片下載-Windows.exe`。
+1. 雙擊 `VideoDownloader-Windows.exe`。
 2. 出現藍色「Windows 已保護您的電腦」→ 按「其他資訊」→「仍要執行」。
 
 之後就跟一般 App 一樣，雙擊就開。

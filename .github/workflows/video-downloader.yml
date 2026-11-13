@@ -19,13 +19,13 @@ jobs:
         include:
           - os: macos-latest
             deno: deno-aarch64-apple-darwin.zip
-            asset: 影片下載-Mac-M晶片.zip
+            asset: VideoDownloader-Mac-M-chip.zip
           - os: macos-15-intel
             deno: deno-x86_64-apple-darwin.zip
-            asset: 影片下載-Mac-Intel.zip
+            asset: VideoDownloader-Mac-Intel.zip
           - os: windows-latest
             deno: deno-x86_64-pc-windows-msvc.zip
-            asset: 影片下載-Windows.exe
+            asset: VideoDownloader-Windows.exe
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -88,6 +88,10 @@ jobs:
         with:
           path: out
           merge-multiple: true
+      - name: 清掉舊版（重新建立下載頁）
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete video-downloader --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: video-downloader
@@ -97,6 +101,6 @@ jobs:
           files: out/*
           body: |
             貼上 YouTube / IG 影片網址就下載。什麼都不用裝。
-            - Mac（2020 年後的 Mac 大多是 M 晶片）：下載「影片下載-Mac-M晶片.zip」
-            - 舊 Mac（Intel）：下載「影片下載-Mac-Intel.zip」
-            - Windows：下載「影片下載-Windows.exe」
+            - Mac（2020 年後的 Mac 大多是 M 晶片）：下載 VideoDownloader-Mac-M-chip.zip
+            - 舊 Mac（Intel）：下載 VideoDownloader-Mac-Intel.zip
+            - Windows：下載 VideoDownloader-Windows.exe
