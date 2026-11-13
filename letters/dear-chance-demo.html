@@ -749,7 +749,7 @@ function stateBox(ov,ctx){
   var per=ov.period,st=ov.state;
   if(sentOut(ov)&&ctx==="draft")return'<div class="state"><b>這封是草稿，還沒寄出。</b><span>你這個月已經寄了 '+(per?per.perUser:1)+' 封，每人每月只能寄 '+(per?per.perUser:1)+' 封。'+nextOpenTxt(ov)+'開放後，回到這裡就能付款寄出這封。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看這個月寄出的信</button></div></div>';
   if(sentOut(ov))return'<div class="state"><b>你本月的心意，已經寄出。</b><span>每人每月限寄 '+(per?per.perUser:1)+' 封。下一封 '+nextOpenTxt(ov)+'開放。</span><div class="row"><button class="btn btn-ghost" type="button" data-open-order="'+ov.myLetter.orderId+'">查看我的信</button></div></div>';
-  if(ov.myHold)return'<div class="state"><b>你有一個保留中的名額</b><span>保留到 '+fmtMD(ov.myHold.expiresAt)+'。'+(holdEditable(ov.myHold)?'付款時會寄出你最後確認的內容。':'付款會寄出保留當下的內容。')+'</span><div class="row"><button class="btn btn-gold" type="button" data-resume="'+ov.myHold.orderId+'">繼續付款</button></div></div>';
+  /* B536T：不再顯示「你有一個保留中的名額・繼續付款」，按「寫一封信」就回到草稿 */
   if(st==="noperiod")return'<div class="state info"><b>本期尚未開放收信</b><span>草稿可以先寫，會保留在此裝置。</span></div>';
   if(st==="notopen")return'<div class="state info"><b>本期尚未開放收信</b><span>'+monthName(per.id)+'將於 '+fmtMD(per.openAt)+' 開放。可以先寫草稿，不收費、不占名額。</span></div>';
   if(st==="closed")return'<div class="state info"><b>本期收信已結束。</b>'+nextLine(ov)+'<span>草稿會保留，但不會自動寄出、不會自動扣款，也不會自動取得下期名額。</span></div>';
@@ -805,7 +805,7 @@ V.product={load:function(){return API.overview(me())},view:function(ov){
  return '<section class="screen letter-entry"><div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
  '<div class="entry-copy"><div class="en">Dear Chance</div><h1>有些話，<br>只想寫給你。</h1><p class="lead">把想說的話，留在這封信裡。</p></div>'+stateBox(ov)+
  '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月 '+(per?per.perUser:1)+' 封</span></div>'+   /* B514T（CÉON 11/12）：一開始就寫清楚每個月能寄幾封 */
- (sentOut(ov)?'<button class="btn btn-ghost" id="write" type="button">先寫下個月的信</button>':'<button class="btn btn-gold" id="write" type="button">'+(ov.state==="open"?'寫一封信':'先寫草稿')+'</button>')+
+ '<button class="btn btn-gold" id="write" type="button">寫一封信</button>'+
  '<button class="btn btn-text" id="rules" type="button">收信說明</button></div></section>'},
  wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
 
@@ -875,49 +875,59 @@ V.compose={load:function(){return API.overview(me())},view:function(ov){
  }};
 
 /* ═════════ 粉絲：完整預覽 → 確認名額與付款 ═════════ */
+/* B536T（CÉON 11/13：寫信流程改成最簡單）：預覽頁只有一個勾選和一顆「付款並寄出」，按下直接到綠界。
+   沒有付款視窗、沒有「繼續付款」「返回修改」；要改信按左上角返回。名額保留、再付一次接上同一筆，都在後台默默處理。 */
 V.preview={load:function(){return API.overview(me())},view:function(ov){
   var d=CL.drafts[R.param];if(!d)return V.missing.view();
-  var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box;
-  var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
-  return'<section class="screen"><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+'<details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
-   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>每人每月</span><b>'+per.perUser+' 封</b></li><li><span>價格</span><b class="num">NT$'+(ov.myHold?ov.myHold.order.amount:per.price)+'</b></li></ul>':'')+
-   (blocked?'':'<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>')+   /* B514T：不能寄的時候，提示放最上面（不用滑到底才知道） */
-   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+(blocked?'':box)+
-   (holdDiff&&!(REAL&&ov.myHold.order.status!=="confirming")?'<div class="state info"><b>保留中的名額會寄出先前的版本</b><span>你在 '+fmtMD(ov.myHold.order.createdAt)+' 保留名額時，內容已固定為：</span><div class="snap">'+esc(summary(ov.myHold.snap.body,90))+'</div><span>若要寄出現在這個版本，請等保留於 '+fmtMD(ov.myHold.expiresAt)+' 到期後重新確認。</span></div>':'')+
-   ((!blocked||ov.myHold)?'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>':'')+
-   (ov.myHold?'<button class="btn btn-gold" id="resume" type="button">繼續付款並寄出 · NT$'+ov.myHold.order.amount+'</button><p class="small" style="text-align:center">名額保留到 '+fmtMD(ov.myHold.expiresAt)+'</p>'
-     :(blocked?'':'<button class="btn btn-gold" id="confirm" type="button"'+(reserving?' disabled aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>確認名額中':'確認付款並寄出 · NT$'+(per?per.price:99))+'</button><p class="small" style="text-align:center">按下後會先保留名額 '+(per?per.holdMin:10)+' 分鐘，再前往付款。</p>'))+
-   '<button class="btn btn-ghost" id="edit" type="button">返回修改</button>'+((!blocked||ov.myHold)?'':'<button class="btn btn-text" id="rules" type="button">查看收信規則</button>')+'</section>'},
+  var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box,price=ov.myHold?ov.myHold.order.amount:(per?per.price:99);
+  return'<section class="screen"><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
+   (RT.payNote&&!blocked?'<div class="state err" role="alert"><b>付款沒有完成，草稿還在。</b><span>再按一次「付款並寄出」就好。</span></div>':'')+
+   '<details class="letter-preview" open><summary>查看完整信件</summary>'+paperHTML(d.body,d.sig,now())+'</details>'+
+   (per?'<ul class="facts"><li><span>收件人</span><b>CHANCE · 專屬信箱</b></li><li><span>收信期別</span><b>'+monthName(per.id)+'</b></li><li><span>可用名額</span><b>'+ov.remaining+' / '+per.capacity+'</b></li><li><span>親自閱讀期限</span><b>'+fmtMD(per.readBy)+' 前</b></li><li><span>每人每月</span><b>'+per.perUser+' 封</b></li><li><span>價格</span><b class="num">NT$'+price+'</b></li></ul>':'')+
+   (blocked?'':'<p class="warn">付款成功後，會寄出這封預覽中的信。\n寄出後不能編輯或撤回。\n不保證逐一回覆。</p>')+
+   (lastErr?'<div class="state err" role="alert"><b>'+esc(lastErr)+'</b></div>':'')+
+   (blocked?'':'<label class="consent"><input type="checkbox" id="consent">我已閱讀收信規則，確認寄出後無法修改，且不保證回覆。</label><button class="btn btn-text consent-rules" id="rules" type="button">查看收信規則</button>'+
+     '<button class="btn btn-gold" id="send" type="button" disabled'+(reserving?' aria-busy="true"':'')+'>'+(reserving?'<span class="spin"></span>前往付款中':'付款並寄出 · NT$'+price)+'</button>')+
+   (blocked?'<button class="btn btn-text" id="rules" type="button">查看收信規則</button>':'')+'</section>'},
  wire:function(ov){
   bindState();var d=CL.drafts[R.param];if(!d)return V.missing.wire();
-  $("edit").onclick=function(){lastErr=null;stack.pop();setRoute({name:"compose",param:d.id});render();window.scrollTo(0,0)};
-  $("rules").onclick=function(){rulesSheet(ov.period)};
-  var consent=$("consent"),action=$("confirm")||$("resume");if(consent&&action){action.disabled=true;consent.onchange=function(){action.disabled=!consent.checked||reserving}};
-  var holdDiff=ov.myHold&&(ov.myHold.draftId!==d.id||ov.myHold.snap.body!==d.body||ov.myHold.snap.sig!==d.sig);
-  if($("resume"))$("resume").onclick=function(){
-    if(REAL&&holdDiff&&ov.myHold.order.status!=="confirming"){   /* B502T（CÉON 11/11）：還沒進綠界付款前改過內容 → 換成現在這一版再付款（名額、倒數不變） */
-      if(!$("consent")||!$("consent").checked)return;$("resume").disabled=true;
-      API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},d.reserveKey||(d.reserveKey=uid("RK"))).then(function(r){
-        if(r.ok&&r.view){CL.active={orderId:r.view.order.id,draftId:d.id};cSave();render();openPay(r.view);return}
-        lastErr=r.err==="content"?"信件內容不符合字數限制。":"暫時無法確認名額，請稍後再試。你的草稿仍在。";render();
-      },function(){lastErr="暫時無法確認名額，請稍後再試。你的草稿仍在。";render()});
-      return;
-    }
-    API.status(ov.myHold.orderId).then(function(r){if(r.view)openPay(r.view)});
-  };
-  if($("confirm"))$("confirm").onclick=function(){
-    if(reserving||!$("consent")||!$("consent").checked)return;reserving=true;lastErr=null;$("confirm").disabled=true;$("confirm").innerHTML='<span class="spin"></span>確認名額中';
-    var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();
-    API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key).then(function(r){
-      reserving=false;
-      if(r.ok){CL.active={orderId:r.view.order.id,draftId:d.id};cSave();render();openPay(r.view);return}
-      d.reserveKey=null;cSave();
-      if(r.err==="login"){render();loginSheet();return}
-      lastErr={full:"本期名額剛剛額滿，你的草稿已保留。",closed:"本期收信已結束。你的草稿已保留。",notopen:"本期尚未開放收信。",already:"你本月的心意，已經寄出。",paused:"本期暫停收新信。你的草稿已保留。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信。"}[r.err]||"暫時無法確認名額，請稍後再試。";
-      render();say(lastErr);
-    },function(){reserving=false;lastErr="暫時無法確認名額，請稍後再試。你的草稿仍在。";render()});
+  if($("rules"))$("rules").onclick=function(){rulesSheet(ov.period)};
+  var consent=$("consent"),btn=$("send");if(!consent||!btn)return;
+  consent.onchange=function(){btn.disabled=!consent.checked||reserving};
+  var errs={full:"本月名額已滿，草稿已保存。",closed:"本期收信已結束，草稿已保存。",notopen:"本期尚未開放收信，草稿已保存。",already:"你本月的心意已經寄出，草稿已保存。",paused:"本期暫停收新信，草稿已保存。",content:"信件內容不符合字數限制。",noperiod:"本期尚未開放收信，草稿已保存。",checking:"還在確認上一筆付款，請過幾秒再按一次。",payform:"暫時無法前往付款，請再按一次。"};
+  function fail(code){reserving=false;lastErr=errs[code]||"暫時無法前往付款，請再按一次。你的草稿仍在。";render();say(lastErr)}
+  function reserve(fresh){if(fresh)d.reserveKey=null;var key=d.reserveKey||(d.reserveKey=uid("RK"));cSave();return API.reserve(me(),{id:d.id,body:d.body,sig:d.sig},key)}
+  function pay(r,tries){
+    if(!r||!r.ok){if(r&&r.err==="login"){reserving=false;render();loginSheet();return}d.reserveKey=null;cSave();return fail(r&&r.err)}
+    CL.active={orderId:r.view.order.id,draftId:d.id};cSave();
+    API.pay(me(),r.view.order.id,SIM.pay,SIM.deliver).then(function(x){
+      if(x&&x.err==="expired"&&!tries)return reserve(true).then(function(r2){pay(r2,1)},function(){fail()});   /* 保留過期了：自動重新保留一次再付 */
+      if(x&&x.err)return fail(x.err);
+      if(x&&x.ok&&x.view){reserving=false;go("ritual",x.view.order.id);return}   /* 已付過，或 Demo 模擬付款 → 寄出畫面 */
+    },function(){fail()});
+  }
+  btn.onclick=function(){
+    if(reserving||!consent.checked)return;reserving=true;lastErr=null;RT.payNote=false;btn.disabled=true;btn.innerHTML='<span class="spin"></span>前往付款中';
+    reserve(false).then(function(r){pay(r,0)},function(){fail()});
   };
  }};
+/* B536T：從綠界回來（上一頁、返回商店、切回 App）：問後台這筆付了沒。付了→寄出畫面；沒付→回到預覽頁，草稿還在 */
+function payReturn(){
+  if(!CL.active||SIM.role!=="fan"||RT.retBusy)return;
+  var pg=null;try{pg=JSON.parse(localStorage.getItem("dc:paying")||"null")}catch(e){}
+  if(!pg||pg.o!==CL.active.orderId||Date.now()-(pg.t||0)>30*60e3)return;
+  RT.retBusy=true;reserving=false;var oid=CL.active.orderId,did=CL.active.draftId,t0=Date.now();
+  (function chk(){
+    API.status(oid,true).then(function(x){
+      var o=x&&x.view&&x.view.order;
+      if(o&&(o.letterId||o.status==="paid"||o.status==="refund_pending")){RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}stack=[{name:home()}];setRoute({name:"ritual",param:oid});render();return}
+      if(o&&o.status==="confirming"&&Date.now()-t0<45000){setTimeout(chk,1500);return}
+      RT.retBusy=false;try{localStorage.removeItem("dc:paying")}catch(e){}
+      if(!x||!x.view||x.view.hold.status!=="active"){CL.active=null;cSave()}
+      RT.payNote=true;lastErr=null;stack=[{name:home()}];setRoute(CL.drafts[did]?{name:"preview",param:did}:{name:home()});render();window.scrollTo(0,0);say("付款沒有完成，草稿還在");
+    },function(){RT.retBusy=false})})();
+}
+RT.payBack=payReturn;
 function loginSheet(){
   sheet('<div class="grab"></div><h2>登入後才能寄出</h2><p class="small">寄信名額、付款與信件紀錄都綁定帳號，換手機也查得到。草稿會保留。</p><button class="btn btn-gold" id="lg" type="button">'+(DEMO_UI?'以 Email 登入（Demo）':'以 Email 登入')+'</button><button class="btn btn-ghost" id="cancel" type="button">先不要</button>',
    function(close){$("lg").onclick=function(){SIM.role="fan";simSave();close();render();toast(DEMO_UI?"已登入（Demo）":"已登入")};$("cancel").onclick=close});
@@ -1299,12 +1309,14 @@ window.addEventListener("pagehide",function(){if(ED&&ED.dirty){clearTimeout(save
 document.addEventListener("visibilitychange",function(){
   if(document.hidden){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}return}
   if(R&&!document.querySelector(".scrim")&&["ritual","preview","mailbox","product","shop"].indexOf(R.name)>-1)render();   /* 回到前景：重新向後端查狀態 */
+  payReturn();   /* B536T：從綠界切回來也問一次付款結果 */
 });
 (function boot(){
-  var r=CL.route;
+  var r=CL.route;if(r&&(r.name==="preview"||r.name==="compose")&&r.param&&!CL.drafts[r.param]){r=null;CL.route=null;cSave()}   /* B536T：草稿已寄出或不在了 → 回首頁，不停在「找不到這封信」 */
   if(CL.active&&SIM.role==="fan"){
     API.status(CL.active.orderId).then(function(x){var o=x.view&&x.view.order;
-      if(o&&(o.letterId||["confirming","paid","refund_pending"].indexOf(o.status)>-1)){stack=[{name:home()}];R={name:"ritual",param:o.id}}
+      if(o&&o.status==="confirming"){R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};render();payReturn();return}   /* B536T：去過綠界還沒結果 → 問綠界，沒付就回預覽 */
+      if(o&&(o.letterId||["paid","refund_pending"].indexOf(o.status)>-1)){stack=[{name:home()}];R={name:"ritual",param:o.id}}
       else{if(!o||x.view.hold.status!=="active"){CL.active=null;cSave()}R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};if(R.name!==home())stack=[{name:home()}]}
       render()});
     return;
