@@ -3372,7 +3372,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (window.SkySeat) return cb();
     if (seatLoadQ) return void seatLoadQ.push(cb);
     seatLoadQ = [cb];
-    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S10";
+    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S11";
     sc.onload = function () { var q = seatLoadQ || []; seatLoadQ = null; q.forEach(function (f) { try { f(); } catch (e) {} }); };
     sc.onerror = function () { var q = seatLoadQ || []; seatLoadQ = null; if (sc.parentNode) sc.parentNode.removeChild(sc); if (q.length === 1 && quiet) return; S.seatOpening = false; coReveal(); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
   }

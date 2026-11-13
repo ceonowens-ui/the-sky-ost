@@ -147,6 +147,7 @@
     }
     /* B453T：選位總時限，時間以後台回的為準 */
     function tick() { var ms = o.left ? o.left() : null; if (ms == null) { leftEl.hidden = true; return; } var s2 = Math.max(0, Math.ceil(ms / 1000)); leftEl.hidden = false; leftEl.textContent = (en ? "Time to tap Pay " : "選位時間剩 ")   /* B469T（CÉON 11/09）：跟結帳頁同一個名字 */ + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); leftEl.classList.toggle("warn", ms <= 60e3); if (ms <= 0 && o.onTimeUp) o.onTimeUp(); }
+    var leaving = false;
     function close() {
       closed = true; clearInterval(timer); clearInterval(leftT); clearTimeout(msgT);
       document.removeEventListener("keydown", onKey); document.removeEventListener("visibilitychange", onVis);
@@ -161,7 +162,13 @@
       if (k === "tab") return go(b.getAttribute("data-b"));
       if (k === "wheel") return say(T.wheel);
       if (k === "retry") { mapEl.innerHTML = '<div class="sk-state">' + T.load + "</div>"; return pull(true); }
-      if (k === "ok") { var out = sel.slice().sort(order), names = out.map(name); close(); o.onDone(out, names); return; }
+      if (k === "ok") {   /* B546T（CÉON 11/13）：按確認換到結帳頁時，用手機內建的淡入接起來（View Transitions）；不支援或開了「減少動態效果」就照舊直接換 */
+        if (closed || leaving) return; leaving = true;
+        var out = sel.slice().sort(order), names = out.map(name);
+        var done = function () { if (closed) return; close(); o.onDone(out, names); };
+        var calm = false; try { calm = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e2) {}
+        if (document.startViewTransition && !calm) { try { document.startViewTransition(done); } catch (e3) { done(); } } else done();
+        return; }
       if (k === "seat") {
         var id = b.getAttribute("data-id"), i = sel.indexOf(id);
         if (i >= 0) sel.splice(i, 1);
