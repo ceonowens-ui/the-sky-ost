@@ -264,6 +264,10 @@ h3{font-size:17px;line-height:1.5}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:16px;border:0;cursor:pointer;font:700 16px/1.25 var(--f-ui);letter-spacing:.05em;text-align:center}
 .btn-gold{background:var(--gold-grad);color:#1D1608;box-shadow:0 10px 26px rgba(212,183,126,.22),inset 0 1px 0 rgba(255,255,255,.4)}
 .btn-gold:active{transform:scale(.985)}
+/* B545T：手指一碰按鈕就有反應（變暗、縮一點）；換頁用手機內建的淡入（View Transitions），換頁那一下不再播 .screen 自己的淡入，避免疊兩次 */
+.btn:not([disabled]):active{transform:scale(.97);filter:brightness(.86);transition:transform .08s,filter .08s}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}
+html.vt .screen{animation:none!important}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);font-weight:500}
 .btn-text{background:transparent;color:var(--gold);font-weight:500;min-height:44px}
 .btn[disabled]{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none}
@@ -814,7 +818,7 @@ function paperHTML(body,sig,ts){
 
 /* ═════════ 粉絲：Shop / 商品頁 ═════════ */
 var V={};
-V.shop={load:function(){return API.overview(me())},view:function(ov){
+V.shop={load:function(){return ovFast()},view:function(ov){
   var per=ov.period,draftN=Object.keys(CL.drafts).filter(function(k){return CL.drafts[k].body||CL.drafts[k].sig}).length;
   return'<section class="screen">'+
    '<div class="shop-head"><div class="eyebrow">Merch · 第三件周邊</div><div class="t">THE SKY COLLECTION</div><p class="small">原有的聽片會票與製作寫真不動，這頁只示範新加入的信箋商品卡。</p></div>'+
@@ -824,14 +828,14 @@ V.shop={load:function(){return API.overview(me())},view:function(ov){
     '<button class="btn btn-gold" id="toProduct" type="button">看看這份心意</button></div></article>'+
    (draftN?'<p class="small" style="text-align:center">你有 '+draftN+' 封草稿保留在此裝置。</p>':'')+'</section>'},
  wire:function(){$("toProduct").onclick=function(){go("product")}}};
-V.product={load:function(){return API.overview(me())},view:function(ov){
+V.product={load:function(){return ovFast()},view:function(ov){
  var per=ov.period;
  return '<section class="screen letter-entry"><div class="hero-art"><img src="'+ENC_URI+'" alt="相遇信箋主視覺"></div>'+
  '<div class="entry-copy"><div class="en">Dear Chance</div><h1>有些話，<br>只想寫給你。</h1><p class="lead">把想說的話，留在這封信裡。</p></div>'+stateBox(ov)+
  '<div class="entry-action"><div class="price-row"><span class="price">NT$'+(per?per.price:99)+'</span><span class="price-note">／封 · 每人每月 '+(per?per.perUser:1)+' 封</span></div>'+   /* B514T（CÉON 11/12）：一開始就寫清楚每個月能寄幾封 */
  '<button class="btn btn-gold" id="write" type="button">寫一封信</button>'+
  '<button class="btn btn-text" id="rules" type="button">收信說明</button></div></section>'},
- wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write"))$("write").onclick=function(){go("compose",newOrLatestDraft(false))}}};
+ wire:function(ov){bindState();$("rules").onclick=function(){rulesSheet(ov.period)};if($("write")){$("write").onclick=function(){go("compose",newOrLatestDraft(false))};$("write").addEventListener("touchstart",function(){ovLive()},{passive:true});$("write").addEventListener("mousedown",function(){ovLive()})}}};   /* B545T：手指一碰就先去問後台 */
 
 /* ═════════ 粉絲：寫信 ═════════ */
 var ED=null,saveT=null;
@@ -861,7 +865,7 @@ function leaveCompose(then){
    function(close){$("lsRetry").onclick=function(){if(saveDraft()){close();then()}};$("lsCopy").onclick=function(){copyText(ED.body)};$("cancel").onclick=close;$("lsGo").onclick=function(){ED.dirty=false;close();then()}});
   return false;
 }
-V.compose={load:function(){return API.overview(me())},view:function(ov){
+V.compose={load:function(){return ovFast()},view:function(ov){
   var d=CL.drafts[R.param];if(!d){R.param=newOrLatestDraft(true);setRoute(R);d=CL.drafts[R.param]}
   if(!ED||ED.id!==d.id)ED={id:d.id,body:d.body,sig:d.sig,dirty:false,composing:false,saveState:"idle",savedAt:null};
   var hold=ov.myHold&&ov.myHold.draftId===d.id?ov.myHold:null;
@@ -905,7 +909,7 @@ V.preview={load:function(){return Promise.resolve(null)},view:function(){return'
  wire:function(){var id=R.param;stack=[{name:home()}];setRoute(CL.drafts[id]?{name:"compose",param:id}:{name:home()});render()}};   /* 舊的預覽網址 → 回寫信頁 */
 function openSend(d,note){
   if(!d||RT.sendOpening||RT.sendClose)return;RT.sendOpening=true;lastErr=null;
-  API.overview(me()).then(function(ov){
+  ovLive().then(function(ov){
     RT.sendOpening=false;if(RT.sendClose)return;
     var per=ov.period,box=ov.myHold?"":stateBox(ov,"draft"),blocked=!!box,price=ov.myHold?ov.myHold.order.amount:(per?per.price:99);
     sheet('<div class="grab"></div><button class="sheet-x" data-p="x" type="button" aria-label="關閉">✕</button><h2>把心意，寄給 Chance。</h2>'+(blocked?box:'')+
@@ -1337,16 +1341,39 @@ if(REAL){
 /* ═════════ render ═════════ */
 var renderSeq=0;
 var ALLOWED={fan:["shop","product","compose","preview","ritual","mailbox","letter"],guest:["shop","product","compose","preview","mailbox"],chance:["inbox","cletter"],team:["admin","inbox"]};
+/* B545T（CÉON 11/13：先換頁、後補資料）：名額資料記住上一次的，進頁面先用它馬上畫；同時背景去問後台，
+   回來如果畫面內容不一樣，才原地換掉（不淡入、不跳）。真正確認名額還是在按「付款並寄出」那一刻（openSend 一定問最新的）。 */
+var OVC=null,OVP=null;
+function ovKey(){var u=me()||{};return SIM.role+":"+(u.email||u.id||u.name||"")}
+function ovLive(){if(OVP)return OVP;var k=ovKey();OVP=API.overview(me()).then(function(v){OVP=null;OVC={k:k,v:v,t:Date.now()};return v},function(e){OVP=null;throw e});return OVP}
+function ovFast(){
+  var c=OVC;if(!c||c.k!==ovKey()||Date.now()-c.t>10*60e3)return ovLive();
+  var seq=renderSeq,r0=R;
+  ovLive().then(function(v){
+    if(seq!==renderSeq||R!==r0||document.querySelector(".scrim"))return;
+    var ae=document.activeElement;if(ae&&/^(TEXTAREA|INPUT)$/.test(ae.tagName))return;   /* 正在打字就不動畫面 */
+    var fn=V[R.name];if(!fn||fn.view(v)===RT.lastHtml)return;
+    RT.quiet={data:v};render();
+  },function(){});
+  return Promise.resolve(c.v);
+}
 function render(){
   clearTimers();if(RT.anim){try{RT.anim.destroy()}catch(e){}RT.anim=null}if(!R)R={name:home()};
   if(R.name!=="compose"&&ED&&!ED.dirty)ED=null;
   if(ALLOWED[SIM.role].indexOf(R.name)<0){stack=[];R={name:home()};CL.route=R;cSave()}
-  var fn=V[R.name]||V.shop,seq=++renderSeq;
+  var fn=V[R.name]||V.shop,seq=++renderSeq,quiet=RT.quiet,changed=RT.lastRoute!==R.name;RT.quiet=null;
   function swap(){document.body.dataset.route=R.name;demoTxt();top()}   /* B544T（CÉON 11/13 錄影）：底色、標題跟內容同一刻換；以前先換底色再等後台，畫面會先變色才跳過去 */
-  fn.load().then(function(data){
+  (quiet?Promise.resolve(quiet.data):fn.load()).then(function(data){
     if(seq!==renderSeq)return;
-    var html=fn.view(data);swap();$("view").innerHTML=html;
-    if(html.indexOf("找不到這封信")>-1)V.missing.wire();else fn.wire(data);
+    var html=fn.view(data);
+    function put(still){swap();$("view").innerHTML=html;RT.lastHtml=html;RT.lastRoute=R.name;
+      if(still)$("view").querySelectorAll(".screen").forEach(function(el){el.style.animation="none"});   /* 這次不播 .screen 自己的淡入（不然手機淡入完又淡入一次） */
+      if(html.indexOf("找不到這封信")>-1)V.missing.wire();else fn.wire(data)}
+    if(quiet){put(true);return}   /* 後台新資料回來：原地換，不播淡入 */
+    if(changed&&document.startViewTransition&&!reducedMotion()){   /* B545T：換頁交給手機內建的淡入，舊畫面直接接新畫面 */
+      var H=document.documentElement,off=function(){H.classList.remove("vt")};H.classList.add("vt");
+      try{var vt=document.startViewTransition(function(){put(true)});vt.finished.then(off,off)}catch(e){off();put()}
+    }else put();
   },function(e){if(seq!==renderSeq)return;swap();$("view").innerHTML='<section class="screen"><div class="state err"><b>暫時連不上服務</b><span>'+(e==="storage"?"此裝置無法儲存資料。":"請稍後再試。")+'你的草稿仍在。</span></div></section>'});
 }
 window.addEventListener("pagehide",function(){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}});
