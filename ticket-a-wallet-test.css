@@ -68,3 +68,23 @@ html body .aw-pass .tk-pass.tk-v2 { margin:0 auto !important; width:100%; max-wi
 .aw .aw-pg button:disabled { opacity:.3; cursor:default; }
 .aw-pass .tk-v2-sub { margin-top:14px; }
 .aw-pass .tk-list { margin-top:14px; }
+
+/* B561T（CÉON 11/14 選 Figma B）：整張海報不裁切＋酒紅票根，跟 SHOP「我的票」同一套顏色 */
+.aw-card.aw-cb { border-radius:18px; background:linear-gradient(135deg,#3a0b12,#1d0609); border:1px solid rgba(216,188,128,.45); box-shadow:0 16px 36px rgba(0,0,0,.5); color:#fff7e6; cursor:pointer; }
+.aw-cb .cb-ph { position:relative; display:block; aspect-ratio:1086/1448; overflow:hidden; background:#2b0a0f; border-bottom:1px solid rgba(216,188,128,.35); }
+.aw-cb .cb-ph img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:top center; display:block; max-width:none; }
+.aw-cb .cb-ph.no { aspect-ratio:auto; padding:28px 18px; }
+.aw-cb .cb-nm { font-size:26px; font-weight:700; color:#f0dcaa; }
+.aw-cb .cb-st { padding:16px 18px 18px; }
+.aw-cb .cb-k { display:block; font:500 13px/1 'Cormorant Garamond',Georgia,serif; letter-spacing:.24em; color:#d8bc80; }
+.aw-cb .cb-r1 { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-top:10px; }
+.aw-cb .cb-d b { display:block; font:700 34px/1 Georgia,serif; color:#f0dcaa; }
+.aw-cb .cb-d span { display:block; font-size:14px; color:#e6cfa6; margin-top:5px; white-space:nowrap; }
+.aw-cb .cb-t { text-align:right; min-width:0; }
+.aw-cb .cb-t b { display:block; font-size:16px; font-weight:700; color:#fff7e6; }
+.aw-cb .cb-t span { display:block; font-size:14px; color:#e6cfa6; margin-top:5px; }
+.aw-cb .cb-r2 { display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(216,188,128,.5); }
+.aw-cb .cb-n { font:700 28px/1 Georgia,serif; color:#f0dcaa; }
+.aw-cb .cb-n small { font:600 15px/1 var(--a-zh); color:#e6cfa6; margin-left:5px; }
+.aw .aw-cb .cb-go { position:static; width:auto; height:auto; background:#d8bc80; color:#17130b; border-radius:999px; padding:12px 18px; font-size:16px; font-weight:700; white-space:nowrap; }
+.aw .aw-cb .cb-x { display:block; margin-top:12px; font-size:14px; color:#e6cfa6; text-align:left; }

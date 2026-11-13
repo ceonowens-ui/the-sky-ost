@@ -1849,7 +1849,7 @@ function coverClockKey() {
   var AW_ON = (function () { try { return /\/test\.html$/i.test(location.pathname) && !/[?&]tkb=0\b/.test(location.search) && !C.demo && localStorage.getItem("tk:bcal") !== "0"; } catch (e) { return false; } })();
   var AW_READY = false;   // 樣式到了才換新版。樣式慢或載不到時留在舊票夾，不出現半成品
   if (AW_ON) { (function () {
-    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-a-wallet-test.css") + "?v=B430T-1";
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = asset("ticket-a-wallet-test.css") + "?v=B561T";
     l.onload = function () { AW_READY = true; if (S.layers.indexOf("wallet") >= 0) renderLayer("wallet"); };
     document.head.appendChild(l);
     var f = document.createElement("link"); f.rel = "stylesheet"; f.href = "https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans+TC:wght@400;700&display=swap"; document.head.appendChild(f);
@@ -1895,14 +1895,18 @@ function coverClockKey() {
   }
   function awCard(g) {
     var ev = g.ev, p = awParts(ev.startAt) || {}, en = sxEN(), N = awLive(g.id).length, art = v2EvOk(g.id, ev), door = awDoor(ev), st = hm(ev.startAt), m = awMerch(g.id), open = !!(S.awOpen || {})[g.key];
-    var first = (awLive(g.id)[0] || {}).id, wkd = "SUN MON TUE WED THU FRI SAT".split(" ")[p.w], ph = (art ? '<img src="' + esc(asset(V2_ART)) + '" alt="">' : '') + (art ? '<span class="aw-chip">' + awL("看完整票面 ↗", "Full ticket ↗") + '</span>' : '') + '<b class="aw-big aw-an">CHANCE</b><span class="aw-nm' + (awSub(ev).length > 5 ? ' s' : '') + '">' + esc(awSub(ev)) + '</span>';
-    var h = '<article class="aw-card" role="button" tabindex="0" data-act="open-pass" data-id="' + esc(first) + '" data-ev="' + esc(g.id) + '" data-key="' + esc(g.key) + '"><div class="aw-ph">' + ph + '</div>' +
-      '<div class="aw-stub"><span class="aw-yr">' + p.y + '  /  ' + wkd + '</span><b class="aw-dt aw-an">' + awP2(p.m + 1) + '.' + awP2(p.d) + '</b><i class="aw-vl"></i><b class="aw-vn">' + esc(ev.venue || "") + '</b><span class="aw-tm">' + (door ? door + awL(" 入場  ・  ", " doors  ·  ") + st + awL(" 開始", " start") : st + awL(" 開始", " start")) + '</span><i class="aw-hr"></i><b class="aw-cnt">' + awL("可入場 " + N + " 張", N + " valid") + '</b>';
+    /* B561T（CÉON 11/14 選 Figma B）：票夾卡＝整張海報不裁切＋酒紅票根，跟 SHOP「我的票」同一套 */
+    var first = (awLive(g.id)[0] || {}).id, wkd = en ? " · " + "SUN MON TUE WED THU FRI SAT".split(" ")[p.w] : "（" + "日一二三四五六".charAt(p.w) + "）";
+    var ph = art ? '<img src="' + esc(asset(V2_ART)) + '" alt="">' : '<b class="cb-nm">' + esc(ev.name || "CHANCE") + '</b>';
+    var h = '<article class="aw-card aw-cb" role="button" tabindex="0" data-act="open-pass" data-id="' + esc(first) + '" data-ev="' + esc(g.id) + '" data-key="' + esc(g.key) + '"><div class="cb-ph' + (art ? '' : ' no') + '">' + ph + '</div>' +
+      '<div class="cb-st"><span class="cb-k">ENTRY PASS</span><div class="cb-r1"><div class="cb-d"><b>' + awP2(p.m + 1) + '.' + awP2(p.d) + '</b><span>' + p.y + wkd + '</span></div><div class="cb-t"><b>' + esc(ev.venue || "") + '</b><span>' + (door ? door + awL(" 入場・", " doors · ") + st + awL(" 開始", " start") : st + awL(" 開始", " start")) + '</span></div></div>' +
+      '<div class="cb-r2"><b class="cb-n">' + N + '<small>' + awL("張票", N > 1 ? "tickets" : "ticket") + '</small></b>';
     var sib = sibsFor(g.id), pend = sib.filter(function (t) { return t.transferPending && isLive(t); }), oth = sib.filter(function (t) { return !isLive(t); }), cnt = {}, ord = [];
     oth.forEach(function (t) { var n = tStat(t).n; if (!cnt[n]) { cnt[n] = 0; ord.push(n); } cnt[n]++; });
     var line = (pend.length ? [awL(pend.length + " 張轉讓中", pend.length + " transferring")] : []).concat(ord.map(function (n) { return awL(n + " " + cnt[n] + " 張", n + " " + cnt[n]); })).join("・");
-    if (line) h += '<button type="button" class="aw-st" data-act="open-pass" data-id="' + esc((pend[0] || oth[0]).id) + '">' + esc(line) + ' ›</button>';
-    h += '<button type="button" class="aw-go" data-act="open-pass" data-id="' + esc(first) + '">' + awL("出示入場碼 ↗", "Entry code ↗") + '</button></div></article>';
+    h += '<button type="button" class="cb-go" data-act="open-pass" data-id="' + esc(first) + '">' + awL("出示入場碼 →", "Entry code →") + '</button></div>';
+    if (line) h += '<button type="button" class="cb-x" data-act="open-pass" data-id="' + esc((pend[0] || oth[0]).id) + '">' + esc(line) + ' ›</button>';
+    h += '</div></article>';
     if (m.length) {
       h += '<button type="button" class="aw-mr" data-act="a-mx" data-key="' + esc(g.key) + '" aria-expanded="' + open + '"><b>' + awL("周邊領取明細", "Merch pickup") + '</b><span>' + esc(awMsum(m)) + '</span><i aria-hidden="true">' + (open ? "−" : "＋") + '</i></button>';
       if (open) h += '<div class="aw-mp">' + m.map(function (x) {
