@@ -3043,7 +3043,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ✏️ 活動主視覺文字改 BUY_TEXT；價格/席次/福利從 Worker 場次資料讀
      ════════════════════════════════════════════════════════════════ */
   var BUY_TEXT = {
-    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡", "隨機A3海報一張"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
+    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
       /* B337T：生日會資訊（CÉON 10/29 13:21 提供原文，一字不改；英文在 shop-language.js 逐行對照）。每個陣列＝一段
          B349T：CÉON 10/30 確認座位名額 120 名、11/15 12:00（台北時間）開放購票。B352T：取消提前購買，所有人同時開賣 */
       info: { title: "生日會資訊",
