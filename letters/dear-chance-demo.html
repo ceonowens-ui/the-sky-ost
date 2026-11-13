@@ -1332,6 +1332,27 @@ document.addEventListener("visibilitychange",function(){
   if(r&&V[r.name]&&r.name!=="ritual"){R=r;if(r.name!==home())stack=[{name:home()}]}else R={name:home()};
   render();
 })();
+/* B541T（CÉON 11/13：主畫面 App 從綠界付款頁關掉回來後，預覽頁所有按鈕、勾選、返回都按不動）
+   iPhone 模擬器裝成主畫面 App 重現：手指碰下去頁面收得到 touchstart，但 iOS 不再送出 click（只發生在這個內嵌頁、主畫面 App 模式）。
+   做法：手指輕點放開後 0.35 秒內沒有收到真正的 click，就由頁面自己補按一次；有收到就什麼都不做（不會按兩次）。 */
+(function(){
+  var st=null,lastClick=0;
+  document.addEventListener("click",function(e){if(e.isTrusted)lastClick=Date.now()},true);
+  document.addEventListener("touchstart",function(e){var t=e.touches[0];st=e.touches.length===1?{x:t.clientX,y:t.clientY,t:Date.now(),el:e.target}:null},{capture:true,passive:true});
+  document.addEventListener("touchmove",function(e){if(!st)return;var t=e.touches[0];if(Math.abs(t.clientX-st.x)>10||Math.abs(t.clientY-st.y)>10)st=null},{capture:true,passive:true});
+  document.addEventListener("touchcancel",function(){st=null},{capture:true,passive:true});
+  document.addEventListener("touchend",function(){
+    if(!st)return;var s=st;st=null;if(Date.now()-s.t>700)return;var at=Date.now();
+    setTimeout(function(){
+      if(lastClick>=at)return;
+      var el=s.el&&s.el.nodeType===1?s.el:(s.el&&s.el.parentElement);if(!el||!el.isConnected)return;
+      var tg=el.closest("button,a,input,textarea,select,label,summary,[role=button],[data-p]")||el;
+      if(tg.disabled)return;
+      if(tg.tagName==="TEXTAREA"||tg.tagName==="SELECT"||(tg.tagName==="INPUT"&&!/^(checkbox|radio|button|submit)$/.test(tg.type))){try{tg.focus()}catch(e){}return}
+      tg.click();
+    },350);
+  },{capture:true,passive:true});
+})();
 window.__DC={API:API,USER:USER,sLoad:sLoad,now:now};   /* 測試掛勾（Demo） */
 })();
 </script>
