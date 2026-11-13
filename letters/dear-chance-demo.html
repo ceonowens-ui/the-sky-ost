@@ -1160,7 +1160,7 @@ function sheet(content,init){
   var sh=document.createElement("div");sh.className="sheet";sh.setAttribute("role","dialog");sh.setAttribute("aria-modal","true");
   scrim.appendChild(sh);$("layer").appendChild(scrim);
   function paint(){sh.innerHTML=typeof content==="function"?content():content}
-  var closed=false;function close(){if(closed)return;closed=true;scrim.remove();document.removeEventListener("keydown",onKey);try{prev&&prev.focus()}catch(e){}}
+  var closed=false;function close(){if(closed)return;closed=true;scrim.remove();try{if(parent!==window)parent.postMessage({dc:"refit"},location.origin)}catch(e){}document.removeEventListener("keydown",onKey);try{prev&&prev.focus({preventScroll:true})}catch(e){}}
   function dismiss(){var c=sh.querySelector("#cancel,#simClose,[data-p='x']");if(c&&!c.disabled)c.click()}
   function onKey(e){if(e.key==="Escape")dismiss()}
   scrim.addEventListener("click",function(e){if(e.target===scrim)dismiss()});document.addEventListener("keydown",onKey);
