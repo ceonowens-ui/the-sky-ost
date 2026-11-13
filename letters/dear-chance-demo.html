@@ -1341,13 +1341,13 @@ function render(){
   clearTimers();if(RT.anim){try{RT.anim.destroy()}catch(e){}RT.anim=null}if(!R)R={name:home()};
   if(R.name!=="compose"&&ED&&!ED.dirty)ED=null;
   if(ALLOWED[SIM.role].indexOf(R.name)<0){stack=[];R={name:home()};CL.route=R;cSave()}
-  document.body.dataset.route=R.name;demoTxt();top();
   var fn=V[R.name]||V.shop,seq=++renderSeq;
+  function swap(){document.body.dataset.route=R.name;demoTxt();top()}   /* B544T（CÉON 11/13 錄影）：底色、標題跟內容同一刻換；以前先換底色再等後台，畫面會先變色才跳過去 */
   fn.load().then(function(data){
     if(seq!==renderSeq)return;
-    var html=fn.view(data);$("view").innerHTML=html;
+    var html=fn.view(data);swap();$("view").innerHTML=html;
     if(html.indexOf("找不到這封信")>-1)V.missing.wire();else fn.wire(data);
-  },function(e){if(seq!==renderSeq)return;$("view").innerHTML='<section class="screen"><div class="state err"><b>暫時連不上服務</b><span>'+(e==="storage"?"此裝置無法儲存資料。":"請稍後再試。")+'你的草稿仍在。</span></div></section>'});
+  },function(e){if(seq!==renderSeq)return;swap();$("view").innerHTML='<section class="screen"><div class="state err"><b>暫時連不上服務</b><span>'+(e==="storage"?"此裝置無法儲存資料。":"請稍後再試。")+'你的草稿仍在。</span></div></section>'});
 }
 window.addEventListener("pagehide",function(){if(ED&&ED.dirty){clearTimeout(saveT);saveDraft()}});
 document.addEventListener("visibilitychange",function(){
