@@ -194,7 +194,7 @@
  '離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名':'Hi-five on the way out: gifts for Chance are welcome, but no special requests for photos, videos or autographs',
  '最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)':'We’ll take a group photo at the end / there will be a prize quiz and a draw for a life-size standee (raffle numbers are handed out at entry on the day / you get the same number of raffle numbers as tickets you bought)',
  /* B342T：買票＋生日周邊加購（A3 海報組／A3 海報組＋6號小卡）、單買周邊・海外寄送 */
- '加購生日限定周邊':'Birthday merch add-ons','生日限定周邊':'Birthday merch','生日限定周邊（預購）':'Birthday merch (pre-order)','選填・活動當天現場領取':'Optional · pick up at the event','活動當天現場領取':'Pick up at the event','預購中':'Pre-order open','預購已截止':'Pre-orders closed',
+ '加購生日限定周邊':'Birthday merch add-ons','商品圖為示意圖，實際商品以實物為準。生日周邊在這裡單獨購買，購票時不另外加購。':'Product images are illustrations; the actual items may differ. Birthday merch is sold here on its own, not added at ticket checkout.','生日限定周邊':'Birthday merch','生日限定周邊（預購）':'Birthday merch (pre-order)','選填・活動當天現場領取':'Optional · pick up at the event','活動當天現場領取':'Pick up at the event','預購中':'Pre-order open','預購已截止':'Pre-orders closed',
  'A3 海報組（一組 4 張）':'A3 poster set (4 posters)','A3 海報組':'A3 poster set','A3 海報組＋6號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組＋6號小卡':'A3 poster set + No. 6 photo card','A3 海報組＋A3 海報組＋6號小卡':'A3 poster set · Poster + No. 6 card bundle',
  '海外無法到場也可寄送':'Can be shipped if you can’t attend','人在海外，或已經有票想加買？':'Overseas, or already have a ticket?','單買周邊・海外寄送 ›':'Buy merch only · ship overseas ›','單買周邊・海外寄送':'Buy merch only · ship overseas',
  '需持有這場門票':'Requires a ticket to this event','海外寄送':'Ship overseas','運費依地區計算':'Shipping fee by region','Email（訂單確認信寄到這裡）':'Email (your order confirmation goes here)',
