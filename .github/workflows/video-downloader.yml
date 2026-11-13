@@ -55,10 +55,8 @@ jobs:
         run: |
           set +e
           if [ "$RUNNER_OS" = macOS ]; then BIN=dist/VideoDownloader.app/Contents/MacOS/VideoDownloader; else BIN=dist/VideoDownloader.exe; fi
-          # 1) 本機影片：證明打包後的 App 下載 + ffmpeg 都正常（一定要過）
-          (cd ../../.. && python -m http.server 9000 --bind 127.0.0.1 >/dev/null 2>&1 &)
-          sleep 3
-          "$BIN" --selftest local.txt "http://127.0.0.1:9000/cover.mp4"; LOCAL=$?
+          # 1) 公開範例影片：證明打包後的 App 能連 HTTPS、下載、存檔（一定要過）
+          "$BIN" --selftest local.txt "https://www.w3schools.com/html/mov_bbb.mp4"; LOCAL=$?
           cat local.txt
           # 2) 真的去 YouTube / IG（GitHub 的機房常被擋，只看結果、不影響打包）
           "$BIN" --selftest selftest.txt \
