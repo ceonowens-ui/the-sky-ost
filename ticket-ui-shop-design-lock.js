@@ -1598,7 +1598,9 @@ function coverClockKey() {
 
 
   /* ---------- 分層導覽 ---------- */
-  function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
+  /* B550T（CÉON 11/13 錄影：卡包沒付回來、往回滑後整片黑）：頁面滑出去的 0.44 秒內舊的那一片還在，這時又開同名的頁，
+     畫面會畫到「正在滑出去的舊頁」上，新頁是空的＝全黑。→ 找頁面時先找「不是正在滑出去的」；開新頁前把同名的舊頁先拿掉。買票、周邊、卡包、寫信都走這裡 */
+  function layerEl(name) { return document.querySelector('.tk-layer[data-layer="' + name + '"]:not(.out)') || document.querySelector('.tk-layer[data-layer="' + name + '"]'); }
   function layerReveal(el) { if (!el || !el.classList.contains("hold")) return; el.classList.remove("hold"); var u = el._under; el._under = null; requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add("in"); if (u) u.classList.add("under"); }); }); }   // B500T
   function coReveal() { layerReveal(layerEl("checkout")); }
   function openLayer(name, opts) {
@@ -1613,6 +1615,7 @@ function coverClockKey() {
     var underEl = S.layers.length ? layerEl(S.layers[S.layers.length - 1]) : null;   // B466T：推入時下面那頁往左退
     S.layers.push(name); paidMark();
     try { history.pushState({ tk: S.layers.length }, ""); } catch (e) {}
+    Array.prototype.forEach.call(document.querySelectorAll('.tk-layer[data-layer="' + name + '"]'), function (g) { g.remove(); });   /* B550T：同名的舊頁（正在滑出去的）先拿掉 */
     var el = document.createElement("div"); el.className = "tk-layer"; el.setAttribute("data-layer", name);
     document.getElementById("tk-layers").appendChild(el);
     renderLayer(name);
@@ -2912,10 +2915,10 @@ function coverClockKey() {
   function cxReturn(sure) {
     var p0 = cxPending();
     if (!sure && p0 && p0.d) {   // B465T：先不出「確認付款中」，背景問一次；沒付就直接回確認訂單頁
-      var tag = cxSilent = {};
+      var tag = cxSilent = {}, hadCxc = S.layers.indexOf("cxc") >= 0;
       return cxStatus(p0.d, 6000).then(function (j) {   // B518T（C6）：6 秒沒回就當查不到
         if (cxSilent !== tag) return; cxSilent = null;
-        if (j && j.paid === false) return cxBackUnpaid(p0);
+        if (j && j.paid === false) return cxBackUnpaid(p0, hadCxc && S.layers.indexOf("cxc") < 0);   /* B550T：問的時候人在結帳頁、答案回來時他已經自己返回 → 不把他拉回去 */
         cxReturn(true);
       });
     }
@@ -2957,14 +2960,15 @@ function coverClockKey() {
   }
   /* B464T（CÉON 11/08）：卡包從綠界沒付款回來 → 不卡在「確認付款中」，直接回確認訂單頁，資料都還在。背景再確認 20 秒，付了就跳購買成功 */
   var cxWaitPaid = false, cxSilent = null;
-  function cxBackUnpaid(p) {
+  function cxBackUnpaid(p, left) {
     if (window.__skySplashGo) setTimeout(window.__skySplashGo, 0);   // B469T：回到原本的頁面就收開場畫面（買票、周邊、卡包同一套）
     cxShownPending = null; cxClose();
     /* B518T（C1）：後台說 paid:false 只代表「還沒查到付款紀錄」（B416T），不寫「還沒付款，不會扣款」；提示留到使用者再按付款為止；背景確認拉長到約 80 秒
        （C2）：記下「已經帶回來過一次」，之後回到 App 不再拉人；（C3）：整頁重新載入後表單是空的 → 帶回記得的資料 */
     cxMark(p, { bouncedAt: Date.now() });
-    CX.busy = false; CX.err = ""; CX.note = CX_NOTE;
-    if (S.layers.indexOf("cxc") < 0) {
+    CX.busy = false; CX.err = ""; CX.note = left ? "" : CX_NOTE;
+    if (left) { /* B550T：人已經離開結帳頁：不重開、不提示；下面的背景確認照跑，真的付了才跳購買成功 */ }
+    else if (S.layers.indexOf("cxc") < 0) {
       cxPrefill(p); openLayer("cxc");
       if (!CX.items) { cxLoad(); var w0 = Date.now(), wi = setInterval(function () {   // 商品、寄送地區還沒載到：載到後再帶一次（國家、現場領取要看後台給的清單）
         if (!CX.items && Date.now() - w0 < 8000) return; clearInterval(wi);
@@ -4150,12 +4154,12 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function confirmMs() { return window.__tkConfirmMs > 0 ? window.__tkConfirmMs : CONFIRM_MS; }   // __tkConfirmMs 只給假後台測試縮短等待
   function confirmPaid(o, onPaid, sure) {
     if (!sure && o.kind !== "merch") {   // B465T：先不出畫面，背景問一次；沒付就直接回結帳頁，付了才走原本的確認
-      S.confirming = o;
+      S.confirming = o; var hadCo = S.layers.indexOf("checkout") >= 0;
       return apiT("/ticket/order", { no: o.no, email: o.email }).then(function (j) { return j && j.ok && j.order ? j.order : null; }).catch(function () { return null; }).then(function (os) {
         if (S.confirming !== o) return;
         if (os && os.paid) { S.confirming = null; return onPaid(os); }
         if (os && os.payFailed) { S.confirming = null; o.failed = true; return unpaidSheet(o); }
-        if (os) return backUnpaid(o, function () { confirmPaid(o, onPaid, true); });
+        if (os) return backUnpaid(o, function () { confirmPaid(o, onPaid, true); }, hadCo && S.layers.indexOf("checkout") < 0);   /* B550T：跟卡包同一條——人已經自己離開結帳頁就不拉回去 */
         S.confirming = null; confirmPaid(o, onPaid, true);
       });
     }
@@ -4176,10 +4180,11 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   /* B463T（CÉON 11/08）：買票從綠界沒付款就回來 → 不卡在「正在確認付款」，直接回到結帳頁（座位、資料都還在），上方寫一句。
      綠界通知有時晚幾秒，背景每 2 秒再問一次、最多 20 秒；真的付了就回到原本的確認流程照常出票 */
-  function backUnpaid(o, again) {
-    S.confirming = null; S.unpaid = null; closeSheet(); payCover(false); S.coNote = "這筆還沒付款，不會扣款，座位和資料都還在。要買就再按一次前往付款；如果剛剛其實已經付款，幾秒內會自動跳到購買成功，請不要再付一次。";
-    var lso = lastOrder(o.evId), keep = !!(lso && lso.seats && lso.seats.length);
-    if (S.layers.indexOf("checkout") >= 0 && S.buy && S.buy.evId === o.evId) renderLayer("checkout"); else reopenTicket(o.evId, o.tier, 0, o.mc, o.mq);
+  function backUnpaid(o, again, left) {
+    S.confirming = null; S.unpaid = null; if (!left) closeSheet(); payCover(false); S.coNote = left ? "" : "這筆還沒付款，不會扣款，座位和資料都還在。要買就再按一次前往付款；如果剛剛其實已經付款，幾秒內會自動跳到購買成功，請不要再付一次。";
+    var lso = lastOrder(o.evId), keep = !left && !!(lso && lso.seats && lso.seats.length);
+    if (left) { /* B550T：不重開結帳頁；背景確認照跑 */ }
+    else if (S.layers.indexOf("checkout") >= 0 && S.buy && S.buy.evId === o.evId) renderLayer("checkout"); else reopenTicket(o.evId, o.tier, 0, o.mc, o.mq);
     if (window.__skySplashGo) window.__skySplashGo();   // B469T：回到結帳頁就收開場畫面
     if (keep) setTimeout(function () { seatSync(o.evId); seatKeep(o.evId); }, 0);
     var t0 = Date.now(), tok = S.backTok = {};
