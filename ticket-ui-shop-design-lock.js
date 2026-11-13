@@ -1918,7 +1918,7 @@ function coverClockKey() {
     return awHead("t") + '<div class="aw">' + (gs.length ? gs.map(awCard).join("") : '<div class="tk-empty">' + awL("沒有即將到來的票。", "No upcoming tickets.") + '</div>') + awPastHTML() + '<button type="button" class="aw-more" data-act="menu">' + awL("更多（加入票券、更新票券、入場須知）", "More") + '</button></div>';
   }
   function awOk() { return awUse() && !S.loading && !S.walletMerch && (validTickets().length > 0 || pastTickets().length > 0); }
-  function awBack() { return '<button type="button" class="aw-back" data-act="back">' + awL("‹ 返回", "‹ Back") + '</button><span class="aw-sk">THE SKY</span>'; }
+  function awBack() { return '<button type="button" class="aw-back tk-back" data-act="back"><span class="chev" aria-hidden="true">‹</span>' + awL("返回", "Back") + '</button><span class="aw-sk">THE SKY</span>'; }   /* B554T：跟其他頁一樣的金框返回鍵 */
   /* B430T（CÉON 11/05）：票券只有一頁：大張票、QR 在票上、左右滑換票；點 QR 放大；轉讓等放在票下方 */
   function awPager(t) {
     if (!isLive(t) || t._out) return "";
@@ -2106,14 +2106,11 @@ function coverClockKey() {
     if (t.perks && t.perks.length) h += '<div class="tk-perkbox"><div class="pt">你的票種享有</div><ul>' + t.perks.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>';
     if (t.transferPending) h += '<div class="tk-banner"><span>這張票正在轉讓中（10 分鐘內有效）</span><button class="tk-chip d" data-act="show-transfer">看轉讓 QR</button></div>';
     if (live) {
-      h += '<div class="tk-list">' + (open ? '' : '<button data-act="ics">加到行事曆<span>›</span></button>') +
+      /* B554T（CÉON 11/13）：票券頁下面只留三個——導航、入場須知、轉讓給朋友（轉讓中時是「取消轉讓」）；行事曆、拍照 QR、更新票券、生日牆合照、再買一張、分享活動都拿掉 */
+      h += '<div class="tk-list">' +
         '<button data-act="map">' + (sxEN() ? 'Directions to the venue' : '導航到' + esc((ev.venue || "會場").replace(/\s*(\d+\s*樓\s*)?[A-Z]\s*廳$/, ""))) + '<span>›</span></button>' +
         '<button data-act="rules">入場須知<span>›</span></button>' +
-        (TK_TEST ? '<button data-act="photo-qr">📸 拍照用 QR（測試）<span>›</span></button>' : '') +
-        (open ? '<button data-act="refresh-ticket">更新票券<span>›</span></button>' : '') +
-        ppRow(ev, t) +
-        (ev.onSale && ev.productKey && (ev.left == null || ev.left > 0) ? '<button data-act="rebuy" data-ev="' + esc(ev.id) + '">再買一張給朋友<span>›</span></button>' : '') +
-        (t.transferPending ? '<button class="dim" data-act="cancel-transfer">取消轉讓<span>›</span></button>' : '<button class="dim" data-act="transfer">轉讓給朋友<span>›</span></button>') + (awp ? '<button data-act="share-ev">分享活動<span>›</span></button>' : '') + '</div>';
+        (t.transferPending ? '<button class="dim" data-act="cancel-transfer">取消轉讓<span>›</span></button>' : '<button class="dim" data-act="transfer">轉讓給朋友<span>›</span></button>') + '</div>';
     } else if (t.status === "used") {
       var pr = ppRow(ev, t);
       h += '<div class="tk-list">' + (pr || '') + '<button data-act="photo-qr">拍照用 QR<span>›</span></button></div>' +
