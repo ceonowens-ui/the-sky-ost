@@ -77,8 +77,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
      英文版：離開時記住結帳頁捲到哪，回來第一時間放回去。這段要最早登記，才會在其他「回來就重畫」的程式之前跑 */
   (function () {
     var keep = null, co = function () { return document.querySelector('.tk-layer[data-layer="checkout"]'); };
-    window.addEventListener("pagehide", function () { if (window.SKY_LANG !== "en") return; var L = co(); keep = L && L.scrollTop > 0 ? L.scrollTop : null; });
-    window.addEventListener("pageshow", function (e) { if (!e.persisted || keep == null || window.SKY_LANG !== "en") { keep = null; return; } var L = co(), y = keep; keep = null; if (L && L.scrollTop < 2) { L.scrollTop = y; requestAnimationFrame(function () { if (L.isConnected && L.scrollTop < 2) L.scrollTop = y; }); } });
+    window.addEventListener("pagehide", function () { var L = co(); keep = L && L.scrollTop > 0 ? L.scrollTop : null; });
+    window.addEventListener("pageshow", function (e) { if (!e.persisted || keep == null) { keep = null; return; } var L = co(), y = keep; keep = null; if (L && L.scrollTop < 2) { L.scrollTop = y; requestAnimationFrame(function () { if (L.isConnected && L.scrollTop < 2) L.scrollTop = y; }); } });
   })();
   /* B347T：?tkapi=test 切到測試 Worker（記在這台手機，付款回站也沿用；?tkapi=prod 切回）。
      B353T：CÉON 10/30——這支 JS 只有 test.html 載入，預設改成連測試 Worker；要連正式後台才需要開一次 ?tkapi=prod */
@@ -652,7 +652,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     clearTimeout(payCoverT);
     if (!on) { if (c) c.remove(); root.classList.remove("tk-paywait"); Array.prototype.forEach.call(document.querySelectorAll('[data-pcwait]'), function (x) { x.disabled = false; x.removeAttribute("data-pcwait"); }); return; }
     /* B528T（mobile-native：手機上回來的頁面要跟離開時一樣，不蓋黑底）：英文版結帳頁已經在畫面上時，不蓋全黑等待，只先鎖住付款按鈕，問完後台再放開 */
-    var coL = sxEN() ? layerEl("checkout") : null;
+    var coL = layerEl("checkout");
     if (coL && !c && coL.getBoundingClientRect().height > 0 && getComputedStyle(coL).display !== "none") { root.classList.add("tk-paywait"); var pbw = coL.querySelector('[data-act="co-pay"]'); if (pbw && !pbw.disabled) { pbw.disabled = true; pbw.setAttribute("data-pcwait", "1"); } payCoverT = setTimeout(function () { payCover(false); }, 45000); return; }
     root.classList.add("tk-paywait"); goShop();   // SHOP 在黑底下先載好場次，沒付款時才回得去結帳頁
     if (window.__skySplashGo) window.__skySplashGo();   // B469T：等待底已經蓋上，開場畫面可以收了
@@ -779,7 +779,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
         var doc = new DOMParser().parseFromString(html, "text/html"), form = doc.querySelector("form");
         if (!form) { try { var j = JSON.parse(html); if (j && j.error === "need_login") { bad(j.message); seatRelogin(); return; } if (j && j.error === "pick_expired") { bad(j.message); seatExpired(); return; } if (j && j.error === "prev_paid") { prevPaidTicket(b, j, email); return; }   /* B518T */ if (j && j.message) { bad(String(j.message).replace("你選的座位剛被別人選走了，請重新選位。", "這個位置剛被選走了，再挑一個喜歡的位置吧。")); return; } } catch (e) {} throw 0; }
         testPaymentForm(form); var f = document.importNode(form, true); f.style.display = "none";
-        S.pickLeft = null; S.pickPay = false; S.payGone = true; clearInterval(S.seatClockT); BOOT_QS = ""; if (sxEN()) { try { coHoldSync(); } catch (eH) {} }   /* B473T：後台已經改成「付款保留」，舊的 10 分鐘倒數要停掉。不停的話，這一頁如果沒被關掉（主畫面 App、Safari 往回），回來時舊倒數歸零會跳「時間到，座位已放掉」，連已經付款的人都會看到。BOOT_QS 清掉：這一頁之前是從綠界回來開的，再去付一次、按 ✕ 回來時才會再問一次付款結果 */
+        S.pickLeft = null; S.pickPay = false; S.payGone = true; clearInterval(S.seatClockT); BOOT_QS = ""; try { coHoldSync(); } catch (eH) {}   /* B473T：後台已經改成「付款保留」，舊的 10 分鐘倒數要停掉。不停的話，這一頁如果沒被關掉（主畫面 App、Safari 往回），回來時舊倒數歸零會跳「時間到，座位已放掉」，連已經付款的人都會看到。BOOT_QS 清掉：這一頁之前是從綠界回來開的，再去付一次、按 ✕ 回來時才會再問一次付款結果 */
         try { localStorage.setItem("tk:paying", JSON.stringify({ evId: b.evId, kind: b.kind, t: Date.now() })); } catch (e) {}
         try { var tno = (f.querySelector('[name="MerchantTradeNo"]') || {}).value || ""; if (tno) localStorage.setItem("tk:lastorder", JSON.stringify({ no: tno, hold: seatHold(ev), seats: pp ? null : b.seats || null, seatNames: pp ? null : b.seatNames || null, ck: form.getAttribute("data-claim") || "", email: email, evId: b.evId, kind: b.kind, tier: b.tier || "", tq: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]), pp: !!(!pp && !mc && b.pp), mc: mc || "", mq: mc ? mQ(ev.id, b) : 0, amt: (function () { try { var T0 = (ev.tiers || []).filter(function (x) { return x.key === b.tier; })[0]; return T0 ? coTotal(ev, T0, b) : 0; } catch (e) { return 0; } })(), t: Date.now() })); } catch (e) {}   /* B357T：訂單編號＋下單 email，回來時查付款狀態用 */   /* B354T：記下「正在付款」，從綠界回來時（主畫面 App 的綠界頁是另一層）用 */
         document.body.appendChild(f); pmGo(cpb, function () { f.submit(); });
@@ -1742,7 +1742,7 @@ function coverClockKey() {
       /* B528T（mobile-native：回來的頁面要停在離開時的位置）：英文版重畫結帳頁時記住捲到哪、畫完放回去，上方多出提示也不讓下面的內容跳 */
       var keepY = null;
       var KY_SEL = [".tkc-ev", ".tk-seatamt", ".tk-seathint", ".tkc-fields", ".tkc-who", ".tkc-f", ".tkc-after", ".tkm-sum", ".tkb-total", ".tkc-terms", ".tkc-agree", ".tk-pay-en"];
-      if (sxEN() && el.innerHTML) { var sc0 = el.scrollTop > 0 ? el : el.querySelector(".tkb"); if (sc0 && sc0.scrollTop > 0) { var mid = sc0.getBoundingClientRect().top + sc0.clientHeight / 2, best = null; KY_SEL.forEach(function (q) { var n = el.querySelector(q); if (!n) return; var t = n.getBoundingClientRect().top, d = Math.abs(t - mid); if (!best || d < best.d) best = { q: q, t: t, d: d }; }); if (best) keepY = { st: sc0.scrollTop, q: best.q, top: best.t, inner: sc0 !== el }; } }   /* 對準畫面中間最近的那一塊，不是對準早就捲出畫面的票卡頂 */
+      if (el.innerHTML) { var sc0 = el.scrollTop > 0 ? el : el.querySelector(".tkb"); if (sc0 && sc0.scrollTop > 0) { var mid = sc0.getBoundingClientRect().top + sc0.clientHeight / 2, best = null; KY_SEL.forEach(function (q) { var n = el.querySelector(q); if (!n) return; var t = n.getBoundingClientRect().top, d = Math.abs(t - mid); if (!best || d < best.d) best = { q: q, t: t, d: d }; }); if (best) keepY = { st: sc0.scrollTop, q: best.q, top: best.t, inner: sc0 !== el }; } }   /* 對準畫面中間最近的那一塊，不是對準早就捲出畫面的票卡頂 */
       el.innerHTML = checkoutHTML();
       if (keepY) { try { if (window.SkyShopLanguage && window.SkyShopLanguage.apply) window.SkyShopLanguage.apply(); } catch (eL) {} }   /* 先換成英文（英文比較長）再對位置，不然翻譯晚一步又把下面推下去 */
       if (keepY) { var sc1 = keepY.inner ? el.querySelector(".tkb") : el, an1 = el.querySelector(keepY.q); if (sc1 && an1) { sc1.scrollTop = keepY.st; sc1.scrollTop += an1.getBoundingClientRect().top - keepY.top; } }
@@ -3353,7 +3353,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (h) h.textContent = seatHintTx(ev, en); if (t) t.textContent = HOLD_TXT(ev); if (f) f.innerHTML = '<h4>完整購票須知</h4>' + termsBodyHTML(ev);
   }
   function seatHintTx(ev, en) { var n = seatHold(ev);
-    if (S.pickPay || (en && S.payGone)) return en ? "Held for you. This is not a completed purchase. Finish paying before the countdown ends; pressing Pay again does not add time. If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前完成付款，再按一次付款不會多給時間；超過時間要重新選位。付款後不能更換座位。";   /* B473T：沒付款回來是接著原本的付款時間倒數，不能再寫「按下後 5 分鐘內完成付款」 */
+    if (S.pickPay || S.payGone) return en ? "Held for you. This is not a completed purchase. Finish paying before the countdown ends; pressing Pay again does not add time. If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前完成付款，再按一次付款不會多給時間；超過時間要重新選位。付款後不能更換座位。";   /* B473T：沒付款回來是接著原本的付款時間倒數，不能再寫「按下後 5 分鐘內完成付款」 */
     return en ? "Held for you. This is not a completed purchase. Tap Pay before the countdown ends" + (n ? ", then finish paying within " + n + " minutes" : "") + ". If time runs out, choose your seats again. Seats can’t be changed after payment." : "座位保留中，還沒完成購買。請在下方倒數結束前按「前往付款」" + (n ? "，按下後 " + n + " 分鐘內完成付款" : "") + "；超過時間要重新選位。付款後不能更換座位。"; }   // B469T（CÉON 11/09）：「付款後不能更換座位」從底部移到座位這裡；底部只留倒數和付款按鈕，「請先閱讀並同意」上面勾選處已經有
   function seatRowHTML(b, T) {
     var ss = seatsOf(b), en = sxEN(), ev = buyEvent(b.evId) || buyEv(), nm = b.seatNames || ss, q = ss.length, tick = T ? Number(T.price) * Math.max(1, q) : 0, tot = T && q ? coTotal(ev, T, b) : 0;
@@ -3390,7 +3390,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   function seatClock() {
     var ms = seatLeft(), b = S.buy, el = $(".tk-seatleft"), en = sxEN();
-    if (ms == null || !b || !seatsOf(b).length || S.seatUI) { if (el) el.textContent = (en && ms == null && b && seatsOf(b).length && !S.seatUI && S.payGone) ? "Time left to pay …" : ""; return; }   /* B527T（core-web-vitals：CLS 預留空間）：英文版付款回來等新時間時，這一行不收起來 */
+    if (ms == null || !b || !seatsOf(b).length || S.seatUI) { if (el) el.textContent = (ms == null && b && seatsOf(b).length && !S.seatUI && S.payGone) ? (en ? "Time left to pay …" : "選位時間剩 …") : ""; return; }   /* B527T（core-web-vitals：CLS 預留空間）：英文版付款回來等新時間時，這一行不收起來 */
     if (ms <= 0) { seatExpired(); return; }
     var s2 = Math.ceil(ms / 1000); if (el) { el.textContent = (en ? "Time left to pay " : "選位時間剩 ") + Math.floor(s2 / 60) + ":" + ("0" + s2 % 60).slice(-2); el.classList.toggle("warn", ms <= 60e3); }
   }
@@ -3592,7 +3592,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += coFields();
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b);
     h += payEnNote();
-    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (sxEN() && S.payGone ? "Time left to pay …" : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (S.payGone ? (sxEN() ? "Time left to pay …" : "選位時間剩 …") : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb">' + h + '</div>';
   }
 
@@ -3754,7 +3754,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b) + '</div>';
     h += '</div>';
     h += payEnNote();
-    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (sxEN() && S.payGone ? "Time left to pay …" : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
+    h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (S.payGone ? (sxEN() ? "Time left to pay …" : "選位時間剩 …") : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb' + (red ? ' co-noir' : '') + '">' + h + '</div>';
   }
   /* ---- 選票頁：周邊展示 ---- */
