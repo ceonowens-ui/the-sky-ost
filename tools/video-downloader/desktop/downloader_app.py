@@ -134,14 +134,24 @@ def base_opts(progress=None):
 
 def needs_login(msg):
     low = msg.lower()
-    return any(k in low for k in ("login", "log in", "cookies", "rate-limit", "rate limit", "not available"))
+    return any(k in low for k in ("login", "log in", "logged-in", "cookies", "rate-limit", "rate limit",
+                                  "not available", "sign in", "not a bot"))
+
+
+def site_name(url):
+    low = url.lower()
+    if "instagram.com" in low:
+        return "IG"
+    if "youtube.com" in low or "youtu.be" in low:
+        return "YouTube"
+    return None
 
 
 BROWSERS = ["chrome", "safari", "edge", "firefox", "brave"] if sys.platform == "darwin" else ["chrome", "edge", "firefox", "brave"]
 
 
 def download(url, progress=None, status=None):
-    """回傳下載好的檔案路徑。IG 要登入時，自動借用瀏覽器裡已登入的帳號再試一次。"""
+    """回傳下載好的檔案路徑。IG / YouTube 要登入時，自動借用瀏覽器裡已登入的帳號再試一次。"""
     def run(extra):
         with yt_dlp.YoutubeDL({**base_opts(progress), **extra}) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -154,11 +164,12 @@ def download(url, progress=None, status=None):
         return run({})
     except Exception as e:
         first = e
-        if "instagram" not in url.lower() or not needs_login(str(e)):
+        site = site_name(url)
+        if not site or not needs_login(str(e)):
             raise
     for b in BROWSERS:
         if status:
-            status(f"IG 要登入，借用 {b} 裡的登入再試一次…")
+            status(f"{site} 要登入，借用 {b} 裡的登入再試一次…")
         try:
             return run({"cookiesfrombrowser": (b,)})
         except Exception:
@@ -175,8 +186,8 @@ def friendly_error(e):
         return "這是私人影片，抓不到。"
     if "unsupported url" in low:
         return "這個網址不支援，請複製 YouTube 或 IG 的影片網址。"
-    if "sign in to confirm" in low or "bot" in low:
-        return "YouTube 暫時擋住了。請關掉 App 再打開（會自動更新），等幾分鐘再試。"
+    if "sign in to confirm" in low or "not a bot" in low:
+        return "YouTube 要確認你不是機器人。\n請先用 Chrome 或 Safari 登入 YouTube，再按一次下載。"
     if "timed out" in low or "unable to download webpage" in low or "connection" in low:
         return "連不上網站，請檢查網路。"
     return "下載失敗。請關掉 App 再打開（會自動更新）後再試一次。"

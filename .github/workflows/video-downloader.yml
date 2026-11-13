@@ -52,13 +52,20 @@ jobs:
             --collect-all yt_dlp --collect-all yt_dlp_ejs --collect-all imageio_ffmpeg --collect-data certifi \
             downloader_app.py
       - name: 自我測試（真的去 YouTube / IG 下載）
-        continue-on-error: true
         run: |
+          set +e
           if [ "$RUNNER_OS" = macOS ]; then BIN=dist/VideoDownloader.app/Contents/MacOS/VideoDownloader; else BIN=dist/VideoDownloader.exe; fi
+          # 1) 本機影片：證明打包後的 App 下載 + ffmpeg 都正常（一定要過）
+          (cd ../../.. && python -m http.server 9000 --bind 127.0.0.1 >/dev/null 2>&1 &)
+          sleep 3
+          "$BIN" --selftest local.txt "http://127.0.0.1:9000/cover.mp4"; LOCAL=$?
+          cat local.txt
+          # 2) 真的去 YouTube / IG（GitHub 的機房常被擋，只看結果、不影響打包）
           "$BIN" --selftest selftest.txt \
             "https://www.youtube.com/watch?v=jNQXAC9IVRw" \
             "https://www.instagram.com/reel/DBfRk8nPNfg/" ; echo "exit=$?"
           cat selftest.txt || echo "沒有測試結果"
+          exit $LOCAL
       - name: 整理檔案
         run: |
           mkdir -p ../out
