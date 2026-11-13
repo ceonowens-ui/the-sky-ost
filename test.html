@@ -4957,7 +4957,7 @@ var FEED_CHAT = [   /* 內建備援；正式內容以 content.json 為準（B23�
   { text: "凌晨四點，唱完最後一句" },
   { photo: "assets/feed/01.jpg" },
   { text: "為什麼會寫 I'm Sorry⋯⋯想知道的話，按下去" },
-  { video: "assets/feed/04.mp4", id: "vid04", protected: false, title: "I'M SORRY · 幕後", duration: "00:43" },
+  { video: "assets/feed/04.mp4", poster: "assets/feed/04-poster.jpg", id: "vid04", protected: false, title: "I'M SORRY · 幕後", duration: "00:43" },
   { voice: "assets/feed/01.mp3", id: "v01" },
   { text: "聽完不准哭。哭了也只准在我這裡哭" },
 ];
@@ -9682,6 +9682,7 @@ window.ALBUM_SWITCH = {
         feedLiveLoadedAt = Date.now();
         var _wasEver = feedLiveEver; feedLiveEver = true; feedLiveSlow = false;
         if (fp.unlocked && fp.email && q) lsSet(FEED_CACHE_KEY, { e: fp.email, posts: d.posts, at: Date.now() });   /* B308T */
+        setTimeout(function () { try { sgrPrewarm(); } catch (e) {} }, 1200);   /* B549T：拿到最新清單後再備一次（已備過的不會重抓） */
         if (!_wasEver && !liveChanged) renderMoodWall();   /* 第一次載到但內容剛好跟空的一樣：也要拿掉「載入中」 */
         if (liveChanged) {
           /* B161T：正在讀舊訊息時不強制重繪；改浮標讓使用者自己跳 */
@@ -9716,6 +9717,7 @@ window.ALBUM_SWITCH = {
   function bindFeedRetry() { var b = document.getElementById("__feedRetry"); if (b) b.onclick = function () { feedLiveFailed = false; paintFeedLoading(); loadLiveFeed(true); }; }
   /* B308T：已解鎖的人一打開 App 就先在背景抓，不等點進 FEED */
   setTimeout(function () { try { if (feedUnlockedQ()) loadLiveFeed(true); } catch (e) {} }, 0);
+  setTimeout(function () { try { sgrPrewarm(); } catch (e) {} }, 3500);   /* B549T：開 App 3.5 秒後（開場播完、閒下來）先備 SIGNAL 前 3 則 */
 
   function liveMediaURL(p) {
     var q = "key=" + encodeURIComponent(p.media || "");
@@ -10572,11 +10574,11 @@ window.ALBUM_SWITCH = {
       seg.forEach(function (m) {
         if (m.text) { if (cur && !cur.photo && !cur.video && !cur.voice) cur.text.push(m.text); else pend.push(m.text); return; }
         if (m.voice && cur && cur.photo && !cur.voice) { cur.voice = m.voice; cur.vid = m.id; return; }
-        cur = { text: pend.splice(0), photo: m.photo || "", video: m.video || "", voice: m.voice || "", vid: m.id || "", key: m.id || (m.photo || "").replace(/^.*\/|\.\w+$/g, "") };
+        cur = { text: pend.splice(0), photo: m.photo || "", video: m.video || "", poster: m.poster || "", voice: m.voice || "", vid: m.id || "", key: m.id || (m.photo || "").replace(/^.*\/|\.\w+$/g, "") };
         rs.push(cur);
       });
       if (pend.length) { if (cur) cur.text = cur.text.concat(pend); else rs.push({ text: pend.slice(), key: "t" + out.length }); pend = []; }
-      rs.forEach(function (r) { out.push({ rid: "fc-" + r.key, day: day, text: r.text.join("\n"), photo: r.photo, video: r.video, voice: r.voice, vid: r.vid }); });
+      rs.forEach(function (r) { out.push({ rid: "fc-" + r.key, day: day, text: r.text.join("\n"), photo: r.photo, video: r.video, poster: r.poster || "", voice: r.voice, vid: r.vid }); });
       seg = [];
     }
     FEED_CHAT.forEach(function (m) { if (m.day) { flush(); day = m.day; return; } if (m.gap) { flush(); return; } seg.push(m); });
@@ -10619,7 +10621,7 @@ window.ALBUM_SWITCH = {
   }
   function sgrItemHTML(it, i, n) {
     var bg = it.photo ? '<img class="sgr-img" data-src="' + esc(it.photo) + '" alt="" decoding="async">'
-      : it.video ? '<video class="sgr-vid" data-src="' + esc(it.video) + '" playsinline webkit-playsinline muted loop preload="none"></video><button type="button" class="sgr-vplay" data-sgr="video" aria-label="' + sgrL("播放影片", "Play video") + '">' + SGR_ICON.play + '</button>' +
+      : it.video ? '<video class="sgr-vid" data-src="' + esc(it.video) + '"' + (it.poster ? ' poster="' + esc(it.poster) + '"' : '') + ' playsinline webkit-playsinline muted loop preload="none"></video><button type="button" class="sgr-vplay" data-sgr="video" aria-label="' + sgrL("播放影片", "Play video") + '">' + SGR_ICON.play + '</button>' +
         '<span class="sgr-wait" aria-hidden="true"></span><button type="button" class="sgr-snd" data-sgr="sound" aria-label="' + sgrL("開啟聲音", "Turn sound on") + '">' + SGR_SND.off + SGR_SND.on + '</button>'
       : '';
     var kind = it.photo ? "photo" : it.video ? "video" : it.voice ? "voice" : "text";
@@ -10649,6 +10651,8 @@ window.ALBUM_SWITCH = {
       '<div class="sgr-top" id="sgr-top" data-no-translate><h1>SIGNAL</h1><div class="sgr-load">' + feedLoadingHTML() + '</div></div>';
     SGR.built = true;
     var root = $("sgr");
+    if (SGR.pre) { Array.prototype.forEach.call(root.querySelectorAll("video.sgr-vid[data-src]"), function (v0) {   /* B549T：開 App 時先備好的那支影片直接換進來 */
+      var pv = SGR.pre[v0.getAttribute("data-src")]; if (pv && v0.parentNode) { v0.parentNode.replaceChild(pv, v0); } }); SGR.pre = null; }
     var at = 0; if (keepRid) items.forEach(function (it, i) { if (it.rid === keepRid) at = i; });
     root.scrollTop = at * (root.clientHeight || window.innerHeight);
     SGR.idx = -1; sgrOnScroll(true);
@@ -10658,7 +10662,66 @@ window.ALBUM_SWITCH = {
   }
   function sgrPaintTop() { var l = document.querySelector("#sgr-top .sgr-load"); if (l && !l.querySelector("#__feedLoad") && !feedLiveEver) { l.innerHTML = feedLoadingHTML(); bindFeedRetry(); } }
   function sgrEl(i) { return document.querySelector('#sgr .sgr-it[data-i="' + i + '"]'); }
-  function sgrWarm(i) {   /* 只載入目前這則和下一則的圖片；影片、語音等按了才下載 */
+  /* B549T（CÉON 11/13：SIGNAL 要像 IG／TikTok 滑了不用等）：
+     照片先載後面 2 則；下一支影片先給網址、先下載開頭（一次只備一支，等目前這支能播了才開始，不搶它的網路）；
+     離開超過 2 則的影片放掉（清網址），iPhone 記憶體才夠；一開 App 閒下來就先備好前 3 則。
+     模擬器實測：preload=auto＋load() 就會在看不到的地方先備好約 4 秒、第一格也出來，不需要偷播再暫停。
+     網址加 ?sgrpre=0 可以關掉預載（比較用）。 */
+  var SGR_PRE = !/[?&]sgrpre=0(&|$)/.test(location.search);
+  function sgrVidOf(i) { var e = sgrEl(i); return e ? e.querySelector("video.sgr-vid") : null; }
+  function sgrPrime(i) {   /* 先備好第 i 則的影片（靜音、不播） */
+    var v = sgrVidOf(i); if (!SGR_PRE || !v || !v.getAttribute("data-src")) return;
+    v.muted = true; v.preload = "auto"; v.src = v.getAttribute("data-src"); v.removeAttribute("data-src");
+    try { v.load(); } catch (e) {}
+  }
+  function sgrPrimeNext() {   /* 往滑的方向找最近的一支影片先備；目前這支還在轉圈就等它能播了再開始 */
+    if (!SGR_PRE || SGR.idx < 0 || state.screen !== "mood") return;   /* 不在這個分頁時由 sgrPrewarm 處理（先備目前這則，不是下一則） */
+    var at = SGR.idx, dir = SGR.dir < 0 ? -1 : 1, cv = sgrVidOf(at);
+    var go = function () { if (SGR.idx !== at) return; for (var k = 1; k <= 2; k++) { var j = at + dir * k; if (sgrVidOf(j)) { sgrPrime(j); return; } } };
+    clearTimeout(SGR.pt);
+    if (cv && cv.readyState < 3 && !cv.error && (cv.getAttribute("src") || cv.getAttribute("data-src"))) {
+      var once = function () { cv.removeEventListener("canplay", once); clearTimeout(SGR.pt); go(); };
+      cv.addEventListener("canplay", once); SGR.pt = setTimeout(once, 4000);   /* 最多等 4 秒 */
+    } else go();
+  }
+  function sgrRelease() {   /* 離開超過 2 則的影片：停下來、清掉網址，下次滑回來再載 */
+    var r = $("sgr"); if (!SGR_PRE || !r) return;
+    Array.prototype.forEach.call(r.querySelectorAll("video.sgr-vid[src]"), function (v) {
+      var el = v.closest(".sgr-it"), j = el ? Number(el.getAttribute("data-i")) : SGR.idx;
+      if (Math.abs(j - SGR.idx) <= 2) return;
+      try { v.pause(); } catch (e) {}
+      v.setAttribute("data-src", v.getAttribute("src")); v.removeAttribute("src"); v.preload = "none";
+      try { v.load(); } catch (e) {}
+      if (el) { el.classList.remove("playing"); el.classList.remove("waiting"); }
+    });
+  }
+  /* 一開 App 閒下來：先載前 3 則的照片，和其中第一支影片的開頭（先放在畫面外，進分頁時直接換進去） */
+  function sgrPrewarm() {
+    try {
+      if (!SGR_PRE || !sgrOn() || !feedUnlockedQ() || document.hidden || state.screen === "mood") return;
+      if (SGR.built && $("sgr")) {   /* 分頁的內容已經在背景排好：直接備「會先看到的那一則」和後面 2 則的照片、其中最近的一支影片 */
+        var at = Math.max(0, SGR.idx);
+        for (var k = 0; k <= 2; k++) sgrWarm(at + k);
+        for (var k2 = 0; k2 <= 2; k2++) { if (sgrVidOf(at + k2)) { sgrPrime(at + k2); break; } }
+        return;
+      }
+      var live = FEED_LIVE_POSTS.filter(function (p) { return p && !p.locked; });
+      var items = sgrBuild(live).slice(0, 3), vid = false; SGR.pre = SGR.pre || {}; SGR.preImg = SGR.preImg || {};
+      items.forEach(function (it) {
+        if (it.photo && !SGR.preImg[it.photo]) { var im = new Image(); im.decoding = "async"; im.src = it.photo; SGR.preImg[it.photo] = im; }
+        if (it.video && !vid) { vid = true;
+          if (!SGR.pre[it.video]) {
+            var v = document.createElement("video"); v.className = "sgr-vid"; v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true;
+            v.setAttribute("playsinline", ""); v.setAttribute("webkit-playsinline", ""); v.setAttribute("muted", ""); v.setAttribute("loop", "");
+            if (it.poster) v.poster = it.poster;
+            v.preload = "auto"; v.src = it.video; try { v.load(); } catch (e) {}
+            SGR.pre = {}; SGR.pre[it.video] = v;   /* 只留一支 */
+          }
+        }
+      });
+    } catch (e) {}
+  }
+  function sgrWarm(i) {   /* 載入這一則的圖片（目前這則＋後面 2 則會被叫到）；語音按了才下載 */
     var el = sgrEl(i); if (!el) return;
     var im = el.querySelector("img.sgr-img[data-src]");
     if (im) { im.onerror = function () { el.classList.add("noimg"); im.remove(); }; im.src = im.getAttribute("data-src"); im.removeAttribute("data-src"); }
@@ -10693,8 +10756,10 @@ window.ALBUM_SWITCH = {
     if (i === SGR.idx && !force) return;
     if (SGR.idx >= 0) { sgrPauseIn(sgrEl(SGR.idx)); if (i !== SGR.idx) { var pe = sgrEl(SGR.idx); if (pe && pe.classList.contains("open")) sgrMore(pe, false); } }   /* B509T：滑走就收起 */
     if (i !== SGR.idx && SGR.idx >= 0) SGR.up = "";   /* 換到別則：上一則的「手動暫停」不再記 */
+    SGR.dir = (SGR.idx >= 0 && i < SGR.idx) ? -1 : 1;
     SGR.idx = i; var it = SGR.items[i]; SGR.rid = it ? it.rid : SGR.rid;
-    sgrWarm(i); sgrWarm(i + 1); sgrAutoVideo();
+    sgrWarm(i); sgrWarm(i + 1); if (SGR_PRE) { sgrWarm(i + 2); sgrWarm(i - 1); }
+    sgrAutoVideo(); sgrRelease();
     clearTimeout(SGR.pk); SGR.pk = setTimeout(function () { var cur = SGR.items[SGR.idx]; if (cur && state.screen === "mood") sgcPeek(cur); }, 500);   /* B508T：停在這則半秒 → 留言圖示顯示留言數 */
     var top = $("sgr-top"); if (top) top.classList.toggle("dim", i > 0);
   }
@@ -10757,7 +10822,7 @@ window.ALBUM_SWITCH = {
       v.__b = 1;
       v.addEventListener("play", function () { el.classList.add("playing"); if (v.readyState < 3) el.classList.add("waiting"); });
       v.addEventListener("pause", function () { el.classList.remove("playing"); el.classList.remove("waiting"); });
-      v.addEventListener("error", function () { el.classList.add("noimg"); el.classList.remove("playing"); el.classList.remove("waiting"); });
+      v.addEventListener("error", function () { if (!v.getAttribute("src")) return;   /* B549T：被放掉（清網址）的不算壞掉 */ el.classList.add("noimg"); el.classList.remove("playing"); el.classList.remove("waiting"); });
       v.addEventListener("waiting", function () { if (!v.paused) el.classList.add("waiting"); });
       v.addEventListener("playing", function () { el.classList.remove("waiting"); });
       v.addEventListener("canplaythrough", function () { el.classList.remove("waiting"); });
@@ -10769,6 +10834,7 @@ window.ALBUM_SWITCH = {
   }
   function sgrAutoVideo() {
     if (!SGR || state.screen !== "mood" || document.hidden) return;
+    sgrPrimeNext();   /* B549T：每次輪到「目前這則」（滑到、進分頁、回到 App）都順便先備下一支 */
     var el = sgrEl(SGR.idx), v = el && el.querySelector("video.sgr-vid");
     if (!v || !v.paused || (SGR.up && SGR.up === sgrCurRid())) return;   /* 使用者自己按停的不自動播 */
     v.muted = !SGR.snd; v.defaultMuted = v.muted;   /* B316T：沿用目前聲音設定（使用者開過聲音就帶聲音） */
@@ -13163,7 +13229,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B548T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B549T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
