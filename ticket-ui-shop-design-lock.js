@@ -557,10 +557,10 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function phoneInput() { var v = (S.buy && S.buy.phone) || lsGet("tk:phone") || meGet().phone || ""; return '<input class="tk-in tkb-in" id="tk-bph" type="tel" inputmode="tel" aria-required="true" maxlength="20" autocomplete="tel" enterkeyhint="done" placeholder="例如：0912345678" value="' + esc(v) + '">'; }
 
   /* B496T（CÉON 11/11）：電子發票（夏米爾企業社開立）。預設寄到購票 Email；也可以存手機條碼、打統一編號、捐贈。門票結帳和周邊結帳共用同一套 */
-  function invGetSaved() { try { var x = JSON.parse(localStorage.getItem("tk:inv") || "null"); return x && x.t ? x : { t: "mail" }; } catch (e) { return { t: "mail" }; } }
+  function invGetSaved() { try { var x = JSON.parse(localStorage.getItem("tk:inv") || "null"); return x && x.t && x.t !== "love" ? x : { t: "mail" };   /* B571T：之前選過捐贈的人回到寄 Email */ } catch (e) { return { t: "mail" }; } }
   function invOpts(t) {
     var en = sxEN(), opt = function (v, zh, e2) { return '<option value="' + v + '"' + (t === v ? ' selected' : '') + '>' + (en ? e2 : zh) + '</option>'; };
-    return opt("mail", "寄到 Email", "Email") + opt("bar", "手機條碼", "Mobile barcode") + opt("ubn", "公司統編", "Company tax ID") + opt("love", "捐贈發票", "Donate");
+    return opt("mail", "寄到 Email", "Email") + opt("bar", "手機條碼", "Mobile barcode") + opt("ubn", "公司統編", "Company tax ID");   /* B571T（CÉON 11/15）：拿掉「捐贈發票」 */
   }
   function invPh(t) { var en = sxEN(); return t === "bar" ? (en ? "e.g. /ABC1234" : "例如：/ABC1234") : t === "ubn" ? (en ? "8-digit tax ID" : "8 碼統一編號") : t === "love" ? (en ? "3–7 digit code" : "3 到 7 碼捐贈碼") : ""; }
   function invLbl(t) { var en = sxEN(); return t === "bar" ? (en ? "Mobile barcode" : "手機條碼") : t === "ubn" ? (en ? "Tax ID" : "統一編號") : (en ? "Donation code" : "捐贈碼"); }
@@ -572,7 +572,6 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     var t = x && x.t || "mail", v = String(x && x.v || "").trim(), en = sxEN();
     if (t === "bar") { v = v.toUpperCase(); if (!/^\/[0-9A-Z+\-.]{7}$/.test(v)) return { err: en ? "Mobile barcode starts with / and has 8 characters" : "手機條碼是 / 開頭、共 8 碼" }; return { inv: { t: t, v: v } }; }
     if (t === "ubn") { if (!/^\d{8}$/.test(v)) return { err: en ? "Tax ID is 8 digits" : "統一編號是 8 碼數字" }; return { inv: { t: t, v: v, n: String(x.n || "").trim().slice(0, 60) } }; }
-    if (t === "love") { if (!/^\d{3,7}$/.test(v)) return { err: en ? "Donation code is 3–7 digits" : "捐贈碼是 3 到 7 碼數字" }; return { inv: { t: t, v: v } }; }
     return { inv: { t: "mail" } };
   }
   CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
