@@ -574,6 +574,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (t === "ubn") { if (!/^\d{8}$/.test(v)) return { err: en ? "Tax ID is 8 digits" : "統一編號是 8 碼數字" }; return { inv: { t: t, v: v, n: String(x.n || "").trim().slice(0, 60) } }; }
     return { inv: { t: "mail" } };
   }
+  CSS += '.la-seatview{margin-bottom:10px!important}';   /* B577T */
   CSS += '.tk-cd{display:block;font-variant-numeric:tabular-nums;letter-spacing:.02em}.sv3-cd{margin:10px auto 0;text-align:center;font:600 16px/1.3 -apple-system,"PingFang TC",sans-serif;color:#e7c98a}.la-cd-btn{flex-direction:column!important;gap:4px!important;height:auto!important;min-height:58px!important;padding-top:8px!important;padding-bottom:8px!important}.la-cd{font:600 15px/1.2 -apple-system,"PingFang TC",sans-serif;color:#e7c98a}';   /* B576T：倒數 */
   CSS += '.sv3-tag.pre{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:none!important;line-height:1.35}';   /* B575T：開賣時間標籤不截斷 */
   CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
@@ -3477,7 +3478,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (T && seatEv(ev)) b = '<button type="button" class="la-cta" data-act="buy-go">選擇座位 <small>' + nt(T.price) + '／張</small>' + ar + '</button>';   // B435T：選位場次先選位，張數由選的位子決定，這裡只寫單價
     else if (T && st.solo) b = '<button type="button" class="la-cta" data-act="buy-go">下一步 <small data-la-total>' + nt(preTotal(ev, T)) + '</small>' + ar + '</button>';
     else if (T) b = '<button type="button" class="la-cta" data-act="buy-go">立即購買 <small>' + nt(T.price) + '</small>' + ar + '</button>';
-    else if (st.notOpen) { b = '<button type="button" class="la-cta ghost la-cd-btn" data-act="buy-remind"><span>' + esc(saleShort(sxEN())) + '</span>' + cdHTML('tk-cd la-cd') + '</button>'; }   /* B575T：只寫開賣時間；B576T：加倒數 */
+    else if (st.notOpen) { b = (seatEv(ev) ? '<button type="button" class="la-cta la-seatview" data-act="seat-view">' + (sxEN() ? "View the seat map" : "先看座位圖") + ar + '</button>' : '') + '<button type="button" class="la-cta ghost la-cd-btn" data-act="buy-remind"><span>' + esc(saleShort(sxEN())) + '</span>' + cdHTML('tk-cd la-cd') + '</button>'; }   /* B575T：只寫開賣時間；B576T：加倒數 */
     else if (!any) b = '<button type="button" class="la-cta ghost" data-act="open-wallet">' + (cv && st.soldOut ? (sxEN() ? 'Sold out · My tickets' : '已售完 · 我的票') : '我的票') + ar + '</button>';
     else b = '<button type="button" class="la-cta" disabled>選擇票種</button>';
     return '<div class="la-foot">' + b + '</div>';
@@ -3609,7 +3610,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (window.SkySeat) return cb();
     if (seatLoadQ) return void seatLoadQ.push(cb);
     seatLoadQ = [cb];
-    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S11";
+    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker.js?v=S12";
     sc.onload = function () { var q = seatLoadQ || []; seatLoadQ = null; q.forEach(function (f) { try { f(); } catch (e) {} }); };
     sc.onerror = function () { var q = seatLoadQ || []; seatLoadQ = null; if (sc.parentNode) sc.parentNode.removeChild(sc); if (q.length === 1 && quiet) return; S.seatOpening = false; coReveal(); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
   }
@@ -3681,6 +3682,19 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     return seatGate(ev, function () {
       createOrder(ev.id, T); if (isSolo(ev)) { S.buy.mb = false; S.buy.mh = false; S.buy.mq = 1; }
       var l = openLayer("checkout", { hold: true }); seatOpen(); return l;   // B500T：直接進座位圖
+    });
+  }
+  /* B577T（CÉON 11/15「要，只能看」）：開賣前先看座位圖。不用登入、不能選、不佔位；點位子只提示開賣時間 */
+  function seatView(ev) {
+    if (!ev || !seatEv(ev) || S.seatUI) return;
+    var T = (ev.tiers || [])[0] || {}, en = sxEN();
+    seatLoad(function () {
+      if (S.seatUI) return;
+      S.seatUI = SkySeat.open({ en: en, max: 1, price: Number(T.price) || 0,
+        view: en ? "On sale Nov 17, 1 pm (Taipei). View only for now." : "11月17日下午1點準時開賣，現在只能看",
+        viewTip: en ? "Seats open at 1 pm on Nov 17 (Taipei)." : "11月17日下午1點開賣後才能選位",
+        load: function () { return fetch(C.api + "/ticket/seats?event=" + encodeURIComponent(ev.id), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return seatCfgSet(ev.id, j); }); },
+        onClose: function () { S.seatUI = null; } });
     });
   }
   function seatOpen(fromBack) {
@@ -4791,6 +4805,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; return seatGate(bev, function () { createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; mEnsure(bev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === bev.id) box.outerHTML = mPreRows(bev); }); } var goL = openLayer("checkout", seatEv(bev) ? { hold: true } : null); if (seatEv(bev)) seatOpen(); return goL; /* B500T：直接進座位圖 */ }); }
     if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
     if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
+    if (act === "seat-view") { seatView(buyEv()); return; }   /* B577T */
     if (act === "buy-remind") { evReload();   /* B575T：不再跳登入，只重抓一次 */   /* B563T：按「尚未開賣」也重抓一次，開賣了下面那頁就會變 */ return; }
     if (act === "co-pay") { return startPayment(); }
     if (act === "co-terms") return coTermsTap();

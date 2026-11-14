@@ -42,7 +42,8 @@
 .sk-msg.on{opacity:1}\
 .sk-state{padding:60px 24px;text-align:center;color:#cfc8ba;font-size:15px;line-height:1.6}\
 .sk-state button{display:block;margin:14px auto 0;min-height:44px;padding:0 20px;border:1px solid #ecc67f;border-radius:22px;background:none;color:#ecc67f;font:inherit;cursor:pointer}\
-@media (prefers-reduced-motion:reduce){.sk-msg{transition:none}}";
+@media (prefers-reduced-motion:reduce){.sk-msg{transition:none}}\
+.sk-view{display:block;color:#e7c98a;font-size:16px;font-weight:600;line-height:1.45}";
 
   var rowName = {};   // 顯示用排名，由後台給（第 1 排＝A）
   function name(id) { var m = /^(\d+)-(\d+)$/.exec(id || ""); return !m ? "" : (rowName[m[1]] || m[1]) + m[2]; }
@@ -55,6 +56,7 @@
     var en = !!o.en, T = en
       ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", shut: "Not for sale", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
       : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", shut: "不開放", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
+    if (o.view) T.title = en ? "Seat map" : "座位圖";   /* S12（CÉON 11/15）：開賣前「只能看」的座位圖：不能選、不佔位、沒有確認鈕 */
     var own = (o.own || []).slice(), sel = (o.selected || []).slice(), busy = {}, shut = {}, map = null, timer = 0, msgT = 0, closed = false;
     var el = document.createElement("div");
     el.className = "sk-seat" + (document.getElementById("tk-test-banner") ? " sk-tb" : ""); el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", T.title);
@@ -69,6 +71,7 @@
 
     function say(t, ms) { msgEl.textContent = t; msgEl.classList.add("on"); clearTimeout(msgT); msgT = setTimeout(function () { msgEl.classList.remove("on"); }, ms || 2600); }
     function foot() {
+      if (o.view) { selEl.innerHTML = '<span class="sk-view">' + o.view + '</span>'; okEl.hidden = true; okEl.style.display = "none"; return; }
       var n = sel.length;
       selEl.innerHTML = n ? sel.slice().sort(order).map(name).join(en ? ", " : "、") : "<small>" + T.none + "</small>";
       okEl.disabled = !n;
@@ -170,6 +173,7 @@
         if (document.startViewTransition && !calm) { try { document.startViewTransition(done); } catch (e3) { done(); } } else done();
         return; }
       if (k === "seat") {
+        if (o.view) return say(o.viewTip || o.view);   // S12：只能看
         var id = b.getAttribute("data-id"), i = sel.indexOf(id);
         if (i >= 0) sel.splice(i, 1);
         else if (acctLeft != null && acctLeft < o.max && sel.length >= acctLeft) return say(acctTx(), 4000);
