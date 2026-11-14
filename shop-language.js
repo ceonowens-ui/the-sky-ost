@@ -396,11 +396,49 @@
  '無法建立訂單，請稍後再試':'We couldn’t create the order. Please try again later.','付款頁開不起來，請稍後再試':'The payment page couldn’t open. Please try again later.','請先選擇票種。':'Please choose a ticket type first.','前往綠界付款…':'Going to ECPay…',
  '訂單聯絡用':'So we can contact you about your order','請填姓名（訂單聯絡用）':'Please enter your name (so we can contact you about the order).'
  });
+ Object.assign(D,{
+ /* B565T（CÉON 11/14）：退款一律寫信（同一句） */
+ '需要退款，請寫 email 到 heartbeats0693@gmail.com。':'For refunds, please email heartbeats0693@gmail.com.',
+ '信裡請註明購票 Email 與票號。':'In your email, include your purchase email and ticket number.','信裡請註明購買 Email。':'In your email, include your purchase email.',
+ '收件資料要修改，請來信 heartbeats0693@gmail.com。':'To change delivery details, email heartbeats0693@gmail.com.',
+ '每筆訂單最多 5 包。收件資料要修改，請來信 heartbeats0693@gmail.com。需要退款，請寫 email 到 heartbeats0693@gmail.com。':'Up to 5 packs per order. To change delivery details, email heartbeats0693@gmail.com. For refunds, please email heartbeats0693@gmail.com.',
+ /* B565T：卡包只寄送、更新票券 */
+ '卡包只提供寄送，請填寫寄送資料。':'The card pack is shipping only. Please fill in your delivery details.',
+ '票券已更新':'Tickets updated','連不上網路，票券沒有更新。':'No connection — tickets not updated.',
+ /* B565T：常用畫面英文補齊（登入、結帳、付款回來、我的票、帳號、提示） */
+ '還沒建立付款，不會扣款。':'No payment was created — you were not charged.',
+ '是不是':'Did you mean','？':'?','改成這個':'Use this','沒錯，用我打的':'No, keep what I typed','請先確認 email':'Please check your email address first.',
+ '收票 email':'Email for your ticket','真實姓名':'Real name','手機號碼':'Mobile number',
+ '付款與訂單已確認，訂單清單暫時無法載入，請稍後重新查看。':'Payment and order are confirmed. The order list can’t load right now — please check again later.',
+ '尚未登入票務':'Not signed in','票綁在這個 email 上。在別的裝置用同一個 email 登入，也看得到你的票。':'Your tickets are tied to this email. Sign in with the same email on another device to see them there too.',
+ '顯示完整 email':'Show full email','登出票務':'Sign out','已登出票務':'Signed out','登入看票':'Sign in to see tickets',
+ '開賣前先登入':'Sign in before sales open','先登入好，開賣時直接選位，不用在搶票當下等驗證碼。':'Sign in now, so when sales open you can pick seats right away without waiting for a code.',
+ '開賣時打開 App 就能直接選位，不用再收驗證碼。':'When sales open, just open the app and pick your seats — no code needed.',
+ '付款頁未能開啟':'The payment page didn’t open','請確認網路後再試。若已完成付款，請查看信箱，避免再次付款。':'Check your connection and try again. If you already paid, check your email so you don’t pay twice.',
+ '暫時無法前往付款':'Can’t go to payment right now','付款狀態尚未確認':'Payment not confirmed yet','確認付款中…':'Confirming payment…','請稍等，已付款請勿重複購買。':'Please wait. If you already paid, please don’t buy again.',
+ '這個裝置找不到剛才的訂單資料。如果已經付款，請勿重複購買；請查看訂單確認信，或聯絡客服協助。':'This device can’t find the order you just made. If you already paid, please don’t buy again — check your confirmation email or contact support.',
+ '還沒查到這筆付款。如果你已經付款，可能還在處理中，請稍後再查；關掉後可以在 SHOP 卡包下方按「重新確認付款」。如果已經付款，請勿重複購買；請查看訂單確認信，或聯絡客服協助。':'We haven’t found this payment yet. If you paid, it may still be processing — check again later; after closing, tap “Check payment again” under the card pack in SHOP. If you already paid, please don’t buy again — check your confirmation email or contact support.',
+ '座位圖載入失敗，請再試一次':'The seat map couldn’t load. Please try again.',
+ '從第一次點座位起 10 分鐘內要按「前往付款」（看下方倒數）；按下後請留在付款頁、不要關閉。超過時間要重新選位。':'Tap Continue to payment within 10 minutes of your first seat tap (see the countdown below), then stay on the payment page. If time runs out, choose your seats again.',
+ '已選擇票種':'Selected ticket','1 張':'1 ticket',
+ '✓ 產生中…':'✓ Creating…','繼續按住…':'Keep holding…','要按住到金色填滿才會送出':'Hold until the gold fills up to send',
+ '✓ 已入場':'✓ Admitted','開賣時會通知你 ✓':'We’ll let you know when sales open ✓','這件商品目前還不能購買':'This item can’t be bought yet.','即將開賣，敬請期待':'Coming soon — stay tuned','這個瀏覽器不支援分享':'This browser can’t share.',
+ '街道、門牌、樓層、城市':'Street, number, floor, city','減少一組':'One fewer set','增加一組':'One more set','減少一包':'One fewer pack','增加一包':'One more pack','商品圖片':'Product image','玫瑰金信封':'Rose-gold envelope',
+ '確認信已寄出，沒看到請查垃圾信件':'Confirmation email sent. Can’t find it? Check spam.','門票信已寄出，沒看到請查垃圾信件':'Ticket email sent. Can’t find it? Check spam.'
+ });
  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK={'日':'Sun','一':'Mon','二':'Tue','三':'Wed','四':'Thu','五':'Fri','六':'Sat'};
  const enDay=(m,d,w)=>(WK[w]||w)+', '+MON[(+m-1)%12]+' '+d;
  const enTime=t=>{const [h,mi]=t.split(':').map(Number);return ((h%12)||12)+':'+String(mi).padStart(2,'0')+(h<12?' AM':' PM');};
  const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
+ /* B565T（CÉON 11/14）：登入、結帳欄位、開賣前登入、確認信 */
+ [/^手機號碼少了 (\d+) 碼（台灣手機是 09 開頭 10 碼）$/,(_,n)=>'The mobile number is '+n+' digit'+(n==='1'?'':'s')+' short (Taiwan mobiles start with 09 and have 10 digits).'],
+ [/^手機號碼多了 (\d+) 碼（台灣手機是 09 開頭 10 碼）$/,(_,n)=>'The mobile number has '+n+' extra digit'+(n==='1'?'':'s')+' (Taiwan mobiles start with 09 and have 10 digits).'],
+ [/^還有 (\d+) 項要修正：(.+)$/,(_,n,l)=>'Please fix '+n+' fields: '+enList(l)],
+ [/^請修正：(.+)$/,(_,a)=>'Please fix: '+(D[a]||a)],
+ [/^(.+)。先登入好，開賣時直接選位，不用在搶票當下等驗證碼。$/,(_,s)=>(D[s]||s)+'. '+D['先登入好，開賣時直接選位，不用在搶票當下等驗證碼。']],
+ [/^(.+)。開賣時打開 App 就能直接選位，不用再收驗證碼。$/,(_,s)=>(D[s]||s)+'. '+D['開賣時打開 App 就能直接選位，不用再收驗證碼。']],
+ [/^(確認信|門票信)會寄到 (\S+)，沒看到請查垃圾信件$/,(_,k,e)=>(k==='門票信'?'Your ticket email goes to ':'Confirmation goes to ')+e+'. Can’t find it? Check spam.'],
  /* B563T（CÉON 11/14）：英文補齊——信的封數、名額、預購日期、周邊領取、轉讓、後台帶數字的訊息 */
  [/^每月只收 ?(\d+) ?封，月底前他會親自讀完。$/,(_,n)=>'Only '+n+' letters a month. He reads every one himself by month’s end.'],
  [/^每月只收 ?(\d+) ?封，月底前親自讀完。$/,(_,n)=>'Only '+n+' letters a month, read by Chance himself by month’s end.'],
