@@ -49,6 +49,7 @@
     "閱讀承諾": "Reading promise", "「已讀完」只由 Chance 本人帳號確認，團隊審核或開啟畫面都不算。": "“Read” is confirmed only from Chance’s own account. Team review or simply opening the screen doesn’t count.",
     "不保證逐一回覆，購買不能換取回覆優先權。": "Replies aren’t guaranteed, and buying doesn’t give you reply priority.",
     "截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。": "Closing only stops new letters. Letters already sent are still read as promised.",
+    "信件內容": "Letter content", "請用文字寫給 Chance，不能放連結、電話、社群帳號或任何聯絡方式。": "Write to Chance in words only — no links, phone numbers, social media handles or any other contact details.", "不可以有騷擾、威脅、歧視、色情、廣告或宣傳的內容，也不可以冒用別人的名字。": "No harassment, threats, discrimination, sexual content, advertising or promotion, and no using someone else’s name.", "Chance 或團隊發現不符合規則的信，會移除並寄 email 通知你，全額退款。": "If Chance or the team finds a letter that breaks these rules, it will be removed, you’ll be told by email, and you’ll get a full refund.", "退款": "Refunds", "付款完成時已經額滿或截止、信沒有寄出，會自動全額退款，不用申請。": "If the period is full or closed when your payment completes and the letter isn’t sent, you get a full refund automatically — no need to ask.", "信已經成功寄出後，因為是數位商品，不接受取消或退款。": "Once a letter has been sent, it is a digital product and can’t be cancelled or refunded.", "其他退款問題，請寫 email 到 heartbeats0693@gmail.com，我們會在 7 個工作天內回覆。": "For any other refund question, please email heartbeats0693@gmail.com. We reply within 7 working days.", "沒在期限內讀完": "If a letter isn’t read in time", "如果 Chance 沒能在當月底前讀完，我們會在下個月 5 日前寄 email 通知你，並延到下個月底前讀完。": "If Chance can’t finish reading by the end of the month, we’ll email you by the 5th of the next month and extend the deadline to the end of that month.", "延期後還是沒讀完，全額退款。": "If it still isn’t read after the extension, you get a full refund.",   /* B566T：寫信三項規則（CÉON 11/14：不用先看） */
     "寄出之後": "After you send", "付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。": "After payment, the letter you previewed is sent. It can’t be edited or withdrawn.",
     "付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。": "If spots are full or the deadline has passed when your payment completes, the letter isn’t sent and you’ll be refunded. It won’t show as delivered.",
     "關閉": "Close",   /* B563T：規則裡「還沒定案的三項」已拿掉，這裡對應的英文也一起拿掉 */
@@ -796,7 +797,11 @@ function rulesSheet(per){
    '<li>額滿或截止，任一條件成立就停止收新信。</li><li>在預覽頁確認付款時，名額會保留 '+(per?per.holdMin:10)+' 分鐘。未付款且到期，名額會釋放給其他人。</li></ul>'+
    '<h3>購買內容</h3><ul><li>本期一次寄信名額、數位信箋、Chance 本人閱讀確認、寄出紀念副本。</li><li>NT$'+(per?per.price:99)+'／封。數位商品，無實體寄送。</li></ul>'+
    '<h3>閱讀承諾</h3><ul><li>每一封符合本規則且成功寄出的信，Chance 承諾於當月底（本期 '+(per?fmtMD(per.readBy):"")+'）前親自讀完。</li><li>「已讀完」只由 Chance 本人帳號確認，團隊審核或開啟畫面都不算。</li><li>不保證逐一回覆，購買不能換取回覆優先權。</li><li>截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。</li></ul>'+
-   '<h3>寄出之後</h3><ul><li>付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。</li><li>付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。</li></ul>'+   /* B563T：還沒定案的三項（信件內容規則、退款政策、逾期未讀的通知與補償）不列在給粉絲看的規則裡，定案後再補 */
+   '<h3>寄出之後</h3><ul><li>付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。</li><li>付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。</li></ul>'+   
+   '<h3>信件內容</h3><ul><li>請用文字寫給 Chance，不能放連結、電話、社群帳號或任何聯絡方式。</li><li>不可以有騷擾、威脅、歧視、色情、廣告或宣傳的內容，也不可以冒用別人的名字。</li><li>Chance 或團隊發現不符合規則的信，會移除並寄 email 通知你，全額退款。</li></ul>'+
+   '<h3>退款</h3><ul><li>付款完成時已經額滿或截止、信沒有寄出，會自動全額退款，不用申請。</li><li>信已經成功寄出後，因為是數位商品，不接受取消或退款。</li><li>其他退款問題，請寫 email 到 heartbeats0693@gmail.com，我們會在 7 個工作天內回覆。</li></ul>'+
+   '<h3>沒在期限內讀完</h3><ul><li>如果 Chance 沒能在當月底前讀完，我們會在下個月 5 日前寄 email 通知你，並延到下個月底前讀完。</li><li>延期後還是沒讀完，全額退款。</li></ul>'+   /* B566T（CÉON 11/14）：三項規則補上；團隊不先審信 */
+   /* B563T：還沒定案的三項（信件內容規則、退款政策、逾期未讀的通知與補償）不列在給粉絲看的規則裡，定案後再補 */
    '<button class="btn btn-ghost" id="cancel" type="button">關閉</button></div>',function(close){$("cancel").onclick=close});
 }
 function replyHTML(text,toName,ts){   /* B503T（CÉON 11/11）：Chance 的回覆做成回信卡，跟粉絲的信同一種信紙 */
