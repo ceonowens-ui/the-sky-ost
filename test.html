@@ -9056,7 +9056,9 @@ window.ALBUM_SWITCH = {
   function albumSubLine() {   /* B331T：清單列本身就寫「加入 Apple 錢包」，小字只留升級提示 */
     var t = albumSubText(); return /Upgraded|已升級/.test(t) ? t : "";
   }
+  var WALLET_ON = false;   /* B569T（CÉON 11/15「先拿掉，等我弄好再釋放」）：OWN 的「加入 Apple 錢包」先不出現、也不能領卡；要開回來把這裡改成 true */
   function albumClaim(btn) {
+    if (!WALLET_ON) return;
     if (A329.busy) return;
     var en = window.SKY_LANG === "en", c = albumCreds(), sm = btn && btn.querySelector(".a2-wl-s");
     if (!c && useCard("album") && !A329.renewed) { A329.renewed = 1; cardRenew(true).then(function () { A329.renewed = 0; albumClaim(btn); }); return; }   /* CARD1：session 過期 → 先續期再領 */
@@ -9098,7 +9100,7 @@ window.ALBUM_SWITCH = {
     for (var id in T) { var b = $(id); if (b) b.querySelector(".om-t").textContent = T[id]; }
     var home = $("om-home"), wl = $("om-wallet");
     home.hidden = !A2.mobile;                     /* 電腦沒有「加入主畫面」 */
-    wl.hidden = !(A2.iOS && !A2.inapp);           /* Apple 錢包只有 iPhone；LINE／微信等內建瀏覽器加不了卡 */
+    wl.hidden = !WALLET_ON || !(A2.iOS && !A2.inapp);           /* Apple 錢包只有 iPhone；LINE／微信等內建瀏覽器加不了卡。B569T（CÉON 11/15）：先關掉，WALLET_ON 改 true 再開 */
     var sm = wl.querySelector(".a2-wl-s"); if (sm && !A329.busy) sm.textContent = albumSubLine();
     if (m.__wired) return; m.__wired = 1;
     var more = $("om-more"), mbox = $("om-more-box");   /* B336T：更多設定 展開／收起（只在清單內，不換頁、不進歷史） */
@@ -13231,7 +13233,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B568T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B569T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
