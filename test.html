@@ -177,6 +177,7 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
   if (ret) window.__skySplashGo = go;   /* B469T：購票模組蓋上自己的等待底、或結果頁出來時叫它 */
 })();</script>
 <script src="app-i18n-en.js?v=B570T"></script>
+<script>/* B582T：新的 iOS 通知橫幅的英文（放在這頁，不動共用字典） */window.SKY_I18N_EN=Object.assign(window.SKY_I18N_EN||{},{"點一下就更新，不用重新下載":"Tap to update — nothing to download","正在更新…":"Updating…","馬上好，畫面會自己重新整理":"Almost done — the app will refresh by itself","現在":"now"});</script>
 <link rel="preload" as="style" href="ticket-a-wallet-test.css?v=B563T">
 <script src="shop-language.js?v=2d7c1996d811"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
@@ -610,6 +611,23 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 .updbar .sigbar-chev{color:rgba(255,244,220,.8)}
 .sigbar-ico{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;background:rgba(255,236,190,.16);border:1px solid rgba(255,236,190,.45);box-shadow:0 0 0 2px rgba(0,0,0,.2)}
 .updbar:disabled{opacity:.8}
+/* B582T（CÉON 11/15 選 A）：App 的提示一律用「iOS 通知橫幅」：從上面滑下來、5 秒後自己收回、往上滑可以收掉 */
+.skyA{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:100002;display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:24px;background:rgba(245,242,238,.84);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.28),inset 0 0 0 .5px rgba(255,255,255,.6);font-family:-apple-system,'PingFang TC',sans-serif;text-align:left;color:#111;
+  -webkit-tap-highlight-color:transparent;cursor:pointer;transform:translateY(calc(-100% - 20px - env(safe-area-inset-top)));transition:transform .5s cubic-bezier(.2,.9,.25,1.08)}
+.skyA.in{transform:translateY(0)}
+.skyA.out{transform:translateY(calc(-100% - 20px - env(safe-area-inset-top)));transition-duration:.32s;transition-timing-function:cubic-bezier(.4,0,1,1)}
+.skyA-ic{width:40px;height:40px;border-radius:10px;flex:none;object-fit:cover}
+.skyA-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.skyA-r1{display:flex;justify-content:space-between;gap:8px;font-size:14px;line-height:1.25;color:#6e6760}
+.skyA-r1 b{color:#3c3630;font-weight:600;letter-spacing:.02em}
+.skyA-t{font-size:17px;line-height:1.3;font-weight:600;color:#111}
+.skyA-b{font-size:16px;line-height:1.3;color:#3c3630}
+.skyA-sp{width:22px;height:22px;flex:none;border-radius:50%;border:3px solid rgba(0,0,0,.14);border-top-color:#8a6a2e;animation:skyAspin .8s linear infinite}
+@keyframes skyAspin{to{transform:rotate(360deg)}}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){.skyA{background:rgba(245,242,238,.97)}}
+@media (prefers-reduced-motion:reduce){.skyA,.skyA.out{transition:none}.skyA-sp{animation-duration:2s}}
 /* B157T：粉絲回覆框 —— 與 nav 同寬同玻璃、直接貼在 nav 上方（Apple Music 迷你播放器疊法）；鎖頭在框內 */
 .rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none;
   bottom:calc(env(safe-area-inset-bottom) + 88px)}   /* B158T：安全預設，JS 量到 nav 才微調 */
@@ -13233,7 +13251,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B581T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B582T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13259,6 +13277,48 @@ window.ALBUM_SWITCH = {
 </script>
 
 <script id="__sw_update">
+/* B582T（CÉON 11/15 選 A，之後的提示都用這個）：iOS 通知橫幅。
+   window.skyBanner({ id, title, body, ms(自動收回，0＝不收), onTap })，回傳 { el, set(title, body, busy), hide() } */
+window.skyBanner = function (o) {
+  o = o || {};
+  var old = o.id && document.getElementById(o.id); if (old) return old.__api || null;
+  var b = document.createElement("div"); if (o.id) b.id = o.id; b.className = "skyA"; b.setAttribute("role", "status");
+  var ic = document.createElement("img"); ic.className = "skyA-ic"; ic.src = "assets/images/icon-180.png"; ic.alt = "";
+  var tx = document.createElement("div"); tx.className = "skyA-tx";
+  var r1 = document.createElement("div"); r1.className = "skyA-r1";
+  var nm = document.createElement("b"); nm.textContent = "CHANCE"; var tm = document.createElement("span"); tm.textContent = "現在";
+  r1.appendChild(nm); r1.appendChild(tm);
+  var t = document.createElement("div"); t.className = "skyA-t";
+  var bd = document.createElement("div"); bd.className = "skyA-b";
+  tx.appendChild(r1); tx.appendChild(t); tx.appendChild(bd);
+  b.appendChild(ic); b.appendChild(tx);
+  var sp = null, timer = null, gone = false;
+  function set(title, body, busy) {
+    t.textContent = title || ""; bd.textContent = body || ""; bd.style.display = body ? "" : "none";
+    if (busy && !sp) { sp = document.createElement("span"); sp.className = "skyA-sp"; sp.setAttribute("aria-hidden", "true"); b.appendChild(sp); }
+    if (!busy && sp) { sp.remove(); sp = null; }
+  }
+  function hide() {
+    if (gone) return; gone = true; clearTimeout(timer);
+    b.classList.remove("in"); b.classList.add("out");
+    setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 360);
+  }
+  function arm(ms) { clearTimeout(timer); if (ms) timer = setTimeout(hide, ms); }
+  set(o.title, o.body, false);
+  var y0 = null, moved = false;   // 往上滑收掉（跟 iPhone 通知一樣）
+  b.addEventListener("touchstart", function (e) { y0 = e.touches[0].clientY; moved = false; clearTimeout(timer); }, { passive: true });
+  b.addEventListener("touchmove", function (e) { if (y0 == null) return; var dy = e.touches[0].clientY - y0; if (dy < -6) { moved = true; b.style.transition = "none"; b.style.transform = "translateY(" + dy + "px)"; } }, { passive: true });
+  b.addEventListener("touchend", function (e) {
+    if (y0 == null) return; var dy = (e.changedTouches[0] || {}).clientY - y0; y0 = null; b.style.transition = ""; b.style.transform = "";
+    if (moved && dy < -30) { hide(); return; } if (!gone) arm(o.ms);
+  });
+  b.addEventListener("click", function () { if (moved) return; if (o.onTap) o.onTap(api); else hide(); });
+  document.body.appendChild(b);
+  requestAnimationFrame(function () { requestAnimationFrame(function () { b.classList.add("in"); }); });
+  arm(o.ms);
+  var api = { el: b, set: set, hide: hide, arm: arm }; b.__api = api;
+  return api;
+};
 /* B176T ── 冷啟動版本偵測：手機版本落後太多時，提醒用戶「關掉重開」
  * iOS PWA 冷啟動偏好用快取，原本的 SW 更新提示對「被殺掉的 App」抓不到。
  * 這裡直接比對「本機印章」vs「伺服器最新 index」的印章，落後 ≥2 版才溫和提示。 */
@@ -13269,26 +13329,10 @@ window.ALBUM_SWITCH = {
     return m ? parseInt(m[1], 10) : 0;
   }
   function showRestartTip(serverNum, myNum) {
-    if (document.getElementById("__restartTip")) return;
-    var b = document.createElement("div");
-    b.id = "__restartTip"; b.className = "sigbar updbar in";
-    b.style.top = "calc(env(safe-area-inset-top) + 10px)";
-    b.style.cursor = "default";
-    var ico = document.createElement("span"); ico.className = "sigbar-ico"; ico.textContent = "🤍";
-    var txt = document.createElement("span"); txt.className = "sigbar-txt";
-    var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "有新版本";
-    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = "把 App 關掉再打開就更新囉";
-    txt.appendChild(eb); txt.appendChild(mn);
-    var x = document.createElement("span"); x.className = "sigbar-chev"; x.textContent = "✕"; x.setAttribute("aria-label", "關閉");
-    b.appendChild(ico); b.appendChild(txt); b.appendChild(x);
-    x.addEventListener("click", function () {
-      b.classList.remove("in");
-      setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 260);
-      try { sessionStorage.setItem("restartTip-dismissed", "1"); } catch (e) {}
-    });
-    document.body.appendChild(b);
-    var sb = document.getElementById("__sigBar");
-    if (sb) sb.style.top = "calc(" + (b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
+    if (document.getElementById("__restartTip") || document.getElementById("__updBar")) return;   // B582T：跟「有新版本」只出一個
+    window.skyBanner({ id: "__restartTip", title: "有新版本", body: "把 App 關掉再打開就更新囉", ms: 6000,
+      onTap: function (api) { api.hide(); try { sessionStorage.setItem("restartTip-dismissed", "1"); } catch (e) {} } });
+    try { sessionStorage.setItem("restartTip-dismissed", "1"); } catch (e) {}   // 同一次開 App 只提醒一次
   }
   function checkColdVersion() {
     try { if (sessionStorage.getItem("restartTip-dismissed")) return; } catch (e) {}
@@ -13346,28 +13390,21 @@ window.ALBUM_SWITCH = {
   if (!("serviceWorker" in navigator)) return;
   function showBanner(reg) {
     if (document.getElementById("__updBar")) return;
-    /* B151T：更新提示改成 Liquid Glass 浮動膠囊（金色＝App 更新；紫色＝SIGNAL 訊息） */
-    var b = document.createElement("button");
-    b.id = "__updBar"; b.className = "sigbar updbar";
-    b.setAttribute("aria-label", "有新內容，點一下更新");
-    var ico = document.createElement("span"); ico.className = "sigbar-ico"; ico.textContent = "✨";
-    var txt = document.createElement("span"); txt.className = "sigbar-txt";
-    var eb = document.createElement("span"); eb.className = "sigbar-eyebrow"; eb.textContent = "有新內容";
-    var mn = document.createElement("span"); mn.className = "sigbar-main"; mn.textContent = "點一下更新";
-    txt.appendChild(eb); txt.appendChild(mn);
-    var ch = document.createElement("span"); ch.className = "sigbar-chev"; ch.setAttribute("aria-hidden", "true"); ch.textContent = "›";
-    b.appendChild(ico); b.appendChild(txt); b.appendChild(ch);
-    b.style.top = "calc(env(safe-area-inset-top) + 10px)";
-    b.addEventListener("click", function () {
-      mn.textContent = "更新中…"; b.disabled = true;
-      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      else location.reload();
-    });
-    document.body.appendChild(b);
-    requestAnimationFrame(function () { b.classList.add("in"); });
-    /* SIGNAL 膠囊已經在的話，往下推 */
-    var sb = document.getElementById("__sigBar");
-    if (sb) sb.style.top = "calc(" + (b.offsetHeight + 8) + "px + env(safe-area-inset-top) + 10px)";
+    try { if (sessionStorage.getItem("sky:updTried")) return; } catch (e) {}   // B582T：這次開 App 已經按過更新 → 不再出現（不會一直跳）
+    var rt = document.getElementById("__restartTip"); if (rt && rt.__api) rt.__api.hide();
+    /* B582T（CÉON 11/15 選 A）：iOS 通知橫幅。5 秒後自己收回，不再一直蓋住左上角的返回 */
+    window.skyBanner({ id: "__updBar", title: "有新版本", body: "點一下就更新，不用重新下載", ms: 5000,
+      onTap: function (api) {
+        api.arm(0); api.set("正在更新…", "馬上好，畫面會自己重新整理", true);
+        try { sessionStorage.setItem("sky:updTried", "1"); } catch (e) {}
+        try { if (reg && reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" }); } catch (e) {}
+        setTimeout(function () { location.reload(); }, 2000);   // 新版沒有馬上接手也一樣重新整理（以前會一直停在「更新中…」）
+      } });
+  }
+  if (/\/test\.html$/i.test(location.pathname) && /[?&]updbar=([12])/.test(location.search)) {   // 只在 test.html 看樣子：?updbar=1 有新版本、?updbar=2 關掉重開
+    var pv = RegExp.$1; window.addEventListener("load", function () { setTimeout(function () {
+      if (pv === "1") { try { sessionStorage.removeItem("sky:updTried"); } catch (e) {} showBanner({}); }
+      else window.skyBanner({ id: "__restartTip", title: "有新版本", body: "把 App 關掉再打開就更新囉", ms: 6000 }); }, 600); });
   }
   var refreshed = false;
   /* B258T：第一次安裝（原本沒有 controller）時 clients.claim 也會觸發 controllerchange →
