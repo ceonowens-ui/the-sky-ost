@@ -1316,7 +1316,7 @@ if(REAL){
     reserve:function(u,draft,key){return post("/letters/reserve",withS({draft:draft,key:key}))},
     pay:function(u,orderId){
       var en=document.documentElement.lang==="en";
-      return post("/letters/pay",withS({orderId:orderId,lang:en?"en":"",back:"test.html"}),true).then(function(t){
+      return post("/letters/pay",withS({orderId:orderId,lang:en?"en":"",back:SK==="tk:session"?"":"test.html"}),true).then(function(t){
         var j=null;try{j=JSON.parse(t)}catch(e){}
         if(j)return j;
         var form=new DOMParser().parseFromString(t,"text/html").querySelector("form");
