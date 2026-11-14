@@ -176,7 +176,7 @@ window.SKY_LANG=/^zh(?:-|$)/i.test(p)?"zh":"en";window.SKY_LANG_SET=!!pref;docum
   el.addEventListener("click", go);
   if (ret) window.__skySplashGo = go;   /* B469T：購票模組蓋上自己的等待底、或結果頁出來時叫它 */
 })();</script>
-<script src="app-i18n-en.js?v=B328T"></script>
+<script src="app-i18n-en.js?v=B570T"></script>
 <link rel="preload" as="style" href="ticket-a-wallet-test.css?v=B563T">
 <script src="shop-language.js?v=19ab0a388741"></script>
 <script>/* 單曲卡（只在 test.html，未轉正）：Wallet 卡連結 #single=<鑰匙>。整頁最早執行：存進 localStorage、立刻從網址拿掉（統計、分享、加主畫面都看不到）。權利由 chance-single 判斷。 */
@@ -8227,7 +8227,7 @@ window.ALBUM_SWITCH = {
       var br = A2.iOS ? "Safari" : "瀏覽器";
       var pick = A2.inapp === "wechat" ? (A2.iOS ? "選「在 Safari 中打開」" : "選「在瀏覽器打開」") : "選「用 " + br + " 開啟」或「在外部瀏覽器開啟」";
       return { kind: "inapp", arrow: "tr", title: "先用 " + br + " 打開",
-        sub: "在" + nm + "裡面沒辦法加到主畫面，也加不了 Apple 錢包卡。" + (cred ? "換到 " + br + " 之後，到 OWN 用 email＋兌換碼輸入一次就好。" : ""),
+        sub: "在" + nm + "裡面沒辦法加到主畫面。"   /* B570T（CÉON 11/15）：Apple 錢包先關，拿掉「也加不了 Apple 錢包卡」 */ + (cred ? "換到 " + br + " 之後，到 OWN 用 email＋兌換碼輸入一次就好。" : ""),
         steps: [[I.dots, "點右上角的「⋯」"], [I.compass, pick], [I.plus, "打開後照著提示，把 THE SKY 加到主畫面"]],
         go: A2.inapp === "line" ? "用 " + br + " 打開" : "複製連結", later: "先不用" };
     }
@@ -13162,7 +13162,7 @@ window.ALBUM_SWITCH = {
 <h3>2. Your tickets</h3>
 <p>Tickets you buy appear in SHOP → "My tickets" and are emailed to you. On a new phone, sign in with the same email (we email you a verification code) to see them. At the door, show the QR code in the app or the email; if your phone can't show it, give your name and the last 4 digits of your mobile number. Each ticket admits once. To give a ticket to a friend, use "Transfer to a friend" in My tickets.</p>
 <h3>3. For you only</h3>
-<p>Your code, your Apple Wallet card and your ticket QR code are your keys. Please don't post, forward, resell or share them — a shared QR code can be used by someone else first.</p>
+<p>Your code and your ticket QR code are your keys. Please don't post, forward, resell or share them — a shared QR code can be used by someone else first.</p>
 <h3>4. For personal enjoyment</h3>
 <p>Songs, lyrics, videos and SIGNAL posts are for the buyer's personal enjoyment. Please don't record, download, re-share, distribute or use them commercially.</p>
 <h3>5. Comments</h3>
@@ -13176,7 +13176,7 @@ window.ALBUM_SWITCH = {
 <h3>二、你的門票</h3>
 <p>買到的票會放在 SHOP →「我的票」，同時寄一封門票信到你的信箱。換手機時，用同一個 email 收驗證碼登入就看得到。入場時出示 App 或門票信裡的 QR；手機無法顯示時，報購買姓名＋手機後 4 碼核對。一張票只能入場一次。要把票給朋友，用「我的票」裡的「轉讓給朋友」。</p>
 <h3>三、只限本人使用</h3>
-<p>兌換碼、Apple 錢包卡和入場 QR，都等於你的鑰匙。請勿公開、轉傳、轉售或分享給他人；QR 被別人先拿去入場，就無法再用。</p>
+<p>兌換碼和入場 QR，都等於你的鑰匙。請勿公開、轉傳、轉售或分享給他人；QR 被別人先拿去入場，就無法再用。</p>
 <h3>四、內容僅供個人欣賞</h3>
 <p>歌曲、歌詞、影片與 SIGNAL 頻道內容，僅供購買者個人欣賞；請勿錄製、下載後轉傳、公開散布，或用於商業用途。</p>
 <h3>五、留言與互動</h3>
@@ -13233,7 +13233,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B569T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B570T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */

@@ -148,6 +148,7 @@ window.SKY_I18N_EN={"夏米爾企業社 · Business Reg. No. 38472654":"Xiamier 
 "打開": " to open",
 "在": "In ",
 "裡面沒辦法加到主畫面，也加不了 Apple 錢包卡。": ", you can't add to Home Screen or add the Apple Wallet card.",
+"裡面沒辦法加到主畫面。": ", you can't add it to your Home Screen.",   // B570T
 "換到": "After switching to ",
 "之後，到 OWN 用 email＋兌換碼輸入一次就好。": ", just enter your email + redeem code once in OWN.",
 "點右上角的「⋯」": "Tap \"⋯\" at the top right",
