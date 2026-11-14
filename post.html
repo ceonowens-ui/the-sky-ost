@@ -305,7 +305,7 @@ function pushPost(path, payload){
 function pushWait(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
 async function pushSend(onProg){
   var body = $("push-text").value.trim() || "CHANCE 發了新動態", d;
-  try { d = await pushPost("/send", { title:"THE SKY", body: body, url:"./test.html" }); }
+  try { d = await pushPost("/send", { title:"THE SKY", body: body });   /* B567T（推播 P3）：不再寫死 test.html，點開會回到粉絲訂閱的那一頁 */ }
   catch(e){ return { ok:false, err:"net" }; }
   if (!d || !d.ok) return d || { ok:false };
   var rounds = 0;

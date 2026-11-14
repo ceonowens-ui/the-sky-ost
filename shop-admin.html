@@ -116,7 +116,7 @@ button[disabled]{opacity:.45}
     $("list").innerHTML = list.length ? list.map(function (o) {
       var s = o.ship || {}, t = esc(o.tradeNo), pick = isPick(o), st = stateOf(o), act;
       var pill = (o.oversold ? '<span class="pill red">超賣</span> ' : "") + '<span class="pill' + (st === "已退款" ? " red" : st === "已寄出" || st === "已領取" ? " ship" : "") + '">' + st + "</span>";
-      if (o.refundedAt) act = '<div class="meta red">已退款・' + esc(when(o.refundedAt)) + '</div><div class="ship row"><button class="ghost" data-unrefund="' + t + '">按錯了，改回未退款</button></div>';
+      if (o.refundedAt) act = '<div class="meta red">已退款・' + esc(when(o.refundedAt)) + '</div><div class="ship row"><button class="ghost" data-revoid="' + t + '">重試作廢發票</button><button class="ghost" data-unrefund="' + t + '">按錯了，改回未退款</button></div>';
       else {
         if (pick) act = (o.shipped ? '<div class="meta">之前按過寄出（' + esc(o.shipped.tracking) + "），這筆其實是現場領取</div>" : "") +
           (o.pickedUp ? '<div class="meta">已領取・' + esc(when(o.pickedUp.at)) + '</div><div class="ship row"><button class="ghost" data-unpick="' + t + '">按錯了，改回未領取</button></div>'
@@ -185,12 +185,13 @@ button[disabled]{opacity:.45}
     S.f = f; Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-f]"), function (b) { b.classList.toggle("on", b.getAttribute("data-f") === f); }); render();
   });
   $("reload").onclick = load;
-  /* B564T：標記已領取／改回、標記已退款／改回（都先確認；不寄信） */
+  /* B564T：標記已領取／改回、標記已退款／改回（都先確認；不寄信）。B567T（後台 s10）：退款同時還庫存、作廢發票，結果跳出來講 */
   var MARKS = [
     ["data-pick", "/admin/pickup", false, function (t) { return "確定把 " + t + " 標記成已領取？"; }],
     ["data-unpick", "/admin/pickup", true, function (t) { return "確定把 " + t + " 改回未領取？"; }],
-    ["data-refund", "/admin/refund", false, function (t) { return "確定把 " + t + " 標記成已退款？請先確認已經在綠界退刷。標記後報表會扣掉這筆。"; }],
-    ["data-unrefund", "/admin/refund", true, function (t) { return "確定把 " + t + " 改回未退款？報表會重新算進這筆。"; }]
+    ["data-refund", "/admin/refund", false, function (t) { return "確定把 " + t + " 標記成已退款？\n\n請先確認已經在綠界退刷。\n標記後：報表扣掉這筆、包數還回庫存、這筆的電子發票會作廢（作廢不能復原）。"; }],
+    ["data-revoid", "/admin/refund", false, function (t) { return "再試一次作廢 " + t + " 的電子發票？（已經作廢的不會重做）"; }],
+    ["data-unrefund", "/admin/refund", true, function (t) { return "確定把 " + t + " 改回未退款？報表會重新算進這筆、包數再扣回庫存。發票已經作廢的單不能改回。"; }]
   ];
   $("list").addEventListener("click", function (e) {
     var el = e.target;
@@ -199,7 +200,9 @@ button[disabled]{opacity:.45}
       if (!window.confirm(MARKS[i][3](mt))) return;
       var mk = MARKS[i], mm = document.querySelector('[data-m="' + mt + '"]'), label = el.textContent;
       el.disabled = true; el.textContent = "處理中…";
-      api(mk[1], { tradeNo: mt, undo: mk[2] }).then(function (j) { if (j && j.ok) load(); else { el.disabled = false; el.textContent = label; mm.textContent = "失敗：" + ((j && (j.message || j.error)) || ""); } })
+      api(mk[1], { tradeNo: mt, undo: mk[2] }).then(function (j) {
+        if (j && j.ok) { load(); var iv = j.invoice, rs = j.restocked ? "，" + j.restocked + " 包已還回庫存" : ""; if (iv && iv.ok === false) window.alert("已標記退款" + rs + "。\n\n但發票沒有作廢：" + (iv.message || iv.error) + "\n可以按「重試作廢發票」，或到綠界發票後台處理。"); else if (iv && iv.already) window.alert("發票 " + iv.no + " 之前就已經作廢了。"); else if (iv && iv.no) window.alert("已標記退款" + rs + "，發票 " + iv.no + " 已作廢。"); }
+        else { el.disabled = false; el.textContent = label; mm.textContent = "失敗：" + ((j && (j.message || j.error)) || ""); } })
         .catch(function () { el.disabled = false; el.textContent = label; mm.textContent = "連不上，請稍後再試"; });
       return;
     }

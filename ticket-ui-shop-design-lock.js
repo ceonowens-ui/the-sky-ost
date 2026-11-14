@@ -1179,11 +1179,27 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
       if (j.token) S.pendingTransfer = { token: j.token };
       var ev = j.event || {};
       ensureSession().then(function (ok) {
-        var loginPart = ok ? '<button class="tk-btn p" data-sact="accept">接受這張票</button>' : loginPartHTML("登入並接受");
-        sheet('<div class="tk-big"><div class="ic">↘</div><div class="tk-eyebrow">Incoming pass</div><h3>有人要把票給你</h3><div class="tk-hint">' + esc(j.from) + ' 要把「' + esc(ev.name || "CHANCE") + '」的票轉給你。<br>' + esc(fmt(ev.startAt)) + ' · ' + esc(ev.venue || "") + (j.seatName ? '<br>' + (sxEN() ? "Seat " : "座位 ") + '<b>' + esc(j.seatName) + '</b>' : '') + '</div></div>' + loginPart + '<button class="tk-btn g" data-sact="close">先不要</button>');
+        var loginPart = '<div id="tk-accarea">' + (ok ? '<button class="tk-btn p" data-sact="accept">接受這張票</button>' : loginPartHTML("登入並接受")) + '</div>';
+        sheet('<div class="tk-big"><div class="ic">↘</div><div class="tk-eyebrow">Incoming pass</div><h3>有人要把票給你</h3><div class="tk-hint">' + esc(j.from) + ' 要把「' + esc(ev.name || "CHANCE") + '」的票轉給你。<br>' + esc(fmt(ev.startAt)) + ' · ' + esc(ev.venue || "") + (j.seatName ? '<br>' + (sxEN() ? "Seat " : "座位 ") + '<b>' + esc(j.seatName) + '</b>' : '') + '</div></div>' + holderPartHTML() + loginPart + '<button class="tk-btn g" data-sact="close">先不要</button>');
         if (!ok) bindLogin2(function () { acceptIncoming(S.pendingTransfer); });
       });
     }).catch(function () { toast(sxEN() ? "Can’t reach the server. Please try again." : "連不上伺服器"); });
+  }
+  /* B567T（CÉON 11/14）：收票的人要填姓名＋手機（都必填）。現場斷網時，工作人員用姓名＋手機末 4 碼核對 */
+  function holderPartHTML() {
+    var me = meGet(), en = sxEN();
+    return '<div class="tk-hint" style="margin-top:14px">' + (en ? "Your name and mobile number (staff use them to check your ticket at the door if the network is down):" : "你的姓名和手機（現場網路不通時，工作人員用來核對）：") + '</div>' +
+      '<input class="tk-in" id="tk-trn" type="text" autocomplete="name" enterkeyhint="next" maxlength="40" placeholder="' + (en ? "Full name" : "姓名") + '" value="' + esc(me.name || "") + '">' +
+      '<input class="tk-in" id="tk-trp" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="done" maxlength="20" placeholder="' + (en ? "Mobile number" : "手機號碼") + '" value="' + esc(me.phone || "") + '">' +
+      '<div class="tk-msg" id="tk-trmsg"></div>';
+  }
+  function holderRead() {
+    var n = $("#tk-trn"), ph = $("#tk-trp"), en = sxEN(), name = n ? n.value.trim().replace(/\s+/g, " ") : "", phone = ph ? ph.value.replace(/[^0-9+]/g, "") : "";
+    if (n) n.classList.remove("err"); if (ph) ph.classList.remove("err");
+    if (!name) { if (n) { n.classList.add("err"); n.focus(); } msg("#tk-trmsg", en ? "Please enter your name" : "請填姓名"); return null; }
+    if (phone.replace(/\D/g, "").length < 8) { if (ph) { ph.classList.add("err"); ph.focus(); } msg("#tk-trmsg", en ? "Please enter your mobile number" : "請填手機號碼"); return null; }
+    msg("#tk-trmsg", ""); meSet({ name: name, phone: phone });
+    return { name: name, phone: phone };
   }
   function bindLogin2(onDone) {   /* B473T：鍵盤的「前往／傳送」可以送出（以前只能點按鈕，按鈕常被鍵盤擋住）；寄送中、驗證中不能連按（連按會寄兩次，第二封讓第一封失效）；打滿 6 碼自動登入。選位登入、開賣前登入、取票、收轉讓共用這一個 */
     var sending = false, logging = false;
@@ -1219,12 +1235,16 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   function acceptIncoming(pt) {
     if (!pt || !S.session || S.accBusy) return;   /* B563T：送出中再按不會送第二次（第二次的「已失效」會把「這張票是你的了」蓋掉） */
+    var hd = holderRead();   /* B567T：姓名、手機沒填好就不送；剛登入完沒填 → 把登入那塊換成「接受這張票」按鈕，填好再按 */
+    if (!hd) { var ar = sheetEl && sheetEl.querySelector("#tk-accarea"); if (ar && !ar.querySelector('[data-sact="accept"]')) { ar.innerHTML = '<button class="tk-btn p" data-sact="accept">' + (sxEN() ? "Accept this ticket" : "接受這張票") + '</button>'; var nb2 = ar.querySelector("button"); nb2.addEventListener("click", function () { sheetAct2("accept", nb2); }); } return; }
     S.accBusy = true; var ab = sheetEl && sheetEl.querySelector('[data-sact="accept"]'); if (ab) ab.disabled = true;
-    var payload = { session: S.session }; if (pt.token) payload.token = pt.token; else payload.code = pt.code;
+    var payload = { session: S.session, name: hd.name, phone: hd.phone }; if (pt.token) payload.token = pt.token; else payload.code = pt.code;
     api("/ticket/transfer/accept", payload).then(function (j) {
       var tkey = pt.token || pt.code, again = !j.ok && j.error === "self" && S.accDone === tkey;   /* B563T：同一筆這次已經收下過，後台說「本來就是你的」＝成功，照樣顯示成功 */
       S.accBusy = false; S.pendingTransfer = null;
-      if (!j.ok && !again) { var m = { frozen: "開演前 3 小時起停止轉讓", self: "這張票本來就是你的", transfer_expired: "轉讓已失效，請對方重新產生", transfer_invalid: "轉讓已被取消或已完成", expired: "這場已經結束了", code_wrong: "代碼不對或已過期", locked: "輸錯太多次，10 分鐘後再試" }[j.error] || j.message || "接受失敗"; return sheet('<div class="tk-big"><div class="ic">✕</div><h3>' + esc(m) + '</h3></div><button class="tk-btn p" data-sact="close">好</button>'); }
+      if (!j.ok && !again) { var m = { frozen: "開演前 3 小時起停止轉讓", self: "這張票本來就是你的", transfer_expired: "轉讓已失效，請對方重新產生", transfer_invalid: "轉讓已被取消或已完成", expired: "這場已經結束了", code_wrong: "代碼不對或已過期", locked: "輸錯太多次，10 分鐘後再試" }[j.error] || j.message || "接受失敗";
+        if (j.error === "need_name" || j.error === "need_phone") { S.pendingTransfer = pt; var ab3 = sheetEl && sheetEl.querySelector('[data-sact="accept"]'); if (ab3) ab3.disabled = false; return msg("#tk-trmsg", sxEN() ? (j.error === "need_name" ? "Please enter your name" : "Please enter your mobile number") : m); }   /* B567T：後台說姓名／手機沒填 → 留在原畫面 */
+        return sheet('<div class="tk-big"><div class="ic">✕</div><h3>' + esc(m) + '</h3></div><button class="tk-btn p" data-sact="close">好</button>'); }
       S.accDone = tkey; hap([20, 40, 20]);
       sheet('<div class="tk-big"><div class="ic ok">✓</div><div class="tk-eyebrow">Transfer complete</div><h3>這張票是你的了</h3><div class="tk-hint">' + esc((j.ticket && j.ticket.id) || "") + '<br>入場時到 SHOP → 我的票 出示 QR。</div></div><button class="tk-btn p" data-sact="tomerch">看我的票</button>');
       refresh(true);

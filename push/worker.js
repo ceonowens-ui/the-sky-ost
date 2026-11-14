@@ -14,7 +14,8 @@
 //   POST /send-one   X-Feed-Key {endpoint, title, body} → 只推一個（測試用）
 //   POST /send-more  X-Feed-Key {job} → P2：接著送同一次推播的下一批，直到 done:true
 
-const V = "P2";   // P2（B564T，CÉON 11/14）：推播送給所有訂閱的人（分批送，不再只送前 40 個）
+const V = "P3";   // P3（CÉON 11/14「這幾項都執行修」）：點開推播回到粉絲訂閱時的那一頁（測試版訂的 → test.html；正式版訂的 → 首頁），不再一律開 test.html
+// P2 註：   // P2（B564T，CÉON 11/14）：推播送給所有訂閱的人（分批送，不再只送前 40 個）
 const MAX_TITLE = 40, MAX_BODY = 120;
 const SEND_GAP_MS = 20 * 1000;          // 防手滑連按：20 秒內只能推一次
 const PER_REQ = 12;                     // P2：一次請求送幾個人。每個人要讀 1 次 KV＋打 1 次推播服務（失效的再刪 1 次），加上固定的幾次，壓在免費方案子請求上限 50 以內
@@ -154,6 +155,12 @@ async function listSubs(env, src, withSrc) {
 }
 
 /* P2：送一批（最多 PER_REQ 個人），記下進度；全部送完才把 done 設成 true */
+/* P3：點開推播要回哪一頁。舊的訂閱都是測試版 test.html 訂的（正式首頁還沒有推播），沒記 src 的當 test */
+function homeOf(src) { return String(src || "test") === "test" ? "./test.html" : "./"; }
+function payloadFor(job, rec) {
+  if (job.link !== null && job.link !== undefined) return job.payload;   // 發文台有指定網址就照舊
+  try { const o = JSON.parse(job.payload); o.u = homeOf(rec && rec.src); return JSON.stringify(o); } catch (e) { return job.payload; }
+}
 async function runBatch(env, job, jid, v) {
   v = v || await vapid(env, true);
   const batch = job.keys.slice(job.i, job.i + PER_REQ);
@@ -161,7 +168,7 @@ async function runBatch(env, job, jid, v) {
     const rec = await env.PUSH.get(k, "json");
     if (!rec) return;
     try {
-      const st = await pushOne(env, v, rec.sub, job.payload);
+      const st = await pushOne(env, v, rec.sub, payloadFor(job, rec));
       if (st >= 200 && st < 300) job.sent++;
       else if (st === 404 || st === 410) { job.gone++; await env.PUSH.delete(k); }
       else job.failed++;
@@ -200,7 +207,7 @@ export default {
         const id = "sub:" + await sha(d.sub.endpoint);
         const meta = { src: clip(d.src || "test", 12), at: Date.now() };
         const rec = { sub: { endpoint: d.sub.endpoint, keys: { p256dh: d.sub.keys.p256dh, auth: d.sub.keys.auth } },
-          lang: clip(d.lang, 8), unlocked: !!d.unlocked, standalone: !!d.standalone, ua: clip(req.headers.get("User-Agent"), 160), at: meta.at };
+          src: meta.src, lang: clip(d.lang, 8), unlocked: !!d.unlocked, standalone: !!d.standalone, ua: clip(req.headers.get("User-Agent"), 160), at: meta.at };   // P3：rec 也記 src（點開推播要回哪一頁）
         await env.PUSH.put(id, JSON.stringify(rec), { metadata: meta });
         return J({ ok: true }, 200, req, env);
       }
@@ -235,15 +242,15 @@ export default {
         }
         const title = clip(d.title || "THE SKY", MAX_TITLE);
         const body = clip(d.body || "CHANCE 發了新動態", MAX_BODY);
-        const link = /^\.?\/?[\w\-./?=&%]*$/.test(d.url || "") && d.url ? d.url : "./test.html";
-        const payload = JSON.stringify({ t: title, b: body, u: link, tag: clip(d.tag || "signal", 24), at: Date.now() });
+        const link = /^\.?\/?[\w\-./?=&%]*$/.test(d.url || "") && d.url ? d.url : null;   // P3：沒指定就依每個人訂閱的那一頁（homeOf）
+        const payload = JSON.stringify({ t: title, b: body, u: link || "./test.html", tag: clip(d.tag || "signal", 24), at: Date.now() });
         const v = await vapid(env, true);
 
         if (p === "/send-one") {
           if (!d.endpoint) return J({ ok: false, err: "bad_endpoint" }, 400, req, env);
           const rec = await env.PUSH.get("sub:" + await sha(d.endpoint), "json");
           if (!rec) return J({ ok: false, err: "not_found" }, 404, req, env);
-          const st = await pushOne(env, v, rec.sub, payload);
+          const st = await pushOne(env, v, rec.sub, payloadFor({ payload, link }, rec));   // P3
           return J({ ok: st >= 200 && st < 300, status: st }, 200, req, env);
         }
 
@@ -256,7 +263,7 @@ export default {
         /* P2：以前一次只送前 PER_REQ（40）個人，第 41 個以後永遠收不到（skipped）。
            現在把這次要送的名單存成一份工作清單，一批一批送；發文台收到 done:false 就接著打 /send-more，直到送完 */
         const jid = (await sha(String(Date.now()) + ":" + Math.random())).slice(0, 16);
-        const job = { at: Date.now(), by: r, title, body, payload, keys, i: 0, sent: 0, gone: 0, failed: 0 };
+        const job = { at: Date.now(), by: r, title, body, payload, link, keys, i: 0, sent: 0, gone: 0, failed: 0 };
         await env.PUSH.put("log:last", JSON.stringify({ at: job.at, by: r, title, body, total: keys.length, sent: 0, gone: 0, failed: 0, skipped: keys.length, running: true }));   // 先記一筆，20 秒防連按從現在開始算
         return J(await runBatch(env, job, jid, v), 200, req, env);
       }

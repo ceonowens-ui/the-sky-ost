@@ -584,9 +584,24 @@ async function loadMerch() {
   $("mStats").innerHTML = ["b", "h", "s"].filter((k) => I[k]).map((k) => esc(mLbl(k)) + " " + (I[k].sold || 0) + "/" + I[k].cap).join("　·　") +
     "　·　海外 " + mOrders.filter((o) => o.mode === "ship" && o.status !== "refunded").length + " 筆（已寄 " + mOrders.filter((o) => o.shipped).length + "）";
   if (!mDirty) { $("m_sale").value = mCfg.onSale === true ? "true" : "false"; $("m_cut").value = toLocalInput(mCfg.cutoff); }   /* B563T */
-  $("mBody").innerHTML = mOrders.map((o, i) => '<tr><td class="mono">' + esc(pcode(o)) + "</td><td>" + esc(pname(o)) + "</td><td>" + esc(mLbl(o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + "</td><td>" +
+  $("mBody").innerHTML = mOrders.map((o, i) => '<tr><td class="mono">' + esc(pcode(o)) + "</td><td>" + esc(pname(o)) + "</td><td>" + esc(mLbl(o.code)) + (o.qty > 1 ? " ×" + esc(o.qty) : "") + (o.refundedSets && o.status !== "refunded" ? '<br><span class="err">已退 ' + esc(o.refundedSets) + ' 組</span>' : "") + "</td><td>" +
     (o.mode === "ship" ? "寄 " + esc((o.ship && o.ship.country) || "") + (o.shipped ? " ✓" : "") : "現場" + (o.pickedAt ? " ✓已領" : "")) + '</td><td style="white-space:normal;min-width:170px;overflow-wrap:anywhere">' + esc(o.email) + "</td><td>" + esc(fmt(o.paidAt)) /* B563T */ + "</td><td>" + esc(o.amount) + "</td><td>" +
-    (o.status === "refunded" ? "已退款" : o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? esc(o.shipped.tracking) : "")) + "</td></tr>").join("");
+    (o.status === "refunded" ? "已退款" : o.mode === "ship" && !o.shipped ? '<button class="btn sm" onclick="shipOrder(' + i + ')">寄出</button>' : (o.shipped ? esc(o.shipped.tracking) : "")) +
+    (o.status !== "refunded" && !o.shipped && !o.pickedAt ? ' <button class="btn sm danger" data-mrf="' + esc(o.tradeNo) + '" onclick="refundMerch(this.dataset.mrf, this)">退款</button>' : "") + "</td></tr>").join("");   /* B567T（後台 m76）：周邊單退款 */
+}
+/* B567T（後台 m76）：周邊訂單退款。用訂單編號認；先確認；送出中不能再按。退款本身要到綠界後台退刷，這裡只放回庫存、清掉海報額度、記發票待作廢、寄信給粉絲 */
+let mrfBusy = false;
+async function refundMerch(tradeNo, btn) {
+  const o = mOrders.find((x) => x.tradeNo === tradeNo); if (!o || mrfBusy) return;
+  const left = Number(o.qty || 1);
+  let sets = left;
+  if (left > 1) { const v = prompt(o.email + " 這筆有 " + left + " 組，要退幾組？（1～" + left + "）", String(left)); if (v == null) return; sets = Math.floor(Number(v)); if (!(sets >= 1 && sets <= left)) { alert("組數要在 1 到 " + left + " 之間"); return; } }
+  if (!confirm("確定退 " + o.email + " 的周邊 " + sets + " 組？\n\n訂單 " + tradeNo + "\n退了以後：庫存放回、這幾組的海報額度還給票、粉絲會收到退款通知信。\n款項要另外到綠界後台退刷；發票到「發票」作廢或折讓。")) return;
+  mrfBusy = true; if (btn) { btn.disabled = true; btn.textContent = "處理中…"; }
+  let j; try { j = await api("/ticket/admin/merch/refund", { eventId: o.eventId, tradeNo, sets }); } catch (e) { j = { ok: false, error: e.message }; }
+  mrfBusy = false;
+  alert(j.ok ? (j.already ? "這筆之前已經退過了。" : j.note || "已退款") : "沒有退成：" + (j.message || j.error || ""));
+  loadMerch();
 }
 async function saveMerch() {
   if (!cur) return;
