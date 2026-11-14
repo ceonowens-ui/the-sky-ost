@@ -3727,7 +3727,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   var CTA_STYLE = (function () { var m = /[?&]ctaStyle=([abc])(?:[&#]|$)/.exec(BOOT_QS); return m ? m[1] : "c"; })();
   document.documentElement.setAttribute("data-cta-style", CTA_STYLE);
   /* 頁面字型只載 400／700，600 會變 700。另外取 600 的小字集改名，只給這三顆按鈕用，不影響其他字；取不到就退回原字型 */
-  fetch("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@600&display=swap&text=" + encodeURIComponent("立即購票買選擇座位前往付款確認席下一步種尚未開賣提前排隊已售完我的第起／張先登入，直接 ·✓$,&/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"))
+  fetch("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@600&display=swap&text=" + encodeURIComponent("立即購票買選擇座位前往付款確認席下一步種尚未開賣提前排隊已售完我的第起／張先登入，直接 ·✓$,&/下午點準時（）二ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"))
     .then(function (r) { return r.ok ? r.text() : ""; })
     .then(function (css) { if (!css) return; var st = document.createElement("style"); st.textContent = css.replace(/font-family:\s*'Noto Sans TC'/g, "font-family:'CTA Noto TC'"); document.head.appendChild(st); })
     .catch(function () {});
