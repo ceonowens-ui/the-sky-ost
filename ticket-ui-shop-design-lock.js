@@ -557,7 +557,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function phoneInput() { var v = (S.buy && S.buy.phone) || lsGet("tk:phone") || meGet().phone || ""; return '<input class="tk-in tkb-in" id="tk-bph" type="tel" inputmode="tel" aria-required="true" maxlength="20" autocomplete="tel" enterkeyhint="done" placeholder="例如：0912345678" value="' + esc(v) + '">'; }
 
   /* B496T（CÉON 11/11）：電子發票（夏米爾企業社開立）。預設寄到購票 Email；也可以存手機條碼、打統一編號、捐贈。門票結帳和周邊結帳共用同一套 */
-  function invGetSaved() { try { var x = JSON.parse(localStorage.getItem("tk:inv") || "null"); return x && x.t && x.t !== "love" ? x : { t: "mail" };   /* B571T：之前選過捐贈的人回到寄 Email */ } catch (e) { return { t: "mail" }; } }
+  function invGetSaved() { return { t: "mail" }; }   /* B572T（CÉON 11/15「留 email 就好」）：電子發票一律寄到 Email，不再讀以前存的手機條碼／統編 */
   function invOpts(t) {
     var en = sxEN(), opt = function (v, zh, e2) { return '<option value="' + v + '"' + (t === v ? ' selected' : '') + '>' + (en ? e2 : zh) + '</option>'; };
     return opt("mail", "寄到 Email", "Email") + opt("bar", "手機條碼", "Mobile barcode") + opt("ubn", "公司統編", "Company tax ID");   /* B571T（CÉON 11/15）：拿掉「捐贈發票」 */
@@ -576,14 +576,11 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   }
   CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
   function invSave(inv) { try { localStorage.setItem("tk:inv", JSON.stringify(inv)); } catch (e) {} }
-  function invBlock() {   // 門票結帳頁
-    var x = S.inv || invGetSaved(), t = x.t || "mail";
-    return '<div class="tk-inv" data-inv><label class="tkb-sec" for="tk-inv-t">' + (sxEN() ? "E-invoice" : "電子發票") + '</label>' +
-      '<select class="tk-in tkb-in" id="tk-inv-t">' + invOpts(t) + '</select>' +
-      '<input class="tk-in tkb-in" id="tk-inv-v" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" aria-label="' + esc(invLbl(t)) + '" placeholder="' + esc(invPh(t)) + '" value="' + esc(t !== "mail" ? x.v || "" : "") + '"' + (t === "mail" ? ' hidden' : '') + '>' +
-      '<input class="tk-in tkb-in" id="tk-inv-n" autocomplete="organization" maxlength="60" aria-label="' + (sxEN() ? "Company name" : "公司抬頭") + '" placeholder="' + (sxEN() ? "Company name (optional)" : "公司抬頭（可不填）") + '" value="' + esc(t === "ubn" ? x.n || "" : "") + '"' + (t === "ubn" ? '' : ' hidden') + '>' +
-      '<div class="tkb-hint" id="tk-inv-h">' + esc(invHint(t)) + '</div></div>';
+  function invBlock() {   // 門票結帳頁。B572T：只寄 Email，不給選
+    var en = sxEN();
+    return '<div class="tk-inv" data-inv><div class="tkb-sec">' + (en ? "E-invoice" : "電子發票") + '</div><div class="tkb-hint" id="tk-inv-h" style="grid-column:2;align-self:center;font-size:15px">' + esc(invHint("mail")) + '</div></div>';
   }
+
   document.addEventListener("change", function (e) {
     var sel = e.target; if (!sel || sel.id !== "tk-inv-t") return;
     var box = sel.closest("[data-inv]"); if (!box) return;
@@ -600,7 +597,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     S.inv[el.id === "tk-inv-v" ? "v" : "n"] = el.value;
   }, true);
   function invRead() {   // 門票結帳：讀發票欄，錯了標在欄位下面
-    var box = document.querySelector(".tk-layer.in [data-inv]") || document.querySelector("[data-inv]"); if (!box) return { inv: { t: "mail" } };
+    var box = document.querySelector(".tk-layer.in [data-inv]") || document.querySelector("[data-inv]"); if (!box || !box.querySelector("#tk-inv-t")) return { inv: { t: "mail" } };   /* B572T：沒有選單＝寄 Email */
     var vEl = box.querySelector("#tk-inv-v"), r = invCheck({ t: box.querySelector("#tk-inv-t").value, v: vEl.value, n: box.querySelector("#tk-inv-n").value });
     var old = box.querySelector(".tk-ferr"); if (old) old.remove(); vEl.classList.remove("err");
     if (r.err) { fieldErr(vEl, r.err, true); return { err: r.err, el: vEl }; }
@@ -4123,7 +4120,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += loggedIn() ? cx9Row("email", "Email", '<span class="mx-ro">' + esc(maskEmail(myEmail())) + '<small class="mx-ro-h">這是你登入的帳號，不能改。要換 Email，請先登出，再用另一個 Email 登入。</small></span>')   // B499T
       : cx9Row("email", "Email", '<input data-mf="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="訂單確認信會寄到這裡" value="' + esc(o.email || "") + '"' + A("email") + '>');
     { var ix = o.inv || (o.inv = invGetSaved()), it2 = ix.t || "mail";   // B496T：電子發票
-      h += cx9Row("inv-t", en ? "E-invoice" : "電子發票", '<select data-mf="inv-t"' + A("inv-t") + '>' + invOpts(it2) + '</select>');
+      h += cx9Row("inv-t", en ? "E-invoice" : "電子發票", '<span class="mx-ro">' + (en ? "Emailed to you" : "寄到你的 Email") + '</span>');   /* B572T（CÉON 11/15）：只寄 Email，不給選 */
       if (it2 !== "mail") h += cx9Row("inv-v", invLbl(it2), '<input data-mf="inv-v" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="8" inputmode="' + (it2 === "bar" ? "text" : "numeric") + '" placeholder="' + esc(invPh(it2)) + '" value="' + esc(ix.v || "") + '"' + A("inv-v") + '>');
       if (it2 === "ubn") h += cx9Row("inv-n", en ? "Company name" : "公司抬頭", '<input data-mf="inv-n" autocomplete="organization" maxlength="60" placeholder="' + (en ? "Optional" : "可不填") + '" value="' + esc(ix.n || "") + '"' + A("inv-n") + '>'); }
     h += '</div>' +
