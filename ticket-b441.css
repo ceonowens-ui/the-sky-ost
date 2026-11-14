@@ -5,7 +5,7 @@
 .la-noir .la-bar{background:var(--q-bg)!important}
 .la-noir .la-bar .c{visibility:hidden}
 .la-noir .la-bar button,.la-noir .la-bar .chev{color:var(--q-cream)!important}
-.la-noir .la-bar .tk-back,.co-noir .tk-bar .tk-back{min-width:44px;padding:0 6px;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* B568T（CÉON 11/14）：購票封面、結帳頁的返回鍵改回跟其他頁一樣的金框（原本這裡把框拿掉；金框樣式在 ticket-la-t281.css 的 .tk-back） */
 .la-cv{position:relative;height:calc(var(--c) * 724);color:var(--q-cream);overflow:hidden}
 .la-cv>*{position:absolute;margin:0;white-space:nowrap}
 .la-cv-rule{left:calc(var(--c) * 18);width:calc(var(--c) * 354);height:1px;background:#806f5f}
