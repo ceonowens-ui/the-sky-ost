@@ -1172,7 +1172,8 @@ V.cletter={load:function(){return API.inbox(me())},view:function(r){
   var id=R.param;
   if($("read"))$("read").onclick=function(){sheet('<div class="grab"></div><h2>確認你已親自讀完這封信？</h2><p class="small">確認後會記錄時間並顯示給寄信的粉絲，無法取消。</p><button class="btn btn-gold" id="ok" type="button">我已讀完</button><button class="btn btn-ghost" id="cancel" type="button">還沒</button>',
     function(close){$("ok").onclick=function(){$("ok").disabled=true;API.markRead(me(),id).then(function(x){close();if(x.err){toast("只有 Chance 本人帳號可以確認");return}toast("已記錄讀完時間");render()})};$("cancel").onclick=close})};
-  if($("sendRep"))$("sendRep").onclick=function(){var t=$("rep").value.trim();if(!t)return;$("sendRep").disabled=true;API.reply(me(),id,t).then(function(){toast("已送出回覆");render()})};
+  /* B563T：回覆有沒有送出要看後台怎麼說。以前不管成功失敗都顯示「已送出回覆」；超過 500 字後台會悄悄切掉再寄給粉絲（m73 起改成直接退回） */
+  if($("sendRep"))$("sendRep").onclick=function(){var t=$("rep").value.trim(),n=Array.from(t).length,again=function(m){toast(m);if($("sendRep"))$("sendRep").disabled=false};if(!t)return;if(n>500){toast("回覆最多 500 字，現在是 "+n+" 字");return}$("sendRep").disabled=true;API.reply(me(),id,t).then(function(x){if(x&&(x.err||x.ok===false)){again(x.message||"回覆沒有送出，請再試一次");return}toast("已送出回覆");render()},function(){again("連不上伺服器，回覆沒有送出")})};
  }};
 
 /* ═════════ 營運：收信後台 ═════════ */
@@ -1198,8 +1199,8 @@ V.admin={load:function(){return API.dashboard(me())},view:function(r){
  wire:function(){
   document.querySelectorAll("[data-save]").forEach(function(b){b.onclick=function(){var id=b.dataset.save,k=id.replace("-","");
     var patch={capacity:+$("cap"+k).value,price:+$("price"+k).value,perUser:+$("per"+k).value,holdMin:+$("hold"+k).value,paused:$("pause"+k).checked};
-    API.updatePeriod(me(),id,patch).then(function(x){if(x.err==="capacity"){toast("名額不能低於已寄出加保留中的 "+x.min+" 封，未儲存");render();return}toast("已儲存 "+monthName(id)+" 設定");render()})}});
-  document.querySelectorAll("[data-refund]").forEach(function(b){b.onclick=function(){API.refundDone(me(),b.dataset.refund).then(function(){render()})}});
+    API.updatePeriod(me(),id,patch).then(function(x){if(x.err==="capacity"){toast("名額不能低於已寄出加保留中的 "+x.min+" 封，未儲存");render();return}if(x&&(x.err||x.ok===false)){toast("沒有儲存："+(x.message||x.err||"請再試一次"));render();return}   /* B563T：其他錯誤以前也顯示「已儲存」 */toast("已儲存 "+monthName(id)+" 設定");render()},function(){toast("連不上伺服器，沒有儲存")})}});
+  document.querySelectorAll("[data-refund]").forEach(function(b){b.onclick=function(){if(!confirm("確定把 "+b.dataset.refund+" 標記成「退款完成」？\n\n請先確認已經在綠界把錢退給對方。標記後不能改回來。"))return;   /* B563T：這顆按了不能復原，先問一次 */API.refundDone(me(),b.dataset.refund).then(function(){render()},function(){toast("連不上伺服器，沒有標記")})}});
   $("next").onclick=function(){API.createNext(me()).then(function(x){toast("已建立 "+monthName(x.period.id));render()})};
   if($("purge"))$("purge").onclick=function(){   /* B505T（CÉON 11/12）：測試用清除，要輸入 RESET 才會刪 */
     sheet('<div class="grab"></div><h2>確定清除所有信件？</h2><p class="small">信、訂單、名額都會清掉，救不回來。確定的話輸入 RESET。</p><input id="pgk" type="text" autocomplete="off" autocapitalize="characters" style="width:100%;font-size:17px;padding:12px;border-radius:12px;border:1px solid var(--line,#444);background:transparent;color:inherit"><button class="btn btn-gold" id="pgok" type="button">清除</button><button class="btn btn-ghost" id="cancel" type="button">取消</button>',
@@ -1265,7 +1266,7 @@ var QS=new URLSearchParams(location.search);
 var REAL=QS.get("real")==="1";
 if(REAL){
   /* B563T：?api= 只認自己的兩個後台。以前任何 workers.dev 網址都收，別人做一條連結就能把粉絲的登入、團隊的密碼送到他的伺服器 */
-  var RAPI=(function(){var a=QS.get("api")||"",OK=["https://the-sky-ost-api-test.anthonywen0693.workers.dev","https://the-sky-ost-api.anthonywen0693.workers.dev"];return OK.indexOf(a)>=0?a:OK[0]})();
+  var RAPI=(function(){var a=QS.get("api")||"",OK=["https://the-sky-ost-api-test.anthonywen0693.workers.dev","https://the-sky-ost-api.anthonywen0693.workers.dev"];var local=/^(127\.0\.0\.1|localhost)$/.test(location.hostname)&&/^http:\/\/(127\.0\.0\.1|localhost):\d+\/api$/.test(a);   /* 本機測試：頁面自己就在本機時，才收本機的後台 */return OK.indexOf(a)>=0||local?a:OK[0]})();
   var SK=/^tk:session(-test)?$/.test(QS.get("sk")||"")?QS.get("sk"):"tk:session-test";
   var ROLE=QS.get("role")==="chance"?"chance":QS.get("role")==="team"?"team":"fan";
   var lsRaw=function(k){try{return localStorage.getItem(k)}catch(e){return null}};

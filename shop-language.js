@@ -330,11 +330,98 @@
  'NT$99 · 每人每月一封':'NT$99 · One letter per person each month', '最後幾包有人正在結帳，請幾分鐘後再試':'The last few packs are being checked out by someone else. Please try again in a few minutes.', 'NT$30 · 每人每月一封':'NT$30 · One letter per person each month','CHANCE 官方周邊，數量有限。':'Official CHANCE merch. Limited quantities.',
  '每月限量 · 數位':'Monthly limit · Digital','／封':'/ letter','模擬付款 · 不會收費':'Demo checkout · No charge'
  });
+ Object.assign(D,{
+ /* B563T（CÉON 11/14）：領周邊只要出示票券 QR（到處同一句話） */
+ '生日會當天，到周邊服務台出示票券 QR 領取。':'On the day, show your ticket QR at the merch desk to pick up.',
+ '現場領取：生日會當天，到周邊服務台出示票券 QR 領取。':'Event pickup: on the day, show your ticket QR at the merch desk to pick up.',
+ '周邊：生日會當天，到周邊服務台出示票券 QR 領取。':'Merch: on the day, show your ticket QR at the merch desk to pick up.',
+ '有買周邊的人，生日會當天 13:20 起，到周邊服務台出示票券 QR 領取。':'If you bought merch: on the day from 13:20, show your ticket QR at the merch desk to pick up.',
+ '周邊為預購商品，生日會當天到周邊服務台出示票券 QR 領取。依消費者保護法，收到商品前可隨時來信取消並全額退款；收到商品後 7 日內（現場領取以活動當天起算）可申請退貨退款。':'Merch is pre-order. On the day, show your ticket QR at the merch desk to pick up. Under Taiwan consumer law you can cancel for a full refund by email before receiving it, and request a return within 7 days after receiving it (for event pickup, counted from the event day).',
+ /* B563T：A3 海報組可以現場領或寄送；入口只寫「單買周邊」 */
+ '商品圖片為示意圖。A3 海報組可以現場領取或寄送，買票時也可以直接加購。':'Images are for illustration. The A3 poster set can be picked up at the event or shipped; you can also add it when buying a ticket.',
+ '單買周邊 ›':'Buy merch only ›','單買周邊':'Buy merch only',
+ /* B563T：商品名有空格、沒空格都翻 */
+ 'A3 海報組＋6 號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組＋6 號小卡':'A3 poster set + No. 6 photo card','A3 海報組 ＋ 6 號小卡':'A3 poster set + No. 6 photo card','A3 海報組 ＋ 6號小卡':'A3 poster set + No. 6 photo card','A3 海報組 ＋ 6 號小卡組合':'A3 poster set + No. 6 photo card bundle','A3 海報組 ＋ 6號小卡組合':'A3 poster set + No. 6 photo card bundle','6 號小卡':'No. 6 photo card',
+ /* B563T：畫面叫「我的票」（不再寫票夾）；按鈕叫「出示 QR」 */
+ '收進我的票':'Saved to My tickets','票會寄到這個 email，也會存進「我的票」':'Your ticket is emailed to this address and saved in My tickets',
+ '最後一步：收進「我的票」':'Last step: add it to My tickets','收進「我的票」':'Add to My tickets','找不到你的 email，請到「我的票」登入':'We couldn’t find your email. Please sign in from My tickets.',
+ '活動後照片整理好會出現在我的票 → 過往 → 這場票根裡。':'After the event, your photos will appear in My tickets → Past → this ticket stub.',
+ '你的票已收進「我的票」':'Your ticket is in My tickets','入場 QR 在「我的票」裡。':'Your entry QR is in My tickets.',
+ '這筆付款已經確認，但出票延遲，主辦會盡快補發到「我的票」和你的信箱。請不要重新購買。':'Your payment is confirmed but the ticket is delayed. The organizer will issue it to My tickets and your email as soon as possible. Please do not buy again.',
+ '票券一進來就會出現在「我的票」。請按「重新確認」，不需要重新購買。':'Your ticket will appear in My tickets as soon as it is ready. Tap “Check again” — no need to buy again.',
+ '這張票已經不在「我的票」裡（可能已轉讓給朋友）。':'This ticket is no longer in My tickets (it may have been transferred).',
+ '入場憑 App「我的票」或門票信裡的入場 QR，給工作人員掃描即完成入場。':'Enter with the QR code in My tickets in the app or in your ticket email; staff scan it at the entrance.',
+ '票券可在「我的票」用「轉讓給朋友」換人。':'You can pass the ticket to someone else with “Transfer to a friend” in My tickets.',
+ '入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對':'Show the QR in My tickets in the app or in your ticket email at the door. If your phone can’t show it, give the buyer’s name and the last 4 digits of the phone number.',
+ '生日牆合照需另外加購 PhotoPass NT$390（買票後在「我的票」加購）；由官方攝影師拍攝，自己的合格成片全數下載。':'The birthday-wall photo needs the PhotoPass add-on, NT$390 (add it in My tickets after you buy a ticket). The official photographer takes it, and you can download all of your approved shots.',
+ '，也會存進「我的票」':' and saved in My tickets.','已收進「我的票」':'Saved to My tickets','購票後出示 QR，由工作人員掃碼':'After purchase, show your QR for staff to scan',
+ '・購票成功後，入場 QR 會立即出現在「我的票」，也會附在門票信裡':'・Right after purchase, your entry QR appears in My tickets and is attached to your ticket email',
+ /* B563T：轉讓（給朋友、收朋友的票、錯誤訊息）整段補英文 */
+ '開演後 2 小時不能轉讓了':'Transfers are closed: it is more than 2 hours after the start.','開演後 2 小時已無法轉讓':'Transfers are closed: it is more than 2 hours after the start.','現在不能轉讓':'This ticket can’t be transferred right now.',
+ '讓朋友掃這個':'Let your friend scan this','朋友打開 CHANCE app → 我的票 →':'Your friend opens the CHANCE app → My tickets →','＋ 加入票券':'+ Add ticket',
+ '，用相機掃這個，或輸入下面的代碼。10 分鐘內有效，收下後票就是他的、你的 QR 立刻失效。':', then scans this with the camera or enters the code below. Valid for 10 minutes. Once they accept, the ticket is theirs and your QR stops working right away.',
+ '轉讓代碼':'Transfer code','複製轉讓連結':'Copy transfer link','先關閉（轉讓仍有效）':'Close for now (the transfer stays active)','已過期，請重新產生':'Expired. Please create a new one.',
+ '票已經是朋友的了':'The ticket now belongs to your friend',
+ '這個轉讓連結已失效':'This transfer link is no longer valid','代碼不對或已過期':'That code is wrong or has expired','請對方重新產生一次（每次只有 10 分鐘）。':'Ask your friend to create a new one (each one lasts only 10 minutes).','再試一次':'Try again',
+ '接受這張票':'Accept this ticket','登入並接受':'Sign in and accept','有人要把票給你':'Someone is giving you a ticket','先不要':'Not now',
+ '這張票本來就是你的':'This ticket is already yours','這張票已經是你的':'This ticket is already yours','轉讓已失效，請對方重新產生':'This transfer has expired. Ask your friend to create a new one.','轉讓連結已失效，請對方重新產生':'This transfer link is no longer valid. Ask your friend to create a new one.',
+ '轉讓已被取消或已完成':'This transfer was cancelled or has already been completed.','這場已經結束了':'This event has already ended.','輸錯太多次，10 分鐘後再試':'Too many wrong tries. Please try again in 10 minutes.','接受失敗':'We couldn’t accept the ticket. Please try again.',
+ '這張票是你的了':'This ticket is now yours','入場時到 SHOP → 我的票 出示 QR。':'At the door, open SHOP → My tickets and show the QR.','看我的票':'View my tickets','轉給朋友':'Transfer to a friend',
+ '加入票券':'Add a ticket','朋友要把票轉給你？掃他螢幕上的轉讓 QR，或輸入他給你的 6 位代碼。':'Is a friend giving you a ticket? Scan the transfer QR on their screen, or enter the 6-character code they gave you.',
+ '📷 相機':'📷 Camera','⌨️ 輸入代碼':'⌨️ Enter code','正在開啟相機…':'Opening the camera…','對準朋友螢幕上的 QR':'Point at the QR on your friend’s screen','收下這張票':'Accept this ticket',
+ '相機權限被拒 → 改用「輸入代碼」，或到 iPhone 設定→Safari→相機 開權限':'Camera access was denied. Use “Enter code” instead, or allow it in iPhone Settings → Safari → Camera.',
+ '這台手機開不了相機，改用「輸入代碼」':'This phone can’t open the camera. Use “Enter code” instead.','載入相機…':'Loading the camera…','相機元件載入失敗，改用「輸入代碼」':'The camera couldn’t load. Use “Enter code” instead.',
+ '這是入場 QR，不是轉讓 QR':'This is an entry QR, not a transfer QR','看不懂這個 QR':'We can’t read this QR','代碼是 6 位（沒有 0 和 O、1 和 I）':'The code has 6 characters (no 0, O, 1 or I).',
+ '＋ 加入票券（朋友轉給你的票）':'+ Add ticket (one a friend is giving you)',
+ /* B563T（後台 m73）：寄驗證碼／登入 */
+ '這個網路寄太多次驗證碼了，請過 10 分鐘再試。':'Too many codes were requested from this network. Please try again in 10 minutes.','這個網路試太多次了，請過 10 分鐘再試。':'Too many sign-in attempts from this network. Please try again in 10 minutes.','系統忙線中，請稍後再試。':'The system is busy. Please try again in a moment.',
+ '一分鐘內只能寄一次，等一下再按':'You can send one code per minute. Please wait a moment.','一分鐘內只能寄一次，稍等再按':'You can send one code per minute. Please wait a moment.','寄不出去，再試一次':'We could not send the code. Please try again.',
+ '驗證碼是 6 位數':'The code has 6 digits.','驗證碼過期了，再寄一次':'That code has expired. Please send a new one.','驗證碼過期了，按重寄':'That code has expired. Tap Resend.','驗證碼不對':'That code is not right.','連不上伺服器':'Can’t reach the server. Please try again.',
+ /* B563T（後台 m73）：後台原文直接顯示的錯誤訊息 */
+ '請先用買票的 email 登入，再買 A3 海報組。還沒建立付款，不會扣款。':'Please sign in with the email you bought your ticket with, then buy the A3 poster set. No payment was created — you were not charged.',
+ '周邊每張票可加購 1 組，請調整數量。還沒建立付款，不會扣款。':'You can add 1 merch set per ticket. Please adjust the quantity. No payment was created — you were not charged.',
+ 'A3 海報組要有生日會門票才能買（每張票 1 組）。還沒建立付款，不會扣款。':'You need a birthday party ticket to buy the A3 poster set (1 set per ticket). No payment was created — you were not charged.',
+ 'A3 海報組要有生日會門票才能買（每張票 1 組）。這個 Email 目前沒有門票。還沒建立付款，不會扣款。':'You need a birthday party ticket to buy the A3 poster set (1 set per ticket). This email has no ticket right now. No payment was created — you were not charged.',
+ '你選的座位剛被別人選走了，請重新選位。還沒建立付款，不會扣款。':'The seat you chose was just taken. Please choose again. No payment was created — you were not charged.',
+ '請先登入再選位。還沒建立付款，不會扣款。':'Please sign in before choosing seats. No payment was created — you were not charged.',
+ '手機條碼格式不對：/ 開頭，共 8 碼。還沒建立付款，不會扣款。':'That mobile barcode is not valid: it starts with / and has 8 characters. No payment was created — you were not charged.',
+ '統一編號要 8 碼數字。還沒建立付款，不會扣款。':'The company tax ID must be 8 digits. No payment was created — you were not charged.',
+ '捐贈碼是 3 到 7 碼數字。還沒建立付款，不會扣款。':'The donation code is 3 to 7 digits. No payment was created — you were not charged.',
+ '請輸入正確的手機號碼':'Please enter a valid mobile number.','票務系統暫時無法連線，請稍後再試':'The ticket system is temporarily unavailable. Please try again later.',
+ '這場活動已經結束':'This event has already ended.','請選擇票種':'Please choose a ticket type.','生日牆合照尚未開賣':'The birthday-wall photo is not on sale yet.','你已經加購過生日牆合照了':'You have already added the birthday-wall photo.','PhotoPass 尚未開賣':'PhotoPass is not on sale yet.','你已經買過這場的 PhotoPass 了':'You already have the PhotoPass for this event.',
+ '這場活動沒有周邊':'This event has no merch.','周邊預購已截止':'Merch pre-orders have closed.','周邊尚未開賣':'Merch is not on sale yet.',
+ '訂單資料過期了，請重新填寫':'Your order details have expired. Please fill them in again.','email 跟填寫時不一樣，請重新填寫':'The email is different from the one you entered. Please fill in the form again.','這個國家／地區目前無法寄送':'We can’t ship to this country / region right now.',
+ '找不到這場活動':'We couldn’t find this event.','請填姓名和手機（訂單聯絡用）':'Please enter your name and mobile number (so we can contact you about the order).','請填姓名和手機（現場領取核對用）':'Please enter your name and mobile number.','目前不提供寄送':'Shipping is not available right now.',
+ '請填完整收件人、電話、地址':'Please enter the recipient, phone number and full address.','請填郵遞區號':'Please enter the postal code.','已完售':'Sold out',
+ '無法建立訂單，請稍後再試':'We couldn’t create the order. Please try again later.','付款頁開不起來，請稍後再試':'The payment page couldn’t open. Please try again later.','請先選擇票種。':'Please choose a ticket type first.','前往綠界付款…':'Going to ECPay…',
+ '訂單聯絡用':'So we can contact you about your order','請填姓名（訂單聯絡用）':'Please enter your name (so we can contact you about the order).'
+ });
  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], WK={'日':'Sun','一':'Mon','二':'Tue','三':'Wed','四':'Thu','五':'Fri','六':'Sat'};
  const enDay=(m,d,w)=>(WK[w]||w)+', '+MON[(+m-1)%12]+' '+d;
  const enTime=t=>{const [h,mi]=t.split(':').map(Number);return ((h%12)||12)+':'+String(mi).padStart(2,'0')+(h<12?' AM':' PM');};
  const enList=s=>s.split('、').map(x=>D[x.trim()]||x.trim()).join(', ');
  const rules=[
+ /* B563T（CÉON 11/14）：英文補齊——信的封數、名額、預購日期、周邊領取、轉讓、後台帶數字的訊息 */
+ [/^每月只收 ?(\d+) ?封，月底前他會親自讀完。$/,(_,n)=>'Only '+n+' letters a month. He reads every one himself by month’s end.'],
+ [/^每月只收 ?(\d+) ?封，月底前親自讀完。$/,(_,n)=>'Only '+n+' letters a month, read by Chance himself by month’s end.'],
+ [/^(\d+) 名$/,(_,n)=>n+' people'],
+ [/^預購至 (\d+)\/(\d+)$/,(_,m,d)=>'Pre-order until '+m+'/'+d],
+ [/^，(\d+)\/(\d+) 生日會當天，到周邊服務台出示票券 QR 領取(（含一對一 60 秒）)?。$/,(_,m,d,x)=>', '+m+'/'+d+': on the day, show your ticket QR at the merch desk to pick up'+(x?' (includes the 60-second one-to-one)':'')+'.'],
+ [/^(\S+) 已轉出，你這邊的 QR 已失效。$/,(_,a)=>a+' has been transferred. Your QR no longer works.'],
+ [/^(.+) 要把「(.+)」的票轉給你。$/,(_,a,n)=>a+' wants to give you a ticket to '+(D[n]||n)+'.'],
+ [/^(\d+)\/(\d+)（([日一二三四五六])）(\d+:\d+) · (.+)$/,(_,m,d,w,t,v)=>enDay(m,d,w)+' · '+enTime(t)+' Taipei time · '+(D[v]||v)],
+ [/^轉給 (.+?)(?:・(.+))?$/,(_,a,b)=>'Transferred to '+(a==='朋友'?'a friend':a)+(b?' · '+b:'')],
+ [/^驗證碼已寄到 (\S+)，沒看到請找垃圾信件$/,(_,e)=>'Code sent to '+e+'. Check your spam folder if you do not see it.'],
+ [/^剩下的票不夠 (\d+) 張（還剩 (\d+) 張）。還沒建立付款，不會扣款。$/,(_,n,m)=>'There are not '+n+' tickets left (only '+m+' left). No payment was created — you were not charged.'],
+ [/^請先選好 (\d+) 個座位。還沒建立付款，不會扣款。$/,(_,n)=>'Please choose '+n+(n==='1'?' seat':' seats')+' first. No payment was created — you were not charged.'],
+ [/^每個帳號這場最多 (\d+) 張，你已經有 (\d+) 張（含付款中的訂單）(?:，這次最多再買 (\d+) 張)?。還沒建立付款，不會扣款。$/,(_,m,h,k)=>'Up to '+m+' tickets per account for this event. You already have '+h+' (unpaid orders count)'+(k?', so you can buy up to '+k+' more this time':'')+'. No payment was created — you were not charged.'],
+ [/^每個帳號這場最多 (\d+) 張（含付款中的訂單）。還沒建立付款，不會扣款。$/,(_,m)=>'Up to '+m+' tickets per account for this event (unpaid orders count). No payment was created — you were not charged.'],
+ [/^每張門票可買 1 組 A3 海報組，你還可以買 (\d+) 組。還沒建立付款，不會扣款。$/,(_,n)=>'One A3 poster set per ticket. You can buy '+n+' more. No payment was created — you were not charged.'],
+ [/^每張門票可買 1 組 A3 海報組，你的 (\d+) 張票都已經買過了。還沒建立付款，不會扣款。$/,(_,n)=>'One A3 poster set per ticket. '+(n==='1'?'Your ticket already has one.':'All '+n+' of your tickets already have one.')+' No payment was created — you were not charged.'],
+ [/^數量要在 1–(\d+) 之間$/,(_,n)=>'The quantity must be between 1 and '+n+'.'],
+ [/^(.+) 每人限購 1 份，你已經買過了$/,(_,a)=>(D[a]||a)+': limit 1 per person, and you have already bought it.'],
+ [/^(.+) 已售完$/,(_,a)=>(D[a]||a)+' is sold out.'],
+ [/^(.+) 已完售$/,(_,a)=>(D[a]||a)+' is sold out.'],
  /* B335T：票夾數量句 */
  [/^NT\$(\d+) · 每人每月 (\d+) 封$/,(_,a,n)=>'NT$'+a+' · '+n+' letters per person each month'],
  [/^NT\$(\d+) · 每人每月一封$/,(_,a)=>'NT$'+a+' · One letter per person each month'],
