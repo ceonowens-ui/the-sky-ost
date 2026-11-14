@@ -1536,7 +1536,7 @@ function sxHomeHTML(mine, ev) {
       else if (onSale) { o.status = en ? "On sale" : "販售中"; o.stCls = "ok"; o.price = minP ? "NT$" + minP.toLocaleString("en-US") + (tiers.length > 1 ? (en ? " from" : " 起") : "") : ""; o.cta = en ? "Get tickets" : "購票"; o.act = "open-buy"; }
       else {
         var qn = qNo(ev.id);
-        o.status = en ? "Not on sale yet" : "尚未開賣"; o.stCls = "pre"; o.act = "open-buy"; o.ghost = true;
+        o.status = saleTx(en); o.stCls = "pre"; o.act = "open-buy"; o.ghost = true;
         o.cta = preLbl(en);   // B459T：提前排隊改成開賣前先登入
         o.note = en ? "Joining is free — no payment. We'll email you when tickets go on sale." : "排隊不用付款，開賣時寄信通知你。";
       }
@@ -1647,7 +1647,7 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
       var _cap = ev.capacity || (_tiers || []).reduce(function (a, t) { return a + (+t.cap || 0); }, 0);
       evPrice = ''; // Keep date and venue visible before sales; never disclose presale price.
       evVenue = ev.venue || '地點待公布';
-      goLabel = preIn() ? '已登入 · 開賣直接選位' : '尚未開賣 · 先登入';   // B459T
+      goLabel = preIn() ? '已登入 · 開賣直接選位' : (sxEN() ? 'On sale 11/17, 1 pm · Sign in first' : '11/17 下午 1 點準時開賣 · 先登入');   /* B573T */   // B459T
     }
     if(/^微風影城\s*(\d+\s*樓\s*)?A\s*廳$/.test(evVenue))evVenue += ' · 台北';   /* B337T：場地改成 8 樓 A 廳也照舊加「台北」 */
     var zhParts = String(T.sideZh).split('｜');
@@ -1950,7 +1950,7 @@ function coverClockKey() {
     }
     if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
     if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
-    return '<div class="l dim">尚未開賣</div>' + (preIn() ? '<button class="tk-chip d" data-act="eremind" data-ev="' + esc(ev.id) + '">✓ 已登入</button>' : '<button class="tk-chip o" data-act="eremind" data-ev="' + esc(ev.id) + '">先登入</button>');
+    return '<div class="l dim">' + esc(saleTx(sxEN())) + '</div>' + (preIn() ? '<button class="tk-chip d" data-act="eremind" data-ev="' + esc(ev.id) + '">✓ 已登入</button>' : '<button class="tk-chip o" data-act="eremind" data-ev="' + esc(ev.id) + '">先登入</button>');
   }
   function evCard(ev) {
     var k = evKind(ev), mine = ticketsFor(ev.id);
@@ -2647,6 +2647,7 @@ function coverClockKey() {
   /* B459T（CÉON 11/08）：開賣前先登入。原本的「提前排隊」改成用 email 驗證碼登入購票帳號，開賣時直接選位、不用在搶票當下等驗證碼。
      登入後順便登記開賣提醒（沿用排隊後台，不顯示號碼）。首頁的提醒條（test.html）點了也會叫這裡 */
   function preIn() { if (!S.session) S.session = lsGet(K.sess); return !!S.session; }
+  function saleTx(en) { return en ? "On sale 11/17 (Tue) at 1:00 pm, Taipei time" : "11/17（二）下午 1 點準時開賣"; }   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
   function preLbl(en) { return preIn() ? (en ? "Signed in · pick seats at launch" : "已登入 · 開賣直接選位") : (en ? "Sign in before sales open" : "先登入，開賣直接選位"); }
   function preSaleText(ev) { var i = ev && BUY_TEXT[ev.id] && BUY_TEXT[ev.id].info; return i && i.key && i.key.sale || ""; }   /* B563T：原本也叫 preSale，跟後面「還沒開賣嗎」的 preSale(ev) 同名、被蓋掉，登入提示會印出「true。」→ 改名 */
   function preQuiet(ev) {
@@ -3271,10 +3272,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
          B349T：CÉON 10/30 確認座位名額 120 名、11/15 12:00（台北時間）開放購票。B352T：取消提前購買，所有人同時開賣 */
       info: { title: "生日會資訊",
         /* B437T（CÉON 11/06）：購票頁只放重點，順序照買票的人想知道的：得到什麼 → 什麼時候、在哪 → 名額。原文 groups 一字不動，放進付款前的購票須知 */
-        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11/15 12:00（台北時間）開放購票" },
+        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11/17（二）下午 1 點準時開賣（台北時間）" },
         groups: [
         ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
-        ["11/15 12:00（台北時間）開放購票 (商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
+        ["11/17（二）下午 1 點準時開賣（台北時間）(商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
         ["離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ],
         /* B465T（CÉON 11/08）：完整購票須知只放其他地方沒寫過的事（從上面原文整理） */
@@ -3457,7 +3458,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (T && seatEv(ev)) b = '<button type="button" class="la-cta" data-act="buy-go">選擇座位 <small>' + nt(T.price) + '／張</small>' + ar + '</button>';   // B435T：選位場次先選位，張數由選的位子決定，這裡只寫單價
     else if (T && st.solo) b = '<button type="button" class="la-cta" data-act="buy-go">下一步 <small data-la-total>' + nt(preTotal(ev, T)) + '</small>' + ar + '</button>';
     else if (T) b = '<button type="button" class="la-cta" data-act="buy-go">立即購買 <small>' + nt(T.price) + '</small>' + ar + '</button>';
-    else if (st.notOpen) { q = preIn(); b = '<button type="button" class="la-cta' + (q ? ' ghost' : '') + '" data-act="buy-remind">' + (q ? '已登入 · 開賣直接選位 ✓' : (cv ? '尚未開賣 · 先登入' : '先登入') + ar) + '</button>'; }
+    else if (st.notOpen) { q = preIn(); b = '<button type="button" class="la-cta' + (q ? ' ghost' : '') + '" data-act="buy-remind">' + (q ? '已登入 · 開賣直接選位 ✓' : (cv ? (sxEN() ? 'On sale 11/17, 1 pm · Sign in first' : '11/17 下午 1 點準時開賣 · 先登入') : '先登入') + ar) + '</button>'; }
     else if (!any) b = '<button type="button" class="la-cta ghost" data-act="open-wallet">' + (cv && st.soldOut ? (sxEN() ? 'Sold out · My tickets' : '已售完 · 我的票') : '我的票') + ar + '</button>';
     else b = '<button type="button" class="la-cta" disabled>選擇票種</button>';
     return '<div class="la-foot">' + b + '</div>';
@@ -3551,7 +3552,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     S.detailTier = key;
     var ok = tierBuyable(ev, t);
     var btn = ok ? '<button class="tk-btn p tkb-pick" data-sact="tier-pick">選擇 ' + esc(t.key === "ga" ? ((ev.tiers || []).length === 1 ? t.name : "一般") : t.key.toUpperCase()) + '</button>'
-      : '<button class="tk-btn g" data-sact="close">' + (tierLeft(t) === 0 ? "已售完" : "尚未開賣") + '</button>';
+      : '<button class="tk-btn g" data-sact="close">' + (tierLeft(t) === 0 ? "已售完" : saleTx(sxEN())) + '</button>';
     sheet('<div class="tkb-sh"><button class="x" data-sact="close" aria-label="關閉">' + ic("close", "bi") + '</button>' +
       '<div class="hd"><div class="ib">' + ic(tierIcon(t)) + '</div><div><b>' + esc(t.name) + '</b><span>剩 ' + esc(tierLeft(t)) + ' 席 · 編號 ' + num3(t.numFrom) + '–' + num3(t.numTo) + '</span></div><em>' + nt(t.price) + '</em></div>' +
       '<div class="pt">票種福利</div><ul>' + (t.perks || []).map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' +
