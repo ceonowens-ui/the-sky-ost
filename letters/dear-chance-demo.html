@@ -51,9 +51,7 @@
     "截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。": "Closing only stops new letters. Letters already sent are still read as promised.",
     "寄出之後": "After you send", "付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。": "After payment, the letter you previewed is sent. It can’t be edited or withdrawn.",
     "付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。": "If spots are full or the deadline has passed when your payment completes, the letter isn’t sent and you’ll be refunded. It won’t show as delivered.",
-    "尚待公布（正式上線前必須補上）": "Still to be published (required before launch)", "信件內容規則，以及不符規則時的處理方式。": "Content rules for letters, and what happens if a letter breaks them.",
-    "退款政策與處理時間。": "Refund policy and processing time.", "未能於期限內讀完時的延期通知與補償方式。": "How we notify and compensate you if a letter isn’t read by the deadline.",
-    "關閉": "Close",
+    "關閉": "Close",   /* B563T：規則裡「還沒定案的三項」已拿掉，這裡對應的英文也一起拿掉 */
     "從一句最想說的話開始…": "Start with the one thing you most want to say…", "信件正文，寫給 CHANCE": "Your letter to CHANCE", "署名，最多 20 字": "Signature, up to 20 characters", "你的名字": "Your name",
     "這次變更尚未儲存，請先不要離開。": "This change hasn’t been saved yet. Please don’t leave.", "重試儲存": "Try saving again", "複製正文": "Copy text",
     "剛剛的修改還沒存進此裝置。可以重試，或先複製正文。": "Your latest edits aren’t saved on this device yet. Try again, or copy the text first.", "留在此頁": "Stay on this page", "不儲存，仍要離開": "Leave without saving",
@@ -319,7 +317,7 @@ html.vt .screen{animation:none!important}
 .paper .c2{top:14px;right:14px;border-top-width:1px;border-right-width:1px}
 .paper .c3{bottom:14px;left:14px;border-bottom-width:1px;border-left-width:1px}
 .paper .c4{bottom:14px;right:14px;border-bottom-width:1px;border-right-width:1px}
-.paper .mast{position:absolute;top:18px;left:0;right:0;text-align:center;font:500 10.5px/1 var(--f-display);letter-spacing:.42em;color:#6E5F49}
+.paper .mast{position:absolute;top:18px;left:0;right:0;text-align:center;font:500 12px/1 var(--f-display);letter-spacing:.42em;color:#6E5F49}   /* B563T：字放大到 12px（不放更小的字） */
 .salute{font-family:var(--f-hand);font-size:30px;line-height:1.1;color:var(--ink);margin:4px 0 12px}
 .body-ta{display:block;width:100%;min-height:240px;resize:none;border:0;outline:0;background:repeating-linear-gradient(transparent 0 32px,rgba(170,144,102,.28) 32px 33px);
   font:400 17px/33px var(--f-head);color:var(--ink);padding:0;margin:0;overflow:hidden;caret-color:#8A6A33}
@@ -378,7 +376,7 @@ html.vt .screen{animation:none!important}
 .ritual.gone .endstar{opacity:1;transition:opacity .4s}
 .rstat{display:flex;align-items:center;justify-content:center;gap:10px;font-size:15.5px;color:var(--text);text-align:center;min-height:28px}
 .status-pill{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:8px 12px;border-radius:12px;border:1px solid rgba(212,183,126,.45);background:rgba(212,183,126,.1);font-size:14px;line-height:1.4}
-.status-pill em{font-style:normal;font:700 10.5px/1 var(--f-ui);letter-spacing:.12em;color:#1b1408;background:var(--gold);padding:4px 6px;border-radius:5px}
+.status-pill em{font-style:normal;font:700 12px/1 var(--f-ui);letter-spacing:.12em;color:#1b1408;background:var(--gold);padding:4px 6px;border-radius:5px}   /* B563T：字放大到 12px（不放更小的字） */
 
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;line-height:1.3;border-radius:8px;padding:4px 8px;border:1px solid rgba(212,183,126,.4);color:var(--gold-hi);white-space:nowrap}
 .tag.read{border-color:rgba(185,212,168,.5);color:var(--ok)}
@@ -798,8 +796,7 @@ function rulesSheet(per){
    '<li>額滿或截止，任一條件成立就停止收新信。</li><li>在預覽頁確認付款時，名額會保留 '+(per?per.holdMin:10)+' 分鐘。未付款且到期，名額會釋放給其他人。</li></ul>'+
    '<h3>購買內容</h3><ul><li>本期一次寄信名額、數位信箋、Chance 本人閱讀確認、寄出紀念副本。</li><li>NT$'+(per?per.price:99)+'／封。數位商品，無實體寄送。</li></ul>'+
    '<h3>閱讀承諾</h3><ul><li>每一封符合本規則且成功寄出的信，Chance 承諾於當月底（本期 '+(per?fmtMD(per.readBy):"")+'）前親自讀完。</li><li>「已讀完」只由 Chance 本人帳號確認，團隊審核或開啟畫面都不算。</li><li>不保證逐一回覆，購買不能換取回覆優先權。</li><li>截止只停止收新信，已成功寄出的信仍會履行閱讀承諾。</li></ul>'+
-   '<h3>寄出之後</h3><ul><li>付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。</li><li>付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。</li></ul>'+
-   '<h3 class="pending">尚待公布（正式上線前必須補上）</h3><ul><li class="pending">信件內容規則，以及不符規則時的處理方式。</li><li class="pending">退款政策與處理時間。</li><li class="pending">未能於期限內讀完時的延期通知與補償方式。</li></ul>'+
+   '<h3>寄出之後</h3><ul><li>付款成功後寄出你預覽的內容，寄出後不能編輯或撤回。</li><li>付款完成時若名額已滿或已截止而無法寄出，會進入退款處理，不會顯示寄送成功。</li></ul>'+   /* B563T：還沒定案的三項（信件內容規則、退款政策、逾期未讀的通知與補償）不列在給粉絲看的規則裡，定案後再補 */
    '<button class="btn btn-ghost" id="cancel" type="button">關閉</button></div>',function(close){$("cancel").onclick=close});
 }
 function replyHTML(text,toName,ts){   /* B503T（CÉON 11/11）：Chance 的回覆做成回信卡，跟粉絲的信同一種信紙 */
@@ -1267,7 +1264,8 @@ $("demoOpen").onclick=function(){
 var QS=new URLSearchParams(location.search);
 var REAL=QS.get("real")==="1";
 if(REAL){
-  var RAPI=(function(){var a=QS.get("api")||"";return /^https:\/\/[a-z0-9.-]+\.workers\.dev$/.test(a)?a:"https://the-sky-ost-api-test.anthonywen0693.workers.dev"})();
+  /* B563T：?api= 只認自己的兩個後台。以前任何 workers.dev 網址都收，別人做一條連結就能把粉絲的登入、團隊的密碼送到他的伺服器 */
+  var RAPI=(function(){var a=QS.get("api")||"",OK=["https://the-sky-ost-api-test.anthonywen0693.workers.dev","https://the-sky-ost-api.anthonywen0693.workers.dev"];return OK.indexOf(a)>=0?a:OK[0]})();
   var SK=/^tk:session(-test)?$/.test(QS.get("sk")||"")?QS.get("sk"):"tk:session-test";
   var ROLE=QS.get("role")==="chance"?"chance":QS.get("role")==="team"?"team":"fan";
   var lsRaw=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
@@ -1278,8 +1276,25 @@ if(REAL){
   var keySet=function(v){try{v?sessionStorage.setItem(KEYS,v):sessionStorage.removeItem(KEYS)}catch(e){}};
   SIM={role:ROLE==="fan"?(sess()?"fan":"guest"):ROLE,pay:"ok",deliver:"ok",clock:0,saveFail:false};
   simSave=function(){};
-  USER.fan={id:myMail()||"me",name:myMail()||"已登入"};
-  CKEY="dearchance:real-v1:client";CL=readLS(CKEY)||{drafts:{},route:null,active:null,flown:{}};storageOK=writeLS(CKEY,CL);
+  /* B563T：帳號以寫信後台回的為準（overview 的 me.id、訂單的 userId）。tk:email 只當第一眼的暫時值——卡包結帳會改寫它，改寫後自己的信會變成「找不到這封信」 */
+  var meId="";
+  var fanUser=function(){var m=meId||myMail();return{id:m||"me",name:m||"已登入"}};
+  USER.fan=fanUser();
+  /* B563T：草稿依帳號分開存（一個帳號一份），換人登入看不到上一位沒寄出的信。沒登入時寫的草稿（含舊版大家共用的那一份）由第一個登入的帳號接手 */
+  var CK0="dearchance:real-v1:client",ckAcct=null,ckFresh=false;
+  var clUse=function(id){
+    id=ROLE==="fan"&&sess()?String(id||"").trim().toLowerCase():"";
+    if(id===ckAcct)return;
+    var live=ckAcct!==null,oldKey=CKEY,take=id&&live&&(ckAcct===""||ckFresh)?CL:null;   /* 帶著走的：沒登入時寫的，或剛才用暫時帳號新開的那一份（原本就存在的別人那一份不帶） */
+    var own=readLS(id?CK0+":"+id:CK0),anon=id?(take||readLS(CK0)):null;
+    if(own&&anon){own.drafts=own.drafts||{};own.flown=own.flown||{};Object.keys(anon.drafts||{}).forEach(function(k){if(!own.drafts[k])own.drafts[k]=anon.drafts[k]});Object.keys(anon.flown||{}).forEach(function(k){own.flown[k]=1});if(!own.active&&anon.active)own.active=anon.active}
+    CL=own||anon||{drafts:{},route:null,active:null,flown:{}};ckFresh=!own;ckAcct=id;CKEY=id?CK0+":"+id:CK0;
+    if(live&&R)CL.route=R;
+    storageOK=writeLS(CKEY,CL);
+    if(anon){try{localStorage.removeItem(take?oldKey:CK0)}catch(e){}}   /* 接手之後，沒登入的那一份不留在手機裡 */
+  };
+  clUse(myMail());
+  var setMe=function(id){id=String(id||"");if(ROLE!=="fan"||!id||id===meId)return;meId=id;USER.fan=fanUser();clUse(id)};
   var post=function(p,body,text){return fetch(RAPI+p,{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(body||{})}).then(function(r){return text?r.text():r.json()})};
   var withS=function(o){o=o||{};o.session=sess()||undefined;return o};
   var withK=function(o){o=o||{};o.key=keyGet();return o};
@@ -1287,6 +1302,7 @@ if(REAL){
   var syncClock=function(r){if(r&&r.now)SIM.clock=r.now-Date.now();return r};
   API={
     overview:function(){return post("/letters/overview",withS()).then(syncClock).then(function(r){
+      if(r&&r.me)setMe(r.me.id);   /* B563T：後台說這個登入是誰，就用誰 */
       if(!r||!r.myLetter){if(r)r.sentOut=false;return r}
       var lim=r.period?r.period.perUser:1;if(!(lim>1)){r.sentOut=true;return r}
       return post("/letters/mine",withS()).then(function(m){var n=(m.items||[]).filter(function(v){return v.letter&&v.order.periodId===r.period.id}).length;r.sentOut=n>=lim;return r},function(){r.sentOut=true;return r});   /* 每人上限 >1：算這個月已寄幾封 */
@@ -1305,7 +1321,8 @@ if(REAL){
         return new Promise(function(){});   /* 頁面會換到綠界 */
       });
     },
-    status:function(orderId,back){return post("/letters/status",withS(back?{orderId:orderId,back:1}:{orderId:orderId})).then(function(r){if(r&&r.view&&r.view.order&&(r.view.order.letterId||r.view.order.status!=="confirming")){try{var d=JSON.parse(localStorage.getItem("dc:paying")||"null");if(d&&d.o===orderId)localStorage.removeItem("dc:paying")}catch(e){}}return r})},
+    status:function(orderId,back){return post("/letters/status",withS(back?{orderId:orderId,back:1}:{orderId:orderId})).then(function(r){if(r&&r.view&&r.view.order)setMe(r.view.order.userId);   /* B563T：後台只回自己的訂單，訂單上的帳號就是現在登入的人 */
+      if(r&&r.view&&r.view.order&&(r.view.order.letterId||r.view.order.status!=="confirming")){try{var d=JSON.parse(localStorage.getItem("dc:paying")||"null");if(d&&d.o===orderId)localStorage.removeItem("dc:paying")}catch(e){}}return r})},
     myItems:function(){return post("/letters/mine",withS())},
     inbox:function(){return post("/letters/inbox",withK()).then(forbid)},
     markRead:function(u,id){return post("/letters/read",withK({letterId:id})).then(forbid)},
@@ -1324,7 +1341,7 @@ if(REAL){
   window.addEventListener("message",function(e){
     if(e.origin===location.origin&&e.data&&e.data.dc==="payback"){if(RT.payBack)RT.payBack();return}   /* B515T：外層 App 說「剛從綠界回來」 */
     if(e.origin!==location.origin||!e.data||e.data.dc!=="session")return;
-    USER.fan={id:myMail()||"me",name:myMail()||"已登入"};SIM.role=sess()?"fan":"guest";render();
+    meId="";USER.fan=fanUser();clUse(myMail());SIM.role=sess()?"fan":"guest";render();   /* B563T：剛登入 → 換成這個帳號的草稿（沒登入時寫的那封一起帶過來），帳號等後台回覆再確認 */
   });
   var keyOpen=false;
   var keySheet=function(){
@@ -1392,7 +1409,7 @@ document.addEventListener("visibilitychange",function(){
       if(o&&o.status==="confirming"){R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};top();$("view").innerHTML='<section class="screen"><p class="small" style="text-align:center;margin-top:40px">正在確認付款…</p></section>';RT.bootWait=true;payReturn();if(!RT.retBusy){RT.bootWait=false;render()}return}   /* B539T：先不畫預覽，問到結果才畫，畫面不跳 */   /* B536T：去過綠界還沒結果 → 問綠界，沒付就回預覽 */
       if(o&&(o.letterId||["paid","refund_pending"].indexOf(o.status)>-1)){stack=[{name:home()}];R={name:"ritual",param:o.id}}
       else{if(!o||x.view.hold.status!=="active"){CL.active=null;cSave()}R=r&&V[r.name]&&r.name!=="ritual"?r:{name:home()};if(R.name!==home())stack=[{name:home()}]}
-      render()});
+      render()}).catch(function(){RT.bootWait=false;stack=[];R={name:home()};render()});   /* B563T：問不到這筆（斷線、後台出錯）→ 以前整頁空白、連返回鍵都沒有；現在回首頁照常畫（保留中的訂單不清，下次開再問） */
     return;
   }
   if(r&&V[r.name]&&r.name!=="ritual"){R=r;if(r.name!==home())stack=[{name:home()}]}else R={name:home()};
@@ -1402,9 +1419,12 @@ document.addEventListener("visibilitychange",function(){
    iPhone 模擬器裝成主畫面 App 重現：手指碰下去頁面收得到 touchstart，但 iOS 不再送出 click（只發生在這個內嵌頁、主畫面 App 模式）。
    做法：手指輕點放開後 0.35 秒內沒有收到真正的 click，就由頁面自己補按一次；有收到就什麼都不做（不會按兩次）。 */
 (function(){
-  var st=null,lastClick=0;
+  var st=null,lastClick=0,lastScroll=0;
   document.addEventListener("click",function(e){if(e.isTrusted)lastClick=Date.now()},true);
-  document.addEventListener("touchstart",function(e){var t=e.touches[0];st=e.touches.length===1?{x:t.clientX,y:t.clientY,t:Date.now(),el:e.target}:null},{capture:true,passive:true});
+  /* B563T：畫面還在滑的時候點一下是「讓它停下來」，iPhone 本來就不算點擊；這時不補按，不然會誤開手指底下的信或按鈕。
+     只看「手指碰下去前 0.15 秒內有沒有捲動」；畫面沒在動時的補按完全照舊 */
+  document.addEventListener("scroll",function(){lastScroll=Date.now()},{capture:true,passive:true});
+  document.addEventListener("touchstart",function(e){var t=e.touches[0];st=e.touches.length===1&&Date.now()-lastScroll>150?{x:t.clientX,y:t.clientY,t:Date.now(),el:e.target}:null},{capture:true,passive:true});
   document.addEventListener("touchmove",function(e){if(!st)return;var t=e.touches[0];if(Math.abs(t.clientX-st.x)>10||Math.abs(t.clientY-st.y)>10)st=null},{capture:true,passive:true});
   document.addEventListener("touchcancel",function(){st=null},{capture:true,passive:true});
   document.addEventListener("touchend",function(){
@@ -1420,5 +1440,13 @@ document.addEventListener("visibilitychange",function(){
   },{capture:true,passive:true});
 })();
 window.__DC={API:API,USER:USER,sLoad:sLoad,now:now};   /* 測試掛勾（Demo） */
+/* B563T：登出用——清掉這一頁存在這支手機裡的東西：每個帳號和沒登入時的草稿、付款中的紀錄（localStorage 裡 "dearchance:" 開頭的 key 和 "dc:paying"）。
+   正在寫的那封也不再存回去。外層 App 如果已經把寫信頁關掉，直接刪同樣的 key 就可以（要在關掉寫信頁之後刪，不然關頁時還會存一次） */
+window.dcClearLocal=function(){
+  clearTimeout(saveT);ED=null;
+  try{for(var i=localStorage.length-1;i>=0;i--){var k=localStorage.key(i);if(k&&(k.indexOf("dearchance:")===0||k==="dc:paying"))localStorage.removeItem(k)}}catch(e){}
+  CL={drafts:{},route:null,active:null,flown:{}};
+  if(REAL){meId="";ckAcct="";ckFresh=false;CKEY=CK0}   /* 清完就當成沒登入：之後不會再用帳號（Email）當 key 存東西 */
+};
 })();
 </script>
