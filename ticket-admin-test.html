@@ -1052,11 +1052,20 @@ async function bulkIssue() {
   finally { b.disabled = false; lockEvent(false); }
   await refresh(); loadRoster();
 }
+/* B580T（CÉON 11/15「點不進去」）：App 內建瀏覽器、部分手機不顯示 prompt() 打字視窗，按了像沒反應。改成在頁面上出現輸入框＋「確定刪除」鈕（還是要自己打字確認才會刪） */
+function askType(msg, expect) {
+  return new Promise((res) => {
+    const box = $("pMsg"); box.innerHTML = '<div class="ask-type" style="margin-top:10px;padding:12px;border:1px solid #a33a2e;border-radius:12px;background:rgba(163,58,46,.12)"><div style="font-size:15px;line-height:1.5;white-space:pre-line;margin-bottom:8px">' + esc(msg) + '</div><input id="askTypeIn" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;font-size:16px;padding:10px;border-radius:10px;border:1px solid #888;background:#111;color:#fff" placeholder="' + esc(expect) + '"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn danger" id="askTypeOk">確定刪除</button><button class="btn" id="askTypeNo">取消</button></div></div>';
+    const done = (v) => { box.innerHTML = ""; res(v); };
+    $("askTypeOk").onclick = () => { const v = $("askTypeIn").value.trim(); if (v !== expect) { $("askTypeIn").style.borderColor = "#e08a8a"; $("askTypeIn").value = ""; $("askTypeIn").placeholder = "要輸入：" + expect; return; } done(true); };
+    $("askTypeNo").onclick = () => done(false);
+    $("askTypeIn").focus();
+  });
+}
 async function purgeTest() {
   if (!cur || !isTestEv(cur) || cur.id === "meet-20261227") return;
   const evId = cur.id, evName = cur.name || cur.id;
-  const v = prompt("這會刪掉「" + evName + "」所有票、核銷紀錄，已售歸零。\n確定的話輸入場次 id：" + evId);
-  if (v == null) return; if (v.trim() !== evId) { $("pMsg").innerHTML = '<span class="err">輸入的場次 id 不對，沒有刪除</span>'; return; }
+  if (!(await askType("這會刪掉「" + evName + "」所有票、核銷紀錄，已售歸零，不能復原。\n確定的話輸入場次 id：" + evId, evId))) return;
   /* M3 分段清：先刪票（每次最多 120），票刪完再刪核銷紀錄；more:false 才算完成（已售歸 0）。KV 列表有延遲，每次間隔約 0.8 秒，最多 30 次 */
   const b = $("btnPurge"); b.disabled = true; lockEvent(true); let del = 0, logs = 0, loops = 0, j = { ok: false, error: "沒有執行" };
   try {
@@ -1076,8 +1085,7 @@ async function purgeTest() {
 async function purgeAll() {
   const L = allEvents.filter((e) => /(^|-)test($|-)/.test(e.id) || /^meet-load-/.test(e.id));
   if (!L.length) return;
-  const v = prompt("這會永久刪掉 " + L.length + " 個測試場次的票、座位、周邊訂單和轉讓紀錄，不能復原。\n確定的話輸入 RESET");
-  if (v == null) return; if (v.trim() !== "RESET") { $("pMsg").innerHTML = '<span class="err">輸入不對，沒有刪除</span>'; return; }
+  if (!(await askType("這會永久刪掉 " + L.length + " 個測試場次的票、座位、周邊訂單和轉讓紀錄，不能復原。\n確定的話輸入 RESET", "RESET"))) return;
   const b = $("btnPurgeAll"); b.disabled = true; lockEvent(true); let del = 0, bad = "";
   try {
     for (const e of L) {
