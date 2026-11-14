@@ -371,7 +371,8 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     Object.keys(patch).forEach(function (k) { var v = String(patch[k] == null ? "" : patch[k]).trim().slice(0, 160); if (v && m[k] !== v) { m[k] = v; ch = true; } });
     if (ch) { m.at = Date.now(); lsSet("tk:me", JSON.stringify(m)); }
   }
-  document.addEventListener("input", function (e) { var t = e.target; if (t && t.id === "tk-bph") meSet({ phone: t.value }); }, true);   // 買票的手機打了就記住
+  document.addEventListener("input", function (e) { var t = e.target; if (t && t.id === "tk-bph") meSet({ phone: t.value }); }, true);
+  document.addEventListener("input", function (e) { var t = e.target; if (t && (t.id === "tk-trn" || t.id === "tk-trp")) { t.classList.remove("err"); msg("#tk-trmsg", ""); } }, true);   // B567T：收票填姓名手機，開始打字就拿掉紅框和提示   // 買票的手機打了就記住
   function meFill(obj, map) { var m = meGet(), n = 0; Object.keys(map).forEach(function (k) { var v = m[map[k]]; if (v) { if (obj[k] !== v) obj[k] = v; n++; } }); return n; }   // map：{ 這頁的欄位: 記住的欄位 }；每一頁打字都會存進來，所以記住的一定是最新的
   function testReset() {   // B359T（只在測試版）：登出票務、清掉付款中的紀錄、換下一個「信箱名＋數字」；票留在測試後台，不刪
     if (TKAPI !== "test") return;
