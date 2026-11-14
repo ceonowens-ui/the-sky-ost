@@ -90,9 +90,16 @@ button[disabled]{opacity:.45;cursor:default}
 .filters button{font-size:12px;padding:7px 11px;min-height:36px;white-space:nowrap;color:var(--dim)}
 .filters button[aria-pressed=true]{color:var(--ink);border-color:var(--gold)}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px}
+/* B564T：測試後台橫幅、發布鈕旁邊的大字對象、對象標籤 14px、發布／推播進度 15px */
+.testbar{background:#5A2323;color:#FFE3E3;font-size:16px;font-weight:700;padding:10px 14px;text-align:center}
+.tier-now{align-self:center;font-size:16px;font-weight:700;color:var(--gold);white-space:nowrap}
+.tier-now.signal{color:var(--signal)}
+.tag.tier{font-size:14px;padding:3px 9px}
+#send-hint{font-size:15px;color:var(--ink)}
 </style>
 </head>
 <body>
+<div class="testbar hide" id="testbar">測試後台</div><!-- B564T：?api=test 時顯示 -->
 
 <!-- 鎖定畫面 -->
 <div id="lock" class="wrap">
@@ -149,7 +156,7 @@ button[disabled]{opacity:.45;cursor:default}
     <label class="lb" style="margin-top:14px">誰看得到</label>
     <div class="seg" id="seg-tier">
       <button data-t="public" aria-pressed="true">所有人</button>
-      <button data-t="signal" aria-pressed="false">SIGNAL 會員</button>
+      <button data-t="signal" aria-pressed="false">SIGNAL 付費會員</button><!-- B564T：統一成「所有人」「SIGNAL 付費會員」 -->
     </div>
 
     <label class="lb" style="margin-top:14px">粉絲會看到</label>
@@ -167,7 +174,8 @@ button[disabled]{opacity:.45;cursor:default}
     </div>
     <p class="hint" id="push-hint"></p>
 
-    <div class="row" style="margin-top:14px">
+    <div class="row" style="margin-top:14px;align-items:center">
+      <span class="tier-now" id="tier-now">給：所有人</span><!-- B564T：發布鈕旁邊大字顯示這則給誰看 -->
       <button class="primary" id="btn-send">發布</button>
     </div>
     <p class="hint" id="send-hint"></p>
@@ -188,8 +196,11 @@ button[disabled]{opacity:.45;cursor:default}
 
 <script>
 "use strict";
-var API = "https://the-sky-ost-api.anthonywen0693.workers.dev/feed";
-var LSK = "chance-feed:key";
+/* B564T：?api=test → 改連測試後台；金鑰分開存；頂端紅色「測試後台」 */
+var TEST = /[?&]api=test(&|$)/.test(location.search);
+var API = (TEST ? "https://the-sky-ost-api-test.anthonywen0693.workers.dev" : "https://the-sky-ost-api.anthonywen0693.workers.dev") + "/feed";
+var LSK = TEST ? "chance-feed:key:test" : "chance-feed:key";
+if (TEST){ document.getElementById("testbar").classList.remove("hide"); document.title = "【測試後台】" + document.title; }
 var S = { key:"", role:"", posts:[], filter:"live", tier:"public",
           att:null, settings:{requireReview:false} };
 
@@ -274,20 +285,43 @@ function syncPush(){
 Array.prototype.forEach.call($("seg-push").children, function(b){
   b.onclick = function(){ S.push = b.dataset.p === "on"; syncPush(); };
 });
+/* B564T：推播後台只有正式一套（身分也是問正式主後台），測試後台模式不推，免得推到真的粉絲 */
+if (TEST){ $("seg-push").classList.add("hide"); $("push-box").classList.add("hide"); }
 async function pushStats(){
+  if (TEST){ $("push-hint").textContent = "測試後台：推播關閉（推播只有正式一套，會推到真的粉絲）"; return; }
   try {
     var r = await fetch(PUSH + "/stats", { headers:{ "X-Feed-Key": S.key } });
     var d = await r.json();
     $("push-hint").textContent = d.ok ? ("目前 " + d.count + " 人開了通知（測試版）" + (d.last ? " · 上次推播 " + when(d.last.at) : "")) : "";
   } catch(e){ $("push-hint").textContent = "推播後台暫時連不上"; }
 }
-async function pushSend(){
-  try {
-    var body = $("push-text").value.trim() || "CHANCE 發了新動態";
-    var r = await fetch(PUSH + "/send", { method:"POST", headers:{ "X-Feed-Key": S.key, "Content-Type":"application/json" },
-      body: JSON.stringify({ title:"THE SKY", body: body, url:"./test.html" }) });
-    return await r.json();
-  } catch(e){ return { ok:false, err:"net" }; }
+/* B564T：推播分批。/send 回 {ok, job, total, sent, gone, failed, done, next}；done 是 false 就一直打 /send-more {job}，
+   直到 done:true。ok:false 就停；連線失敗同一個請求每 1.5 秒重試，最多 3 次，還是不行就停下來回報。
+   舊版推播後台沒有 job → 當作一次送完（跟以前一樣）。sent／failed 當作整批累計的數字。 */
+function pushPost(path, payload){
+  return fetch(PUSH + path, { method:"POST", headers:{ "X-Feed-Key": S.key, "Content-Type":"application/json" }, body: JSON.stringify(payload) })
+    .then(function(r){ return r.json().catch(function(){ return { ok:false, err:"HTTP " + r.status }; }); });
+}
+function pushWait(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+async function pushSend(onProg){
+  var body = $("push-text").value.trim() || "CHANCE 發了新動態", d;
+  try { d = await pushPost("/send", { title:"THE SKY", body: body, url:"./test.html" }); }
+  catch(e){ return { ok:false, err:"net" }; }
+  if (!d || !d.ok) return d || { ok:false };
+  var rounds = 0;
+  while (d.job && !d.done){
+    if (onProg) onProg(d);
+    if (++rounds > 1000) return Object.assign({}, d, { ok:false, err:"too_many", partial:true });
+    var nd = null, tries = 0;
+    for (;;){
+      try { nd = await pushPost("/send-more", { job: d.job }); break; }
+      catch(e){ if (++tries > 3) return Object.assign({}, d, { ok:false, err:"net", partial:true }); await pushWait(1500); }
+    }
+    if (!nd || !nd.ok) return Object.assign({}, d, { ok:false, err:(nd && (nd.err || nd.error)) || "stop", partial:true });
+    if (!nd.job) nd.job = d.job;
+    d = nd;
+  }
+  return d;
 }
 
 /* ---------- 對象切換 ---------- */
@@ -509,18 +543,25 @@ function preview(){
   if (S.att && S.att.kind === "photo") body += '<img src="'+S.att.url+'" alt="預覽">';
   if (S.att && S.att.kind === "voice") body += '<audio controls src="'+S.att.url+'"></audio>';
   if (S.att && S.att.kind === "video") body += '<video controls playsinline src="'+S.att.url+'" style="max-width:100%;border-radius:10px;margin-top:8px"></video>';
-  var tag = S.tier === "signal"
-    ? '<span class="tag signal">SIGNAL 限定</span>'
-    : '<span class="tag">所有人</span>';
+  var tag = S.tier === "signal"   /* B564T：統一用詞 */
+    ? '<span class="tag tier signal">SIGNAL 付費會員</span>'
+    : '<span class="tag tier">所有人</span>';
   p.innerHTML = body + '<div class="meta">'+tag+'<span>'+when(Date.now())+'</span></div>';
+  var tn = $("tier-now");   /* B564T：發布鈕旁邊的大字 */
+  tn.textContent = S.tier === "signal" ? "給：SIGNAL 付費會員" : "給：所有人";
+  tn.className = "tier-now" + (S.tier === "signal" ? " signal" : "");
 }
 $("text").addEventListener("input", preview);
 preview();
 
 /* ---------- 發布 ---------- */
 $("btn-send").onclick = async function(){
+  if (S.sending) return;   /* B564T：上一次還在送，第二下什麼都不做（避免重複貼文） */
   var text = $("text").value.trim();
   if (!text && !S.att) return toast("先寫點字或加個檔案");
+  /* B564T：給所有人看的貼文，發布前再問一次；按取消什麼都不送 */
+  if (S.tier !== "signal" && !confirm("這則會給所有人看（不是只給 SIGNAL 付費會員）。確定發布？")) return;
+  S.sending = true; var postSent = false;
   var btn = this; btn.disabled = true; btn.textContent = "發布中…";
   try {
     var mediaKey = "";
@@ -535,19 +576,28 @@ $("btn-send").onclick = async function(){
       mediaKey = ud.key;
     }
     $("send-hint").textContent = "";
+    postSent = true;   /* B564T：從這裡開始，連線斷了不代表沒發出去 */
     var d = await api("/post", { method:"POST", json:{
       type: S.att ? S.att.kind : "text",
       text: text, media: mediaKey, dur: S.att ? S.att.dur : "", tier: S.tier } });
-    if (!d.ok) throw new Error(d.error);
+    if (!d.ok){ postSent = false; throw new Error(d.error); }   /* 後台明確說失敗 → 沒發出去 */
+    postSent = false;
     $("text").value = ""; clearAtt();
     var msg = d.post.status === "pending" ? "已送出，等站主審核" : "發布了";
-    if (S.push) {   /* B325T：推播失敗不影響已發布的貼文 */
+    if (S.push && !TEST) {   /* B325T：推播失敗不影響已發布的貼文 */
       if (d.post.status === "pending") msg += " · 等審核的貼文不會推播";
       else {
         $("send-hint").textContent = "推播中…";
-        var pr = await pushSend();
-        msg += pr.ok ? " · 已推播給 " + pr.sent + " 人" : pr.err === "too_soon" ? " · 推播太頻繁，" + pr.wait + " 秒後再試" : " · 推播沒送出";
+        var pr = await pushSend(function(x){   /* B564T：分批進度 */
+          $("send-hint").textContent = "推播中… 已送 " + (x.sent || 0) + " / 共 " + (x.total || 0) + " 人";
+        });
+        var miss = Number(pr.failed) > 0 ? "（" + pr.failed + " 人沒送到）" : "";
+        msg += pr.ok ? " · 已推播給 " + (pr.sent || 0) + " 人" + miss
+             : pr.err === "too_soon" ? " · 推播太頻繁，" + pr.wait + " 秒後再試"
+             : pr.partial ? " · 推播中途停了" + (pr.err === "net" ? "（連線斷了）" : "") + "：已推播給 " + (pr.sent || 0) + " / 共 " + (pr.total || 0) + " 人" + miss
+             : " · 推播沒送出";
         $("send-hint").textContent = "";
+        if (!pr.ok && pr.partial) $("send-hint").textContent = msg.replace(/^.* · 推播/, "推播");   /* 中途停下來的結果留在畫面上，不只閃一下 */
       }
       S.push = false; syncPush(); pushStats();
     }
@@ -556,9 +606,13 @@ $("btn-send").onclick = async function(){
     syncFilters();
     load();
   } catch(e){
-    toast(e.message || "發布失敗，再試一次");
     $("send-hint").textContent = "";
+    if (postSent){   /* B564T：貼文已經送出去但連線斷了 → 可能其實發成功了，先重讀列表，不叫人直接再發 */
+      $("send-hint").textContent = "連線斷了，不確定有沒有發出去。先看下面列表，已經有了就不要再發。";
+      load();
+    } else toast(e.message || "發布失敗，再試一次");
   } finally {
+    S.sending = false;
     btn.disabled = false; btn.textContent = "發布";
   }
 };
@@ -658,7 +712,7 @@ function render(){
     if (p.type === "voice" && p.media) body += '<audio controls preload="none" src="'+mediaURL(p.media)+'"></audio>';
     if (!body) body = '<span style="color:var(--dim)">（空白）</span>';
 
-    var tags = p.tier === "signal" ? '<span class="tag signal">SIGNAL</span>' : '<span class="tag">公開</span>';
+    var tags = p.tier === "signal" ? '<span class="tag tier signal">SIGNAL 付費會員</span>' : '<span class="tag tier">所有人</span>';   /* B564T：統一用詞 */
     if (p.status === "pending") tags += '<span class="tag pending">待審核</span>';
     if (p.status === "hidden")  tags += '<span class="tag hidden">已隱藏</span>';
     if (p.status === "deleted") tags += '<span class="tag deleted">已刪除</span>';
@@ -707,7 +761,7 @@ async function act(a, id, btn){
     ed.innerHTML = '<textarea></textarea>' +
       '<div class="seg" style="margin-top:8px">' +
         '<button data-t="public" aria-pressed="'+(p.tier!=="signal")+'">所有人</button>' +
-        '<button data-t="signal" aria-pressed="'+(p.tier==="signal")+'">SIGNAL 會員</button></div>' +
+        '<button data-t="signal" aria-pressed="'+(p.tier==="signal")+'">SIGNAL 付費會員</button></div>' +   /* B564T */
       '<div class="acts"><button class="primary" style="flex:0">儲存</button><button class="ghost">取消</button></div>';
     ed.querySelector("textarea").value = p.text || "";
     var tier = p.tier;

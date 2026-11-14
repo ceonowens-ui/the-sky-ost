@@ -12,11 +12,13 @@
 //   GET  /stats      X-Feed-Key → {ok, count, bySrc}
 //   POST /send       X-Feed-Key {title, body, url, tag, src?, dry?} → 推給所有訂閱（src 可只推某一群）
 //   POST /send-one   X-Feed-Key {endpoint, title, body} → 只推一個（測試用）
+//   POST /send-more  X-Feed-Key {job} → P2：接著送同一次推播的下一批，直到 done:true
 
-const V = "P1";
+const V = "P2";   // P2（B564T，CÉON 11/14）：推播送給所有訂閱的人（分批送，不再只送前 40 個）
 const MAX_TITLE = 40, MAX_BODY = 120;
 const SEND_GAP_MS = 20 * 1000;          // 防手滑連按：20 秒內只能推一次
-const PER_REQ = 40;                     // 一次請求最多打幾個推播服務（免費方案子請求上限 50）
+const PER_REQ = 12;                     // P2：一次請求送幾個人。每個人要讀 1 次 KV＋打 1 次推播服務（失效的再刪 1 次），加上固定的幾次，壓在免費方案子請求上限 50 以內
+const JOB_TTL = 6 * 3600;               // P2：一次推播的工作清單留 6 小時
 
 /* ---------- 小工具 ---------- */
 const te = new TextEncoder();
@@ -151,6 +153,29 @@ async function listSubs(env, src, withSrc) {
   return out;
 }
 
+/* P2：送一批（最多 PER_REQ 個人），記下進度；全部送完才把 done 設成 true */
+async function runBatch(env, job, jid, v) {
+  v = v || await vapid(env, true);
+  const batch = job.keys.slice(job.i, job.i + PER_REQ);
+  await Promise.all(batch.map(async (k) => {
+    const rec = await env.PUSH.get(k, "json");
+    if (!rec) return;
+    try {
+      const st = await pushOne(env, v, rec.sub, job.payload);
+      if (st >= 200 && st < 300) job.sent++;
+      else if (st === 404 || st === 410) { job.gone++; await env.PUSH.delete(k); }
+      else job.failed++;
+    } catch (e) { job.failed++; }
+  }));
+  job.i += batch.length;
+  const done = job.i >= job.keys.length, total = job.keys.length;
+  const log = { at: job.at, by: job.by, title: job.title, body: job.body, total, sent: job.sent, gone: job.gone, failed: job.failed, skipped: total - job.i, running: !done };
+  if (done) await env.PUSH.delete("job:" + jid);
+  else await env.PUSH.put("job:" + jid, JSON.stringify(job), { expirationTtl: JOB_TTL });
+  await env.PUSH.put("log:last", JSON.stringify(log));
+  return { ok: true, job: jid, done, next: done ? 0 : job.i, ...log };
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -188,7 +213,7 @@ export default {
       }
 
       // ↓ 以下要發文台金鑰
-      if (p === "/stats" || p === "/send" || p === "/send-one") {
+      if (p === "/stats" || p === "/send" || p === "/send-one" || p === "/send-more") {
         const r = await role(req, env);
         if (!r) return J({ ok: false, err: "unauthorized" }, 401, req, env);
 
@@ -202,6 +227,12 @@ export default {
 
         if (req.method !== "POST") return J({ ok: false, err: "method" }, 405, req, env);
         const d = await req.json().catch(() => ({}));
+        if (p === "/send-more") {   // P2：接著送下一批
+          const jid = String(d.job || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+          const job = jid ? await env.PUSH.get("job:" + jid, "json") : null;
+          if (!job) return J({ ok: false, err: "job_not_found" }, 404, req, env);
+          return J(await runBatch(env, job, jid), 200, req, env);
+        }
         const title = clip(d.title || "THE SKY", MAX_TITLE);
         const body = clip(d.body || "CHANCE 發了新動態", MAX_BODY);
         const link = /^\.?\/?[\w\-./?=&%]*$/.test(d.url || "") && d.url ? d.url : "./test.html";
@@ -222,22 +253,12 @@ export default {
         const last = await env.PUSH.get("log:last", "json");
         if (last && Date.now() - last.at < SEND_GAP_MS) return J({ ok: false, err: "too_soon", wait: Math.ceil((SEND_GAP_MS - (Date.now() - last.at)) / 1000) }, 429, req, env);
 
-        let sent = 0, gone = 0, failed = 0, skipped = 0;
-        const batch = keys.slice(0, PER_REQ);
-        skipped = keys.length - batch.length;
-        await Promise.all(batch.map(async (k) => {
-          const rec = await env.PUSH.get(k, "json");
-          if (!rec) return;
-          try {
-            const st = await pushOne(env, v, rec.sub, payload);
-            if (st >= 200 && st < 300) sent++;
-            else if (st === 404 || st === 410) { gone++; await env.PUSH.delete(k); }
-            else failed++;
-          } catch (e) { failed++; }
-        }));
-        const log = { at: Date.now(), by: r, title, body, total: keys.length, sent, gone, failed, skipped };
-        await env.PUSH.put("log:last", JSON.stringify(log));
-        return J({ ok: true, ...log }, 200, req, env);
+        /* P2：以前一次只送前 PER_REQ（40）個人，第 41 個以後永遠收不到（skipped）。
+           現在把這次要送的名單存成一份工作清單，一批一批送；發文台收到 done:false 就接著打 /send-more，直到送完 */
+        const jid = (await sha(String(Date.now()) + ":" + Math.random())).slice(0, 16);
+        const job = { at: Date.now(), by: r, title, body, payload, keys, i: 0, sent: 0, gone: 0, failed: 0 };
+        await env.PUSH.put("log:last", JSON.stringify({ at: job.at, by: r, title, body, total: keys.length, sent: 0, gone: 0, failed: 0, skipped: keys.length, running: true }));   // 先記一筆，20 秒防連按從現在開始算
+        return J(await runBatch(env, job, jid, v), 200, req, env);
       }
 
       return J({ ok: false, err: "not_found" }, 404, req, env);

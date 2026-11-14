@@ -5,34 +5,94 @@ body{font:15px/1.55 -apple-system,"PingFang TC",sans-serif;background:#0F0D13;co
 h1{font:600 18px/1.3 Georgia,serif;color:#DDC9A4;margin:6px 0 14px}
 input,select,textarea,button{font:inherit}input,select,textarea{background:#1A1620;color:#F1ECE3;border:1px solid #2E2836;border-radius:8px;padding:8px 10px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-button{border:0;border-radius:8px;padding:8px 12px;background:#2A2433;color:#F1ECE3;cursor:pointer}button.gold{background:#DDC9A4;color:#171410}button.red{background:#5A2323}button.sm{padding:5px 9px;font-size:13px}
+button{border:0;border-radius:8px;padding:8px 12px;background:#2A2433;color:#F1ECE3;cursor:pointer}button.gold{background:#DDC9A4;color:#171410}button.red{background:#5A2323}button.sm{padding:6px 10px;font-size:14px}button[disabled]{opacity:.5;cursor:default}
 .it{padding:12px 0;border-top:1px solid #241F2B}.it.artist{background:rgba(221,201,164,.06);padding:12px;border-radius:10px;border:1px solid rgba(221,201,164,.3)}
-.meta{font-size:12px;color:#8F8778;display:flex;gap:10px;flex-wrap:wrap}.name{color:#D6CFE0}.artist .name{color:#DDC9A4}.body{margin:4px 0 8px;white-space:pre-wrap}
-.banned{color:#E88}.msg{color:#A59A87;font-size:13px;margin:8px 0}textarea{width:100%;min-height:70px;box-sizing:border-box}
+.meta{font-size:14px;color:#8F8778;display:flex;gap:10px;flex-wrap:wrap}.name{color:#D6CFE0}.artist .name{color:#DDC9A4}.body{margin:4px 0 8px;white-space:pre-wrap}
+.banned{color:#E88}.msg{color:#A59A87;font-size:14px;margin:8px 0}textarea{width:100%;min-height:70px;box-sizing:border-box}
+/* B564T：測試後台橫幅、SIGNAL 貼文清單（字都 ≥14px） */
+.hide{display:none!important}
+.testbar{background:#5A2323;color:#FFE3E3;font-size:16px;font-weight:700;padding:10px 14px;border-radius:10px;margin:6px 0 12px;text-align:center}
+.sgbox{margin:6px 0 12px;padding:12px;border:1px solid #2E2836;border-radius:10px;background:#15121B}
+.sgp{display:block;width:100%;text-align:left;margin:0 0 8px;padding:10px 12px;font-size:15px;background:#1F1A27;border:1px solid #2E2836}
+.sgp.on{border-color:#DDC9A4}
+.sgp .l1{display:block;color:#F1ECE3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sgp .l2{display:flex;gap:10px;flex-wrap:wrap;font-size:14px;color:#A59A87;margin-top:2px}
+.sgp .sig{color:#C9A8FF}
 </style></head><body>
+<div class="testbar hide" id="testbar">測試後台</div>
 <h1>CHANCE 留言後台 · CM1</h1>
 <div class="row"><input id="base" placeholder="Worker 網址" style="flex:1;min-width:260px" value="https://the-sky-ost-api.anthonywen0693.workers.dev"><input id="key" type="password" placeholder="ADMIN_KEY" style="width:170px"></div>
-<div class="row"><select id="album"><option value="the-sky">THE SKY</option><option value="classics">經典 classics</option></select><input id="track" type="number" min="1" placeholder="曲目 n" style="width:90px" value="1"><button class="gold" id="load">載入</button><span class="msg" id="msg"></span></div>
-<details style="margin:10px 0"><summary style="cursor:pointer;color:#DDC9A4">以「成晞 Chance」身份留言（置頂）</summary>
+<div class="row"><select id="album"><option value="the-sky">THE SKY</option><option value="classics">經典 classics</option><option value="the-sky-signal">私訊頻道（SIGNAL）</option></select><!-- B564T：加 SIGNAL；SIGNAL 時曲目欄改成貼文 id（文字） --><input id="track" type="number" min="1" placeholder="曲目 n" style="width:90px" value="1"><button class="gold" id="load">載入</button><span class="msg" id="msg"></span></div>
+<!-- B564T：SIGNAL 最近的貼文，點一則就載入那則的留言。私訊頻道不以成晞 Chance 身份留言（只有粉絲留言），所以下面那塊在 SIGNAL 時整塊藏起來。 -->
+<div class="sgbox hide" id="sgbox"><div class="row" style="margin-bottom:8px"><button id="sgload">讀取最近的貼文</button><span class="msg" id="sgmsg" style="margin:0"></span></div><div id="sglist"></div></div>
+<details style="margin:10px 0" id="artistBox"><summary style="cursor:pointer;color:#DDC9A4">以「成晞 Chance」身份留言（置頂）</summary>
 <div class="row" style="margin-top:8px"><textarea id="abody" placeholder="留言內容（最多 300 字）"></textarea></div>
 <div class="row"><input id="atime" type="number" min="0" placeholder="秒數（空＝整首）" style="width:150px"><label><input id="apin" type="checkbox" checked> 置頂</label><button class="gold" id="apost">送出藝人留言</button></div></details>
 <div id="list"></div>
 <script>
 var $=function(i){return document.getElementById(i);}; function fmt(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-try{ $("key").value=localStorage.getItem("cm-admin-key")||""; }catch(e){}
-function base(){return $("base").value.replace(/\/$/,"");} function key(){try{localStorage.setItem("cm-admin-key",$("key").value);}catch(e){} return $("key").value.trim();}
-function q(){return "album="+encodeURIComponent($("album").value)+"&track="+encodeURIComponent($("track").value);}
-function post(body){return fetch(base()+"/comments/admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({key:key(),album:$("album").value,track:$("track").value},body))}).then(function(r){return r.json();});}
-function load(){ $("msg").textContent="載入中…"; fetch(base()+"/comments/admin/list?key="+encodeURIComponent(key())+"&"+q()).then(function(r){return r.json();}).then(function(j){
-  if(!j.ok){$("msg").textContent="✗ "+(j.message==="not found"?"ADMIN_KEY 不對或 Worker 還沒合併留言模組":j.message);$("list").innerHTML="";return;}
-  $("msg").textContent="共 "+j.items.length+" 則"; $("list").innerHTML=j.items.map(function(it){
+/* B564T：?api=test → 改連測試後台（頂端紅色「測試後台」），金鑰也分開存，不會拿正式金鑰去打測試後台 */
+var TEST=/[?&]api=test(&|$)/.test(location.search), KEYLS=TEST?"cm-admin-key-test":"cm-admin-key";
+if(TEST){ $("base").value="https://the-sky-ost-api-test.anthonywen0693.workers.dev"; $("testbar").classList.remove("hide"); document.title="【測試後台】"+document.title; }
+try{ $("key").value=localStorage.getItem(KEYLS)||""; }catch(e){}
+function base(){return $("base").value.replace(/\/$/,"");} function key(){try{localStorage.setItem(KEYLS,$("key").value);}catch(e){} return $("key").value.trim();}
+/* B564T：SIGNAL 留言串＝album "the-sky-signal"、track＝貼文 id 去掉 p_、只留英數 _ -、最多 12 字（跟 App test.html sgrTrack 一樣，後台 cmSafeId 也是截 12 字） */
+var SG="the-sky-signal", CUR=null, BUSY=false;
+function isSG(){return $("album").value===SG;}
+function sgTrack(s){return String(s||"").trim().replace(/^p_/,"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,12);}
+function trackVal(){return isSG()?sgTrack($("track").value):$("track").value;}
+function q(){return "album="+encodeURIComponent($("album").value)+"&track="+encodeURIComponent(trackVal());}
+/* B564T：刪除／封鎖用「載入時的那一串」（CUR），不會因為之後改了欄位就打到別串；回應不是 JSON 也照實顯示 */
+function post(body,at){at=at||{album:$("album").value,track:trackVal()};return fetch(base()+"/comments/admin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({key:key(),album:at.album,track:at.track},body))}).then(function(r){return r.json().catch(function(){return {ok:false,message:"HTTP "+r.status};});});}
+function why(j){var m=j&&j.message;return m==="not found"?"找不到（金鑰不對，或這則已經被刪掉）":m==="userId required"?"這則沒有使用者 id，不能封鎖":m==="unknown action"?"後台不認得這個動作":(m||"後台沒有回應");}
+function load(note){ if(isSG()&&!trackVal()){$("msg").textContent="請先點一則貼文，或貼上貼文 id";$("list").innerHTML="";CUR=null;return;}
+  var at={album:$("album").value,track:trackVal()}; $("msg").textContent="載入中…"; fetch(base()+"/comments/admin/list?key="+encodeURIComponent(key())+"&"+q()).then(function(r){return r.json();}).then(function(j){
+  if(!j.ok){$("msg").textContent="✗ "+(j.message==="not found"?"ADMIN_KEY 不對或 Worker 還沒合併留言模組":j.message);$("list").innerHTML="";CUR=null;return;}
+  CUR=at; var sg=at.album===SG; markPick();
+  $("msg").textContent=(note?note+" · ":"")+"共 "+j.items.length+" 則"; $("list").innerHTML=j.items.map(function(it){
     return '<div class="it'+(it.isArtist?' artist':'')+'" data-id="'+esc(it.id)+'"><div class="meta"><span class="name">'+esc(it.userName)+(it.isArtist?' · ARTIST':'')+'</span><span>'+(it.timestampSeconds!=null?fmt(it.timestampSeconds):'整首')+'</span><span>♡ '+it.likes+'</span><span>'+new Date(it.createdAt).toLocaleString("zh-TW")+'</span>'+(it.isPinned?'<span>📌 置頂</span>':'')+(it.banned?'<span class="banned">已封鎖</span>':'')+(!it.isArtist?'<span>id '+esc(it.userId)+'</span>':'')+'</div><div class="body">'+esc(it.body)+'</div><div class="row">'+
-      '<button class="sm" data-act="'+(it.isPinned?'unpin':'pin')+'">'+(it.isPinned?'取消置頂':'置頂')+'</button><button class="sm red" data-act="del">刪除</button>'+(!it.isArtist?'<button class="sm red" data-act="'+(it.banned?'unban':'ban')+'" data-uid="'+esc(it.userId)+'">'+(it.banned?'解除封鎖':'封鎖此人＋清掉他的留言')+'</button>':'')+'</div></div>';}).join("")||'<p class="msg">這首歌還沒有留言</p>'; }).catch(function(){$("msg").textContent="✗ 連線失敗";}); }
-$("load").onclick=load;
-$("list").addEventListener("click",function(e){ var b=e.target.closest("[data-act]"); if(!b)return; var it=b.closest(".it"), id=it.getAttribute("data-id"), act=b.getAttribute("data-act");
-  if((act==="del"||act==="ban")&&!confirm(act==="del"?"確定刪除這則？":"確定封鎖此人並清掉他在這首歌的留言？"))return;
-  post({action:act,id:id,userId:b.getAttribute("data-uid")||undefined,purge:act==="ban"}).then(function(j){ if(!j.ok){alert("✗ "+j.message);return;} load(); }); });
-$("apost").onclick=function(){ var b=$("abody").value.trim(); if(!b){alert("請輸入內容");return;} var t=$("atime").value===""?null:Number($("atime").value);
+      '<button class="sm" data-act="'+(it.isPinned?'unpin':'pin')+'">'+(it.isPinned?'取消置頂':'置頂')+'</button><button class="sm red" data-act="del">刪除</button>'+(!it.isArtist?'<button class="sm red" data-act="'+(it.banned?'unban':'ban')+'" data-uid="'+esc(it.userId)+'">'+(it.banned?'解除封鎖':'封鎖此人＋清掉他的留言')+'</button>':'')+'</div></div>';}).join("")||'<p class="msg">'+(sg?'這則貼文還沒有留言':'這首歌還沒有留言')+'</p>'; }).catch(function(){$("msg").textContent="✗ 連線失敗";}); }
+$("load").onclick=function(){load();};
+/* B564T：刪除／封鎖——確認框、送出中不能再按、照後台真正的回應顯示（失敗絕不說成功） */
+function lockList(on){Array.prototype.forEach.call($("list").querySelectorAll("button[data-act]"),function(x){x.disabled=on;});}
+$("list").addEventListener("click",function(e){ var b=e.target.closest("[data-act]"); if(!b||BUSY||!CUR)return; var it=b.closest(".it"), id=it.getAttribute("data-id"), act=b.getAttribute("data-act"), sg=CUR.album===SG;
+  if(act==="del"&&!confirm("確定刪除這則留言？刪除後粉絲那邊也會看不到。"))return;
+  if(act==="ban"&&!confirm(sg?"確定封鎖此人並清掉他在這則貼文的留言？封鎖後他在所有歌曲和貼文都不能再留言。":"確定封鎖此人並清掉他在這首歌的留言？"))return;
+  BUSY=true; lockList(true); $("msg").textContent="處理中…";
+  var done={del:"已刪除",ban:"已封鎖",unban:"已解除封鎖",pin:"已置頂",unpin:"已取消置頂"}[act]||"完成";
+  post({action:act,id:id,userId:b.getAttribute("data-uid")||undefined,purge:act==="ban"},CUR).then(function(j){ BUSY=false;
+    if(!j||!j.ok){lockList(false);$("msg").textContent="✗ 沒有成功："+why(j);alert("✗ 沒有成功："+why(j));return;}
+    load(done); refreshCount(CUR); }).catch(function(){ BUSY=false; lockList(false); $("msg").textContent="✗ 連線失敗，不確定有沒有完成，請按「載入」重新看一次"; }); });
+/* B564T：切換專輯——SIGNAL 時曲目欄改成貼文 id、顯示貼文清單、藏起「以成晞 Chance 身份留言」 */
+function syncAlbum(){ var sg=isSG(), t=$("track"); $("artistBox").classList.toggle("hide",sg); if(sg)$("artistBox").open=false; $("sgbox").classList.toggle("hide",!sg);
+  if(sg){t.type="text";t.removeAttribute("min");t.placeholder="貼文 id";t.style.width="170px";if(/^\d+$/.test(t.value))t.value="";}
+  else{t.type="number";t.setAttribute("min","1");t.placeholder="曲目 n";t.style.width="90px";if(!/^\d+$/.test(t.value))t.value="1";}
+  CUR=null; $("list").innerHTML=""; $("msg").textContent=""; if(sg&&!$("sglist").children.length)loadPosts(); }
+$("album").onchange=syncAlbum;
+/* B564T：最近的 SIGNAL 貼文。有金鑰先用 /feed/list（X-Feed-Key 放 header，看得到付費貼文的字）；不行就用公開的 /feed/live（付費貼文只有日期）。留言數用公開的 /comments/list 的 count。 */
+function sgDay(ts){var d=new Date(Number(ts||0)),p=function(n){return n<10?"0"+n:""+n;};return d.getFullYear()+"."+p(d.getMonth()+1)+"."+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());}
+var PL_BUSY=false;
+function loadPosts(){ if(PL_BUSY)return; PL_BUSY=true; $("sgload").disabled=true; $("sgmsg").textContent="讀取中…"; var k=key();
+  function getJ(u,h){return fetch(u,{headers:h||{},cache:"no-store"}).then(function(r){return r.json();});}
+  (k?getJ(base()+"/feed/list",{"X-Feed-Key":k}).then(function(j){if(!j||!j.ok||!Array.isArray(j.posts))throw 0;return {full:true,posts:j.posts.filter(function(p){return p.status!=="deleted";})};}):Promise.reject(0))
+  .catch(function(){return getJ(base()+"/feed/live").then(function(j){if(!j||!j.ok||!Array.isArray(j.posts))throw 0;return {full:false,posts:j.posts};});})
+  .then(function(r){ var ps=r.posts.slice().sort(function(a,b){return Number(b.ts||0)-Number(a.ts||0);}).slice(0,30);
+    $("sgmsg").textContent=ps.length?("最近 "+ps.length+" 則"+(r.full?"":"（付費貼文的內容要金鑰才看得到）")):"還沒有貼文";
+    $("sglist").innerHTML=ps.map(function(p){ var tid=sgTrack(p.id||""); if(!tid)return "";
+      var l1=String(p.text||"").split("\n")[0].trim().slice(0,40)||(p.locked?"SIGNAL 付費貼文":({photo:"（照片）",voice:"（語音）",video:"（影片）"}[p.type]||"（沒有文字）"));
+      var st=p.status&&p.status!=="live"?({hidden:"已隱藏",pending:"待審核"}[p.status]||p.status):"";
+      return '<button type="button" class="sgp" data-tid="'+esc(tid)+'"><span class="l1">'+esc(l1)+'</span><span class="l2"><span>'+sgDay(p.ts)+'</span>'+(p.tier==="signal"?'<span class="sig">SIGNAL 付費會員</span>':'<span>所有人</span>')+(st?'<span>'+esc(st)+'</span>':'')+'<span data-cn="'+esc(tid)+'">留言 …</span></span></button>'; }).join("");
+    markPick(); var tids=ps.map(function(p){return sgTrack(p.id||"");}).filter(Boolean), i=0;
+    function next(){ if(i>=tids.length)return; refreshCount({album:SG,track:tids[i++]}).then(next,next); } next(); next(); next(); next(); })
+  .catch(function(){ $("sgmsg").textContent="✗ 讀不到貼文清單，可以直接在上面貼上貼文 id"; })
+  .then(function(){ PL_BUSY=false; $("sgload").disabled=false; }); }
+function refreshCount(at){ if(!at||at.album!==SG)return Promise.resolve(); var el=$("sglist").querySelector('[data-cn="'+at.track+'"]'); if(!el)return Promise.resolve();
+  return fetch(base()+"/comments/list?album="+SG+"&track="+encodeURIComponent(at.track),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){ el.textContent=j&&j.ok?("留言 "+(j.count!=null?j.count:(j.items||[]).length)):"留言 ?"; }).catch(function(){ el.textContent="留言 ?"; }); }
+function markPick(){ Array.prototype.forEach.call($("sglist").querySelectorAll(".sgp"),function(x){x.classList.toggle("on",!!CUR&&CUR.album===SG&&x.getAttribute("data-tid")===CUR.track);}); }
+$("sgload").onclick=loadPosts;
+$("sglist").addEventListener("click",function(e){ var b=e.target.closest(".sgp"); if(!b)return; $("track").value=b.getAttribute("data-tid"); load(); });
+$("apost").onclick=function(){ if(isSG())return; /* B564T：私訊頻道不以 Chance 身份留言 */ var b=$("abody").value.trim(); if(!b){alert("請輸入內容");return;} var t=$("atime").value===""?null:Number($("atime").value);
   post({action:"post",body:b,timestampSeconds:t,isPinned:$("apin").checked}).then(function(j){ if(!j.ok){alert("✗ "+j.message);return;} $("abody").value=""; load(); }); };
+if(isSG())syncAlbum(); /* B564T：瀏覽器記住上次選 SIGNAL 時，畫面也跟著切好 */
 </script></body></html>
