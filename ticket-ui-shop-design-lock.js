@@ -574,6 +574,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (t === "ubn") { if (!/^\d{8}$/.test(v)) return { err: en ? "Tax ID is 8 digits" : "統一編號是 8 碼數字" }; return { inv: { t: t, v: v, n: String(x.n || "").trim().slice(0, 60) } }; }
     return { inv: { t: "mail" } };
   }
+  CSS += '.tk-cd{display:block;font-variant-numeric:tabular-nums;letter-spacing:.02em}.sv3-cd{margin:10px auto 0;text-align:center;font:600 16px/1.3 -apple-system,"PingFang TC",sans-serif;color:#e7c98a}.la-cd-btn{flex-direction:column!important;gap:4px!important;height:auto!important;min-height:58px!important;padding-top:8px!important;padding-bottom:8px!important}.la-cd{font:600 15px/1.2 -apple-system,"PingFang TC",sans-serif;color:#e7c98a}';   /* B576T：倒數 */
   CSS += '.sv3-tag.pre{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:none!important;line-height:1.35}';   /* B575T：開賣時間標籤不截斷 */
   CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
   function invSave(inv) { try { localStorage.setItem("tk:inv", JSON.stringify(inv)); } catch (e) {} }
@@ -1672,6 +1673,7 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
           '<button class="sv3-block" data-act="open-buy" data-ev="' + esc(ev ? ev.id : '') + '"' + (_soldOut ? ' disabled' : '') + '>' +
             '<div class="sv3-grid"><div><h2 class="sv3-block-h">' + esc(evName) + '</h2>' + (ev && !_soldOut ? '<p class="sv3-lead">這一次，我們見面吧。</p>' : '') + '</div><div class="sv3-ticket">' + sv3TicketSVG(ev) + '</div></div><p class="sv3-block-m sky-event-facts">' + [evDate ? esc(evDate + ' · 台北時間') : (ev || !S.loading ? '時間待公布' : ''), evVenue ? esc(evVenue) : '', evCapacity ? esc(evCapacity) : '', evPrice].filter(Boolean).join('<br>') + '</p>' +
             '<span class="sv3-go sv3-buy' + (_onSale ? ' on' : '') + '"' + (!ev && S.loading ? ' style="visibility:hidden"' : '') + '>' + esc(goLabel) + (_onSale && _minP ? ' <small>NT$' + _minP.toLocaleString('en-US') + (_tiers && _tiers.some(function (t) { return +t.price > _minP; }) ? (sxEN() ? ' & up' : ' 起') : '') + '</small>' : '') + '</span>' +   /* B443T：購票按鈕，動作和價格同一行 */
+            (_pre ? cdHTML('tk-cd sv3-cd') : '') +   /* B576T：開賣倒數 */
           '</button>' +
         '</section>' +
         '<div class="sv3-divide"></div>' : '') +   /* B310T：票券區塊可隱藏 */
@@ -2649,7 +2651,21 @@ function coverClockKey() {
      登入後順便登記開賣提醒（沿用排隊後台，不顯示號碼）。首頁的提醒條（test.html）點了也會叫這裡 */
   function preIn() { if (!S.session) S.session = lsGet(K.sess); return !!S.session; }
   function saleShort(en) { return en ? "On sale Nov 17, 1 pm (Taipei)" : "11月17日下午1點準時開賣"; }   /* B574T：放不下長句的地方用這個 */
-  function saleTx(en) { return saleShort(en); }   /* B575T（CÉON 11/15）：全部只寫「11月17日下午1點準時開賣」 */   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
+  function saleTx(en) { return saleShort(en); }
+  /* B576T（CÉON 11/15）：開賣倒數。開賣前的按鈕下面放一行「距離開賣 N 天 時:分:秒」，每秒更新；時間到就重抓一次活動（開賣要後台按，按了才會變成購票） */
+  var SALE_AT = Date.parse("2026-11-17T13:00:00+08:00"), cdTimer = 0, cdFired = 0;
+  function cdText(en) {
+    var ms = SALE_AT - Date.now();
+    if (ms <= 0) return en ? "It’s time — updating…" : "開賣時間到了，正在更新…";
+    var t = Math.floor(ms / 1000), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60, p2 = function (n) { return (n < 10 ? "0" : "") + n; };
+    return (en ? "Opens in " + (d ? d + "d " : "") : "距離開賣 " + (d ? d + " 天 " : "")) + p2(h) + ":" + p2(m) + ":" + p2(sec);
+  }
+  function cdTick() {
+    var els = document.querySelectorAll("[data-cd]"); if (!els.length) { clearInterval(cdTimer); cdTimer = 0; return; }
+    var tx = cdText(sxEN()); for (var i = 0; i < els.length; i++) if (els[i].textContent !== tx) els[i].textContent = tx;
+    if (SALE_AT - Date.now() <= 0 && !cdFired) { cdFired = 1; try { evReload(); } catch (e) {} }
+  }
+  function cdHTML(cls) { if (!cdTimer) cdTimer = setInterval(cdTick, 1000); setTimeout(cdTick, 0); return '<span class="' + (cls || "tk-cd") + '" data-cd aria-live="off">' + esc(cdText(sxEN())) + '</span>'; }   /* B575T（CÉON 11/15）：全部只寫「11月17日下午1點準時開賣」 */   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
   function preLbl(en) { return saleShort(en); }   /* B575T：只寫開賣時間，不提登入 */
   function preSaleText(ev) { var i = ev && BUY_TEXT[ev.id] && BUY_TEXT[ev.id].info; return i && i.key && i.key.sale || ""; }   /* B563T：原本也叫 preSale，跟後面「還沒開賣嗎」的 preSale(ev) 同名、被蓋掉，登入提示會印出「true。」→ 改名 */
   function preQuiet(ev) {
@@ -3461,7 +3477,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (T && seatEv(ev)) b = '<button type="button" class="la-cta" data-act="buy-go">選擇座位 <small>' + nt(T.price) + '／張</small>' + ar + '</button>';   // B435T：選位場次先選位，張數由選的位子決定，這裡只寫單價
     else if (T && st.solo) b = '<button type="button" class="la-cta" data-act="buy-go">下一步 <small data-la-total>' + nt(preTotal(ev, T)) + '</small>' + ar + '</button>';
     else if (T) b = '<button type="button" class="la-cta" data-act="buy-go">立即購買 <small>' + nt(T.price) + '</small>' + ar + '</button>';
-    else if (st.notOpen) { b = '<button type="button" class="la-cta ghost" data-act="buy-remind">' + esc(saleShort(sxEN())) + '</button>'; }   /* B575T：只寫開賣時間 */
+    else if (st.notOpen) { b = '<button type="button" class="la-cta ghost la-cd-btn" data-act="buy-remind"><span>' + esc(saleShort(sxEN())) + '</span>' + cdHTML('tk-cd la-cd') + '</button>'; }   /* B575T：只寫開賣時間；B576T：加倒數 */
     else if (!any) b = '<button type="button" class="la-cta ghost" data-act="open-wallet">' + (cv && st.soldOut ? (sxEN() ? 'Sold out · My tickets' : '已售完 · 我的票') : '我的票') + ar + '</button>';
     else b = '<button type="button" class="la-cta" disabled>選擇票種</button>';
     return '<div class="la-foot">' + b + '</div>';
