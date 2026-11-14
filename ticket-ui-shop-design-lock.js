@@ -574,6 +574,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     if (t === "ubn") { if (!/^\d{8}$/.test(v)) return { err: en ? "Tax ID is 8 digits" : "統一編號是 8 碼數字" }; return { inv: { t: t, v: v, n: String(x.n || "").trim().slice(0, 60) } }; }
     return { inv: { t: "mail" } };
   }
+  CSS += '.sv3-tag.pre{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;max-width:none!important;line-height:1.35}';   /* B575T：開賣時間標籤不截斷 */
   CSS += '.tk-inv{display:contents}.tk-inv>input.tkb-in{grid-column:2;margin-top:8px}.tk-inv>[hidden]{display:none!important}';   // B496T：跟其他欄一樣「左欄名、右欄位」
   function invSave(inv) { try { localStorage.setItem("tk:inv", JSON.stringify(inv)); } catch (e) {} }
   function invBlock() {   // 門票結帳頁。B572T：只寄 Email，不給選
@@ -1645,9 +1646,9 @@ function referenceCoverHTML(vt, ev, cab, dropLine) {
     var _bg = ev && v2EvOk(ev.id, ev) ? BDAY_POSTER : A.portrait;
     if (_pre) {
       var _cap = ev.capacity || (_tiers || []).reduce(function (a, t) { return a + (+t.cap || 0); }, 0);
-      evPrice = ''; // Keep date and venue visible before sales; never disclose presale price.
+      /* B575T（CÉON 11/15）：開賣前也顯示價格 */
       evVenue = ev.venue || '地點待公布';
-      goLabel = preIn() ? (sxEN() ? 'On sale 11/17, 1 pm · Signed in' : '11/17 下午 1 點準時開賣 · 已登入') : (sxEN() ? 'On sale 11/17, 1 pm · Sign in first' : '11/17 下午 1 點準時開賣 · 先登入');   /* B573T */   // B459T
+      goLabel = saleShort(sxEN());   /* B575T：只寫開賣時間，不提登入 */
     }
     if(/^微風影城\s*(\d+\s*樓\s*)?A\s*廳$/.test(evVenue))evVenue += ' · 台北';   /* B337T：場地改成 8 樓 A 廳也照舊加「台北」 */
     var zhParts = String(T.sideZh).split('｜');
@@ -1950,7 +1951,7 @@ function coverClockKey() {
     }
     if (ev.onSale && ev.productKey && ev.left === 0) return '<div class="l dim">全場售完</div><span class="tk-chip x">SOLD OUT</span>';
     if (ev.onSale && ev.productKey) return '<div class="l dim">' + (ev.left != null && ev.left <= 20 ? "剩 " + ev.left + " 張" : "販售中") + '</div><button class="tk-chip o" data-act="buy" data-ev="' + esc(ev.id) + '">NT$' + esc(ev.price || "") + ' 購買</button>';
-    return '<div class="l dim">' + esc(saleTx(sxEN())) + '</div>' + (preIn() ? '<button class="tk-chip d" data-act="eremind" data-ev="' + esc(ev.id) + '">✓ 已登入</button>' : '<button class="tk-chip o" data-act="eremind" data-ev="' + esc(ev.id) + '">先登入</button>');
+    return '<div class="l dim">' + esc(saleTx(sxEN())) + '</div>';   /* B575T：拿掉登入按鈕 */
   }
   function evCard(ev) {
     var k = evKind(ev), mine = ticketsFor(ev.id);
@@ -2647,9 +2648,9 @@ function coverClockKey() {
   /* B459T（CÉON 11/08）：開賣前先登入。原本的「提前排隊」改成用 email 驗證碼登入購票帳號，開賣時直接選位、不用在搶票當下等驗證碼。
      登入後順便登記開賣提醒（沿用排隊後台，不顯示號碼）。首頁的提醒條（test.html）點了也會叫這裡 */
   function preIn() { if (!S.session) S.session = lsGet(K.sess); return !!S.session; }
-  function saleShort(en) { return en ? "On sale 11/17, 1 pm" : "11/17 下午 1 點準時開賣"; }   /* B574T：放不下長句的地方用這個 */
-  function saleTx(en) { return en ? "On sale 11/17 (Tue) at 1:00 pm, Taipei time" : "11/17（二）下午 1 點準時開賣"; }   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
-  function preLbl(en) { return preIn() ? (en ? "On sale 11/17, 1 pm · Signed in" : "11/17 下午 1 點準時開賣 · 已登入") : (en ? "On sale 11/17, 1 pm · Sign in first" : "11/17 下午 1 點準時開賣 · 先登入"); }   /* B574T：登入前後都寫開賣時間 */
+  function saleShort(en) { return en ? "On sale Nov 17, 1 pm (Taipei)" : "11月17日下午1點準時開賣"; }   /* B574T：放不下長句的地方用這個 */
+  function saleTx(en) { return saleShort(en); }   /* B575T（CÉON 11/15）：全部只寫「11月17日下午1點準時開賣」 */   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
+  function preLbl(en) { return saleShort(en); }   /* B575T：只寫開賣時間，不提登入 */
   function preSaleText(ev) { var i = ev && BUY_TEXT[ev.id] && BUY_TEXT[ev.id].info; return i && i.key && i.key.sale || ""; }   /* B563T：原本也叫 preSale，跟後面「還沒開賣嗎」的 preSale(ev) 同名、被蓋掉，登入提示會印出「true。」→ 改名 */
   function preQuiet(ev) {
     var em = S.email; if (!ev || !ev.id || !em || qNo(ev.id)) return;
@@ -2716,9 +2717,9 @@ function coverClockKey() {
   function cxMax() { var i = cxItem(); return i.left != null ? Math.min(i.maxQty || 10, i.left) : (i.maxQty || 10); }
   /* B362T（CÉON 11/01）：SHOP 第二區「購買周邊」＝常駐商品（小卡、信籤）＋生日限定周邊兩排；生日周邊也照舊可在購票結帳時加購（兩個入口、同一份庫存） */
   function bdMerchHTML() {
-    var card = function (act, attrs, img, name, price, note, left, off) {
+    var card = function (act, attrs, img, name, price, note, left, off, offLbl) {   /* B575T：offLbl＝停用時按鈕寫什麼（開賣前寫開賣時間） */
       return '<button class="sv3-bdm-it" data-act="' + act + '"' + attrs + (off ? ' disabled' : '') + '>' + (img ? '<img src="' + esc(img) + '" alt="" loading="lazy">' : '') +
-        '<b>' + esc(name) + '</b>' + (price ? '<em>' + esc(price) + '</em>' : '') + (note ? '<span>' + esc(note) + '</span>' : '') + (left ? (Array.isArray(left) ? '<small class="sv3-tags">' + left.map(function (t) { return '<u class="sv3-tag' + (t.cls ? ' ' + t.cls : '') + '">' + esc(t.t) + '</u>'; }).join('') + '</small>' : '<small>' + esc(left) + '</small>') : '') + '<i>' + (off ? "已售完" : "選這個") + '</i></button>';
+        '<b>' + esc(name) + '</b>' + (price ? '<em>' + esc(price) + '</em>' : '') + (note ? '<span>' + esc(note) + '</span>' : '') + (left ? (Array.isArray(left) ? '<small class="sv3-tags">' + left.map(function (t) { return '<u class="sv3-tag' + (t.cls ? ' ' + t.cls : '') + '">' + esc(t.t) + '</u>'; }).join('') + '</small>' : '<small>' + esc(left) + '</small>') : '') + '<i>' + (off ? (offLbl || "已售完") : "選這個") + '</i></button>';
     };
     var reg = [];
     cxLoad();   // 卡包資料（the-sky-shop）
@@ -2726,9 +2727,10 @@ function coverClockKey() {
     if (lettersVisible() && SHOP_HOME_LETTERS) { var LF = SHOP_HOME_LETTERS; reg.push(card("shop-letters", "", LF.img, LF.title, "", LF.desc, LF.line, false)); }
     var bd = [], ev = buyEv(), mi = ev && ev.id ? mInfo(ev.id) : null;
     if (ev && ev.id && !mi) { S.mineMerchWait = 1; mEnsure(ev.id); }
-    if (mi && mi.m && mi.m.open) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
-      var en2 = sxEN(), cut2 = mCut(mi), tg = [k === "h" ? { t: en2 ? "For overseas fans" : "海外粉絲專屬", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
-      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? (en2 ? "Can’t attend? Shipped to your home" : "不能到場也收得到・寄到你家") : (it.perk || ""), tg, !(it.left > 0))); }); }
+    var bdPre = !!(mi && mi.m && !mi.m.open && ev && preSale(ev));   /* B575T（CÉON 11/15）：還沒開賣也把生日周邊放出來（價格＋開賣時間，不能選） */
+    if (mi && mi.m && (mi.m.open || bdPre)) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
+      var en2 = sxEN(), cut2 = mCut(mi), tg = [bdPre ? { t: saleShort(en2), cls: "rec pre" } : null, k === "h" ? { t: en2 ? "For overseas fans" : "海外粉絲專屬", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   /* B575T：開賣前第一顆標籤寫開賣時間 */   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
+      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? (en2 ? "Can’t attend? Shipped to your home" : "不能到場也收得到・寄到你家") : (it.perk || ""), tg, bdPre || !(it.left > 0), bdPre ? saleShort(en2) : "")); }); }
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
@@ -3273,10 +3275,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
          B349T：CÉON 10/30 確認座位名額 120 名、11/15 12:00（台北時間）開放購票。B352T：取消提前購買，所有人同時開賣 */
       info: { title: "生日會資訊",
         /* B437T（CÉON 11/06）：購票頁只放重點，順序照買票的人想知道的：得到什麼 → 什麼時候、在哪 → 名額。原文 groups 一字不動，放進付款前的購票須知 */
-        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11/17（二）下午 1 點準時開賣（台北時間）" },
+        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11月17日下午1點準時開賣" },
         groups: [
         ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
-        ["11/17（二）下午 1 點準時開賣（台北時間）(商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
+        ["11月17日下午1點準時開賣 (商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
         ["離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ],
         /* B465T（CÉON 11/08）：完整購票須知只放其他地方沒寫過的事（從上面原文整理） */
@@ -3459,7 +3461,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (T && seatEv(ev)) b = '<button type="button" class="la-cta" data-act="buy-go">選擇座位 <small>' + nt(T.price) + '／張</small>' + ar + '</button>';   // B435T：選位場次先選位，張數由選的位子決定，這裡只寫單價
     else if (T && st.solo) b = '<button type="button" class="la-cta" data-act="buy-go">下一步 <small data-la-total>' + nt(preTotal(ev, T)) + '</small>' + ar + '</button>';
     else if (T) b = '<button type="button" class="la-cta" data-act="buy-go">立即購買 <small>' + nt(T.price) + '</small>' + ar + '</button>';
-    else if (st.notOpen) { q = preIn(); b = '<button type="button" class="la-cta' + (q ? ' ghost' : '') + '" data-act="buy-remind">' + (q ? (sxEN() ? 'On sale 11/17, 1 pm · Signed in ✓' : '11/17 下午 1 點準時開賣 · 已登入 ✓') : (cv ? (sxEN() ? 'On sale 11/17, 1 pm · Sign in first' : '11/17 下午 1 點準時開賣 · 先登入') : '先登入') + ar) + '</button>'; }
+    else if (st.notOpen) { b = '<button type="button" class="la-cta ghost" data-act="buy-remind">' + esc(saleShort(sxEN())) + '</button>'; }   /* B575T：只寫開賣時間 */
     else if (!any) b = '<button type="button" class="la-cta ghost" data-act="open-wallet">' + (cv && st.soldOut ? (sxEN() ? 'Sold out · My tickets' : '已售完 · 我的票') : '我的票') + ar + '</button>';
     else b = '<button type="button" class="la-cta" disabled>選擇票種</button>';
     return '<div class="la-foot">' + b + '</div>';
@@ -3540,7 +3542,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var foot;
     if (T && solo) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>合計</span><b>' + nt(preTotal(ev, T)) + '</b></div><button class="tkb-cta" data-act="buy-go">下一步 <i>→</i></button>';
     else if (T) foot = '<img src="' + esc(asset(BUY_TEXT.assets.thumb)) + '" alt=""><div class="fx"><span>已選擇 ' + esc(T.name) + '</span><b>' + nt(T.price) + '</b></div><button class="tkb-cta" data-act="buy-go">立即購買 <i>→</i></button>';
-    else if (notOpen) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">' + esc(saleShort(sxEN())) + '</b></div><button class="tkb-cta' + (preIn() ? ' ghost' : '') + '" data-act="buy-remind">' + (preIn() ? (sxEN() ? "Signed in ✓" : "已登入 ✓") : (sxEN() ? "Sign in first" : "先登入")) + '</button>';
+    else if (notOpen) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">' + esc(saleShort(sxEN())) + '</b></div><button class="tkb-cta' + (preIn() ? ' ghost' : '') + '" data-act="buy-remind">' + esc(saleShort(sxEN())) + '</button>';
     else if (!anyBuy) foot = '<div class="fx"><span>' + esc(ev.name || "") + '</span><b class="dim">目前無可購買票種</b></div><button class="tkb-cta ghost" data-act="open-wallet">我的票</button>';
     else foot = '<div class="fx"><span>還沒選擇票種</span><b class="dim">點上方票種開始</b></div><button class="tkb-cta" disabled>選擇票種</button>';
     h += '<div class="tkb-foot">' + foot + '</div>';
@@ -4773,7 +4775,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (act === "buy-go") { var bev = buyEv(); if (!bev || !S.buySel) return; return seatGate(bev, function () { createOrder(bev.id, S.buySel); if (isSolo(bev)) { S.buy.mb = !!S.pre.mb; S.buy.mh = !!S.pre.mh; S.buy.mq = S.pre.mq || 1; mEnsure(bev.id, function () { var L = layerEl("checkout"), box = L && L.querySelector("#tkm-pre"); if (box && S.buy && S.buy.evId === bev.id) box.outerHTML = mPreRows(bev); }); } var goL = openLayer("checkout", seatEv(bev) ? { hold: true } : null); if (seatEv(bev)) seatOpen(); return goL; /* B500T：直接進座位圖 */ }); }
     if (act === "pre-m") return preMToggle(b.getAttribute("data-k"));
     if (act === "pre-mq") { var qev = buyEv(); if (!qev) return; S.pre.mq = Math.max(1, Math.min(mQ(qev.id, S.pre) + Number(b.getAttribute("data-d") || 0), mQMax(qev.id, S.pre))); hap(6); return preMToggle(""); }
-    if (act === "buy-remind") { var rev = buyEv(); if (rev) preLogin(rev); evReload();   /* B563T：按「尚未開賣」也重抓一次，開賣了下面那頁就會變 */ return; }
+    if (act === "buy-remind") { evReload();   /* B575T：不再跳登入，只重抓一次 */   /* B563T：按「尚未開賣」也重抓一次，開賣了下面那頁就會變 */ return; }
     if (act === "co-pay") { return startPayment(); }
     if (act === "co-terms") return coTermsTap();
     if (act === "co-rules") return coRules();
