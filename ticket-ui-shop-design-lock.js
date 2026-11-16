@@ -2653,10 +2653,10 @@ function coverClockKey() {
   /* B459T（CÉON 11/08）：開賣前先登入。原本的「提前排隊」改成用 email 驗證碼登入購票帳號，開賣時直接選位、不用在搶票當下等驗證碼。
      登入後順便登記開賣提醒（沿用排隊後台，不顯示號碼）。首頁的提醒條（test.html）點了也會叫這裡 */
   function preIn() { if (!S.session) S.session = lsGet(K.sess); return !!S.session; }
-  function saleShort(en) { return en ? "On sale Nov 17, 1 pm (Taipei)" : "11月17日下午1點準時開賣"; }   /* B574T：放不下長句的地方用這個 */
+  function saleShort(en) { return en ? "On sale Nov 22, 1 pm (Taipei)" : "11月22日下午1點準時開賣"; }   /* B574T：放不下長句的地方用這個 */
   function saleTx(en) { return saleShort(en); }
   /* B576T（CÉON 11/15）：開賣倒數。開賣前的按鈕下面放一行「距離開賣 N 天 時:分:秒」，每秒更新；時間到就重抓一次活動（開賣要後台按，按了才會變成購票） */
-  var SALE_AT = Date.parse("2026-11-17T13:00:00+08:00"), cdTimer = 0, cdFired = 0;
+  var SALE_AT = Date.parse("2026-11-22T13:00:00+08:00"), cdTimer = 0, cdFired = 0;
   function cdText(en) {
     var ms = SALE_AT - Date.now();
     if (ms <= 0) return en ? "It’s time — updating…" : "開賣時間到了，正在更新…";
@@ -2670,14 +2670,14 @@ function coverClockKey() {
     if (SALE_AT - Date.now() <= 0 && !cdFired) { cdFired = 1; try { evReload(); } catch (e) {} }
   }
   function cdParts() { var t = Math.max(0, Math.floor((SALE_AT - Date.now()) / 1000)), p2 = function (n) { return (n < 10 ? "0" : "") + n; }; return { d: p2(Math.floor(t / 86400)), h: p2(Math.floor(t % 86400 / 3600)), m: p2(Math.floor(t % 3600 / 60)), s: p2(t % 60) }; }
-  function cdLabel(en) { return SALE_AT - Date.now() <= 0 ? (en ? "It’s time — updating…" : "開賣時間到了，正在更新…") : (en ? "On sale Nov 17, 1 pm (Taipei)" : "距離 11月17日 下午1點 開賣"); }
+  function cdLabel(en) { return SALE_AT - Date.now() <= 0 ? (en ? "It’s time — updating…" : "開賣時間到了，正在更新…") : (en ? "On sale Nov 22, 1 pm (Taipei)" : "距離 11月22日 下午1點 開賣"); }
   /* B578T（CÉON 11/15 選 B）：倒數四格（天／時／分／秒大數字），上面一行開賣時間 */
   function cdBoxes(cls) {
     if (!cdTimer) cdTimer = setInterval(cdTick, 1000); setTimeout(cdTick, 0);
     var en = sxEN(), pr = cdParts(), U = en ? { d: "days", h: "hrs", m: "min", s: "sec" } : { d: "天", h: "時", m: "分", s: "秒" };
     return '<span class="cdb ' + (cls || "") + '"><span class="cdb-l" data-cd="lbl">' + esc(cdLabel(en)) + '</span><span class="cdb-r">' + ["d", "h", "m", "s"].map(function (k) { return '<span class="cdb-x"><b data-cd="' + k + '">' + pr[k] + '</b><i>' + U[k] + '</i></span>'; }).join("") + '</span></span>';
   }
-  function cdHTML(cls) { if (!cdTimer) cdTimer = setInterval(cdTick, 1000); setTimeout(cdTick, 0); return '<span class="' + (cls || "tk-cd") + '" data-cd aria-live="off">' + esc(cdText(sxEN())) + '</span>'; }   /* B575T（CÉON 11/15）：全部只寫「11月17日下午1點準時開賣」 */   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
+  function cdHTML(cls) { if (!cdTimer) cdTimer = setInterval(cdTick, 1000); setTimeout(cdTick, 0); return '<span class="' + (cls || "tk-cd") + '" data-cd aria-live="off">' + esc(cdText(sxEN())) + '</span>'; }   /* B575T（CÉON 11/15）：全部只寫「11月22日下午1點準時開賣」 */   /* B573T（CÉON 11/15）：開賣前所有地方都寫這一句 */
   function preLbl(en) { return saleShort(en); }   /* B575T：只寫開賣時間，不提登入 */
   function preSaleText(ev) { var i = ev && BUY_TEXT[ev.id] && BUY_TEXT[ev.id].info; return i && i.key && i.key.sale || ""; }   /* B563T：原本也叫 preSale，跟後面「還沒開賣嗎」的 preSale(ev) 同名、被蓋掉，登入提示會印出「true。」→ 改名 */
   function preQuiet(ev) {
@@ -2758,7 +2758,7 @@ function coverClockKey() {
     var bdPre = !!(mi && mi.m && !mi.m.open && ev && preSale(ev));   /* B575T（CÉON 11/15）：還沒開賣也把生日周邊放出來（價格＋開賣時間，不能選） */
     if (mi && mi.m && (mi.m.open || bdPre)) { var I = mi.m.items || {}; ["b", "h", "s"].filter(function (k) { return I[k]; }).forEach(function (k) { var it = I[k];
       var en2 = sxEN(), cut2 = mCut(mi), tg = [bdPre ? { t: saleShort(en2), cls: "rec pre" } : null, k === "h" ? { t: en2 ? "For overseas fans" : "海外粉絲專屬", cls: "rec" } : null, mPill2(it, cut2, en2, false)].filter(Boolean);   /* B575T：開賣前第一顆標籤寫開賣時間 */   // B384T：膠囊最多兩顆（推薦＋限量／剩 N 與期限合成一顆）   // B377T：真的限量數字＋推薦；B381T：改成膠囊標籤；B382T：推薦膠囊帶理由、加期限膠囊（後台沒給 cutoff 就寫「售完為止」，不自己編日期）；B383T：有 cutoff 時期限與售完為止合成一顆（半寬卡片用精簡版，完整「預購至 M/D 23:59・售完為止」在購買頁）；剩 N 仍只在 ≤10 時顯示（CÉON B373T 規則）
-      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? (en2 ? "Can’t attend? Shipped to your home" : "不能到場也收得到・寄到你家") : (it.perk || ""), tg, bdPre || !(it.left > 0), bdPre ? saleShort(en2) : "")); }); }
+      bd.push(card("m-open-k", ' data-ev="' + esc(ev.id) + '" data-k="' + k + '"', it.img ? asset(it.img) : "", it.name, nt(it.price), k === "h" ? (en2 ? "Can’t attend? Shipped to your home" : "不能到場也收得到・寄到你家") : k === "b" ? (en2 ? "Pick up at the event · Ticket holders only" : (it.perk ? it.perk + "・" : "") + "需持有生日會門票") /* B584（CÉON 11/16）：A3 海報組要有門票才能買，卡片上先講 */ : (it.perk || ""), tg, bdPre || !(it.left > 0), bdPre ? saleShort(en2) : "")); }); }
     if (!reg.length && !bd.length) return "";
     return '<section class="sv3-sec" id="sv3-merch">' +
       '<div class="sv3-sec-hd"><span class="sv3-sec-num bd">' + esc(ticketsVisible() ? SHOP_TEXT.secMerch : "01 / MERCH") + '</span><i class="sv3-sec-line"></i></div>' +
@@ -3298,19 +3298,19 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
      ✏️ 活動主視覺文字改 BUY_TEXT；價格/席次/福利從 Worker 場次資料讀
      ════════════════════════════════════════════════════════════════ */
   var BUY_TEXT = {
-    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
+    "meet-20261227": { kicker: "CHANCE", title: ["BIRTHDAY", "PARTY"], ticket: "生日會入場券", city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "BIRTHDAY PARTY", shared: ["離場HI FIVE", "6號小卡", "隨機海報1張"], ppNote: "",   /* B341T：CÉON 10/29 跟後台票種福利一致（原：MV 首映、照片下載…） */
       /* B337T：生日會資訊（CÉON 10/29 13:21 提供原文，一字不改；英文在 shop-language.js 逐行對照）。每個陣列＝一段
          B349T：CÉON 10/30 確認座位名額 120 名、11/15 12:00（台北時間）開放購票。B352T：取消提前購買，所有人同時開賣 */
       info: { title: "生日會資訊",
         /* B437T（CÉON 11/06）：購票頁只放重點，順序照買票的人想知道的：得到什麼 → 什麼時候、在哪 → 名額。原文 groups 一字不動，放進付款前的購票須知 */
-        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11月17日下午1點準時開賣" },
+        key: { doors: "14:00", also: "大合照、有獎問答、抽人形看板", time: "14:00 入場・14:30 開始・16:00 結束", cap: "120 名", sale: "11月22日下午1點準時開賣", ask: "活動問題請私訊微風國際 IG；App 技術問題請寫信到 heartbeats0693@gmail.com" },   /* B584（CÉON 11/16）：開賣改 11/22（日）13:00；票含隨機海報 1 張；活動問題找微風、技術問題找平台 */
         groups: [
-        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
-        ["11月17日下午1點準時開賣 (商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
+        ["地點：微風影城8樓A廳", "票價：1,880元(含離場HI FIVE、6號小卡及隨機海報1張)", "座位名額：120名", "時間：14:00開始入場、14:30活動開始、16:00活動結束"],
+        ["11月22日下午1點準時開賣 (商品請於當日提前13:20至現場領取)", "入場出示 App「我的票」或門票信裡的 QR；手機無法顯示時，可報購買姓名＋手機後 4 碼核對", "另販售周邊海報A3一組4張 880元 限量100組", "海外專屬組合：1,280元，含6號卡及海報組4張，限量30組（不含入場）", "運費另計：亞洲區250元／海外區500元", "周邊：生日會當天，到周邊服務台出示票券 QR 領取。" /* B563T */],
         ["離場HI FIVE：可送禮物給成晞，但不接受特別配合拍照／錄影／簽名", "最後會拍大合照/現場會有有獎問答及抽人形看板(當日入場會提供抽獎號碼/照購買票數提供同等抽獎獎號)"]
       ],
         /* B465T（CÉON 11/08）：完整購票須知只放其他地方沒寫過的事（從上面原文整理） */
-        day: ["離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。", "最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。", "有買周邊的人，生日會當天 13:20 起，到周邊服務台出示票券 QR 領取。" /* B563T（CÉON 11/14）：領周邊只要出示票券 QR，不寫代領 */] } },
+        day: ["離場 HI FIVE 時可以送禮物給成晞，但不接受特別配合拍照、錄影或簽名。", "最後會拍大合照，現場有有獎問答和抽人形看板；入場時依購買張數發抽獎號碼。", "有買周邊的人，生日會當天 13:20 起，到周邊服務台出示票券 QR 領取。" /* B563T（CÉON 11/14）：領周邊只要出示票券 QR，不寫代領 */, "活動相關問題，請私訊微風國際 IG；App 的技術問題，請寫信到 heartbeats0693@gmail.com。"] } },
     _default:        { kicker: "CHANCE", title: ["LIVE"], city: "TAIPEI", tag: "MUSIC · FRIENDS · SPECIAL NIGHT", short: "LIVE" },
     assets: { hero: "shop-assets/buy-hero.jpg", thumb: "shop-assets/buy-thumb.jpg", ticket: "shop-assets/buy-ticket.jpg" },
     note: "※ 現場流程時間以當日公告為準",
@@ -3507,7 +3507,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     var row = function (a, b) { return '<dt>' + esc(a) + '</dt><dd>' + esc(b) + '</dd>'; };
     return '<details class="la-info la-key"><summary><h3 class="la-info-h">' + esc(I.title) + '</h3><i aria-hidden="true">›</i></summary><p class="la-info-lead">期待在這一天，和你一起度過。</p>' +
       '<div class="la-key-v"><b>' + nt(t0.price) + '</b><span>這張票包含</span><ul>' + perks.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join("") + '</ul></div>' +
-      '<dl class="la-key-r">' + row("當天還有", k.also) + (sxEN() ? row("時間", k.time) : '<dt>時間</dt><dd>' + k.time.split("・").map(function (x) { return '<span style="white-space:nowrap">' + esc(x) + '</span>'; }).join("・") + '</dd>') + row("地點", ev.venue || "") + (E ? row("座位", E.short[0]) : '') + row("名額", (function () { var n = Number(ev.capacity) || (ev.tiers || []).reduce(function (a, t) { return a + (Number(t.cap) || 0); }, 0); return n > 0 ? n + " 名" : k.cap; })() /* B563T（CÉON 11/14）：名額照後台給的數字（跟 SHOP 首頁「活動名額」同一個算法），後台沒給才寫 120 名 */) + (st.notOpen ? row("開賣", k.sale) : '') + '</dl>' +
+      '<dl class="la-key-r">' + row("當天還有", k.also) + (sxEN() ? row("時間", k.time) : '<dt>時間</dt><dd>' + k.time.split("・").map(function (x) { return '<span style="white-space:nowrap">' + esc(x) + '</span>'; }).join("・") + '</dd>') + row("地點", ev.venue || "") + (E ? row("座位", E.short[0]) : '') + row("名額", (function () { var n = Number(ev.capacity) || (ev.tiers || []).reduce(function (a, t) { return a + (Number(t.cap) || 0); }, 0); return n > 0 ? n + " 名" : k.cap; })() /* B563T（CÉON 11/14）：名額照後台給的數字（跟 SHOP 首頁「活動名額」同一個算法），後台沒給才寫 120 名 */) + (st.notOpen ? row("開賣", k.sale) : '') + (k.ask ? row("有問題", k.ask) : '') + '</dl>' +
       '<p class="la-key-n">周邊、退票與完整規則，付款前會請你看過一次。</p></details>';
   }
   function buyHTML() {
@@ -3702,8 +3702,8 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     seatLoad(function () {
       if (S.seatUI) return;
       S.seatUI = SkySeat.open({ en: en, max: 1, price: Number(T.price) || 0,
-        view: en ? "On sale Nov 17, 1 pm (Taipei). View only for now." : "11月17日下午1點準時開賣，現在只能看",
-        viewTip: en ? "Seats open at 1 pm on Nov 17 (Taipei)." : "11月17日下午1點開賣後才能選位",
+        view: en ? "On sale Nov 22, 1 pm (Taipei). View only for now." : "11月22日下午1點準時開賣，現在只能看",
+        viewTip: en ? "Seats open at 1 pm on Nov 22 (Taipei)." : "11月22日下午1點開賣後才能選位",
         load: function () { return fetch(C.api + "/ticket/seats?event=" + encodeURIComponent(ev.id), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (j) { return seatCfgSet(ev.id, j); }); },
         onClose: function () { S.seatUI = null; } });
     });
