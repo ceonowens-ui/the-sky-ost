@@ -628,6 +628,13 @@ body.no-nav #toast { bottom: calc(34px + env(safe-area-inset-bottom)); }
 @keyframes skyAspin{to{transform:rotate(360deg)}}
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){.skyA{background:rgba(245,242,238,.97)}}
 @media (prefers-reduced-motion:reduce){.skyA,.skyA.out{transition:none}.skyA-sp{animation-duration:2s}}
+/* B583T（CÉON 11/16 選 A）：cookie 提示。同一個通知樣式，多一排按鈕（拒絕／接受／了解更多），按了才收起來 */
+.skyA.skyA-ck{flex-wrap:wrap;row-gap:12px;cursor:default}
+.skyA-ckb{flex:0 0 100%;display:flex;align-items:center;gap:10px}
+.skyA-ckb button{font:inherit;font-size:17px;font-weight:600;line-height:1;min-height:46px;border-radius:14px;border:0;padding:0 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.skyA-ckb .ck-y{flex:1;background:#111;color:#fff}
+.skyA-ckb .ck-n{flex:1;background:rgba(0,0,0,.09);color:#111}
+.skyA-ckb .ck-m{flex:none;background:none;color:#3c3630;font-weight:500;font-size:16px;text-decoration:underline;text-underline-offset:3px;padding:0 4px}
 /* B157T：粉絲回覆框 —— 與 nav 同寬同玻璃、直接貼在 nav 上方（Apple Music 迷你播放器疊法）；鎖頭在框內 */
 .rpbar{position:fixed;left:0;right:0;z-index:69;display:flex;justify-content:center;pointer-events:none;
   bottom:calc(env(safe-area-inset-bottom) + 88px)}   /* B158T：安全預設，JS 量到 nav 才微調 */
@@ -3881,12 +3888,19 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
 <script>/* B506T（CÉON 11/12）：Microsoft Clarity 使用行為分析（只有測試站 chance1228.com；自動測試 navigator.webdriver、?noclarity=1、本機都不載入）。
    個資遮住：票夾、票券、QR、收票／領取資料、帳戶 Email、登入框、寫信頁都加 data-clarity-mask（輸入框 Clarity 本來就遮）。 */
 (function () { try {
-  if (navigator.webdriver || /[?&]noclarity=1/.test(location.search) || !/(^|\.)chance1228\.com$/.test(location.hostname)) return;
+  /* B583T（CÉON 11/16 選 A）：粉絲按「接受」cookie 之後才載入 Clarity；沒回答、按「拒絕」都不載入。之前按過「接受」的人，打開就載入 */
+  var ALLOW = !(navigator.webdriver || /[?&]noclarity=1/.test(location.search) || !/(^|\.)chance1228\.com$/.test(location.hostname)), on = false;
+  window.__skyClarityGo = function () {
+    window.__skyClarityAsked = 1;
+    if (on || !ALLOW) return; on = true; window.__skyClarityOn = 1;
   (function (c, l, a, r, i, t, y) { c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); }; t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i; y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y); })(window, document, "clarity", "script", "zcan6fcwjg");
+    try { window.clarity("consentv2", { ad_Storage: "denied", analytics_Storage: "granted" }); } catch (e) {}
   var SEL = '.tk-layer[data-layer="wallet"],.tk-layer[data-layer="pass"],.tk-layer[data-layer="v2qr"],.tk-layer[data-layer="mcode"],.tk-layer[data-layer="dcl"],.tkc-who,.tkb-mail,.mx-ro,.tk-to,.cx9-form,.tkb-in,#tk-sheet,.tk-sheet,canvas,.tk-qr,.dcl';
   function mask(root) { try { (root.querySelectorAll ? root.querySelectorAll(SEL) : []).forEach(function (el) { if (!el.hasAttribute("data-clarity-mask")) el.setAttribute("data-clarity-mask", "true"); }); if (root.matches && root.matches(SEL)) root.setAttribute("data-clarity-mask", "true"); } catch (e) {} }
   function start() { mask(document); new MutationObserver(function (ms) { ms.forEach(function (m) { m.addedNodes.forEach(function (n) { if (n.nodeType === 1) mask(n); }); }); }).observe(document.documentElement, { childList: true, subtree: true }); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+  };
+  try { if (localStorage.getItem("sky:ck") === "1") window.__skyClarityGo(); } catch (e) {}
 } catch (e) {} })();
 </script>
 </head>
@@ -13121,12 +13135,13 @@ window.ALBUM_SWITCH = {
 <li><strong>Purchase records</strong> (items, amounts, order numbers, times)</li>
 <li><strong>Ticket and entry records</strong> (seat, ticket number, transfers, entry time)</li>
 <li><strong>Notification subscription</strong> (only if you turn notifications on)</li>
+<li><strong>Usage data</strong> (only after you tap "Accept" on the cookie notice: taps, scrolling, time spent on each screen and device type; text you type is masked)</li>
 <li>Card details are collected and processed by ECPay; we never see or store them.</li>
 </ol>
 <h3>4. How long, where, by whom, how</h3>
 <div class="tm-kv"><span>How long</span><span>From collection until the service ends or the legal retention period ends</span></div>
 <div class="tm-kv"><span>Where</span><span>Taiwan, and the countries where the processors below run their servers (including outside Taiwan)</span></div>
-<div class="tm-kv"><span>By whom</span><span>Us; ECPay (payments); Cloudflare, Inc. (data storage and hosting); Resend, Inc. (email); the courier or Chunghwa Post when merch is shipped; and authorities with legal powers to investigate</span></div>
+<div class="tm-kv"><span>By whom</span><span>Us; ECPay (payments); Cloudflare, Inc. (data storage and hosting); Resend, Inc. (email); Microsoft Corporation (Clarity usage analytics, only after you accept cookies); the courier or Chunghwa Post when merch is shipped; and authorities with legal powers to investigate</span></div>
 <div class="tm-kv"><span>How</span><span>Electronic files, over the internet and by email</span></div>
 <p>The cloud and email providers' servers are outside Taiwan, so your data is transferred abroad for processing. By completing a purchase you acknowledge this.</p>
 <h3>5. Your rights</h3>
@@ -13135,9 +13150,10 @@ window.ALBUM_SWITCH = {
 <p>Without an email address we cannot complete a purchase or send codes and tickets. Without a name and mobile number we cannot sell event tickets or merch; without delivery details we cannot ship.</p>
 <h3>7. Security and browser storage</h3>
 <p>We use HTTPS across the site and access controls; no internet transfer is perfectly secure. The app uses your browser's local storage for unlock status, sign-in, card collection progress and playback preferences; this stays on your device, and your email and code are only sent to us to check access when you unlock or play paid content.</p>
+<p>We use Microsoft Clarity to see how people use the app so we can make it better. It only runs after you tap "Accept" on the cookie notice. It uses cookies and records taps, scrolling and time spent on each screen; text you type is masked. We do not use this data to identify you. For how Microsoft handles it, see the Microsoft Privacy Statement (privacy.microsoft.com). To change your choice, tap <b class="tm-link" data-ck-reset>choose cookie settings again</b>.</p>
 <h3>8. Minors</h3>
 <p>Buyers under 18 need consent from a parent or legal guardian.</p>
-<div class="tm-meta">Updated: November 10, 2026</div>` : `<p>依《個人資料保護法》第 8 條規定告知如下。</p>
+<div class="tm-meta">Updated: November 16, 2026</div>` : `<p>依《個人資料保護法》第 8 條規定告知如下。</p>
 <h3>一、蒐集機構</h3>
 <p>夏米爾企業社（統一編號 38472654）</p>
 <h3>二、蒐集目的</h3>
@@ -13158,12 +13174,13 @@ window.ALBUM_SWITCH = {
 <li><strong>購買紀錄</strong>（商品、金額、訂單編號、時間）</li>
 <li><strong>票券與入場紀錄</strong>（座位、票號、轉讓紀錄、入場時間）</li>
 <li><strong>通知訂閱資料</strong>（僅在你開啟新動態通知時）</li>
+<li><strong>使用紀錄</strong>（僅在你於 cookie 提示按「接受」之後：在 App 裡的點擊、滑動、停留時間與裝置類型；你輸入的文字會被遮住）</li>
 <li>信用卡資訊由綠界科技直接蒐集與處理，本營業人不接觸、不儲存。</li>
 </ol>
 <h3>四、利用期間、地區、對象及方式</h3>
 <div class="tm-kv"><span>期間</span><span>自蒐集日起至本服務終止或法定保存期間屆滿為止</span></div>
 <div class="tm-kv"><span>地區</span><span>中華民國，及下列受託處理者伺服器所在地（含境外）</span></div>
-<div class="tm-kv"><span>對象</span><span>本營業人；綠界科技（金流）；Cloudflare, Inc.（資料儲存與網站服務）；Resend, Inc.（電子郵件寄送）；寄送周邊時的物流業者或中華郵政；及依法有調查權的機關</span></div>
+<div class="tm-kv"><span>對象</span><span>本營業人；綠界科技（金流）；Cloudflare, Inc.（資料儲存與網站服務）；Resend, Inc.（電子郵件寄送）；Microsoft Corporation（Clarity 使用分析，僅在你接受 cookie 後）；寄送周邊時的物流業者或中華郵政；及依法有調查權的機關</span></div>
 <div class="tm-kv"><span>方式</span><span>電子檔案，透過網際網路及電子郵件為之</span></div>
 <p>本服務使用的雲端與郵件服務商伺服器位於境外，你的個人資料將傳輸至境外處理；完成購買即表示知悉此情形。</p>
 <h3>五、你的權利</h3>
@@ -13172,9 +13189,10 @@ window.ALBUM_SWITCH = {
 <p>未提供電子郵件信箱，將無法完成購買、收取兌換碼或票券；未提供姓名與手機號碼，無法購買活動門票與周邊；未提供收件資料，無法寄送商品。</p>
 <h3>七、資料安全與瀏覽器儲存</h3>
 <p>本營業人採取合理的技術與管理措施保護你的個人資料，包含全站 HTTPS 加密傳輸與存取權限控管；但網際網路傳輸無法保證絕對安全。本 App 使用瀏覽器本機儲存，記錄你的解鎖狀態、登入狀態、抽卡收藏進度與播放偏好，資料只存在你的裝置；其中的信箱與兌換碼，只在你解鎖或播放付費內容時傳送至本營業人伺服器驗證。</p>
+<p>本 App 使用 Microsoft Clarity 了解大家怎麼使用，讓它更好用；只有在你於 cookie 提示按「接受」之後才會啟用。它會使用 cookie，記錄點擊、滑動與停留時間，你輸入的文字會被遮住；本營業人不會用這些資料辨識你。Microsoft 如何處理這些資料，請見 Microsoft 隱私權聲明（privacy.microsoft.com）。想改變選擇，請點<b class="tm-link" data-ck-reset>重新選擇 cookie 設定</b>。</p>
 <h3>八、未成年人</h3>
 <p>未滿 18 歲者購買本服務，應經法定代理人同意。</p>
-<div class="tm-meta">版本日期：2026 年 11 月 10 日</div>`;
+<div class="tm-meta">版本日期：2026 年 11 月 16 日</div>`;
   var RULES_HTML = DOC_EN ? `<h3>1. Your album</h3>
 <p>Your code never expires. On any phone or computer, enter the email you bought with + your code (OWN → "Purchased? Enter your code"). New phone or cleared data? Just enter them again — no need to buy again. The Home Screen app and Safari keep separate data, so you may need to enter them once in each.</p>
 <h3>2. Your tickets</h3>
@@ -13251,7 +13269,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B582T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B583T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13319,6 +13337,41 @@ window.skyBanner = function (o) {
   var api = { el: b, set: set, hide: hide, arm: arm }; b.__api = api;
   return api;
 };
+/* B583T（CÉON 11/16 選 A）：cookie 提示。第一次打開、開場播完後從上面滑下來；按「接受」才載入 Clarity，按「拒絕」不載入，按過就記住、不再問。
+   往上滑收掉＝這次先不回答，下次打開再問（沒回答就不載入）。隱私權政策第七段可以重新選。預覽：?ckbar=1 */
+(function () {
+  var KEY = "sky:ck", api = null;
+  function got() { try { return localStorage.getItem(KEY); } catch (e) { return "x"; } }   // 讀不到儲存就不問、也不載入
+  function put(v) { try { localStorage.setItem(KEY, v); localStorage.setItem(KEY + ":at", String(Date.now())); } catch (e) {} }
+  function busy() {
+    var s = document.getElementById("terms-sheet");
+    return !!(document.getElementById("sky-splash") || s && !s.classList.contains("hidden") || document.querySelector(".skyA:not(#__ckBar), #__langBar, #a2tip, #a2ok, .a2m, .a2pg, #__nickWrap"));
+  }
+  function close(again) { var a = api; api = again ? null : api; if (a) a.hide(); if (again) setTimeout(show, 1500); }
+  function show() {
+    if (api || got() != null) return;
+    if (busy()) { setTimeout(show, 1500); return; }
+    var en = window.SKY_LANG === "en";
+    api = window.skyBanner({ id: "__ckBar", ms: 0, onTap: function () {}, title: en ? "Cookies" : "使用 cookie", body: en ? "We use cookies to see how people use the app, so we can make it better." : "我們用 cookie 了解大家怎麼使用 App，讓它更好用。" });
+    if (!api) return;
+    api.el.classList.add("skyA-ck");
+    var row = document.createElement("div"); row.className = "skyA-ckb";
+    function btn(cls, txt, fn) { var b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = txt; if (fn) b.addEventListener("click", function (e) { e.stopPropagation(); fn(); }); row.appendChild(b); return b; }
+    btn("ck-n", en ? "Decline" : "拒絕", function () { put("0"); close(); });
+    btn("ck-y", en ? "Accept" : "接受", function () { put("1"); close(); try { if (window.__skyClarityGo) window.__skyClarityGo(); } catch (e) {} });
+    btn("ck-m", en ? "Learn more" : "了解更多").setAttribute("data-open-terms", "privacy");
+    api.el.appendChild(row);
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target && e.target.closest ? e.target : null; if (!t) return;
+    if (t.closest("#__ckBar [data-open-terms]")) { close(true); return; }   // 去看隱私權政策：先收起來，關掉政策後再出現
+    if (t.closest("[data-ck-reset]")) { try { localStorage.removeItem(KEY); } catch (e2) {} var x = document.getElementById("tm-close"); if (x) x.click(); api = null; setTimeout(show, 600); }
+  }, true);
+  if (navigator.webdriver) return;   // 自動測試不出現
+  if (/[?&]ckbar=1/.test(location.search)) { try { localStorage.removeItem(KEY); } catch (e) {} }
+  else if (/[?&](tkbought|tkmerch|tkphoto|dcback)=/.test(location.search)) return;   // 剛從付款回來那一次不問，下次打開再問
+  setTimeout(show, 1200);
+})();
 /* B176T ── 冷啟動版本偵測：手機版本落後太多時，提醒用戶「關掉重開」
  * iOS PWA 冷啟動偏好用快取，原本的 SW 更新提示對「被殺掉的 App」抓不到。
  * 這裡直接比對「本機印章」vs「伺服器最新 index」的印章，落後 ≥2 版才溫和提示。 */
