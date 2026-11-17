@@ -2717,6 +2717,58 @@ img.sgc-av{border:1px solid rgba(232,191,122,.55)}
 #cm-sheet .cm-prev .cm-pt, #cm-sheet .cm-prev .cm-pn{ font-size:15px; }
 #cm-sheet .cm-prev .cm-pb{ font-size:15px; }
 #cm-post-error{ margin:8px 0 0; font-size:15px; color:#E0907A; }
+/* B587T（CÉON 11/17）：照 IG 的留言面板——系統黑體、白字、粗體名字；尺寸照他手機上 IG 截圖量出來的字高（430 寬、頁面 100%） */
+#cm-sheet, #cm-sheet *{ font-family:-apple-system,"SF Pro Text","PingFang TC","Helvetica Neue",sans-serif; }
+#cm-sheet{ background:#1C1C1E; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+#cm-sheet .cm-grab{ width:40px; height:4px; background:#5A5A5E; margin-top:10px; }
+#cm-sheet .cm-head{ position:relative; justify-content:center; text-align:center; padding:14px 56px 10px; }
+#cm-sheet .cm-head > div{ width:100%; }
+#cm-sheet .cm-head b{ display:block; font-size:18.5px; font-weight:700; color:#F5F5F5; letter-spacing:0; }
+#cm-sheet .cm-head b em{ font-style:normal; font-weight:600; color:#A8A8A8; margin-left:4px; }
+#cm-sheet .cm-head span{ display:block; margin-top:2px; font-size:15px; color:#A8A8A8; }
+#cm-sheet .cm-x{ position:absolute; right:10px; top:6px; width:44px; height:44px; color:#A8A8A8; }
+#cm-sheet .cm-list{ padding:4px 0 8px; }
+#cm-sheet .cm-row, #cm-sheet .cm-row:first-child{ display:flex; align-items:flex-start; gap:12px; padding:10px 8px 10px 16px; border:0; margin:0; background:none; }
+#cm-sheet .cm-row.cm-rep{ padding-left:58px; gap:10px; }
+#cm-sheet .cm-av{ width:40px; height:40px; line-height:40px; font-size:17px; font-weight:600; background:#3A3A3C; color:#F5F5F5; flex:none; margin-top:2px; }
+#cm-sheet .cm-rep .cm-av{ width:32px; height:32px; line-height:32px; font-size:14.5px; }
+#cm-sheet .cm-av.artist{ background:#3A3122; box-shadow:0 0 0 1.5px var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-main{ flex:1; min-width:0; }
+#cm-sheet .cm-row-top{ display:flex; align-items:baseline; flex-wrap:wrap; gap:0 8px; }
+#cm-sheet .cm-name, #cm-sheet .cm-art .cm-name{ font-size:16px; font-weight:600; color:#F5F5F5; letter-spacing:0; }
+#cm-sheet .cm-ago{ font-size:16px; color:#A8A8A8; }
+#cm-sheet .cm-tag{ font:600 15px/1 -apple-system,"PingFang TC",sans-serif; letter-spacing:.04em; color:var(--cp-gold,#DDC9A4); }
+#cm-sheet .cm-pin{ margin-left:0; font-size:15px; color:#A8A8A8; }
+#cm-sheet .cm-body, #cm-sheet .cm-art .cm-body{ margin:3px 0 0; padding:0; font-size:18.5px; line-height:1.4; color:#F5F5F5; white-space:pre-wrap; word-break:break-word; }
+#cm-sheet .cm-at{ color:#9CC3FF; }
+#cm-sheet .cm-rbtn{ appearance:none; -webkit-appearance:none; border:0; background:none; padding:8px 12px 6px 0; margin:0 0 -6px; min-height:36px; font-size:16px; font-weight:500; color:#A8A8A8; cursor:pointer; }
+#cm-sheet .cm-like, #cm-sheet .cm-art .cm-like{ flex:none; width:44px; min-height:52px; margin:0; padding:6px 0 0; display:flex; flex-direction:column; align-items:center; gap:6px; color:#A8A8A8; font-size:16px; }
+#cm-sheet .cm-like svg{ width:20px; height:20px; }
+#cm-sheet .cm-like.on{ color:#FF3040; }
+#cm-sheet .cm-more{ appearance:none; -webkit-appearance:none; border:0; background:none; display:flex; align-items:center; gap:14px; padding:6px 0 10px 58px; min-height:40px; font-size:16px; font-weight:500; color:#A8A8A8; cursor:pointer; }
+#cm-sheet .cm-more i{ display:block; width:28px; height:1px; background:#5A5A5E; }
+#cm-sheet .cm-tg{ font-size:16px; padding:1px 10px; }
+#cm-sheet .cm-comp{ padding:6px 14px calc(12px + env(safe-area-inset-bottom)); background:#1C1C1E; border-top:1px solid #2C2C2E; }
+#cm-sheet .cm-emo{ display:flex; justify-content:space-between; padding:6px 6px 10px; }
+#cm-sheet .cm-emo button{ appearance:none; -webkit-appearance:none; border:0; background:none; font-size:22px; line-height:1; width:44px; height:44px; padding:0; cursor:pointer; font-family:"Apple Color Emoji","Segoe UI Emoji",sans-serif; }
+#cm-sheet .cm-replying{ display:flex; align-items:center; justify-content:space-between; padding:2px 6px 8px; font-size:15px; color:#A8A8A8; }
+#cm-sheet .cm-replying[hidden]{ display:none; }
+#cm-sheet .cm-replying button{ appearance:none; border:0; background:none; color:#A8A8A8; font-size:17px; width:44px; height:36px; cursor:pointer; }
+#cm-sheet .cm-markrow{ margin:0; padding:0 6px; }
+#cm-sheet .cm-mark-ly:empty{ display:none; }
+#cm-sheet .cm-mark-ly{ display:block; padding:0 0 8px; font-size:15px; color:#A8A8A8; }
+#cm-sheet .cm-in{ display:flex; align-items:center; gap:10px; }
+#cm-sheet .cm-mark{ min-height:44px; padding:0 12px; font-size:15px; border-color:#48484A; color:#D1D1D6; flex:none; }
+#cm-sheet .cm-mark[hidden]{ display:none; }
+#cm-sheet .cm-pill{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; min-height:46px; padding:2px 6px 2px 18px; border:1px solid #48484A; border-radius:23px; background:transparent; }
+#cm-sheet .cm-pill textarea.cm-ta{ flex:1; min-width:0; border:0; background:transparent; padding:10px 0 9px; min-height:42px; height:42px; font-size:18.5px !important; line-height:1.3; color:#F5F5F5; }
+#cm-sheet .cm-pill textarea.cm-ta:focus{ background:transparent; border:0; box-shadow:none; }
+#cm-sheet .cm-pill textarea.cm-ta::placeholder{ color:#8E8E93; }
+#cm-sheet .cm-pill .cm-send{ background:none; color:var(--cp-gold,#DDC9A4); width:auto; min-width:52px; height:40px; padding:0 10px; font-size:17px; font-weight:700; border-radius:20px; margin:0; }
+#cm-sheet .cm-pill .cm-send:disabled{ background:none; color:transparent; pointer-events:none; }
+#cm-sheet .cm-cnt{ text-align:right; padding:4px 6px 0; }
+#cm-sheet .cm-empty{ color:#A8A8A8; }
+#cm-sheet .cm-empty b{ color:#F5F5F5; }
 
 /* D：preview-first，Sheet 高度跟內容走（最高 80vh），CTA 改實心香檳金、降低商業感 */
 #cm-sheet.locked{ height:auto; max-height:80vh; }
@@ -12580,7 +12632,7 @@ window.ALBUM_SWITCH = {
      * 資料模型：{id,trackId,userId,userName,avatar,body,timestampSeconds,createdAt,likes,replyCount,isArtist,isPinned}
      * ================================================================ */
     (function CommentsFeature(){
-      var API=(CFG.api&&CFG.api.workerBaseUrl)||"", MAX=300, NEAR=2, GROUP=2, SHOW_MS=4500;
+      var API=/\/test\.html$/i.test(location.pathname)?"https://the-sky-ost-api-test.anthonywen0693.workers.dev":((CFG.api&&CFG.api.workerBaseUrl)||""), MAX=300,   /* B587T：測試站的留言走測試後台（m79 有回覆）；正式站不變 */ NEAR=2, GROUP=2, SHOW_MS=4500;
       var cache={}, data={key:"",count:0,items:[]}, shown={}, ovTimer=null, ovUntil=0, sheetOpen=false, composing=false, boundT=null, sending=false, lastFetch={}, sheetRun=0, sheetKey="", sheetAlbum="", sheetTrack=null, requestSeq={};
       function ico(n){var d={chat:'<path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 3v-3H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/>',play:'<path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/>',heart:'<path d="M12 20s-7-4.4-9-8.6C1.4 8 3 5 6.2 5c1.9 0 3.1 1.1 3.7 2 .6-.9 1.8-2 3.7-2C17 5 18.6 8 17 11.4 15 15.6 12 20 12 20Z"/>',send:'<path d="M12 19V5m-6 6 6-6 6 6"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',img:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="m21 16-5-5-8 8"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'};
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d[n]+'</svg>';}
@@ -12676,10 +12728,28 @@ window.ALBUM_SWITCH = {
       function tsChip(t){return t==null?"":'<button type="button" class="cm-ts" data-seek="'+t+'" aria-label="跳到 '+fmt(t)+'">'+fmt(t)+ico("play")+'</button>';}
       function tagT(t){ return t!=null&&Number(t)>0?Number(t):null; }   /* B586T：0:00 的舊留言只在顯示上當成沒標記，資料不動 */
       function tagHTML(t){ t=tagT(t); return t==null?"":'<button type="button" class="cm-tg" data-seek="'+t+'" aria-label="'+(window.SKY_LANG==="en"?"Jump to ":"跳到 ")+fmt(t)+'">▶ '+fmt(t)+'</button>'; }
-      function rowHTML(it){
-        var like='<button type="button" class="cm-like'+(it.liked?' on':'')+'" data-like="'+esc(it.id)+'" aria-label="愛心">'+ico("heart")+'<span>'+(it.likes||0)+'</span></button>';
-        if(it.isArtist) return '<div class="cm-artist" data-id="'+esc(it.id)+'"><div class="cm-row-top">'+av(it)+'<span class="cm-name">'+esc(it.userName)+'</span><span class="cm-tag">ARTIST</span><span class="cm-art-meta">'+(it.isPinned?'<span class="cm-pin">置頂</span>':'')+like+'</span></div><div class="cm-body">'+tagHTML(it.timestampSeconds)+esc(it.body)+'</div></div>';   /* R2：愛心收進姓名列（data-like 不變） */
-        return '<div class="cm-row" data-id="'+esc(it.id)+'"><div class="cm-row-top">'+av(it)+'<span class="cm-name">'+esc(it.userName)+'</span></div><div class="cm-body">'+tagHTML(it.timestampSeconds)+esc(it.body)+'</div><div class="cm-meta">'+like+(it.replyCount?'<span>回覆 '+it.replyCount+'</span>':'')+'</div></div>';
+      /* B587T（CÉON 11/17）：照 IG 的留言樣子——頭像、粗體名字＋多久以前、內文、「回覆」；愛心在最右邊、數字在下面；回覆只有一層 */
+      var openRep={}, replyTo=null;
+      function ago(ms){ var EN=window.SKY_LANG==="en", d=Math.max(0,Date.now()-Number(ms||0)), m=Math.floor(d/6e4), h=Math.floor(d/36e5), dd=Math.floor(d/864e5), w=Math.floor(dd/7);
+        if(m<1)return EN?"now":"剛剛"; if(h<1)return EN?m+"m":m+"分鐘"; if(dd<1)return EN?h+"h":h+"小時"; if(w<1)return EN?dd+"d":dd+"天"; return EN?w+"w":w+"週"; }
+      function bodyHTML(it){ var b=esc(it.body), at=it.replyToName?"@"+it.replyToName:""; if(at&&it.body.indexOf(at)===0)b='<span class="cm-at">'+esc(at)+'</span>'+esc(it.body.slice(at.length)); return tagHTML(it.timestampSeconds)+b; }
+      function rowHTML(it,isReply){
+        var EN=window.SKY_LANG==="en";
+        var like='<button type="button" class="cm-like'+(it.liked?' on':'')+'" data-like="'+esc(it.id)+'" aria-label="'+(EN?"Like":"愛心")+'">'+ico("heart")+'<span>'+(it.likes||0)+'</span></button>';
+        return '<div class="cm-row'+(isReply?' cm-rep':'')+(it.isArtist?' cm-art':'')+'" data-id="'+esc(it.id)+'">'+av(it)+'<div class="cm-main"><div class="cm-row-top"><span class="cm-name">'+esc(it.userName)+'</span>'+(it.isArtist?'<span class="cm-tag">ARTIST</span>':'')+'<span class="cm-ago">'+ago(it.createdAt)+'</span>'+(it.isPinned?'<span class="cm-pin">'+(EN?"Pinned":"置頂")+'</span>':'')+'</div><div class="cm-body">'+bodyHTML(it)+'</div><button type="button" class="cm-rbtn" data-reply="'+esc(it.id)+'">'+(EN?"Reply":"回覆")+'</button></div>'+like+'</div>';
+      }
+      function listHTML(){
+        var tops=data.items.filter(function(x){return !x.parentId;}), kids={};
+        data.items.forEach(function(x){ if(x.parentId){ (kids[x.parentId]=kids[x.parentId]||[]).push(x); } });
+        var EN=window.SKY_LANG==="en";
+        return tops.map(function(it){
+          var ks=(kids[it.id]||[]).slice().sort(function(a,b){return a.createdAt-b.createdAt;}), h=rowHTML(it,false);
+          if(!ks.length)return h;
+          var show=openRep[it.id]||ks.length<=2?ks:[], rest=ks.length-show.length;
+          h+=show.map(function(k){return rowHTML(k,true);}).join("");
+          if(rest>0)h+='<button type="button" class="cm-more" data-more="'+esc(it.id)+'"><i></i>'+(EN?(show.length?"View "+rest+" more "+(rest>1?"replies":"reply"):"View "+rest+" "+(rest>1?"replies":"reply")):(show.length?"查看其他 "+rest+" 則回覆":"查看 "+rest+" 則回覆"))+'</button>';
+          return h;
+        }).join("");
       }
       function renderSheet(focusId){
         var t=track(), can=canComment();
@@ -12687,7 +12757,7 @@ window.ALBUM_SWITCH = {
         if(oldTa&&sheetOpen&&sheetKey===key())draft=oldTa.value;
         var selStart=oldTa?oldTa.selectionStart:0, selEnd=oldTa?oldTa.selectionEnd:0;
         var cmPrevF=sh.contains(document.activeElement)?document.activeElement:null, cmPrevSel=cmPrevF?(cmPrevF.id?"#"+cmPrevF.id:(cmPrevF.classList.contains("cm-x")?".cm-x":null)):null;   /* R2：重畫前記住焦點 */
-        var head='<div class="cm-grab"></div><div class="cm-head"><div><b>'+'歌曲留言 · '+(data.count||0)+'</b><span>'+esc(t.title)+'</span></div><button type="button" class="cm-x" aria-label="關閉">'+ico("x")+'</button></div>';
+        var head='<div class="cm-grab"></div><div class="cm-head"><div><b>'+(window.SKY_LANG==="en"?"Comments":"留言")+(data.count?' <em>'+data.count+'</em>':'')+'</b><span>'+esc(t.title)+'</span></div><button type="button" class="cm-x" aria-label="關閉">'+ico("x")+'</button></div>';
         var html=head;
         if(!can){
           var prev=data.items.filter(function(i){return !i.isArtist;}).slice(0,3);
@@ -12700,10 +12770,12 @@ window.ALBUM_SWITCH = {
           $("cm-cta").addEventListener("click",function(){hap(8);closeSheet();go("purchase");});
         } else {
           var EN=window.SKY_LANG==="en";
-          html+='<div class="cm-list">'+(data.items.length?data.items.map(rowHTML).join(""):'<div class="cm-empty"><b>在這首歌留下第一句話</b>在下面的輸入框寫下此刻的感受</div>')+'</div>';
+          html+='<div class="cm-list">'+(data.items.length?listHTML():'<div class="cm-empty"><b>'+(EN?"Be the first to leave a note":"在這首歌留下第一句話")+'</b>'+(EN?"Write how this moment feels below":"在下面的輸入框寫下此刻的感受")+'</div>')+'</div>';
           html+='<div class="cm-comp"><div class="cm-nick" id="cm-nick"><label for="cm-nick-in">先取個暱稱，之後留言都用它（最多 12 字）</label><input id="cm-nick-in" type="text" maxlength="12" placeholder="你的名字或暱稱" autocomplete="off"></div>'+
-            '<div class="cm-markrow"><button type="button" class="cm-mark" id="cm-mark" aria-pressed="false"><span class="cm-mark-i" id="cm-mark-i">＋</span><span id="cm-mark-t"></span></button><span class="cm-mark-ly" id="cm-mark-ly"></span></div>'+
-            '<div class="cm-in"><div class="cm-field"><textarea class="cm-ta" id="cm-ta" rows="1" maxlength="'+MAX+'" enterkeyhint="send"></textarea><span class="cm-cnt" id="cm-cnt" hidden></span></div><button type="button" class="cm-send" id="cm-send" disabled>'+(EN?"Post":"發布")+'</button></div></div>';
+            '<div class="cm-emo">'+["❤️","🙌","🔥","👏","😢","😍","😮","😂"].map(function(x){return '<button type="button" data-emo="'+x+'" aria-label="'+x+'">'+x+'</button>';}).join("")+'</div>'+
+            '<div class="cm-replying" id="cm-replying" hidden><span id="cm-replying-t"></span><button type="button" id="cm-replying-x" aria-label="'+(EN?"Cancel reply":"取消回覆")+'">✕</button></div>'+
+            '<div class="cm-markrow" id="cm-markrow"><span class="cm-mark-ly" id="cm-mark-ly"></span></div>'+
+            '<div class="cm-in"><button type="button" class="cm-mark" id="cm-mark" aria-pressed="false"><span class="cm-mark-i" id="cm-mark-i">＋</span><span id="cm-mark-t"></span></button><div class="cm-pill"><textarea class="cm-ta" id="cm-ta" rows="1" maxlength="'+MAX+'" enterkeyhint="send"></textarea><button type="button" class="cm-send" id="cm-send" disabled>'+(EN?"Post":"發布")+'</button></div></div><span class="cm-cnt" id="cm-cnt" hidden></span></div>';
           sh.innerHTML=html; sh.classList.remove("compose"); sh.classList.remove("locked");
           var ta=$("cm-ta"), send=$("cm-send"), cnt=$("cm-cnt");
           function paintCnt(){ var n=Array.from(ta.value).length; cnt.hidden=MAX-n>30; cnt.textContent=n+" / "+MAX; }
@@ -12712,7 +12784,7 @@ window.ALBUM_SWITCH = {
           ta.addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();post();} });
           send.addEventListener("click",post);
           $("cm-mark").addEventListener("click",function(e){ e.stopPropagation(); hap(5); boundT=boundT==null?Math.floor(audio.currentTime||0):null; paintMark(); });
-          ta.value=draft; paintCnt(); fit(); send.disabled=sending||!draft.trim(); paintMark();
+          ta.value=draft; paintCnt(); fit(); send.disabled=sending||!draft.trim(); paintMark(); paintReply();
           if(oldNick){$("cm-nick-in").value=nickDraft;$("cm-nick").classList.toggle("show",nickVisible);}
           ta.disabled=sending; $("cm-nick-in").disabled=sending;
           if(sending){send.disabled=true;send.textContent=EN?"Posting…":"發布中…";}
@@ -12723,19 +12795,37 @@ window.ALBUM_SWITCH = {
         if(cmPrevF&&!sh.contains(document.activeElement)){ var cmNf=(cmPrevSel&&sh.querySelector(cmPrevSel))||sh.querySelector(".cm-x"); if(cmNf){ try{cmNf.focus({preventScroll:true});if(cmNf.id==="cm-ta")cmNf.setSelectionRange(selStart,selEnd);}catch(_){} } }   /* R2：重畫後焦點留在 Sheet 內 */
       }
       var unbound=false, draft="";
-      function fitTa(ta){ if(!ta)return; var empty=!ta.value; if(empty)ta.value=ta.placeholder||""; ta.style.height="auto"; var h=ta.scrollHeight; if(empty)ta.value=""; ta.style.height=Math.min(132,Math.max(46,h))+"px"; }   /* 提示字兩行時（英文）也完整看得到 */
+      function fitTa(ta){ if(!ta)return; var empty=!ta.value; if(empty)ta.value=ta.placeholder||""; ta.style.height="auto"; var h=ta.scrollHeight; if(empty)ta.value=""; ta.style.height=Math.min(132,Math.max(ta.closest(".cm-pill")?42:46,h))+"px"; }   /* 提示字兩行時（英文）也完整看得到 */
+      function paintReply(){
+        var b=$("cm-replying"), m=$("cm-mark"), EN=window.SKY_LANG==="en"; if(!b)return;
+        b.hidden=!replyTo; if(replyTo)$("cm-replying-t").textContent=(EN?"Replying to ":"正在回覆 ")+replyTo.name;
+        if(m)m.hidden=!!replyTo;   /* 回覆不綁時間 */
+        var ta=$("cm-ta"); if(ta&&replyTo){ ta.placeholder=(EN?"Reply to ":"回覆 ")+replyTo.name+"……"; fitTa(ta); } else paintMark();
+      }
+      function startReply(id){
+        var it=data.items.filter(function(x){return x.id===id;})[0]; if(!it)return; if(!canComment()){toast(window.SKY_LANG==="en"?"Own the album to reply":"收藏專輯後可以回覆");return;}
+        replyTo={id:it.id,name:it.userName,root:it.parentId||it.id}; boundT=null; openRep[replyTo.root]=true;
+        var ta=$("cm-ta"); if(!ta)return; var at="@"+it.userName+" ";
+        if(ta.value.indexOf(at)!==0)ta.value=at+ta.value.replace(/^@\S+\s/,"");
+        draft=ta.value; ta.dispatchEvent(new Event("input")); paintReply();
+        try{ ta.focus({preventScroll:true}); ta.setSelectionRange(ta.value.length,ta.value.length); }catch(_){ ta.focus(); }
+      }
       function paintMark(){
         var m=$("cm-mark"); if(!m)return; var EN=window.SKY_LANG==="en", on=boundT!=null, t=on?boundT:Math.floor(audio.currentTime||0);
         m.classList.toggle("on",on); m.setAttribute("aria-pressed",on?"true":"false");
         $("cm-mark-i").textContent=on?"✕":"＋"; $("cm-mark-t").textContent=on?fmt(t):(EN?"Mark ":"標記 ")+fmt(t);
         m.setAttribute("aria-label",on?(EN?"Remove the time mark ":"取消標記 ")+fmt(t):(EN?"Mark ":"標記 ")+fmt(t));
         var ly=$("cm-mark-ly"); if(ly)ly.textContent=on?(lyricAt(t)||""):"";
-        var ta=$("cm-ta"); if(ta){ ta.placeholder=on?(EN?"What does this line make you think of?":"這一句，讓你想到什麼？"):(EN?"Leave a note for this song":"留言給這首歌"); fitTa(ta); }
+        var ta=$("cm-ta"); if(ta&&!replyTo){ ta.placeholder=on?(EN?"What does this line make you think of?":"這一句，讓你想到什麼？"):(EN?"Join the conversation…":"加入對話……"); fitTa(ta); }
       }
       function focusTa(){ var x=$("cm-ta"); if(x){ x.focus(); } }
       sh.addEventListener("click",function(e){
         var s=e.target.closest("[data-seek]"); if(s){ hap(5); seek(Number(s.getAttribute("data-seek")),true); return; }
         var l=e.target.closest("[data-like]"); if(l){ like(l.getAttribute("data-like"),l); return; }
+        var rb=e.target.closest("[data-reply]"); if(rb){ hap(4); startReply(rb.getAttribute("data-reply")); return; }
+        var mo=e.target.closest("[data-more]"); if(mo){ hap(4); openRep[mo.getAttribute("data-more")]=true; var lst=sh.querySelector(".cm-list"), st=lst?lst.scrollTop:0; renderSheet(); var l2=sh.querySelector(".cm-list"); if(l2)l2.scrollTop=st; return; }
+        var em=e.target.closest("[data-emo]"); if(em&&sh.querySelector(".cm-emo")&&sh.querySelector(".cm-emo").contains(em)){ hap(4); var ta=$("cm-ta"); if(ta&&!ta.disabled){ var a=ta.selectionStart==null?ta.value.length:ta.selectionStart, b2=ta.selectionEnd==null?a:ta.selectionEnd, x=em.getAttribute("data-emo"); ta.value=ta.value.slice(0,a)+x+ta.value.slice(b2); ta.dispatchEvent(new Event("input")); try{ta.focus({preventScroll:true});ta.setSelectionRange(a+x.length,a+x.length);}catch(_){} } return; }
+        if(e.target.closest("#cm-replying-x")){ replyTo=null; var t2=$("cm-ta"); if(t2){ t2.value=t2.value.replace(/^@\S+\s/,""); draft=t2.value; t2.dispatchEvent(new Event("input")); } paintReply(); return; }
       });
       /* R2：modal focus —— 開啟時背景 inert（鍵盤進不去），關閉時只還原自己設的那些、焦點回到開啟前的元素 */
       var cmBgInert=[], cmLastFocus=null;
@@ -12745,7 +12835,7 @@ window.ALBUM_SWITCH = {
         if(sheetOpen){closeSheet();}
         sheetRun++; sheetKey=key(); sheetAlbum=albumId(); sheetTrack=track().n; draft="";
         cmLastFocus=document.activeElement;
-        sheetOpen=true; composing=false; unbound=false; boundT=(at!=null&&canComment())?at:null; hideOverlay(true);
+        sheetOpen=true; composing=false; unbound=false; replyTo=null; boundT=(at!=null&&canComment())?at:null; hideOverlay(true);
         bd.hidden=false; sh.hidden=false; renderSheet(focusId); document.body.classList.add("cm-open");
         cmLockBg(); var fx=boundT!=null?$("cm-ta"):sh.querySelector(".cm-x"); if(fx){ try{fx.focus({preventScroll:true});}catch(_){} }
         requestAnimationFrame(function(){bd.classList.add("in");sh.classList.add("in");});
@@ -12775,11 +12865,11 @@ window.ALBUM_SWITCH = {
         if(!canComment()){renderSheet();return;}
         var nick=fanNick();
         if(!nick){ var box=$("cm-nick"), inp=$("cm-nick-in"); box.classList.add("show"); var v=(inp.value||"").trim().slice(0,12); if(!v){inp.focus();return;} try{localStorage.setItem(NICK_KEY,v);}catch(_){} nick=v; }
-        var m=me(), job={key:sheetKey,album:sheetAlbum,track:sheetTrack,time:boundT,run:sheetRun};
+        var m=me(), job={key:sheetKey,album:sheetAlbum,track:sheetTrack,time:replyTo?null:boundT,run:sheetRun,reply:replyTo?replyTo.id:null,root:replyTo?replyTo.root:null};
         sending=true; draft=ta.value; ta.disabled=true; $("cm-nick-in").disabled=true; $("cm-send").disabled=true; $("cm-send").textContent=window.SKY_LANG==="en"?"Posting…":"發布中…";
         var ac=window.AbortController?new AbortController():null, timer;
         var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(ac)ac.abort();reject(new Error("timeout"));},15000);});
-        var request=Promise.resolve().then(function(){return m.card?gwPost("comments/post",{album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick},{signal:ac?ac.signal:undefined}):fetch(API+"/comments/post",{method:"POST",headers:{"Content-Type":"application/json"},signal:ac?ac.signal:undefined,body:JSON.stringify({email:m.email,code:m.code,album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick})});})
+        var request=Promise.resolve().then(function(){return m.card?gwPost("comments/post",{album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick,replyTo:job.reply},{signal:ac?ac.signal:undefined}):fetch(API+"/comments/post",{method:"POST",headers:{"Content-Type":"application/json"},signal:ac?ac.signal:undefined,body:JSON.stringify({email:m.email,code:m.code,album:job.album,track:job.track,body:text,timestampSeconds:job.time,userName:nick,replyTo:job.reply})});})
           .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});});
         function current(){return sheetOpen&&sheetRun===job.run&&key()===job.key;}
         function release(){sending=false;clearTimeout(timer);if(sheetOpen){var s=$("cm-send"),f=$("cm-ta"),n=$("cm-nick-in");if(f)f.disabled=false;if(n)n.disabled=false;if(s){s.textContent=window.SKY_LANG==="en"?"Post":"發布";s.disabled=!f||!f.value.trim();}}}
@@ -12788,13 +12878,13 @@ window.ALBUM_SWITCH = {
           if(x.j&&x.j.ok&&x.j.item){
             requestSeq[job.key]=(requestSeq[job.key]||0)+1;
             var saved=cache[job.key]||{items:[],count:0}, it=x.j.item;
-            if(!saved.items.some(function(v){return v.id===it.id;}))saved.items.push(it);
+            if(!saved.items.some(function(v){return v.id===it.id;})){ saved.items.push(it); if(it.parentId){ saved.items.forEach(function(v){ if(v.id===it.parentId)v.replyCount=(v.replyCount||0)+1; }); openRep[it.parentId]=true; } }
             saved.count=x.j.count==null?saved.items.length:x.j.count;
             saved.items.sort(function(a,b){return (Number(b.isPinned)-Number(a.isPinned))||(Number(b.isArtist)-Number(a.isArtist))||((a.timestampSeconds==null)-(b.timestampSeconds==null))||((a.timestampSeconds||0)-(b.timestampSeconds||0))||(a.createdAt-b.createdAt);});
             cache[job.key]=saved;lastFetch[job.key]=Date.now();
             if(key()===job.key){data={key:job.key,count:saved.count,items:saved.items};renderButton();renderMarkers();}
-            if(current()){draft="";var f=$("cm-ta");if(f)f.value="";composing=false;unbound=false;boundT=null;hap(12);renderSheet(it.id);toast(window.SKY_LANG==="en"?(job.time==null?"Posted":"Posted at "+fmt(job.time)):(job.time==null?"留言已送出":"已留在 "+fmt(job.time)));}
-          }else if(current()){var msg=x.s===429?"這首歌一小時內最多留 5 則，晚點再來":x.s===403?"留言功能暫時無法使用":x.s===401?"請重新輸入兌換碼後再留言":"送出失敗，請再試一次";showPostError(msg);}
+            if(current()){draft="";var f=$("cm-ta");if(f)f.value="";composing=false;unbound=false;boundT=null;replyTo=null;hap(12);renderSheet(it.id);toast(window.SKY_LANG==="en"?(job.time==null?"Posted":"Posted at "+fmt(job.time)):(job.time==null?"留言已送出":"已留在 "+fmt(job.time)));}
+          }else if(current()){if(x.j&&x.j.message==="reply_target_gone"){replyTo=null;paintReply();}var msg=x.j&&x.j.message==="reply_target_gone"?(window.SKY_LANG==="en"?"That comment was removed.":"這則留言已經不在了，改成一般留言。"):x.s===429?"這首歌一小時內最多留 5 則，晚點再來":x.s===403?"留言功能暫時無法使用":x.s===401?"請重新輸入兌換碼後再留言":"送出失敗，請再試一次";showPostError(msg);}
         }).catch(function(e){release();if(current())showPostError(e.message==="timeout"?"連線較慢，請先查看留言是否已發布，再決定是否重試。":"連線失敗，文字已保留，請稍後再試。");});
       }
       function showPostError(message){
@@ -13314,7 +13404,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B586T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B587T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
