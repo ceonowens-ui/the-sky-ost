@@ -12693,7 +12693,7 @@ window.ALBUM_SWITCH = {
           var prev=data.items.filter(function(i){return !i.isArtist;}).slice(0,3);
           /* R2：preview-first —— 既有公開留言摘錄在上（首則可讀、後續漸淡；不是權限保護），再小鎖＋原提示，最後原 CTA */
           html+='<div class="cm-lock">';
-          if(prev.length){ html+='<div class="cm-prev">'+prev.map(function(i){var ch=Array.from(i.body);return '<div class="cm-prow">'+av(i)+'<div><div class="cm-pt">'+(i.timestampSeconds!=null?fmt(i.timestampSeconds):'整首')+'<span class="cm-pn">'+esc(i.userName)+'</span></div><div class="cm-pb">'+esc(ch.slice(0,14).join(""))+(ch.length>14?'……':'')+'</div></div></div>';}).join("")+'</div>'; }
+          if(prev.length){ html+='<div class="cm-prev">'+prev.map(function(i){var ch=Array.from(i.body);return '<div class="cm-prow">'+av(i)+'<div><div class="cm-pt">'+(tagT(i.timestampSeconds)!=null?fmt(i.timestampSeconds):'整首')+'<span class="cm-pn">'+esc(i.userName)+'</span></div><div class="cm-pb">'+esc(ch.slice(0,14).join(""))+(ch.length>14?'……':'')+'</div></div></div>';}).join("")+'</div>'; }
           html+='<div class="cm-lock-note"><span class="cm-lock-ic">'+ico("lock")+'</span><div><h3>解鎖專輯後可留言</h3><p>'+(data.count?'看看大家在這首歌留下了什麼':'留言會出現在歌曲的時間軸上，讓成晞看見')+'</p></div></div>';
           html+='</div><button type="button" class="cm-cta" id="cm-cta">收藏專輯 · 解鎖留言 →</button>';
           sh.innerHTML=html; sh.classList.remove("compose"); sh.classList.add("locked");
