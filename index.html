@@ -13386,7 +13386,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B588</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B589</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -14144,6 +14144,27 @@ window.skyBanner = function (o) {
     }).catch(function () { var dot = document.getElementById("tune-dot"); if (dot) dot.style.background = "#e07a6a"; });
   }
   tick(); timer = setInterval(tick, 800);
+})();
+</script>
+<script>/* B589（CÉON 11/17）：留言更新後，跟每個人說一次「留言更新了」（iOS 通知樣式）。看過就不再出現；
+   有別的提示（開賣提醒、加到主畫面、cookie、付款回來）時先等它消失，這次等不到就下次打開再說。點一下直接打開留言。 */
+(function () {
+  var K = "sky:cmNew1"; try { if (localStorage.getItem(K)) return; } catch (e) { return; }
+  if (navigator.webdriver) return;
+  var EN = function () { return window.SKY_LANG === "en"; }, tries = 0;
+  function busy() { return document.querySelector(".skyA, #tk-nudge, #a2tip, #__ckBar, .a2m, .a2pg, #cm-sheet:not([hidden])") || document.body.classList.contains("cm-open"); }
+  function show() {
+    if (!window.skyBanner) return;
+    try { localStorage.setItem(K, "1"); } catch (e) {}
+    window.skyBanner({ id: "__cmNew", ms: 8000,
+      title: EN() ? "Comments got an update" : "留言更新了",
+      body: EN() ? "Bigger text, and now you can reply to each other. Tap to see." : "字變大了，也可以回覆別人的留言。點一下去看看",
+      onTap: function (api) { try { api.hide(); } catch (e) {}
+        var nb = document.querySelector('.navbtn[data-screen="player"]'); if (nb) nb.click();
+        setTimeout(function () { try { window.__cm && window.__cm.open(); } catch (e) {} }, 350); } });
+  }
+  function tryShow() { if (!busy()) { show(); return; } if (++tries < 40) setTimeout(tryShow, 1500); }
+  setTimeout(tryShow, 3500);
 })();
 </script>
 </body>
