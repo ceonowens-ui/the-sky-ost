@@ -94,7 +94,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     pollMs: 5000,
     base: (function () { try { var sc = document.currentScript && document.currentScript.src; return sc ? sc.replace(/[^\/]*$/, "") : ""; } catch (e) { return ""; } })(),   // tk-scan.js 跟 ticket-ui.js 放一起
     scanFile: "tk-scan.js?v=2",
-    terms: "演出日前 20 日前可申請退票，酌收票面金額 10% 手續費；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。",   // B352T：CÉON 10/30 採用的退票草稿（文化部規範適用性、截止日算法、例外情況待核實；只放隔離測試候選）   // TODO 退換票條款待 CÉON 定案
+    terms: "演出日前 10 日前可申請退票，酌收票面金額 10% 手續費；演出日前 10 日內不接受退換票，可在「我的票」轉讓給朋友；活動取消或其他不可歸責於消費者的情形，全額退款、不收手續費。",   // B590（CÉON 11/22 轉正）：退票期限 20 日 → 10 日（文化部方案一），10 日內不退、可轉讓   // B352T：CÉON 10/30 採用的退票草稿（文化部規範適用性、截止日算法、例外情況待核實；只放隔離測試候選）   // TODO 退換票條款待 CÉON 定案
   };
   var K = { sess: TKAPI === "test" ? "tk:session-test" : "tk:session", email: "tk:email" };
   var TMAIL = "";   // B354T 測試後台只寄「信箱名＋數字」的提示 → B402T（CÉON 11/03）：測試後台已開放所有 Email，不再提示
@@ -2513,8 +2513,9 @@ function coverClockKey() {
   function shLbl(ev) { return ev && (ev.tiers || []).length > 1 ? '全票種共享' : '所有入場者共享'; }
   function sharedHTML(ev) { var a = sharedItems(ev); return a.length ? '<div class="tkb-share"><b>' + shLbl(ev) + '</b><span>' + a.map(esc).join("・") + '</span></div>' : ""; }
   function sharedList(ev) { var a = sharedItems(ev); return a.length ? '<div class="pt">' + shLbl(ev) + '</div><ul>' + a.map(function (p) { return '<li><i>' + ic(perkIcon(p), "bi") + '</i>' + esc(p) + '</li>'; }).join("") + '</ul>' : ""; }
-  function refundBy(ev) { var d = ev && ev.startAt ? new Date(Date.parse(ev.startAt) - 20 * 864e5 + 8 * 3600e3) : null; return d && !isNaN(d) ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
-  function termsFor(ev) { var d = refundBy(ev); return d ? C.terms.replace("演出日前 20 日前", "演出日前 20 日（" + d + "）前") : C.terms; }
+  function refundBy(ev) { var d = ev && ev.startAt ? new Date(Date.parse(ev.startAt) - 10 * 864e5 + 8 * 3600e3) : null; return d && !isNaN(d) ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }
+  function refundFrom(ev) { var d = ev && ev.startAt ? new Date(Date.parse(ev.startAt) - 9 * 864e5 + 8 * 3600e3) : null; return d && !isNaN(d) ? (d.getUTCMonth() + 1) + "/" + d.getUTCDate() : ""; }   // B590：這天起不能退
+  function termsFor(ev) { var d = refundBy(ev); return d ? C.terms.replace("演出日前 10 日前", "演出日前 10 日（" + d + "）前") : C.terms; }
   function buyTermsSheet() {
     var ev = buyEvent((S.buy || {}).evId) || buyEv(); if (!ev) return;
     sheet('<div class="tkb-terms"><div class="tk-eyebrow">Terms</div><h3>購票須知</h3>' + termsBodyHTML(ev) + '</div><button class="tk-btn p" data-sact="close">知道了</button>');
@@ -2532,7 +2533,7 @@ function coverClockKey() {
       '<div class="pt">限購與入場</div><ul>' + li(esc(BUY_TEXT.limitNote) + '。') + li(multiT ? '購票時需填寫稱呼，僅用於本活動（報到與 VVIP 海報署名）。' : '購票時需填寫真實姓名，僅用於本活動（報到使用）。') + li('購票時需填寫手機號碼，僅用於本活動現場核對（姓名＋手機後 4 碼）。') + (multiT ? li('入場順序：VVIP → VIP → 一般，各批次依現場引導入場，' + (seatEv(ev) ? '依票面座位入座。' : '場內自由入座。')) : li(seatEv(ev) ? '依現場引導入場，依票面座位入座。' : '依現場引導入場，場內自由入座。')) + li('入場憑 App「我的票」或門票信裡的入場 QR，給工作人員掃描即完成入場。') + '</ul>' + entryTermsHTML(ev) +
       (multiT ? '<div class="pt">合照與照片</div><ul>' + li('VIP／VVIP：與 CHANCE 的合照由官方攝影師拍攝，自己的合格合照成片全數免費下載，無須另行加購；VVIP 的 60 秒一對一已含合照。') + li('合格成片＝經攝影團隊篩選、基本校色的高解析 JPEG，不含 RAW、失焦、閉眼、測試照或重複廢片；不代表延長互動時間或不限拍攝。') + li('全票種：全場大合照與主辦精選活動照免費下載。個人合照只提供給該票券持有人，不會放進共用相簿。') + li('生日牆合照（一般票加購 PhotoPass NT$390）：在現場為 CHANCE 布置的生日牆前與 CHANCE 合照一次，由官方攝影師拍攝，自己的合格成片全數下載；不加購不影響其他福利。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>' : '<div class="pt">合照與照片</div><ul>' + li('生日牆全體合照、全場大合照由官方攝影師拍攝，主辦精選活動照免費下載。') + li('照片上架時會寄 Email 通知。CHANCE App 是網頁 App，不用下載：任何手機瀏覽器打開 chance1228.com，用購票 Email 登入即可查看。') + '</ul>') +
       (multiT ? '<div class="pt">海報署名（VVIP）</div><ul>' + li('購票時填寫的稱呼，就是 CHANCE 在海報上署名使用的名字，請確認寫法。') + li('票券轉讓後，新持有人請於活動前來信 heartbeats0693@gmail.com 更新稱呼。') + '</ul>' : '') + mTermsHTML(ev) +
-      '<div class="pt">退換票</div><ul>' + li('演出日前 20 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票面金額 10%。') + li('活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。') + li('票券可在「我的票」用「轉讓給朋友」換人。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li(REFUND_TX) + li('信裡請註明購票 Email 與票號。') /* B565T */ + '</ul>' +
+      '<div class="pt">退換票</div><ul>' + li('演出日前 10 日' + (d ? '（' + d + '）' : '') + '前可申請退票，手續費為票面金額 10%。') + li('演出日前 10 日內' + (refundFrom(ev) ? '（' + refundFrom(ev) + ' 起）' : '') + '不接受退換票，但可以在「我的票」轉讓給朋友。') /* B590 */ + li('活動取消，或有其他不可歸責於消費者的情形，全額退款、不收手續費（具體適用條文以正式公告為準）。') + li('票券可在「我的票」用「轉讓給朋友」換人。') + li('非供自用、購票轉售圖利者，主辦單位得不予退換票。') + li(REFUND_TX) + li('信裡請註明購票 Email 與票號。') /* B565T */ + '</ul>' +
       '<div class="pt">主辦單位</div><ul>' + li('名稱：微風廣場實業股份有限公司') + li('統一編號：89477962') + li('代表人：黃瑞姸') + li('地址：臺北市松山區復興南路1段39號') + '</ul>' +   /* B469T（CÉON 11/09）：主辦是微風；B483T（CÉON 11/10）：「售票代辦」那段不放，只寫主辦單位（客服信箱在上面退票那條） */
       '<div class="nt">' + esc(BUY_TEXT.note) + '</div>';
   }
