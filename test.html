@@ -13404,7 +13404,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B590T</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">B591T</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -14218,6 +14218,23 @@ window.skyBanner = function (o) {
   }
   function tryShow() { if (!busy()) { show(); return; } if (++tries < 40) setTimeout(tryShow, 1500); }
   setTimeout(tryShow, 3500);
+})();
+</script>
+<style id="b591t-staywarn">.tk-layer .tk-staywarn{display:block;margin-top:10px;font-style:normal;font-size:16px;line-height:1.5;font-weight:700;color:#ff5a5f;-webkit-text-fill-color:#ff5a5f}</style>
+<script>/* B591T（CÉON 11/22 開賣後，只在 test.html）：粉絲切到別的 App 超過 2 分鐘，結帳頁不再續鎖、座位會被放掉 → 結帳頁座位說明下加紅字。
+   共用的 ticket-ui-shop-design-lock.js 正式站也在用，所以先寫在這裡；轉正時搬進 seatRowHTML（.tk-seathint 裡）並刪掉這段。 */
+(function () {
+  function add() {
+    var hs = document.querySelectorAll('.tk-layer[data-layer=checkout] small.tk-seathint');
+    for (var i = 0; i < hs.length; i++) {
+      var h = hs[i]; if (h.querySelector('.tk-staywarn')) continue;
+      var sp = h.querySelector('span'), en = sp && /^Held/.test(sp.textContent.trim());
+      var e = document.createElement('em'); e.className = 'tk-staywarn';
+      e.textContent = en ? 'Please don\u2019t leave this page. Stay here until payment is complete.' : '請勿離開此頁，請停留在這個畫面直到付款完成。';
+      h.appendChild(e);
+    }
+  }
+  var t = 0; new MutationObserver(function () { if (t) return; t = requestAnimationFrame(function () { t = 0; add(); }); }).observe(document.documentElement, { childList: true, subtree: true });
 })();
 </script>
 </body>
