@@ -1080,7 +1080,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
   function purchaseSlow(evId, kind) {
     if (kind !== "pp" && S.done && S.done.pending && S.done.evId === evId) { if (S.layers.indexOf("done") < 0) return; S.done.pending = "slow"; return openLayer("done"); }   // B359T（已經按返回離開就不再跳出來）
     var os = S.ost, btn = '<button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>';
-    if (os && os.paid && os.ticket === "failed" && os.late) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment received late</div><h3>' + lateTx() + '</h3><div class="tk-hint">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</div></div><button class="tk-btn g" data-sact="close">關閉</button>');   /* B363T */
+    if (os && os.paid && os.ticket === "failed" && os.late) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment received late</div><h3>' + lateTx() + '</h3><div class="tk-hint">' + (lastOrder() && lastOrder().seats ? '這筆付款會全額退款（不扣手續費），不會改派其他座位。還想參加的話，請重新選位購買。' : '這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。') + '</div></div><button class="tk-btn g" data-sact="close">關閉</button>');   /* B363T */
     if (os && os.paid && os.ticket === "failed") return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>付款已確認，票券還在處理</h3><div class="tk-hint">這筆付款已經確認，但出票延遲，主辦會盡快補發到「我的票」和你的信箱。請不要重新購買。</div></div>' + btn);   /* B357T：後台確認付款才這樣說 */
     if (os && os.paid) return sheet('<div class="tk-big"><div class="ic">⏳</div><div class="tk-eyebrow">Payment confirmed</div><h3>' + (kind === "pp" ? "付款已確認，PhotoPass 開通中" : "付款成功，票券準備中") + '</h3><div class="tk-hint">票券一進來就會出現在「我的票」。請按「重新確認」，不需要重新購買。</div></div>' + btn);
     sheet('<div class="tk-big"><div class="ic">⏳</div><h3>我們還在確認這筆付款。</h3><div class="tk-hint">如果你已經付款，請先不要重複購買，可稍後再查詢。</div><div class="tk-hint">也可以按「重新確認」查看最新狀態。</div></div><button class="tk-btn p" data-sact="repoll" data-ev="' + esc(evId) + '" data-kind="' + esc(kind) + '">重新確認</button><button class="tk-btn g" data-sact="close">關閉</button>');   /* B356T：沒確認付款前不說「付款已收到」、不說會寄信 */
@@ -3332,7 +3332,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   var ENTRY_SEAT = {
     short: ["對號入座，購票時選位", "票面會顯示你的座位，到場依座位入座。"],
     co: { title: "入場與座位", items: ["座位在購票時選定，票面和門票信都會顯示。", "活動當天憑入場 QR 入場，依票面座位入座。", "轉讓時座位跟著票走；退票後座位會重新開放。", "輪椅席不開放線上選位，請聯繫主辦。"] },
-    terms: { title: "入場與座位安排", items: ["本活動為對號入座，座位於購票時選定，並顯示於票面與門票信。", "從第一次點選座位起，請在 10 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。", "按「前往付款」後，請在 5 分鐘內完成付款；逾時未完成付款，座位會開放給其他人。", "逾時才完成付款且原座位已被購買時，系統自動改派最近的空位，並於票面與門票信註明；若已無空位，該筆不出票並全額退款。", "轉讓時座位隨票轉移；退票後座位重新開放。", "付款後不能更換座位。", "輪椅席不開放線上選位，請聯繫主辦。"] }
+    terms: { title: "入場與座位安排", items: ["本活動為對號入座，座位於購票時選定，並顯示於票面與門票信。", "從第一次點選座位起，請在 10 分鐘內按「前往付款」。按之前都能更換座位，更換不會重新計時；時間到座位自動放掉，不會扣款，可以重新選位。", "按「前往付款」後，請在 5 分鐘內完成付款；逾時未完成付款，座位會開放給其他人。", "逾時才完成付款且原座位已被購買時，該筆不出票、不改派其他座位，款項全額退還（不扣手續費）；如仍要購買，請重新選位。", "轉讓時座位隨票轉移；退票後座位重新開放。", "付款後不能更換座位。", "輪椅席不開放線上選位，請聯繫主辦。"] }
   };
   function entryOf(ev) { if (ev && ev.seatMap) return ENTRY_SEAT; return (ev && ENTRY_RULES[ev.id]) || null; }
   function entryStep1HTML(ev) {
@@ -4628,7 +4628,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   }
   /* B378T：名額保留倒數（3 分鐘，從建立訂單算起）。回來還沒付款時顯示「名額保留中 m:ss」，每秒更新；到 0 改成「保留已過期」 */
   var HOLD_MS = 3 * 60e3;   // 選位票的保留分鐘看訂單當下記的 hold（B441T）
-  function lateTx() { var l = lastOrder(); return l && l.seats ? "付款超過保留時間，已沒有空位可以改派" : "付款超過 3 分鐘，名額已讓給下一位"; }
+  function lateTx() { var l = lastOrder(); return l && l.seats ? "付款超過保留時間，原座位已被別人買走" : "付款超過 3 分鐘，名額已讓給下一位";   /* v2（CÉON 11/23）：不改派 */ }
   function holdHTML(startMs) {
     var id = "tk-hold-cd-" + Math.floor(Math.random() * 1e6);
     setTimeout(function tickCd() {
@@ -4774,7 +4774,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   /* B359T：付款回來、票還沒出現 → 成功頁先顯示確認中。後台（M3.3 /ticket/order）確認付款才寫「付款已確認」 */
   function doneWaitHTML(dn) {
     var os = S.ost && S.ost.eventId === dn.evId ? S.ost : null, paid = !!(os && os.paid), failed = paid && os.ticket === "failed", spin = dn.pending === "check";
-    if (failed && os.late) return '<div class="tkb"><div class="tk-bar tkb-bar"><button data-act="done-close" class="tk-back" aria-label="返回（SHOP）"><span class="chev">‹</span>返回</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div><div class="tkb-ok tkb-wait"><div class="ck">⏳</div><div class="tk-eyebrow" id="tk-paye">Payment received late</div><h2 id="tk-payh">' + lateTx() + '</h2><p id="tk-payn">這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。</p></div><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button></div>';   // B363T
+    if (failed && os.late) return '<div class="tkb"><div class="tk-bar tkb-bar"><button data-act="done-close" class="tk-back" aria-label="返回（SHOP）"><span class="chev">‹</span>返回</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div><div class="tkb-ok tkb-wait"><div class="ck">⏳</div><div class="tk-eyebrow" id="tk-paye">Payment received late</div><h2 id="tk-payh">' + lateTx() + '</h2><p id="tk-payn">' + (lastOrder() && lastOrder().seats ? '這筆付款會全額退款（不扣手續費），不會改派其他座位。還想參加的話，請重新選位購買。' : '這筆付款會全額退款，請不要重複購買。主辦會盡快用 email 聯絡你。') + '</p></div><button class="tkb-cta ghost wide" data-act="done-close">回到 SHOP</button></div>';   // B363T
     var h = '<div class="tk-bar tkb-bar"><button data-act="done-close" class="tk-back" aria-label="返回（SHOP）"><span class="chev">‹</span>返回</button><div class="c">確認付款</div><button class="r" disabled style="opacity:0"></button></div>';
     h += '<div class="tkb-ok tkb-wait">' + (spin ? '<div class="tk-spin"></div>' : '<div class="ck">⏳</div>') +
       '<div class="tk-eyebrow" id="tk-paye">' + (paid ? "Payment confirmed" : "Checking") + '</div>' +
