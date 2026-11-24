@@ -33,7 +33,7 @@
 .sk-leg i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.34)}\
 .sk-leg i.on{background:#ecc67f;border-color:#ecc67f}.sk-leg i.off{background:rgba(255,255,255,.1);border-color:transparent}.sk-leg i.x{border:1px dashed rgba(255,255,255,.3)}.sk-leg span[hidden]{display:none}\
 .sk-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.1);background:#0f0f10}\
-.sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6}\
+.sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6;text-align:center}\
 .sk-sel small{font-size:14px;color:#a59d8e}\
 .sk-remain{display:block;margin-top:2px;font-size:16px;font-weight:600;color:#ecc67f}\
 .sk-left{box-sizing:border-box;width:max-content;max-width:100%;margin:0 auto 6px;padding:3px 12px;border-radius:999px;background:rgba(236,198,127,.12);font-size:15px;font-weight:600;line-height:20px;color:#ecc67f;text-align:center;font-variant-numeric:tabular-nums}.sk-left[hidden]{display:none}.sk-left.warn{background:rgba(255,170,100,.18);color:#ffb070}\
