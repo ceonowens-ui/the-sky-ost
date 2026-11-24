@@ -272,7 +272,11 @@
     say(text);
   });
   input.addEventListener("input", function () { root.classList.toggle("typing", !!input.value.trim()); });
-  $(".lv-heart").addEventListener("click", tapHeart);
+  /* 愛心要能連按：手指一碰就算（click 在 iPhone 連點時會被當成雙擊吃掉） */
+  var hb = $(".lv-heart");
+  if (window.PointerEvent) hb.addEventListener("pointerdown", function (e) { if (e.button > 0) return; e.preventDefault(); tapHeart(); });
+  else hb.addEventListener("touchstart", function (e) { e.preventDefault(); tapHeart(); }, { passive: false });
+  hb.addEventListener("click", function (e) { e.preventDefault(); if (e.detail === 0) tapHeart(); });   /* 鍵盤（Enter／空白鍵）按愛心 */
   $(".lv-stk").addEventListener("click", function () { banner("lv-stk", T("貼圖快開放了", "Stickers are coming soon"), T("下一個版本就能送 CHANCE 專屬貼圖。", "You'll be able to send CHANCE stickers in the next version."), 2800); });
   $(".lv-x").addEventListener("click", function () { close(true); });
   stateBox.addEventListener("click", function (e) { if (e.target.closest("[data-lv=close]")) close(true); });
