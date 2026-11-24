@@ -15,7 +15,7 @@
 
   /* ---------- 樣式 ---------- */
   var css = [
-    "#lv{position:fixed;inset:0;z-index:99990;background:#000;color:#fff;display:none;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Noto Sans TC',sans-serif}",
+    "#lv{position:fixed;inset:0;z-index:100001;background:#000;color:#fff;display:none;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Noto Sans TC',sans-serif}",
     "#lv.on{display:block}",
     "#lv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}",
     "#lv .lv-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 48%,rgba(0,0,0,.7) 100%)}",
