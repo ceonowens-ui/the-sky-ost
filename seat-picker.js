@@ -33,8 +33,9 @@
 .sk-leg i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.34)}\
 .sk-leg i.on{background:#ecc67f;border-color:#ecc67f}.sk-leg i.off{background:rgba(255,255,255,.1);border-color:transparent}.sk-leg i.x{border:1px dashed rgba(255,255,255,.3)}.sk-leg span[hidden]{display:none}\
 .sk-foot{padding:8px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.1);background:#0f0f10}\
-.sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6}\
+.sk-sel{min-height:24px;margin-bottom:8px;font-size:15px;line-height:1.5;color:#f3efe6;text-align:center}\
 .sk-sel small{font-size:14px;color:#a59d8e}\
+.sk-remain{display:block;margin-top:2px;font-size:16px;font-weight:600;color:#ecc67f}\
 .sk-left{box-sizing:border-box;width:max-content;max-width:100%;margin:0 auto 6px;padding:3px 12px;border-radius:999px;background:rgba(236,198,127,.12);font-size:15px;font-weight:600;line-height:20px;color:#ecc67f;text-align:center;font-variant-numeric:tabular-nums}.sk-left[hidden]{display:none}.sk-left.warn{background:rgba(255,170,100,.18);color:#ffb070}\
 .sk-ok{width:100%;min-height:50px;border:0;border-radius:25px;background:#ecc67f;color:#1d1915;font:inherit;font-size:16px;font-weight:700;cursor:pointer}\
 .sk-ok:disabled{background:rgba(255,255,255,.12);color:rgba(255,255,255,.4);cursor:default}\
@@ -54,8 +55,8 @@
     var goneTx = function (ids) { var n = ids.map(name).join(o.en ? ", " : "、"), many = ids.length > 1; return o.en ? n + (many ? " were" : " was") + " just taken. Pick another seat you like." : n + (many ? " 這些位置" : " 這個位置") + "剛被選走了，再挑一個喜歡的位置吧。"; };
     if (!document.getElementById("sk-seat-css")) { var st = document.createElement("style"); st.id = "sk-seat-css"; st.textContent = CSS; document.head.appendChild(st); }
     var en = !!o.en, T = en
-      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", shut: "Not for sale", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
-      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", shut: "不開放", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
+      ? { title: "Choose seats", back: "Back", L: "Left", C: "Center", R: "Right", screen: "SCREEN", exit: "ENTRANCE", free: "Open", shut: "Not for sale", on: "Yours", off: "Taken", none: "Pick a seat you love. We’ll meet you there.", left: function (n) { return n + (n > 1 ? " seats" : " seat") + " left"; }, ok: "Confirm", seats: " seats", seat: " seat", max: "Up to " + o.max + " per order", wheel: "Wheelchair seats are not sold online. Please contact the organizer.", fail: "Could not load the seat map.", retry: "Try again", load: "Loading seats…" }
+      : { title: "選擇座位", back: "返回", L: "左側", C: "中間", R: "右側", screen: "銀幕", exit: "出入口", free: "可選", shut: "不開放", on: "已選", off: "已售出", none: "選一個喜歡的位置，我們在這裡見。", left: function (n) { return "剩 " + n + " 張"; }, ok: "確認", seats: " 個座位", seat: " 個座位", max: "一筆最多 " + o.max + " 張", wheel: "輪椅席不開放線上選位，請聯繫主辦", fail: "座位圖載入失敗", retry: "再試一次", load: "座位載入中…" };
     if (o.view) T.title = en ? "Seat map" : "座位圖";   /* S12（CÉON 11/15）：開賣前「只能看」的座位圖：不能選、不佔位、沒有確認鈕 */
     var own = (o.own || []).slice(), sel = (o.selected || []).slice(), busy = {}, shut = {}, map = null, timer = 0, msgT = 0, closed = false;
     var el = document.createElement("div");
@@ -73,9 +74,16 @@
     function foot() {
       if (o.view) { selEl.innerHTML = '<span class="sk-view">' + o.view + '</span>'; okEl.hidden = true; okEl.style.display = "none"; return; }
       var n = sel.length;
-      selEl.innerHTML = n ? sel.slice().sort(order).map(name).join(en ? ", " : "、") : "<small>" + T.none + "</small>";
+      var left = seatsLeft();   // B592（CÉON 11/24 轉正，測試 V2-6）：沒選位時，在提示下面寫還剩幾個位子（照座位圖現在的空位算，賣掉就跟著變）
+      selEl.innerHTML = n ? sel.slice().sort(order).map(name).join(en ? ", " : "、") : "<small>" + T.none + "</small>" + (left > 0 ? '<span class="sk-remain">' + T.left(left) + "</span>" : "");
       okEl.disabled = !n;
       okEl.innerHTML = n ? "<span>" + T.ok + " " + n + (n > 1 ? T.seats : T.seat) + "</span>" + (o.price ? "<small>NT$" + (o.price * n).toLocaleString("en-US") + "</small>" : "") : "<span>" + T.ok + "</span>";   // B449T：動作左、價格右，樣式在 ticket-b441.css
+    }
+    function seatsLeft() {   // B592：座位圖上還能選的位子（不算不開放、已售出、正在被別人選的）
+      if (!map || !map.rows) return 0;
+      var c = 0;
+      Object.keys(map.rows).forEach(function (r) { (map.rows[r] || []).forEach(function (s) { var k = r + "-" + s; if (!shut[k] && !busy[k] && own.indexOf(k) < 0) c++; }); });
+      return c;
     }
     function seatBtn(id, r, s) {
       var x = !!shut[id], off = x || !!busy[id] && sel.indexOf(id) < 0;   // B452T：前四排不開放，不顯示座位號
