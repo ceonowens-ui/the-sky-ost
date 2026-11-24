@@ -348,6 +348,8 @@
   function boot() {
     document.body.appendChild(root);
     pollInfo();
+    var lt = /(?:^#|&)livetest=(\d+)/.exec(location.hash);   /* 只給測試：#livetest=N（見 test-v2.html 的 skyLiveTestLogin） */
+    if (lt) { try { if (window.skyLiveTestLogin) window.skyLiveTestLogin(lt[1]); } catch (e) {} try { history.replaceState(history.state, "", location.pathname + location.search + "#live"); } catch (e) {} }
     if (/(^#|&)live\b/.test(location.hash)) open();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
