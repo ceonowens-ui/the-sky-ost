@@ -11380,8 +11380,8 @@ window.ALBUM_SWITCH = {
   function feedUnlockedQ() { return !!feedPassInfo().unlocked; }
   /* V2-7 直播（第 1 階段）：給 live-v2.js 用。誰可以看＝有 SIGNAL 的人，跟這裡的 feedPassInfo 同一套（錢包卡登入沒有碼，這一階段還不能看） */
   window.skyLiveWho = function () { var f = feedPassInfo(); return { ok: !!f.unlocked, email: String(f.email || "").trim().toLowerCase(), code: f.card ? "" : String(f.code || "").trim(), card: !!f.card }; };
-  /* 只給測試：網址 #livetest=1～20 → 用測試後台的壓測帳號 fanN@load.test 當 SIGNAL 會員（真的帳號、正式後台都不認）；這台已經有 SIGNAL 就不動 */
-  window.skyLiveTestLogin = function (n) { n = Math.floor(Number(n)); if (!(n >= 1 && n <= 20) || feedPassInfo().unlocked) return false; lsSet(LS.feedpass, { unlocked: true, email: "fan" + n + "@load.test", code: "LIVETEST", livetest: true }); return true; };
+  /* 只給測試：網址 #livetest=1～20 → 用測試後台的壓測帳號 fanN@load.test 當 SIGNAL 會員（真的帳號、正式後台都不認） */
+  window.skyLiveTestLogin = function (n) { n = Math.floor(Number(n)); if (!(n >= 1 && n <= 20)) return false; var old = lsGet(LS.feedpass, null); if (old && old.unlocked && !old.livetest) lsSet(LS.feedpass + "-before-livetest", old); lsSet(LS.feedpass, { unlocked: true, email: "fan" + n + "@load.test", code: "LIVETEST", livetest: true }); return true; };   /* 網址明確寫了 #livetest 才換；原本的登入另外備份（主畫面 App 會從 Safari 帶進舊的真實帳號，在測試後台不是會員） */
   window.skyLivePauseMusic = function () { try { if (!audio.paused) audio.pause(); } catch (e) {} };
   function vidsOwned() {
     var v = lsGet(LS.vids, {}) || {}, c = cardRec();
@@ -13593,7 +13593,7 @@ window.skyBanner = function (o) {
 })();
 </script>
 <script src="shop-content.js?v=3" defer></script>
-<script src="live-v2.js?v=L8" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
+<script src="live-v2.js?v=L9" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
 <script src="shop-content-t314.js?v=B314T" defer></script>
 <script>
 /* B459T（CÉON 11/08）：開賣前 3 天（11/12 00:00–11/15 12:00 台北時間）還沒登入購票的人，打開 App 上方出現一條提醒。
