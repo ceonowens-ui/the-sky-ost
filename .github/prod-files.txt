@@ -1,0 +1,30 @@
+# 正式站檔案清單（PR 動到這些就亮紅燈：1 正式站檔案）
+# 轉正時亮紅燈是正常的提醒；平常的測試站改動不應該碰到這些。
+# 一行一個檔名（從 repo 最上層算起）。# 開頭是註解。
+
+# 正式站頁面與網域
+index.html
+CNAME
+
+# 只有正式站在用
+ticket-ui-shop-design-lock.js
+shop-language.js
+
+# 正式站和測試站共用（改了正式站也會變）
+app-i18n-en.js
+b283-local.css
+b284-local.css
+b285-local.css
+content.json
+manifest-test.webmanifest
+own-collection-local.css
+shop-content-t314.js
+shop-content.js
+stats-track.js
+sw.js
+sw-test.js
+ticket-a-wallet-test.css
+
+# 正式票務後台、正式掃票機
+ticket-admin.html
+scan.html
