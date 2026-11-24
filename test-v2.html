@@ -11378,6 +11378,9 @@ window.ALBUM_SWITCH = {
     return f;
   }
   function feedUnlockedQ() { return !!feedPassInfo().unlocked; }
+  /* V2-7 直播（第 1 階段）：給 live-v2.js 用。誰可以看＝有 SIGNAL 的人，跟這裡的 feedPassInfo 同一套（錢包卡登入沒有碼，這一階段還不能看） */
+  window.skyLiveWho = function () { var f = feedPassInfo(); return { ok: !!f.unlocked, email: String(f.email || "").trim().toLowerCase(), code: f.card ? "" : String(f.code || "").trim(), card: !!f.card }; };
+  window.skyLivePauseMusic = function () { try { if (!audio.paused) audio.pause(); } catch (e) {} };
   function vidsOwned() {
     var v = lsGet(LS.vids, {}) || {}, c = cardRec();
     if (c) (c.ents.videos || []).forEach(function (pid) { if (!v[pid]) v[pid] = { card: true }; });   /* CARD1：只有旗標，沒有碼 */
@@ -13387,7 +13390,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-6（正式 B590 複本＋不改派＋結帳提醒＋剩幾張）</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-7（正式 B590 複本＋不改派＋結帳提醒＋剩幾張＋直播第1階段）</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13588,6 +13591,7 @@ window.skyBanner = function (o) {
 })();
 </script>
 <script src="shop-content.js?v=3" defer></script>
+<script src="live-v2.js?v=L1" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
 <script src="shop-content-t314.js?v=B314T" defer></script>
 <script>
 /* B459T（CÉON 11/08）：開賣前 3 天（11/12 00:00–11/15 12:00 台北時間）還沒登入購票的人，打開 App 上方出現一條提醒。
