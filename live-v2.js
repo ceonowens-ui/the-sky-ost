@@ -105,12 +105,16 @@
     var b = window.skyBanner({ id: id, title: title, body: body, ms: ms || 0 }); if (b && busy) b.set(title, body, true); return b;
   }
 
+  function lastWho() {   /* 只給測試站：被擋時用的是哪個測試帳號（真實帳號不顯示 email） */
+    var w = who(); if (!w) return "；沒有登入資料";
+    return "；" + (/@load\.test$/.test(w.email) ? w.email : (w.email ? "真實帳號" : "沒有 email")) + "，碼 " + String(w.code || "").length + " 字" + (w.card ? "，錢包卡" : "");
+  }
   function showState(kind, why) {
     root.classList.toggle("ready", kind === "ready");
     if (kind === "ready") { stateBox.classList.remove("on"); stateBox.innerHTML = ""; return; }
     var h = "";
     if (kind === "wait") h = '<div class="lv-spin"></div><p>' + T("連線中…", "Connecting…") + "</p>";
-    else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + "</p>" + (why && /test-v2/.test(location.pathname) ? '<p class="lv-why">（測試資訊：' + ({ nocred: "這支手機沒有讀到 SIGNAL 登入", server: "後台說不是會員", timeout: "連線太久沒回應" }[why] || why) + "）</p>" : "") + '<button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
+    else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + "</p>" + (why && /test-v2/.test(location.pathname) ? '<p class="lv-why">（測試資訊：' + ({ nocred: "這支手機沒有讀到 SIGNAL 登入", server: "後台說不是會員", timeout: "連線太久沒回應" }[why] || why) + lastWho() + "）</p>" : "") + '<button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "idle") h = "<h3>" + T("還沒開播", "Not live yet") + "</h3><p>" + T("開播的時候這裡就會亮起來。", "This lights up when Chance goes live.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "ended") h = "<h3>" + T("直播已結束", "The live has ended") + "</h3><p>" + T("謝謝你來。", "Thanks for being here.") + '</p><button type="button" data-lv="close">' + T("關閉", "Close") + "</button>";
     stateBox.innerHTML = h; stateBox.classList.add("on");
