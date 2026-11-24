@@ -35,7 +35,7 @@
     "#lv .lv-pin.on{display:flex}#lv .lv-pin img{width:56px;height:56px;border-radius:8px;object-fit:cover}",
     /* 留言：疊在左下，新的在最下面 */
     "#lv .lv-chat{position:absolute;left:12px;right:84px;bottom:calc(76px + env(safe-area-inset-bottom) + var(--lv-kb,0px));max-height:40vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%);pointer-events:none;transition:bottom .2s}",
-    "#lv .lv-m{align-self:flex-start;max-width:100%;padding:7px 11px;border-radius:14px;background:rgba(0,0,0,.34);font:500 16px/1.4 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.5);word-break:break-word;animation:lvIn .22s ease-out}",
+    "#lv .lv-m{align-self:flex-start;max-width:100%;padding:7px 11px;border-radius:14px;background:rgba(0,0,0,.46);font:500 16px/1.4 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.5);word-break:break-word;animation:lvIn .22s ease-out}",
     "#lv .lv-m b{font-weight:700;color:rgba(255,255,255,.72);margin-right:7px}",
     "#lv .lv-m.me b{color:#9FD3FF}",
     "#lv .lv-m.artist{background:rgba(120,90,30,.55);border:1px solid rgba(240,220,168,.7)}#lv .lv-m.artist b{color:#F0DCA8}",
