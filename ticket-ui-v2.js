@@ -3626,7 +3626,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (window.SkySeat) return cb();
     if (seatLoadQ) return void seatLoadQ.push(cb);
     seatLoadQ = [cb];
-    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker-v2.js?v=V2-6";   // V2-6（CÉON 11/24）：測試站用自己的選位複本（多一行「現在只剩 N 張」），正式站的 seat-picker.js 不動
+    var sc = document.createElement("script"); sc.src = (C.base || "") + "seat-picker-v2.js?v=V2-6b";   // V2-6（CÉON 11/24）：測試站用自己的選位複本（多一行「剩 N 張」），正式站的 seat-picker.js 不動
     sc.onload = function () { var q = seatLoadQ || []; seatLoadQ = null; q.forEach(function (f) { try { f(); } catch (e) {} }); };
     sc.onerror = function () { var q = seatLoadQ || []; seatLoadQ = null; if (sc.parentNode) sc.parentNode.removeChild(sc); if (q.length === 1 && quiet) return; S.seatOpening = false; coReveal(); msg("#tk-bmsg", "座位圖載入失敗，請再試一次"); }; document.head.appendChild(sc);
   }
