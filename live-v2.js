@@ -65,6 +65,10 @@
     "@keyframes lvSpin{to{transform:rotate(360deg)}}",
     "#lv .lv-sound{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);display:none;height:48px;padding:0 20px;border-radius:24px;border:0;background:rgba(0,0,0,.6);color:#fff;font:700 17px/1 -apple-system,'PingFang TC',sans-serif;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}",
     "#lv .lv-sound.on{display:block}",
+    /* 第 2 階段：直播室開著、但 Chance 還沒開始推畫面（或網路卡住）→ 中間顯示等待，畫面一來就自己播 */
+    "#lv .lv-offair{position:absolute;left:24px;right:24px;top:40%;transform:translateY(-50%);text-align:center;display:none;pointer-events:none}",
+    "#lv.ready .lv-offair.on{display:block}",
+    "#lv .lv-offair p{margin:0;font:600 18px/1.6 -apple-system,'PingFang TC',sans-serif;color:rgba(255,255,255,.88);text-shadow:0 1px 4px rgba(0,0,0,.6)}",
     "#lv:not(.ready) .lv-bar,#lv:not(.ready) .lv-chat,#lv:not(.ready) .lv-hearts,#lv:not(.ready) .lv-sound,#lv:not(.ready) .lv-pill,#lv:not(.ready) .lv-pin{display:none}",
     "#lv .lv-why{margin-top:-6px;font-size:15px;color:rgba(255,255,255,.6)}",
     /* SIGNAL 頁的入口 */
@@ -84,7 +88,7 @@
     '<button type="button" class="lv-x" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
     '<div class="lv-title"></div><div class="lv-pin" aria-live="polite"></div>' +
     '<div class="lv-chat" aria-live="polite"></div><div class="lv-hearts" aria-hidden="true"></div>' +
-    '<button type="button" class="lv-sound"></button>' +
+    '<button type="button" class="lv-sound"></button><div class="lv-offair"><div class="lv-spin"></div><p></p></div>' +
     '<div class="lv-state"></div>' +
     '<form class="lv-bar" autocomplete="off"><input class="lv-in" type="text" enterkeyhint="send" maxlength="80">' +
     '<button type="submit" class="lv-btn lv-send" aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>' +
@@ -140,19 +144,36 @@
   }
 
   /* ---------- 影像（iPhone 用內建 HLS；電腦瀏覽器才載入 hls.js） ---------- */
+  /* 影像：iPhone 用內建 HLS；電腦瀏覽器才載入 hls.js。
+     第 2 階段（Cloudflare Stream）：還沒開播時網址會失敗 → 顯示「等待畫面」，每 6 秒再試一次；畫面一出來就自動播。 */
+  var offT = null, offBox = $(".lv-offair");
+  function offAir(on) {
+    if (on) { offBox.querySelector("p").textContent = T("Chance 還沒開始，畫面一出來就會自動播放", "Chance hasn't started yet. It will play as soon as the video comes in."); offBox.classList.add("on"); }
+    else offBox.classList.remove("on");
+  }
+  function retryVideo() {
+    clearTimeout(offT);
+    if (!hlsUrl || !opened) return;
+    offAir(true);
+    offT = setTimeout(function () { var u = hlsUrl; if (!u || !opened) return; hlsUrl = ""; if (hls) { hls.destroy(); hls = null; } video.removeAttribute("src"); try { video.load(); } catch (e) {} playHls(u); }, 6000);
+  }
+  video.addEventListener("playing", function () { clearTimeout(offT); offAir(false); });
+  video.addEventListener("error", function () { if (hlsUrl) retryVideo(); });
+  video.addEventListener("ended", function () { if (hlsUrl) retryVideo(); });   /* 推流中斷（手機沒訊號、按了停止）→ 回到等待，重新推就接回來 */
   function playHls(url) {
     if (hlsUrl === url && !video.paused) return;
     hlsUrl = url;
-    var go = function () { var p = video.play(); if (p && p.catch) p.catch(function () { video.muted = true; video.play().catch(function () {}); soundBtn.textContent = T("🔇 點一下開聲音", "🔇 Tap for sound"); soundBtn.classList.add("on"); }); };
+    var go = function () { var p = video.play(); if (p && p.catch) p.catch(function (e) { if (e && e.name === "NotAllowedError") { video.muted = true; video.play().catch(function () {}); soundBtn.textContent = T("🔇 點一下開聲音", "🔇 Tap for sound"); soundBtn.classList.add("on"); } }); };
     if (video.canPlayType("application/vnd.apple.mpegurl")) { if (video.getAttribute("src") !== url) video.src = url; go(); return; }
     loadHlsJs(function (H) {
       if (!H || !H.isSupported()) { video.src = url; go(); return; }
       if (hls) hls.destroy();
       hls = new H({ lowLatencyMode: true, liveSyncDurationCount: 3 }); hls.loadSource(url); hls.attachMedia(video);
       hls.on(H.Events.MANIFEST_PARSED, go);
+      hls.on(H.Events.ERROR, function (ev, d) { if (d && d.fatal) retryVideo(); });
     });
   }
-  function stopVideo() { hlsUrl = ""; try { video.pause(); } catch (e) {} if (hls) { hls.destroy(); hls = null; } video.removeAttribute("src"); try { video.load(); } catch (e) {} }
+  function stopVideo() { hlsUrl = ""; clearTimeout(offT); offAir(false); try { video.pause(); } catch (e) {} if (hls) { hls.destroy(); hls = null; } video.removeAttribute("src"); try { video.load(); } catch (e) {} }
   var hlsJsP = null;
   function loadHlsJs(cb) {
     if (window.Hls) return cb(window.Hls);
