@@ -222,7 +222,8 @@
       paintRoom();
       return;
     }
-    if (m.t === "deny") { denied = true; stopVideo(); showState("signal", m.why === "timeout" ? "timeout" : "server"); return; }
+    if (m.t === "deny") { if (m.why === "timeout") return;   /* 打招呼太晚被後台關掉（手機剛開 App 很忙）：不是不給看，連線斷了會自動重連 */
+      denied = true; stopVideo(); showState("signal", "server"); return; }
     if (m.t === "v") { $(".lv-v").textContent = fmt(m.n); if (room && m.tot > (room.hearts || 0)) { room.hearts = m.tot; $(".lv-ht").textContent = fmt(m.tot); } return; }
     if (m.t === "h") {
       var others = Math.max(0, m.n - myHearts); myHearts = Math.max(0, myHearts - m.n);
