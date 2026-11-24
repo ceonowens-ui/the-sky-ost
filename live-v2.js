@@ -247,11 +247,12 @@
 
   /* ---------- 送出留言 ---------- */
   var pendingText = "";
-  function doneSending(ok) { sending = null; clearTimeout(doneSending.t); if (ok) { input.value = ""; root.classList.remove("typing"); } input.disabled = !!(me && me.banned) || !(room && room.status === "live"); }
+  /* 送出中不鎖輸入框（鎖了 iPhone 鍵盤會收起來）；只擋重複送出。成功才清掉，失敗留著讓他改 */
+  function doneSending(ok) { sending = null; clearTimeout(doneSending.t); if (ok) { input.value = ""; root.classList.remove("typing"); } }
   function say(text) {
     var k = "k" + Date.now().toString(36);
     if (!send({ t: "say", x: text, k: k })) { banner("lv-err", T("還沒連上，等一下再送", "Not connected yet"), "", 2400); return; }
-    sending = k; input.disabled = true;
+    sending = k;
     clearTimeout(doneSending.t); doneSending.t = setTimeout(function () { if (sending === k) doneSending(false); }, 8000);
   }
   /* 還沒取名字：第一次送出時，輸入框變成「取名字」，取好就把剛剛那句送出（名字規則跟歌曲留言一樣） */
