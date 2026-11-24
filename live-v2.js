@@ -65,9 +65,10 @@
     "@keyframes lvSpin{to{transform:rotate(360deg)}}",
     "#lv .lv-sound{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);display:none;height:48px;padding:0 20px;border-radius:24px;border:0;background:rgba(0,0,0,.6);color:#fff;font:700 17px/1 -apple-system,'PingFang TC',sans-serif;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}",
     "#lv .lv-sound.on{display:block}",
-    "#lv.ready .lv-wait{display:none}",
+    "#lv:not(.ready) .lv-bar,#lv:not(.ready) .lv-chat,#lv:not(.ready) .lv-hearts,#lv:not(.ready) .lv-sound,#lv:not(.ready) .lv-pill,#lv:not(.ready) .lv-pin{display:none}",
+    "#lv .lv-why{margin-top:-6px;font-size:15px;color:rgba(255,255,255,.6)}",
     /* SIGNAL 頁的入口 */
-    "#lv-entry{position:absolute;right:14px;top:calc(12px + env(safe-area-inset-top));z-index:13;display:none;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:18px;border:0;background:#E5322D;color:#fff;font:800 16px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:.5px;pointer-events:auto;box-shadow:0 4px 14px rgba(229,50,45,.35)}",
+    "#lv-entry{position:fixed;right:14px;top:calc(12px + env(safe-area-inset-top));z-index:9000;display:none;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:18px;border:0;background:#E5322D;color:#fff;font:800 16px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:.5px;pointer-events:auto;box-shadow:0 4px 14px rgba(229,50,45,.35)}",
     "#lv-entry.on{display:inline-flex}#lv-entry i{width:8px;height:8px;border-radius:50%;background:#fff;animation:lvBlink 1.4s infinite}",
     "@media (prefers-reduced-motion:reduce){#lv .lv-h{animation-duration:1.2s}#lv .lv-badge i,#lv-entry i{animation:none}}"
   ].join("\n");
@@ -104,12 +105,12 @@
     var b = window.skyBanner({ id: id, title: title, body: body, ms: ms || 0 }); if (b && busy) b.set(title, body, true); return b;
   }
 
-  function showState(kind) {
+  function showState(kind, why) {
     root.classList.toggle("ready", kind === "ready");
     if (kind === "ready") { stateBox.classList.remove("on"); stateBox.innerHTML = ""; return; }
     var h = "";
     if (kind === "wait") h = '<div class="lv-spin"></div><p>' + T("連線中…", "Connecting…") + "</p>";
-    else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
+    else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + "</p>" + (why && /test-v2/.test(location.pathname) ? '<p class="lv-why">（測試資訊：' + ({ nocred: "這支手機沒有讀到 SIGNAL 登入", server: "後台說不是會員", timeout: "連線太久沒回應" }[why] || why) + "）</p>" : "") + '<button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "idle") h = "<h3>" + T("還沒開播", "Not live yet") + "</h3><p>" + T("開播的時候這裡就會亮起來。", "This lights up when Chance goes live.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "ended") h = "<h3>" + T("直播已結束", "The live has ended") + "</h3><p>" + T("謝謝你來。", "Thanks for being here.") + '</p><button type="button" data-lv="close">' + T("關閉", "Close") + "</button>";
     stateBox.innerHTML = h; stateBox.classList.add("on");
@@ -195,7 +196,7 @@
     if (!opened || denied) return;
     if (ws && (ws.readyState === 0 || ws.readyState === 1)) return;
     var w = who();
-    if (!w || !w.ok || !w.email || !w.code) { denied = true; showState("signal"); return; }
+    if (!w || !w.ok || !w.email || !w.code) { denied = true; showState("signal", "nocred"); return; }
     var sock; try { sock = new WebSocket(WS_URL); } catch (e) { return retry(); }
     ws = sock; lastRx = Date.now();
     sock.onopen = function () { if (ws !== sock) return; sock.send(JSON.stringify({ t: "hello", e: w.email, c: w.code, n: nick() })); };
@@ -221,7 +222,7 @@
       paintRoom();
       return;
     }
-    if (m.t === "deny") { denied = true; stopVideo(); showState("signal"); return; }
+    if (m.t === "deny") { denied = true; stopVideo(); showState("signal", m.why === "timeout" ? "timeout" : "server"); return; }
     if (m.t === "v") { $(".lv-v").textContent = fmt(m.n); if (room && m.tot > (room.hearts || 0)) { room.hearts = m.tot; $(".lv-ht").textContent = fmt(m.tot); } return; }
     if (m.t === "h") {
       var others = Math.max(0, m.n - myHearts); myHearts = Math.max(0, myHearts - m.n);
@@ -292,7 +293,7 @@
   /* 開、關 */
   function open() {
     if (opened) return;
-    opened = true; denied = false; tries = 0; seen = {}; me = null; room = null; myHearts = 0;
+    opened = true; paintEntry(); denied = false; tries = 0; seen = {}; me = null; room = null; myHearts = 0;
     chat.innerHTML = ""; root.classList.add("on"); document.body.style.overflow = "hidden";
     showState("wait");
     try { if (window.skyLivePauseMusic) window.skyLivePauseMusic(); } catch (e) {}
@@ -315,7 +316,7 @@
     if (netBanner) { netBanner.hide(); netBanner = null; }
     stopVideo(); soundBtn.classList.remove("on");
     root.classList.remove("on", "typing"); input.value = ""; input.blur();
-    document.body.style.overflow = "";
+    document.body.style.overflow = ""; paintEntry();
     if (viaUi) try { window.SKY_BACK.done("live"); } catch (e) {}
     if (/(^#|&)live\b/.test(location.hash)) try { history.replaceState(history.state, "", location.pathname + location.search); } catch (e) {}
   }
@@ -335,22 +336,22 @@
     if (!w || !w.ok || !w.code) { banner("lv-lock", T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members"), T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看。", "Join the SIGNAL channel (or the full unlock plan) to watch."), 4200); return; }
     open();
   });
-  var infoT = null;
+  var infoT = null, isLive = false;
+  function onSignal() { var sm = document.getElementById("screen-mood"); return !!(sm && sm.classList.contains("active")); }
+  function paintEntry() { entry.classList.toggle("on", isLive && onSignal() && !opened); }
   function pollInfo() {
     clearTimeout(infoT);
-    var sm = document.getElementById("screen-mood");
-    var onSignal = sm && sm.classList.contains("active") && !document.hidden;
-    if (onSignal) {
-      var head = sm.querySelector(".feed-tabs"); if (head && entry.parentNode !== head) head.appendChild(entry);
-      fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
-        entry.classList.toggle("on", !!(d && d.ok && d.room && d.room.status === "live"));
-      }).catch(function () {});
-    }
-    infoT = setTimeout(pollInfo, onSignal ? 30000 : 3000);
+    var here = onSignal() && !document.hidden;
+    if (here) fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
+      isLive = !!(d && d.ok && d.room && d.room.status === "live"); paintEntry();
+    }).catch(function () {});
+    paintEntry();
+    infoT = setTimeout(pollInfo, here ? 30000 : 4000);
   }
-
   function boot() {
-    document.body.appendChild(root);
+    document.body.appendChild(root); document.body.appendChild(entry);
+    var sm = document.getElementById("screen-mood");   /* 換分頁時入口馬上跟著出現／消失 */
+    if (sm && window.MutationObserver) new MutationObserver(function () { paintEntry(); if (onSignal()) pollInfo(); }).observe(sm, { attributes: true, attributeFilter: ["class"] });
     pollInfo();
     var lt = /(?:^#|&)livetest=(\d+)/.exec(location.hash);   /* 只給測試：#livetest=N（見 test-v2.html 的 skyLiveTestLogin） */
     if (lt) { try { if (window.skyLiveTestLogin) window.skyLiveTestLogin(lt[1]); } catch (e) {} try { history.replaceState(history.state, "", location.pathname + location.search + "#live"); } catch (e) {} }
