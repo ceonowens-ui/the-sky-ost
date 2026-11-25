@@ -627,6 +627,8 @@
     }
   });
   window.skyLiveTab = { render: function () { renderTab(); pollInfo(); } };
+  /* 只給測試站：不用後台鑰匙也能看 LIVE 分頁不同狀態的樣子（只改這支手機的畫面） */
+  if (/test-v2/.test(location.pathname)) window.skyLiveTab.preview = function (room) { info = { ok: true, viewers: room.viewers || 0, room: room }; clearTimeout(infoT); renderTab(); return "ok"; };
   function boot() {
     document.body.appendChild(root); document.body.appendChild(entry);
     var sm = document.getElementById("screen-mood");   /* 換分頁時入口馬上跟著出現／消失 */
