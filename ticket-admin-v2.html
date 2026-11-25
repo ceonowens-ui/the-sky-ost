@@ -336,10 +336,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">直播</h3><button class="btn sm" onclick="lvInfo()">重新整理</button></div>
       <div id="lvStat" class="sub" style="margin:10px 0;font-size:17px;line-height:1.7">讀取中…</div>
       <div id="lvNow" class="sub" style="font-size:17px"></div>
+      <div id="lvGifts" class="sub" style="font-size:16px;margin-top:8px"></div>
       <h3 style="margin:18px 0 0">開搶（放到直播畫面上）</h3>
-      <div class="row"><span class="label">要賣什麼</span><select id="lv_kind" onchange="lvKind()"><option value="ticket">門票</option><option value="merch">生日周邊</option><option value="pack">官方卡包</option><option value="link">連結（新歌、預購頁）</option></select></div>
+      <div class="row"><span class="label">要賣什麼</span><select id="lv_kind" onchange="lvKind()"><option value="ticket">門票</option><option value="merch">生日周邊</option><option value="pack">官方卡包</option><option value="link">連結（新歌、預購頁）</option><option value="gift">送 SIGNAL 給朋友（免費）</option></select></div>
       <div class="row" id="lv_evRow"><span class="label">場次</span><select id="lv_ev" onchange="lvKind()"></select></div>
       <div class="row" id="lv_kRow"><span class="label">品項</span><select id="lv_k" onchange="lvFill()"></select></div>
+      <div class="row" id="lv_qtyRow"><span class="label">要送幾個（1～100）</span><input id="lv_qty" type="number" min="1" max="100" value="10" inputmode="numeric" /></div>
       <div class="row" id="lv_urlRow"><span class="label">連結網址（https 開頭）</span><input id="lv_url" type="url" placeholder="https://" /></div>
       <div class="row"><span class="label">卡片標題</span><input id="lv_title" maxlength="40" /></div>
       <div class="row"><span class="label">第二行（可空白，例如「直播限定」）</span><input id="lv_sub" maxlength="40" /></div>
@@ -488,13 +490,15 @@ async function lvInfo() {
   const r = j.room || {}, st = { live: "🔴 直播中", idle: "還沒開播（手機 Larix 按紅色圓鈕就會自動變成直播中）", ended: "直播已結束" }[r.status] || r.status;
   $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b><br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
   const p = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null;
-  $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.price ? "　原價 NT$" + p.price : "") + (p.livePrice ? "　<b style=\"color:#e6a3a3\">直播價 NT$" + p.livePrice + "</b>" : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
+  $("lvGifts").innerHTML = j.gifts ? (j.gifts.length ? "已送出：<br>" + j.gifts.map((g) => lvEsc(new Date(g.at).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "　" + g.from + " → " + g.to + "　" + g.code + (g.mailed ? "" : "（信沒寄出，請手動補寄）"))).join("<br>") : "還沒有人送出。") : "";
+  $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.kind === "gift" ? "　剩 " + p.giftLeft + " ／ " + p.giftTotal + " 個" : "") + (p.price ? "　原價 NT$" + p.price : "") + (p.livePrice ? "　<b style=\"color:#e6a3a3\">直播價 NT$" + p.livePrice + "</b>" : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
 }
 async function lvKind() {
   const kind = $("lv_kind").value, evSel = $("lv_ev");
   $("lv_evRow").style.display = kind === "ticket" || kind === "merch" ? "" : "none";
   $("lv_kRow").style.display = kind === "merch" || kind === "pack" ? "" : "none";
   $("lv_urlRow").style.display = kind === "link" ? "" : "none";
+  $("lv_qtyRow").style.display = kind === "gift" ? "" : "none";
   if (!evSel.options.length || evSel.dataset.n !== String(allEvents.length)) { evSel.innerHTML = allEvents.filter((e) => !/^meet-load-/.test(e.id)).map((e) => '<option value="' + lvEsc(e.id) + '">' + lvEsc(e.name || e.id) + "</option>").join(""); evSel.dataset.n = String(allEvents.length); const sv = localStorage.getItem("chance-admin-event"); if (sv && allEvents.some((e) => e.id === sv)) evSel.value = sv; }
   const kSel = $("lv_k"); kSel.innerHTML = ""; lvData = {};
   try {
@@ -505,17 +509,18 @@ async function lvKind() {
 }
 function lvFill() {
   const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), it = lvData[$("lv_k").value];
-  $("lv_title").value = kind === "ticket" ? ((ev && ev.name) || "門票") : kind === "link" ? ($("lv_title").value || "") : ((it && (it.name || it.short)) || "");
+  $("lv_title").value = kind === "ticket" ? ((ev && ev.name) || "門票") : kind === "link" ? ($("lv_title").value || "") : kind === "gift" ? "送 SIGNAL 私訊頻道給朋友" : ((it && (it.name || it.short)) || "");
 }
 async function lvPin() {
   const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), k = $("lv_k").value, it = lvData[k] || {};
   const pin = { kind, ev: kind === "ticket" || kind === "merch" ? $("lv_ev").value : "", k: kind === "merch" || kind === "pack" ? k : "", title: $("lv_title").value.trim(), sub: $("lv_sub").value.trim(), url: $("lv_url").value.trim(), mins: Number($("lv_mins").value) || 0,
-    price: kind === "ticket" ? (ev && ev.price) || 0 : it.price || 0, img: kind === "ticket" ? "" : (it.img || ""), livePrice: Number($("lv_lp").value) || 0 };
+    price: kind === "ticket" ? (ev && ev.price) || 0 : it.price || 0, img: kind === "ticket" || kind === "gift" ? "" : (it.img || ""), livePrice: Number($("lv_lp").value) || 0, qty: Number($("lv_qty").value) || 10 };
+  if (kind === "gift" && pin.livePrice) pin.livePrice = 0;
   if (pin.livePrice && (kind === "pack" || kind === "link")) { $("lvMsg").textContent = "官方卡包和連結不能設直播價（卡包是另一個正式收款後台）。"; return; }
   if (pin.livePrice && pin.price && pin.livePrice >= pin.price) { $("lvMsg").textContent = "直播價要比原價 NT$" + pin.price + " 低。"; return; }
   if (!pin.title) { $("lvMsg").textContent = "請填卡片標題。"; return; }
   if (kind === "link" && !/^https:\/\//.test(pin.url)) { $("lvMsg").textContent = "連結要用 https:// 開頭。"; return; }
-  if (!confirm("確定開搶「" + pin.title + "」？\n所有正在看直播的人畫面上會馬上跳出這張卡。")) return;
+  if (!confirm(kind === "gift" ? "確定送出 " + pin.qty + " 個 SIGNAL 私訊頻道？\n正在看直播的人可以填朋友的 email，每人送 1 個，送完為止；兌換碼會直接寄給朋友。" : "確定開搶「" + pin.title + "」？\n所有正在看直播的人畫面上會馬上跳出這張卡。")) return;
   $("lvMsg").textContent = "送出中…";
   let j; try { j = await api("/live/admin", { op: "pin", pin }); } catch (e) { $("lvMsg").textContent = e.message; return; }
   $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" : "沒有成功：" + ((j && (j.message || j.error)) || "");

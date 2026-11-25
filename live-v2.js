@@ -72,6 +72,16 @@
     "#lv.typing .lv-send{display:flex}#lv.typing .lv-heart,#lv.typing .lv-stk,#lv.typing .lv-bag{display:none}",
     "#lv .lv-heart:active svg{transform:scale(.86)}#lv .lv-heart svg{transition:transform .12s}",
     "#lv .lv-btn[disabled]{opacity:.45}",
+    /* V2-13（CÉON 11/25 選 A）：送 SIGNAL 給朋友。按「送朋友」→ 下面滑出填朋友 email 的小視窗 */
+    "#lv .lv-gs{position:absolute;left:0;right:0;bottom:0;z-index:3;background:#fff;color:#111;border-radius:20px 20px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(110%);transition:transform .28s cubic-bezier(.2,.9,.3,1);box-shadow:0 -10px 30px rgba(0,0,0,.3)}",
+    "#lv .lv-gs.on{transform:translateY(calc(var(--lv-kb,0px) * -1))}",
+    "#lv .lv-gs h3{margin:0 0 6px;font:800 19px/1.35 -apple-system,'PingFang TC',sans-serif}",
+    "#lv .lv-gs p{margin:0 0 14px;font:500 16px/1.55 -apple-system,'PingFang TC',sans-serif;color:#444}",
+    "#lv .lv-gs input{width:100%;box-sizing:border-box;height:50px;border-radius:12px;border:1.5px solid #ccc;padding:0 14px;font:500 17px/1 -apple-system,sans-serif;color:#111;background:#fff;-webkit-user-select:text;user-select:text}",
+    "#lv .lv-gs .lv-gb{display:flex;gap:10px;margin-top:14px}",
+    "#lv .lv-gs button{flex:1;height:50px;border-radius:25px;border:0;font:800 17px/1 -apple-system,'PingFang TC',sans-serif}",
+    "#lv .lv-gs .go{background:#FE2C55;color:#fff}#lv .lv-gs .no{background:#eee;color:#333;flex:0 0 34%}",
+    "#lv .lv-gs button[disabled]{opacity:.5}",
     /* 中間狀態：連線中、還沒開播、已結束、只給會員 */
     "#lv .lv-state{position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);text-align:center;display:none}",
     "#lv .lv-state.on{display:block}",
@@ -107,6 +117,7 @@
     '<div class="lv-low"><div class="lv-pin" aria-live="polite"></div><div class="lv-chat" aria-live="polite"></div></div><div class="lv-hearts" aria-hidden="true"></div>' +
     '<button type="button" class="lv-sound"></button><div class="lv-offair"><div class="lv-spin"></div><p></p></div>' +
     '<div class="lv-state"></div>' +
+    '<form class="lv-gs" autocomplete="off" novalidate><h3></h3><p></p><input type="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="120"><div class="lv-gb"><button type="button" class="no"></button><button type="submit" class="go"></button></div></form>' +
     '<form class="lv-bar" autocomplete="off"><button type="button" class="lv-btn lv-bag" aria-label="商品"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><em>1</em></button><input class="lv-in" type="text" enterkeyhint="send" maxlength="80">' +
     '<button type="submit" class="lv-btn lv-send">送出</button>' +
     '<button type="button" class="lv-btn lv-stk" aria-label="禮物、貼圖"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5-1.2C7 8 9.5 8 12 8zM12 8c1.5-3 5-3.5 5-1.2C17 8 14.5 8 12 8z"/></svg></button>' +
@@ -173,7 +184,7 @@
     offerPrice = p.livePrice || 0;
     if (p.id !== offerId) {   /* 新的開搶：跳出來＋iOS 通知樣式提示 */
       var first = !!offerId || (Date.now() - (p.at || 0) < 15000); offerId = p.id; stock = null;
-      if (first && opened) { try { if (navigator.vibrate) navigator.vibrate([10, 40, 10]); } catch (e) {} banner("lv-offer", p.kind === "link" ? T("Chance 分享了一個連結", "Chance shared a link") : T("開賣了！", "On sale now!"), p.title, 3200); }
+      if (first && opened) { try { if (navigator.vibrate) navigator.vibrate([10, 40, 10]); } catch (e) {} banner("lv-offer", p.kind === "link" ? T("Chance 分享了一個連結", "Chance shared a link") : p.kind === "gift" ? T("Chance 送禮了！", "Chance is giving gifts!") : T("開賣了！", "On sale now!"), p.title, 3200); }
       box.classList.remove("on"); void box.offsetWidth;
       loadStock();
     }
@@ -190,14 +201,16 @@
     } else if (price) { var pr = document.createElement("span"); pr.className = "lv-pp"; pr.textContent = nt(price); t.appendChild(pr); }
     var line = document.createElement("span"); line.className = "lv-pl";
     var left = stock ? stock.left : null, soldOut = !!(stock && stock.soldOut);
-    if (soldOut) line.textContent = T("已售完", "Sold out");
+    if (p.kind === "gift") { left = null; soldOut = !(p.giftLeft > 0); line.textContent = soldOut ? T("送完了", "All gone") : T("剩 " + p.giftLeft + " 個（共 " + p.giftTotal + " 個）", p.giftLeft + " of " + p.giftTotal + " left"); if (p.giftLeft > 0 && p.giftLeft <= 3) line.classList.add("hot"); }
+    if (p.kind === "gift") {}
+    else if (soldOut) line.textContent = T("已售完", "Sold out");
     else if (left != null && left < 9999) { line.textContent = (p.kind === "ticket" ? T("剩 ", "") + left + T(" 張", " left") : T("剩 ", "") + left + T(" 件", " left")); if (left <= 10) line.classList.add("hot"); }
     else if (p.sub) line.textContent = p.sub;
     if (p.endsAt) { var cd = document.createElement("span"); cd.className = "lv-pl hot"; t.appendChild(cd); var tick = function () { var ms = p.endsAt - Date.now(); if (ms <= 0) { paintOffer(); return; } var m = Math.floor(ms / 60000), sec = Math.floor(ms % 60000 / 1000); cd.textContent = T("限時 ", "Ends in ") + m + ":" + (sec < 10 ? "0" : "") + sec; }; tick(); cdT = setInterval(tick, 1000); }
     if (line.textContent) t.appendChild(line);
     box.appendChild(t);
     var go = document.createElement("button"); go.type = "button"; go.className = "lv-buy";
-    go.textContent = p.kind === "link" ? T("打開", "Open") : soldOut ? T("售完", "Sold out") : T("搶", "Buy");
+    go.textContent = p.kind === "link" ? T("打開", "Open") : p.kind === "gift" ? (soldOut ? T("送完了", "Gone") : T("送朋友", "Gift")) : soldOut ? T("售完", "Sold out") : T("搶", "Buy");
     go.disabled = soldOut; go.addEventListener("click", function () { buyNow(p); }); box.appendChild(go);
     var x = document.createElement("button"); x.type = "button"; x.className = "lv-px"; x.textContent = "×"; x.setAttribute("aria-label", T("收起", "Hide"));
     x.addEventListener("click", function () { offerHidden = p.id; paintOffer(); }); box.appendChild(x);
@@ -214,7 +227,7 @@
   function getJSON(u) { return fetch(u, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }); }
   function loadStock() {
     clearTimeout(stockT); stockT = null;
-    var p = pinNow(); if (!p || !opened || p.kind === "link") return;
+    var p = pinNow(); if (!p || !opened || p.kind === "link" || p.kind === "gift") return;
     var pid = p.id, q;
     if (p.kind === "ticket") q = getJSON(API + "/ticket/events").then(function (d) {
       var e = (d.events || []).filter(function (x) { return x.id === p.ev; })[0]; if (!e) return null;
@@ -235,7 +248,36 @@
       if (stock && s2 && stock.left != null && s2.left != null && s2.left < stock.left && stock.left < 9999) { var d = stock.left - s2.left; sysMsg(T("有人剛搶到 " + d + (p.kind === "ticket" ? " 張" : " 件"), "Someone just got " + d)); }   /* V2-12：剩下的數量變少 → 留言區跳一行 */
       stock = s2; paintOffer(); }, function () {}).then(function () { if (pid === offerId && opened) stockT = setTimeout(loadStock, 10000); });
   }
+  /* ---------- V2-13：送 SIGNAL 給朋友 ---------- */
+  var gs = $(".lv-gs"), gsIn = gs.querySelector("input"), gsGo = gs.querySelector(".go"), gsK = "";
+  function openGift(p) {
+    gs.querySelector("h3").textContent = p.title || T("送 SIGNAL 私訊頻道給朋友", "Gift SIGNAL to a friend");
+    gs.querySelector("p").textContent = T("填朋友的 email，系統會把 SIGNAL 兌換碼直接寄給他。每個人只能送 1 次，送完為止。", "Enter your friend's email. We'll send them a SIGNAL code. One gift per person, while they last.");
+    gsIn.placeholder = T("朋友的 email", "Friend's email"); gs.querySelector(".no").textContent = T("取消", "Cancel"); gsGo.textContent = T("送出", "Send"); gsGo.disabled = false;
+    gs.classList.add("on"); setTimeout(function () { try { gsIn.focus(); } catch (e) {} }, 300);
+  }
+  function closeGift() { gs.classList.remove("on"); gsIn.blur(); gsK = ""; }
+  gs.querySelector(".no").addEventListener("click", closeGift);
+  gs.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var to = (gsIn.value || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) { banner("lv-gift", T("email 好像不對", "Check the email"), T("請再確認一次朋友的 email。", "Please check your friend's email."), 2800); return; }
+    gsK = "g" + Date.now().toString(36);
+    if (!send({ t: "gift", to: to, k: gsK })) { banner("lv-gift", T("還沒連上", "Not connected"), T("等一下再送一次。", "Try again in a moment."), 2600); gsK = ""; return; }
+    gsGo.disabled = true; gsGo.textContent = T("送出中…", "Sending…");
+    setTimeout(function () { if (gsK) { gsK = ""; gsGo.disabled = false; gsGo.textContent = T("送出", "Send"); banner("lv-gift", T("沒有回應", "No response"), T("網路好像有點慢，等一下再試。", "The network seems slow. Try again."), 3000); } }, 12000);
+  });
+  function onGift(m) {
+    if (!gsK || m.k !== gsK) return; gsK = ""; gsGo.disabled = false; gsGo.textContent = T("送出", "Send");
+    if (m.ok) { closeGift(); gsIn.value = ""; try { if (navigator.vibrate) navigator.vibrate([10, 40, 10]); } catch (e) {} banner("lv-gift", T("送出了！", "Sent!"), m.mailed ? T("兌換碼已經寄到 " + m.to + "。", "The code was sent to " + m.to + ".") : T("兌換碼已經建立，但信寄不出去，我們會再補寄給 " + m.to + "。", "The code was made but the email failed. We'll resend it to " + m.to + "."), 4200); return; }
+    var why = { closed: T("送禮已經結束了", "The gift has ended"), email: T("email 好像不對", "Check the email"), self: T("要送給朋友喔", "Send it to a friend"), used: T("你已經送過了", "You've already sent one"), dup_to: T("這位朋友已經收到了", "Your friend already got one"), gone: T("送完了", "All gone"), fail: T("沒有送成功", "Couldn't send it") }[m.why] || T("沒有送成功", "Couldn't send it");
+    var sub = { self: T("這份是送給還沒有 SIGNAL 的朋友。", "This is for a friend who doesn't have SIGNAL yet."), used: T("每個人只能送 1 次。", "One gift per person."), gone: T("下次直播再來搶！", "Catch the next one!"), fail: T("等一下再試一次。", "Try again in a moment.") }[m.why] || "";
+    banner("lv-gift", why, sub, 3600);
+    if (m.why === "used" || m.why === "gone" || m.why === "closed") closeGift();
+  }
+
   function buyNow(p) {
+    if (p.kind === "gift") { if (p.giftLeft > 0) openGift(p); return; }
     if (p.kind === "link") { try { window.open(p.url, "_blank", "noopener"); } catch (e) { location.href = p.url; } return; }
     try { sessionStorage.removeItem("sky:liveoffer"); } catch (e) {}
     if (p.livePrice > 0 && !buyNow.claimed) {   /* V2-11：有直播價 → 先跟直播室拿直播價憑證（等最多 3 秒；拿不到就照原價進去買） */
@@ -384,6 +426,7 @@
     if (m.t === "me") { me = m.me; if (pendingText) { var t = pendingText; pendingText = ""; say(t); } return; }
     if (m.t === "room") { room = m.room; paintRoom(); return; }
     if (m.t === "claim") { if (claimCb) claimCb(m); return; }
+    if (m.t === "gift") { onGift(m); return; }
     if (m.t === "j") { if (m.n && Date.now() - (onMsg.joinAt || 0) > 1500) { onMsg.joinAt = Date.now(); sysMsg(m.n + T(" 進入直播間", " joined")); } return; }   /* V2-12：進入直播間（最多 1.5 秒一行，人多不洗版） */
     if (m.t === "err") {
       if (sending && m.k === sending) doneSending(false);
@@ -465,7 +508,7 @@
   }
   function close(viaUi) {
     if (!opened) return;
-    opened = false; clearTimeout(stockT); stockT = null; clearInterval(cdT); naming = false; pendingText = ""; input.maxLength = 80; clearInterval(pingT); clearTimeout(retryT); retryT = null; flushHearts();
+    opened = false; closeGift(); clearTimeout(stockT); stockT = null; clearInterval(cdT); naming = false; pendingText = ""; input.maxLength = 80; clearInterval(pingT); clearTimeout(retryT); retryT = null; flushHearts();
     if (ws) { var w = ws; ws = null; try { w.close(1000); } catch (e) {} }
     if (netBanner) { netBanner.hide(); netBanner = null; }
     stopVideo(); soundBtn.classList.remove("on");
