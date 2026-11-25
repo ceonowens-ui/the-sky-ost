@@ -119,7 +119,7 @@
     "#screen-live .lt-big{font-family:var(--font-serif-tc,'Noto Serif TC',serif);font-weight:600;font-size:23px;line-height:1.35}",
     "#screen-live .lt-sub{margin-top:4px;font:400 16px/1.45 'Noto Sans TC',sans-serif;color:#B9AD99}",
     "#screen-live .lt-cd{display:flex;justify-content:center;gap:10px;margin:14px 0 12px}",
-    "#screen-live .lt-u{min-width:64px;padding:6px 10px 8px;border-radius:12px;background:rgba(8,8,9,.45);text-align:center}",
+    "#screen-live .lt-u{min-width:66px;padding:6px 10px 8px;border-radius:12px;background:rgba(8,8,9,.62);border:1px solid rgba(255,255,255,.1);text-align:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}",
     "#screen-live .lt-u b{display:block;font-family:var(--font-label,'Bodoni Moda',serif);font-weight:500;font-size:40px;line-height:1.1;font-variant-numeric:tabular-nums}",
     "#screen-live .lt-u span{font:500 15px/1.2 'Noto Sans TC',sans-serif;color:#E8C878}",
     "#screen-live .lt-btns{display:flex;gap:10px;margin-top:14px}",
