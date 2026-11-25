@@ -344,8 +344,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <div class="row"><span class="label">卡片標題</span><input id="lv_title" maxlength="40" /></div>
       <div class="row"><span class="label">第二行（可空白，例如「直播限定」）</span><input id="lv_sub" maxlength="40" /></div>
       <div class="row"><span class="label">限時幾分鐘（0＝不限時，時間到卡片自己收起）</span><input id="lv_mins" type="number" min="0" max="180" value="0" inputmode="numeric" /></div>
+      <div class="row"><span class="label">直播價（可空白＝原價；只有門票、生日周邊能用，要比原價低）</span><input id="lv_lp" type="number" min="0" inputmode="numeric" placeholder="例如 750" /></div>
       <button class="btn primary" style="margin-top:14px" onclick="lvPin()">開搶</button>
       <button class="btn" onclick="lvUnpin()">收起商品卡</button>
+      <h3 style="margin:20px 0 0">直播中改價</h3>
+      <div class="sub" style="font-size:16px;margin-top:6px">粉絲喊「便宜一點」→ 這裡改，所有正在看的人畫面馬上變新價格。已經付款的人照他付的價格；直播結束或卡片收起，直播價就失效。</div>
+      <div class="row"><span class="label">新的直播價（NT$；填 0 ＝ 取消直播價、回原價）</span><input id="lv_np" type="number" min="0" inputmode="numeric" /></div>
+      <button class="btn primary" onclick="lvPrice()">改價</button>
       <div class="msg" id="lvMsg"></div>
     </div>
   </section>
@@ -483,7 +488,7 @@ async function lvInfo() {
   const r = j.room || {}, st = { live: "🔴 直播中", idle: "還沒開播（手機 Larix 按紅色圓鈕就會自動變成直播中）", ended: "直播已結束" }[r.status] || r.status;
   $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b><br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
   const p = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null;
-  $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.price ? "　NT$" + p.price : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
+  $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.price ? "　原價 NT$" + p.price : "") + (p.livePrice ? "　<b style=\"color:#e6a3a3\">直播價 NT$" + p.livePrice + "</b>" : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
 }
 async function lvKind() {
   const kind = $("lv_kind").value, evSel = $("lv_ev");
@@ -505,13 +510,23 @@ function lvFill() {
 async function lvPin() {
   const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), k = $("lv_k").value, it = lvData[k] || {};
   const pin = { kind, ev: kind === "ticket" || kind === "merch" ? $("lv_ev").value : "", k: kind === "merch" || kind === "pack" ? k : "", title: $("lv_title").value.trim(), sub: $("lv_sub").value.trim(), url: $("lv_url").value.trim(), mins: Number($("lv_mins").value) || 0,
-    price: kind === "ticket" ? (ev && ev.price) || 0 : it.price || 0, img: kind === "ticket" ? "" : (it.img || "") };
+    price: kind === "ticket" ? (ev && ev.price) || 0 : it.price || 0, img: kind === "ticket" ? "" : (it.img || ""), livePrice: Number($("lv_lp").value) || 0 };
+  if (pin.livePrice && (kind === "pack" || kind === "link")) { $("lvMsg").textContent = "官方卡包和連結不能設直播價（卡包是另一個正式收款後台）。"; return; }
+  if (pin.livePrice && pin.price && pin.livePrice >= pin.price) { $("lvMsg").textContent = "直播價要比原價 NT$" + pin.price + " 低。"; return; }
   if (!pin.title) { $("lvMsg").textContent = "請填卡片標題。"; return; }
   if (kind === "link" && !/^https:\/\//.test(pin.url)) { $("lvMsg").textContent = "連結要用 https:// 開頭。"; return; }
   if (!confirm("確定開搶「" + pin.title + "」？\n所有正在看直播的人畫面上會馬上跳出這張卡。")) return;
   $("lvMsg").textContent = "送出中…";
   let j; try { j = await api("/live/admin", { op: "pin", pin }); } catch (e) { $("lvMsg").textContent = e.message; return; }
   $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" : "沒有成功：" + ((j && (j.message || j.error)) || "");
+  lvInfo();
+}
+async function lvPrice() {
+  const np = Number($("lv_np").value);
+  if (!(np >= 0) || $("lv_np").value === "") { $("lvMsg").textContent = "請填新的直播價（0 ＝ 回原價）。"; return; }
+  if (!confirm(np ? "把直播價改成 NT$" + np + "？\n所有正在看的人畫面會馬上更新。" : "取消直播價、回到原價？")) return;
+  let j; try { j = await api("/live/admin", { op: "price", price: np }); } catch (e) { $("lvMsg").textContent = e.message; return; }
+  $("lvMsg").textContent = j && j.ok ? (np ? "✓ 直播價已改成 NT$" + np + "。" : "✓ 已回到原價。") : "沒有成功：" + ((j && (j.message || j.error)) || "");
   lvInfo();
 }
 async function lvUnpin() {

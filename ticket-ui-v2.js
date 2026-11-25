@@ -839,7 +839,7 @@ function lettersVisible() { return !!LETTERS_CFG.on || /[?&]letters=1(&|$)/.test
     }
     var back = (location.pathname || "/").replace(/^\//, "").slice(0, 40);   // 回到目前這頁（不帶個資）
     S.payBusy = att;   /* B563T */
-    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, pickToken: pp ? undefined : PICK_TOK, session: pp ? undefined : S.session || undefined, seats: pp ? undefined : b.seats, qty: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]), email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" , lang: sxEN() ? "en" : "", inv: pp ? undefined : (S.inv || invGetSaved()) }) })
+    fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: key, pickToken: pp ? undefined : PICK_TOK, session: pp ? undefined : S.session || undefined, seats: pp ? undefined : b.seats, qty: pp ? 1 : tQ(b, (ev.tiers || []).filter(function (t) { return t.key === b.tier; })[0]), email: email, back: back, name: (!pp && b.nick) ? b.nick : "", phone: (!pp && b.phone) ? b.phone : "" , lang: sxEN() ? "en" : "", inv: pp ? undefined : (S.inv || invGetSaved()), liveTok: pp ? undefined : liveTokFor("ticket", b.evId) }) })
       .then(function (r) { return r.text(); })
       .then(function (html) {
         flightEnd(); if (S.payAtt !== att) return;   /* B563T：之後又按了一次付款 → 交給新的那一次 */
@@ -3742,6 +3742,16 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     if (b && b.kind === "meet" && (ui || seatsOf(b).length) && !S.paying) seatPick(b.evId, []).catch(function () {});
   }
   function seatTag(t) { return t && t.seatId ? t.seatName || t.seatId : ""; }
+  /* V2-11（CÉON 11/25）：直播限定價。直播商品卡按「立刻搶」時，live-v2.js 把直播價憑證放在 sessionStorage「sky:liveoffer」（30 分鐘）。
+     這裡只做兩件事：結帳頁顯示「直播價」提示、建付款時把憑證帶給後台。實際收多少由後台（m88）再核對一次直播價還在不在，前端不算價錢。 */
+  function liveOffer(kind, evId, k) { try { var o = JSON.parse(sessionStorage.getItem("sky:liveoffer") || "null"); if (!o || !o.tok || o.exp < Date.now() || o.kind !== kind || o.ev !== evId || (kind === "merch" && k && o.k !== k)) return null; return o; } catch (e) { return null; } }
+  function liveTokFor(kind, evId, k) { var o = liveOffer(kind, evId, k); return o ? o.tok : undefined; }
+  function liveNoteHTML(kind, evId, k) {
+    var o = liveOffer(kind, evId, k); if (!o || !(o.base > o.live)) return "";
+    var en = sxEN();
+    return '<div class="tk-livenote" style="margin:0 0 12px;padding:11px 14px;border-radius:12px;background:rgba(214,182,111,.16);border:1px solid rgba(214,182,111,.55);color:#F0DCA8;font:600 16px/1.5 -apple-system,sans-serif">' +
+      (en ? "Live price: NT$" + o.live + " each (was NT$" + o.base + "). The discount is applied on the payment page. If the live price ends, the regular price applies; the payment page shows the final amount." : "直播價：每" + (kind === "ticket" ? "張" : "組") + " NT$" + o.live + "（原價 NT$" + o.base + "），付款頁會自動折扣。直播價結束就回原價，金額以付款頁為準。") + "</div>";
+  }
   function createOrder(evId, tier) { var d = S.coDraft || {}; S.buy = { evId: evId, kind: "meet", tier: tier, otpSent: false, nick: d.nick || "", phone: d.phone || "" }; return S.buy; }   // hook：之後改成向伺服器建單也只換這裡
   function coBlur() { try { var a = document.activeElement; if (a && a.blur && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) a.blur(); } catch (e) {} }   /* B563T：在姓名欄按鍵盤「完成」送出付款時，游標還留在欄位裡；從綠界回來結帳頁就不重畫，付款鈕一直轉。送出前先把游標收掉 */
   function startPayment() {                                                                                              // hook：付款一律走伺服器 /ecpay/create
@@ -3867,6 +3877,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += coFields();
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b);
     h += payEnNote();
+    h += liveNoteHTML("ticket", ev.id);   // V2-11 直播價提示
     h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (S.payGone ? (sxEN() ? "Time left to pay …" : "選位時間剩 …") : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb">' + h + '</div>';
   }
@@ -4056,6 +4067,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
     h += '<div class="tkb-total"><span>應付金額</span><b>' + coTotalTxt(ev, T, b) + '</b></div><p class="tkb-almost" data-co-one' + (coNoSeat(b) ? ' hidden' : '') + '>再一步，我們就約好了。</p>' + coTermsHTML(ev, T, b) + '</div>';
     h += '</div>';
     h += payEnNote();
+    h += liveNoteHTML("ticket", ev.id);   // V2-11 直播價提示
     h += '<div class="tkb-foot solo">' + (seatEv(ev) ? '<div class="tk-payline"><small class="tk-seatleft">' + (S.payGone ? (sxEN() ? "Time left to pay …" : "選位時間剩 …") : "") + '</small></div>' : '') + '<button class="tkb-cta wide' + coWaitCls(b) + '" data-act="co-pay">' + coPayHTML(ev, T, b) + '</button></div>';
     return '<div class="tkb' + (red ? ' co-noir' : '') + '">' + h + '</div>';
   }
@@ -4178,7 +4190,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
       '<ul class="cx9-note"><li>' + (pick ? (en ? "On " + esc(day) + ", show your ticket QR at the merch desk to pick up." : esc(day) + " 生日會當天，到周邊服務台出示票券 QR 領取。") /* B563T（CÉON 11/14）：領周邊只要出示票券 QR */ : "活動後以中華郵政 e 小包寄出，寄出會再寄信給你追蹤號碼。") + '</li>' +
         '<li>收件資料要修改，請來信 heartbeats0693@gmail.com。</li><li>' + REFUND_TX + '</li><li>' + esc(invHint((o.inv && o.inv.t) || "mail")) + '</li></ul>' + /* B565T */
       '<details class="cx9-acc"><summary>購買須知</summary><div class="cx9-acc-b"><p>' + esc(mTermsText(o.mode, v2)) + '</p><p>' + REFUND_TX + '</p></div></details>' + /* B565T */
-      payEnNote() + '<div class="cx9-foot"><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button></div></div>';
+      liveNoteHTML("merch", o.evId, r && r.code) + payEnNote() + '<div class="cx9-foot"><button type="button" class="cx9-cta' + pmCls(busy, o.busyAt, o.failAt) + '" data-mx="pay"' + (!r || busy ? " disabled" : "") + (busy ? ' aria-busy="true"' : '') + '>' + pmInner(busy, ctaTxt) + '</button></div></div>';
     return h;
   }
   function mSheet() { var el = layerEl("mxc"); if (!el || !S.mx) return; var sc = el.scrollTop, fa = fxSnap(el); el.innerHTML = mxHTML(); el.scrollTop = sc; fxAfter(el, fa); }
@@ -4299,7 +4311,7 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
         mRemember({ evId: o.evId, code: j.code, label: j.label, img: ((mInfo(o.evId) || {}).m || {}).items && (((mInfo(o.evId).m.items || {})[j.code] || {}).img) || "", mode: o.mode, email: email, at: Date.now(), qty: qn, amt: Number(j.amount || j.total) || (rsv ? rsv.price * qn + fee0 : 0) }); } catch (e) {}
       if (C.demo) { clearTimeout(payTimer); demoBuyMerch(email, o.evId, j.code, o.mode, ship, body.qty || 1); pmDone(mxPayBtn(), function () { o.busy = false; mAwait(); }); return; }   // B378T：示範也走同一條「落在訂單卡」的路
       var back2 = (location.pathname || "/").replace(/^\//, "").slice(0, 40);
-      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, session: S.session || undefined   /* B563T（後台 m73）：周邊建付款也帶登入 */, back: back2, name: "", lang: sxEN() ? "en" : "", inv: ivr.inv }) })
+      fetch(C.api + "/ecpay/create", { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ productKey: j.productKey, email: email, session: S.session || undefined   /* B563T（後台 m73）：周邊建付款也帶登入 */, back: back2, name: "", lang: sxEN() ? "en" : "", inv: ivr.inv, liveTok: liveTokFor("merch", o.evId, j.code) }) })
         .then(function (r) { return r.text(); })
         .then(function (html) {
           if (!currentAttempt()) return;
