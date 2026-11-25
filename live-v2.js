@@ -351,15 +351,23 @@
     if (hlsUrl === url && !video.paused) return;
     hlsUrl = url;
     var go = function () { var p = video.play(); if (p && p.catch) p.catch(function (e) { if (e && e.name === "NotAllowedError") { video.muted = true; video.play().catch(function () {}); soundBtn.textContent = T("🔇 點一下開聲音", "🔇 Tap for sound"); soundBtn.classList.add("on"); } }); };
-    if (video.canPlayType("application/vnd.apple.mpegurl")) { if (video.getAttribute("src") !== url) video.src = url; go(); return; }
+    /* 只有 iPhone／iPad／Mac Safari 用內建播放器（支援低延遲）；新版 Chrome 也說會播 HLS，但不支援低延遲、會慢 6 秒以上，所以改用 hls.js */
+    var ua = navigator.userAgent, appleNative = /iPhone|iPad|iPod/.test(ua) || (/Safari/.test(ua) && !/Chrome|Chromium|CriOS|Edg|Claude/.test(ua));
+    if (appleNative && video.canPlayType("application/vnd.apple.mpegurl")) { if (video.getAttribute("src") !== url) video.src = url; go(); return; }
     loadHlsJs(function (H) {
       if (!H || !H.isSupported()) { video.src = url; go(); return; }
       if (hls) hls.destroy();
-      hls = new H({ lowLatencyMode: true, liveSyncDurationCount: 3 }); hls.loadSource(url); hls.attachMedia(video);
+      hls = new H({ lowLatencyMode: true, maxLiveSyncPlaybackRate: 1.15, backBufferLength: 30 }); hls.loadSource(url); hls.attachMedia(video);
       hls.on(H.Events.MANIFEST_PARSED, go);
       hls.on(H.Events.ERROR, function (ev, d) { if (d && d.fatal) retryVideo(); });
     });
   }
+  /* 追上直播：網路卡一下、切到背景再回來，畫面會越落越後面 → 落後超過 4 秒就跳到最新（留 1.5 秒緩衝） */
+  setInterval(function () {
+    if (!hlsUrl || !opened || video.paused || !video.buffered.length) return;
+    var end = video.buffered.end(video.buffered.length - 1);
+    if (end - video.currentTime > 4) { try { video.currentTime = end - 1.5; } catch (e) {} }
+  }, 2000);
   function stopVideo() { hlsUrl = ""; clearTimeout(offT); offAir(false); try { video.pause(); } catch (e) {} if (hls) { hls.destroy(); hls = null; } video.removeAttribute("src"); try { video.load(); } catch (e) {} }
   var hlsJsP = null;
   function loadHlsJs(cb) {
