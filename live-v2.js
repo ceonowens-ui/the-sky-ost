@@ -43,7 +43,7 @@
     "@keyframes lvPop{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}",
     "#lv .lv-pin img{width:56px;height:56px;border-radius:9px;object-fit:cover;flex:none;background:#eee}",
     "#lv .lv-pt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}",
-    "#lv .lv-pt b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#lv .lv-pt b{font-size:16px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}",
     "#lv .lv-pt .lv-pp{font:800 16px/1.25 -apple-system,sans-serif;color:#FE2C55}",
     "#lv .lv-pt .lv-pl{font-size:15px;color:#555}#lv .lv-pt .lv-pl.hot{color:#FE2C55}",
     "#lv .lv-pt .lv-pp s{display:block;font-weight:500;color:#888;font-size:15px}#lv .lv-pt .lv-lp{display:inline-block;margin-right:5px;padding:1px 5px;border-radius:4px;background:#FE2C55;color:#fff;font-size:15px}",
