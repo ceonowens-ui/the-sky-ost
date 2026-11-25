@@ -164,7 +164,8 @@
     offT = setTimeout(function () { var u = hlsUrl; if (!u || !opened) return; hlsUrl = ""; if (hls) { hls.destroy(); hls = null; } video.removeAttribute("src"); try { video.load(); } catch (e) {} playHls(u); }, 6000);
   }
   video.addEventListener("playing", function () { clearTimeout(offT); offAir(false); });
-  video.addEventListener("error", function () { if (hlsUrl) retryVideo(); });
+  /* 只算「現在這個直播網址」的錯誤；按進直播那一下先解鎖播放（還沒有網址）留下的錯誤不算 */
+  video.addEventListener("error", function () { if (hlsUrl && !hls && (video.currentSrc || "") === hlsUrl) retryVideo(); });
   video.addEventListener("ended", function () { if (hlsUrl) retryVideo(); });   /* 推流中斷（手機沒訊號、按了停止）→ 回到等待，重新推就接回來 */
   function playHls(url) {
     if (hlsUrl === url && !video.paused) return;
