@@ -1,0 +1,56 @@
+name: PR 檢查
+
+# 每張要合併到 main 的 PR 自動跑三項檢查（只讀，不改檔案、不部署、不影響網站）：
+#   1 正式站檔案：動到正式站的檔案就紅燈（轉正時紅燈是正常的提醒）
+#   2 金鑰密碼：新加的程式裡有像金鑰、密碼的字串就紅燈
+#   3 測試頁能打開：測試頁或改到的頁面程式寫壞就紅燈
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  prod-files:
+    name: 1 正式站檔案
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 檢查有沒有動到正式站
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: node .github/scripts/pr-check.mjs prod "$BASE"
+
+  secrets:
+    name: 2 金鑰密碼
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 檢查有沒有像金鑰、密碼的字串
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: node .github/scripts/pr-check.mjs secrets "$BASE"
+
+  pages:
+    name: 3 測試頁能打開
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: 檢查頁面程式有沒有寫壞
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: node .github/scripts/pr-check.mjs pages "$BASE"
