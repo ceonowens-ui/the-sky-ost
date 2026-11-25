@@ -9310,6 +9310,7 @@ window.ALBUM_SWITCH = {
      - Service Worker 用 sw-test.js，scope 只到 ./test.html，不碰共用的 sw.js；它只做推播，不快取、不搶頁面。
      - 打開 App 時把主畫面圖示上的數字歸零。 */
   var PUSH_BASE = "https://the-sky-push.anthonywen0693.workers.dev";
+  var PUSH_V2 = /\/test-v2\.html$/i.test(location.pathname);   /* V2-16（CÉON 11/25「可以，做推播」）：新測試站也開推播。自己的 Service Worker（sw-test-v2.js）、自己的訂閱分組（src "v2"），跟 test.html 分開 */
   var PUSHK = NS + ":push";
   var P325 = { reg: null, key: null, busy: false, op: 0 };
   var PUSH_OP_MS = 20000, PUSH_REQ_MS = 10000;
@@ -9321,12 +9322,12 @@ window.ALBUM_SWITCH = {
       .then(function (j) { clearTimeout(tm); return j; }, function (e) { clearTimeout(tm); throw e; });
   }
   function pushLive(op) { if (op && op !== P325.op) throw new Error("stale"); }
-  function pushOk() { return T261 && !window.SKY_LOCAL_PREVIEW && ("serviceWorker" in navigator) && !!window.PushManager && !!window.Notification; }
+  function pushOk() { return (T261 || PUSH_V2) && !window.SKY_LOCAL_PREVIEW && ("serviceWorker" in navigator) && !!window.PushManager && !!window.Notification; }
   function pushPerm() { try { return Notification.permission; } catch (e) { return "default"; } }
   function pushU8(s) { s = String(s || "").replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
   function pushReg() {
     if (P325.reg) return Promise.resolve(P325.reg);
-    return navigator.serviceWorker.register("sw-test.js", { scope: "./test.html" }).then(function (reg) {
+    return navigator.serviceWorker.register(PUSH_V2 ? "sw-test-v2.js" : "sw-test.js", { scope: PUSH_V2 ? "./test-v2.html" : "./test.html" }).then(function (reg) {
       P325.reg = reg;
       if (reg.active) return reg;
       return new Promise(function (res) {
@@ -9343,7 +9344,7 @@ window.ALBUM_SWITCH = {
   function pushSave(sub, op) {
     pushLive(op);
     return pushFetchJSON(PUSH_BASE + "/subscribe", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sub: sub.toJSON(), src: "test", lang: window.SKY_LANG || "zh", unlocked: !!state.unlocked, standalone: !!A2.standalone }) })
+      body: JSON.stringify({ sub: sub.toJSON(), src: PUSH_V2 ? "v2" : "test", lang: window.SKY_LANG || "zh", unlocked: !!state.unlocked, standalone: !!A2.standalone }) })
       .then(function (j) { pushLive(op); if (!j || !j.ok) throw new Error("save"); lsSet(PUSHK, Object.assign(lsGet(PUSHK, {}) || {}, { on: 1, at: Date.now() })); return sub; });
   }
   function pushSubscribe(op) {
@@ -13397,7 +13398,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-15（正式 B590 複本＋不改派＋結帳提醒＋剩幾張＋直播＋LIVE 分頁＋先搶後付）</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-16（正式 B590 複本＋不改派＋結帳提醒＋剩幾張＋直播＋LIVE 分頁＋先搶後付＋直播推播）</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13598,7 +13599,7 @@ window.skyBanner = function (o) {
 })();
 </script>
 <script src="shop-content.js?v=3" defer></script>
-<script src="live-v2.js?v=L24" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
+<script src="live-v2.js?v=L25" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
 <script src="shop-content-t314.js?v=B314T" defer></script>
 <script>
 /* B459T（CÉON 11/08）：開賣前 3 天（11/12 00:00–11/15 12:00 台北時間）還沒登入購票的人，打開 App 上方出現一條提醒。

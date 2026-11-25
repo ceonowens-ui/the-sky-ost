@@ -338,6 +338,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <div id="lvNow" class="sub" style="font-size:17px"></div>
       <div id="lvGifts" class="sub" style="font-size:16px;margin-top:8px"></div>
       <div id="lvResv" class="sub" style="font-size:16px;line-height:1.8;margin-top:8px"></div>
+      <div id="lvPushLast" class="sub" style="font-size:16px;line-height:1.8;margin-top:8px"></div>
       <h3 style="margin:18px 0 0">下一場直播（App 的 LIVE 分頁會倒數）</h3>
       <div class="row"><span class="label">開播時間（台北）</span><input id="lv_nat" type="datetime-local" /></div>
       <div class="row"><span class="label">標題</span><input id="lv_nti" maxlength="30" placeholder="成晞 Chance 直播" /></div>
@@ -356,6 +357,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <div class="row"><span class="label">第二行（可空白，例如「直播限定」）</span><input id="lv_sub" maxlength="40" /></div>
       <div class="row"><span class="label">限時幾分鐘（0＝不限時，時間到卡片自己收起）</span><input id="lv_mins" type="number" min="0" max="180" value="0" inputmode="numeric" /></div>
       <div class="row"><span class="label">直播價（可空白＝原價；只有門票、生日周邊能用，要比原價低）</span><input id="lv_lp" type="number" min="0" inputmode="numeric" placeholder="例如 750" /></div>
+      <div class="row" id="lv_pushRow"><label style="display:flex;align-items:flex-start;gap:10px;font-size:17px;line-height:1.5"><input id="lv_push" type="checkbox" checked style="width:22px;height:22px;margin-top:3px;flex:none" /><span>同時發推播通知「開搶了：商品名」（3 分鐘內最多發一次；目前只發給測試站有開通知的人）</span></label></div>
       <button class="btn primary" style="margin-top:14px" onclick="lvPin()">開搶</button>
       <button class="btn" onclick="lvUnpin()">收起商品卡</button>
       <h3 style="margin:20px 0 0">直播中改價</h3>
@@ -499,12 +501,29 @@ async function lvInfo() {
   const r = j.room || {}, st = { live: "🔴 直播中", idle: "還沒開播（手機 Larix 按紅色圓鈕就會自動變成直播中）", ended: "直播已結束" }[r.status] || r.status;
   if (r.next && r.next.at && !$("lv_nat").value) { const d = new Date(r.next.at + 8 * 36e5); $("lv_nat").value = d.toISOString().slice(0, 16); $("lv_nti").value = r.next.title || ""; $("lv_nsu").value = r.next.sub || ""; }
   $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b>" + (r.next && r.next.at ? "<br>下一場：" + lvEsc(new Date(r.next.at).toLocaleString("zh-TW", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" })) : "") + "<br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
+  if (r.push) lvPushRelay(r.push);   /* V2-16：有通知等轉交（例如剛開播）→ 這一頁幫忙送 */
+  const pl = j.pushLast;
+  $("lvPushLast").textContent = pl ? "上一則推播（" + new Date(pl.at).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "）：" + pl.title + "　" + (pl.done ? "已送出 " + ((pl.sum && pl.sum.sent) || 0) + " 人" + (pl.sum && pl.sum.failed ? "（" + pl.sum.failed + " 人沒送到）" : "") : "送出中…") : "";
   const p = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null;
   $("lvGifts").innerHTML = j.gifts ? (j.gifts.length ? "已送出：<br>" + j.gifts.map((g) => lvEsc(new Date(g.at).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "　" + g.from + " → " + g.to + "　" + g.code + (g.mailed ? "" : "（信沒寄出，請手動補寄）"))).join("<br>") : "還沒有人送出。") : "";
   const rv = j.resv || [], rvN = (s2) => rv.filter((x) => x.state === s2).length, hm = (t) => new Date(t).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
   $("lvResv").innerHTML = rv.length ? "<b>搶到的名單</b>（保留中 " + rvN("open") + "・已付款 " + rvN("paid") + "・沒付已放回 " + rvN("gone") + "）" + (r.payBy ? "　付款期限：<b>" + hm(r.payBy) + "</b>" : r.status === "live" && rvN("open") ? "　直播結束後 30 分鐘內付款" : "") + "<br>" +
     rv.map((x) => lvEsc(hm(x.at) + "　" + x.name + "　" + (x.mail || "") + "　" + x.title + " NT$" + x.price + "　") + (x.state === "paid" ? "<b style=\"color:#9fd6a8\">已付款</b>" + lvEsc(x.no ? "（" + x.no + "）" : "") + (x.dup && x.dup.length ? "<b style=\"color:#e6a3a3\">　⚠ 同一份付了兩次，另一筆 " + lvEsc(x.dup.join("、")) + "，請決定退款或出貨</b>" : "") : x.state === "open" ? "<b style=\"color:#e8c878\">保留中</b>" + (x.mailed ? "（已寄提醒信）" : "") : "沒付，已放回")).join("<br>") : "";
   $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.kind === "gift" ? "　剩 " + p.giftLeft + " ／ " + p.giftTotal + " 個" : "") + (p.res ? "　先搶後付：剩 " + p.resLeft + " ／ " + p.resTotal + " 份" : "") + (p.price ? "　原價 NT$" + p.price : "") + (p.livePrice ? "　<b style=\"color:#e6a3a3\">直播價 NT$" + p.livePrice + "</b>" : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
+}
+/* V2-16：直播推播。直播間簽好的通知由這一頁（或粉絲的 App）轉交給推播後台；推播後台驗簽章才送 */
+const LV_PUSH = "https://the-sky-push.anthonywen0693.workers.dev", lvRelayed = {};
+async function lvPushRelay(pu) {
+  if (!pu || !pu.id || lvRelayed[pu.id]) return; lvRelayed[pu.id] = 1;
+  const pj = (u, b) => fetch(u, { method: "POST", cache: "no-store", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(b) }).then((r) => r.json());
+  try {
+    const c = await pj(API + "/live/pushclaim", { id: pu.id });
+    if (!c || !c.ok || !c.msg) return;
+    let last = null;
+    for (let n = 0; n < 80; n++) { last = await pj(LV_PUSH + "/live-notify", { msg: c.msg, sig: c.sig }); if (!last || !last.ok || last.done) break; }
+    if (last && last.ok && last.done) { await pj(API + "/live/pushdone", { id: pu.id, sum: { total: last.total || 0, sent: last.sent || 0, gone: last.gone || 0, failed: last.failed || 0 } }); lvInfo(); }
+    else setTimeout(() => { delete lvRelayed[pu.id]; }, 25000);
+  } catch (e) { setTimeout(() => { delete lvRelayed[pu.id]; }, 25000); }
 }
 async function lvKind() {
   const kind = $("lv_kind").value, evSel = $("lv_ev");
@@ -514,6 +533,7 @@ async function lvKind() {
   $("lv_qtyRow").style.display = kind === "gift" ? "" : "none";
   $("lv_resRow").style.display = kind === "merch" ? "" : "none";   /* V2-15：先搶、播完再付（只給周邊） */
   $("lv_rqRow").style.display = kind === "merch" && $("lv_res").checked ? "" : "none";
+  $("lv_pushRow").style.display = kind === "link" ? "none" : "";
   if (!evSel.options.length || evSel.dataset.n !== String(allEvents.length)) { evSel.innerHTML = allEvents.filter((e) => !/^meet-load-/.test(e.id)).map((e) => '<option value="' + lvEsc(e.id) + '">' + lvEsc(e.name || e.id) + "</option>").join(""); evSel.dataset.n = String(allEvents.length); const sv = localStorage.getItem("chance-admin-event"); if (sv && allEvents.some((e) => e.id === sv)) evSel.value = sv; }
   const kSel = $("lv_k"); kSel.innerHTML = ""; lvData = {};
   try {
@@ -539,8 +559,10 @@ async function lvPin() {
   if (kind === "link" && !/^https:\/\//.test(pin.url)) { $("lvMsg").textContent = "連結要用 https:// 開頭。"; return; }
   if (!confirm(kind === "gift" ? "確定送出 " + pin.qty + " 個 SIGNAL 私訊頻道？\n正在看直播的人可以填朋友的 email，每人送 1 個，送完為止；兌換碼會直接寄給朋友。" : res ? "確定開搶「" + pin.title + "」，開放 " + pin.qty + " 份？\n粉絲按「搶」先保留 1 份（每人 1 份），直播結束後 30 分鐘內付款，沒付自動放回去。" : "確定開搶「" + pin.title + "」？\n所有正在看直播的人畫面上會馬上跳出這張卡。")) return;
   $("lvMsg").textContent = "送出中…";
-  let j; try { j = await api("/live/admin", { op: "pin", pin }); } catch (e) { $("lvMsg").textContent = e.message; return; }
-  $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" : "沒有成功：" + ((j && (j.message || j.error)) || "");
+  const wantPush = kind !== "link" && $("lv_push").checked;
+  let j; try { j = await api("/live/admin", { op: "pin", pin, push: wantPush }); } catch (e) { $("lvMsg").textContent = e.message; return; }
+  $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" + (wantPush ? (j.pushTry && j.pushTry.ok ? "推播發送中…" : "（推播 3 分鐘內發過了，這次沒發" + (j.pushTry && j.pushTry.wait ? "，再等 " + j.pushTry.wait + " 秒" : "") + "）") : "") : "沒有成功：" + ((j && (j.message || j.error)) || "");
+  if (j && j.ok && j.room && j.room.push) lvPushRelay(j.room.push);
   lvInfo();
 }
 async function lvNext(clear) {

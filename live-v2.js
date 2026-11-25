@@ -260,6 +260,30 @@
       if (onDone) onDone(ch);
     }).catch(function () { if (onDone) onDone(false); });
   }
+  /* ---------- V2-16（CÉON 11/25）：直播推播（開播、開搶） ----------
+     直播間簽好一則通知後，第一個看到的 App（或票務後台）幫忙把它轉交給推播後台；推播後台驗簽章才送，內容改不了。
+     同一則只會交給一個人轉送（後台 20 秒內只給一個人領），送完回報。 */
+  var PUSH_BASE = "https://the-sky-push.anthonywen0693.workers.dev", relayed = {};
+  function postJSON(u, b) { return fetch(u, { method: "POST", cache: "no-store", credentials: "omit", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(b) }).then(function (r) { return r.json(); }); }
+  function pushRelay(pu) {
+    if (!pu || !pu.id || relayed[pu.id]) return; relayed[pu.id] = 1;
+    var again = function () { setTimeout(function () { delete relayed[pu.id]; }, 25000); };   /* 沒送完 → 25 秒後可以再試（那時後台才會再放出來） */
+    setTimeout(function () {
+      postJSON(API + "/live/pushclaim?room=" + ROOM, { id: pu.id }).then(function (c) {
+        if (!c || !c.ok || !c.msg) return;
+        var n = 0, last = null, step = function () { return postJSON(PUSH_BASE + "/live-notify", { msg: c.msg, sig: c.sig }).then(function (r) { last = r; if (r && r.ok && !r.done && ++n < 80) return step(); }); };
+        return step().then(function () {
+          if (last && last.ok && last.done) return postJSON(API + "/live/pushdone?room=" + ROOM, { id: pu.id, sum: { total: last.total || 0, sent: last.sent || 0, gone: last.gone || 0, failed: last.failed || 0 } });
+          again();
+        });
+      }).catch(again);
+    }, Math.random() * 2500);
+  }
+  /* 點推播通知、App 本來就開著 → Service Worker 叫頁面打開直播（會員直接進直播，其他人到 LIVE 分頁） */
+  try { if (navigator.serviceWorker) navigator.serviceWorker.addEventListener("message", function (e) {
+    if (!e.data || e.data.sky !== "open-live") return;
+    var w = who(); if (w && w.ok && w.code) { if (!opened) open(); } else if (window.skyGo) window.skyGo("live");
+  }); } catch (e) {}
   function pinNow() { var p = room && room.pin; if (!p || (p.endsAt && p.endsAt < Date.now())) return null; return p; }
   function paintOffer() {
     var box = $(".lv-pin"), p = pinNow(); paintBag();
@@ -541,7 +565,7 @@
     }
     if (m.t === "m") { addMsg(m.m, !!m.mine); if (m.mine && sending === m.k) doneSending(true); return; }
     if (m.t === "me") { me = m.me; if (pendingText) { var t = pendingText; pendingText = ""; say(t); } return; }
-    if (m.t === "room") { room = m.room; paintRoom(); return; }
+    if (m.t === "room") { room = m.room; paintRoom(); if (room && room.push) pushRelay(room.push); return; }
     if (m.t === "claim") { if (claimCb) claimCb(m); return; }
     if (m.t === "gift") { onGift(m); return; }
     if (m.t === "res") { onRes(m); return; }
@@ -668,6 +692,7 @@
     if (!document.hidden) fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.ok || !d.room) return;
       var was = isLive; info = d; isLive = d.room.status === "live"; paintEntry();
+      if (d.room.push) pushRelay(d.room.push);   /* V2-16 */
       if (was && !isLive && !opened && !endSeen && resAll().length && window.skyBanner) window.skyBanner({ id: "lv-res", title: T("直播結束了，你搶到的還沒付款", "The live ended. You still need to pay"), body: T("30 分鐘內付款，點這裡去付。", "Pay within 30 minutes. Tap here."), ms: 9000, onTap: function (api) { api.hide(); if (window.skyGo) window.skyGo("live"); } });   /* V2-15 */
       /* 有按「開播時提醒我」→ 開播的那一刻（App 開著時）跳 iOS 樣式通知，點了直接進直播 */
       if (isLive && !was && remindGet() && remindGet() !== String(d.room.startedAt || "")) {
