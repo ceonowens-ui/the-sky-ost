@@ -201,7 +201,7 @@
     } else if (price) { var pr = document.createElement("span"); pr.className = "lv-pp"; pr.textContent = nt(price); t.appendChild(pr); }
     var line = document.createElement("span"); line.className = "lv-pl";
     var left = stock ? stock.left : null, soldOut = !!(stock && stock.soldOut);
-    if (p.kind === "gift") { left = null; soldOut = !(p.giftLeft > 0); line.textContent = soldOut ? T("送完了", "All gone") : T("剩 " + p.giftLeft + " 個（共 " + p.giftTotal + " 個）", p.giftLeft + " of " + p.giftTotal + " left"); if (p.giftLeft > 0 && p.giftLeft <= 3) line.classList.add("hot"); }
+    if (p.kind === "gift") { left = null; soldOut = !(p.giftLeft > 0); line.textContent = soldOut ? T("送完了", "All gone") : T("剩 " + p.giftLeft + "／" + p.giftTotal + " 個", p.giftLeft + " of " + p.giftTotal + " left"); if (p.giftLeft > 0 && p.giftLeft <= 3) line.classList.add("hot"); }
     if (p.kind === "gift") {}
     else if (soldOut) line.textContent = T("已售完", "Sold out");
     else if (left != null && left < 9999) { line.textContent = (p.kind === "ticket" ? T("剩 ", "") + left + T(" 張", " left") : T("剩 ", "") + left + T(" 件", " left")); if (left <= 10) line.classList.add("hot"); }

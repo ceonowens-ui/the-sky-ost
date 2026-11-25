@@ -509,7 +509,7 @@ async function lvKind() {
 }
 function lvFill() {
   const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), it = lvData[$("lv_k").value];
-  $("lv_title").value = kind === "ticket" ? ((ev && ev.name) || "門票") : kind === "link" ? ($("lv_title").value || "") : kind === "gift" ? "送 SIGNAL 私訊頻道給朋友" : ((it && (it.name || it.short)) || "");
+  $("lv_title").value = kind === "ticket" ? ((ev && ev.name) || "門票") : kind === "link" ? ($("lv_title").value || "") : kind === "gift" ? "送 SIGNAL 給朋友" : ((it && (it.name || it.short)) || "");
 }
 async function lvPin() {
   const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), k = $("lv_k").value, it = lvData[k] || {};
