@@ -337,6 +337,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
       <div id="lvStat" class="sub" style="margin:10px 0;font-size:17px;line-height:1.7">讀取中…</div>
       <div id="lvNow" class="sub" style="font-size:17px"></div>
       <div id="lvGifts" class="sub" style="font-size:16px;margin-top:8px"></div>
+      <h3 style="margin:18px 0 0">下一場直播（App 的 LIVE 分頁會倒數）</h3>
+      <div class="row"><span class="label">開播時間（台北）</span><input id="lv_nat" type="datetime-local" /></div>
+      <div class="row"><span class="label">標題</span><input id="lv_nti" maxlength="30" placeholder="成晞 Chance 直播" /></div>
+      <div class="row"><span class="label">一句介紹（可空白）</span><input id="lv_nsu" maxlength="40" placeholder="聊新歌、抽簽名照，還有直播限定價" /></div>
+      <button class="btn primary" style="margin-top:12px" onclick="lvNext(false)">儲存下一場</button>
+      <button class="btn" onclick="lvNext(true)">清掉下一場</button>
       <h3 style="margin:18px 0 0">開搶（放到直播畫面上）</h3>
       <div class="row"><span class="label">要賣什麼</span><select id="lv_kind" onchange="lvKind()"><option value="ticket">門票</option><option value="merch">生日周邊</option><option value="pack">官方卡包</option><option value="link">連結（新歌、預購頁）</option><option value="gift">送 SIGNAL 給朋友（免費）</option></select></div>
       <div class="row" id="lv_evRow"><span class="label">場次</span><select id="lv_ev" onchange="lvKind()"></select></div>
@@ -488,7 +494,8 @@ async function lvInfo() {
   let j; try { j = await api("/live/admin", { op: "info" }); } catch (e) { $("lvStat").textContent = e.message; return; }
   if (!j || !j.ok) { $("lvStat").textContent = (j && j.message) || "讀不到直播資料"; return; }
   const r = j.room || {}, st = { live: "🔴 直播中", idle: "還沒開播（手機 Larix 按紅色圓鈕就會自動變成直播中）", ended: "直播已結束" }[r.status] || r.status;
-  $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b><br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
+  if (r.next && r.next.at && !$("lv_nat").value) { const d = new Date(r.next.at + 8 * 36e5); $("lv_nat").value = d.toISOString().slice(0, 16); $("lv_nti").value = r.next.title || ""; $("lv_nsu").value = r.next.sub || ""; }
+  $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b>" + (r.next && r.next.at ? "<br>下一場：" + lvEsc(new Date(r.next.at).toLocaleString("zh-TW", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" })) : "") + "<br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
   const p = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null;
   $("lvGifts").innerHTML = j.gifts ? (j.gifts.length ? "已送出：<br>" + j.gifts.map((g) => lvEsc(new Date(g.at).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "　" + g.from + " → " + g.to + "　" + g.code + (g.mailed ? "" : "（信沒寄出，請手動補寄）"))).join("<br>") : "還沒有人送出。") : "";
   $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.kind === "gift" ? "　剩 " + p.giftLeft + " ／ " + p.giftTotal + " 個" : "") + (p.price ? "　原價 NT$" + p.price : "") + (p.livePrice ? "　<b style=\"color:#e6a3a3\">直播價 NT$" + p.livePrice + "</b>" : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
@@ -524,6 +531,14 @@ async function lvPin() {
   $("lvMsg").textContent = "送出中…";
   let j; try { j = await api("/live/admin", { op: "pin", pin }); } catch (e) { $("lvMsg").textContent = e.message; return; }
   $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" : "沒有成功：" + ((j && (j.message || j.error)) || "");
+  lvInfo();
+}
+async function lvNext(clear) {
+  const v = $("lv_nat").value;
+  if (!clear && !v) { $("lvMsg").textContent = "請選開播時間。"; return; }
+  const next = clear ? null : { at: new Date(v + ":00+08:00").toISOString(), title: $("lv_nti").value.trim(), sub: $("lv_nsu").value.trim() };
+  let j; try { j = await api("/live/admin", { op: "next", next: next || { at: "" } }); } catch (e) { $("lvMsg").textContent = e.message; return; }
+  $("lvMsg").textContent = j && j.ok ? (clear ? "✓ 已清掉下一場。" : "✓ 已儲存，App 的 LIVE 分頁開始倒數。") : "沒有成功：" + ((j && (j.message || j.error)) || "");
   lvInfo();
 }
 async function lvPrice() {

@@ -101,6 +101,35 @@
     /* SIGNAL 頁的入口 */
     "#lv-entry{position:fixed;right:14px;top:calc(12px + env(safe-area-inset-top));z-index:9000;display:none;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:18px;border:0;background:#E5322D;color:#fff;font:800 16px/1 -apple-system,'PingFang TC',sans-serif;letter-spacing:.5px;pointer-events:auto;box-shadow:0 4px 14px rgba(229,50,45,.35)}",
     "#lv-entry.on{display:inline-flex}#lv-entry i{width:8px;height:8px;border-radius:50%;background:#fff;animation:lvBlink 1.4s infinite}",
+    /* V2-14（CÉON 11/25，照 Figma「CHANCE App · LIVE 分頁」）：LIVE 分頁 */
+    "#screen-live{padding:calc(14px + env(safe-area-inset-top)) 0 calc(130px + env(safe-area-inset-bottom));color:#F3EADB}",
+    "#screen-live .lt-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 16px}",
+    "#screen-live .lt-ttl{font-family:var(--font-label,'Bodoni Moda',serif);font-weight:600;font-size:32px;letter-spacing:.14em;color:#F3EADB}",
+    "#screen-live .lt-chip{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px 0 12px;border-radius:20px;border:1px solid #3A3128;background:transparent;color:#F3EADB;font:500 15px/1 'Noto Sans TC',-apple-system,sans-serif}",
+    "#screen-live .lt-chip svg{width:18px;height:18px;color:#E8C878}",
+    "#screen-live .lt-hero{position:relative;margin:0 14px;min-height:418px;border-radius:22px;overflow:hidden;background:#1C1813 url(assets/images/artist-background.jpg) center 28%/cover no-repeat;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 18px 18px;box-sizing:border-box}",
+    "#screen-live .lt-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0,rgba(0,0,0,.05) 40%,rgba(8,8,9,.92) 100%)}",
+    "#screen-live .lt-hero>*{position:relative}",
+    "#screen-live .lt-tags{position:absolute;left:16px;top:16px;display:flex;gap:8px}",
+    "#screen-live .lt-pill{display:inline-flex;align-items:center;height:30px;padding:0 10px;border-radius:8px;background:rgba(8,8,9,.6);font:500 15px/1 'Noto Sans TC',-apple-system,sans-serif;color:#F3EADB}",
+    "#screen-live .lt-pill.red{background:#FE2C55;color:#fff;font-weight:700;letter-spacing:.04em}",
+    "#screen-live .lt-host{display:flex;align-items:center;gap:8px;margin-bottom:6px;font:500 16px/1.2 'Noto Sans TC',sans-serif}",
+    "#screen-live .lt-host img{width:32px;height:32px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px #FE2C55}",
+    "#screen-live .lt-date{font-family:var(--font-serif-tc,'Noto Serif TC',serif);font-weight:600;font-size:26px;line-height:1.3}",
+    "#screen-live .lt-big{font-family:var(--font-serif-tc,'Noto Serif TC',serif);font-weight:600;font-size:23px;line-height:1.35}",
+    "#screen-live .lt-sub{margin-top:4px;font:400 16px/1.45 'Noto Sans TC',sans-serif;color:#B9AD99}",
+    "#screen-live .lt-cd{display:flex;justify-content:center;gap:10px;margin:14px 0 12px}",
+    "#screen-live .lt-u{min-width:64px;padding:6px 10px 8px;border-radius:12px;background:rgba(8,8,9,.45);text-align:center}",
+    "#screen-live .lt-u b{display:block;font-family:var(--font-label,'Bodoni Moda',serif);font-weight:500;font-size:40px;line-height:1.1;font-variant-numeric:tabular-nums}",
+    "#screen-live .lt-u span{font:500 15px/1.2 'Noto Sans TC',sans-serif;color:#E8C878}",
+    "#screen-live .lt-btns{display:flex;gap:10px;margin-top:14px}",
+    "#screen-live .lt-btn{flex:1;height:50px;border-radius:25px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:8px;font:700 17px/1 'Noto Sans TC',-apple-system,sans-serif}",
+    "#screen-live .lt-btn svg{width:20px;height:20px}",
+    "#screen-live .lt-btn.w{background:#fff;color:#111}#screen-live .lt-btn.r{background:#FE2C55;color:#fff}#screen-live .lt-btn.o{flex:0 0 auto;padding:0 18px;background:transparent;border:1.5px solid #E8C878;color:#E8C878}",
+    "#screen-live .lt-btn.on{background:rgba(255,255,255,.16);color:#fff}",
+    "#screen-live .lt-note{display:flex;align-items:center;gap:8px;margin:16px 18px 0;font:400 15px/1.5 'Noto Sans TC',sans-serif;color:#B9AD99}",
+    "#screen-live .lt-note svg{width:18px;height:18px;flex:none;color:#D6B66F}",
+    ".navbtn[data-screen=live] .navico{position:relative}.nav-live-dot{position:absolute;top:-3px;right:-6px;width:9px;height:9px;border-radius:50%;background:#FE2C55;box-shadow:0 0 0 2px rgba(20,16,12,.9);display:none}body.sky-live-on .nav-live-dot{display:block}",
     "@media (prefers-reduced-motion:reduce){#lv .lv-h{animation-duration:1.2s}#lv .lv-badge i,#lv-entry i{animation:none}}"
   ].join("\n");
   var st = document.createElement("style"); st.id = "lv-css"; st.textContent = css; document.head.appendChild(st);
@@ -533,23 +562,77 @@
     if (!w || !w.ok || !w.code) { banner("lv-lock", T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members"), T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看。", "Join the SIGNAL channel (or the full unlock plan) to watch."), 4200); return; }
     open();
   });
-  var infoT = null, isLive = false;
+  /* ---------- V2-14：LIVE 分頁＋全 App 的開播狀態（每 30 秒問一次 /live/info） ---------- */
+  var infoT = null, isLive = false, info = null, cdTab = null, REMIND_K = "sky:liveRemind";
   function onSignal() { var sm = document.getElementById("screen-mood"); return !!(sm && sm.classList.contains("active")); }
-  function paintEntry() { entry.classList.toggle("on", isLive && onSignal() && !opened); }
+  function onTab() { var sl = document.getElementById("screen-live"); return !!(sl && sl.classList.contains("active")); }
+  function paintEntry() { entry.classList.toggle("on", isLive && onSignal() && !opened); document.body.classList.toggle("sky-live-on", isLive); }
+  function remindGet() { try { return localStorage.getItem(REMIND_K) || ""; } catch (e) { return ""; } }
+  function remindSet(v) { try { if (v) localStorage.setItem(REMIND_K, v); else localStorage.removeItem(REMIND_K); } catch (e) {} }
   function pollInfo() {
     clearTimeout(infoT);
-    var here = onSignal() && !document.hidden;
-    if (here) fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
-      isLive = !!(d && d.ok && d.room && d.room.status === "live"); paintEntry();
+    if (!document.hidden) fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok || !d.room) return;
+      var was = isLive; info = d; isLive = d.room.status === "live"; paintEntry();
+      /* 有按「開播時提醒我」→ 開播的那一刻（App 開著時）跳 iOS 樣式通知，點了直接進直播 */
+      if (isLive && !was && remindGet() && remindGet() !== String(d.room.startedAt || "")) {
+        remindSet(String(d.room.startedAt || "1"));
+        if (window.skyBanner && !opened) window.skyBanner({ id: "lv-remind", title: T("Chance 開播了！", "Chance is live!"), body: T("點這裡進直播", "Tap to watch"), ms: 9000, onTap: function (api) { api.hide(); open(); } });
+      }
+      if (onTab()) renderTab();
     }).catch(function () {});
     paintEntry();
-    infoT = setTimeout(pollInfo, here ? 30000 : 4000);
+    infoT = setTimeout(pollInfo, onTab() ? 15000 : 30000);
   }
+  var WK = ["日", "一", "二", "三", "四", "五", "六"], WKE = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  function fmtNext(t) { var d = new Date(t), hh = ("0" + d.getHours()).slice(-2), mm = ("0" + d.getMinutes()).slice(-2); return EN() ? (d.getMonth() + 1) + "/" + d.getDate() + " (" + WKE[d.getDay()] + ") " + hh + ":" + mm : (d.getMonth() + 1) + "/" + d.getDate() + "（" + WK[d.getDay()] + "）" + hh + ":" + mm; }
+  var SVG_BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2h16l-2-2z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+  var SVG_LIVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg>';
+  var SVG_CARDS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="12" height="15" rx="2"/><path d="M8 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2"/></svg>';
+  var SVG_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function renderTab() {
+    var el = document.getElementById("screen-live"); if (!el) return;
+    clearInterval(cdTab); cdTab = null;
+    var r = (info && info.room) || {}, live = r.status === "live", nx = r.next && r.next.at > Date.now() ? r.next : null, pin = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null, rem = !!remindGet();
+    var h = '<div class="lt-head"><div class="lt-ttl">LIVE</div><button type="button" class="lt-chip" data-lt="lucky">' + SVG_CARDS + esc(T("每日抽卡", "Daily draw")) + '</button></div><div class="lt-hero">';
+    if (live) {
+      h += '<div class="lt-tags"><span class="lt-pill red">LIVE</span><span class="lt-pill">' + esc(fmt(info.viewers || 0) + T(" 人在看", " watching")) + '</span></div>' +
+        '<div class="lt-host"><img src="assets/images/avatar.jpg" alt="">成晞 Chance</div>' +
+        '<div class="lt-big">' + esc(r.title || T("成晞 Chance 正在直播", "Chance is live")) + '</div>' +
+        '<div class="lt-sub">' + esc(T("愛心 " + fmt(r.hearts || 0) + "・留言 " + fmt(r.msgs || 0), fmt(r.hearts || 0) + " hearts · " + fmt(r.msgs || 0) + " comments")) + '</div>' +
+        '<div class="lt-btns"><button type="button" class="lt-btn r" data-lt="watch">' + SVG_LIVE + esc(T("進入直播", "Watch live")) + '</button>' + (pin && pin.kind !== "link" ? '<button type="button" class="lt-btn o" data-lt="watch">' + esc(pin.kind === "gift" ? T("送禮中", "Gifts") : T("搶購中", "On sale")) + '</button>' : "") + '</div>';
+    } else {
+      h += '<div class="lt-tags"><span class="lt-pill">' + esc(r.status === "ended" && !nx ? T("直播已結束", "Live ended") : T("下一場直播", "Next live")) + '</span></div>';
+      if (nx) h += '<div class="lt-date">' + esc(fmtNext(nx.at)) + '</div><div class="lt-sub">' + esc(nx.sub || nx.title || "") + '</div><div class="lt-cd" data-at="' + nx.at + '"></div>';
+      else h += '<div class="lt-big">' + esc(r.status === "ended" ? T("謝謝你來看直播", "Thanks for watching") : T("下一場直播時間還沒公布", "Next live not scheduled yet")) + '</div><div class="lt-sub">' + esc(T("先開提醒，Chance 一開播就會通知你。", "Turn on the reminder and we'll tell you when Chance goes live.")) + '</div>';
+      h += '<div class="lt-btns"><button type="button" class="lt-btn ' + (rem ? "on" : "w") + '" data-lt="remind">' + SVG_BELL + esc(rem ? T("已開提醒（再按取消）", "Reminder on (tap to cancel)") : T("開播時提醒我", "Remind me when live")) + '</button></div>';
+    }
+    h += '</div><div class="lt-note">' + SVG_LOCK + esc(live ? T("SIGNAL 會員專屬：留言、按愛心、搶直播價", "SIGNAL members: chat, hearts and live prices") : T("SIGNAL 會員可以看直播、留言、搶直播價", "SIGNAL members can watch, chat and get live prices")) + '</div>';
+    el.innerHTML = h;
+    var cd = el.querySelector(".lt-cd");
+    if (cd) { var at = Number(cd.getAttribute("data-at")), tick = function () { var ms = Math.max(0, at - Date.now()), d = Math.floor(ms / 864e5), hh = Math.floor(ms % 864e5 / 36e5), mm = Math.floor(ms % 36e5 / 6e4), ss = Math.floor(ms % 6e4 / 1e3), p = function (n) { return (n < 10 ? "0" : "") + n; };
+        cd.innerHTML = [[p(d), T("天", "d")], [p(hh), T("時", "h")], [p(mm), T("分", "m")], [p(ss), T("秒", "s")]].map(function (x) { return '<div class="lt-u"><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join("");
+        if (ms <= 0) { clearInterval(cdTab); pollInfo(); } }; tick(); cdTab = setInterval(function () { if (!onTab()) { clearInterval(cdTab); return; } tick(); }, 1000); }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("#screen-live [data-lt]"); if (!b) return;
+    var a = b.getAttribute("data-lt");
+    if (a === "lucky") { if (window.skyGo) window.skyGo("lucky"); return; }
+    if (a === "watch") { var w = who(); if (!w || !w.ok || !w.code) { banner("lv-lock", T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members"), T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看。", "Join the SIGNAL channel (or the full unlock plan) to watch."), 4200); return; } open(); return; }
+    if (a === "remind") {
+      if (remindGet()) { remindSet(""); banner("lv-remind", T("已取消提醒", "Reminder off"), "", 2200); }
+      else { remindSet("on"); banner("lv-remind", T("開播時會提醒你", "We'll remind you"), T("App 開著的時候，Chance 一開播就會跳通知。", "While the app is open, you'll get a notice the moment Chance goes live."), 3600); }
+      renderTab();
+    }
+  });
+  window.skyLiveTab = { render: function () { renderTab(); pollInfo(); } };
   function boot() {
     document.body.appendChild(root); document.body.appendChild(entry);
     var sm = document.getElementById("screen-mood");   /* 換分頁時入口馬上跟著出現／消失 */
     if (sm && window.MutationObserver) new MutationObserver(function () { paintEntry(); if (onSignal()) pollInfo(); }).observe(sm, { attributes: true, attributeFilter: ["class"] });
     pollInfo();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) pollInfo(); });   /* V2-14：回到 App 時馬上更新開播狀態 */
     var lt = /(?:^#|&)livetest=(\d+)/.exec(location.hash);   /* 只給測試：#livetest=N（見 test-v2.html 的 skyLiveTestLogin） */
     if (lt) { try { if (window.skyLiveTestLogin) window.skyLiveTestLogin(lt[1]); } catch (e) {} try { history.replaceState(history.state, "", location.pathname + location.search + "#live"); } catch (e) {} }
     if (/(^#|&)live\b/.test(location.hash)) open();

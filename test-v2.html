@@ -4197,6 +4197,9 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
   </section>
 
   <!-- ================= LUCKY（每日抽卡 · B28）================= -->
+  <!-- V2-14：LIVE 分頁（內容由 live-v2.js 畫，照 Figma「CHANCE App · LIVE 分頁」） -->
+  <section id="screen-live" class="screen screen-sub"></section>
+
   <section id="screen-lucky" class="screen screen-sub">
     <div class="page-titles">
       <div class="page-title-en">Daily Luck</div>
@@ -4260,8 +4263,8 @@ body:has(#terms-sheet:not(.hidden)) #a2tip{visibility:hidden}   /* 「放到主�
         <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><circle cx="7" cy="7" r="1"/></svg></span>
         <span class="navlbl"></span>
       </button>
-      <button class="navbtn" data-screen="lucky">
-        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="13" height="17" rx="2"/><path d="M19 8h.01"/><path d="m9.5 9.5 1.1 2.2 2.4.4-1.7 1.7.4 2.4-2.2-1.1-2.2 1.1.4-2.4-1.7-1.7 2.4-.4z"/></svg></span>
+      <button class="navbtn" data-screen="live"><!-- V2-14（CÉON 11/25）：LUCKY 分頁換成 LIVE；抽卡改從 LIVE 頁右上「每日抽卡」進去 -->
+        <span class="navico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg><i class="nav-live-dot" aria-hidden="true"></i></span>
         <span class="navlbl"></span>
       </button>
     </div>
@@ -5264,7 +5267,7 @@ const THE_SKY = {
 
   /* ---- 介面文案 ---------------------------------------------------- */
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LIVE"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Signal",
     purchaseTitleEn: "Own THE SKY",
@@ -5941,7 +5944,7 @@ const CLASSICS = {
   },
 
   strings: {
-    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LUCKY"],
+    navTabs: ["PLAY", "FEED", "SHOP", "OWN", "LIVE"],
     nowPlayingLabel: "Now Playing",
     nextScene: "Next Track",
     purchaseTitleEn: "Unlock the Album",
@@ -7423,7 +7426,7 @@ window.ALBUM_SWITCH = {
    * 只取「沒被藏起來」的 tab（全免費專輯會藏掉購買/解鎖），
    * 指示器改用該按鈕的實際位置 offsetLeft，藏 tab 也不會跑版。 */
   var navBtns = Array.prototype.slice.call(document.querySelectorAll("#nav .navbtn:not(.hidden)"));
-  var ORDER = ["player", "mood", "merch", "purchase", "gallery", "lucky"];
+  var ORDER = ["player", "mood", "merch", "purchase", "gallery", "lucky", "live"];
   /* B316T：SIGNAL 獨立頁。進 FEED：專輯音樂暫停（歌與進度保留）、迷你播放器不出現、多一筆瀏覽紀錄（手勢返回＝回上一個分頁）；
      離開：恢復原本顯示，音樂維持暫停由使用者自己按 */
   var FEEDX = { from: "player", skip: 0 };
@@ -7468,7 +7471,7 @@ window.ALBUM_SWITCH = {
     });
     var activeBtn = null;
     navBtns.forEach(function (b) {
-      var on = b.getAttribute("data-screen") === screen;
+      var on = b.getAttribute("data-screen") === (screen === "lucky" ? "live" : screen);   /* V2-14：抽卡頁算在 LIVE 分頁底下 */
       b.classList.toggle("active", on);
       b.classList.remove("pop");
       if (on) activeBtn = b;
@@ -7488,7 +7491,9 @@ window.ALBUM_SWITCH = {
     if (screen === "purchase") renderUnlockView();   // 兌換狀態現在住在「擁有」頁
     if (screen === "merch") renderMerch();
     if (screen === "lucky") { try { sfxEnsure(); } catch (e) {} renderLucky(); }
+    if (screen === "live") { try { if (window.skyLiveTab) window.skyLiveTab.render(); } catch (e) {} }   /* V2-14 */
   }
+  window.skyGo = go;   /* V2-14：給 live-v2.js 換頁（LIVE 頁的「每日抽卡」→ 抽卡頁） */
   navBtns.forEach(function (b) { b.addEventListener("click", function () { go(b.getAttribute("data-screen")); }); });
 
   /* ---------- 付費解鎖頁 ---------- */
@@ -13392,7 +13397,7 @@ window.ALBUM_SWITCH = {
 })();
 </script>
 
-<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-7（正式 B590 複本＋不改派＋結帳提醒＋剩幾張＋直播第1階段）</div>
+<div id="__build" style="position:fixed;left:6px;bottom:calc(3px + env(safe-area-inset-bottom));z-index:99998;font:600 9px/1 ui-monospace,monospace;color:transparent;opacity:0;pointer-events:none;letter-spacing:1px">V2-14（正式 B590 複本＋不改派＋結帳提醒＋剩幾張＋直播＋LIVE 分頁）</div>
 
 <script id="__content_loader">
 /* B23 ── content.json 動態內容：改 FEED 只要改 content.json，不用動這個檔 */
@@ -13593,7 +13598,7 @@ window.skyBanner = function (o) {
 })();
 </script>
 <script src="shop-content.js?v=3" defer></script>
-<script src="live-v2.js?v=L19" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
+<script src="live-v2.js?v=L20" defer></script><!-- V2-7：直播 第 1 階段（只在測試站） -->
 <script src="shop-content-t314.js?v=B314T" defer></script>
 <script>
 /* B459T（CÉON 11/08）：開賣前 3 天（11/12 00:00–11/15 12:00 台北時間）還沒登入購票的人，打開 App 上方出現一條提醒。
