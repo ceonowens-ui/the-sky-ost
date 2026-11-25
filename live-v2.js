@@ -20,40 +20,46 @@
     "#lv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}",
     "#lv .lv-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.55) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 48%,rgba(0,0,0,.7) 100%)}",
     "#lv .lv-top{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px 0 14px;display:flex;align-items:center;gap:8px}",
-    "#lv .lv-badge{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border-radius:8px;background:#E5322D;font:800 16px/1 -apple-system,sans-serif;letter-spacing:1px}",
-    "#lv .lv-badge i{width:8px;height:8px;border-radius:50%;background:#fff;animation:lvBlink 1.4s infinite}",
-    "#lv .lv-badge.off{background:rgba(255,255,255,.22)}#lv .lv-badge.off i{animation:none;opacity:.6}",
+    /* V2-9（CÉON 11/25）：照 IG 直播的版面：左上大頭貼＋名字＋LIVE＋人數，右上只有 ✕；留言是「小圓頭像＋粗體名字＋內容」，沒有泡泡 */
+    "#lv .lv-host{display:flex;align-items:center;gap:9px;min-width:0}",
+    "#lv .lv-ava{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 2px #000,0 0 0 4px #FF2D78}",
+    "#lv .lv-name{font:700 16px/1.2 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}",
+    "#lv .lv-badge{display:inline-flex;align-items:center;height:26px;padding:0 9px;border-radius:6px;background:linear-gradient(90deg,#E0006E,#FF2D55);font:800 15px/1 -apple-system,sans-serif;letter-spacing:.8px}",
+    "#lv .lv-badge.off{background:rgba(255,255,255,.25)}",
     "@keyframes lvBlink{50%{opacity:.25}}",
-    "#lv .lv-pill{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 11px;border-radius:8px;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:700 16px/1 -apple-system,sans-serif;font-variant-numeric:tabular-nums}",
-    "#lv .lv-pill svg{width:17px;height:17px}",
+    "#lv .lv-pill{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:6px;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:700 15px/1 -apple-system,sans-serif;font-variant-numeric:tabular-nums}",
+    "#lv .lv-pill svg{width:16px;height:16px}",
     "#lv .lv-sp{flex:1}",
-    "#lv .lv-x{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.42);color:#fff;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:0}",
-    "#lv .lv-x svg{width:20px;height:20px}",
-    "#lv .lv-title{position:absolute;left:14px;right:70px;top:calc(54px + env(safe-area-inset-top));font:700 17px/1.35 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#lv .lv-x{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))}",
+    "#lv .lv-x svg{width:26px;height:26px}",
+    "#lv .lv-title{display:none;position:absolute;left:14px;right:70px;top:calc(54px + env(safe-area-inset-top));font:700 17px/1.35 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
     /* 置頂：主辦置頂一句話或一張圖（第 3 階段後台才能設定，先留位置） */
-    "#lv .lv-pin{position:absolute;left:12px;right:12px;top:calc(88px + env(safe-area-inset-top));display:none;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(214,182,111,.45);font:600 16px/1.4 -apple-system,'PingFang TC',sans-serif}",
+    "#lv .lv-pin{position:absolute;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));display:none;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(214,182,111,.45);font:600 16px/1.4 -apple-system,'PingFang TC',sans-serif}",
     "#lv .lv-pin.on{display:flex}#lv .lv-pin img{width:56px;height:56px;border-radius:8px;object-fit:cover}",
     /* 留言：疊在左下，新的在最下面 */
-    "#lv .lv-chat{position:absolute;left:12px;right:84px;bottom:calc(76px + env(safe-area-inset-bottom) + var(--lv-kb,0px));max-height:40vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%);pointer-events:none;transition:bottom .2s}",
-    "#lv .lv-m{align-self:flex-start;max-width:100%;padding:7px 11px;border-radius:14px;background:rgba(0,0,0,.46);font:500 16px/1.4 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.5);word-break:break-word;animation:lvIn .22s ease-out}",
-    "#lv .lv-m b{font-weight:700;color:rgba(255,255,255,.72);margin-right:7px}",
-    "#lv .lv-m.me b{color:#9FD3FF}",
-    "#lv .lv-m.artist{background:rgba(120,90,30,.55);border:1px solid rgba(240,220,168,.7)}#lv .lv-m.artist b{color:#F0DCA8}",
-    "#lv .lv-m.sys{background:rgba(255,255,255,.14);color:rgba(255,255,255,.85)}",
+    "#lv .lv-chat{position:absolute;left:14px;right:72px;bottom:calc(76px + env(safe-area-inset-bottom) + var(--lv-kb,0px));max-height:40vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 30%);mask-image:linear-gradient(180deg,transparent 0,#000 30%);pointer-events:none;transition:bottom .2s}",
+    "#lv .lv-m{display:flex;align-items:flex-start;gap:10px;max-width:100%;font:500 16px/1.38 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.75),0 0 8px rgba(0,0,0,.35);word-break:break-word;animation:lvIn .22s ease-out}",
+    "#lv .lv-m .lv-mi{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 15px/1 -apple-system,'PingFang TC',sans-serif;color:#fff;text-shadow:none;object-fit:cover}",
+    "#lv .lv-m .lv-mt{min-width:0;display:flex;flex-direction:column;gap:1px}",
+    "#lv .lv-m b{font-weight:700;font-size:15px;color:#fff}",
+    "#lv .lv-m.me b{color:#BFE3FF}",
+    "#lv .lv-m.artist b{color:#F0DCA8}#lv .lv-m.artist .lv-mi{box-shadow:0 0 0 2px #F0DCA8}",
+    "#lv .lv-m.sys{color:rgba(255,255,255,.85)}",
     "@keyframes lvIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}",
     /* 愛心飄 */
-    "#lv .lv-hearts{position:absolute;right:8px;bottom:calc(70px + env(safe-area-inset-bottom) + var(--lv-kb,0px));width:80px;height:46vh;pointer-events:none;overflow:visible}",
+    "#lv .lv-hearts{position:absolute;right:2px;bottom:calc(70px + env(safe-area-inset-bottom) + var(--lv-kb,0px));width:80px;height:46vh;pointer-events:none;overflow:visible}",
     "#lv .lv-h{position:absolute;bottom:0;left:22px;font-size:30px;line-height:1;will-change:transform,opacity;animation:lvUp var(--d,2.4s) cubic-bezier(.25,.6,.4,1) forwards}",
     "@keyframes lvUp{0%{transform:translate(0,0) scale(.4);opacity:0}12%{transform:translate(calc(var(--x) * .2),-8%) scale(1.05);opacity:1}100%{transform:translate(var(--x),-100%) scale(.9);opacity:0}}",
     "#lv .lv-h.mine{font-size:34px}",
     /* 底部：留言框、愛心、貼圖 */
     "#lv .lv-bar{position:absolute;left:0;right:0;bottom:0;padding:8px 10px calc(10px + env(safe-area-inset-bottom)) 12px;display:flex;align-items:center;gap:8px;transform:translateY(calc(var(--lv-kb,0px) * -1));transition:transform .2s}",
-    "#lv .lv-in{flex:1;min-width:0;height:46px;border-radius:23px;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.4);color:#fff;padding:0 16px;font:500 16px/1 -apple-system,'PingFang TC',sans-serif;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);outline:none;-webkit-user-select:text;user-select:text}",
-    "#lv .lv-in::placeholder{color:rgba(255,255,255,.62)}",
-    "#lv .lv-btn{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:rgba(0,0,0,.4);color:#fff;font-size:23px;line-height:1;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:0}",
-    "#lv .lv-send{display:none;background:#D6B66F;color:#111}#lv .lv-send svg{width:20px;height:20px}",
+    "#lv .lv-in{flex:1;min-width:0;height:46px;border-radius:23px;border:1.5px solid rgba(255,255,255,.7);background:transparent;color:#fff;padding:0 18px;font:500 16px/1 -apple-system,'PingFang TC',sans-serif;outline:none;-webkit-user-select:text;user-select:text}",
+    "#lv .lv-in::placeholder{color:rgba(255,255,255,.85)}",
+    "#lv .lv-btn{flex:none;width:44px;height:46px;border:0;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}",
+    "#lv .lv-btn svg{width:30px;height:30px}",
+    "#lv .lv-send{display:none;width:auto;padding:0 6px;font:700 17px/1 -apple-system,'PingFang TC',sans-serif;color:#fff}",
     "#lv.typing .lv-send{display:flex}#lv.typing .lv-heart,#lv.typing .lv-stk{display:none}",
-    "#lv .lv-heart{background:rgba(229,50,45,.85)}#lv .lv-heart:active{transform:scale(.9)}",
+    "#lv .lv-heart:active svg{transform:scale(.86)}#lv .lv-heart svg{transition:transform .12s}",
     "#lv .lv-btn[disabled]{opacity:.45}",
     /* 中間狀態：連線中、還沒開播、已結束、只給會員 */
     "#lv .lv-state{position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);text-align:center;display:none}",
@@ -83,17 +89,17 @@
   var root = document.createElement("div"); root.id = "lv"; root.setAttribute("role", "dialog"); root.setAttribute("aria-modal", "true");
   root.innerHTML =
     '<video playsinline webkit-playsinline preload="none"></video><div class="lv-shade"></div>' +
-    '<div class="lv-top"><span class="lv-badge"><i></i>LIVE</span><span class="lv-pill lv-vw">' + EYE + '<span class="lv-v">0</span></span>' +
-    '<span class="lv-sp"></span><span class="lv-pill">❤️ <span class="lv-ht">0</span></span>' +
+    '<div class="lv-top"><span class="lv-host"><img class="lv-ava" src="assets/images/avatar.jpg" alt=""><span class="lv-name">成晞 Chance</span></span><span class="lv-badge">LIVE</span><span class="lv-pill lv-vw">' + EYE + '<span class="lv-v">0</span></span>' +
+    '<span class="lv-sp"></span><span class="lv-ht" hidden>0</span>' +
     '<button type="button" class="lv-x" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
     '<div class="lv-title"></div><div class="lv-pin" aria-live="polite"></div>' +
     '<div class="lv-chat" aria-live="polite"></div><div class="lv-hearts" aria-hidden="true"></div>' +
     '<button type="button" class="lv-sound"></button><div class="lv-offair"><div class="lv-spin"></div><p></p></div>' +
     '<div class="lv-state"></div>' +
     '<form class="lv-bar" autocomplete="off"><input class="lv-in" type="text" enterkeyhint="send" maxlength="80">' +
-    '<button type="submit" class="lv-btn lv-send" aria-label="送出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>' +
-    '<button type="button" class="lv-btn lv-heart" aria-label="愛心">❤️</button>' +
-    '<button type="button" class="lv-btn lv-stk" aria-label="貼圖">🎁</button></form>';
+    '<button type="submit" class="lv-btn lv-send">送出</button>' +
+    '<button type="button" class="lv-btn lv-stk" aria-label="貼圖"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 21H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v6.5L14.5 21z"/><path d="M14.5 21v-3.5a3 3 0 0 1 3-3H21"/><circle cx="9" cy="10" r=".6" fill="currentColor"/><circle cx="15" cy="10" r=".6" fill="currentColor"/><path d="M8.5 14c1 1 2.2 1.5 3.5 1.5"/></svg></button>' +
+    '<button type="button" class="lv-btn lv-heart" aria-label="愛心"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg></button></form>';
   var $ = function (s) { return root.querySelector(s); };
   var video = $("video"), chat = $(".lv-chat"), hearts = $(".lv-hearts"), input = $(".lv-in"), stateBox = $(".lv-state"), soundBtn = $(".lv-sound");
 
@@ -136,7 +142,7 @@
       pin.classList.add("on");
     } else pin.classList.remove("on");
     input.disabled = !live;
-    if (!naming) input.placeholder = me && me.banned ? T("你目前不能留言", "You can't chat right now") : T("說點什麼…", "Say something…");
+    if (!naming) input.placeholder = me && me.banned ? T("你目前不能留言", "You can't chat right now") : T("留言…", "Comment…");
     if (me && me.banned) input.disabled = true;
     $(".lv-heart").disabled = !live; $(".lv-stk").disabled = !live;
     if (live) showState("ready"); else showState(room.status === "ended" ? "ended" : "idle");
@@ -186,10 +192,19 @@
   function addMsg(m, mine) {
     if (!m || (m.id && seen[m.id])) return; if (m.id) seen[m.id] = 1;
     var d = document.createElement("div"); d.className = "lv-m" + (m.artist ? " artist" : "") + (mine ? " me" : "") + (m.sys ? " sys" : "");
-    if (m.n) { var b = document.createElement("b"); b.textContent = m.n; d.appendChild(b); }
-    d.appendChild(document.createTextNode(m.x || ""));
+    if (!m.sys) d.appendChild(avaOf(m));
+    var t = document.createElement("div"); t.className = "lv-mt";
+    if (m.n) { var b = document.createElement("b"); b.textContent = m.n; t.appendChild(b); }
+    var x = document.createElement("span"); x.textContent = m.x || ""; t.appendChild(x); d.appendChild(t);
     chat.appendChild(d);
     while (chat.children.length > 40) chat.removeChild(chat.firstChild);
+  }
+  /* 粉絲沒有大頭貼：用名字第一個字＋依名字固定的顏色；Chance 本人用他的照片 */
+  var AVA_C = ["#E0006E", "#7B61FF", "#00A3FF", "#00B37E", "#FF8A00", "#D6B66F", "#FF4D6D", "#5C7CFA"];
+  function avaOf(m) {
+    if (m.artist) { var im = document.createElement("img"); im.className = "lv-mi"; im.src = "assets/images/avatar.jpg"; im.alt = ""; return im; }
+    var n = String(m.n || "?"), h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) >>> 0;
+    var a = document.createElement("span"); a.className = "lv-mi"; a.style.background = AVA_C[h % AVA_C.length]; a.textContent = Array.from(n)[0] || "?"; return a;
   }
   function sysMsg(t) { addMsg({ sys: 1, x: t }); }
 
@@ -321,6 +336,7 @@
   function open() {
     if (opened) return;
     opened = true; paintEntry(); denied = false; tries = 0; seen = {}; me = null; room = null; myHearts = 0;
+    $(".lv-send").textContent = T("送出", "Send"); input.placeholder = T("留言…", "Comment…");
     chat.innerHTML = ""; root.classList.add("on"); document.body.style.overflow = "hidden";
     showState("wait");
     try { if (window.skyLivePauseMusic) window.skyLivePauseMusic(); } catch (e) {}
