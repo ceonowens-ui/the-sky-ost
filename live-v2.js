@@ -34,8 +34,18 @@
     "#lv .lv-x svg{width:26px;height:26px}",
     "#lv .lv-title{display:none;position:absolute;left:14px;right:70px;top:calc(54px + env(safe-area-inset-top));font:700 17px/1.35 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
     /* 置頂：主辦置頂一句話或一張圖（第 3 階段後台才能設定，先留位置） */
-    "#lv .lv-pin{position:absolute;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));display:none;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid rgba(214,182,111,.45);font:600 16px/1.4 -apple-system,'PingFang TC',sans-serif}",
-    "#lv .lv-pin.on{display:flex}#lv .lv-pin img{width:56px;height:56px;border-radius:8px;object-fit:cover}",
+    /* V2-10（CÉON 11/25）：直播中開賣。後台按「開搶」→ 畫面左上出現商品卡（照 Shopee／TikTok 直播的置頂商品卡）：照片＋名稱＋價格＋剩幾件＋金色「立刻搶」 */
+    "#lv .lv-pin{position:absolute;left:12px;top:calc(62px + env(safe-area-inset-top));width:min(310px,calc(100vw - 24px));display:none;align-items:center;gap:10px;padding:10px;border-radius:16px;background:rgba(255,255,255,.94);color:#111;box-shadow:0 8px 24px rgba(0,0,0,.35);font:600 16px/1.3 -apple-system,'PingFang TC',sans-serif}",
+    "#lv .lv-pin.on{display:flex;animation:lvPop .32s cubic-bezier(.2,1.3,.4,1)}",
+    "@keyframes lvPop{from{opacity:0;transform:translateY(-10px) scale(.94)}to{opacity:1;transform:none}}",
+    "#lv .lv-pin img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none;background:#eee}",
+    "#lv .lv-pt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}",
+    "#lv .lv-pt b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+    "#lv .lv-pt .lv-pp{font:700 16px/1.2 -apple-system,sans-serif;color:#C8102E}",
+    "#lv .lv-pt .lv-pl{font-size:15px;color:#555}#lv .lv-pt .lv-pl.hot{color:#C8102E}",
+    "#lv .lv-buy{flex:none;height:44px;padding:0 14px;border:0;border-radius:22px;background:linear-gradient(90deg,#B8913F,#E8C878);color:#111;font:800 16px/1 -apple-system,'PingFang TC',sans-serif;white-space:nowrap}",
+    "#lv .lv-buy[disabled]{background:#ccc;color:#666}",
+    "#lv .lv-px{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;border:0;background:#333;color:#fff;font:700 17px/1 sans-serif;padding:0}",
     /* 留言：疊在左下，新的在最下面 */
     "#lv .lv-chat{position:absolute;left:14px;right:72px;bottom:calc(76px + env(safe-area-inset-bottom) + var(--lv-kb,0px));max-height:40vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 30%);mask-image:linear-gradient(180deg,transparent 0,#000 30%);pointer-events:none;transition:bottom .2s}",
     "#lv .lv-m{display:flex;align-items:flex-start;gap:10px;max-width:100%;font:500 16px/1.38 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.75),0 0 8px rgba(0,0,0,.35);word-break:break-word;animation:lvIn .22s ease-out}",
@@ -125,7 +135,7 @@
     var h = "";
     if (kind === "wait") h = '<div class="lv-spin"></div><p>' + T("連線中…", "Connecting…") + "</p>";
     else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + "</p>" + (why && /test-v2/.test(location.pathname) ? '<p class="lv-why">（測試資訊：' + ({ nocred: "這支手機沒有讀到 SIGNAL 登入", server: "後台說不是會員", timeout: "連線太久沒回應" }[why] || why) + lastWho() + "）</p>" : "") + '<button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
-    else if (kind === "idle") h = "<h3>" + T("還沒開播", "Not live yet") + "</h3><p>" + T("開播的時候這裡就會亮起來。", "This lights up when Chance goes live.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
+    else if (kind === "idle") h = "<h3>" + T("還沒開播", "Not live yet") + "</h3><p>" + T("Chance 一開播，這裡就會自動開始，不用重新整理。", "It starts here by itself as soon as Chance goes live.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "ended") h = "<h3>" + T("直播已結束", "The live has ended") + "</h3><p>" + T("謝謝你來。", "Thanks for being here.") + '</p><button type="button" data-lv="close">' + T("關閉", "Close") + "</button>";
     stateBox.innerHTML = h; stateBox.classList.add("on");
   }
@@ -135,12 +145,7 @@
     $(".lv-badge").classList.toggle("off", !live);
     $(".lv-title").textContent = room.title || "";
     $(".lv-ht").textContent = fmt(room.hearts);
-    var pin = $(".lv-pin"); pin.textContent = "";
-    if (room.pin && (room.pin.text || room.pin.img)) {
-      if (room.pin.img) { var im = document.createElement("img"); im.src = room.pin.img; im.alt = ""; pin.appendChild(im); }
-      var sp = document.createElement("span"); sp.textContent = "📌 " + (room.pin.text || ""); pin.appendChild(sp);
-      pin.classList.add("on");
-    } else pin.classList.remove("on");
+    paintOffer();
     input.disabled = !live;
     if (!naming) input.placeholder = me && me.banned ? T("你目前不能留言", "You can't chat right now") : T("留言…", "Comment…");
     if (me && me.banned) input.disabled = true;
@@ -150,6 +155,81 @@
   }
 
   /* ---------- 影像（iPhone 用內建 HLS；電腦瀏覽器才載入 hls.js） ---------- */
+  /* ---------- 直播中開賣（置頂商品卡） ----------
+     庫存讀公開的資料（跟 SHOP 頁同一份）：門票 /ticket/events、生日周邊 /ticket/merch、官方卡包 the-sky-shop /shop/items。
+     按「立刻搶」→ 收起直播 → 打開 SHOP → 按 SHOP 自己的那顆按鈕，走原本的購票／周邊付款流程（付款程式完全不動）。 */
+  var SHOP_API = window.THE_SKY_SHOP_API || "https://the-sky-shop.anthonywen0693.workers.dev";
+  var offerId = "", offerHidden = "", stockT = null, cdT = null, stock = null;
+  function pinNow() { var p = room && room.pin; if (!p || (p.endsAt && p.endsAt < Date.now())) return null; return p; }
+  function paintOffer() {
+    var box = $(".lv-pin"), p = pinNow();
+    clearInterval(cdT); cdT = null;
+    if (!p || offerHidden === p.id) { box.classList.remove("on"); box.textContent = ""; clearTimeout(stockT); stockT = null; offerId = p ? p.id : ""; return; }
+    if (p.id !== offerId) {   /* 新的開搶：跳出來＋iOS 通知樣式提示 */
+      var first = !!offerId || (Date.now() - (p.at || 0) < 15000); offerId = p.id; stock = null;
+      if (first && opened) { try { if (navigator.vibrate) navigator.vibrate([10, 40, 10]); } catch (e) {} banner("lv-offer", p.kind === "link" ? T("Chance 分享了一個連結", "Chance shared a link") : T("開賣了！", "On sale now!"), p.title, 3200); }
+      box.classList.remove("on"); void box.offsetWidth;
+      loadStock();
+    }
+    box.textContent = "";
+    var im = document.createElement("img"); im.alt = ""; im.src = p.img || (stock && stock.img) || "assets/images/avatar.jpg"; box.appendChild(im);
+    var t = document.createElement("div"); t.className = "lv-pt";
+    var b = document.createElement("b"); b.textContent = p.title; t.appendChild(b);
+    var price = (stock && stock.price) || p.price;
+    if (price) { var pr = document.createElement("span"); pr.className = "lv-pp"; pr.textContent = "NT$" + Number(price).toLocaleString("en-US"); t.appendChild(pr); }
+    var line = document.createElement("span"); line.className = "lv-pl";
+    var left = stock ? stock.left : null, soldOut = !!(stock && stock.soldOut);
+    if (soldOut) line.textContent = T("已售完", "Sold out");
+    else if (left != null && left < 9999) { line.textContent = (p.kind === "ticket" ? T("剩 ", "") + left + T(" 張", " left") : T("剩 ", "") + left + T(" 件", " left")); if (left <= 10) line.classList.add("hot"); }
+    else if (p.sub) line.textContent = p.sub;
+    if (p.endsAt) { var cd = document.createElement("span"); cd.className = "lv-pl hot"; t.appendChild(cd); var tick = function () { var ms = p.endsAt - Date.now(); if (ms <= 0) { paintOffer(); return; } var m = Math.floor(ms / 60000), sec = Math.floor(ms % 60000 / 1000); cd.textContent = T("限時 ", "Ends in ") + m + ":" + (sec < 10 ? "0" : "") + sec; }; tick(); cdT = setInterval(tick, 1000); }
+    if (line.textContent) t.appendChild(line);
+    box.appendChild(t);
+    var go = document.createElement("button"); go.type = "button"; go.className = "lv-buy";
+    go.textContent = p.kind === "link" ? T("打開", "Open") : soldOut ? T("已售完", "Sold out") : T("立刻搶", "Buy now");
+    go.disabled = soldOut; go.addEventListener("click", function () { buyNow(p); }); box.appendChild(go);
+    var x = document.createElement("button"); x.type = "button"; x.className = "lv-px"; x.textContent = "×"; x.setAttribute("aria-label", T("收起", "Hide"));
+    x.addEventListener("click", function () { offerHidden = p.id; paintOffer(); }); box.appendChild(x);
+    box.classList.add("on");
+  }
+  function getJSON(u) { return fetch(u, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }); }
+  function loadStock() {
+    clearTimeout(stockT); stockT = null;
+    var p = pinNow(); if (!p || !opened || p.kind === "link") return;
+    var pid = p.id, q;
+    if (p.kind === "ticket") q = getJSON(API + "/ticket/events").then(function (d) {
+      var e = (d.events || []).filter(function (x) { return x.id === p.ev; })[0]; if (!e) return null;
+      var ts = e.tiers || [], left = e.left, minP = e.price;
+      if (ts.length) { var open = ts.filter(function (t) { return t.onSale !== false; }); if (open.length && open.every(function (t) { return t.left != null; })) left = open.reduce(function (a, t) { return a + Number(t.left || 0); }, 0); }
+      return { left: left, soldOut: left === 0, price: minP };
+    });
+    else if (p.kind === "merch") q = getJSON(API + "/ticket/merch?eventId=" + encodeURIComponent(p.ev)).then(function (d) {
+      var it = d.merch && d.merch.items && d.merch.items[p.k]; if (!it) return null;
+      return { left: it.left, soldOut: !(it.left > 0) || !(d.merch.onSale !== false), price: it.price, img: it.img };
+    });
+    else q = getJSON(SHOP_API + "/shop/items").then(function (d) {
+      var it = (d.items || []).filter(function (x) { return !p.k || x.key === p.k; })[0]; if (!it) return null;
+      return { left: it.left, soldOut: !!it.soldOut || it.onSale === false, price: it.price, img: it.img };
+    });
+    q.then(function (s2) { if (pid !== offerId) return; stock = s2; paintOffer(); }, function () {}).then(function () { if (pid === offerId && opened) stockT = setTimeout(loadStock, 10000); });
+  }
+  function buyNow(p) {
+    if (p.kind === "link") { try { window.open(p.url, "_blank", "noopener"); } catch (e) { location.href = p.url; } return; }
+    var sel = p.kind === "ticket" ? '[data-act="open-buy"][data-ev="' + p.ev + '"]' : p.kind === "merch" ? '[data-act="m-open-k"][data-k="' + p.k + '"]' : '[data-act="cxl-pack"]';
+    close(true);
+    /* 等直播的「返回」紀錄退完再開 SHOP，不然 SHOP 剛打開的視窗會被那一次返回關掉 */
+    setTimeout(function () {
+      var nav = document.querySelector('.navbtn[data-screen="merch"]'); if (nav) nav.click();
+      var t0 = Date.now();
+      (function poll() {
+        var root2 = document.getElementById("tk-root"), el = root2 && (root2.querySelector(sel) || (p.kind === "ticket" ? root2.querySelector('[data-act="open-buy"]') : null));
+        if (el && !el.disabled && !el.classList.contains("disabled")) { el.click(); return; }
+        if (Date.now() - t0 > 9000) { banner("lv-buy", T("已經幫你打開 SHOP", "SHOP is open"), T("在這一頁就能買，直播在 SIGNAL 頁右上角回得去。", "You can buy here. Go back to the live from the top right of SIGNAL."), 4200); return; }
+        setTimeout(poll, 250);
+      })();
+    }, 450);
+  }
+
   /* 影像：iPhone 用內建 HLS；電腦瀏覽器才載入 hls.js。
      第 2 階段（Cloudflare Stream）：還沒開播時網址會失敗 → 顯示「等待畫面」，每 6 秒再試一次；畫面一出來就自動播。 */
   var offT = null, offBox = $(".lv-offair");
@@ -336,7 +416,7 @@
   /* 開、關 */
   function open() {
     if (opened) return;
-    opened = true; paintEntry(); denied = false; tries = 0; seen = {}; me = null; room = null; myHearts = 0;
+    opened = true; paintEntry(); denied = false; offerId = ""; tries = 0; seen = {}; me = null; room = null; myHearts = 0;
     $(".lv-send").textContent = T("送出", "Send"); input.placeholder = T("留言…", "Comment…");
     chat.innerHTML = ""; root.classList.add("on"); document.body.style.overflow = "hidden";
     showState("wait");
@@ -355,7 +435,7 @@
   }
   function close(viaUi) {
     if (!opened) return;
-    opened = false; naming = false; pendingText = ""; input.maxLength = 80; clearInterval(pingT); clearTimeout(retryT); retryT = null; flushHearts();
+    opened = false; clearTimeout(stockT); stockT = null; clearInterval(cdT); naming = false; pendingText = ""; input.maxLength = 80; clearInterval(pingT); clearTimeout(retryT); retryT = null; flushHearts();
     if (ws) { var w = ws; ws = null; try { w.close(1000); } catch (e) {} }
     if (netBanner) { netBanner.hide(); netBanner = null; }
     stopVideo(); soundBtn.classList.remove("on");
@@ -403,4 +483,6 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
   window.skyLive = { open: open, close: function () { close(true); } };
+  /* 只給測試站：不用後台鑰匙也能看商品卡長怎樣（只改這支手機的畫面，不會送到後台） */
+  if (/test-v2/.test(location.pathname)) window.skyLive.previewPin = function (p) { if (!room) return "先打開直播"; p = p || {}; p.id = p.id || "preview" + Date.now(); p.at = Date.now(); room.pin = p; paintOffer(); return "ok"; };
 })();

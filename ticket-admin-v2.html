@@ -251,6 +251,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
     <a class="rowbtn" href="#issue"><span class="ic" data-ic="plus"></span><span>手動發票</span><em>›</em></a>
     <a class="rowbtn" href="#fail"><span class="ic" data-ic="alert"></span><span>付款成功・尚未出票<br>補發</span><em>›</em></a>
     <a class="rowbtn" href="#merch"><span class="ic" data-ic="box"></span><span>周邊設定與寄送</span><em>›</em></a>
+    <a class="rowbtn" href="#live"><span class="ic" data-ic="phone"></span><span>直播<br>開搶、置頂商品、看人數</span><em>›</em></a>
     <h2 class="sec">開賣前</h2>
     <a class="rowbtn" href="#set"><span class="ic" data-ic="gear"></span><span>場次設定</span><em>›</em></a>
     <a class="rowbtn" href="#test" id="testEntry" style="display:none"><span class="ic" data-ic="flask"></span><span>測試場工具</span><em>›</em></a>
@@ -328,6 +329,27 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulati
     <div style="overflow-x:auto"><table><thead><tr><th>訂單編號</th><th>時間</th><th>Email</th><th>場次</th><th>票種</th><th>姓名</th><th>手機</th><th>金額</th><th>原因</th><th></th></tr></thead><tbody id="fBody"></tbody></table></div>
   </div>
   </section>
+  <!-- V2-10（CÉON 11/25）：直播中開賣。按「開搶」→ 所有正在看直播的人畫面左上馬上跳出商品卡，按「立刻搶」走 App 原本的購票／周邊付款 -->
+  <section class="view" data-view="live">
+    <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
+    <div class="card" id="liveCard">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0">直播</h3><button class="btn sm" onclick="lvInfo()">重新整理</button></div>
+      <div id="lvStat" class="sub" style="margin:10px 0;font-size:17px;line-height:1.7">讀取中…</div>
+      <div id="lvNow" class="sub" style="font-size:17px"></div>
+      <h3 style="margin:18px 0 0">開搶（放到直播畫面上）</h3>
+      <div class="row"><span class="label">要賣什麼</span><select id="lv_kind" onchange="lvKind()"><option value="ticket">門票</option><option value="merch">生日周邊</option><option value="pack">官方卡包</option><option value="link">連結（新歌、預購頁）</option></select></div>
+      <div class="row" id="lv_evRow"><span class="label">場次</span><select id="lv_ev" onchange="lvKind()"></select></div>
+      <div class="row" id="lv_kRow"><span class="label">品項</span><select id="lv_k" onchange="lvFill()"></select></div>
+      <div class="row" id="lv_urlRow"><span class="label">連結網址（https 開頭）</span><input id="lv_url" type="url" placeholder="https://" /></div>
+      <div class="row"><span class="label">卡片標題</span><input id="lv_title" maxlength="40" /></div>
+      <div class="row"><span class="label">第二行（可空白，例如「直播限定」）</span><input id="lv_sub" maxlength="40" /></div>
+      <div class="row"><span class="label">限時幾分鐘（0＝不限時，時間到卡片自己收起）</span><input id="lv_mins" type="number" min="0" max="180" value="0" inputmode="numeric" /></div>
+      <button class="btn primary" style="margin-top:14px" onclick="lvPin()">開搶</button>
+      <button class="btn" onclick="lvUnpin()">收起商品卡</button>
+      <div class="msg" id="lvMsg"></div>
+    </div>
+  </section>
+
   <section class="view" data-view="merch">
     <div class="backbar"><a class="back" href="#more" onclick="return goBack('#more')">‹ 其他管理</a></div>
     <div class="card" id="merchCard">
@@ -448,8 +470,54 @@ const IC = { cake: '<path d="M4 20h16M5 20v-6h14v6M5 16.5c2 1 3-1 4.7 0s3 1 4.6 
 const svg = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (IC[k] || "") + "</svg>";
 document.querySelectorAll("[data-ic]").forEach((e) => e.innerHTML = svg(e.getAttribute("data-ic")));
 /* 畫面分層：#roster（查票＋入場名單，可帶 -used／-valid／-noseat）、#seats、#more 和其他管理底下的頁；手機左滑返回會回上一頁 */
-const VIEWS = ["home", "roster", "pickup", "seats", "more", "list", "issue", "fail", "merch", "set", "test"];
+const VIEWS = ["home", "roster", "pickup", "seats", "more", "list", "issue", "fail", "merch", "set", "test", "live"];
 let inApp = false, nf = "all";
+/* ===== V2-10：直播頁（測試後台 /live/admin，用同一把後台鑰匙） ===== */
+const LV_SHOP = "https://the-sky-shop.anthonywen0693.workers.dev";
+let lvTimer = null, lvData = {};
+const lvEsc = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+async function loadLive() { lvKind(); await lvInfo(); clearInterval(lvTimer); lvTimer = setInterval(() => { if (location.hash === "#live") lvInfo(); }, 10000); }
+async function lvInfo() {
+  let j; try { j = await api("/live/admin", { op: "info" }); } catch (e) { $("lvStat").textContent = e.message; return; }
+  if (!j || !j.ok) { $("lvStat").textContent = (j && j.message) || "讀不到直播資料"; return; }
+  const r = j.room || {}, st = { live: "🔴 直播中", idle: "還沒開播（手機 Larix 按紅色圓鈕就會自動變成直播中）", ended: "直播已結束" }[r.status] || r.status;
+  $("lvStat").innerHTML = "狀態：<b>" + lvEsc(st) + "</b><br>線上人數：<b>" + (j.viewers || 0) + "</b>　最高：" + (j.peak || 0) + "　愛心：" + (r.hearts || 0) + "　留言：" + (j.msgs || 0);
+  const p = r.pin && (!r.pin.endsAt || r.pin.endsAt > Date.now()) ? r.pin : null;
+  $("lvNow").innerHTML = p ? "現在畫面上的商品卡：<b>" + lvEsc(p.title) + "</b>" + (p.price ? "　NT$" + p.price : "") + (p.endsAt ? "　到 " + new Date(p.endsAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) : "") : "現在畫面上沒有商品卡。";
+}
+async function lvKind() {
+  const kind = $("lv_kind").value, evSel = $("lv_ev");
+  $("lv_evRow").style.display = kind === "ticket" || kind === "merch" ? "" : "none";
+  $("lv_kRow").style.display = kind === "merch" || kind === "pack" ? "" : "none";
+  $("lv_urlRow").style.display = kind === "link" ? "" : "none";
+  if (!evSel.options.length || evSel.dataset.n !== String(allEvents.length)) { evSel.innerHTML = allEvents.filter((e) => !/^meet-load-/.test(e.id)).map((e) => '<option value="' + lvEsc(e.id) + '">' + lvEsc(e.name || e.id) + "</option>").join(""); evSel.dataset.n = String(allEvents.length); const sv = localStorage.getItem("chance-admin-event"); if (sv && allEvents.some((e) => e.id === sv)) evSel.value = sv; }
+  const kSel = $("lv_k"); kSel.innerHTML = ""; lvData = {};
+  try {
+    if (kind === "merch") { const d = await (await fetch(API + "/ticket/merch?eventId=" + encodeURIComponent(evSel.value), { cache: "no-store" })).json(); Object.entries((d.merch && d.merch.items) || {}).forEach(([k, it]) => { lvData[k] = it; kSel.add(new Option((it.short || it.name || k) + "　NT$" + it.price, k)); }); }
+    if (kind === "pack") { const d = await (await fetch(LV_SHOP + "/shop/items", { cache: "no-store" })).json(); (d.items || []).forEach((it) => { lvData[it.key] = it; kSel.add(new Option((it.short || it.name || it.key) + "　NT$" + it.price, it.key)); }); }
+  } catch (e) { $("lvMsg").textContent = "讀不到商品清單：" + e.message; }
+  lvFill();
+}
+function lvFill() {
+  const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), it = lvData[$("lv_k").value];
+  $("lv_title").value = kind === "ticket" ? ((ev && ev.name) || "門票") : kind === "link" ? ($("lv_title").value || "") : ((it && (it.name || it.short)) || "");
+}
+async function lvPin() {
+  const kind = $("lv_kind").value, ev = allEvents.find((e) => e.id === $("lv_ev").value), k = $("lv_k").value, it = lvData[k] || {};
+  const pin = { kind, ev: kind === "ticket" || kind === "merch" ? $("lv_ev").value : "", k: kind === "merch" || kind === "pack" ? k : "", title: $("lv_title").value.trim(), sub: $("lv_sub").value.trim(), url: $("lv_url").value.trim(), mins: Number($("lv_mins").value) || 0,
+    price: kind === "ticket" ? (ev && ev.price) || 0 : it.price || 0, img: kind === "ticket" ? "" : (it.img || "") };
+  if (!pin.title) { $("lvMsg").textContent = "請填卡片標題。"; return; }
+  if (kind === "link" && !/^https:\/\//.test(pin.url)) { $("lvMsg").textContent = "連結要用 https:// 開頭。"; return; }
+  if (!confirm("確定開搶「" + pin.title + "」？\n所有正在看直播的人畫面上會馬上跳出這張卡。")) return;
+  $("lvMsg").textContent = "送出中…";
+  let j; try { j = await api("/live/admin", { op: "pin", pin }); } catch (e) { $("lvMsg").textContent = e.message; return; }
+  $("lvMsg").textContent = j && j.ok ? "✓ 已經放到直播畫面上。" : "沒有成功：" + ((j && (j.message || j.error)) || "");
+  lvInfo();
+}
+async function lvUnpin() {
+  let j; try { j = await api("/live/admin", { op: "unpin" }); } catch (e) { $("lvMsg").textContent = e.message; return; }
+  $("lvMsg").textContent = j && j.ok ? "✓ 商品卡已收起。" : "沒有成功。"; lvInfo();
+}
 function route(y) {
   let v = (location.hash || "").slice(1), mode = "";
   document.querySelectorAll(".sheet.show").forEach((x) => x.classList.remove("show"));   /* B486T：換頁時彈出視窗一起關 */
@@ -461,6 +529,7 @@ function route(y) {
   if (v === "roster") openNames(mode);
   if (v === "seats") loadSeatView();
   if (v === "pickup") openPickup();
+  if (v === "live") loadLive(); else clearInterval(lvTimer);
   if (y) requestAnimationFrame(() => window.scrollTo(0, y));
 }
 /* B486T：返回上一頁時回到剛才滑到的位置（往前進新的一頁才回到最上面） */
