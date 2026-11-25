@@ -49,6 +49,16 @@
     "#lv .lv-pt .lv-pp s{display:block;font-weight:500;color:#888;font-size:15px}#lv .lv-pt .lv-lp{display:inline-block;margin-right:5px;padding:1px 5px;border-radius:4px;background:#FE2C55;color:#fff;font-size:15px}",
     "#lv .lv-buy{flex:none;min-width:52px;height:44px;padding:0 14px;border:0;border-radius:22px;background:#FE2C55;color:#fff;font:800 17px/1 -apple-system,'PingFang TC',sans-serif;white-space:nowrap}",
     "#lv .lv-buy[disabled]{background:#ccc;color:#666}",
+    "#lv .lv-buy.got{background:#111;color:#F0DCA8}",
+    "#lv .lv-state .lv-rs{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.1);text-align:left;font:600 17px/1.4 -apple-system,'PingFang TC',sans-serif}",
+    "#lv .lv-state .lv-rs span{flex:1;min-width:0}#lv .lv-state .lv-rs button{flex:none;height:44px;padding:0 18px}",
+    "#lv .lv-state button.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)}",
+    "#screen-live .lt-res{margin:16px 14px 0;padding:16px;border-radius:18px;background:#1C1813;border:1px solid rgba(232,200,120,.5)}",
+    "#screen-live .lt-res h4{margin:0 0 4px;font:700 18px/1.4 'Noto Sans TC',-apple-system,sans-serif;color:#E8C878}",
+    "#screen-live .lt-res p{margin:0 0 12px;font:400 15px/1.6 'Noto Sans TC',-apple-system,sans-serif;color:#B9AD99}",
+    "#screen-live .lt-res-r{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.1)}",
+    "#screen-live .lt-res-r div{flex:1;min-width:0;font:500 16px/1.45 'Noto Sans TC',-apple-system,sans-serif;color:#F6F1E7}#screen-live .lt-res-r div b{display:block;font-weight:700}",
+    "#screen-live .lt-res-r .lt-btn{flex:none;height:46px;padding:0 20px}",
     "#lv .lv-px{position:absolute;right:-8px;top:-8px;width:30px;height:30px;border-radius:50%;border:0;background:#333;color:#fff;font:700 17px/1 sans-serif;padding:0}",
     "#lv .lv-chat{width:100%;max-height:34vh;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:6px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%)}",
     "#lv .lv-m{max-width:100%;padding:6px 12px;border-radius:16px;background:rgba(0,0,0,.38);font:500 15px/1.4 -apple-system,'PingFang TC',sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.4);word-break:break-word;animation:lvIn .22s ease-out}",
@@ -177,7 +187,17 @@
     if (kind === "wait") h = '<div class="lv-spin"></div><p>' + T("連線中…", "Connecting…") + "</p>";
     else if (kind === "signal") h = "<h3>" + T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members") + "</h3><p>" + T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看直播、留言、按愛心。", "Members of the SIGNAL channel (or the full unlock plan) can watch, chat and send hearts.") + "</p>" + (why && /test-v2/.test(location.pathname) ? '<p class="lv-why">（測試資訊：' + ({ nocred: "這支手機沒有讀到 SIGNAL 登入", server: "後台說不是會員", timeout: "連線太久沒回應" }[why] || why) + lastWho() + "）</p>" : "") + '<button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
     else if (kind === "idle") h = "<h3>" + T("還沒開播", "Not live yet") + "</h3><p>" + T("Chance 一開播，這裡就會自動開始，不用重新整理。", "It starts here by itself as soon as Chance goes live.") + '</p><button type="button" data-lv="close">' + T("知道了", "OK") + "</button>";
-    else if (kind === "ended") h = "<h3>" + T("直播已結束", "The live has ended") + "</h3><p>" + T("謝謝你來。", "Thanks for being here.") + '</p><button type="button" data-lv="close">' + T("關閉", "Close") + "</button>";
+    else if (kind === "ended") {
+      var rs = resAll(), pb = room && room.payBy;
+      h = "<h3>" + T("直播已結束", "The live has ended") + "</h3>";
+      if (rs.length) {
+        endSeen = true;   /* 已經在結束畫面看過付款提醒，回到 App 不再跳一次通知 */
+        h += "<p>" + (pb ? T("你搶到的還沒付款。請在 " + hhmm(pb) + " 前付款，時間到沒付會自動釋出。", "You haven't paid yet. Please pay before " + hhmm(pb) + " or it will be released.") : T("你搶到的還沒付款。請在 30 分鐘內付款，時間到沒付會自動釋出。", "You haven't paid yet. Please pay within 30 minutes or it will be released.")) + "</p>";
+        rs.forEach(function (r) { h += '<div class="lv-rs"><span>' + esc(r.title) + "　NT$" + resPrice(r) + '</span><button type="button" data-lv="payres" data-rid="' + esc(r.rid) + '">' + T("去付款", "Pay") + "</button></div>"; });
+        h += '<button type="button" class="ghost" data-lv="close">' + T("稍後再付", "Pay later") + "</button>";
+        resSync(function (ch) { if (ch && room && room.status === "ended" && opened) showState("ended"); });
+      } else h += "<p>" + T("謝謝你來。", "Thanks for being here.") + '</p><button type="button" data-lv="close">' + T("關閉", "Close") + "</button>";
+    }
     stateBox.innerHTML = h; stateBox.classList.add("on");
   }
   function paintRoom() {
@@ -201,6 +221,45 @@
      按「立刻搶」→ 收起直播 → 打開 SHOP → 按 SHOP 自己的那顆按鈕，走原本的購票／周邊付款流程（付款程式完全不動）。 */
   var SHOP_API = window.THE_SKY_SHOP_API || "https://the-sky-shop.anthonywen0693.workers.dev";
   var offerId = "", offerHidden = "", stockT = null, cdT = null, stock = null, offerPrice = 0, claimCb = null;
+  /* ---------- V2-15（CÉON 11/25 選 C）：先搶、播完再付 ----------
+     按「搶」→ 直播間幫你保留 1 份，人留在直播；直播結束後 30 分鐘內付款（原本的周邊結帳），沒付自動釋出。
+     搶到的那一份記在這支手機（localStorage sky:liveRes），重新整理、關掉再開都還在；重新進直播時後台也會再給一次。 */
+  var RES_KEY = "sky:liveRes", resK = "", resT = null, resAt = 0, resSyncAt = 0, endSeen = false;
+  function resAll() { try { var a = JSON.parse(localStorage.getItem(RES_KEY) || "[]"); return Array.isArray(a) ? a.filter(function (x) { return x && x.rid && x.tok; }) : []; } catch (e) { return []; } }
+  function resPut(a) { try { localStorage.setItem(RES_KEY, JSON.stringify(a.slice(-10))); } catch (e) {} }
+  function resAdd(r) { var a = resAll().filter(function (x) { return x.rid !== r.rid; }); a.push(r); resPut(a); }
+  function resDrop(rid) { resPut(resAll().filter(function (x) { return x.rid !== rid; })); }
+  function resOf(pinId) { return resAll().filter(function (x) { return x.pin === pinId; })[0] || null; }
+  function resPrice(r) { return r.live > 0 && r.live < r.base ? r.live : r.base; }
+  function hhmm(t) { var d = new Date(t); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function payRes(r) {
+    try { sessionStorage.setItem("sky:liveoffer", JSON.stringify({ tok: r.tok, kind: "merch", ev: r.ev, k: r.k, live: resPrice(r), base: r.base, exp: Date.now() + 6 * 36e5, res: 1 })); } catch (e) {}
+    goShop({ kind: "merch", ev: r.ev, k: r.k });
+  }
+  function onRes(m) {
+    if (!resK || m.k !== resK) return; resK = ""; clearTimeout(resT);
+    if (m.ok && m.r) {
+      resAdd(m.r); resAt = Date.now(); paintOffer();
+      if (!m.again) { try { if (navigator.vibrate) navigator.vibrate([10, 40, 10]); } catch (e) {} }
+      banner("lv-res", m.again ? T("你已經搶到了", "You already have one") : T("搶到了！", "You got it!"), T("已經幫你保留 1 份。直播結束後 30 分鐘內付款就可以，現在繼續看直播。", "1 is saved for you. Pay within 30 minutes after the live ends. Keep watching."), 4600);
+      return;
+    }
+    var why = { closed: T("已經結束了", "It has ended"), gone: T("搶完了", "All taken"), paid: T("你已經買過了", "You already bought it") }[m.why] || T("沒有搶成功", "Couldn't get it");
+    banner("lv-res", why, m.why === "gone" ? T("有人沒付款的話會再釋出。", "It may come back if someone doesn't pay.") : m.why === "paid" ? T("每個人 1 份。", "One per person.") : T("等一下再試一次。", "Try again in a moment."), 3600);
+    paintOffer();
+  }
+  /* 跟後台對一次：付款了、過期了的就從這支手機拿掉；直播價有變就更新。onDone(changed) */
+  function resSync(onDone) {
+    var a = resAll(); if (!a.length || Date.now() - resSyncAt < 8000) { if (onDone) onDone(false); return; }
+    resSyncAt = Date.now();
+    fetch(API + "/live/resinfo?room=" + ROOM, { method: "POST", cache: "no-store", credentials: "omit", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ toks: a.map(function (x) { return x.tok; }) }) }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok || !Array.isArray(d.list)) { if (onDone) onDone(false); return; }
+      var st = {}, ch = false; d.list.forEach(function (x) { st[x.rid] = x; });
+      var keep = resAll().filter(function (x) { var s2 = st[x.rid]; if (!s2 || s2.state !== "open") { ch = true; return false; } if ((s2.live || 0) !== (x.live || 0)) { x.live = s2.live || 0; ch = true; } return true; });
+      if (ch) resPut(keep);
+      if (onDone) onDone(ch);
+    }).catch(function () { if (onDone) onDone(false); });
+  }
   function pinNow() { var p = room && room.pin; if (!p || (p.endsAt && p.endsAt < Date.now())) return null; return p; }
   function paintOffer() {
     var box = $(".lv-pin"), p = pinNow(); paintBag();
@@ -231,7 +290,14 @@
     var line = document.createElement("span"); line.className = "lv-pl";
     var left = stock ? stock.left : null, soldOut = !!(stock && stock.soldOut);
     if (p.kind === "gift") { left = null; soldOut = !(p.giftLeft > 0); line.textContent = soldOut ? T("送完了", "All gone") : T("剩 " + p.giftLeft + "／" + p.giftTotal + " 個", p.giftLeft + " of " + p.giftTotal + " left"); if (p.giftLeft > 0 && p.giftLeft <= 3) line.classList.add("hot"); }
-    if (p.kind === "gift") {}
+    var mine = p.res ? resOf(p.id) : null;
+    if (p.res) {
+      if (mine && p.livePrice > 0 && (!mine.live || p.livePrice < mine.live)) { mine.live = p.livePrice; resAdd(mine); }   /* 搶到之後 Chance 又降價 → 照比較低的價錢 */
+      left = null; soldOut = !mine && !(p.resLeft > 0);
+      line.textContent = mine ? T("已幫你保留 1 份・播完再付", "Saved for you · pay after the live") : soldOut ? T("搶完了", "All taken") : T("剩 " + p.resLeft + "／" + p.resTotal + " 份・播完再付", p.resLeft + " of " + p.resTotal + " left · pay later");
+      if (!mine && p.resLeft > 0 && p.resLeft <= 3) line.classList.add("hot");
+    }
+    if (p.kind === "gift" || p.res) {}
     else if (soldOut) line.textContent = T("已售完", "Sold out");
     else if (left != null && left < 9999) { line.textContent = (p.kind === "ticket" ? T("剩 ", "") + left + T(" 張", " left") : T("剩 ", "") + left + T(" 件", " left")); if (left <= 10) line.classList.add("hot"); }
     else if (p.sub) line.textContent = p.sub;
@@ -239,7 +305,8 @@
     if (line.textContent) t.appendChild(line);
     box.appendChild(t);
     var go = document.createElement("button"); go.type = "button"; go.className = "lv-buy";
-    go.textContent = p.kind === "link" ? T("打開", "Open") : p.kind === "gift" ? (soldOut ? T("送完了", "Gone") : T("送朋友", "Gift")) : soldOut ? T("售完", "Sold out") : T("搶", "Buy");
+    go.textContent = p.kind === "link" ? T("打開", "Open") : p.kind === "gift" ? (soldOut ? T("送完了", "Gone") : T("送朋友", "Gift")) : p.res ? (mine ? T("去付款", "Pay") : soldOut ? T("搶完了", "Gone") : T("搶", "Grab")) : soldOut ? T("售完", "Sold out") : T("搶", "Buy");
+    if (mine) go.classList.add("got");
     go.disabled = soldOut; go.addEventListener("click", function () { buyNow(p); }); box.appendChild(go);
     var x = document.createElement("button"); x.type = "button"; x.className = "lv-px"; x.textContent = "×"; x.setAttribute("aria-label", T("收起", "Hide"));
     x.addEventListener("click", function () { offerHidden = p.id; paintOffer(); }); box.appendChild(x);
@@ -308,6 +375,15 @@
   function buyNow(p) {
     if (p.kind === "gift") { if (p.giftLeft > 0) openGift(p); return; }
     if (p.kind === "link") { try { window.open(p.url, "_blank", "noopener"); } catch (e) { location.href = p.url; } return; }
+    if (p.res) {   /* V2-15：先搶、播完再付 */
+      var mine = resOf(p.id);
+      if (mine) { if (Date.now() - resAt < 1500) return;   /* 剛搶到的那一下連點，不要馬上被帶去付款 */ payRes(mine); return; }
+      if (resK) return;
+      resK = "r" + Date.now().toString(36);
+      if (!send({ t: "res", k: resK })) { resK = ""; banner("lv-res", T("還沒連上", "Not connected"), T("等一下再搶一次。", "Try again in a moment."), 2600); return; }
+      clearTimeout(resT); resT = setTimeout(function () { if (resK) { resK = ""; banner("lv-res", T("沒有回應", "No response"), T("網路好像有點慢，再按一次「搶」。", "The network seems slow. Tap Grab again."), 3200); } }, 8000);
+      return;
+    }
     try { sessionStorage.removeItem("sky:liveoffer"); } catch (e) {}
     if (p.livePrice > 0 && !buyNow.claimed) {   /* V2-11：有直播價 → 先跟直播室拿直播價憑證（等最多 3 秒；拿不到就照原價進去買） */
       var done = false, fin = function () { if (done) return; done = true; claimCb = null; buyNow.claimed = true; buyNow(p); buyNow.claimed = false; };
@@ -315,8 +391,11 @@
       if (!send({ t: "claim" })) fin(); else setTimeout(fin, 3000);
       return;
     }
+    goShop(p);
+  }
+  function goShop(p) {
     var sel = p.kind === "ticket" ? '[data-act="open-buy"][data-ev="' + p.ev + '"]' : p.kind === "merch" ? '[data-act="m-open-k"][data-k="' + p.k + '"]' : '[data-act="cxl-pack"]';
-    close(true);
+    if (opened) close(true);
     /* 等直播的「返回」紀錄退完再開 SHOP，不然 SHOP 剛打開的視窗會被那一次返回關掉 */
     setTimeout(function () {
       var nav = document.querySelector('.navbtn[data-screen="merch"]'); if (nav) nav.click();
@@ -444,6 +523,7 @@
       var wasRetry = tries > 0; tries = 0;
       if (netBanner) { netBanner.set(T("已重新連上", "Reconnected"), "", false); netBanner.arm(1500); netBanner = null; }
       me = m.me; room = m.room;
+      if (Array.isArray(m.mine)) m.mine.forEach(function (r) { if (r && r.rid && r.tok) resAdd(r); });   /* V2-15：我搶到、還沒付的 */
       if (!wasRetry) chat.innerHTML = "";
       (m.recent || []).forEach(function (x) { addMsg(x, false); });
       $(".lv-v").textContent = fmt(m.viewers); $(".lv-vt").textContent = T(" 人在看", " watching");
@@ -464,6 +544,8 @@
     if (m.t === "room") { room = m.room; paintRoom(); return; }
     if (m.t === "claim") { if (claimCb) claimCb(m); return; }
     if (m.t === "gift") { onGift(m); return; }
+    if (m.t === "res") { onRes(m); return; }
+    if (m.t === "respaid") { resDrop(m.rid); paintOffer(); banner("lv-res", T("付款成功", "Payment received"), T("你搶到的那一份已經完成付款。", "Your saved item is paid."), 3600); return; }
     if (m.t === "j") { if (m.n && Date.now() - (onMsg.joinAt || 0) > 1500) { onMsg.joinAt = Date.now(); sysMsg(m.n + T(" 進入直播間", " joined")); } return; }   /* V2-12：進入直播間（最多 1.5 秒一行，人多不洗版） */
     if (m.t === "err") {
       if (sending && m.k === sending) doneSending(false);
@@ -513,7 +595,11 @@
   hb.addEventListener("click", function (e) { e.preventDefault(); if (e.detail === 0) tapHeart(); });   /* 鍵盤（Enter／空白鍵）按愛心 */
   $(".lv-stk").addEventListener("click", function () { banner("lv-stk", T("貼圖快開放了", "Stickers are coming soon"), T("下一個版本就能送 CHANCE 專屬貼圖。", "You'll be able to send CHANCE stickers in the next version."), 2800); });
   $(".lv-x").addEventListener("click", function () { close(true); });
-  stateBox.addEventListener("click", function (e) { if (e.target.closest("[data-lv=close]")) close(true); });
+  stateBox.addEventListener("click", function (e) {
+    var pr = e.target.closest("[data-lv=payres]");
+    if (pr) { var r = resAll().filter(function (x) { return x.rid === pr.getAttribute("data-rid"); })[0]; if (r) payRes(r); return; }
+    if (e.target.closest("[data-lv=close]")) close(true);
+  });
 
   /* iPhone 鍵盤：底列和留言一起往上，不被鍵盤蓋住 */
   function vvFit() {
@@ -582,6 +668,7 @@
     if (!document.hidden) fetch(API + "/live/info?room=" + ROOM, { cache: "no-store", credentials: "omit" }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.ok || !d.room) return;
       var was = isLive; info = d; isLive = d.room.status === "live"; paintEntry();
+      if (was && !isLive && !opened && !endSeen && resAll().length && window.skyBanner) window.skyBanner({ id: "lv-res", title: T("直播結束了，你搶到的還沒付款", "The live ended. You still need to pay"), body: T("30 分鐘內付款，點這裡去付。", "Pay within 30 minutes. Tap here."), ms: 9000, onTap: function (api) { api.hide(); if (window.skyGo) window.skyGo("live"); } });   /* V2-15 */
       /* 有按「開播時提醒我」→ 開播的那一刻（App 開著時）跳 iOS 樣式通知，點了直接進直播 */
       if (isLive && !was && remindGet() && remindGet() !== String(d.room.startedAt || "")) {
         remindSet(String(d.room.startedAt || "1"));
@@ -616,7 +703,15 @@
       else h += '<div class="lt-big">' + esc(r.status === "ended" ? T("謝謝你來看直播", "Thanks for watching") : T("下一場直播時間還沒公布", "Next live not scheduled yet")) + '</div><div class="lt-sub">' + esc(T("先開提醒，Chance 一開播就會通知你。", "Turn on the reminder and we'll tell you when Chance goes live.")) + '</div>';
       h += '<div class="lt-btns"><button type="button" class="lt-btn ' + (rem ? "on" : "w") + '" data-lt="remind">' + SVG_BELL + esc(rem ? T("已開提醒（再按取消）", "Reminder on (tap to cancel)") : T("開播時提醒我", "Remind me when live")) + '</button></div>';
     }
-    h += '</div><div class="lt-note">' + SVG_LOCK + esc(live ? T("SIGNAL 會員專屬：留言、按愛心、搶直播價", "SIGNAL members: chat, hearts and live prices") : T("SIGNAL 會員可以看直播、留言、搶直播價", "SIGNAL members can watch, chat and get live prices")) + '</div>';
+    h += '</div>';
+    var rs = resAll();   /* V2-15：你搶到的（還沒付款） */
+    if (rs.length) {
+      var pb = r.payBy || 0;
+      h += '<div class="lt-res"><h4>' + esc(T("你搶到的", "Saved for you")) + '</h4><p>' + esc(pb ? T("請在 " + hhmm(pb) + " 前付款，時間到沒付會自動釋出。", "Please pay before " + hhmm(pb) + " or it will be released.") : live ? T("已經幫你保留。直播結束後 30 分鐘內付款就可以。", "Saved for you. Pay within 30 minutes after the live ends.") : T("已經幫你保留，請盡快付款。", "Saved for you. Please pay soon.")) + '</p>' +
+        rs.map(function (x) { return '<div class="lt-res-r"><div><b>' + esc(x.title) + '</b>NT$' + resPrice(x) + '</div><button type="button" class="lt-btn w" data-lt="payres" data-rid="' + esc(x.rid) + '">' + esc(T("去付款", "Pay")) + '</button></div>'; }).join("") + '</div>';
+      resSync(function (ch) { if (ch && onTab()) renderTab(); });
+    }
+    h += '<div class="lt-note">' + SVG_LOCK + esc(live ? T("SIGNAL 會員專屬：留言、按愛心、搶直播價", "SIGNAL members: chat, hearts and live prices") : T("SIGNAL 會員可以看直播、留言、搶直播價", "SIGNAL members can watch, chat and get live prices")) + '</div>';
     el.innerHTML = h;
     var cd = el.querySelector(".lt-cd");
     if (cd) { var at = Number(cd.getAttribute("data-at")), tick = function () { var ms = Math.max(0, at - Date.now()), d = Math.floor(ms / 864e5), hh = Math.floor(ms % 864e5 / 36e5), mm = Math.floor(ms % 36e5 / 6e4), ss = Math.floor(ms % 6e4 / 1e3), p = function (n) { return (n < 10 ? "0" : "") + n; };
@@ -627,6 +722,7 @@
     var b = e.target.closest && e.target.closest("#screen-live [data-lt]"); if (!b) return;
     var a = b.getAttribute("data-lt");
     if (a === "lucky") { if (window.skyGo) window.skyGo("lucky"); return; }
+    if (a === "payres") { var pr = resAll().filter(function (x) { return x.rid === b.getAttribute("data-rid"); })[0]; if (pr) payRes(pr); return; }
     if (a === "watch") { var w = who(); if (!w || !w.ok || !w.code) { banner("lv-lock", T("直播是給 SIGNAL 會員看的", "This live is for SIGNAL members"), T("有 SIGNAL 私訊頻道（或全解鎖方案）就能看。", "Join the SIGNAL channel (or the full unlock plan) to watch."), 4200); return; } open(); return; }
     if (a === "remind") {
       if (remindGet()) { remindSet(""); banner("lv-remind", T("已取消提醒", "Reminder off"), "", 2200); }

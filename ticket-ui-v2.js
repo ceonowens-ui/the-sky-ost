@@ -3747,8 +3747,10 @@ var C128=["11011001100", "11001101100", "11001100110", "10010011000", "100100011
   function liveOffer(kind, evId, k) { try { var o = JSON.parse(sessionStorage.getItem("sky:liveoffer") || "null"); if (!o || !o.tok || o.exp < Date.now() || o.kind !== kind || o.ev !== evId || (kind === "merch" && k && o.k !== k)) return null; return o; } catch (e) { return null; } }
   function liveTokFor(kind, evId, k) { var o = liveOffer(kind, evId, k); return o ? o.tok : undefined; }
   function liveNoteHTML(kind, evId, k) {
-    var o = liveOffer(kind, evId, k); if (!o || !(o.base > o.live)) return "";
+    var o = liveOffer(kind, evId, k); if (!o || !(o.base > o.live) && !o.res) return "";
     var en = sxEN();
+    if (o.res) return '<div class="tk-livenote" style="margin:0 0 12px;padding:11px 14px;border-radius:12px;background:rgba(214,182,111,.16);border:1px solid rgba(214,182,111,.55);color:#F0DCA8;font:600 16px/1.5 -apple-system,sans-serif">' +   /* V2-15：直播裡先搶到、現在來付款 */
+      (en ? "Saved for you from the live: 1 set" + (o.base > o.live ? " at the live price NT$" + o.live + " (was NT$" + o.base + ")" : "") + ". Pay within 30 minutes after the live ends. The payment page shows the final amount." : "你在直播搶到的 1 組已經幫你保留" + (o.base > o.live ? "，直播價 NT$" + o.live + "（原價 NT$" + o.base + "），付款頁會自動折扣" : "") + "。直播結束後 30 分鐘內付款，金額以付款頁為準。") + "</div>";
     return '<div class="tk-livenote" style="margin:0 0 12px;padding:11px 14px;border-radius:12px;background:rgba(214,182,111,.16);border:1px solid rgba(214,182,111,.55);color:#F0DCA8;font:600 16px/1.5 -apple-system,sans-serif">' +
       (en ? "Live price: NT$" + o.live + " each (was NT$" + o.base + "). The discount is applied on the payment page. If the live price ends, the regular price applies; the payment page shows the final amount." : "直播價：每" + (kind === "ticket" ? "張" : "組") + " NT$" + o.live + "（原價 NT$" + o.base + "），付款頁會自動折扣。直播價結束就回原價，金額以付款頁為準。") + "</div>";
   }
